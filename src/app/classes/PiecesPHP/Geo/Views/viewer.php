@@ -33,7 +33,7 @@ $withSources = count($sources) > 0;
 
     <div class="geo-panel geo-panel-filters" data-geo-panel="filters" hidden>
         <div class="geo-panel-header">
-            <span><?= __($langGroup, 'Filtros'); ?></span>
+            <span class="ui small header"><?= __($langGroup, 'Filtros'); ?></span>
             <button type="button" class="ui icon basic button" data-geo-close="filters" title="<?= __($langGroup, 'Cerrar'); ?>"><i class="close icon"></i></button>
         </div>
         <form class="ui form" data-geo-filters autocomplete="off">
@@ -82,7 +82,7 @@ $withSources = count($sources) > 0;
 
     <div class="geo-panel geo-panel-legend" data-geo-panel="legend" hidden>
         <div class="geo-panel-header">
-            <span><?= __($langGroup, 'Leyenda'); ?></span>
+            <span class="ui small header"><?= __($langGroup, 'Leyenda'); ?></span>
             <button type="button" class="ui icon basic button" data-geo-close="legend" title="<?= __($langGroup, 'Cerrar'); ?>"><i class="close icon"></i></button>
         </div>
         <?php foreach ($sources as $key => $source): ?>
@@ -95,8 +95,9 @@ $withSources = count($sources) > 0;
             </div>
         </div>
         <?php endforeach; ?>
+        <div class="ui divider"></div>
         <div class="geo-legend-styles">
-            <span><?= __($langGroup, 'Vista del mapa'); ?></span>
+            <span class="ui small muted text"><?= __($langGroup, 'Vista del mapa'); ?></span>
             <div class="ui two mini buttons">
                 <button type="button" class="ui primary button" data-geo-style="streets" aria-pressed="true"><?= __($langGroup, 'Calles'); ?></button>
                 <button type="button" class="ui button" data-geo-style="satellite" aria-pressed="false"><?= __($langGroup, 'Satélite'); ?></button>

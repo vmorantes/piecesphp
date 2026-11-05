@@ -1,6 +1,3 @@
-//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
-$errorPlaceColor: #767676;
-
 //La pestaña «Errores» de Registros: cada entrada, en tres líneas legibles (hora, referencia y tipo; mensaje; lugar).
 .logs-error-title {
     display: flex !important;
@@ -35,9 +32,9 @@ $errorPlaceColor: #767676;
     overflow-wrap: anywhere;
 }
 
+//El color lo pone ui muted text; el tamaño es menor que el del mensaje y una ruta larga parte dentro de su caja.
 .logs-error-place {
     font-size: 0.85em;
-    color: $errorPlaceColor;
     overflow-wrap: anywhere;
 }
 

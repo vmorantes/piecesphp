@@ -37,21 +37,23 @@ $secondaryActions = ($currentUserIsAdmin || (int) $currentUser->type === UsersMo
             ]);
         ?>
 
-        <div class="profile-content">
-
-            <div class="main-content">
-
-                <div class="section organization-data">
-                    <div class="avatar">
-                        <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= escape_html($organizationMapper->currentLangData('name')); ?>">
-                    </div>
-                    <div class="data">
-                        <div class="name"><?= escape_html($organizationMapper->currentLangData('name')); ?></div>
+        <div class="profile-content ui stackable grid">
+            <div class="eleven wide computer sixteen wide tablet column main-content">
+                <div class="ui segment organization-data">
+                    <div class="ui items">
+                        <div class="item">
+                            <div class="ui small circular image">
+                                <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= escape_html($organizationMapper->currentLangData('name')); ?>">
+                            </div>
+                            <div class="middle aligned content">
+                                <h2 class="ui header"><span class="ui breaking text"><?= escape_html($organizationMapper->currentLangData('name')); ?></span></h2>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="secondary-content"></div>
+            <div class="five wide computer only column secondary-content"></div>
         </div>
 
     </div>

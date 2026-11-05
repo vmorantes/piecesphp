@@ -86,7 +86,7 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
             <tr>
                 <td class="collapsing"><?= (int) $index; ?></td>
                 <td><code><?= escape_html(($class !== '' ? $shortClass($class) . '::' : '') . $function); ?></code></td>
-                <td class="logs-error-place"><?= escape_html($relative($text($frame['file'] ?? '')) . ':' . $text($frame['line'] ?? '')); ?></td>
+                <td class="ui muted text logs-error-place"><?= escape_html($relative($text($frame['file'] ?? '')) . ':' . $text($frame['line'] ?? '')); ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody>
@@ -125,11 +125,11 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
                 <span class="ui small basic label" data-logs-copy="<?= escape_html($text($entry['reference'])); ?>" title="<?= escape_html(__($langGroup, 'Copiar la referencia')); ?>"><i class="copy outline icon"></i><?= escape_html($text($entry['reference'])); ?></span>
                 <strong title="<?= escape_html($type); ?>"><?= escape_html($shortClass($type)); ?></strong>
                 <?php if ($level === 'soft' && $count > 1 && $lastAt > 0): ?>
-                <span class="logs-error-place" data-error-count="<?= $count; ?>"><?= sprintf(__($langGroup, '%d veces, la última a las %s'), $count, date('H:i', $lastAt)); ?></span>
+                <span class="ui muted text logs-error-place" data-error-count="<?= $count; ?>"><?= sprintf(__($langGroup, '%d veces, la última a las %s'), $count, date('H:i', $lastAt)); ?></span>
                 <?php endif; ?>
             </div>
             <div class="logs-error-message" data-error-message><?= escape_html($shortMessage); ?></div>
-            <div class="logs-error-place"><?= escape_html($relative($text($entry['file'])) . ':' . $text($entry['line'])); ?></div>
+            <div class="ui muted text logs-error-place"><?= escape_html($relative($text($entry['file'])) . ':' . $text($entry['line'])); ?></div>
         </div>
     </div>
     <div class="<?= $open ? 'active ' : ''; ?>content logs-error-detail">
@@ -143,7 +143,7 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
                 <?php foreach ($context as $key => $value): ?>
                 <tr>
                     <td class="collapsing"><?= escape_html($contextLabels[$key] ?? (string) $key); ?></td>
-                    <td class="logs-error-place"><?= escape_html($text($value)); ?></td>
+                    <td class="ui muted text logs-error-place"><?= escape_html($text($value)); ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

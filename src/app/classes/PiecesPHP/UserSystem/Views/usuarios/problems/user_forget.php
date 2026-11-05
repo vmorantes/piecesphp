@@ -56,14 +56,14 @@
 
         <div class="form-container" data-system-mail="<?= \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'); ?>">
 
-            <div message class="message"></div>
+            <div message class="ui large text"></div>
 
             <div recovery>
 
                 <form class="ui form initial">
 
                     <div class="horizontal-section-form">
-                        <div class="number-step">PASO 1</div>
+                        <div class="ui small primary header number-step">PASO 1</div>
                         <div class="field">
                             <label><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingrese su correo electrónico')?></label>
                             <input required type="email" name="username" placeholder="<?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'name@domain.com')?>">
@@ -71,7 +71,7 @@
                     </div>
 
                     <div class="horizontal-section-buttons">
-                        <div class="field buttons">
+                        <div class="field buttons ui right aligned flex">
                                 <a href="#" class="ui basic button" has-code><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ya tengo un código')?></a>
                                 <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui basic button back-color">
                                     <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Atrás')?>
@@ -91,14 +91,14 @@
                 <form class="ui form initial">
 
                     <div class="horizontal-section-form">
-                        <div class="number-step">PASO 2</div>
+                        <div class="ui small primary header number-step">PASO 2</div>
                         <div class="field">
                             <input required type="text" name="code" placeholder="Ingrese el codigó">
                         </div>
                     </div>
 
                     <div class="horizontal-section-buttons">
-                        <div class="field buttons">
+                        <div class="field buttons ui right aligned flex">
                             <div class="field">
                                 <a href="#" class="ui basic button back-color" repeat><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Introducir un email diferente')?></a>
                                 <button type="submit" class="ui primary button custom-color"><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Enviar')?></button>

@@ -1,3 +1,4 @@
+// @en-desuso 11.0.0: el framework ya no lo usa (las fichas de perfil van con los componentes del tema desde JEE); se borra en la 11.0.0
 @use 'variables_app_base' as *;
 @use 'functions_app_base' as *;
 
@@ -195,7 +196,7 @@ $avatarOffsetPx3: 40;
             }
         }
 
-        .section {
+        .section:not(:where(.ui.breadcrumb .section)) {
 
             max-width: 1220px;
             border-radius: 8px;

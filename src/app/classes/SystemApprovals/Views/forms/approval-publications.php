@@ -35,52 +35,54 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
             <input type="hidden" name="id" value="<?= $approvalMapper->id; ?>">
             <button type="submit" hidden save></button>
 
-            <div class="base-title"><?= __($langGroup, 'Categoría'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Categoría'); ?></div>
             <div class="base-text"><?= $mapper->category instanceof PublicationCategoryMapper ? $escape($mapper->category->currentLangData('name')) : ''; ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title size2"><?= __($langGroup, 'Nombre de la publicación'); ?></div>
-            <div class="base-text mark"><?= $escape($mapper->currentLangData('title')); ?></div>
+            <div class="ui small header base-title size2"><?= __($langGroup, 'Nombre de la publicación'); ?></div>
+            <div class="ui large text base-text mark"><?= $escape($mapper->currentLangData('title')); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="ui stackable grid">
                 <div class="three wide column">
-                    <div class="base-title"><?= __($langGroup, 'Autor'); ?></div>
+                    <div class="ui tiny header base-title"><?= __($langGroup, 'Autor'); ?></div>
                     <div class="base-text"><?= $mapper->author instanceof UsersModel ? $escape($mapper->author->getFullName()) : ''; ?></div>
                 </div>
                 <div class="three wide column">
 
-                    <div class="base-title"><?= __($langGroup, 'Fecha pública'); ?></div>
+                    <div class="ui tiny header base-title"><?= __($langGroup, 'Fecha pública'); ?></div>
                     <div class="base-text"><?= strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->publicDate), ['%1' => __(LANG_GROUP, 'de')]); ?></div>
                 </div>
             </div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="ui stackable grid">
                 <div class="three wide column">
-                    <div class="base-title"><?= __($langGroup, 'Fecha inicial'); ?></div>
+                    <div class="ui tiny header base-title"><?= __($langGroup, 'Fecha inicial'); ?></div>
                     <div class="base-text"><?= $mapper->startDate != null ? strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->startDate), ['%1' => __(LANG_GROUP, 'de')]) : __($langGroup, 'N/A'); ?></div>
                 </div>
                 <div class="three wide column">
-                    <div class="base-title"><?= __($langGroup, 'Fecha final'); ?></div>
+                    <div class="ui tiny header base-title"><?= __($langGroup, 'Fecha final'); ?></div>
                     <div class="base-text"><?= $mapper->endDate != null ? strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->endDate), ['%1' => __(LANG_GROUP, 'de')]) : __($langGroup, 'N/A'); ?></div>
                 </div>
             </div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Descripción'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Descripción'); ?></div>
             <?php //HTML del editor, que NADA limpia al guardar: se lee aislado, en un iframe sandbox SIN allow-scripts (pendientes.md 396). ?>
-            <iframe class="base-text ui segment approval-content-preview" sandbox="" referrerpolicy="no-referrer" title="<?= $escape(__($langGroup, 'Descripción')); ?>" srcdoc="<?= $escape((string) $mapper->currentLangData('content')); ?>"></iframe>
+            <?php //Es la vista previa de lo público: fondo blanco también en oscuro, pero con la letra del panel y su color de texto, que un srcdoc no hereda. ?>
+            <?php $previewStyle = '<style>body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2430;}</style>'; ?>
+            <iframe class="base-text ui segment approval-content-preview" sandbox="" referrerpolicy="no-referrer" title="<?= $escape(__($langGroup, 'Descripción')); ?>" srcdoc="<?= $escape($previewStyle . (string) $mapper->currentLangData('content')); ?>"></iframe>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="container-standard-form">
-                <div class="base-title size3"><?= __($langGroup, 'Imágenes'); ?></div>
-                <div class="base-horizontal-space"></div>
+                <div class="ui header base-title size3"><?= __($langGroup, 'Imágenes'); ?></div>
+                <div class="ui hidden divider base-horizontal-space"></div>
                 <div class="form-attachments-regular">
                     <div data-trigger-open-link="<?= $escape($mapper->currentLangData('mainImage')); ?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
@@ -120,11 +122,11 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
                 </div>
             </div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
             <div class="container-standard-form">
+                <div class="ui header base-title size3"><?= __($langGroup, 'Anexos'); ?></div>
+                <div class="ui hidden divider base-horizontal-space"></div>
                 <div class="form-attachments-regular">
-                    <div class="base-title size3"><?= __($langGroup, 'Anexos'); ?></div>
-                    <div class="base-horizontal-space"></div>
                     <?php foreach(Config::get_allowed_langs() as $allowedLang): ?>
                     <?php foreach($mapper->getAttachmentsByLang($allowedLang, true) as $attachmentRecord): ?>
                     <?php $attachmentElement = new AttachmentPackage($mapper->id, $attachmentRecord->id, $attachmentRecord->attachmentName, false, $attachmentRecord->lang); ?>
@@ -157,7 +159,7 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
                 </div>
             </div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="container-standard-form mw-800">
                 <div class="field">

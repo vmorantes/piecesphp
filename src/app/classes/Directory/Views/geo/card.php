@@ -6,10 +6,10 @@ use Directory\DirectoryLang;
 //La tarjeta de una persona en el geovisor: el cliente rellena cada data-geo-field con textContent.
 ?>
 <div class="geo-card">
-    <div class="geo-card-title" data-geo-field="name"></div>
-    <div class="geo-card-line" data-geo-field="jobPosition"></div>
-    <div class="geo-card-line" data-geo-field="organization"></div>
-    <div class="geo-card-line geo-card-location">
+    <div class="ui small header geo-card-title" data-geo-field="name"></div>
+    <div class="ui small muted text geo-card-line" data-geo-field="jobPosition"></div>
+    <div class="ui small muted text geo-card-line" data-geo-field="organization"></div>
+    <div class="ui small muted text geo-card-line geo-card-location">
         <span data-geo-field="city"></span>
         <span data-geo-field="country"></span>
     </div>

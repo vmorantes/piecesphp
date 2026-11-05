@@ -59,30 +59,32 @@ if (OrganizationProfileController::allowedRoute('profile', ['organizationID' => 
                             <div class="title s20"><?= __($langGroup, 'Encargado de la organización'); ?></div>
                         </div>
 
-                        <div class="identity-profile-card">
-                            <div class="avatar">
-                                <img src="statics/images/default-avatar.png" alt="<?= __($langGroup, 'Persona encargada'); ?>">
-                            </div>
-                            <?php if($hasAdminOptions): ?>
-                            <div class="data">
-                                <div class="name"><?= __($langGroup, 'Persona encargada'); ?></div>
-                                <div class="meta"><?= __($langGroup, 'Debe seleccionar una persona encargada para modificar el perfil'); ?></div>
-                                <div class="actions">
-                                    <button class="ui button blue" change-organization-admin-trigger>
-                                        <?= __($langGroup, 'Cambiar'); ?>
-                                    </button>
+                        <div class="ui items identity-profile-card">
+                            <div class="item">
+                                <div class="ui small circular image">
+                                    <img src="statics/images/default-avatar.png" alt="<?= __($langGroup, 'Persona encargada'); ?>">
                                 </div>
-                            </div>
-                            <?php else: ?>
-                            <div class="data">
-                                <div class="meta"><?= __($langGroup, 'No hay usuarios asociados a esta organización que puedan ser asignados como encargados, asocia algún usuario a esta organización desde el listado de usuarios en el siguiente botón'); ?></div>
-                                <div class="actions">
-                                    <a class="ui button blue" href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'); ?>" target="_blank">
-                                        <?= __($langGroup, 'Ver usuarios'); ?>
-                                    </a>
+                                <?php if($hasAdminOptions): ?>
+                                <div class="middle aligned content">
+                                    <div class="ui header name"><?= __($langGroup, 'Persona encargada'); ?></div>
+                                    <div class="meta"><?= __($langGroup, 'Debe seleccionar una persona encargada para modificar el perfil'); ?></div>
+                                    <div class="extra actions">
+                                        <button class="ui button blue" change-organization-admin-trigger>
+                                            <?= __($langGroup, 'Cambiar'); ?>
+                                        </button>
+                                    </div>
                                 </div>
+                                <?php else: ?>
+                                <div class="middle aligned content">
+                                    <div class="meta"><?= __($langGroup, 'No hay usuarios asociados a esta organización que puedan ser asignados como encargados, asocia algún usuario a esta organización desde el listado de usuarios en el siguiente botón'); ?></div>
+                                    <div class="extra actions">
+                                        <a class="ui button blue" href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'); ?>" target="_blank">
+                                            <?= __($langGroup, 'Ver usuarios'); ?>
+                                        </a>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
                             </div>
-                            <?php endif; ?>
                         </div>
 
                     </div>

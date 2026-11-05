@@ -36,9 +36,8 @@ $contactInformation = [
         'parse' => function (string $value, string $icon) {
             $originalValue = escape_html($value);
             $value = escape_html(str_replace([' ', '(', ')'], '', $value));
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
-            return "<a href='tel:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='content'><span class='ui breaking text'>{$originalValue}</span></div>";
+            return "<a href='tel:{$value}' target='_blank' class='item'>{$icon}{$text}</a>";
         },
     ],
     [
@@ -46,9 +45,8 @@ $contactInformation = [
         'icon' => '<i class="envelope outline icon"></i>',
         'parse' => function (string $value, string $icon) {
             $value = escape_html($value);
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$value}</div>";
-            return "<a href='mailto:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='content'><span class='ui breaking text'>{$value}</span></div>";
+            return "<a href='mailto:{$value}' target='_blank' class='item'>{$icon}{$text}</a>";
         },
     ],
     [
@@ -58,9 +56,8 @@ $contactInformation = [
             //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
             $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
             $value = escape_html($value);
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$value}</div>";
-            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
+            $text = "<div class='content'><span class='ui breaking text'>{$value}</span></div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon}{$text}</a>" : "<div class='item'>{$icon}{$text}</div>";
         },
     ],
     [
@@ -70,9 +67,8 @@ $contactInformation = [
             //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
             $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
             $value = escape_html($value);
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$value}</div>";
-            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
+            $text = "<div class='content'><span class='ui breaking text'>{$value}</span></div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon}{$text}</a>" : "<div class='item'>{$icon}{$text}</div>";
         },
     ],
 ];
@@ -92,119 +88,130 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
             ]);
         ?>
 
-        <div class="profile-content">
+        <input type="hidden" longitude-mapbox-handler value="<?= $organizationMapper->longitude; ?>">
+        <input type="hidden" latitude-mapbox-handler value="<?= $organizationMapper->latitude; ?>">
 
-            <input type="hidden" longitude-mapbox-handler value="<?= $organizationMapper->longitude; ?>">
-            <input type="hidden" latitude-mapbox-handler value="<?= $organizationMapper->latitude; ?>">
+        <?php //Contacto y ubicación van dos veces (columna lateral en escritorio, bajo la ficha en tableta y móvil): profile-organization.js monta un mapa en cada una. ?>
+        <div class="profile-content ui stackable grid">
 
-            <div class="main-content">
+            <div class="eleven wide computer sixteen wide tablet column main-content">
 
-                <div class="section organization-data">
-                    <div class="avatar">
-                        <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= escape_html($organizationMapper->currentLangData('name')); ?>">
-                    </div>
-                    <div class="data">
-                        <div class="name"><?= escape_html($organizationMapper->currentLangData('name')); ?></div>
-                        <div class="meta location">
-                            <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->country->name); ?>,
-                            <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->city->name); ?>
-                            |
-                            <?= escape_html($organizationMapper->currentLangData('activitySector')); ?>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section contact-data mobile">
-                    <div class="title"><?= __($langGroup, 'Contacto'); ?></div>
-                    <?php if($adminUser !== null): ?>
-                    <div class="person-contact-data">
-                        <div class="topbar">
-                            <div class="avatar">
-                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
+                <div class="ui segment organization-data">
+                    <div class="ui items">
+                        <div class="item">
+                            <div class="ui small circular image">
+                                <img src="<?= $organizationMapper->getLogoURL(); ?>" alt="<?= escape_html($organizationMapper->currentLangData('name')); ?>">
                             </div>
-                            <div class="actions">
-                                <a class="button-link" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
-                                    <i class="icon plus"></i>
-                                    <?= __($langGroup, 'Ver perfil'); ?>
-                                </a>
+                            <div class="middle aligned content">
+                                <h2 class="ui header"><span class="ui breaking text"><?= escape_html($organizationMapper->currentLangData('name')); ?></span></h2>
+                                <div class="meta">
+                                    <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->country->name); ?>,
+                                    <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->city->name); ?>
+                                    |
+                                    <?= escape_html($organizationMapper->currentLangData('activitySector')); ?>
+                                </div>
                             </div>
                         </div>
-                        <div class="data">
-                            <div class="name"><?= escape_html($adminUser->getMapper()->getFullName()); ?></div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    <div class="information-list">
-                        <?php foreach($contactInformation as $contactInformationElement): ?>
-                        <?= ($contactInformationElement->parse)($contactInformationElement->text, $contactInformationElement->icon); ?>
-                        <?php endforeach; ?>
                     </div>
                 </div>
 
                 <?php if(!empty($affiliatedInstitutions)): ?>
-                <div class="section institutions">
-                    <div class="title"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></div>
-                    <div class="container-tags">
+                <div class="ui segment institutions">
+                    <h3 class="ui header"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></h3>
+                    <div class="ui labels container-tags">
                         <?php foreach($affiliatedInstitutions as $institution): ?>
-                        <div class="tag"><?= escape_html($institution); ?></div>
+                        <div class="ui label"><?= escape_html($institution); ?></div>
                         <?php endforeach; ?>
                     </div>
                 </div>
                 <?php endif; ?>
 
-
-                <div class="section location-data mobile">
-                    <div class="title no-m-b"><?= __($langGroup, 'Ubicación'); ?></div>
-                    <div class="subtitle small-m-b">
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->country->name); ?>,
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->city->name); ?>
-                    </div>
-                    <div id="map-mobile" class="map-profile-mobile"></div>
-                </div>
-
-
             </div>
 
-            <div class="secondary-content">
+            <div class="five wide computer only column secondary-content">
 
-                <div class="section contact-data">
-                    <div class="title small-m-b"><?= __($langGroup, 'Contacto'); ?></div>
+                <div class="ui segment contact-data">
+                    <h3 class="ui header"><?= __($langGroup, 'Contacto'); ?></h3>
                     <?php if($adminUser !== null): ?>
-                    <div class="person-contact-data">
-                        <div class="topbar">
-                            <div class="avatar">
+                    <div class="ui unstackable items person-contact-data">
+                        <div class="item">
+                            <div class="ui tiny circular image">
                                 <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
                             </div>
-                            <div class="actions">
-                                <a class="button-link" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
-                                    <i class="icon plus"></i>
-                                    <?= __($langGroup, 'Ver perfil'); ?>
-                                </a>
+                            <div class="middle aligned content">
+                                <div class="header"><span class="ui breaking text"><?= escape_html($adminUser->getMapper()->getFullName()); ?></span></div>
+                                <div class="extra">
+                                    <a class="ui basic small labeled icon button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
+                                        <i class="plus icon"></i>
+                                        <?= __($langGroup, 'Ver perfil'); ?>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="data">
-                            <div class="name"><?= escape_html($adminUser->getMapper()->getFullName()); ?></div>
                         </div>
                     </div>
                     <?php endif; ?>
-                    <div class="information-list">
+                    <div class="ui relaxed list information-list">
                         <?php foreach($contactInformation as $contactInformationElement): ?>
                         <?= ($contactInformationElement->parse)($contactInformationElement->text, $contactInformationElement->icon); ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
 
-
-                <div class="section location-data">
-                    <div class="title no-m-b"><?= __($langGroup, 'Ubicación'); ?></div>
-                    <div class="subtitle small-m-b">
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->country->name); ?>,
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->city->name); ?>
-                    </div>
+                <div class="ui segment location-data">
+                    <h3 class="ui header">
+                        <?= __($langGroup, 'Ubicación'); ?>
+                        <div class="sub header">
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->country->name); ?>,
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->city->name); ?>
+                        </div>
+                    </h3>
                     <div id="map" class="map-profile"></div>
                 </div>
 
             </div>
+
+            <div class="sixteen wide tablet mobile only column secondary-content mobile">
+
+                <div class="ui segment contact-data mobile">
+                    <h3 class="ui header"><?= __($langGroup, 'Contacto'); ?></h3>
+                    <?php if($adminUser !== null): ?>
+                    <div class="ui unstackable items person-contact-data">
+                        <div class="item">
+                            <div class="ui tiny circular image">
+                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
+                            </div>
+                            <div class="middle aligned content">
+                                <div class="header"><span class="ui breaking text"><?= escape_html($adminUser->getMapper()->getFullName()); ?></span></div>
+                                <div class="extra">
+                                    <a class="ui basic small labeled icon button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
+                                        <i class="plus icon"></i>
+                                        <?= __($langGroup, 'Ver perfil'); ?>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <div class="ui relaxed list information-list">
+                        <?php foreach($contactInformation as $contactInformationElement): ?>
+                        <?= ($contactInformationElement->parse)($contactInformationElement->text, $contactInformationElement->icon); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="ui segment location-data mobile">
+                    <h3 class="ui header">
+                        <?= __($langGroup, 'Ubicación'); ?>
+                        <div class="sub header">
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->country->name); ?>,
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $organizationMapper->city->name); ?>
+                        </div>
+                    </h3>
+                    <div id="map-mobile" class="map-profile-mobile"></div>
+                </div>
+
+            </div>
+
         </div>
 
     </div>

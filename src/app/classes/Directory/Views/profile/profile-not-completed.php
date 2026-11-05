@@ -34,19 +34,23 @@ $secondaryActions = $currentUserIsSameProfile && MyProfileController::allowedRou
             ]);
         ?>
 
-        <div class="profile-content">
-            <div class="main-content">
-                <div class="section personal-data">
-                    <div class="avatar">
-                        <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= escape_html($userOfProfile->getMapper()->getFullName()); ?>">
-                    </div>
-                    <div class="data">
-                        <div class="name"><?= escape_html($userOfProfile->getMapper()->getFullName()); ?></div>
+        <div class="profile-content ui stackable grid">
+            <div class="eleven wide computer sixteen wide tablet column main-content">
+                <div class="ui segment personal-data">
+                    <div class="ui items">
+                        <div class="item">
+                            <div class="ui small circular image">
+                                <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= escape_html($userOfProfile->getMapper()->getFullName()); ?>">
+                            </div>
+                            <div class="middle aligned content">
+                                <h2 class="ui header"><span class="ui breaking text"><?= escape_html($userOfProfile->getMapper()->getFullName()); ?></span></h2>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="secondary-content"></div>
+            <div class="five wide computer only column secondary-content"></div>
         </div>
 
     </div>

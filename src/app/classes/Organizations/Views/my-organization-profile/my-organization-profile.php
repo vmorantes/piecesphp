@@ -160,21 +160,23 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                             <div class="title s20"><?= __($langGroup, 'Encargado de la organización'); ?></div>
                         </div>
 
-                        <div class="identity-profile-card">
-                            <div class="avatar">
-                                <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
-                            </div>
-                            <div class="data">
-                                <div class="name"><?= escape_html($adminUser->getMapper()->getFullName()); ?></div>
-                                <div class="meta email"><?= escape_html($adminUser->getMapper()->email); ?></div>
-                                <div class="actions">
-                                    <a class="ui right labeled icon primary button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
-                                        <?= __($langGroup, 'Ver perfil'); ?>
-                                        <i class="angle right icon"></i>
-                                    </a>
-                                    <button class="ui button blue" change-organization-admin-trigger>
-                                        <?= __($langGroup, 'Cambiar'); ?>
-                                    </button>
+                        <div class="ui items identity-profile-card">
+                            <div class="item">
+                                <div class="ui small circular image">
+                                    <img src="<?= $adminUser->getAvatarURL(); ?>" alt="<?= escape_html($adminUser->getMapper()->getFullName()); ?>">
+                                </div>
+                                <div class="middle aligned content">
+                                    <div class="ui header name"><span class="ui breaking text"><?= escape_html($adminUser->getMapper()->getFullName()); ?></span></div>
+                                    <div class="meta email"><?= escape_html($adminUser->getMapper()->email); ?></div>
+                                    <div class="extra actions">
+                                        <a class="ui right labeled icon primary button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
+                                            <?= __($langGroup, 'Ver perfil'); ?>
+                                            <i class="angle right icon"></i>
+                                        </a>
+                                        <button class="ui button blue" change-organization-admin-trigger>
+                                            <?= __($langGroup, 'Cambiar'); ?>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

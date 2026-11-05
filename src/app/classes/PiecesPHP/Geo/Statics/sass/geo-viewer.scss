@@ -113,8 +113,11 @@ body.geo-viewer {
             align-items: center;
             justify-content: space-between;
             margin-bottom: 0.5rem;
-            font-weight: $fwSemiBold;
-            font-size: pxToRem(16);
+
+            //El título es ui small header: en una fila flexible, su margen de cabecera la descuadraría.
+            .ui.header {
+                margin: 0;
+            }
 
             .ui.button {
                 margin: 0;
@@ -151,17 +154,10 @@ body.geo-viewer {
         }
     }
 
-    .geo-legend-styles {
-        margin-top: 0.75rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid var(--geo-panel-shadow);
-
-        > span {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--geo-muted-color);
-            font-size: pxToRem(13);
-        }
+    //La separación la da ui divider; el rótulo, ui small muted text, va encima de los botones.
+    .geo-legend-styles > span {
+        display: block;
+        margin-bottom: 0.5rem;
     }
 
     .geo-counter {
@@ -264,18 +260,15 @@ body.geo-viewer {
         color: var(--geo-muted-color);
     }
 
+    //Título (ui small header) y líneas (ui small muted text): el hueco de la derecha es el del botón de cerrar, y un
+    //nombre o una ciudad sin espacios no puede salirse de la ventana emergente.
     .geo-card-title {
         padding-right: 1.5rem;
-        margin-bottom: 0.35rem;
-        font-size: pxToRem(16);
-        font-weight: $fwSemiBold;
         word-break: break-word;
     }
 
     .geo-card-line {
         margin-bottom: 0.25rem;
-        color: var(--geo-muted-color);
-        font-size: pxToRem(13);
         word-break: break-word;
     }
 

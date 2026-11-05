@@ -173,10 +173,10 @@ $sections = [
                         <?php $runExample($examplesDir . $exampleID . '.php', $langGroup); ?>
                     </div>
                     <p><span class="ui small grey text">examples/<?= $exampleID; ?>.php</span></p>
-                    <pre class="design-sheet-code"><code><?= escape_html((string) file_get_contents($examplesDir . $exampleID . '.php')); ?></code></pre>
+                    <pre class="ui code segment design-sheet-code"><code><?= escape_html((string) file_get_contents($examplesDir . $exampleID . '.php')); ?></code></pre>
                     <?php if (is_file($script)): ?>
                     <p><span class="ui small grey text">app/classes/PiecesPHP/AdminPanel/Statics/js/design-sheet/<?= $exampleID; ?>.js</span></p>
-                    <pre class="design-sheet-code"><code><?= escape_html((string) file_get_contents($script)); ?></code></pre>
+                    <pre class="ui code segment design-sheet-code"><code><?= escape_html((string) file_get_contents($script)); ?></code></pre>
                     <?php endif; ?>
                 </div>
                 <?php //Bloques hermanos, sin recuadro: un ejemplo se separa del siguiente con un divisor. ?>

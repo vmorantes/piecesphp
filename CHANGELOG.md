@@ -1,6 +1,14 @@
+# 10.3.0 (05-11-2026)
+
+- **Varias pantallas del panel se pintan con los componentes del tema y se leen bien en modo oscuro**: las fichas del Directorio (persona y organización), «Mi perfil», el perfil público de una organización, los formularios de problemas de acceso (recuperar la contraseña o el usuario, cuenta bloqueada, otros problemas), Aprobaciones (la lista y la revisión) y los paneles del Mapa de contenidos. Su SCSS propio pasa de 1.583 líneas a 357 (contando los dos parciales de perfiles); lo que queda es lo que el tema no da, como lo que flota sobre el mapa. **Si tu proyecto cuelga estilos de las clases viejas de esas pantallas** (por ejemplo `.section` dentro de las fichas, `.base-text`, `.title-step`, `.time-tag`), revísalos: el marcado es otro.
+- **`_profile-view.scss` y `_profile-form.scss` quedan en desuso y salen en la `11.0.0`.** El framework ya no los carga; si tu proyecto los incluye, siguen funcionando igual.
+- **El manual de usuario cubre todas las pantallas del panel**: se añaden la revisión de un contenido pendiente de aprobación y la exportación de usuarios.
+- **Las migas de las fichas del Directorio, en una línea** (se pintaban como cajas apiladas), y la vista previa de una publicación en la revisión, con la letra del panel.
+- **El formulario de exportar usuarios ya no promete filtros** que no tiene.
+
 # 10.2.3 (05-11-2026)
 
-- **El manual de usuario trae capturas**: una de cada pantalla, hecha con un usuario del tipo que la usa, para que cada persona vea en el manual lo mismo que en su panel. El capítulo «Tu cuenta» avisa de que una acción que no aparece es una que tu tipo de usuario no tiene.
+- **El manual de usuario trae capturas**: una de cada pantalla, hecha con el tipo de usuario de menos privilegio que la ve completa. Si a ti te falta una acción que se ve en la captura, tu tipo de usuario no la tiene: lo explica el capítulo «Tu cuenta».
 - **`bin/manual` para si un capítulo cita una imagen que no existe**, y lista todas las que faltan sin escribir nada. Si tu proyecto tiene capítulos propios en `src/app/manual/proyecto/`, cada `![…](img/<archivo>)` tiene que tener su archivo en el `img/` de su idioma (vale el de `framework/` o el de `proyecto/`: los dos se publican juntos).
 
 # 10.2.2 (04-11-2026)

@@ -5,7 +5,7 @@ rutas: [data-transfer-hub, data-transfer-import-users, data-transfer-export-user
 
 # Importar y exportar
 
-Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.
+Carga datos desde una hoja de cálculo, o descarga los del sistema en el formato que elijas.
 
 ## La pantalla principal
 
@@ -47,3 +47,16 @@ Las columnas de la plantilla:
 | Contraseña | No | |
 | Tipo | No | |
 | Organización | No | código de organización, codigo de organizacion |
+
+## Exportar usuarios
+
+Cómo se llega: en la pestaña **«Exportar»**, pulsa **«Exportar»** en la fila de usuarios.
+
+![Exportar usuarios](img/data-transfer-export-users-form.webp)
+
+Elige el **Formato**, XLSX (el de fábrica) o CSV, y pulsa **«Descargar»**. Los atajos **«Descargar XLSX»** y
+**«Descargar CSV»** de la pestaña hacen lo mismo sin pasar por esta pantalla.
+
+El archivo se llama `users-` seguido de la fecha y la hora, y trae una fila por usuario con estas columnas: Usuario,
+Correo, Primer nombre, Segundo nombre, Primer apellido, Segundo apellido, Tipo y Organización. Se puede volver a
+importar con **«Importar usuarios»**; no lleva contraseñas.

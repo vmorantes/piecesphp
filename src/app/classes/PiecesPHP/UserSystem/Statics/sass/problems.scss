@@ -276,6 +276,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
             gap: 10px;
             margin-top: 8%;
 
+            // @en-desuso 11.0.0: dentro de .actions solo hay a y button (plantillas PROBLEMS_LIST y user-problem-list.js); se borra en la 11.0.0
             div {
                 padding-left: 10px;
                 padding-right: 10px;

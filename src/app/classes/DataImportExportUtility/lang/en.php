@@ -34,6 +34,7 @@ $lang = [
     'El nombre debe tener entre 1 y %d caracteres.' => 'The name must be between 1 and %d characters long.',
     'El usuario que se actualiza; tiene que existir.' => 'The user to update; it must exist.',
     'Elige los filtros y el formato, y descarga el archivo.' => 'Choose the filters and the format, and download the file.',
+    'Elige el formato y descarga el archivo.' => 'Choose the format and download the file.',
     'Entidad' => 'Entity',
     'Este archivo se puede volver a importar con' => 'This file can be imported again with',
     'Este exportador está apagado.' => 'This exporter is turned off.',

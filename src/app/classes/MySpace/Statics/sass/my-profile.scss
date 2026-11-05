@@ -1,3 +1,6 @@
-@use '../../../../../statics/core/sass/includes/profile-form' as *;
+//Mi perfil va con los componentes del tema; aquí solo lo que el tema no da.
 
-@include profile-form('personal-data-form');
+//Mapbox pinta dentro de un contenedor con alto: el tema no da alto a un lienzo de mapa y sin él mide 0 px.
+.personal-data-form #map {
+    height: 250px;
+}

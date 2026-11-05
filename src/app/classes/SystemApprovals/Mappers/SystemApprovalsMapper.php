@@ -176,9 +176,9 @@ class SystemApprovalsMapper extends EntityMapperExtensible
                 $timeValue = $e->elapsedMonths;
             }
 
-            $timeIcon = "<span class='icon'> <i class='icon {$timeIcon}'></i> </span>";
+            $timeIcon = "<i class='icon {$timeIcon}'></i>";
             $timeText = "<span class='text'>{$timeValue} {$timeText}</span>";
-            $timeDisplay = "<div class='time-tag {$timeTagStatus}'>{$timeIcon} {$timeText}</div>";
+            $timeDisplay = "<div class='ui {$timeTagStatus} basic label time-tag'>{$timeIcon} {$timeText}</div>";
         }
         return $timeDisplay;
     }

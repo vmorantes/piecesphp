@@ -1,5 +1,9 @@
-@use '../../../../../statics/core/sass/includes/profile-view' as *;
+//La ficha de una persona va con los componentes del tema; aquí solo lo que el tema no da.
+.module-view-container.profile-detail {
 
-$color7AB1E8: #7AB1E8;
-
-@include profile-view('personal-data', $color7AB1E8);
+    //Mapbox pinta dentro de un contenedor con alto: el tema no da alto a un lienzo de mapa y sin él mide 0 px.
+    .map-profile,
+    .map-profile-mobile {
+        height: 270px;
+    }
+}

@@ -38,7 +38,7 @@
 
         <div class="form-container" data-system-mail="<?= \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'); ?>">
 
-            <div message class="message"></div>
+            <div message class="ui large text"></div>
 
             <div claim>
 
@@ -61,7 +61,7 @@
                     </div>
 
                     <div class="horizontal-section-buttons">
-                        <div class="field buttons">
+                        <div class="field buttons ui right aligned flex">
                             <div class="field">
                                 <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui basic button back-color">
                                     <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Atrás')?>

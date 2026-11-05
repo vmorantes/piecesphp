@@ -60,13 +60,15 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
 
             <div class="ui tab active personal-data-form" data-tab="personalData">
 
-                    <div class="identity-profile-card">
-                        <div class="avatar">
-                            <img src="<?= $currentUser->getAvatarURL(); ?>" alt="<?= escape_html($currentUser->getMapper()->getFullName()); ?>">
-                        </div>
-                        <div class="data">
-                            <div class="name"><?= escape_html($currentUser->getMapper()->getFullName()); ?></div>
-                            <div class="meta email"><?= escape_html($currentUser->getMapper()->email); ?></div>
+                    <div class="ui items identity-profile-card">
+                        <div class="item">
+                            <div class="ui small circular image">
+                                <img src="<?= $currentUser->getAvatarURL(); ?>" alt="<?= escape_html($currentUser->getMapper()->getFullName()); ?>">
+                            </div>
+                            <div class="middle aligned content">
+                                <div class="ui header name"><span class="ui breaking text"><?= escape_html($currentUser->getMapper()->getFullName()); ?></span></div>
+                                <div class="meta email"><?= escape_html($currentUser->getMapper()->email); ?></div>
+                            </div>
                         </div>
                     </div>
 

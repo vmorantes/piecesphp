@@ -1,8 +1,5 @@
 @use '../../../../../../statics/core/sass/includes/variables' as *;
 
-//Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
-$codeBlockBackground: rgba(0, 0, 0, 0.04);
-
 //-------- La hoja de diseño (AdminPanel/Views/panel/pages/design-sheet/): solo su armazón, el índice y el bloque de código. Los
 //ejemplos no llevan CSS propio: son las piezas y Fomantic.
 .design-sheet-index-accordion {
@@ -34,18 +31,13 @@ $codeBlockBackground: rgba(0, 0, 0, 0.04);
     }
 }
 
+//El bloque de código es ui code segment (fondo, borde, letra y salto de línea los pone el tema); un archivo entero no
+//puede alargar la página: se desplaza dentro.
 .design-sheet-code {
 
     :is(.#{$globalClassPcs}, .admin-shell) & {
-        margin: 0 0 1rem 0;
-        padding: 1rem;
         max-height: 24rem;
         overflow: auto;
-        background-color: $codeBlockBackground;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        line-height: 1.45;
-        white-space: pre;
     }
 }
 

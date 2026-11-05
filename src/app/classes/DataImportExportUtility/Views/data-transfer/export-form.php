@@ -30,7 +30,7 @@ $engineLang = ImportRunner::LANG_GROUP;
             $helpController->_render('panel/built-in/content/page-header.php', [
                 'breadcrumbs' => $breadcrumbs,
                 'title' => $title,
-                'description' => __($langGroup, 'Elige los filtros y el formato, y descarga el archivo.'),
+                'description' => __($langGroup, 'Elige el formato y descarga el archivo.'),
             ]);
         ?>
 

@@ -188,7 +188,11 @@ El CSS de todas estas clases vive en `src/statics/core/sass/admin_app_base.scss`
 ## 6. Prohibido
 
 - **CSS propio donde Fomantic ya resuelve.** Una vista nueva o rehecha se construye con componentes de Fomantic; el
-  CSS propio va solo donde Fomantic no llega, y se justifica en la instrucción (PO, 2026-09-15).
+  CSS propio va solo donde Fomantic no llega, y se justifica en la instrucción (PO, 2026-09-15). **Un defecto en CSS
+  propio no se parchea: se arregla sustituyendo ese CSS por el componente del tema** (PO, 2026-11-05, ante el parche de
+  las migas de los perfiles: «¿no reduciremos CSS y usaremos los estilos base que ya nos provee nuestro tema?»). En una
+  `10.x`, lo que un clon puede incluir o cargar por su nombre no se borra: deja de cargarse y queda `@en-desuso 11.0.0`
+  (H170); y una plantilla de traducción con marcado (`src/app/lang/files/`) no se cambia hasta una MAYOR (H174).
 - **Componentes fuera del sistema** (otra librería de UI, un modal a mano sin `ui modal`).
 - **Una vista del panel fuera del esqueleto** sin decirlo: sin `section.module-view-container` dentro de `.content`.
 - **Estilos en línea** para maquetar (`style="max-width…"`).

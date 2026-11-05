@@ -41,12 +41,12 @@ $adminUser = $administratorID !== null ? new UserDataPackage($administratorID) :
             <input type="hidden" name="id" value="<?=$approvalMapper->id;?>">
             <button type="submit" hidden save></button>
 
-            <div class="base-title size3"><?=__($langGroup, 'Nombre de la organización');?></div>
-            <div class="base-text mark2"><?=$escape($mapper->currentLangData('name'));?></div>
+            <div class="ui header base-title size3"><?=__($langGroup, 'Nombre de la organización');?></div>
+            <div class="ui big text base-text mark2"><?=$escape($mapper->currentLangData('name'));?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?=__($langGroup, 'Ubicación');?></div>
+            <div class="ui tiny header base-title"><?=__($langGroup, 'Ubicación');?></div>
             <?php $country = $mapper->country instanceof CountryMapper ? __(LocationsLang::LANG_GROUP_NAMES, $mapper->country->name) : ''; ?>
             <?php $city = $mapper->city instanceof CityMapper ? __(LocationsLang::LANG_GROUP_NAMES, $mapper->city->name) : ''; ?>
             <?php $text = implode(', ', [$country, $city]); ?>
@@ -54,31 +54,31 @@ $adminUser = $administratorID !== null ? new UserDataPackage($administratorID) :
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?=$escape($text);?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?=__($langGroup, 'Latitud');?></div>
+            <div class="ui tiny header base-title"><?=__($langGroup, 'Latitud');?></div>
             <?php $text = $mapper->latitude !== null ? (string) $mapper->latitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?=$escape($text);?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?=__($langGroup, 'Longitud');?></div>
+            <div class="ui tiny header base-title"><?=__($langGroup, 'Longitud');?></div>
             <?php $text = $mapper->longitude !== null ? (string) $mapper->longitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?=$escape($text);?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?=__($langGroup, 'Instituciones a las que pertenece');?></div>
+            <div class="ui tiny header base-title"><?=__($langGroup, 'Instituciones a las que pertenece');?></div>
             <div class="base-text"><?=!empty($affiliatedInstitutions) ? implode(', ', array_map($escape, $affiliatedInstitutions)) : '-';?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title size3"><?=__($langGroup, 'Persona encargada');?></div>
-            <div class="base-horizontal-space"></div>
+            <div class="ui header base-title size3"><?=__($langGroup, 'Persona encargada');?></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
             <?php if ($adminUser === null): ?>
             <div class="base-text"><?=__($langGroup, 'Sin encargado');?></div>
             <?php else: ?>
@@ -103,11 +103,11 @@ $adminUser = $administratorID !== null ? new UserDataPackage($administratorID) :
             </div>
             <?php endif; ?>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="container-standard-form">
-                <div class="base-title size3"><?=__($langGroup, 'Imágenes');?></div>
-                <div class="base-horizontal-space"></div>
+                <div class="ui header base-title size3"><?=__($langGroup, 'Imágenes');?></div>
+                <div class="ui hidden divider base-horizontal-space"></div>
                 <div class="form-attachments-regular">
                     <div data-trigger-open-link="<?=$escape($mapper->getLogoURL());?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
@@ -129,10 +129,10 @@ $adminUser = $administratorID !== null ? new UserDataPackage($administratorID) :
                 </div>
             </div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="container-standard-form mw-800">
                 <div class="field">

@@ -572,10 +572,10 @@ class SystemApprovalsController extends AdminPanelController
 
                 $avatar = AvatarModel::getAvatar($e->referenceCreatedBy);
                 $avatar ??= baseurl('statics/images/default-avatar.png');
-                $avatar = "<div class='avatar'><img src='" . escape_html($avatar) . "' /></div>";
+                $avatar = "<img class='ui avatar image' src='" . escape_html($avatar) . "' alt=''>";
                 //El nombre lo edita el propio usuario y no se limpia al entrar: se escapa al salir.
                 $fullName = htmlspecialchars((string) $e->referenceUserFullName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-                $userName = "<div class='name'>{$fullName}</div>";
+                $userName = "<span class='name'>{$fullName}</span>";
 
                 //El listado selecciona todas las columnas del mapper, así que objectToMapper() no da null aquí.
                 $columns[] = $mapper !== null ? $mapper->getTimeTag() : '';

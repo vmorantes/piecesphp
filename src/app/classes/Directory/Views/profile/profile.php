@@ -30,9 +30,8 @@ $contactInformation = [
         'parse' => function (string $value, string $icon) {
             $originalValue = escape_html($value);
             $value = escape_html(str_replace([' ', '(', ')'], '', $value));
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$originalValue}</div>";
-            return "<a href='tel:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='content'><span class='ui breaking text'>{$originalValue}</span></div>";
+            return "<a href='tel:{$value}' target='_blank' class='item'>{$icon}{$text}</a>";
         },
     ],
     [
@@ -40,9 +39,8 @@ $contactInformation = [
         'icon' => '<i class="envelope outline icon"></i>',
         'parse' => function (string $value, string $icon) {
             $value = escape_html($value);
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$value}</div>";
-            return "<a href='mailto:{$value}' target='_blank' class='item'>{$icon} {$text}</a>";
+            $text = "<div class='content'><span class='ui breaking text'>{$value}</span></div>";
+            return "<a href='mailto:{$value}' target='_blank' class='item'>{$icon}{$text}</a>";
         },
     ],
     [
@@ -52,9 +50,8 @@ $contactInformation = [
             //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
             $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
             $value = escape_html($value);
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$value}</div>";
-            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
+            $text = "<div class='content'><span class='ui breaking text'>{$value}</span></div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon}{$text}</a>" : "<div class='item'>{$icon}{$text}</div>";
         },
     ],
     [
@@ -64,9 +61,8 @@ $contactInformation = [
             //El enlace lo escribe el usuario: sin http(s) no hay enlace, y así javascript: no llega al href.
             $isWebLink = preg_match('/^https?:\/\//i', $value) === 1;
             $value = escape_html($value);
-            $icon = "<div class='icon'>{$icon}</div>";
-            $text = "<div class='text'>{$value}</div>";
-            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon} {$text}</a>" : "<div class='item'>{$icon} {$text}</div>";
+            $text = "<div class='content'><span class='ui breaking text'>{$value}</span></div>";
+            return $isWebLink ? "<a href='{$value}' target='_blank' class='item'>{$icon}{$text}</a>" : "<div class='item'>{$icon}{$text}</div>";
         },
     ],
 ];
@@ -86,83 +82,94 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
             ]);
         ?>
 
-        <div class="profile-content">
+        <input type="hidden" longitude-mapbox-handler value="<?= $userOfProfile->profile->longitude; ?>">
+        <input type="hidden" latitude-mapbox-handler value="<?= $userOfProfile->profile->latitude; ?>">
 
-            <input type="hidden" longitude-mapbox-handler value="<?= $userOfProfile->profile->longitude; ?>">
-            <input type="hidden" latitude-mapbox-handler value="<?= $userOfProfile->profile->latitude; ?>">
+        <?php //Contacto y ubicación van dos veces (columna lateral en escritorio, bajo la ficha en tableta y móvil): profile.js monta un mapa en cada una. ?>
+        <div class="profile-content ui stackable grid">
 
-            <div class="main-content">
+            <div class="eleven wide computer sixteen wide tablet column main-content">
 
-                <div class="section personal-data">
-                    <div class="avatar">
-                        <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= escape_html($userOfProfile->getMapper()->getFullName()); ?>">
-                    </div>
-                    <div class="data">
-                        <div class="name"><?= escape_html($userOfProfile->getMapper()->getFullName()); ?></div>
-                        <div class="meta location">
-                            <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->country->name); ?>,
-                            <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->city->name); ?>
-                            |
-                            <?= escape_html($userOfProfile->profile->currentLangData('jobPosition')); ?>
+                <div class="ui segment personal-data">
+                    <div class="ui items">
+                        <div class="item">
+                            <div class="ui small circular image">
+                                <img src="<?= $userOfProfile->getAvatarURL(); ?>" alt="<?= escape_html($userOfProfile->getMapper()->getFullName()); ?>">
+                            </div>
+                            <div class="middle aligned content">
+                                <h2 class="ui header"><span class="ui breaking text"><?= escape_html($userOfProfile->getMapper()->getFullName()); ?></span></h2>
+                                <div class="meta">
+                                    <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->country->name); ?>,
+                                    <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->city->name); ?>
+                                    |
+                                    <?= escape_html($userOfProfile->profile->currentLangData('jobPosition')); ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="section contact-data mobile">
-                    <div class="title"><?= __($langGroup, 'Contacto'); ?></div>
-                    <div class="information-list">
-                        <?php foreach($contactInformation as $contactInformationElement): ?>
-                        <?= ($contactInformationElement->parse)($contactInformationElement->text, $contactInformationElement->icon); ?>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-
                 <?php if(!empty($affiliatedInstitutions)): ?>
-                <div class="section institutions">
-                    <div class="title"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></div>
-                    <div class="container-tags">
+                <div class="ui segment institutions">
+                    <h3 class="ui header"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></h3>
+                    <div class="ui labels container-tags">
                         <?php foreach($affiliatedInstitutions as $institution): ?>
-                        <div class="tag"><?= escape_html($institution); ?></div>
+                        <div class="ui label"><?= escape_html($institution); ?></div>
                         <?php endforeach; ?>
                     </div>
                 </div>
                 <?php endif; ?>
 
-
-                <div class="section location-data mobile">
-                    <div class="title no-m-b"><?= __($langGroup, 'Ubicación'); ?></div>
-                    <div class="subtitle small-m-b">
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->country->name); ?>,
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->city->name); ?>
-                    </div>
-                    <div id="map-mobile" class="map-profile-mobile"></div>
-                </div>
-
-
             </div>
 
-            <div class="secondary-content">
+            <div class="five wide computer only column secondary-content">
 
-                <div class="section contact-data">
-                    <div class="title small-m-b"><?= __($langGroup, 'Contacto'); ?></div>
-                    <div class="information-list">
+                <div class="ui segment contact-data">
+                    <h3 class="ui header"><?= __($langGroup, 'Contacto'); ?></h3>
+                    <div class="ui relaxed list information-list">
                         <?php foreach($contactInformation as $contactInformationElement): ?>
                         <?= ($contactInformationElement->parse)($contactInformationElement->text, $contactInformationElement->icon); ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
 
-
-                <div class="section location-data">
-                    <div class="title no-m-b"><?= __($langGroup, 'Ubicación'); ?></div>
-                    <div class="subtitle small-m-b">
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->country->name); ?>,
-                        <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->city->name); ?>
-                    </div>
+                <div class="ui segment location-data">
+                    <h3 class="ui header">
+                        <?= __($langGroup, 'Ubicación'); ?>
+                        <div class="sub header">
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->country->name); ?>,
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->city->name); ?>
+                        </div>
+                    </h3>
                     <div id="map" class="map-profile"></div>
                 </div>
 
             </div>
+
+            <div class="sixteen wide tablet mobile only column secondary-content mobile">
+
+                <div class="ui segment contact-data mobile">
+                    <h3 class="ui header"><?= __($langGroup, 'Contacto'); ?></h3>
+                    <div class="ui relaxed list information-list">
+                        <?php foreach($contactInformation as $contactInformationElement): ?>
+                        <?= ($contactInformationElement->parse)($contactInformationElement->text, $contactInformationElement->icon); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="ui segment location-data mobile">
+                    <h3 class="ui header">
+                        <?= __($langGroup, 'Ubicación'); ?>
+                        <div class="sub header">
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->country->name); ?>,
+                            <?= __(LocationsLang::LANG_GROUP_NAMES, $userOfProfile->profile->city->name); ?>
+                        </div>
+                    </h3>
+                    <div id="map-mobile" class="map-profile-mobile"></div>
+                </div>
+
+            </div>
+
         </div>
 
     </div>

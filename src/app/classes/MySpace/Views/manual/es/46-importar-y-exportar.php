@@ -2,7 +2,7 @@
 //Generado por bin/manual: se edita el .md (src/app/manual/framework/es/46-importar-y-exportar.md).
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
-<p>Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.</p>
+<p>Carga datos desde una hoja de cálculo, o descarga los del sistema en el formato que elijas.</p>
 <h2 class="ui header">La pantalla principal</h2>
 <p>Cómo se llega: <strong>«Importar y exportar»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="La pantalla principal" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-hub.webp')); ?>"></p>
@@ -81,3 +81,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tr>
 </tbody>
 </table>
+<h2 class="ui header">Exportar usuarios</h2>
+<p>Cómo se llega: en la pestaña <strong>«Exportar»</strong>, pulsa <strong>«Exportar»</strong> en la fila de usuarios.</p>
+<p><img class="ui image" alt="Exportar usuarios" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-export-users-form.webp')); ?>"></p>
+<p>Elige el <strong>Formato</strong>, XLSX (el de fábrica) o CSV, y pulsa <strong>«Descargar»</strong>. Los atajos <strong>«Descargar XLSX»</strong> y
+<strong>«Descargar CSV»</strong> de la pestaña hacen lo mismo sin pasar por esta pantalla.</p>
+<p>El archivo se llama <code>users-</code> seguido de la fecha y la hora, y trae una fila por usuario con estas columnas: Usuario,
+Correo, Primer nombre, Segundo nombre, Primer apellido, Segundo apellido, Tipo y Organización. Se puede volver a
+importar con <strong>«Importar usuarios»</strong>; no lleva contraseñas.</p>

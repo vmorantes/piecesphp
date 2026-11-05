@@ -212,7 +212,8 @@ Un JS por vista, con el mismo nombre que la acción del controlador. Se cargan c
   crearla pone 160 «restos» en `verify-integrity`.
 - **Un parcial que usan varios módulos va a `src/statics/core/sass/includes/`**, declarado «global» con su motivo en
   `files/dev/global-files.json` (comprobación 49). Ejemplo: `_profile-view.scss` y `_profile-form.scss`, de los perfiles
-  de `MySpace`, `Organizations` y `Directory`.
+  de `MySpace`, `Organizations` y `Directory`: **desde la `10.3.0` el framework ya no los carga** (las vistas usan los
+  componentes del tema, JEE y JEH) y quedan `@en-desuso 11.0.0` para los clones que los incluyan.
 - **Podar reglas muertas** (bloque DI): la lista de lo que se espera que desaparezca va a `bin/huella-css --comparar
   --esperado <archivo>` con **un selector por línea, partidos** —una regla con varios selectores solo cuenta como
   prevista si están TODOS (`bin/huella-css:283`)—. Y antes de quitar una regla, sus clases se buscan también como

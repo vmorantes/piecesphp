@@ -16,4 +16,4 @@ $menuItem = new MenuGroup(['name' => __($langGroup, 'Inicio'), 'icon' => 'inicio
 </div>
 <?php //Uno propio: una línea en la hoja del proyecto, que carga el panel tras la del tema, y su .svg al lado. ?>
 <p><span class="ui small grey text">statics/svg-icons/svg-icons.css</span></p>
-<pre class="design-sheet-code"><code><?= escape_html((string) file_get_contents(basepath('statics/svg-icons/svg-icons.css'))); ?></code></pre>
+<pre class="ui code segment design-sheet-code"><code><?= escape_html((string) file_get_contents(basepath('statics/svg-icons/svg-icons.css'))); ?></code></pre>

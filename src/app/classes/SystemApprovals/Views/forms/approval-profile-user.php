@@ -53,116 +53,116 @@ if ($userPackage->type == UsersModel::TYPE_USER_GENERAL) {
             <input type="hidden" name="id" value="<?= $approvalMapper->id; ?>">
             <button type="submit" hidden save></button>
 
-            <div class="base-title size2"><?= __($langGroup, 'Nombres'); ?></div>
-            <div class="base-text mark"><?= $escape($mapper->getNames()); ?></div>
+            <div class="ui small header base-title size2"><?= __($langGroup, 'Nombres'); ?></div>
+            <div class="ui large text base-text mark"><?= $escape($mapper->getNames()); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title size2"><?= __($langGroup, 'Apellidos'); ?></div>
-            <div class="base-text mark"><?= $escape($mapper->getLastNames()); ?></div>
+            <div class="ui small header base-title size2"><?= __($langGroup, 'Apellidos'); ?></div>
+            <div class="ui large text base-text mark"><?= $escape($mapper->getLastNames()); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title size2"><?= __($langGroup, 'Organización'); ?></div>
-            <div class="base-text mark"><?= $escape($organizationText); ?></div>
+            <div class="ui small header base-title size2"><?= __($langGroup, 'Organización'); ?></div>
+            <div class="ui large text base-text mark"><?= $escape($organizationText); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Tipo de actor'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Tipo de actor'); ?></div>
             <div class="base-text"><?= $userTypeText; ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Usuario'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Usuario'); ?></div>
             <div class="base-text"><?= $escape($mapper->username); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Correo electrónico'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Correo electrónico'); ?></div>
             <div class="base-text"><?= $escape($mapper->email); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Teléfono'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Teléfono'); ?></div>
             <?php $text = $profileMapper->getPhone(); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'LinkedIn'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'LinkedIn'); ?></div>
             <?php $text = $profileMapper->getLinkedinLink(); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Página web'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Página web'); ?></div>
             <?php $text = $profileMapper->getWebsiteLink(); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Nacionalidad'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Nacionalidad'); ?></div>
             <?php $text = $profileMapper->currentLangData('nationality'); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Título o posición'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Título o posición'); ?></div>
             <?php $text = $profileMapper->currentLangData('jobPosition'); ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'País'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'País'); ?></div>
             <?php $text = $profileMapper->country instanceof CountryMapper ? __(LocationsLang::LANG_GROUP_NAMES, $profileMapper->country->name) : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Ciudad'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Ciudad'); ?></div>
             <?php $text = $profileMapper->city instanceof CityMapper ? __(LocationsLang::LANG_GROUP_NAMES, $profileMapper->city->name) : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Latitud'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Latitud'); ?></div>
             <?php $text = $profileMapper->latitude !== null ? (string) $profileMapper->latitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Longitud'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Longitud'); ?></div>
             <?php $text = $profileMapper->longitude !== null ? (string) $profileMapper->longitude : ''; ?>
             <?php $text = is_string($text) ? $text : ''; ?>
             <?php $text = mb_strlen($text) > 0 ? $text : '-'; ?>
             <div class="base-text"><?= $escape($text); ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
-            <div class="base-title"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></div>
+            <div class="ui tiny header base-title"><?= __($langGroup, 'Instituciones a las que pertenece'); ?></div>
             <div class="base-text"><?= !empty($affiliatedInstitutions) ? implode(', ', array_map($escape, $affiliatedInstitutions)) : '-'; ?></div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="container-standard-form">
-                <div class="base-title size3"><?= __($langGroup, 'Imágenes'); ?></div>
-                <div class="base-horizontal-space"></div>
+                <div class="ui header base-title size3"><?= __($langGroup, 'Imágenes'); ?></div>
+                <div class="ui hidden divider base-horizontal-space"></div>
                 <div class="form-attachments-regular">
                     <div data-trigger-open-link="<?= $escape($userPackage->getAvatarURL()); ?>" class="attach-placeholder tall">
                         <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
@@ -184,10 +184,10 @@ if ($userPackage->type == UsersModel::TYPE_USER_GENERAL) {
                 </div>
             </div>
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
 
-            <div class="base-horizontal-space"></div>
+            <div class="ui hidden divider base-horizontal-space"></div>
 
             <div class="container-standard-form mw-800">
                 <div class="field">
