@@ -5,11 +5,18 @@
 //@areas nucleo
 //@areas src/app/classes/PiecesPHP/SystemStatus/
 
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
 use PiecesPHP\UserSystem\Controllers\UserProblemsController;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 
 CliActions::make('unit-tests:core/mail-senders', function ($args) {
 
@@ -119,11 +126,11 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
     };
 
     //─── 2 · El código de recuperación de contraseña ────────────────────────────────────────────────────
-    echoTerminal('[2/4] RecoveryPasswordController::mailRecoveryPasswordCode()');
+    echoTerminal('[2/5] RecoveryPasswordController::mailRecoveryPasswordCode()');
 
     $original = get_config('mail');
     $originalesExtra = [];
-    foreach (['osTicketAPI', 'osTicketAPIKey', 'other_problems_recipients'] as $claveExtra) {
+    foreach (['osTicketAPI', 'osTicketAPIKey', 'other_problems_recipients', 'support_form_recipients', 'current_user', 'pcsphp_current_user_stored'] as $claveExtra) {
         $originalesExtra[$claveExtra] = get_config($claveExtra);
     }
 
@@ -199,7 +206,7 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
         $remitenteEsperado = 'zz-prueba-remitente@localhost.test';
 
         //─── 3 · Los códigos de usuario olvidado y bloqueado ────────────────────────────────────────────
-        echoTerminal('[3/4] UserProblemsController::sendCode()');
+        echoTerminal('[3/5] UserProblemsController::sendCode()');
         $asuntoCodigo = __(UserProblemsController::LANG_GROUP, 'Código de verificación');
         $tipos = [
             UserProblemsController::TYPE_USER_FORGET => get_route('users-forget-form') . '?code=ZZ7C0DE',
@@ -224,7 +231,7 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
         echoTerminal(' ');
 
         //─── 4 · Otros problemas, con osTicket vacío en memoria ─────────────────────────────────────────
-        echoTerminal('[4/4] UserProblemsController::sendMessageOtherProblems()');
+        echoTerminal('[4/5] UserProblemsController::sendMessageOtherProblems()');
         //Con osTicket configurado intentaría la red primero: se vacía solo en memoria.
         set_config('osTicketAPI', '');
         set_config('osTicketAPIKey', '');
@@ -259,6 +266,68 @@ CliActions::make('unit-tests:core/mail-senders', function ($args) {
         $check($cuantosB === 0, 'b) no hay ningún mensaje mío: no se envió nada', (string) $cuantosB);
 
         $limpiarMios();
+        echoTerminal(' ');
+
+        //─── 5 · El formulario de soporte del panel (sendTicket), por correo ───────────────────────────────
+        echoTerminal('[5/5] AdminPanelController::sendTicket()');
+        //Quien escribe es el usuario con sesión: el primero zz-agente- con correo válido (o el primero válido).
+        $baseDatos = (new BaseModel())->getDatabase();
+        $sesion = null;
+        foreach ($baseDatos !== null ? $baseDatos->query("SELECT id, email FROM `pcsphp_users` ORDER BY (username LIKE 'zz-agente-%') DESC, id")->fetchAll(\PDO::FETCH_ASSOC) : [] as $fila) {
+            if (filter_var((string) $fila['email'], \FILTER_VALIDATE_EMAIL) !== false) {
+                $sesion = $fila;
+                break;
+            }
+        }
+        $check($sesion !== null, '5 CANARIO: hay un usuario con correo válido para la sesión');
+        $marcaTickets = $baseDatos !== null ? (int) $baseDatos->query('SELECT COALESCE(MAX(id), 0) FROM `pcsphp_tickets_log`')->fetchColumn() : 0;
+        if ($sesion !== null) {
+            set_config('current_user', (object) ['id' => (int) $sesion['id']]);
+            set_config('pcsphp_current_user_stored', null);
+            //El cuerpo trae un nombre y un correo FORJADOS: no deben llegar a ningún sitio.
+            $cuerpo = ['name' => 'ZZ Forjado', 'email' => 'zz-prueba-forjado@localhost.test', 'subject' => 'ZZ asunto soporte', 'comments' => "ZZ mensaje <b>zz</b>\nsegunda línea"];
+            $peticion = fn (): RequestRoute => (new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/zz-prueba-soporte'), new Headers(), [], [], (new StreamFactory())->createStream('')))->withParsedBody($cuerpo);
+            $enviar = function () use ($peticion): array {
+                try {
+                    $respuesta = (new AdminPanelController())->sendTicket($peticion(), new ResponseRoute());
+                    $json = json_decode((string) $respuesta->getBody(), true);
+                    return is_array($json) ? $json : ['_crudo' => (string) $respuesta->getBody()];
+                } catch (\Throwable $e) {
+                    return ['_excepcion' => get_class($e) . ': ' . $e->getMessage()];
+                }
+            };
+
+            set_config('support_form_recipients', [$destino]);
+            $limpiarMios();
+            $resultado = $enviar();
+            $check(($resultado['success'] ?? null) === true, 'a) con destinatario: success === true', json_encode($resultado, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+            [$cuantos, $detalle] = $mensajeUnico();
+            $check($cuantos === 1, 'a) Mailpit tiene exactamente 1 mensaje', (string) $cuantos);
+            if ($cuantos === 1) {
+                $asuntoSoporte = 'ZZ asunto soporte - ' . Config::app_title();
+                $html = (string) ($detalle['HTML'] ?? '');
+                $check(($detalle['Subject'] ?? null) === $asuntoSoporte, "a) el asunto es «{$asuntoSoporte}»", var_export($detalle['Subject'] ?? null, true));
+                $check($direcciones($detalle['To'] ?? null) === [$destino], "a) el destinatario es {$destino}", json_encode($direcciones($detalle['To'] ?? null), JSON_THROW_ON_ERROR));
+                $check($direcciones($detalle['ReplyTo'] ?? null) === [(string) $sesion['email']], 'a) responder a es el correo del usuario con sesión, no el del cuerpo', json_encode($direcciones($detalle['ReplyTo'] ?? null), JSON_THROW_ON_ERROR));
+                $check(str_contains($html, '&lt;b&gt;zz&lt;/b&gt;') && !str_contains($html, '<b>zz</b>'), 'a) el HTML trae el mensaje escapado: <b>zz</b> llega como texto', mb_substr($html, 0, 200));
+                $check(str_contains($html, '<br'), 'a) los saltos de línea, como <br>');
+                $check($remitenteDe($detalle) === $remitenteEsperado, "a) el remitente es {$remitenteEsperado}", var_export($remitenteDe($detalle), true));
+            }
+
+            set_config('support_form_recipients', []);
+            $limpiarMios();
+            $resultado = $enviar();
+            $check(!array_key_exists('_excepcion', $resultado) && ($resultado['success'] ?? null) === false, 'b) sin destinatarios: success === false, sin excepción', json_encode($resultado, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+            $cuantosB = count($mios());
+            $check($cuantosB === 0, 'b) no hay ningún mensaje mío: no se envió nada', (string) $cuantosB);
+            $limpiarMios();
+        }
+        //La fila que deja sendTicket() en el registro de tickets es de la prueba: se retira.
+        if ($baseDatos !== null) {
+            $baseDatos->prepare("DELETE FROM `pcsphp_tickets_log` WHERE id > ? AND message LIKE 'ZZ mensaje%'")->execute([$marcaTickets]);
+            $quedanTickets = (int) $baseDatos->query("SELECT COUNT(*) FROM `pcsphp_tickets_log` WHERE id > {$marcaTickets} AND message LIKE 'ZZ mensaje%'")->fetchColumn();
+            $check($quedanTickets === 0, '5 z la prueba retira su fila del registro de tickets', "quedan {$quedanTickets}");
+        }
 
     } finally {
         set_config('mail', $original);

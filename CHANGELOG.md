@@ -1,3 +1,8 @@
+# 10.1.2 (04-11-2026)
+
+- **El formulario de soporte del panel envía un correo**, a las direcciones de `$config['support_form_recipients']` (en `config.php`, como `other_problems_recipients`), con la respuesta dirigida a quien escribe. Sin direcciones, el botón no sale. **Ya no usa osTicket**: si tu clon lo usaba para el soporte, pon ahí la dirección de tu mesa de ayuda. osTicket sigue en «otros problemas» del acceso hasta la `11.0.0`, donde sale del framework.
+- **El centro de ayuda ya no enlaza la documentación de desarrolladores como «Preguntas frecuentes»**: `help_faq_url` viene vacío. Si tu proyecto tiene sus preguntas frecuentes, pon su dirección ahí.
+
 # 10.1.1 (04-11-2026)
 
 - **La cola reintenta con espera.** Un fallo con reintento volvía a la cola en el acto; ahora espera 1, 5, 15, 30 y 60 minutos según el intento, salvo que el manejador pida su propia espera: `QueueHandlerResponse::fail($mensaje, true, $minutos)`, o `delay` en el arreglo que devuelve. **Si tu manejador contaba con el reintento inmediato**, pasa `0` de forma explícita.

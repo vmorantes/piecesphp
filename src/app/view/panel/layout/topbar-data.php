@@ -112,8 +112,8 @@ foreach (SettingsController::panelGroups() as $configurationGroup) {
     ];
 }
 
-//El centro de ayuda (botón de la barra): soporte, si osTicket está configurado y el usuario puede crear tickets, y FAQ.
-$canContactSupport = Roles::hasPermissions('admin-tickets-create', $currentUserType) && trim((string) get_config('osTicketAPI')) !== '' && trim((string) get_config('osTicketAPIKey')) !== '';
+//El centro de ayuda (botón de la barra): soporte, si hay destinatarios del formulario y el usuario puede escribir, y FAQ.
+$canContactSupport = Roles::hasPermissions('admin-tickets-create', $currentUserType) && AdminPanelController::supportFormRecipients() !== [];
 $helpFaqURL = trim((string) get_config('help_faq_url'));
 $withHelpCenter = $canContactSupport || $helpFaqURL !== '';
 

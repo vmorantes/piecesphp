@@ -46,27 +46,33 @@ if (isset($bodyClasses) && is_array($bodyClasses)) {
 <body class="<?= $bodyClasses; ?>">
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('panel', 'body_start'); ?>
 
-    <div class="ui tiny modal" support-js>
+    <?php
+        //El marcado de form-modal.php, sin su data-content-modal-form: esa pieza recarga las tablas al guardar, y esto está en
+        //todas las pantallas. Solo sale con destinatarios y permiso, como el botón (topbar-data.php).
+        $supportFormVisible = \PiecesPHP\Core\Roles::hasPermissions('admin-tickets-create', (int) $currentUserLogged->type) && \PiecesPHP\AdminPanel\Controllers\AdminPanelController::supportFormRecipients() !== [];
+    ?>
+    <?php if ($supportFormVisible): ?>
+    <div class="ui small modal" support-js aria-labelledby="support-modal-title">
         <i class="close icon" aria-label="<?= escape_html(__(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::ADMIN_LANG_GROUP, 'Cerrar')); ?>"></i>
-        <div class="header"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Soporte técnico'); ?></div>
-        <div class="content">
-            <form action="<?=\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('tickets-create');?>" class="ui form">
-                <input type="hidden" name="name" value="<?=htmlentities($currentUserLogged->firstname . ' ' . $currentUserLogged->firstLastname);?>">
-                <input type="hidden" name="email" value="<?= htmlentities($currentUserLogged->email); ?>">
-                <div class="field">
-                    <label><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Asunto'); ?></label>
-                    <input type="text" name="subject">
+        <div class="header" id="support-modal-title"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Soporte técnico'); ?></div>
+        <div class="scrolling content">
+            <form method="POST" action="<?= escape_html(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('tickets-create')); ?>" class="ui form initial" id="support-modal-form" data-content-form>
+                <div class="field required">
+                    <label for="support-modal-subject"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Asunto'); ?></label>
+                    <input type="text" id="support-modal-subject" name="subject" maxlength="300" required>
                 </div>
-                <div class="field">
-                    <label><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Mensaje'); ?></label>
-                    <textarea name="comments"></textarea>
-                </div>
-                <div class="field">
-                    <button type="submit" class="ui primary button"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Enviar'); ?></button>
+                <div class="field required">
+                    <label for="support-modal-comments"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Mensaje'); ?></label>
+                    <textarea id="support-modal-comments" name="comments" rows="6" required></textarea>
                 </div>
             </form>
         </div>
+        <div class="actions">
+            <button class="ui basic button" type="button" data-content-modal-cancel><?= __(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::ADMIN_LANG_GROUP, 'Cancelar'); ?></button>
+            <button class="ui primary button" type="submit" form="support-modal-form"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Enviar'); ?></button>
+        </div>
     </div>
+    <?php endif; ?>
 
     <?php if(ACTIVE_TIMER): ?>
     <div timer-platform-js="<?=base64_encode(json_encode(['user_id' => $currentUserLogged->id, 'url' => \PiecesPHP\UserSystem\Controllers\TimerController::routeName('add')], \JSON_THROW_ON_ERROR));?>">

@@ -65,10 +65,11 @@ $config['theme_radius'] = 8;
 //Varios
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
-//Destinatarios del formulario de contacto y del correo de «otros problemas» (si osTicket falta o falla).
-//Vacíos: no se envía. Nunca una dirección en el código: todo clon la heredaría.
+//Destinatarios del formulario de contacto, del correo de «otros problemas» (si osTicket falta o falla) y del formulario
+//de soporte del panel. Vacíos: no se envía. Nunca una dirección en el código: todo clon la heredaría.
 $config['contact_form_recipients'] = [];
 $config['other_problems_recipients'] = [];
+$config['support_form_recipients'] = [];
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
 //La llave del cron (CronJobKey) no va aquí: la pone secure-keys/cronjob (core/extensions/api-keys.php). Sin ella, la ruta
@@ -157,8 +158,8 @@ ini_set('geoip.custom_directory', $config['GEO_IP']['custom_directory']);
 $config['developer'] = 'Nombre Desarrollador';
 $config['developer_logo'] = 'statics/images/developer-logo.png';
 $config['developer_url'] = '';
-//Preguntas frecuentes del centro de ayuda de la barra; vacío, la entrada no sale.
-$config['help_faq_url'] = 'https://piecesphp.bitbucket.io/';
+//Las preguntas frecuentes del proyecto, si las tiene; vacío, la entrada no sale.
+$config['help_faq_url'] = '';
 
 //Listeners
 \PiecesPHP\Core\BaseEventDispatcher::defaultListen(\PiecesPHP\Core\BaseEventDispatcher::EVENT_INIT_ROUTES_NAME, function () {

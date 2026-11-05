@@ -10,7 +10,10 @@ use MySpace\Controllers\MyProfileController;
 use News\Controllers\NewsController;
 use PiecesPHP\AdminPanel\DashboardCardRegistry;
 use PiecesPHP\Core\BaseController;
+use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\InstalledPackages;
+use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -409,18 +412,6 @@ class AdminPanelController extends BaseController
      */
     public function sendTicket(Request $req, Response $res)
     {
-        $name = $req->getParsedBodyParam('name', null);
-        $email = $req->getParsedBodyParam('email', null);
-        $subject = $req->getParsedBodyParam('subject', null);
-        $comments = $req->getParsedBodyParam('comments', null);
-
-        $params_ok = !in_array(null, [
-            $subject,
-            $email,
-            $name,
-            $comments,
-        ]);
-
         $operation_name = __(self::ADMIN_LANG_GROUP, 'Crear ticket de soporte');
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -429,18 +420,44 @@ class AdminPanelController extends BaseController
         $message_create = __(self::ADMIN_LANG_GROUP, 'Ticket de soporte creado.');
         $message_unknow_error = __(self::ADMIN_LANG_GROUP, 'Ha ocurrido un error inesperado.');
         $message_unexpected_or_missing_params = __(self::ADMIN_LANG_GROUP, 'Información faltante o inesperada.');
+        $message_without_recipients = __(self::ADMIN_LANG_GROUP, 'El soporte por correo no está configurado.');
 
-        if ($params_ok) {
+        //Quién escribe sale de la sesión, nunca del cuerpo: un nombre o un correo enviados se pueden forjar.
+        $user = getLoggedFrameworkUser();
+        $subject = $req->getParsedBodyParam('subject', null);
+        $comments = $req->getParsedBodyParam('comments', null);
+        $subject = is_string($subject) ? trim($subject) : '';
+        $comments = is_string($comments) ? trim($comments) : '';
+        $email = $user !== null ? trim((string) $user->email) : '';
+        $name = $user !== null ? trim((string) $user->fullName) : '';
+        $recipients = self::supportFormRecipients();
 
-            $osTicketApi = new OsTicketAPI();
+        if ($subject === '' || $comments === '' || filter_var($email, \FILTER_VALIDATE_EMAIL) === false) {
+            $result->setMessage($message_unexpected_or_missing_params);
+        } elseif ($recipients === []) {
+            $result->setMessage($message_without_recipients);
+        } else {
+            $fullSubject = $subject . ' - ' . Config::app_title();
 
-            $subject = "$subject " . get_title();
-
-            $success = $osTicketApi->createTicket($name, $email, $subject, $comments);
-            $result->setValue('osTicketApi', [
-                'url' => $osTicketApi->getHttpClient()->getRequestURI(),
-                'reponse' => $osTicketApi->getHttpClient()->getResponseHeaders(),
-            ]);
+            $mail = new Mailer();
+            $mailConfig = new MailConfig;
+            //user() y name() también escriben, y devuelven MailConfig: sin texto, el remitente queda vacío y el envío falla.
+            $fromAddress = $mailConfig->user();
+            $fromName = $mailConfig->name();
+            $mail->setFrom(is_string($fromAddress) ? $fromAddress : '', is_string($fromName) ? $fromName : '');
+            $mail->addReplyTo($email, $name);
+            foreach ($recipients as $recipient) {
+                $mail->addAddress($recipient);
+            }
+            $mail->isHTML(true);
+            $mail->Subject = $fullSubject;
+            //Lo que escribe el usuario va escapado: el HTML del correo no ejecuta nada suyo.
+            $mail->Body = nl2br(escape_html($comments));
+            $mail->AltBody = $comments;
+            if (!$mail->checkSettedSMTP()) {
+                $mail->asSystemMailer();
+            }
+            $success = $mail->send();
 
             $logRequest = new TicketsLogModel();
             $logRequest->created = new \DateTime();
@@ -448,29 +465,49 @@ class AdminPanelController extends BaseController
             $logRequest->email = $email;
             $logRequest->message = $comments;
             $logRequest->information = [
-                'subject' => $subject,
+                'subject' => $fullSubject,
                 'email_sended' => $success,
                 'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             ];
-            $logRequest->type = (string) __(self::ADMIN_LANG_GROUP, 'Ticket soporte dentro del panel administrativo (osTicket).');
+            $logRequest->type = (string) __(self::ADMIN_LANG_GROUP, 'Ticket de soporte del panel (correo).');
             $logRequest->save();
 
             if ($success) {
                 $result->setValue('reload', true);
-                $result
-                    ->setMessage($message_create);
+                $result->setMessage($message_create);
                 //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
                 ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
             } else {
-                $result
-                    ->setMessage($message_unknow_error);
+                $result->setMessage($message_unknow_error);
             }
-        } else {
-            $result
-                ->setMessage($message_unexpected_or_missing_params);
         }
 
         return $res->withJson($result);
+    }
+
+    /**
+     * Destinatarios del formulario de soporte del panel, leídos de la configuración.
+     *
+     * Falla cerrado: si `support_form_recipients` no es una lista no vacía de direcciones válidas, devuelve una lista vacía.
+     *
+     * @return string[]
+     */
+    public static function supportFormRecipients(): array
+    {
+        $configured = get_config('support_form_recipients');
+        if (!is_array($configured) || count($configured) === 0) {
+            return [];
+        }
+        $recipients = [];
+        foreach ($configured as $recipient) {
+            $recipient = is_string($recipient) ? trim($recipient) : '';
+            //filter_var y no Validator::isEmail(): ese consulta el DNS en cada llamada.
+            if (filter_var($recipient, \FILTER_VALIDATE_EMAIL) === false) {
+                return [];
+            }
+            $recipients[] = $recipient;
+        }
+        return $recipients;
     }
 
     /**
