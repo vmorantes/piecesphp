@@ -173,17 +173,21 @@ class MySpaceController extends AdminPanelController
      * si dice `todos`. `ve` separa lo administrativo de lo que puede mucha gente en un mismo capítulo (JDY). Con
      * `manual_for_pending` en false, una cuenta sin aprobar no ve ninguno.
      *
+     * @param array<mixed>|null $index El índice que filtrar; sin él, el generado por bin/manual. Solo para la suite
+     *        core/manual-visibility, que prueba la regla con uno sintético.
      * @return array<int,array{slug:string,titulo:string,rutas:string|string[],ve:string[],idioma:string,origen:string,fecha:string}>
      */
-    public static function manualChapters(): array
+    public static function manualChapters(?array $index = null): array
     {
         $currentUser = getLoggedFrameworkUser();
         if ($currentUser === null || (get_config('manual_for_pending') === false && self::isPendingAccount($currentUser))) {
             return [];
         }
-        $indexFile = __DIR__ . '/../Views/manual/index.php';
-        $index = is_file($indexFile) ? require $indexFile : [];
-        $index = is_array($index) ? $index : [];
+        if ($index === null) {
+            $indexFile = __DIR__ . '/../Views/manual/index.php';
+            $index = is_file($indexFile) ? require $indexFile : [];
+            $index = is_array($index) ? $index : [];
+        }
         $lang = Config::get_lang();
         $bySlug = [];
         foreach ($index as $entry) {

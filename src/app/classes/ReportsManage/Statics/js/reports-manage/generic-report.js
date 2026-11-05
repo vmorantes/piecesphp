@@ -186,12 +186,17 @@ window.addEventListener('load', function () {
 		})
 		const card = container.closest('.card-statistic')
 		const legend = card !== null ? card.querySelector('.chart-data') : null
-		//Cada fila de la leyenda, con el color de su serie: el de la vista es var(…) y sin reserva (chart-legend.php).
+		//Cada fila de la leyenda, con el color de la porción que se LLAMA como ella: el de la vista es var(…) y sin reserva
+		//(chart-legend.php). Por nombre y no por posición: la fila oculta de un país que no está no corre a «Otros» (H153).
 		if (legend !== null) {
-			legend.querySelectorAll(':scope > .item').forEach((item, index) => {
-				if (typeof colors[index] == 'string') {
-					item.style.setProperty('--custom-color', colors[index])
+			legend.querySelectorAll(':scope > .item').forEach((item) => {
+				const label = item.querySelector('.name')
+				const text = label !== null ? label.textContent.trim() : ''
+				const index = labels.findIndex((name) => typeof name == 'string' && name.trim() === text)
+				if (text === '' || index === -1 || getComputedStyle(item).display === 'none' || typeof colors[index] != 'string') {
+					return
 				}
+				item.style.setProperty('--custom-color', colors[index])
 			})
 		}
 		//Sin datos el gráfico es una sola porción gris: no hay series que encender ni apagar.

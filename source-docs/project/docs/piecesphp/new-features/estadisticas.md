@@ -95,7 +95,7 @@ resizeStatisticsChart(chart)
 
 **La leyenda nativa va declarada y oculta** (`legend: { show: false }`): `linkStatisticsChartLegend()` la usa para
 ocultar, con la misma acción, una serie o una porción de tarta. La fila apagada lleva la clase `series-hidden` y
-`aria-pressed="false"`. La fila N de la leyenda es la serie (o la porción) N, así que van en el mismo orden.
+`aria-pressed="false"`. Cada fila se enlaza con la serie (o la porción) que se llama como el texto de su `.name`, así que el orden no importa. Una fila oculta, o una que no casa con ninguna serie, queda sin enlazar.
 
 **Los colores, ya resueltos**: ECharts no entiende `var(--…)`. Léelos del elemento que los tiene (como arriba, de la
 leyenda) o con `getComputedStyle()`.

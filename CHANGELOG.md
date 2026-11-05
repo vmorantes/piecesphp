@@ -1,3 +1,7 @@
+# 10.2.2 (04-11-2026)
+
+- **La leyenda de las gráficas ya no se descoloca si falta un dato.** Cada fila se enlaza con su serie, y toma su color, por el nombre y no por la posición: en Informes, con un solo país, «Otros países» se enciende y se apaga y lleva su color. Si tu proyecto usa `linkStatisticsChartLegend()`, el texto de cada `.name` tiene que ser el nombre de su serie (o de su porción).
+
 # 10.2.1 (04-11-2026)
 
 - **Cada usuario ve en el manual solo lo suyo.** Las fichas del Directorio y el perfil público de una organización tienen su propio capítulo, y «Usuarios» y «Organizaciones» solo los ve quien los administra. Para tus capítulos, una cabecera nueva y opcional: `ve: [ruta, …]` dice cuáles de sus `rutas` deciden quién lo ve (sin ella, todas, como hasta ahora). Regenera con `bin/manual`.

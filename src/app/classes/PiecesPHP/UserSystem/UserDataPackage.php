@@ -220,7 +220,9 @@ class UserDataPackage
         if ($userStdClass instanceof \stdClass) {
             $this->userStdClass = $userStdClass;
         }
-        if ($this->userMapper->id === null) {
+        //Sin su fila en getByID() (que rechaza los ids <= 0, como el del usuario de sistema, -10) no hay paquete: falla
+        //como un usuario que no existe, y no a mitad de construir (H166).
+        if ($this->userMapper->id === null || !($userStdClass instanceof \stdClass)) {
             throw new \Exception(__(self::LANG_GROUP, "El usuario no existe."));
         }
 

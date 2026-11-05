@@ -1,9 +1,10 @@
 /// <reference path="./configurations.js" />
 /**
  * Enlaza un gráfico de Apache ECharts con su leyenda de chart-legend.php (`.chart-data`): cada fila enciende o apaga su
- * serie, o su porción en una tarta o una dona, con el ratón y con el teclado (Enter o Espacio). La de cada fila es la de
- * su misma POSICIÓN en el gráfico, así que la leyenda va en el orden de las series (o de los datos de la tarta). La fila
- * apagada lleva la clase `series-hidden` (_graphs-and-statistics.scss) y `aria-pressed="false"`.
+ * serie, o su porción en una tarta o una dona, con el ratón y con el teclado (Enter o Espacio). La de cada fila es la que
+ * se LLAMA como el texto de su `.name`: una fila oculta (sin país, por ejemplo) no corre a las demás de sitio, y la que no
+ * casa con ninguna serie se queda sin enlazar (H153). La fila apagada lleva la clase `series-hidden`
+ * (_graphs-and-statistics.scss) y `aria-pressed="false"`.
  *
  * @param {Object} chart La instancia de echarts.init(), ya con su setOption() y con `legend: {show: false}`; o una de
  *      ApexCharts ya dibujada (después de su render()), en desuso.
@@ -28,9 +29,12 @@ function linkStatisticsChartLegend(chart, legend) {
 	const names = isPie
 		? (Array.isArray(series[0].data) ? series[0].data : []).map((item) => item !== null && typeof item === 'object' ? item.name : undefined)
 		: series.map((serie) => serie.name)
-	Array.from(legend.querySelectorAll(':scope > .item')).forEach(function (item, index) {
-		const name = names[index]
-		if (typeof name !== 'string' || item.hasAttribute('data-legend-linked')) {
+	Array.from(legend.querySelectorAll(':scope > .item')).forEach(function (item) {
+		const label = item.querySelector('.name')
+		const text = label !== null ? label.textContent.trim() : ''
+		const name = names.find((candidate) => typeof candidate === 'string' && candidate.trim() === text)
+		//Oculta, no se enlaza: su serie no está en el gráfico.
+		if (text === '' || typeof name !== 'string' || item.hidden || getComputedStyle(item).display === 'none' || item.hasAttribute('data-legend-linked')) {
 			return
 		}
 		item.setAttribute('data-legend-linked', '')
