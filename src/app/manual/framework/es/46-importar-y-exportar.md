@@ -11,6 +11,8 @@ Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtr
 
 Cómo se llega: **«Importar y exportar»**, en el menú lateral.
 
+![La pantalla principal](img/data-transfer-hub.webp)
+
 Tiene dos pestañas:
 
 - **«Importar»**: una tabla con **Entidad**, **Descripción**, **Acciones** y **Activo**. En cada fila puedes **«Importar»**, o descargar la plantilla en **«Plantilla XLSX»** o **«Plantilla CSV»**.
@@ -19,6 +21,8 @@ Tiene dos pestañas:
 ## Importar usuarios
 
 Cómo se llega: en la pestaña **«Importar»**, pulsa **«Importar»** en la fila de usuarios; o por el botón de engranajes de la barra superior, **«Configuración del sistema» › «Gestión de usuarios» › «Importar usuarios»**.
+
+![Importar usuarios](img/data-transfer-import-users.webp)
 
 El sistema acepta archivos xlsx o csv de hasta 5 MB y 5000 filas.
 

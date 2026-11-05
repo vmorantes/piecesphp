@@ -12,14 +12,19 @@ Aquí ves cómo está la instalación y cierras el sitio para hacer mantenimient
 
 Entra por **«Avisos del sistema»**. Muestra lo que el sistema detecta y conviene revisar, y qué avisos se muestran.
 
+![Avisos del sistema](img/system-status-alerts.webp)
+
 La tabla tiene las columnas **Gravedad**, **Mensaje**, **Estado**, **Cómo arreglarlo** y **Acciones**. Un aviso puede
-traer en su fila un botón que lleva a donde se arregla, como **«Correo»**.
+traer en su fila un botón que lleva a donde se arregla, como **«Correo»**. Si no hay avisos activos, la pantalla lo
+dice con **«No hay avisos activos»**, sin la tabla.
 
 ## Salud de la instalación
 
 Entra por **«Salud de la instalación»**. Es una pantalla de consulta: cómo está esta instalación en cuanto a versiones,
 entorno, base de datos, tareas y carpetas. Cada grupo es una tabla con las columnas **Dato**, **Estado**, **Valor** y
 **Origen**.
+
+![Salud de la instalación](img/system-status-health.webp)
 
 ## Estado y cachés
 
@@ -29,10 +34,14 @@ listados de publicaciones guardados. **«Renovar»** cambia la versión de los a
 scripts e imágenes de las páginas). **«Borrar todo lo temporal»** vacía todas las cachés de una vez: el
 sitio irá algo más lento mientras se vuelven a crear.
 
+![Estado y cachés](img/system-status-maintenance.webp)
+
 ## Sitio en mantenimiento
 
 Entra por **«Sitio en mantenimiento»**. Sirve para cerrar el sitio público por mantenimiento y decidir quién puede
 seguir entrando. Al final, **«Cancelar»** o **«Guardar»**.
+
+![Sitio en mantenimiento](img/system-status-site-maintenance.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |

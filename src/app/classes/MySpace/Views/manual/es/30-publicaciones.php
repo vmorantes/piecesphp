@@ -5,6 +5,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Aquí gestionas lo que se publica en el sitio, con su categoría y su fecha.</p>
 <h2 class="ui header">El listado de publicaciones</h2>
 <p>Cómo se llega: <strong>«Publicaciones» › «Publicaciones»</strong>, en el menú lateral.</p>
+<p><img class="ui image" alt="El listado de publicaciones" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/publications-admin-list.webp')); ?>"></p>
 <p>Arriba hay cuatro pestañas para filtrar: <strong>«Todas»</strong>, <strong>«Publicadas»</strong>, <strong>«Programadas»</strong> y <strong>«Borradores»</strong>.</p>
 <p>La tabla muestra estas columnas: <strong>Título</strong>, <strong>Estado</strong>, <strong>Fecha</strong>, <strong>Autor</strong>, <strong>Visitas</strong>, <strong>Destacado</strong> y <strong>Acciones</strong>.</p>
 <p>En cada fila puedes:</p>
@@ -21,6 +22,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </ul>
 <h2 class="ui header">Agregar y editar una publicación</h2>
 <p>Cómo se llega: pulsa <strong>«Nueva publicación»</strong> en el listado, o <strong>«Editar»</strong> en la fila de una publicación.</p>
+<p><img class="ui image" alt="Agregar y editar una publicación" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/publications-admin-forms-add.webp')); ?>"></p>
 <p>El formulario se organiza en pestañas: <strong>«Datos básicos»</strong>, <strong>«Imágenes»</strong>, <strong>«Detalles»</strong>, <strong>«Anexos»</strong> y <strong>«SEO»</strong>.
 Al editar una publicación ves además una pestaña por idioma (<strong>«Español»</strong> e <strong>«Inglés»</strong>), para completar cada versión del texto.</p>
 <p>Campos de <strong>«Datos básicos»</strong>:</p>
@@ -122,6 +124,7 @@ Al editar una publicación ves además una pestaña por idioma (<strong>«Españ
 </ul>
 <h2 class="ui header">Las categorías de publicaciones</h2>
 <p>Cómo se llega: <strong>«Publicaciones» › «Categorías»</strong>, en el menú lateral, o el botón <strong>«Categorías»</strong> del listado.</p>
+<p><img class="ui image" alt="Las categorías de publicaciones" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/publications-category-admin-list.webp')); ?>"></p>
 <p>La tabla muestra el <strong>Nombre</strong> de cada categoría, con la acción <strong>«Editar»</strong>. Arriba están <strong>«Nueva categoría»</strong> y <strong>«Exportar listado actual»</strong>.</p>
 <h3 class="ui header">Agregar y editar una categoría</h3>
 <p>Pulsa <strong>«Nueva categoría»</strong> o <strong>«Editar»</strong> en una fila.</p>

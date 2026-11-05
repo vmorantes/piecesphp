@@ -12,6 +12,8 @@ Aquí gestionas las organizaciones registradas y lo que se muestra de cada una.
 
 Se llega desde el menú lateral: **«Gestión de organizaciones»**.
 
+![La lista de organizaciones](img/organizations-admin-list.webp)
+
 La lista tiene tres pestañas: **Activas**, **Inactivas** y **Pendientes de aprobación**. La tabla muestra código, NIT, nombre de la organización, ubicación (país o departamento y ciudad) y acciones.
 
 Cada fila ofrece estas acciones:
@@ -25,7 +27,9 @@ Arriba tienes **«Agregar organización»** y **«Exportar listado actual»**.
 
 ## Agregar y editar una organización
 
-Los dos formularios son casi iguales. La edición añade el botón **«Perfil público»**, el botón **«Eliminar»** y los campos «Código» y «Persona encargada».
+Los dos formularios son casi iguales. La edición añade el botón **«Perfil público»**, el botón **«Eliminar»** y los campos «Código» y «Contacto de la organización».
+
+![Agregar y editar una organización](img/organizations-admin-forms-edit.webp)
 
 | Campo | Obligatorio | Para qué |
 | :-- | :-- | :-- |
@@ -43,7 +47,7 @@ Los dos formularios son casi iguales. La edición añade el botón **«Perfil p�
 | ESAL autorizado por DIAN | No | |
 | Dirección | Sí | |
 | Correo de facturación | Sí | |
-| Persona encargada (solo en la edición) | Sí | |
+| Contacto de la organización (solo en la edición) | Sí | |
 | RUT | Sí al agregar; al editar, no | Un archivo, con **«Anexar»**. Tamaño máximo: 2 MB |
 | Estado | Sí | |
 

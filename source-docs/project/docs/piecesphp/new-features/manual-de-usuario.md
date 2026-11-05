@@ -43,7 +43,12 @@ Lo generado vive en `src/app/classes/MySpace/Views/manual/` y **se commitea**: a
 Cada vez que cambies un capítulo, regenera y commitea. Necesita `python3` con el paquete `markdown` (`python3-markdown` en tu sistema, o `pip install markdown`).
 
 `bin/manual` se niega, sin escribir nada, si un capítulo no tiene cabecera, `titulo` o `rutas`, o si un nombre de ruta
-está mal formado.
+está mal formado, y si un capítulo cita una imagen (`img/<archivo>`) que no está en ningún `img/` de su idioma: lista todas
+las que faltan. Las de `framework/` y `proyecto/` se publican juntas, así que un capítulo tuyo puede usar una del framework.
+
+Las capturas del framework son WebP de 1440 px de ancho, una por pantalla, hechas con el usuario de menos privilegio
+que ve esa pantalla como la describe su capítulo. Para las tuyas, cualquier formato que el navegador pinte sirve; cuida
+que no salgan datos de prueba, llaves ni direcciones de tu servidor: la imagen viaja con `src/`.
 
 ## Configuración
 

@@ -15,6 +15,8 @@ y la entrada del registro que buscas: **«Errores»**, **«Intentos de ingreso»
 **«Usuarios sin ingresos»**, **«Correos enviados»**, **«Tokens y códigos»**, **«Tareas programadas»** o
 **«Todos los registros»**. **«Sesiones abiertas»** está en **«Gestión de usuarios»**.
 
+![Registros](img/logs-admin-index.webp)
+
 La pantalla se llama **Registros** y trae una fila de pestañas: **Errores**, **Correos enviados**, **Accesos**,
 **Sesiones abiertas**, **Tokens y códigos** y **Tareas programadas**. Cada pestaña muestra un tipo de anotación.
 
@@ -45,6 +47,8 @@ pantalla, pero este manual todavía no describe su contenido.
 
 Es la pestaña **Correos enviados** de **Registros**. Lista los correos que la plataforma envió o intentó enviar.
 
+![Correos enviados](img/system-status-mail-log.webp)
+
 | Columna | Qué muestra |
 | --- | --- |
 | Fecha | Cuándo se envió. |
@@ -68,6 +72,8 @@ Con **«Filtrar»** y **«Limpiar»** acotas la lista; **«Exportar listado actu
 ## Registro de actividad
 
 Se llega por **«Últimos movimientos»**, en el menú lateral. Responde a «quién hizo qué en el panel, y cuándo».
+
+![Registro de actividad](img/actions-logs-admin-list.webp)
 
 La tabla muestra: **#**, **Módulo**, **Evento**, **Usuario**, **IP**, **Fecha** y **Acciones**. En cada fila,
 **«Ver detalle»** abre el detalle de ese movimiento.

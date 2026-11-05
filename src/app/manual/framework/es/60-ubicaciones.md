@@ -11,11 +11,15 @@ Aquí se mantienen los lugares que usa el resto del panel: países, departamento
 
 Desde el menú lateral: **«Ubicaciones»**. La pantalla de inicio de la sección ofrece un listado de los países, de los departamentos, de las ciudades y de las coordenadas.
 
+![Cómo se llega](img/locations.webp)
+
 Cada listado tiene la misma forma: una tabla con un botón **«Editar»** por fila, un botón principal para agregar y **«Exportar listado actual»**. En los formularios, **«Cancelar»** vuelve al listado y **«Guardar»** guarda.
 
 ## Países
 
 Columnas: ID, código, nombre, región, activo o inactivo y acciones. Para crear uno, pulsa **«Agregar país»**.
+
+![Países](img/locations-countries-list.webp)
 
 | Campo | Obligatorio | Para qué |
 | :-- | :-- | :-- |
@@ -30,6 +34,8 @@ Columnas: ID, código, nombre, región, activo o inactivo y acciones. Para crear
 
 Columnas: ID, código, nombre, país, activo o inactivo y acciones. Para crear uno, pulsa **«Agregar departamento»**.
 
+![Departamentos](img/locations-states-list.webp)
+
 | Campo | Obligatorio | Para qué |
 | :-- | :-- | :-- |
 | País | Sí | |
@@ -40,6 +46,8 @@ Columnas: ID, código, nombre, país, activo o inactivo y acciones. Para crear u
 ## Ciudades
 
 Columnas: ID, código, nombre, país, departamento, activo o inactivo y acciones. Para crear una, pulsa **«Agregar ciudad»**.
+
+![Ciudades](img/locations-cities-list.webp)
 
 | Campo | Obligatorio | Para qué |
 | :-- | :-- | :-- |
@@ -52,6 +60,8 @@ Columnas: ID, código, nombre, país, departamento, activo o inactivo y acciones
 ## Coordenadas
 
 Columnas: ID, nombre, país, departamento, ciudad, dirección, coordenadas, activo o inactivo y acciones. Para crear una, pulsa **«Agregar coordenada»**.
+
+![Coordenadas](img/locations-points-list.webp)
 
 | Campo | Obligatorio | Para qué |
 | :-- | :-- | :-- |
@@ -67,3 +77,5 @@ Este formulario incluye un mapa. Con los botones del mapa puedes cambiar entre *
 ## Agregar y editar
 
 Para cada tipo de ubicación, el formulario de alta y el de edición tienen los mismos campos. Solo cambia el título («Agregar…» o «Editar…»).
+
+![Agregar y editar](img/locations-countries-forms-add.webp)

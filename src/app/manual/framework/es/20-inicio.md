@@ -11,6 +11,8 @@ La pantalla de inicio es lo primero que ves al entrar: un resumen de lo que te t
 
 Cómo se llega: **«Inicio»**, en el menú lateral.
 
+![La pantalla de inicio](img/admin.webp)
+
 Arriba ves un saludo con tu nombre. Debajo hay tarjetas, cada una con su tema y un enlace para ir al detalle:
 
 - **Mis sesiones**: cuántas sesiones tienes abiertas con tu cuenta, con el enlace **«Ver mis sesiones»**.
@@ -21,6 +23,8 @@ Arriba ves un saludo con tu nombre. Debajo hay tarjetas, cada una con su tema y 
 ## Informe general
 
 Las cifras de la plataforma: publicaciones, organizaciones y usuarios.
+
+![Informe general](img/reports-manage-admin-generic-report-view.webp)
 
 Cómo se llega: desde la tarjeta **«Informe general»** de la pantalla de inicio, con **«Ver el informe»**.
 
@@ -35,6 +39,8 @@ Esta pantalla solo muestra cifras: no tiene formularios.
 ## Acerca de
 
 Datos de la plataforma: la versión instalada, su fecha, una descripción, las librerías propias y los plugins y dependencias de terceros con su licencia.
+
+![Acerca de](img/admin-about-framework.webp)
 
 Cómo se llega: menú de tu usuario, arriba a la derecha › **«Acerca de»**.
 

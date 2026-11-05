@@ -5,6 +5,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>La pantalla de inicio es lo primero que ves al entrar: un resumen de lo que te toca de un vistazo.</p>
 <h2 class="ui header">La pantalla de inicio</h2>
 <p>Cómo se llega: <strong>«Inicio»</strong>, en el menú lateral.</p>
+<p><img class="ui image" alt="La pantalla de inicio" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/admin.webp')); ?>"></p>
 <p>Arriba ves un saludo con tu nombre. Debajo hay tarjetas, cada una con su tema y un enlace para ir al detalle:</p>
 <ul>
 <li><strong>Mis sesiones</strong>: cuántas sesiones tienes abiertas con tu cuenta, con el enlace <strong>«Ver mis sesiones»</strong>.</li>
@@ -14,6 +15,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </ul>
 <h2 class="ui header">Informe general</h2>
 <p>Las cifras de la plataforma: publicaciones, organizaciones y usuarios.</p>
+<p><img class="ui image" alt="Informe general" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/reports-manage-admin-generic-report-view.webp')); ?>"></p>
 <p>Cómo se llega: desde la tarjeta <strong>«Informe general»</strong> de la pantalla de inicio, con <strong>«Ver el informe»</strong>.</p>
 <p>Qué se ve:</p>
 <ul>
@@ -24,6 +26,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Esta pantalla solo muestra cifras: no tiene formularios.</p>
 <h2 class="ui header">Acerca de</h2>
 <p>Datos de la plataforma: la versión instalada, su fecha, una descripción, las librerías propias y los plugins y dependencias de terceros con su licencia.</p>
+<p><img class="ui image" alt="Acerca de" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/admin-about-framework.webp')); ?>"></p>
 <p>Cómo se llega: menú de tu usuario, arriba a la derecha › <strong>«Acerca de»</strong>.</p>
 <p>Qué se ve:</p>
 <ul>

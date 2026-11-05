@@ -1,3 +1,8 @@
+# 10.2.3 (05-11-2026)
+
+- **El manual de usuario trae capturas**: una de cada pantalla, hecha con un usuario del tipo que la usa, para que cada persona vea en el manual lo mismo que en su panel. El capítulo «Tu cuenta» avisa de que una acción que no aparece es una que tu tipo de usuario no tiene.
+- **`bin/manual` para si un capítulo cita una imagen que no existe**, y lista todas las que faltan sin escribir nada. Si tu proyecto tiene capítulos propios en `src/app/manual/proyecto/`, cada `![…](img/<archivo>)` tiene que tener su archivo en el `img/` de su idioma (vale el de `framework/` o el de `proyecto/`: los dos se publican juntos).
+
 # 10.2.2 (04-11-2026)
 
 - **La leyenda de las gráficas ya no se descoloca si falta un dato.** Cada fila se enlaza con su serie, y toma su color, por el nombre y no por la posición: en Informes, con un solo país, «Otros países» se enciende y se apaga y lleva su color. Si tu proyecto usa `linkStatisticsChartLegend()`, el texto de cada `.name` tiene que ser el nombre de su serie (o de su porción).

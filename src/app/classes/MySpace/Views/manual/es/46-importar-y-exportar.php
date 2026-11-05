@@ -5,6 +5,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.</p>
 <h2 class="ui header">La pantalla principal</h2>
 <p>Cómo se llega: <strong>«Importar y exportar»</strong>, en el menú lateral.</p>
+<p><img class="ui image" alt="La pantalla principal" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-hub.webp')); ?>"></p>
 <p>Tiene dos pestañas:</p>
 <ul>
 <li><strong>«Importar»</strong>: una tabla con <strong>Entidad</strong>, <strong>Descripción</strong>, <strong>Acciones</strong> y <strong>Activo</strong>. En cada fila puedes <strong>«Importar»</strong>, o descargar la plantilla en <strong>«Plantilla XLSX»</strong> o <strong>«Plantilla CSV»</strong>.</li>
@@ -12,6 +13,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </ul>
 <h2 class="ui header">Importar usuarios</h2>
 <p>Cómo se llega: en la pestaña <strong>«Importar»</strong>, pulsa <strong>«Importar»</strong> en la fila de usuarios; o por el botón de engranajes de la barra superior, <strong>«Configuración del sistema» › «Gestión de usuarios» › «Importar usuarios»</strong>.</p>
+<p><img class="ui image" alt="Importar usuarios" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-import-users.webp')); ?>"></p>
 <p>El sistema acepta archivos xlsx o csv de hasta 5 MB y 5000 filas.</p>
 <div class="ui warning message">
 <div class="header">Todo o nada</div>

@@ -8,7 +8,8 @@ Archivos para buscadores, en <strong>«SEO y Scripts»</strong>.</p>
 <h2 class="ui header">Imágenes de marca</h2>
 <p>Entra por <strong>«Imágenes de marca»</strong>. La plataforma es de marca blanca: estas imágenes identifican a tu organización en
 todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.</p>
-<p>Cada imagen tiene tres botones: <strong>«Editar imagen»</strong>, <strong>«Cambiar imagen»</strong> y <strong>«Descargar / ver»</strong>. Las imágenes son:</p>
+<p><img class="ui image" alt="Imágenes de marca" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images.webp')); ?>"></p>
+<p>Para editar una imagen, púlsala. Además, cada una tiene el botón <strong>«Cambiar imagen»</strong> y un icono para descargarla o verla. Las imágenes son:</p>
 <ul>
 <li>Logo</li>
 <li>Favicon zona administrativa</li>
@@ -42,11 +43,13 @@ todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos
 <h2 class="ui header">Fondos del inicio de sesión</h2>
 <p>Entra por <strong>«Fondos del inicio de sesión»</strong>. Estas imágenes llenan el panel izquierdo del inicio de sesión; la
 plataforma muestra una al azar en cada visita.</p>
-<p>Hay cinco fondos (<strong>Fondo 1</strong> a <strong>Fondo 5</strong>) y un <strong>Fondo problemas de inicio</strong>. Cada uno tiene <strong>«Editar imagen»</strong>,
-<strong>«Cambiar imagen»</strong> y <strong>«Descargar / ver»</strong>.</p>
+<p><img class="ui image" alt="Fondos del inicio de sesión" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-backgrounds.webp')); ?>"></p>
+<p>Hay cinco fondos (<strong>Fondo 1</strong> a <strong>Fondo 5</strong>) y un <strong>Fondo problemas de inicio</strong>. Para editar uno, púlsalo; además
+tiene <strong>«Cambiar imagen»</strong> y un icono para descargarlo o verlo.</p>
 <h2 class="ui header">Colores</h2>
 <p>Entra por <strong>«Colores»</strong>. El color de tu organización se usa solo como acento (botones, selección, enlaces y foco). Los
 colores complementarios se usan únicamente en gráficas y datos.</p>
+<p><img class="ui image" alt="Colores" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-colors.webp')); ?>"></p>
 <p>Junto a cada color, <strong>«Elegir color»</strong> abre el selector. Abajo, la <strong>«Muestra en vivo»</strong> enseña cómo se verán
 el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <strong>«Guardar»</strong>.</p>
 <table class="ui celled table">
@@ -103,6 +106,7 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 <h2 class="ui header">Identidad y SEO</h2>
 <p>Entra por <strong>«Identidad y SEO»</strong>. Reúne los datos del sitio que usan los buscadores y la vista previa cuando se comparte
 un enlace en redes sociales y aplicaciones de mensajería.</p>
+<p><img class="ui image" alt="Identidad y SEO" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-seo.webp')); ?>"></p>
 <p>Tiene dos pestañas, <strong>Español</strong> e <strong>Inglés</strong>: los textos se escriben en cada idioma. La imagen para compartir se cambia
 con <strong>«Cambiar imagen»</strong>. Al final, <strong>«Cancelar»</strong> o <strong>«Guardar»</strong>.</p>
 <table class="ui celled table">
@@ -155,6 +159,7 @@ con <strong>«Cambiar imagen»</strong>. Al final, <strong>«Cancelar»</strong>
 <p>Entra por <strong>«Archivos para buscadores»</strong>. Es lo que leen los buscadores y las inteligencias artificiales: los archivos
 robots.txt, humans.txt y llms.txt. Para cada uno, <strong>«Ver la configuración fija»</strong> muestra la parte que el sistema ya
 trae y no se cambia; en el campo <strong>Añadir</strong> escribes lo tuyo.</p>
+<p><img class="ui image" alt="Archivos para buscadores" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-site-files.webp')); ?>"></p>
 <table class="ui celled table">
 <thead>
 <tr>

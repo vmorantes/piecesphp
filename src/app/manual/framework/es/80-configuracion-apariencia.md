@@ -14,7 +14,9 @@ Archivos para buscadores, en **«SEO y Scripts»**.
 Entra por **«Imágenes de marca»**. La plataforma es de marca blanca: estas imágenes identifican a tu organización en
 todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.
 
-Cada imagen tiene tres botones: **«Editar imagen»**, **«Cambiar imagen»** y **«Descargar / ver»**. Las imágenes son:
+![Imágenes de marca](img/configurations-appearance-brand-images.webp)
+
+Para editar una imagen, púlsala. Además, cada una tiene el botón **«Cambiar imagen»** y un icono para descargarla o verla. Las imágenes son:
 
 - Logo
 - Favicon zona administrativa
@@ -35,13 +37,17 @@ Cuando termines, pulsa **«Guardar»**.
 Entra por **«Fondos del inicio de sesión»**. Estas imágenes llenan el panel izquierdo del inicio de sesión; la
 plataforma muestra una al azar en cada visita.
 
-Hay cinco fondos (**Fondo 1** a **Fondo 5**) y un **Fondo problemas de inicio**. Cada uno tiene **«Editar imagen»**,
-**«Cambiar imagen»** y **«Descargar / ver»**.
+![Fondos del inicio de sesión](img/configurations-appearance-backgrounds.webp)
+
+Hay cinco fondos (**Fondo 1** a **Fondo 5**) y un **Fondo problemas de inicio**. Para editar uno, púlsalo; además
+tiene **«Cambiar imagen»** y un icono para descargarlo o verlo.
 
 ## Colores
 
 Entra por **«Colores»**. El color de tu organización se usa solo como acento (botones, selección, enlaces y foco). Los
 colores complementarios se usan únicamente en gráficas y datos.
+
+![Colores](img/configurations-appearance-colors.webp)
 
 Junto a cada color, **«Elegir color»** abre el selector. Abajo, la **«Muestra en vivo»** enseña cómo se verán
 el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
@@ -62,6 +68,8 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 Entra por **«Identidad y SEO»**. Reúne los datos del sitio que usan los buscadores y la vista previa cuando se comparte
 un enlace en redes sociales y aplicaciones de mensajería.
 
+![Identidad y SEO](img/configurations-appearance-seo.webp)
+
 Tiene dos pestañas, **Español** e **Inglés**: los textos se escriben en cada idioma. La imagen para compartir se cambia
 con **«Cambiar imagen»**. Al final, **«Cancelar»** o **«Guardar»**.
 
@@ -80,6 +88,8 @@ con **«Cambiar imagen»**. Al final, **«Cancelar»** o **«Guardar»**.
 Entra por **«Archivos para buscadores»**. Es lo que leen los buscadores y las inteligencias artificiales: los archivos
 robots.txt, humans.txt y llms.txt. Para cada uno, **«Ver la configuración fija»** muestra la parte que el sistema ya
 trae y no se cambia; en el campo **Añadir** escribes lo tuyo.
+
+![Archivos para buscadores](img/configurations-appearance-site-files.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |

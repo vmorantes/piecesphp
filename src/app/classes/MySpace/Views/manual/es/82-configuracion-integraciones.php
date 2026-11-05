@@ -8,6 +8,7 @@ Scripts»</strong>. Todas terminan con <strong>«Cancelar»</strong> y <strong>�
 <h2 class="ui header">Inteligencia artificial</h2>
 <p>Entra por <strong>«Inteligencia artificial»</strong>. Define el proveedor, el modelo y las claves que usa la plataforma para las
 funciones con inteligencia artificial.</p>
+<p><img class="ui image" alt="Inteligencia artificial" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -62,6 +63,7 @@ funciones con inteligencia artificial.</p>
 <h2 class="ui header">Correo</h2>
 <p>Entra por <strong>«Correo»</strong>. Define desde dónde y cómo sale el correo de la plataforma. Tiene dos pestañas:
 <strong>Configuración</strong> y <strong>Pruebas</strong>. <strong>«Mostrar contraseña»</strong> deja ver la contraseña que escribes.</p>
+<p><img class="ui image" alt="Correo" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-mail.webp')); ?>"></p>
 <div class="ui warning message">
 <div class="header">Lo que decide si el correo sale</div>
 <p>Lo que decide si el correo sale es «Entrega del correo». Retenido, ninguno sale al exterior: todos van al servidor
@@ -141,6 +143,7 @@ de pruebas.</p>
 <p>Para ver lo que se envió, mira la pestaña <strong>Correos enviados</strong> de <strong>Registros</strong>.</p>
 <h2 class="ui header">OsTicket</h2>
 <p>Entra por <strong>«OsTicket»</strong>. Guarda la conexión con el sistema de soporte osTicket.</p>
+<p><img class="ui image" alt="OsTicket" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-osticket.webp')); ?>"></p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -165,6 +168,7 @@ de pruebas.</p>
 <h2 class="ui header">Scripts</h2>
 <p>Entra por <strong>«Scripts»</strong>. Aquí insertas código propio en el sitio público, en el panel o en ambos: analítica, píxeles de
 anuncios, chats y similares. <strong>«Añadir script»</strong> agrega uno nuevo a la lista.</p>
+<p><img class="ui image" alt="Scripts" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-scripts.webp')); ?>"></p>
 <div class="ui warning message">
 <div class="header">Pega solo código en el que confíes</div>
 <p>Lo que escribas aquí se ejecuta tal cual en el navegador de cada visitante o usuario. Un error puede romper la
@@ -172,6 +176,7 @@ página o exponer datos; prueba primero con el script desactivado.</p>
 </div>
 <h2 class="ui header">Llaves de Mapas</h2>
 <p>Entra por <strong>«Llaves de Mapas»</strong>. Guarda las llaves de acceso del servicio de mapas de la plataforma.</p>
+<p><img class="ui image" alt="Llaves de Mapas" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/helpers-system-generic-content-admin-forms-mapbox-keys.webp')); ?>"></p>
 <table class="ui celled table">
 <thead>
 <tr>

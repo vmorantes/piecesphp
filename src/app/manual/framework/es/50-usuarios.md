@@ -11,6 +11,8 @@ Aquí ves quién entra al panel, con qué tipo de usuario y en qué estado, y cr
 
 Se llega por el botón de engranajes de la barra superior: **«Configuración del sistema» › «Gestión de usuarios» › «Gestionar usuarios»**.
 
+![La lista de usuarios](img/users-list.webp)
+
 La lista se divide en pestañas según el estado de la cuenta:
 
 - **Todos**
@@ -26,9 +28,13 @@ Cada pestaña muestra las cuentas en tarjetas: nombre, estado (activo o inactivo
 
 Pulsa **«Agregar usuario»**. Primero el sistema te lleva a elegir el tipo de usuario; al elegirlo, se abre el formulario de alta para ese tipo.
 
+![Agregar un usuario](img/users-selection-create.webp)
+
 ## Agregar y editar
 
 El formulario de alta y el de edición son casi iguales. En la edición, el título muestra el nombre de la persona y su tipo, y aparecen tres pestañas: **Cuenta**, **Foto de perfil** y **Sesiones**. En el alta solo está la pestaña **Cuenta**.
+
+![Agregar y editar](img/users-form-edit.webp)
 
 | Campo | Obligatorio | Para qué |
 | :-- | :-- | :-- |

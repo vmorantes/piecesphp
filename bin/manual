@@ -20,7 +20,8 @@
 # EXISTA lo comprueba bin/cli verify-integrity, no este guion: no arranca la aplicación.
 #
 # Uso:
-#   bin/manual            regenera lo generado (si algún capítulo no vale, falla sin escribir nada)
+#   bin/manual            regenera lo generado (si algún capítulo no vale o cita una imagen que no existe, falla sin escribir
+#                         nada y las nombra todas)
 #   bin/manual --check    falla si lo generado no es lo que daría regenerarlo; no escribe nada
 import datetime, os, re, shutil, subprocess, sys
 
@@ -127,8 +128,8 @@ def fecha_de(ruta):
     return datetime.date.today().isoformat()
 
 
-def fomantic(html, idioma):
-    """El HTML de Markdown con las clases de Fomantic: sin CSS propio."""
+def fomantic(html, idioma, citadas):
+    """El HTML de Markdown con las clases de Fomantic: sin CSS propio. Apunta en `citadas` cada img/<x> que cite."""
     html = re.sub(r'<h([1-3])>', r'<h\1 class="ui header">', html)
     html = html.replace('<table>', '<table class="ui celled table">')
     #La alineación de una columna (`| :-- |`) sale de Markdown como style= en cada celda: a la clase de Fomantic.
@@ -143,6 +144,7 @@ def fomantic(html, idioma):
         atributos = m.group(1)
         src = re.search(r'src="(?:\./)?img/([^"]+)"', atributos)
         if src:
+            citadas.append(src.group(1))
             destino = "<?= escape_html(\\MySpace\\MySpaceRoutes::staticRoute('manual/%s/%s')); ?>" % (idioma, src.group(1).replace("'", ''))
             atributos = atributos.replace(src.group(0), f'src="{destino}"')
         return f'<img class="ui image"{atributos}>'
@@ -190,17 +192,28 @@ if errores:
 #Todo en memoria primero: un capítulo que falle no deja la mitad escrita.
 salidas = {}
 indice = []
+#Una imagen citada que no se va a servir sale rota en el panel y nada más lo ve: se para, con todas las que falten. Vale
+#cualquier img/ del mismo idioma (framework o proyecto), porque las dos se sirven desde la misma carpeta.
+faltan = []
 for idioma in sorted(capitulos):
     for slug in sorted(capitulos[idioma]):
         titulo, rutas, ve, origen, cuerpo, ruta = capitulos[idioma][slug]
         #El título va en la cabecera de la pantalla: el primer # del cuerpo no se repite.
         cuerpo = re.sub(r'\A\s*#\s+[^\n]*\n', '', cuerpo, count=1)
         md.reset()
-        html = fomantic(md.convert(cuerpo), idioma)
+        citadas = []
+        html = fomantic(md.convert(cuerpo), idioma, citadas)
+        for img in citadas:
+            if (idioma, img) not in imagenes:
+                faltan.append(f'{relativa(ruta)}: cita img/{img}, y no está en ninguna img/ de «{idioma}»')
         salidas[os.path.join(VISTAS, idioma, slug + '.php')] = (
             '<?php\n' + AVISO % relativa(ruta) + '\ndefined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");\n?>\n'
             + html + '\n')
         indice.append((slug, titulo, rutas, ve, idioma, origen, fecha_de(ruta)))
+
+if faltan:
+    print(f'bin/manual: no se escribe nada: {len(faltan)} imagen(es) citada(s) que no existe(n):\n  ' + '\n  '.join(faltan), file=sys.stderr)
+    sys.exit(1)
 
 lineas = ['<?php', AVISO % 'src/app/manual/', 'defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");', '',
           '//Los capítulos del manual: lo usa MySpaceController para filtrar por permiso e idioma.', 'return [']

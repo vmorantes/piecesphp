@@ -11,6 +11,8 @@ Los avisos que ven los usuarios del panel, por perfil y con sus fechas.
 
 Cómo se llega: **«Noticias internas»**, en el menú lateral.
 
+![El listado de noticias](img/news-admin-list.webp)
+
 La tabla muestra: **Título**, **Estado**, **Fecha de inicio**, **Fecha de final** y **Acciones**. En cada fila puedes **«Editar»** o **«Eliminar»** la noticia.
 
 Arriba están los botones **«Nueva noticia»**, **«Categorías»** y **«Exportar listado actual»**.
@@ -18,6 +20,8 @@ Arriba están los botones **«Nueva noticia»**, **«Categorías»** y **«Expor
 ## Agregar y editar una noticia
 
 Cómo se llega: pulsa **«Nueva noticia»**, o **«Editar»** en la fila de una noticia.
+
+![Agregar y editar una noticia](img/news-admin-forms-add.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
@@ -34,6 +38,8 @@ Botones: **«Guardar»**, **«Cancelar»** (vuelve al listado) y, al editar, **�
 ## Las categorías de noticias
 
 Cómo se llega: botón **«Categorías»** del listado de noticias.
+
+![Las categorías de noticias](img/news-category-admin-list.webp)
 
 La tabla muestra: **Categoría**, **Color**, **Imagen** y **Acciones**. En cada fila puedes **«Editar»** o **«Eliminar»**. Arriba están **«Nueva categoría»** y **«Exportar listado actual»**.
 

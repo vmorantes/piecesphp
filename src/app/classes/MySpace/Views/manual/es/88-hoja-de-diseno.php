@@ -3,5 +3,6 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Es la página donde se ve cada componente del panel (botones, pestañas, colores y demás) con su ejemplo.</p>
+<p><img class="ui image" alt="Hoja de diseño" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/admin-design-sheet.webp')); ?>"></p>
 <p>Se llega por el botón de engranajes de la barra superior: <strong>«Configuración del sistema» › «Sistema» › «Hoja de diseño»</strong>. Las migas de la pantalla
 son <strong>Inicio › Hoja de diseño</strong>.</p>

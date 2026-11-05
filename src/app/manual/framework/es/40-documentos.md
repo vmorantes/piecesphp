@@ -11,6 +11,8 @@ Los archivos que se comparten en el panel, con su tipo.
 
 Cómo se llega: **«Documentos» › «Explorar»**, en el menú lateral.
 
+![Explorar los documentos](img/documents-admin-explorer.webp)
+
 Es para buscar y abrir los documentos compartidos. Cada documento aparece en una tarjeta con su nombre, su tipo y su descripción. Arriba hay un cuadro **«Buscar»** y abajo, la paginación.
 
 En cada tarjeta, **«Abrir»** muestra el archivo. Si el documento no tiene archivo, la tarjeta dice **«Sin archivo»**.
@@ -19,6 +21,8 @@ En cada tarjeta, **«Abrir»** muestra el archivo. Si el documento no tiene arch
 
 Cómo se llega: **«Documentos» › «Gestionar»**, en el menú lateral.
 
+![Gestionar los documentos](img/documents-admin-list.webp)
+
 La tabla muestra el **Nombre del documento** y sus **Acciones**. En cada fila puedes **«Editar»**, **«Ver el archivo»** o **«Eliminar»**.
 
 Arriba están **«Tipos de documento»**, **«Nuevo documento»** y **«Exportar listado actual»**.
@@ -26,6 +30,8 @@ Arriba están **«Tipos de documento»**, **«Nuevo documento»** y **«Exportar
 ## Agregar y editar un documento
 
 Cómo se llega: pulsa **«Nuevo documento»**, o **«Editar»** en la fila de un documento.
+
+![Agregar y editar un documento](img/documents-admin-forms-add.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
@@ -41,6 +47,8 @@ Botones: **«Guardar»** y **«Cancelar»**. Al crear, el archivo se elige con *
 ## Tipos de documento
 
 Cómo se llega: botón **«Tipos de documento»** del listado de documentos.
+
+![Tipos de documento](img/document-types-admin-list.webp)
 
 La tabla muestra el **Nombre** de cada tipo. En cada fila puedes **«Editar»**, **«Traducir»** o **«Eliminar»**. Arriba están **«Nuevo tipo»** y **«Exportar listado actual»**.
 

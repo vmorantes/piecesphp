@@ -11,11 +11,15 @@ Esta sección reúne las categorías de formularios.
 
 Cómo se llega: **«Formularios» › «Categorías»**, en el menú lateral.
 
+![Categorías de formularios](img/categories-admin-list.webp)
+
 La tabla muestra el **Nombre** de cada categoría. En cada fila puedes **«Editar»**, **«Traducir»** o **«Eliminar»**. Arriba están **«Nueva categoría»** y **«Exportar listado actual»**.
 
 ## Agregar y editar una categoría
 
 Pulsa **«Nueva categoría»**, o **«Editar»** en la fila de una categoría; **«Traducir»** abre el mismo formulario para escribir el nombre en inglés. Al editar, el selector **«Idiomas»** elige en qué idioma escribes.
+
+![Agregar y editar una categoría](img/categories-admin-forms-add.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |

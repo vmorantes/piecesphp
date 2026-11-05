@@ -14,6 +14,8 @@ Scripts»**. Todas terminan con **«Cancelar»** y **«Guardar»**.
 Entra por **«Inteligencia artificial»**. Define el proveedor, el modelo y las claves que usa la plataforma para las
 funciones con inteligencia artificial.
 
+![Inteligencia artificial](img/configurations-integrations-ai.webp)
+
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Modelo OpenAI | No | El modelo de OpenAI que se usa. |
@@ -29,6 +31,8 @@ funciones con inteligencia artificial.
 
 Entra por **«Correo»**. Define desde dónde y cómo sale el correo de la plataforma. Tiene dos pestañas:
 **Configuración** y **Pruebas**. **«Mostrar contraseña»** deja ver la contraseña que escribes.
+
+![Correo](img/configurations-integrations-mail.webp)
 
 !!! warning "Lo que decide si el correo sale"
     Lo que decide si el correo sale es «Entrega del correo». Retenido, ninguno sale al exterior: todos van al servidor
@@ -55,6 +59,8 @@ Para ver lo que se envió, mira la pestaña **Correos enviados** de **Registros*
 
 Entra por **«OsTicket»**. Guarda la conexión con el sistema de soporte osTicket.
 
+![OsTicket](img/configurations-integrations-osticket.webp)
+
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | URL | No | La dirección del sistema de soporte. |
@@ -65,6 +71,8 @@ Entra por **«OsTicket»**. Guarda la conexión con el sistema de soporte osTick
 Entra por **«Scripts»**. Aquí insertas código propio en el sitio público, en el panel o en ambos: analítica, píxeles de
 anuncios, chats y similares. **«Añadir script»** agrega uno nuevo a la lista.
 
+![Scripts](img/configurations-integrations-scripts.webp)
+
 !!! warning "Pega solo código en el que confíes"
     Lo que escribas aquí se ejecuta tal cual en el navegador de cada visitante o usuario. Un error puede romper la
     página o exponer datos; prueba primero con el script desactivado.
@@ -72,6 +80,8 @@ anuncios, chats y similares. **«Añadir script»** agrega uno nuevo a la lista.
 ## Llaves de Mapas
 
 Entra por **«Llaves de Mapas»**. Guarda las llaves de acceso del servicio de mapas de la plataforma.
+
+![Llaves de Mapas](img/helpers-system-generic-content-admin-forms-mapbox-keys.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |

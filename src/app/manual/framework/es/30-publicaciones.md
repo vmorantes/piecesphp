@@ -11,6 +11,8 @@ Aquí gestionas lo que se publica en el sitio, con su categoría y su fecha.
 
 Cómo se llega: **«Publicaciones» › «Publicaciones»**, en el menú lateral.
 
+![El listado de publicaciones](img/publications-admin-list.webp)
+
 Arriba hay cuatro pestañas para filtrar: **«Todas»**, **«Publicadas»**, **«Programadas»** y **«Borradores»**.
 
 La tabla muestra estas columnas: **Título**, **Estado**, **Fecha**, **Autor**, **Visitas**, **Destacado** y **Acciones**.
@@ -30,6 +32,8 @@ Arriba también están los botones:
 ## Agregar y editar una publicación
 
 Cómo se llega: pulsa **«Nueva publicación»** en el listado, o **«Editar»** en la fila de una publicación.
+
+![Agregar y editar una publicación](img/publications-admin-forms-add.webp)
 
 El formulario se organiza en pestañas: **«Datos básicos»**, **«Imágenes»**, **«Detalles»**, **«Anexos»** y **«SEO»**.
 Al editar una publicación ves además una pestaña por idioma (**«Español»** e **«Inglés»**), para completar cada versión del texto.
@@ -68,6 +72,8 @@ Botones:
 ## Las categorías de publicaciones
 
 Cómo se llega: **«Publicaciones» › «Categorías»**, en el menú lateral, o el botón **«Categorías»** del listado.
+
+![Las categorías de publicaciones](img/publications-category-admin-list.webp)
 
 La tabla muestra el **Nombre** de cada categoría, con la acción **«Editar»**. Arriba están **«Nueva categoría»** y **«Exportar listado actual»**.
 

@@ -11,6 +11,8 @@ Es el explorador de los archivos que guarda la plataforma.
 
 Desde el menú lateral: **«Gestor de archivos»**.
 
+![Cómo se llega](img/filemanager-admin-filemanager.webp)
+
 ## Qué se puede hacer
 
 Se ven las carpetas: **Archivos**, **Documentos (Editor de texto)**, **Cargas**, **Temporales** y la **Papelera**. Con el buscador de la barra de herramientas, eliges dónde buscar (**«Aquí»**, **«Volumen»** o **«Todos»**) y por qué buscar (**«Nombre de archivo»** o **«Tipo MIME»**).

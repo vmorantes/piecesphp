@@ -13,6 +13,8 @@ Opciones de seguridad, respaldos y permisos. Se llega por el botón de engranaje
 Entra por **«Seguridad»**. Reúne las opciones de seguridad de la plataforma. Al final, **«Cancelar»** o
 **«Guardar»**.
 
+![Seguridad](img/configurations-system-security.webp)
+
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Usar IP del usuario para encriptar el token de sesión | No | La sesión queda atada a la dirección IP desde la que se inició. Si la IP del usuario cambia (por ejemplo, al pasar del wifi a los datos móviles), tendrá que volver a iniciar sesión. |
@@ -24,6 +26,8 @@ Entra por **«Seguridad»**. Reúne las opciones de seguridad de la plataforma. 
 
 Entra por **«Respaldos»**. Define cada cuánto se respalda la base de datos, cuántos respaldos se guardan y qué tablas
 salen sin sus filas. Al final, **«Cancelar»** o **«Guardar»**.
+
+![Respaldos](img/configurations-system-backups.webp)
 
 La pantalla calcula, con la política guardada, cuántos respaldos se conservarían y cuántos se borrarían. Los archivos
 que no escribió el sistema no se tocan nunca.
@@ -47,3 +51,5 @@ que no escribió el sistema no se tocan nunca.
 
 Entra por **«Rutas y permisos»**. Es una tabla de consulta: qué rutas existen y qué tipos de usuario pueden usar cada
 una. Tiene las columnas **Nombre**, **Ruta**, **Controlador** y **Roles con acceso**.
+
+![Rutas y permisos](img/configurations-system-routes.webp)

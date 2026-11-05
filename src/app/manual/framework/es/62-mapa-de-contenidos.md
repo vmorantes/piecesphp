@@ -11,6 +11,8 @@ Es un mapa para ver los contenidos según su ubicación.
 
 Desde el menú lateral: **«Mapa de contenidos»**.
 
+![Cómo se llega](img/geo-admin-viewer.webp)
+
 ## Qué se puede hacer
 
 - Acercar y alejar el mapa con los botones de zoom.

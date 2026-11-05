@@ -11,6 +11,8 @@ La lista de personas suscritas.
 
 Cómo se llega: **«Suscriptores»**, en el menú lateral.
 
+![El listado de suscriptores](img/newsletter-admin-list.webp)
+
 La tabla muestra: **#**, **Nombre**, **Email**, **Acepta recibir correos** y **Acciones**. En cada fila puedes **«Editar»** o **«Eliminar»**.
 
 Arriba están **«Agregar suscriptor»** y **«Exportar listado actual»**.
@@ -18,6 +20,8 @@ Arriba están **«Agregar suscriptor»** y **«Exportar listado actual»**.
 ## Agregar y editar un suscriptor
 
 Cómo se llega: pulsa **«Agregar suscriptor»**, o **«Editar»** en la fila de un suscriptor.
+
+![Agregar y editar un suscriptor](img/newsletter-admin-forms-add.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |

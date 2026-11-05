@@ -7,6 +7,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <h2 class="ui header">Seguridad</h2>
 <p>Entra por <strong>«Seguridad»</strong>. Reúne las opciones de seguridad de la plataforma. Al final, <strong>«Cancelar»</strong> o
 <strong>«Guardar»</strong>.</p>
+<p><img class="ui image" alt="Seguridad" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-system-security.webp')); ?>"></p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -41,6 +42,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <h2 class="ui header">Respaldos</h2>
 <p>Entra por <strong>«Respaldos»</strong>. Define cada cuánto se respalda la base de datos, cuántos respaldos se guardan y qué tablas
 salen sin sus filas. Al final, <strong>«Cancelar»</strong> o <strong>«Guardar»</strong>.</p>
+<p><img class="ui image" alt="Respaldos" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-system-backups.webp')); ?>"></p>
 <p>La pantalla calcula, con la política guardada, cuántos respaldos se conservarían y cuántos se borrarían. Los archivos
 que no escribió el sistema no se tocan nunca.</p>
 <table class="ui celled table">
@@ -102,3 +104,4 @@ sensibles del servidor.</p>
 <h2 class="ui header">Rutas y permisos</h2>
 <p>Entra por <strong>«Rutas y permisos»</strong>. Es una tabla de consulta: qué rutas existen y qué tipos de usuario pueden usar cada
 una. Tiene las columnas <strong>Nombre</strong>, <strong>Ruta</strong>, <strong>Controlador</strong> y <strong>Roles con acceso</strong>.</p>
+<p><img class="ui image" alt="Rutas y permisos" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-system-routes.webp')); ?>"></p>
