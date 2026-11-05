@@ -248,6 +248,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
             font-size: 1.1rem;
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .title-danger {
             color: $mainBrandColor;
             text-transform: uppercase;
@@ -304,6 +305,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
                 }
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             .btn-help-desk {
                 cursor: pointer;
 
@@ -316,6 +318,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
                 }
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             .btn-new-code {
                 a {
                     padding: 10px;
@@ -325,6 +328,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
                 }
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             .btn-login {
                 a {
                     padding: 10px;

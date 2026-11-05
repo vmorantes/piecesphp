@@ -5,6 +5,7 @@ $markerDotColor: #800E11;
 //──── Mapa mapbox ───────────────────────────────────────────────────────────────────────
 .mapboxgl-map {
 
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .mapboxgl-marker:not(.custom-point) {
         display: none;
 

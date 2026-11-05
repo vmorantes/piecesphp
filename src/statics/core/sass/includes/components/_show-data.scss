@@ -13,6 +13,7 @@ $-dividerDescriptionColor: #AAAAAA;
     column-gap: pxToRem(40);
     row-gap: pxToRem(40);
 
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     > .list-card {
 
         position: relative;
@@ -28,10 +29,12 @@ $-dividerDescriptionColor: #AAAAAA;
         line-height: 1;
         color: $colorTextStrong;
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.height-max-content {
             height: max-content;
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .corner-icon {
             position: absolute;
             top: 0px;
@@ -62,6 +65,7 @@ $-dividerDescriptionColor: #AAAAAA;
             }
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         > .meta-title {
             font-size: pxToRem(14.5);
             margin-bottom: pxToRem(10);
@@ -79,6 +83,8 @@ $-dividerDescriptionColor: #AAAAAA;
         }
 
         .content {
+
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             .two-columns {
                 display: grid;
                 grid-template-columns: auto auto;
@@ -92,6 +98,7 @@ $-dividerDescriptionColor: #AAAAAA;
                         row-gap: pxToRem(10);
                     }
 
+                    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
                     .info-text {
                         display: grid;
                         grid-template-columns: auto auto;
@@ -127,6 +134,7 @@ $-dividerDescriptionColor: #AAAAAA;
                     }
                 }
 
+                // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
                 &.rows-mode {
                     grid-template-columns: 100%;
                     row-gap: pxToRem(20);
@@ -198,7 +206,10 @@ $-dividerDescriptionColor: #AAAAAA;
     }
 
     //Header con ícono
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     > .list-card {
+
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         > .header-with-icon {
 
             display: grid;
@@ -206,6 +217,7 @@ $-dividerDescriptionColor: #AAAAAA;
             column-gap: 15px;
             margin-bottom: 20px;
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             > .icon-container {
 
                 width: 52px;
@@ -314,6 +326,7 @@ $-dividerDescriptionColor: #AAAAAA;
                 line-height: pxToRem(20+5);
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             &.s24 {
                 font-size: pxToRem(24);
                 line-height: pxToRem(24+5);
@@ -333,6 +346,7 @@ $-dividerDescriptionColor: #AAAAAA;
                 line-height: pxToRem(16+5);
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             &.fs20 {
                 font-weight: $fwRegular;
                 font-size: pxToRem(20);

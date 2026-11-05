@@ -182,7 +182,8 @@ freno de una IP los frena a todos; el framework no lee `X-Forwarded-For`.
 | :-- | :-- | :-- | :-- |
 | `contact_form_recipients` | `string[]` | `[]` | Destinatarios del formulario de contacto. |
 | `other_problems_recipients` | `string[]` | `[]` | Destinatarios del correo de «otros problemas» (si osTicket falta o falla). |
-| `osTicketAPI`, `osTicketAPIKey` | `string` | `""` | URL y llave de osTicket. Vacías, no se usa. |
+| `support_form_recipients` | `string[]` | `[]` | Destinatarios del formulario de soporte del panel (Ayuda › Contactar a soporte). Vacío, el botón no sale. La respuesta va a quien escribe, tomado de su sesión. |
+| `osTicketAPI`, `osTicketAPIKey` | `string` | `""` | URL y llave de osTicket. Vacías, no se usa. Desde la `10.1.2` solo la usa «otros problemas»; sale del framework en la `11.0.0`. |
 | `CronJobKey` | `string` | no está en `config.php` | La pone **solo** la llave segura `cronjob` de `secure-keys/` (`core/extensions/api-keys.php`). Sin ella, la ruta del cron rechaza toda llave. |
 | `mailjet` | `array` | `email`, `name`, `apiKey`, `secretKey` de relleno | Valores de relleno: la configuración real de Mailjet se guarda **cifrada** en la opción `mailjet` (ver [La clave de la aplicación](../new-features/clave-de-la-aplicacion.md)). |
 | `GoogleReCaptchaV3TestSiteKey`, `GoogleReCaptchaV3TestSecretKey` | `string` | claves de prueba del propietario del framework | Se usan **solo si faltan las reales** (`recaptcha-v3-site`, `recaptcha-v3-secret` en `secure-keys/`). |
@@ -192,13 +193,14 @@ freno de una IP los frena a todos; el framework no lee `X-Forwarded-For`.
 | `Azure` | `array` | vacío salvo `SPEECH_REGION` = `'eastus'` | `BASE_STORAGE_ACCOUNT_NAME`, `BASE_STORAGE_ACCOUNT_KEY`, `BASE_STORAGE_ACCESS_QUERY_PARAMS`, `SPEECH_SUBSCRIPTION_KEY`, `SPEECH_REGION`. |
 | `GEO_IP` | `array` | `custom_directory` = `realpath()` de `src/geoip` | Se aplica a `geoip.custom_directory` de PHP. `realpath()` da `false` si esa carpeta no existe. |
 
-**Dos trampas con los destinatarios.** Los dos campos **fallan cerrado**: si la lista está vacía **o si una sola
+**Dos trampas con los destinatarios.** Las tres listas **fallan cerrado**: si la lista está vacía **o si una sola
 dirección no es válida**, el resultado es una lista vacía y no se envía a nadie. Ninguna dirección debe viajar por
 defecto en el código: todo clon la heredaría.
 
 ```php
 $config['contact_form_recipients'] = ['contacto@tu-dominio.example'];
 $config['other_problems_recipients'] = ['soporte@tu-dominio.example'];
+$config['support_form_recipients'] = ['soporte@tu-dominio.example'];
 ```
 
 **Claves de prueba de reCAPTCHA.** `config.php` trae un par de **prueba que no es tuyo**: no vale en tu dominio. En
@@ -801,6 +803,6 @@ QueueTask::addQueueHandlers([
 
 ## La ayuda, el crédito y el alta pública
 
-- **`$config['help_faq_url']`** (`src/app/config/config.php`): el enlace de «Preguntas frecuentes» del centro de ayuda de la barra. Vacío, no sale.
+- **El centro de ayuda de la barra** (el icono de interrogación) sale si tiene algo que enseñar: «Contactar a soporte» con `support_form_recipients` (arriba) y permiso sobre `admin-tickets-create`, y «Preguntas frecuentes» si tu proyecto pone su enlace en **`$config['help_faq_url']`**, que viene vacío.
 - **`$config['developer']`, `$config['developer_logo']` y `$config['developer_url']`**: el crédito del pie del menú. El framework trae marcadores: cámbialos en tu clon.
 - **`API_PUBLIC_SIGNUP`** (`src/app/config/constants.php`): el alta de usuarios sin sesión por la API. De fábrica, `false`: la ruta responde 404.

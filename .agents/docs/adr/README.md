@@ -121,3 +121,4 @@ procedencia.
 | [0069](0069-el-lenguaje-de-marcado-del-panel.md) | El lenguaje de marcado del panel: piezas con API estable, clases del framework como ganchos y, por dentro, Fomantic y el fork; la hoja de diseño como guía (D16) | sí | Aceptada |
 | [0070](0070-el-indice-de-configuracion-se-retira.md) | El índice de Configuración se retira: la lista la da el panel de la barra; las pantallas de Configuración, sin migas; «Cancelar», al inicio (reemplaza el §4 del 0028; H103) | sí | Aceptada |
 | [0071](0071-el-archivo-de-proyecto-de-la-guarda.md) | Lo propio del proyecto sale de la guarda a `.agents/project-architect-coder.json`, validado y con fallo cerrado | sí | Aceptada |
+| [0072](0072-el-manual-de-usuario-en-el-panel.md) | El manual de usuario dentro del panel: capítulos en Markdown generados a vistas, visibles por permiso sobre las pantallas que explican, por idioma, y todas las pantallas cubiertas | sí | Aceptada |

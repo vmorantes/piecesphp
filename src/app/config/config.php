@@ -160,6 +160,8 @@ $config['developer_logo'] = 'statics/images/developer-logo.png';
 $config['developer_url'] = '';
 //Las preguntas frecuentes del proyecto, si las tiene; vacío, la entrada no sale.
 $config['help_faq_url'] = '';
+//El manual de usuario del panel (ADR 0072): si lo ven las cuentas que aún no están aprobadas.
+$config['manual_for_pending'] = true;
 
 //Listeners
 \PiecesPHP\Core\BaseEventDispatcher::defaultListen(\PiecesPHP\Core\BaseEventDispatcher::EVENT_INIT_ROUTES_NAME, function () {

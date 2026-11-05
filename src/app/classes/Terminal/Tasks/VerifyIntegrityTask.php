@@ -191,11 +191,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //El formato fijado viaja para que obligue a los clones (P236).
         'bin/formatear', 'bin/tools/formato/css.js', 'bin/tools/formato/js.js', 'bin/tools/formato/php-editor', 'bin/tools/formato/php.php', 'bin/tools/js-beautify/LICENSE', 'bin/tools/js-beautify/beautify-css.js',
         'bin/tools/phpfmt/LICENSE', 'bin/tools/phpfmt/fmt.stub.php',
+        //El generador del manual de usuario viaja: cada proyecto escribe sus capítulos (ADR 0072).
+        'bin/manual',
     ];
 
     /** La carpeta de las claves viaja solo con su protección, y nada más: algo de más puede ser una clave versionada (ADR 0050). */
     const SECURE_KEYS_DIR = 'secure-keys/';
     const SECURE_KEYS_VERSIONED = ['secure-keys/.editorconfig', 'secure-keys/.gitignore', 'secure-keys/.htaccess'];
+
+    /** Las familias de rutas del panel que no son pantallas (comprobación 61, ADR 0072). */
+    const MANUAL_NOT_SCREENS_RELATIVE_PATH = 'files/dev/manual-not-screens.json';
+    /** El trinquete de pantallas sin capítulo del manual (comprobación 61). */
+    const MANUAL_COVERAGE_BASELINE_RELATIVE_PATH = 'files/dev/manual-coverage-baseline.json';
 
     /** Las extensiones de PHPStan del núcleo, relativas a `src/`: cargan solo con bin/tools/vendor, así que no viajan (comprobación 47). */
     const PHPSTAN_EXTENSIONS_DIR = 'app/core/psr4/PiecesPHP/Core/PHPStan/';
@@ -499,6 +506,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 60. Una sección de seguridad del CHANGELOG no nombra lo que arregló ────────
         $publicSecurityFailures = Distribution::applies('60', self::DISTRIBUTION_REQUIREMENTS[60]) ? self::checkPublicSecurityDocs() : [];
 
+        //──── 61. El manual: sus rutas existen y la cobertura de las pantallas solo sube (ADR 0072) ──
+        $manualFailures = self::checkManualCoverage();
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -523,7 +533,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($distributionFailures) + count($globalFailures) + count($dialogFailures) + count($frontConfigFailures)
          + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
-         + count($inlineStyleFailures) + count($publicSecurityFailures);
+         + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -602,6 +612,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($publicSecurityFailures as $line) {
             echoTerminal("\e[31mDOCUMENTACIÓN:\e[39m {$line}");
+        }
+        foreach ($manualFailures as $line) {
+            echoTerminal("\e[31mMANUAL:\e[39m {$line}");
         }
         foreach ($distributionFailures as $line) {
             echoTerminal("\e[31mDISTRIBUCIÓN:\e[39m {$line}");
@@ -2967,6 +2980,97 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'claves de traducción comprobadas.'));
         return [];
+    }
+
+    /**
+     * 61. El manual de usuario (ADR 0072): toda ruta que cita un capítulo existe, y la cifra de pantallas del panel sin
+     * capítulo solo baja (trinquete en `manual-coverage-baseline.json`).
+     *
+     * Pantalla: ruta GET con sesión cuya dirección cae bajo `/admin/`, fuera de las familias de `manual-not-screens.json`.
+     * Las rutas salen de `get_routes()`, las de esta instalación: en un clon también valen. Sin la línea base o sin las
+     * familias (no viajan), la cobertura avisa y no falla; en el repositorio de desarrollo, falla.
+     *
+     * @return string[]
+     */
+    protected static function checkManualCoverage(): array
+    {
+        $root = Distribution::root();
+        $indexFile = $root . '/src/app/classes/MySpace/Views/manual/index.php';
+        if (!is_file($indexFile)) {
+            return ['no existe ' . $indexFile . ': sin índice del manual no hay nada que comprobar (bin/manual lo genera)'];
+        }
+        $index = require $indexFile;
+        $routes = get_routes();
+        if (!is_array($index) || !is_array($routes)) {
+            return ['no se pudo leer el índice del manual o las rutas: la comprobación no miró nada'];
+        }
+
+        //a) Toda ruta citada existe.
+        $failures = [];
+        $covered = [];
+        foreach ($index as $chapter) {
+            $cited = is_array($chapter) ? ($chapter['rutas'] ?? []) : [];
+            foreach (is_array($cited) ? $cited : [] as $routeName) {
+                if (!is_string($routeName) || !array_key_exists($routeName, $routes)) {
+                    $failures[] = 'el capítulo «' . ($chapter['slug'] ?? '?') . '» (' . ($chapter['idioma'] ?? '?') . ') cita la ruta «' . (is_string($routeName) ? $routeName : '?') . '», que no existe';
+                    continue;
+                }
+                $covered[$routeName] = true;
+            }
+        }
+
+        //b) La cobertura: las pantallas sin capítulo.
+        $familiesFile = $root . '/' . self::MANUAL_NOT_SCREENS_RELATIVE_PATH;
+        $baselineFile = $root . '/' . self::MANUAL_COVERAGE_BASELINE_RELATIVE_PATH;
+        $missing = Distribution::missing([self::MANUAL_NOT_SCREENS_RELATIVE_PATH, self::MANUAL_COVERAGE_BASELINE_RELATIVE_PATH], $root);
+        if ($missing !== []) {
+            if (Distribution::isDistribution($root)) {
+                echoTerminal("\e[33mAVISO:\e[39m 61 manual: sin " . implode(' ni ', $missing) . ', que no viajan: la cobertura no se mide aquí.');
+                return $failures;
+            }
+            return array_merge($failures, ['faltan ' . implode(' y ', $missing) . ': la cobertura del manual NO se ha comprobado']);
+        }
+        $families = json_decode((string) file_get_contents($familiesFile), true);
+        $baseline = json_decode((string) file_get_contents($baselineFile), true);
+        if (!is_array($families) || !is_array($families['familias'] ?? null) || !is_array($baseline) || !is_int($baseline['sin_capitulo'] ?? null)) {
+            return array_merge($failures, ['no se pudo leer ' . self::MANUAL_NOT_SCREENS_RELATIVE_PATH . ' o ' . self::MANUAL_COVERAGE_BASELINE_RELATIVE_PATH . ': la cobertura NO se ha comprobado']);
+        }
+        $patterns = [];
+        foreach ($families['familias'] as $family) {
+            if (!is_array($family) || !is_string($family['nombre'] ?? null) || @preg_match('#' . str_replace('#', '\\#', $family['nombre']) . '#', '') === false) {
+                return array_merge($failures, ['una familia de ' . self::MANUAL_NOT_SCREENS_RELATIVE_PATH . ' no es una expresión regular válida']);
+            }
+            $patterns[] = '#' . str_replace('#', '\\#', $family['nombre']) . '#';
+        }
+        $screens = [];
+        foreach ($routes as $key => $route) {
+            $name = is_string($key) && $key !== '' ? $key : (string) ($route['name'] ?? '');
+            if (!is_array($route) || !($route['require_login'] ?? false) || !str_contains(strtoupper((string) ($route['method'] ?? '')), 'GET')) {
+                continue;
+            }
+            //La dirección, con cada parámetro relleno: la de una ruta con {id} también cae bajo /admin/.
+            $url = get_route($name, array_fill_keys(array_keys((array) ($route['parameters'] ?? [])), '1'), true);
+            if (!is_string($url) || preg_match('#/admin/#', (string) parse_url($url, \PHP_URL_PATH)) !== 1) {
+                continue;
+            }
+            foreach ($patterns as $pattern) {
+                if (preg_match($pattern, $name) === 1) {
+                    continue 2;
+                }
+            }
+            $screens[] = $name;
+        }
+        sort($screens);
+        $without = array_values(array_filter($screens, fn (string $name): bool => !isset($covered[$name])));
+        $count = count($without);
+        $frozen = $baseline['sin_capitulo'];
+        $first = implode(', ', array_slice($without, 0, 5));
+        if ($count > $frozen) {
+            return array_merge($failures, ["{$count} pantalla(s) del panel sin capítulo del manual, y la línea base es {$frozen}: una pantalla nueva necesita su capítulo (ADR 0072). Las primeras: {$first}"]);
+        }
+        echoTerminal("\e[94mINFO:\e[39m 61 manual: {$count} de " . count($screens) . " pantalla(s) del panel sin capítulo (línea base {$frozen})"
+            . ($count < $frozen ? '; BAJA: actualiza ' . self::MANUAL_COVERAGE_BASELINE_RELATIVE_PATH : '') . ($first !== '' ? ". Las primeras: {$first}" : '.'));
+        return $failures;
     }
 
     /**

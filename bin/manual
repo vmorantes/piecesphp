@@ -1,0 +1,237 @@
+#!/usr/bin/env -S python3 -B
+# El manual de usuario del panel (ADR 0072): convierte los capítulos en Markdown en vistas PHP que se commitean, porque a
+# producción solo viaja src/ y el panel no puede leer Markdown en caliente sin una dependencia nueva.
+#
+# Fuentes: src/app/manual/framework/<idioma>/NN-tema.md y src/app/manual/proyecto/<idioma>/NN-tema.md. Cada capítulo
+# empieza con su cabecera:
+#
+#     ---
+#     titulo: Tu perfil
+#     rutas: todos | [nombre-de-ruta, …]     las pantallas que explica: lo ve quien tiene permiso sobre alguna
+#     oculto: true                           opcional y solo en proyecto: quita el capítulo del framework del mismo nombre
+#     ---
+#
+# Un capítulo de proyecto con el mismo nombre de archivo sustituye al del framework. El orden lo da el prefijo NN. Las
+# imágenes van en img/ junto a cada idioma y se copian a los estáticos de MySpace (Statics/manual/<idioma>/), que las sirve.
+#
+# Genera src/app/classes/MySpace/Views/manual/<idioma>/<slug>.php (el cuerpo, con el marcado de Fomantic) e index.php
+# (slug, titulo, rutas, idioma, origen y fecha de la fuente), dentro del módulo que los pinta. Que una ruta citada
+# EXISTA lo comprueba bin/cli verify-integrity, no este guion: no arranca la aplicación.
+#
+# Uso:
+#   bin/manual            regenera lo generado (si algún capítulo no vale, falla sin escribir nada)
+#   bin/manual --check    falla si lo generado no es lo que daría regenerarlo; no escribe nada
+import datetime, os, re, shutil, subprocess, sys
+
+USO = 'Uso: bin/manual [--check]'
+for _opcion in sys.argv[1:]:
+    if _opcion in ('--help', '-h'):
+        print(USO)
+        sys.exit(0)
+    if _opcion != '--check':
+        print(f'bin/manual: opción desconocida: {_opcion}\n{USO}', file=sys.stderr)
+        sys.exit(2)
+CHECK = '--check' in sys.argv
+
+try:
+    import markdown
+except ImportError:
+    sys.exit('bin/manual: falta python3 con el paquete markdown (python3-markdown, o pip install markdown)')
+
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FUENTES = os.path.join(RAIZ, 'src', 'app', 'manual')
+VISTAS = os.path.join(RAIZ, 'src', 'app', 'classes', 'MySpace', 'Views', 'manual')
+IMAGENES = os.path.join(RAIZ, 'src', 'app', 'classes', 'MySpace', 'Statics', 'manual')
+ORIGENES = ['framework', 'proyecto']
+RUTA_VALIDA = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
+AVISO = '//Generado por bin/manual: se edita el .md (%s).'
+#Las admoniciones de Markdown, como `ui message` de Fomantic.
+MENSAJES = {'note': 'info', 'info': 'info', 'tip': 'positive', 'hint': 'positive', 'success': 'positive',
+            'warning': 'warning', 'caution': 'warning', 'attention': 'warning', 'danger': 'negative', 'error': 'negative'}
+
+errores = []
+
+
+def relativa(ruta):
+    return os.path.relpath(ruta, RAIZ)
+
+
+def php_cadena(valor):
+    return "'" + str(valor).replace('\\', '\\\\').replace("'", "\\'") + "'"
+
+
+def cabecera(ruta, texto, origen):
+    """Separa la cabecera del cuerpo. Devuelve (titulo, rutas, oculto, cuerpo) o None si no vale (y lo anota)."""
+    m = re.match(r'\A---[ \t]*\n(.*?)\n---[ \t]*\n', texto, re.S)
+    if not m:
+        errores.append(f'{relativa(ruta)}: no empieza con su cabecera (---, titulo, rutas, ---)')
+        return None
+    campos = {}
+    for linea in m.group(1).split('\n'):
+        if linea.strip() == '':
+            continue
+        par = re.fullmatch(r'([a-z]+):\s*(.*?)\s*', linea)
+        if not par:
+            errores.append(f'{relativa(ruta)}: línea de cabecera que no se entiende: {linea!r}')
+            return None
+        campos[par.group(1)] = par.group(2)
+    titulo = campos.get('titulo', '')
+    if titulo == '':
+        errores.append(f'{relativa(ruta)}: la cabecera no tiene `titulo`')
+        return None
+    if 'rutas' not in campos:
+        errores.append(f'{relativa(ruta)}: la cabecera no tiene `rutas` (todos, o [nombre-de-ruta, …])')
+        return None
+    valor = campos['rutas']
+    if valor == 'todos':
+        rutas = 'todos'
+    else:
+        lista = re.fullmatch(r'\[(.*)\]', valor)
+        nombres = [n.strip() for n in lista.group(1).split(',')] if lista else []
+        if not lista or nombres == [''] or any(RUTA_VALIDA.fullmatch(n) is None for n in nombres):
+            errores.append(f'{relativa(ruta)}: `rutas: {valor}` no es `todos` ni una lista de nombres de ruta bien formados')
+            return None
+        rutas = nombres
+    oculto = campos.get('oculto', 'false') == 'true'
+    if oculto and origen != 'proyecto':
+        errores.append(f'{relativa(ruta)}: `oculto` solo vale en un capítulo de proyecto')
+        return None
+    return titulo, rutas, oculto, texto[m.end():]
+
+
+def fecha_de(ruta):
+    """La del último commit de la fuente si está guardada tal cual; si no, la de hoy. Así --check no depende del disco."""
+    rel = relativa(ruta)
+    sucio = subprocess.run(['git', '-C', RAIZ, 'status', '--porcelain', '--', rel], capture_output=True, text=True).stdout.strip()
+    if sucio == '':
+        fecha = subprocess.run(['git', '-C', RAIZ, 'log', '-1', '--format=%cs', '--', rel], capture_output=True, text=True).stdout.strip()
+        if fecha != '':
+            return fecha
+    return datetime.date.today().isoformat()
+
+
+def fomantic(html, idioma):
+    """El HTML de Markdown con las clases de Fomantic: sin CSS propio."""
+    html = re.sub(r'<h([1-3])>', r'<h\1 class="ui header">', html)
+    html = html.replace('<table>', '<table class="ui celled table">')
+    #La alineación de una columna (`| :-- |`) sale de Markdown como style= en cada celda: a la clase de Fomantic.
+    html = re.sub(r'<(t[hd]) style="text-align: (left|right|center);"', r'<\1 class="\2 aligned"', html)
+
+    def admonicion(m):
+        tipo = MENSAJES.get(m.group(1), 'info')
+        return f'<div class="ui {tipo} message">\n<div class="header">{m.group(2)}</div>'
+    html = re.sub(r'<div class="admonition ([a-z]+)">\s*<p class="admonition-title">(.*?)</p>', admonicion, html, flags=re.S)
+
+    def imagen(m):
+        atributos = m.group(1)
+        src = re.search(r'src="(?:\./)?img/([^"]+)"', atributos)
+        if src:
+            destino = "<?= escape_html(\\MySpace\\MySpaceRoutes::staticRoute('manual/%s/%s')); ?>" % (idioma, src.group(1).replace("'", ''))
+            atributos = atributos.replace(src.group(0), f'src="{destino}"')
+        return f'<img class="ui image"{atributos}>'
+    html = re.sub(r'<img((?:\s[^>]*?)?)\s*/?>', imagen, html)
+    return html
+
+
+md = markdown.Markdown(extensions=['tables', 'admonition', 'fenced_code'])
+
+#Los capítulos de cada idioma: los del framework y, encima, los del proyecto (sustituyen u ocultan por nombre).
+capitulos = {}
+imagenes = {}
+for origen in ORIGENES:
+    base = os.path.join(FUENTES, origen)
+    if not os.path.isdir(base):
+        continue
+    for idioma in sorted(os.listdir(base)):
+        carpeta = os.path.join(base, idioma)
+        if not os.path.isdir(carpeta) or re.fullmatch(r'[a-z]{2}', idioma) is None:
+            continue
+        for nombre in sorted(os.listdir(carpeta)):
+            ruta = os.path.join(carpeta, nombre)
+            if nombre == 'img' and os.path.isdir(ruta):
+                for img in sorted(os.listdir(ruta)):
+                    if os.path.isfile(os.path.join(ruta, img)):
+                        imagenes[(idioma, img)] = os.path.join(ruta, img)
+                continue
+            if not nombre.endswith('.md'):
+                continue
+            with open(ruta, encoding='utf-8') as f:
+                partes = cabecera(ruta, f.read(), origen)
+            if partes is None:
+                continue
+            titulo, rutas, oculto, cuerpo = partes
+            slug = nombre[:-3]
+            if oculto:
+                capitulos.setdefault(idioma, {}).pop(slug, None)
+                continue
+            capitulos.setdefault(idioma, {})[slug] = (titulo, rutas, origen, cuerpo, ruta)
+
+if errores:
+    print('bin/manual: no se escribe nada:\n  ' + '\n  '.join(errores), file=sys.stderr)
+    sys.exit(1)
+
+#Todo en memoria primero: un capítulo que falle no deja la mitad escrita.
+salidas = {}
+indice = []
+for idioma in sorted(capitulos):
+    for slug in sorted(capitulos[idioma]):
+        titulo, rutas, origen, cuerpo, ruta = capitulos[idioma][slug]
+        #El título va en la cabecera de la pantalla: el primer # del cuerpo no se repite.
+        cuerpo = re.sub(r'\A\s*#\s+[^\n]*\n', '', cuerpo, count=1)
+        md.reset()
+        html = fomantic(md.convert(cuerpo), idioma)
+        salidas[os.path.join(VISTAS, idioma, slug + '.php')] = (
+            '<?php\n' + AVISO % relativa(ruta) + '\ndefined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");\n?>\n'
+            + html + '\n')
+        indice.append((slug, titulo, rutas, idioma, origen, fecha_de(ruta)))
+
+lineas = ['<?php', AVISO % 'src/app/manual/', 'defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");', '',
+          '//Los capítulos del manual: lo usa MySpaceController para filtrar por permiso e idioma.', 'return [']
+for slug, titulo, rutas, idioma, origen, fecha in indice:
+    rutas_php = php_cadena('todos') if rutas == 'todos' else '[' + ', '.join(php_cadena(r) for r in rutas) + ']'
+    lineas.append('    [%s => %s, %s => %s, %s => %s, %s => %s, %s => %s, %s => %s],' % (
+        php_cadena('slug'), php_cadena(slug), php_cadena('titulo'), php_cadena(titulo), php_cadena('rutas'), rutas_php,
+        php_cadena('idioma'), php_cadena(idioma), php_cadena('origen'), php_cadena(origen), php_cadena('fecha'), php_cadena(fecha)))
+lineas.append('];')
+salidas[os.path.join(VISTAS, 'index.php')] = '\n'.join(lineas) + '\n'
+
+copias = {os.path.join(IMAGENES, idioma, img): origen_img for (idioma, img), origen_img in imagenes.items()}
+
+
+def existentes(carpeta):
+    return {os.path.join(r, n) for r, _, ns in os.walk(carpeta) for n in ns} if os.path.isdir(carpeta) else set()
+
+
+if CHECK:
+    distintos = []
+    for destino, contenido in salidas.items():
+        actual = open(destino, encoding='utf-8').read() if os.path.isfile(destino) else None
+        if actual != contenido:
+            distintos.append(relativa(destino))
+    for destino, origen_img in copias.items():
+        if not os.path.isfile(destino) or open(destino, 'rb').read() != open(origen_img, 'rb').read():
+            distintos.append(relativa(destino))
+    sobran = sorted(relativa(p) for p in (existentes(VISTAS) - set(salidas)) | (existentes(IMAGENES) - set(copias)))
+    if distintos or sobran:
+        print('bin/manual: lo generado no es lo que daría regenerarlo; corre bin/manual:\n  '
+              + '\n  '.join(distintos + [s + ' (sobra)' for s in sobran]), file=sys.stderr)
+        sys.exit(1)
+    print(f'bin/manual ejecutado: {len(indice)} capítulo(s), {len(copias)} imagen(es), al día')
+    sys.exit(0)
+
+#Las carpetas de salida son solo del generador: lo que ya no sale de ningún capítulo se retira.
+for sobra in (existentes(VISTAS) - set(salidas)) | (existentes(IMAGENES) - set(copias)):
+    os.remove(sobra)
+for destino, contenido in salidas.items():
+    os.makedirs(os.path.dirname(destino), exist_ok=True)
+    with open(destino, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(contenido)
+for destino, origen_img in copias.items():
+    os.makedirs(os.path.dirname(destino), exist_ok=True)
+    shutil.copyfile(origen_img, destino)
+for carpeta in (VISTAS, IMAGENES):
+    for r, ds, ns in sorted(os.walk(carpeta, topdown=False), reverse=False) if os.path.isdir(carpeta) else []:
+        if r != carpeta and not ds and not ns:
+            os.rmdir(r)
+print(f'bin/manual ejecutado: {len(indice)} capítulo(s) en {len(capitulos)} idioma(s), {len(copias)} imagen(es); escrito '
+      f'{relativa(VISTAS)}/ y {relativa(IMAGENES)}/')

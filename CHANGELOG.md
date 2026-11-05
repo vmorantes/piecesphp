@@ -1,3 +1,8 @@
+# 10.2.0 (04-11-2026)
+
+- **El panel trae un manual de usuario.** Se abre desde el centro de ayuda («Manual») y cada persona ve solo los capítulos de las pantallas en las que puede entrar, en su idioma (y en español si falta). Cubre las pantallas del framework. Tu proyecto añade los suyos en `src/app/manual/proyecto/`, y puede sustituir u ocultar los del framework; se generan con `bin/manual`. `$config['manual_for_pending']` decide si lo ven las cuentas pendientes de aprobación (de fábrica, sí). La guía «El manual de usuario del panel» lo explica.
+- **El CSS del panel, un poco más ligero**: fuera cuatro reglas que repetían lo que ya pinta el tema. Las clases propias que el framework ya no usa llevan la marca `@en-desuso 11.0.0` en su SCSS: si tu proyecto usa alguna en sus vistas, ve buscándole sustituto, porque salen en la `11.0.0`.
+
 # 10.1.2 (04-11-2026)
 
 - **El formulario de soporte del panel envía un correo**, a las direcciones de `$config['support_form_recipients']` (en `config.php`, como `other_problems_recipients`), con la respuesta dirigida a quien escribe. Sin direcciones, el botón no sale. **Ya no usa osTicket**: si tu clon lo usaba para el soporte, pon ahí la dirección de tu mesa de ayuda. osTicket sigue en «otros problemas» del acceso hasta la `11.0.0`, donde sale del framework.

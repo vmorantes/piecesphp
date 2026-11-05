@@ -1,0 +1,54 @@
+# El manual de usuario del panel
+
+El panel trae un **manual para quien lo usa**, no para quien programa. Se abre desde el centro de ayuda (el icono de
+interrogación de la barra superior, entrada «Manual»). Cada persona ve **solo los capítulos de las pantallas en las
+que puede entrar**, en su idioma, y en español si el suyo no existe.
+
+## Escribir un capítulo de tu proyecto
+
+Los capítulos son archivos Markdown con una cabecera:
+
+```markdown
+---
+titulo: Inscripciones
+rutas: [inscripciones-list, inscripciones-forms-add]
+---
+
+# Inscripciones
+
+Desde **«Inscripciones»**, en el menú lateral, ves las del periodo abierto…
+```
+
+- **`rutas`**: los nombres de las rutas de las pantallas que el capítulo explica. Lo ve quien tiene permiso sobre
+  **alguna** de ellas: lo que administra solo un rol, solo lo ve ese rol, y lo que usan todos lo ven todos.
+  `rutas: todos` es para lo general.
+- **Dónde**: en `src/app/manual/proyecto/`, una carpeta por idioma (`es/`, `en/`…) y un archivo por capítulo, `NN-tema.md`. El prefijo `NN` da el orden. Las imágenes, en una
+  carpeta `img/` junto a cada idioma, y en el texto como `![Descripción](img/archivo.png)`.
+- **Los del framework** están en `src/app/manual/framework/`: no los edites, porque una actualización los
+  sobrescribe. Un capítulo de tu proyecto con **el mismo nombre de archivo** sustituye al del framework, y con
+  `oculto: true` en su cabecera lo oculta.
+- Los avisos, con la sintaxis de admonición: `!!! tip "Título"` y el texto sangrado debajo.
+
+## Generar
+
+```bash
+bin/manual           # convierte los capítulos en pantallas del panel
+bin/manual --check   # falla si lo generado no es lo que daría regenerarlo
+```
+
+Lo generado vive en `src/app/classes/MySpace/Views/manual/` y **se commitea**: a producción solo viaja `src/`.
+Cada vez que cambies un capítulo, regenera y commitea. Necesita `python3` con el paquete `markdown` (`python3-markdown` en tu sistema, o `pip install markdown`).
+
+`bin/manual` se niega, sin escribir nada, si un capítulo no tiene cabecera, `titulo` o `rutas`, o si un nombre de ruta
+está mal formado.
+
+## Configuración
+
+- `$config['manual_for_pending']` (`src/app/config/config.php`, `true` de fábrica): si lo ven también las cuentas
+  pendientes de aprobación, que son las que más lo necesitan.
+
+## Ninguna pantalla sin capítulo
+
+`bin/cli verify-integrity` comprueba que toda ruta citada por un capítulo existe, también en tu proyecto. La cuenta
+de pantallas sin capítulo es un trinquete del framework: en tu proyecto no se mide, porque sus listas viven en
+`files/dev/`, que no viaja.

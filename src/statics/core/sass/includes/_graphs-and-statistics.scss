@@ -430,6 +430,7 @@ $dashboardCardGap: pxToRem(16);
                 color: $statisticsPrimaryColor;
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             > .meta-info {
                 display: inline-grid;
                 grid-template-columns: auto auto;
@@ -710,6 +711,7 @@ $dashboardCardGap: pxToRem(16);
             }
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .one-on-break-1 {
             grid-template-columns: auto !important;
 
@@ -718,6 +720,7 @@ $dashboardCardGap: pxToRem(16);
             }
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .two-on-break-1 {
             grid-template-columns: auto auto !important;
 

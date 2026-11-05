@@ -7,6 +7,8 @@ return [
     "Cerrar" => "Close",
     "Cancelar" => "Cancel",
     "Seguridad de usuario" => "User security",
+    "Manual" => "Manual",
+    "Capítulos del manual" => "Manual chapters",
     "Autenticación de dos factores (con app TOTP)" => "Two-factor authentication (with TOTP app)",
     "Cada vez que desactive o active la autenticación de doble factor deberá volver a escanear el código. Esto funciona con aplicaciones como Google Authenticator." => "Each time you disable or enable two-factor authentication, you must rescan the code. This works with apps like Google Authenticator.",
     "Código de seguridad" => "Security code",

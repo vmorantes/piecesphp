@@ -698,16 +698,11 @@ class UserProblemsController extends UsersController
                 $mail = new Mailer();
                 $mailConfig = new MailConfig;
 
-                /**
-                 * @var string
-                 */
+                //user() y name() también escriben, y devuelven MailConfig: sin texto, el remitente queda vacío y el envío falla.
                 $fromAddress = $mailConfig->user();
-                /**
-                 * @var string
-                 */
                 $nameAddress = $mailConfig->name();
 
-                $mail->setFrom($fromAddress, $nameAddress);
+                $mail->setFrom(is_string($fromAddress) ? $fromAddress : '', is_string($nameAddress) ? $nameAddress : '');
                 $mail->addReplyTo($email, $name);
                 foreach ($recipients as $recipient) {
                     $mail->addAddress($recipient);

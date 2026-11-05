@@ -3,6 +3,7 @@
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
 
 //-------- Párrafos descriptivos
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .section-description {
 
     &.#{$globalClassPcs},
@@ -13,6 +14,8 @@
 }
 
 @media screen and (max-width:767px) {
+
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .hidden-767 {
         display: none !important;
     }

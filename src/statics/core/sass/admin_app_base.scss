@@ -9,6 +9,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
 
 //──── Utilidades ────────────────────────────────────────────────────────────────────────
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-any-padding {
     padding-top: 0rem !important;
     padding-right: 0px !important;
@@ -16,46 +17,57 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     padding-left: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-t-padding {
     padding-top: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-r-padding {
     padding-right: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-b-padding {
     padding-bottom: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-l-padding {
     padding-left: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-t-margin {
     margin-top: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-r-margin {
     margin-right: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-b-margin {
     margin-bottom: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-l-margin {
     margin-left: 0px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-scroll-y {
     overflow-y: hidden !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .no-border {
     border: none !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .global-clearfix {
 
     &::before,
@@ -66,6 +78,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .force-hidden {
     display: none !important;
     opacity: 0 !important;
@@ -89,6 +102,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 
     //Contenedor de elementos en la parte superior
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .header-options {
 
         display: grid;
@@ -97,6 +111,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
         column-gap: 1rem;
         padding-bottom: 2rem;
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.only-columns {
             grid-template-columns: 100%;
         }
@@ -122,6 +137,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
                     justify-self: flex-end;
                 }
 
+                // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
                 &.horizontal-middle {
                     align-self: center;
                 }
@@ -149,6 +165,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 
     //Para hacer divisiones en la parte superior de los módulos
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .section-topbar {
         display: grid;
         grid-template-columns: auto auto;
@@ -157,6 +174,8 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 
     @container module-view-container (max-width: 800px) {
+
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .section-topbar {
             grid-template-columns: auto;
         }
@@ -233,10 +252,6 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
                         width: max-content;
                         max-width: 100%;
                         margin: 0 auto;
-
-                        .ui.button {
-                            margin: 0;
-                        }
                     }
                 }
             }
@@ -288,10 +303,12 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
             }
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.no-bg {
             background-color: transparent;
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.no-border {
             border: none;
         }
@@ -304,6 +321,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
             padding: pxToRem(15) pxToRem(0);
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .two-columns-section {
             display: grid;
             grid-template-columns: 50% 50%;
@@ -321,6 +339,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 
     //Contenedor de contenido textual
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .container-standard-text-content {
 
         max-width: 1220px;
@@ -382,6 +401,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
                 }
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             &.natural-height {
                 min-height: 2.71428571em; //Verificar tamaño fomantic por defecto
             }
@@ -389,6 +409,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 
     //Contenedor de tarjetas
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .cards-container-standard {
         position: relative;
         max-width: 1920px;
@@ -425,6 +446,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
             }
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .flex-fields {
             display: flex;
             flex: 0 0 auto;
@@ -434,6 +456,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 
     //Diseño alternativo listado con cards
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .list-cards-container {
         @include list-data-cards();
     }
@@ -463,6 +486,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
                 margin: 0;
                 margin-right: 5px;
 
+                // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
                 &.no-margin {
                     margin-right: 0;
                 }
@@ -522,6 +546,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
         width: 800px;
     }
 
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     .block-centered {
         margin-left: auto;
         margin-right: auto;
@@ -537,6 +562,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     //Reponsive
     @media screen and (max-width: $rsLarge3) {
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .header-options {
 
             column-gap: 1rem;
@@ -553,6 +579,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
 
     @media screen and (max-width: $rsMedium) {
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .header-options {
 
             column-gap: 0.5rem;

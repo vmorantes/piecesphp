@@ -214,6 +214,9 @@ $impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pull
 <div class="ui popup" help-center-menu>
     <div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Centro de ayuda'); ?></div>
     <div class="ui selection list" role="menu" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Ayuda')); ?>">
+        <?php if ($manualChapters !== []) : ?>
+        <a class="item" href="<?= escape_html(\MySpace\Controllers\MySpaceController::routeName('manual')); ?>" role="menuitem" help-center-manual><div class="ui top aligned nowrap relaxed flex"><i class="primary book open bordered icon" aria-hidden="true"></i><div class="content"><div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Manual'); ?></div><div class="description"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cómo usar el panel'); ?></div></div></div></a>
+        <?php endif; ?>
         <?php if ($helpFaqURL !== '') : ?>
         <a class="item" href="<?= escape_html($helpFaqURL); ?>" target="_blank" rel="noopener" role="menuitem"><div class="ui top aligned nowrap relaxed flex"><i class="primary book bordered icon" aria-hidden="true"></i><div class="content"><div class="header"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Preguntas frecuentes'); ?></div><div class="description"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Respuestas rápidas a las dudas más comunes.'); ?></div></div></div></a>
         <?php endif; ?>

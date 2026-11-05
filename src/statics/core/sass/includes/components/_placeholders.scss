@@ -43,10 +43,6 @@ $-attachDescriptionColor: #626363;
     }
 
     &.attached {
-        > .ui.label {
-            display: inline-block;
-        }
-
         > label {
             > .text {
                 padding-top: 25px;

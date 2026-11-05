@@ -112,10 +112,12 @@ foreach (SettingsController::panelGroups() as $configurationGroup) {
     ];
 }
 
-//El centro de ayuda (botón de la barra): soporte, si hay destinatarios del formulario y el usuario puede escribir, y FAQ.
+//El centro de ayuda (botón de la barra): el manual, si ve algún capítulo; soporte, si hay destinatarios del formulario y
+//el usuario puede escribir; y FAQ.
+$manualChapters = \MySpace\Controllers\MySpaceController::manualChapters();
 $canContactSupport = Roles::hasPermissions('admin-tickets-create', $currentUserType) && AdminPanelController::supportFormRecipients() !== [];
 $helpFaqURL = trim((string) get_config('help_faq_url'));
-$withHelpCenter = $canContactSupport || $helpFaqURL !== '';
+$withHelpCenter = $manualChapters !== [] || $canContactSupport || $helpFaqURL !== '';
 
 $withAdminOptions = false;
 $withNews = NEWS_MODULE;

@@ -269,6 +269,7 @@ footer.#{$globalClassPcs} {
         padding: 10px 15px;
         border-top: 1px $footerBorderColor solid;
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .logo-developed {
             img {
                 max-height: 50px;
@@ -278,6 +279,7 @@ footer.#{$globalClassPcs} {
     }
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .container-medium {
 
     .#{$globalClassPcs} &,
@@ -287,6 +289,7 @@ footer.#{$globalClassPcs} {
 }
 
 //Útil
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .mw-400 {
     max-width: 400px !important;
 }
@@ -295,6 +298,7 @@ footer.#{$globalClassPcs} {
     max-width: 800px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .mw-900 {
     max-width: 900px !important;
 }
@@ -303,10 +307,12 @@ footer.#{$globalClassPcs} {
     max-width: 1200px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .mw-1440 {
     max-width: 1440px !important;
 }
 
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .mw-1920 {
     max-width: 1920px !important;
 }
@@ -325,23 +331,8 @@ a.ui.button {
     text-decoration: none !important;
 }
 
-.ui {
-
-    &.tabular.menu {
-        .item:not(.active) {
-            cursor: pointer;
-        }
-    }
-
-    &.secondary.menu {
-        .item:not(.active) {
-            cursor: pointer;
-        }
-    }
-
-}
-
 //──── Vistas de configuración ───────────────────────────────────────────────────────────
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .main-body-header {
     width: 100%;
     height: 300px;
@@ -358,6 +349,7 @@ a.ui.button {
     > .head {
         text-align: center;
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .tittle {
             margin: 0;
             padding: 0;
@@ -366,12 +358,14 @@ a.ui.button {
             font-size: 32px;
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         .sub-tittle {
             color: black;
             font-size: 15px;
         }
     }
 
+    // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
     > .body-card {
         width: 800px;
         height: auto;
@@ -386,10 +380,12 @@ a.ui.button {
         bottom: -30%;
         box-shadow: 0px 0px 10px 0px $colorShadowSoft;
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.no-gap {
             gap: 0;
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         span.card-tag {
             color: $colorFirst;
             font-size: 20px;
@@ -405,11 +401,13 @@ a.ui.button {
             width: calc(100% - 40px);
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.trasparent {
             background-color: transparent;
             box-shadow: none;
         }
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.no-padding {
             padding: 0px;
         }
@@ -461,6 +459,7 @@ a.ui.button {
         height: 100px;
         position: relative;
 
+        // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
         &.fit-image {
             > img {
                 object-fit: contain;
@@ -584,6 +583,7 @@ a.ui.button {
 }
 
 //──── Vista de rutas ────────────────────────────────────────────────────────────────────
+// @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
 .pcs-header-options {
     display: flex;
     flex-wrap: wrap;

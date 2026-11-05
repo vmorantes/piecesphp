@@ -10,18 +10,24 @@ use EventsLog\Mappers\LogsMapper;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use SystemApprovals\SystemApprovalsRoutes;
+use SystemApprovals\Util\Packages\UsersApprovalHandler;
+use SystemApprovals\Util\SystemApprovalManager;
 
 /**
  * MySpaceController.
@@ -105,6 +111,130 @@ class MySpaceController extends AdminPanelController
         $this->render('user-security', $data);
         $this->helpController->render('panel/layout/footer');
         return $response;
+    }
+
+    /**
+     * El manual de usuario (ADR 0072): el índice abre el primer capítulo visible; con {slug}, ese capítulo.
+     *
+     * Un capítulo que no está en el índice o que el usuario no puede ver da 404: no revela que existe.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function manual(Request $request, Response $response)
+    {
+        $currentUser = getLoggedFrameworkUserOrFail();
+        if (get_config('manual_for_pending') === false && self::isPendingAccount($currentUser)) {
+            return throw403($request);
+        }
+        $chapters = self::manualChapters();
+        $slug = $request->getAttribute('slug', null);
+        $chapter = null;
+        foreach ($chapters as $candidate) {
+            if (!is_string($slug) || $candidate['slug'] === $slug) {
+                $chapter = $candidate;
+                break;
+            }
+        }
+        if ($chapter === null) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $title = __(MySpaceLang::LANG_GROUP, 'Manual');
+        set_title($chapter['titulo'] . ' - ' . $title);
+        $data = [];
+        $data['langGroup'] = MySpaceLang::LANG_GROUP;
+        $data['title'] = $chapter['titulo'];
+        $data['helpController'] = $this->helpController;
+        $data['chapters'] = $chapters;
+        $data['current'] = $chapter['slug'];
+        $data['content'] = (string) $this->_render('manual/' . $chapter['idioma'] . '/' . $chapter['slug'] . '.php', [], false);
+        $data['breadcrumbs'] = [
+            __(MySpaceLang::LANG_GROUP, 'Inicio') => [
+                'url' => AdminPanelController::routeName(''),
+            ],
+            $title => [
+                'url' => self::routeName('manual'),
+            ],
+            $chapter['titulo'],
+        ];
+
+        $this->helpController->render('panel/layout/header');
+        $this->render('manual', $data);
+        $this->helpController->render('panel/layout/footer');
+        return $response;
+    }
+
+    /**
+     * Los capítulos del manual que ve el usuario actual, en su idioma o, si el capítulo falta en él, en español.
+     *
+     * Lo ve quien tiene permiso sobre ALGUNA de las rutas que explica (`rutas`), o todos si dice `todos`. Con
+     * `manual_for_pending` en false, una cuenta sin aprobar no ve ninguno.
+     *
+     * @return array<int,array{slug:string,titulo:string,rutas:string|string[],idioma:string,origen:string,fecha:string}>
+     */
+    public static function manualChapters(): array
+    {
+        $currentUser = getLoggedFrameworkUser();
+        if ($currentUser === null || (get_config('manual_for_pending') === false && self::isPendingAccount($currentUser))) {
+            return [];
+        }
+        $indexFile = __DIR__ . '/../Views/manual/index.php';
+        $index = is_file($indexFile) ? require $indexFile : [];
+        $index = is_array($index) ? $index : [];
+        $lang = Config::get_lang();
+        $bySlug = [];
+        foreach ($index as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            $slug = $entry['slug'] ?? null;
+            $chapterLang = $entry['idioma'] ?? null;
+            $title = $entry['titulo'] ?? null;
+            $origin = $entry['origen'] ?? null;
+            $date = $entry['fecha'] ?? null;
+            $routes = $entry['rutas'] ?? null;
+            if (!is_string($slug) || !is_string($chapterLang) || !is_string($title) || !is_string($origin) || !is_string($date)) {
+                continue;
+            }
+            $routes = $routes === 'todos' ? 'todos' : array_values(array_filter(is_array($routes) ? $routes : [], 'is_string'));
+            //El del idioma actual gana; el español, solo si el capítulo falta en el idioma actual.
+            if ($chapterLang === $lang || ($chapterLang === 'es' && !isset($bySlug[$slug]))) {
+                $bySlug[$slug] = ['slug' => $slug, 'titulo' => $title, 'rutas' => $routes, 'idioma' => $chapterLang, 'origen' => $origin, 'fecha' => $date];
+            }
+        }
+        ksort($bySlug);
+        $visible = [];
+        foreach ($bySlug as $entry) {
+            $routes = $entry['rutas'];
+            $allowed = $routes === 'todos';
+            foreach (is_array($routes) ? $routes : [] as $routeName) {
+                if (Roles::hasPermissions($routeName, (int) $currentUser->type)) {
+                    $allowed = true;
+                    break;
+                }
+            }
+            if ($allowed) {
+                $visible[] = $entry;
+            }
+        }
+        return $visible;
+    }
+
+    /**
+     * Si la cuenta está sin aprobar: la misma comprobación que el recorte de SystemApprovalsMiddleware.
+     *
+     * @param UserDataPackage $user
+     * @return bool
+     */
+    public static function isPendingAccount(UserDataPackage $user): bool
+    {
+        if (!SystemApprovalsRoutes::ENABLE || (int) $user->type === UsersModel::TYPE_USER_ROOT) {
+            return false;
+        }
+        $approved = SystemApprovalManager::getInstance()->isApproved(UsersModel::class, $user->id);
+        return !($approved ? $approved : UsersApprovalHandler::isAutoApproval($user->getMapper()));
     }
 
     /**
@@ -223,6 +353,26 @@ class MySpaceController extends AdminPanelController
                 "{$startRoute}/user-security[/]",
                 $classname . ':userSecurity',
                 self::$baseRouteName . '-user-security',
+                'GET',
+                true,
+                null,
+                $allRoles
+            ),
+
+            //El manual de usuario (ADR 0072): para todos; quién ve cada capítulo lo decide manualChapters().
+            new Route(
+                "{$startRoute}/manual[/]",
+                $classname . ':manual',
+                self::$baseRouteName . '-manual',
+                'GET',
+                true,
+                null,
+                $allRoles
+            ),
+            new Route(
+                "{$startRoute}/manual/{slug}[/]",
+                $classname . ':manual',
+                self::$baseRouteName . '-manual-page',
                 'GET',
                 true,
                 null,

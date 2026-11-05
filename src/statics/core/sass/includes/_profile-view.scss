@@ -260,6 +260,7 @@ $avatarOffsetPx3: 40;
                 line-height: pxToRem(24);
             }
 
+            // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
             .tag-special {
                 border-radius: 8px;
                 border: none;

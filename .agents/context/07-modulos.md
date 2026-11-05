@@ -152,6 +152,14 @@ escribe `_allowedRoute()`, **y solo si el módulo tiene reglas de autorización 
 Dentro de las vistas y métodos, los assets se cargan con `set_custom_assets()`,
 `add_global_asset()` e `import_*()` (ver [09-frontend-assets.md](./09-frontend-assets.md)).
 
+## Toda pantalla nueva lleva su capítulo del manual (ADR 0072)
+
+Una ruta GET con sesión bajo `/admin/` que no sea de las familias de `files/dev/manual-not-screens.json` es una
+**pantalla**, y la comprobación 61 de `verify-integrity` la cuenta si ningún capítulo de `src/app/manual/` la cita en
+`rutas:`. La cifra es un trinquete (`files/dev/manual-coverage-baseline.json`): una pantalla nueva sin capítulo la
+hace caer. El capítulo lo escribe el arquitecto **midiendo la pantalla** (`#2365`: uno escrito de memoria nombró
+menús que no existen); se genera con `bin/manual` y lo generado se commitea. Guía: «El manual de usuario del panel», en la de desarrolladores.
+
 ## Inventario de módulos (`src/app/classes/`)
 
 | Módulo | Namespace | Qué hace |
