@@ -1,7 +1,7 @@
 <?php
 
-//La cola de ida y vuelta (D15, 11): lo encola dispatch(), lo toma claim() y lo procesa processJob(), con trabajos suyos
-//y sin tocar los demás pendientes. Y un fallo sin reintento no se reintenta (G10, 2). Crea filas zz- y las borra.
+//La cola de ida y vuelta (D15, 11) con trabajos suyos. Un fallo sin reintento no se reintenta (G10, 2), y uno con reintento
+//sin espera propia vuelve al minuto, no a los 0 (H27, 3d). Crea filas zz- y las borra.
 //@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
@@ -43,6 +43,8 @@ CliActions::make('unit-tests:core/queue-round-trip', function ($args) {
     QueueTask::addQueueHandler(QueueTask::make($sinReintento, fn(): QueueHandlerResponse => QueueHandlerResponse::fail('zz falla sin reintento', false)));
     $conReintento = "{$prefijo}-con-reintento";
     QueueTask::addQueueHandler(QueueTask::make($conReintento, fn(): QueueHandlerResponse => QueueHandlerResponse::fail('zz falla con reintento', true)));
+    $arreglo = "{$prefijo}-arreglo";
+    QueueTask::addQueueHandler(QueueTask::make($arreglo, fn(): array => ['success' => false, 'retry' => true, 'message' => 'zz arreglo con reintento']));
 
     //Encola, toma y procesa SOLO este trabajo; devuelve la fila releída.
     $recorrer = function (string $nombre, array $datos) use (&$ids): ?QueueJobMapper {
@@ -75,11 +77,22 @@ CliActions::make('unit-tests:core/queue-round-trip', function ($args) {
         $check($fila !== null && $fila->errorMessage === 'zz falla sin reintento', '2c con su mensaje', $fila === null ? '' : var_export($fila->errorMessage, true));
         echoTerminal(' ');
 
-        echoTerminal('[3] Un fallo con reintento (como hoy)');
+        echoTerminal('[3] Un fallo con reintento, sin espera propia');
         $fila = $recorrer($conReintento, []);
         $check($fila !== null && $fila->status === QueueJobMapper::STATUS_PENDING, '3a vuelve a pending', $fila === null ? 'sin fila' : (string) $fila->status);
         $check($fila !== null && $fila->scheduledAt !== null, '3b con fecha programada');
         $check($fila !== null && (int) $fila->attempts === 1, '3c con un intento', $fila === null ? '' : (string) $fila->attempts);
+        $programado = $fila !== null ? $fila->scheduledAt : null;
+        $espera = $programado instanceof \DateTime ? $programado->getTimestamp() - time() : (is_string($programado) ? (int) strtotime($programado) - time() : null);
+        $check($espera !== null && $espera >= 45 && $espera <= 61, '3d programado a 1 minuto (el retroceso del primer intento), no a 0', 'segundos: ' . var_export($espera, true));
+        echoTerminal(' ');
+
+        echoTerminal('[4] Un manejador que devuelve un arreglo con reintento y sin delay');
+        $fila = $recorrer($arreglo, []);
+        $check($fila !== null && $fila->status === QueueJobMapper::STATUS_PENDING, '4a vuelve a pending', $fila === null ? 'sin fila' : (string) $fila->status);
+        $programado = $fila !== null ? $fila->scheduledAt : null;
+        $espera = $programado instanceof \DateTime ? $programado->getTimestamp() - time() : (is_string($programado) ? (int) strtotime($programado) - time() : null);
+        $check($espera !== null && $espera >= 45 && $espera <= 61, '4b programado a 1 minuto, como un fail() sin delay, no a 0', 'segundos: ' . var_export($espera, true));
     } finally {
         foreach ($ids as $id) {
             $statement = $database->prepare("DELETE FROM `{$tabla}` WHERE id = ? AND name LIKE ?");
@@ -98,4 +111,4 @@ CliActions::make('unit-tests:core/queue-round-trip', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('La cola de ida y vuelta: dispatch(), claim() y processJob() con trabajos propios (éxito con sus datos, fallo sin reintento que queda failed y fallo con reintento que vuelve a pending). Crea filas zz- y las borra.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('La cola de ida y vuelta: dispatch(), claim() y processJob() con trabajos propios (éxito con sus datos, fallo sin reintento que queda failed y fallo con reintento que vuelve a pending con el retroceso de 1 minuto). Crea filas zz- y las borra.')->setEffects([CliActions::EFFECT_DATABASE])->register();

@@ -27,8 +27,8 @@ class QueueHandlerResponse
     /** @var bool Indica si se solicita un reintento (sin necesariamente ser un error fatal) */
     public $retry = false;
 
-    /** @var int Tiempo en minutos para el próximo reintento */
-    public $delay = 0;
+    /** @var int Tiempo en minutos para el próximo reintento; -1, sin sugerencia: el procesador usa su retroceso */
+    public $delay = -1;
 
     /** @var array Datos adicionales resultantes del procesamiento */
     public $data = [];
@@ -37,10 +37,10 @@ class QueueHandlerResponse
      * @param bool $success
      * @param string $message
      * @param bool $retry
-     * @param int $delay
+     * @param int $delay Minutos hasta el próximo intento; -1 (por omisión), sin sugerencia: el procesador usa su retroceso
      * @param array $data
      */
-    public function __construct(bool $success = true, string $message = '', bool $retry = false, int $delay = 0, array $data = [])
+    public function __construct(bool $success = true, string $message = '', bool $retry = false, int $delay = -1, array $data = [])
     {
         $this->success = $success;
         $this->message = $message;
@@ -59,8 +59,10 @@ class QueueHandlerResponse
 
     /**
      * Respuesta de fallo (gatilla reintentos automáticos si maxAttempts > attempts).
+     *
+     * @param int $delay Minutos hasta el reintento; -1 (por omisión), el retroceso del procesador (1, 5, 15, 30, 60)
      */
-    public static function fail(string $message = 'La tarea ha fallado.', bool $retry = true, int $delay = 0, array $data = []): self
+    public static function fail(string $message = 'La tarea ha fallado.', bool $retry = true, int $delay = -1, array $data = []): self
     {
         return new self(false, $message, $retry, $delay, $data);
     }
@@ -107,7 +109,7 @@ class QueueHandlerResponse
     }
 
     /**
-     * @return int
+     * @return int Los minutos que pide el manejador; -1 si no pide ninguno y el procesador usa su retroceso
      */
     public function getDelay(): int
     {

@@ -1558,7 +1558,9 @@ class UsersController extends AdminPanelController
             ),
         ]);
 
-        $parametersExcepted->setInputValues($request->getParsedBody());
+        //Sin cuerpo, getParsedBody() da null: con [] la validación responde su 400, no un TypeError.
+        $body = $request->getParsedBody();
+        $parametersExcepted->setInputValues(is_array($body) ? $body : []);
 
         $message_create = __(self::LANG_GROUP, 'Usuario creado.');
         $message_duplicate_email = __(self::LANG_GROUP, 'Ya existe un usuario con ese email.');
@@ -1920,7 +1922,9 @@ class UsersController extends AdminPanelController
             ),
         ]);
 
-        $parametersExcepted->setInputValues($request->getParsedBody());
+        //Sin cuerpo, getParsedBody() da null: con [] la validación responde su 400, no un TypeError.
+        $body = $request->getParsedBody();
+        $parametersExcepted->setInputValues(is_array($body) ? $body : []);
 
         $message_edit = __(self::LANG_GROUP, 'Usuario editado.');
         $message_duplicate_email = __(self::LANG_GROUP, 'Ya existe un usuario con ese email.');

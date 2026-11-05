@@ -315,7 +315,9 @@ class GenericTokenController extends AdminPanelController
                 $token,
             ]);
 
-            $parametersExcepted->setInputValues($req->getParsedBody());
+            //Sin cuerpo, getParsedBody() da null: con [] la validación responde su 400, no un TypeError.
+            $body = $req->getParsedBody();
+            $parametersExcepted->setInputValues(is_array($body) ? $body : []);
 
             try {
 

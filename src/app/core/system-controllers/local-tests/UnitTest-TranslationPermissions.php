@@ -194,6 +194,20 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $resultado = $atender();
         $check($resultado === '404', 'l5 un general, en la lista, pasa la puerta y llega a la acción', $resultado);
         $check($urlDelBoton() !== '', 'l6 y su vista sí recibe la URL');
+        //H129: un POST sin cuerpo da null en getParsedBody(), y setInputValues(array) lanzaba un TypeError (el 500).
+        $sinCuerpo = (new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/zz-prueba-traduccion'), new Headers(), [], [], (new StreamFactory())->createStream('')))
+            ->withAttribute('route', null);
+        $check($sinCuerpo->getParsedBody() === null && $sinCuerpo->getAttribute('actionType', 'translate') === 'translate', 'l8 CANARIO: la petición no trae cuerpo y pide «translate»');
+        try {
+            $respuesta = (new APIController())->translations($sinCuerpo, new ResponseRoute());
+            $cuerpo = json_decode((string) $respuesta->getBody(), true);
+            $resultado = $respuesta->getStatusCode() . ' ' . (string) $respuesta->getBody();
+            $responde = $respuesta->getStatusCode() !== 500 && is_array($cuerpo) && ($cuerpo['success'] ?? null) === false && str_contains((string) ($cuerpo['error'] ?? ''), 'text');
+        } catch (\TypeError $e) {
+            $resultado = 'TypeError: ' . mb_substr($e->getMessage(), 0, 160);
+            $responde = false;
+        }
+        $check($responde, 'l9 DISCRIMINANTE: sin cuerpo responde la validación (success false, «text» obligatorio), no un TypeError', mb_substr($resultado, 0, 200));
         set_config('current_user', null);
         set_config('pcsphp_current_user_stored', null);
         $check(!APIController::currentUserCanTranslate(), 'l7 sin sesión, la regla dice que no');

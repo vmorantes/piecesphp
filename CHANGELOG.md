@@ -1,3 +1,9 @@
+# 10.1.1 (04-11-2026)
+
+- **La cola reintenta con espera.** Un fallo con reintento volvía a la cola en el acto; ahora espera 1, 5, 15, 30 y 60 minutos según el intento, salvo que el manejador pida su propia espera: `QueueHandlerResponse::fail($mensaje, true, $minutos)`, o `delay` en el arreglo que devuelve. **Si tu manejador contaba con el reintento inmediato**, pasa `0` de forma explícita.
+- **Un formulario enviado sin datos ya no da un error interno** en el registro y la edición de usuarios, los tokens genéricos y las traducciones de la API: responde la validación, como con cualquier dato que falte.
+- **`seconds_to_duration()` pasa de 24 horas** (90.000 segundos dan 25 horas, no 1) y **`decimalCoordinatesToDMS()` acepta la coma decimal**.
+
 # 10.1.0 (04-11-2026)
 
 - **Las gráficas del panel se dibujan con Apache ECharts 5.5.1**: Registros › Accesos, Informes y el ejemplo de la hoja de diseño. Para las tuyas: `import_echarts()` en el controlador y, en `chart-card.php`, `chartModifiers` (el contenedor pasa a ser un `ui chart` del tema; una dona necesita al menos `['tall']`). `linkStatisticsChartLegend()` enlaza la leyenda con un gráfico de ECharts, y `resizeStatisticsChart()` lo redimensiona con la ventana y al abrir su pestaña. La guía de estadísticas trae un ejemplo completo.

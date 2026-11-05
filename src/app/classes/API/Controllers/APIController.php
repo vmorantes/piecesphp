@@ -598,7 +598,8 @@ class APIController extends AdminPanelController
                     } else {
                         $inputValues = $request->getQueryParams();
                     }
-                    $expectedParameters->setInputValues($inputValues);
+                    //Sin cuerpo, getParsedBody() da null: con [] la validación responde su 400, no un TypeError.
+                    $expectedParameters->setInputValues(is_array($inputValues) ? $inputValues : []);
                     $expectedParameters->validate();
 
                     $text = $expectedParameters->getValue('text') ?? [];

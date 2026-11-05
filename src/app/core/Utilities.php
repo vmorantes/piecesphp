@@ -1167,11 +1167,10 @@ function seconds_to_duration(int $seconds_count, array $options = [])
     $second = $default_options['second']['value'];
     $seconds = $default_options['seconds']['value'];
 
-    $time = explode(':', gmdate("H:i:s", $seconds_count));
-
-    $h = $time[0];
-    $m = $time[1];
-    $s = $time[2];
+    //Las horas sin vuelta a las 24: gmdate("H") daba «01» con 90000 s.
+    $h = str_pad((string) intdiv($seconds_count, 3600), 2, '0', STR_PAD_LEFT);
+    $m = str_pad((string) intdiv($seconds_count % 3600, 60), 2, '0', STR_PAD_LEFT);
+    $s = str_pad((string) ($seconds_count % 60), 2, '0', STR_PAD_LEFT);
 
     if ($h == 0 || $h > 1) {
         $h .= $hours;
@@ -1252,18 +1251,19 @@ function decimalCoordinatesToDMS(string $value, string $type = 'longitude', stri
     $pointDelete = $decimalPoint == '.' ? ',' : '.';
     $valid = false;
 
-    $value = trim(str_replace($pointDelete, '', $value));
+    //Sin separador de miles y con el decimal en punto: is_numeric() no acepta la coma, y con ella todo daba null.
+    $value = str_replace($decimalPoint, '.', trim(str_replace($pointDelete, '', $value)));
 
     if (is_numeric($value)) {
 
-        $pointsCount = substr_count($value, $decimalPoint);
+        $pointsCount = substr_count($value, '.');
 
         if ($pointsCount === 1 || $pointsCount === 0) {
 
             $valid = true;
 
             if ($pointsCount === 0) {
-                $value .= "{$decimalPoint}0";
+                $value .= '.0';
             }
 
         }
@@ -1272,7 +1272,7 @@ function decimalCoordinatesToDMS(string $value, string $type = 'longitude', stri
 
     if ($valid) {
 
-        $parts = explode(".", $value);
+        $parts = explode('.', $value);
         $degrees = (int) $parts[0];
         $time = $parts[1];
         $temporalReference = (float) "0.{$time}";

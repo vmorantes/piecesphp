@@ -81,7 +81,8 @@ class QueueTask
                     $result['success'] ?? true,
                     $result['message'] ?? '',
                     $result['retry'] ?? false,
-                    $result['delay'] ?? 0,
+                    //Sin delay, -1: el retroceso del procesador (H27). Con 0, el reintento sería inmediato.
+                    $result['delay'] ?? -1,
                     $result['data'] ?? []
                 );
             }
