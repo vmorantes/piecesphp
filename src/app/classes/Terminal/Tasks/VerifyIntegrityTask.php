@@ -2983,7 +2983,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * 61. El manual de usuario (ADR 0072): toda ruta que cita un capítulo existe, y la cifra de pantallas del panel sin
+     * 61. El manual de usuario (ADR 0072): toda ruta que cita un capítulo, en `rutas` y en `ve`, existe, y la cifra de pantallas del panel sin
      * capítulo solo baja (trinquete en `manual-coverage-baseline.json`).
      *
      * Pantalla: ruta GET con sesión cuya dirección cae bajo `/admin/`, fuera de las familias de `manual-not-screens.json`.
@@ -3016,6 +3016,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue;
                 }
                 $covered[$routeName] = true;
+            }
+            //`ve` decide quién ve el capítulo: una ruta suya que no exista lo esconde a todos. No cubre: cubre `rutas`.
+            $seenBy = is_array($chapter) ? ($chapter['ve'] ?? []) : [];
+            foreach (is_array($seenBy) ? $seenBy : [] as $routeName) {
+                if (!is_string($routeName) || !array_key_exists($routeName, $routes)) {
+                    $failures[] = 'el capítulo «' . ($chapter['slug'] ?? '?') . '» (' . ($chapter['idioma'] ?? '?') . ') tiene en `ve` la ruta «' . (is_string($routeName) ? $routeName : '?') . '», que no existe';
+                }
             }
         }
 

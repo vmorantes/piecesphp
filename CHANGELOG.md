@@ -1,3 +1,7 @@
+# 10.2.1 (04-11-2026)
+
+- **Cada usuario ve en el manual solo lo suyo.** Las fichas del Directorio y el perfil público de una organización tienen su propio capítulo, y «Usuarios» y «Organizaciones» solo los ve quien los administra. Para tus capítulos, una cabecera nueva y opcional: `ve: [ruta, …]` dice cuáles de sus `rutas` deciden quién lo ve (sin ella, todas, como hasta ahora). Regenera con `bin/manual`.
+
 # 10.2.0 (04-11-2026)
 
 - **El panel trae un manual de usuario.** Se abre desde el centro de ayuda («Manual») y cada persona ve solo los capítulos de las pantallas en las que puede entrar, en su idioma (y en español si falta). Cubre las pantallas del framework. Tu proyecto añade los suyos en `src/app/manual/proyecto/`, y puede sustituir u ocultar los del framework; se generan con `bin/manual`. `$config['manual_for_pending']` decide si lo ven las cuentas pendientes de aprobación (de fábrica, sí). La guía «El manual de usuario del panel» lo explica.

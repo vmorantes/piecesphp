@@ -81,5 +81,3 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tbody>
 </table>
 <p>Junto a cada campo de contraseña hay un botón <strong>«Mostrar contraseña»</strong> para ver lo que escribes. Cuando termines, pulsa <strong>«Guardar»</strong>.</p>
-<h2 class="ui header">El perfil de una persona</h2>
-<p>Desde el <strong>Directorio</strong>, el botón <strong>«Ver perfil»</strong> de una persona abre su ficha pública. Arriba, las migas de pan te llevan de vuelta al Directorio. Es una pantalla para consultar: no tiene campos que llenar. Más detalles en el capítulo del Directorio.</p>

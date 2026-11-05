@@ -169,10 +169,11 @@ class MySpaceController extends AdminPanelController
     /**
      * Los capítulos del manual que ve el usuario actual, en su idioma o, si el capítulo falta en él, en español.
      *
-     * Lo ve quien tiene permiso sobre ALGUNA de las rutas que explica (`rutas`), o todos si dice `todos`. Con
+     * Lo ve quien tiene permiso sobre ALGUNA de las rutas de `ve`, si el capítulo la trae, o de `rutas` si no; o todos
+     * si dice `todos`. `ve` separa lo administrativo de lo que puede mucha gente en un mismo capítulo (JDY). Con
      * `manual_for_pending` en false, una cuenta sin aprobar no ve ninguno.
      *
-     * @return array<int,array{slug:string,titulo:string,rutas:string|string[],idioma:string,origen:string,fecha:string}>
+     * @return array<int,array{slug:string,titulo:string,rutas:string|string[],ve:string[],idioma:string,origen:string,fecha:string}>
      */
     public static function manualChapters(): array
     {
@@ -199,9 +200,11 @@ class MySpaceController extends AdminPanelController
                 continue;
             }
             $routes = $routes === 'todos' ? 'todos' : array_values(array_filter(is_array($routes) ? $routes : [], 'is_string'));
+            $seenBy = $entry['ve'] ?? [];
+            $seenBy = array_values(array_filter(is_array($seenBy) ? $seenBy : [], 'is_string'));
             //El del idioma actual gana; el español, solo si el capítulo falta en el idioma actual.
             if ($chapterLang === $lang || ($chapterLang === 'es' && !isset($bySlug[$slug]))) {
-                $bySlug[$slug] = ['slug' => $slug, 'titulo' => $title, 'rutas' => $routes, 'idioma' => $chapterLang, 'origen' => $origin, 'fecha' => $date];
+                $bySlug[$slug] = ['slug' => $slug, 'titulo' => $title, 'rutas' => $routes, 've' => $seenBy, 'idioma' => $chapterLang, 'origen' => $origin, 'fecha' => $date];
             }
         }
         ksort($bySlug);
@@ -209,7 +212,9 @@ class MySpaceController extends AdminPanelController
         foreach ($bySlug as $entry) {
             $routes = $entry['rutas'];
             $allowed = $routes === 'todos';
-            foreach (is_array($routes) ? $routes : [] as $routeName) {
+            //Sin `ve`, deciden todas las que explica.
+            $deciding = $entry['ve'] !== [] ? $entry['ve'] : (is_array($routes) ? $routes : []);
+            foreach ($deciding as $routeName) {
                 if (Roles::hasPermissions($routeName, (int) $currentUser->type)) {
                     $allowed = true;
                     break;

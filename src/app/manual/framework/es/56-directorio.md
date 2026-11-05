@@ -1,6 +1,6 @@
 ---
 titulo: Directorio
-rutas: [directory-admin-list]
+rutas: [directory-admin-list, profile-admin-profile, profile-organization-admin-profile]
 ---
 
 # Directorio
@@ -21,4 +21,12 @@ Una tabla con tres columnas: **Actor** (la persona u organización), **Ubicació
 - **«Exportar listado actual»**: descarga lo que estás viendo.
 
 !!! tip "Editar una organización"
-    En la ficha de una organización, el botón **«Editar»** lleva a su perfil público. Se explica en el capítulo de Organizaciones.
+    En la ficha de una organización, el botón **«Editar»** lleva a su perfil público. Se explica en el capítulo **Tu organización**.
+
+## El perfil de una persona
+
+Desde el **Directorio**, el botón **«Ver perfil»** de una persona abre su ficha pública. Arriba, las migas de pan te llevan de vuelta al Directorio. Es una pantalla para consultar: no tiene campos que llenar.
+
+## La ficha de una organización
+
+Con **«Ver perfil»** se abre la ficha de la organización, con las migas **Inicio › Directorio › nombre de la organización**. Es una pantalla para consultar. El botón **«Editar»** lleva a su perfil público.

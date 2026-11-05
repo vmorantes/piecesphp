@@ -1,6 +1,7 @@
 ---
 titulo: Organizaciones
-rutas: [organizations-admin-list, organizations-admin-forms-add, organizations-admin-forms-edit, my-organization-profile-admin-my-organization-profile, profile-organization-admin-profile]
+rutas: [organizations-admin-list, organizations-admin-forms-add, organizations-admin-forms-edit]
+ve: [organizations-admin-list, organizations-admin-forms-add]
 ---
 
 # Organizaciones
@@ -47,41 +48,3 @@ Los dos formularios son casi iguales. La edición añade el botón **«Perfil p�
 | Estado | Sí | |
 
 También puedes **«Cambiar imagen»** para poner la imagen de la organización. Termina con **«Guardar»**.
-
-## El perfil público de la organización
-
-Se abre con **«Perfil público»**. Dice, arriba, que es lo que los demás ven de la organización en el Directorio y en el mapa. Tiene dos pestañas: **Datos generales** y **Datos profesionales**. Si la organización no tiene persona encargada, el perfil no se puede modificar: elige una con **«Cambiar»**.
-
-Desde aquí puedes:
-
-- **«Cuenta»**: vuelve a los datos de la cuenta de la organización.
-- **«Ver perfil»**: abre la ficha de la organización.
-- **«Cambiar imagen»**.
-- **«Guardar»** o **«Cancelar»**.
-
-Campos de la pestaña **Datos generales**:
-
-| Campo | Obligatorio | Para qué |
-| :-- | :-- | :-- |
-| Nombre de la organización | Sí | |
-| Sector de actividad - Es | Sí | El sector, en español |
-| Sector de actividad - En | Sí | El sector, en inglés |
-| Correo electrónico | Sí | |
-| Enlace LinkedIn | No | |
-| Enlace página web | No | |
-| País | Sí | |
-| Ciudad | Sí | |
-| Teléfono | No | |
-
-Al final, marca la ubicación en el mapa.
-
-Campos de la pestaña **Datos profesionales**:
-
-| Campo | Obligatorio | Para qué |
-| :-- | :-- | :-- |
-| Instituciones a las que pertenece actualmente | No | |
-| Mostrar el perfil de la organización en el directorio y en el mapa | No | Una casilla para decidir si el perfil se muestra |
-
-## La ficha de una organización
-
-Con **«Ver perfil»** se abre la ficha de la organización, con las migas **Inicio › Directorio › nombre de la organización**. Es una pantalla para consultar. El botón **«Editar»** lleva a su perfil público.

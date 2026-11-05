@@ -22,6 +22,9 @@ Desde **«Inscripciones»**, en el menú lateral, ves las del periodo abierto…
 - **`rutas`**: los nombres de las rutas de las pantallas que el capítulo explica. Lo ve quien tiene permiso sobre
   **alguna** de ellas: lo que administra solo un rol, solo lo ve ese rol, y lo que usan todos lo ven todos.
   `rutas: todos` es para lo general.
+- **`ve`** (opcional): si el capítulo explica a la vez pantallas de administración y alguna que puede mucha gente,
+  `ve: [ruta, …]` dice cuáles de sus `rutas` deciden quién lo ve. Por ejemplo, un capítulo de administración que cita
+  también la edición que cada uno hace de lo suyo: `ve` con la lista y el alta, y lo verá solo quien administra.
 - **Dónde**: en `src/app/manual/proyecto/`, una carpeta por idioma (`es/`, `en/`…) y un archivo por capítulo, `NN-tema.md`. El prefijo `NN` da el orden. Las imágenes, en una
   carpeta `img/` junto a cada idioma, y en el texto como `![Descripción](img/archivo.png)`.
 - **Los del framework** están en `src/app/manual/framework/`: no los edites, porque una actualización los

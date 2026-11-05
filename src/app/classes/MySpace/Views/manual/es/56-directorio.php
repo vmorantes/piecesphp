@@ -14,5 +14,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </ul>
 <div class="ui positive message">
 <div class="header">Editar una organización</div>
-<p>En la ficha de una organización, el botón <strong>«Editar»</strong> lleva a su perfil público. Se explica en el capítulo de Organizaciones.</p>
+<p>En la ficha de una organización, el botón <strong>«Editar»</strong> lleva a su perfil público. Se explica en el capítulo <strong>Tu organización</strong>.</p>
 </div>
+<h2 class="ui header">El perfil de una persona</h2>
+<p>Desde el <strong>Directorio</strong>, el botón <strong>«Ver perfil»</strong> de una persona abre su ficha pública. Arriba, las migas de pan te llevan de vuelta al Directorio. Es una pantalla para consultar: no tiene campos que llenar.</p>
+<h2 class="ui header">La ficha de una organización</h2>
+<p>Con <strong>«Ver perfil»</strong> se abre la ficha de la organización, con las migas <strong>Inicio › Directorio › nombre de la organización</strong>. Es una pantalla para consultar. El botón <strong>«Editar»</strong> lleva a su perfil público.</p>

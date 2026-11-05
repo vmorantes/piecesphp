@@ -1,6 +1,6 @@
 ---
 titulo: Usuarios
-rutas: [users-list, users-selection-create, users-form-create, users-form-edit, profile-admin-profile]
+rutas: [users-list, users-selection-create, users-form-create, users-form-edit]
 ---
 
 # Usuarios
@@ -44,7 +44,3 @@ El formulario de alta y el de edición son casi iguales. En la edición, el tít
 | Estado | Sí | Si la cuenta está activa o no |
 
 Junto a cada campo de contraseña hay un botón **«Mostrar contraseña»** para ver lo que escribes. Cuando termines, pulsa **«Guardar»**.
-
-## El perfil de una persona
-
-Desde el **Directorio**, el botón **«Ver perfil»** de una persona abre su ficha pública. Arriba, las migas de pan te llevan de vuelta al Directorio. Es una pantalla para consultar: no tiene campos que llenar. Más detalles en el capítulo del Directorio.
