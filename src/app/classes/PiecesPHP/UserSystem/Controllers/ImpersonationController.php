@@ -16,7 +16,6 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\SessionToken;
-use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
@@ -105,7 +104,7 @@ class ImpersonationController extends AdminPanelController
         if (!self::isImpersonating()) {
             return self::refused($response, __(self::LANG_GROUP, 'No está actuando como otro usuario.'));
         }
-        $rootID = (int) get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
+        $rootID = Impersonation::rootOriginalID() ?? 0;
         self::clearCookie();
         if (LogsRoutes::ENABLE) {
             LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_END, [
@@ -129,9 +128,7 @@ class ImpersonationController extends AdminPanelController
      */
     public static function isImpersonating(): bool
     {
-        $rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-        $asUserID = get_config(ROOT_ID_AS_CONNECT_CONFIG_NAME);
-        return Validator::isInteger($rootOriginalID) && Validator::isInteger($asUserID) && (int) $rootOriginalID !== (int) $asUserID;
+        return Impersonation::isImpersonating();
     }
 
     /**

@@ -22,85 +22,87 @@ $withSources = count($sources) > 0;
     <div class="geo-empty"><?= __($langGroup, 'No tiene acceso a ningún dato del mapa.'); ?></div>
     <?php endif; ?>
 
-    <div class="geo-toolbar">
-        <button type="button" class="ui icon button" data-geo-toggle="filters" aria-expanded="false" title="<?= __($langGroup, 'Filtros'); ?>">
-            <i class="sliders horizontal icon"></i>
-        </button>
-        <button type="button" class="ui icon button" data-geo-toggle="legend" aria-expanded="false" title="<?= __($langGroup, 'Leyenda'); ?>">
-            <i class="list ul icon"></i>
-        </button>
-    </div>
-
-    <div class="geo-panel geo-panel-filters" data-geo-panel="filters" hidden>
-        <div class="geo-panel-header">
-            <span class="ui small header"><?= __($langGroup, 'Filtros'); ?></span>
-            <button type="button" class="ui icon basic button" data-geo-close="filters" title="<?= __($langGroup, 'Cerrar'); ?>"><i class="close icon"></i></button>
+    <div class="geo-side">
+        <div class="geo-toolbar">
+            <button type="button" class="ui icon button" data-geo-toggle="filters" aria-expanded="false" title="<?= __($langGroup, 'Filtros'); ?>">
+                <i class="sliders horizontal icon"></i>
+            </button>
+            <button type="button" class="ui icon button" data-geo-toggle="legend" aria-expanded="false" title="<?= __($langGroup, 'Leyenda'); ?>">
+                <i class="map outline icon"></i>
+            </button>
         </div>
-        <form class="ui form" data-geo-filters autocomplete="off">
-            <?php foreach ($filters as $filter): ?>
-            <?php $fieldID = 'geo-filter-' . $filter->key(); ?>
-            <?php if ($filter->type() === GeoFilter::TYPE_TEXT): ?>
-            <div class="field">
-                <label for="<?= escape_html($fieldID); ?>"><?= escape_html($filter->label()); ?></label>
-                <input type="text" id="<?= escape_html($fieldID); ?>" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_TEXT; ?>">
+
+        <div class="geo-panel geo-panel-filters" data-geo-panel="filters" hidden>
+            <div class="geo-panel-header">
+                <span class="ui small header"><?= __($langGroup, 'Filtros'); ?></span>
+                <button type="button" class="ui icon basic button" data-geo-close="filters" title="<?= __($langGroup, 'Cerrar'); ?>"><i class="close icon"></i></button>
             </div>
-            <?php elseif ($filter->type() === GeoFilter::TYPE_OPTIONS): ?>
-            <div class="field">
-                <label for="<?= escape_html($fieldID); ?>"><?= escape_html($filter->label()); ?></label>
-                <select multiple class="ui search multiple selection dropdown" id="<?= escape_html($fieldID); ?>" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_OPTIONS; ?>">
-                    <option value=""><?= escape_html($filter->label()); ?></option>
-                    <?php foreach ($filter->options() as $value => $text): ?>
-                    <option value="<?= escape_html($value); ?>"><?= escape_html($text); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php elseif ($filter->type() === GeoFilter::TYPE_REMOTE_OPTIONS): ?>
-            <div class="field">
-                <label for="<?= escape_html($fieldID); ?>"><?= escape_html($filter->label()); ?></label>
-                <select multiple class="ui search multiple selection dropdown" id="<?= escape_html($fieldID); ?>" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_REMOTE_OPTIONS; ?>" data-search-url="<?= escape_html(GeoController::routeName('filter-options', ['key' => $filter->key()], true)); ?>">
-                    <option value=""><?= escape_html($filter->label()); ?></option>
-                </select>
-            </div>
-            <?php else: ?>
-            <div class="two fields" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_DATE_RANGE; ?>">
-                <div class="field" calendar-js calendar-type="date">
-                    <label><?= escape_html($filter->label()); ?> · <?= __($langGroup, 'desde'); ?></label>
-                    <input type="text" data-geo-date="from">
+            <form class="ui form" data-geo-filters autocomplete="off">
+                <?php foreach ($filters as $filter): ?>
+                <?php $fieldID = 'geo-filter-' . $filter->key(); ?>
+                <?php if ($filter->type() === GeoFilter::TYPE_TEXT): ?>
+                <div class="field">
+                    <label for="<?= escape_html($fieldID); ?>"><?= escape_html($filter->label()); ?></label>
+                    <input type="text" id="<?= escape_html($fieldID); ?>" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_TEXT; ?>">
                 </div>
-                <div class="field" calendar-js calendar-type="date">
-                    <label><?= escape_html($filter->label()); ?> · <?= __($langGroup, 'hasta'); ?></label>
-                    <input type="text" data-geo-date="to">
+                <?php elseif ($filter->type() === GeoFilter::TYPE_OPTIONS): ?>
+                <div class="field">
+                    <label for="<?= escape_html($fieldID); ?>"><?= escape_html($filter->label()); ?></label>
+                    <select multiple class="ui search multiple selection dropdown" id="<?= escape_html($fieldID); ?>" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_OPTIONS; ?>">
+                        <option value=""><?= escape_html($filter->label()); ?></option>
+                        <?php foreach ($filter->options() as $value => $text): ?>
+                        <option value="<?= escape_html($value); ?>"><?= escape_html($text); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php elseif ($filter->type() === GeoFilter::TYPE_REMOTE_OPTIONS): ?>
+                <div class="field">
+                    <label for="<?= escape_html($fieldID); ?>"><?= escape_html($filter->label()); ?></label>
+                    <select multiple class="ui search multiple selection dropdown" id="<?= escape_html($fieldID); ?>" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_REMOTE_OPTIONS; ?>" data-search-url="<?= escape_html(GeoController::routeName('filter-options', ['key' => $filter->key()], true)); ?>">
+                        <option value=""><?= escape_html($filter->label()); ?></option>
+                    </select>
+                </div>
+                <?php else: ?>
+                <div class="two fields" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_DATE_RANGE; ?>">
+                    <div class="field" calendar-js calendar-type="date">
+                        <label><?= escape_html($filter->label()); ?> · <?= __($langGroup, 'desde'); ?></label>
+                        <input type="text" data-geo-date="from">
+                    </div>
+                    <div class="field" calendar-js calendar-type="date">
+                        <label><?= escape_html($filter->label()); ?> · <?= __($langGroup, 'hasta'); ?></label>
+                        <input type="text" data-geo-date="to">
+                    </div>
+                </div>
+                <?php endif; ?>
+                <?php endforeach; ?>
+                <?php if (count($filters) > 0): ?>
+                <button type="reset" class="ui button" data-geo-reset><?= __($langGroup, 'Quitar los filtros'); ?></button>
+                <?php endif; ?>
+            </form>
+        </div>
+
+        <div class="geo-panel geo-panel-legend" data-geo-panel="legend" hidden>
+            <div class="geo-panel-header">
+                <span class="ui small header"><?= __($langGroup, 'Leyenda'); ?></span>
+                <button type="button" class="ui icon basic button" data-geo-close="legend" title="<?= __($langGroup, 'Cerrar'); ?>"><i class="close icon"></i></button>
+            </div>
+            <?php foreach ($sources as $key => $source): ?>
+            <div class="geo-legend-row" style="--geo-legend-color: var(<?= escape_html($source->colorVariable()); ?>);">
+                <span class="geo-legend-sample" data-geo-legend-sample="<?= escape_html($source->marker()); ?>"></span>
+                <label for="<?= escape_html('geo-source-' . $key); ?>"><?= escape_html($source->title()); ?></label>
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" checked id="<?= escape_html('geo-source-' . $key); ?>" data-geo-source-toggle="<?= escape_html($key); ?>">
+                    <label></label>
                 </div>
             </div>
-            <?php endif; ?>
             <?php endforeach; ?>
-            <?php if (count($filters) > 0): ?>
-            <button type="reset" class="ui button" data-geo-reset><?= __($langGroup, 'Quitar los filtros'); ?></button>
-            <?php endif; ?>
-        </form>
-    </div>
-
-    <div class="geo-panel geo-panel-legend" data-geo-panel="legend" hidden>
-        <div class="geo-panel-header">
-            <span class="ui small header"><?= __($langGroup, 'Leyenda'); ?></span>
-            <button type="button" class="ui icon basic button" data-geo-close="legend" title="<?= __($langGroup, 'Cerrar'); ?>"><i class="close icon"></i></button>
-        </div>
-        <?php foreach ($sources as $key => $source): ?>
-        <div class="geo-legend-row" style="--geo-legend-color: var(<?= escape_html($source->colorVariable()); ?>);">
-            <span class="geo-legend-sample" data-geo-legend-sample="<?= escape_html($source->marker()); ?>"></span>
-            <label for="<?= escape_html('geo-source-' . $key); ?>"><?= escape_html($source->title()); ?></label>
-            <div class="ui toggle checkbox">
-                <input type="checkbox" checked id="<?= escape_html('geo-source-' . $key); ?>" data-geo-source-toggle="<?= escape_html($key); ?>">
-                <label></label>
-            </div>
-        </div>
-        <?php endforeach; ?>
-        <div class="ui divider"></div>
-        <div class="geo-legend-styles">
-            <span class="ui small muted text"><?= __($langGroup, 'Vista del mapa'); ?></span>
-            <div class="ui two mini buttons">
-                <button type="button" class="ui primary button" data-geo-style="streets" aria-pressed="true"><?= __($langGroup, 'Calles'); ?></button>
-                <button type="button" class="ui button" data-geo-style="satellite" aria-pressed="false"><?= __($langGroup, 'Satélite'); ?></button>
+            <div class="ui divider"></div>
+            <div class="geo-legend-styles">
+                <span class="ui small muted text"><?= __($langGroup, 'Vista del mapa'); ?></span>
+                <div class="ui two mini buttons">
+                    <button type="button" class="ui primary button" data-geo-style="streets" aria-pressed="true"><?= __($langGroup, 'Calles'); ?></button>
+                    <button type="button" class="ui button" data-geo-style="satellite" aria-pressed="false"><?= __($langGroup, 'Satélite'); ?></button>
+                </div>
             </div>
         </div>
     </div>

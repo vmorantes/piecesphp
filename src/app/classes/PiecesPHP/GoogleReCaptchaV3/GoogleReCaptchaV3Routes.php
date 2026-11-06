@@ -30,7 +30,7 @@ class GoogleReCaptchaV3Routes
     {
         //La opción que guarda (ADR 0055), con el nombre que le da GoogleReCaptchaV3Controller; fuera del if, porque la
         //fila se lee aunque el módulo esté apagado.
-        ConfigOptions::declare('GoogleReCaptchaV3Controller', GoogleReCaptchaV3Controller::class, ConfigOptions::SHAPE_JSON);
+        ConfigOptions::declare(GoogleReCaptchaV3Controller::CONFIG_NAME, GoogleReCaptchaV3Controller::class, ConfigOptions::SHAPE_JSON);
         if (self::ENABLE) {
 
             $group = GoogleReCaptchaV3Controller::routes($group);

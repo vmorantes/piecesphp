@@ -43,6 +43,7 @@ $lang = [
     'active' => 'Active',
     'inactive' => 'Inactive',
     'Editar' => 'Edit',
+    'Tipo desconocido' => 'Unknown type',
     'Sí' => 'Yes',
     'No' => 'No',
     'Ha ocurrido un error desconocido con los valores ingresados.' => 'An unknown error has occurred with the values entered.',

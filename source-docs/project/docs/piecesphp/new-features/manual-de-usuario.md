@@ -32,6 +32,16 @@ Desde **«Inscripciones»**, en el menú lateral, ves las del periodo abierto…
   `oculto: true` en su cabecera lo oculta.
 - Los avisos, con la sintaxis de admonición: `!!! tip "Título"` y el texto sangrado debajo.
 
+- **Por sección**: si una sección explica una pantalla que no todos los que ven el capítulo pueden abrir, pon en la
+  línea siguiente a su título `<!-- ve: ruta, … -->`. La sección, hasta el siguiente `##`, solo se enseña a quien
+  tiene permiso sobre alguna de esas rutas, y desaparece para todos si la ruta no existe (un módulo apagado). Sus
+  rutas tienen que estar también en las `rutas` del capítulo. Por ejemplo:
+
+    ```markdown
+    ## Agregar un usuario
+    <!-- ve: users-selection-create, users-form-create -->
+    ```
+
 ## Generar
 
 ```bash

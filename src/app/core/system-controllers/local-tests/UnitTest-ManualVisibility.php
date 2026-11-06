@@ -1,7 +1,7 @@
 <?php
 
-//Quién ve cada capítulo del manual (ADR 0072, JDY): `todos`, el permiso sobre alguna de `rutas` o, si la hay, de `ve`.
-//En proceso, sin red y sin escribir: un índice SINTÉTICO, el usuario actual en memoria y Roles::hasPermissions().
+//Quién ve cada capítulo del manual (ADR 0072, JDY) y cada sección marcada con `<!-- ve: … -->` (H182): `todos`, o permiso.
+//En proceso, sin red y sin escribir: índice y capítulo SINTÉTICOS, el usuario actual en memoria y Roles::hasPermissions().
 //@areas src/app/classes/MySpace/
 
 use MySpace\Controllers\MySpaceController;
@@ -13,7 +13,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/manual-visibility';
-$cliTaskDescription = 'El manual: root ve todo, un general ve lo de todos y no lo administrativo, y `ve` separa un capítulo mixto';
+$cliTaskDescription = 'El manual: root ve todo, un general ve lo de todos y no lo administrativo, `ve` separa un capítulo mixto y una sección marcada se oculta a quien no puede abrir su pantalla';
 
 CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
@@ -51,7 +51,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $sinVe = [$capitulo('zz-30-mixto-sin-ve', [$soloAdministracion, $laPuedenTodos])];
 
     //──── 0. Lo que la prueba da por hecho ────────────────────────────────────────────────────
-    echoTerminal('[0/2] Las premisas: los permisos de las rutas y los usuarios de la base');
+    echoTerminal('[0/3] Las premisas: los permisos de las rutas y los usuarios de la base');
     $general = UsersModel::TYPE_USER_GENERAL;
     $check(!Roles::hasPermissions($soloAdministracion, $general) && Roles::hasPermissions($laPuedenTodos, $general), "p1 el general no puede {$soloAdministracion} y sí {$laPuedenTodos}");
     $check(Roles::hasPermissions($soloAdministracion, UsersModel::TYPE_USER_ROOT), "p2 root puede {$soloAdministracion}");
@@ -69,7 +69,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 1. Quién ve qué ─────────────────────────────────────────────────────────────────────
-    echoTerminal('[1/2] Lo que devuelve manualChapters() con el índice sintético');
+    echoTerminal('[1/3] Lo que devuelve manualChapters() con el índice sintético');
     $previoUsuario = get_config('current_user');
     $previoGuardado = get_config('pcsphp_current_user_stored');
     $previoPendientes = get_config('manual_for_pending');
@@ -99,6 +99,56 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         set_config('current_user', $previoUsuario);
         set_config('pcsphp_current_user_stored', $previoGuardado);
         set_config('manual_for_pending', $previoPendientes);
+    }
+    echoTerminal(' ');
+
+    //──── 2. Las secciones ────────────────────────────────────────────────────────────────────
+    echoTerminal('[2/3] Las secciones marcadas, con la envoltura que escribe bin/manual (H182)');
+    //La envoltura sale de lo GENERADO: si bin/manual deja de escribirla, el capítulo sintético se pinta sin condición y
+    //los DISCRIMINANTES caen.
+    $abre = null;
+    $vistas = glob(__DIR__ . '/../../../classes/MySpace/Views/manual/*/*.php') ?: [];
+    foreach ($vistas as $vista) {
+        if (preg_match('/^(<\?php if \(.*manualSectionVisible\()\[[^\]]*\](\)\): \?>)$/m', (string) file_get_contents($vista), $envoltura) === 1) {
+            $abre = [$envoltura[1], $envoltura[2]];
+            break;
+        }
+    }
+    $check($abre !== null, 's0 CANARIO: lo generado por bin/manual trae secciones envueltas', count($vistas) . ' vista(s) miradas');
+    $noRegistrada = 'zz-ruta-que-no-esta-registrada';
+    $seccion = function (string $marca, ?array $rutas) use ($abre): string {
+        $html = "<h2 class=\"ui header\">{$marca}</h2>\n<p>{$marca}</p>";
+        if ($rutas === null || $abre === null) {
+            return $html;
+        }
+        $lista = '[' . implode(', ', array_map(fn(string $r): string => "'" . $r . "'", $rutas)) . ']';
+        return "{$abre[0]}{$lista}{$abre[1]}\n{$html}\n<?php endif; ?>";
+    };
+    $sintetico = '<p>zz-intro</p>' . "\n" . $seccion('zz-seccion-administracion', [$soloAdministracion]) . "\n"
+        . $seccion('zz-seccion-no-registrada', [$noRegistrada]) . "\n" . $seccion('zz-seccion-sin-marcador', null);
+    $pinta = function (int $id) use ($sintetico): string {
+        set_config('current_user', (object) ['id' => $id]);
+        set_config('pcsphp_current_user_stored', null);
+        ob_start();
+        eval('?>' . $sintetico);
+        return (string) ob_get_clean();
+    };
+    try {
+        $check(!array_key_exists($noRegistrada, get_routes()), "s1 CANARIO: «{$noRegistrada}» no está registrada");
+        $deRoot = $pinta($idRoot);
+        $deGeneral = $pinta($idGeneral);
+        $check(str_contains($deRoot, 'zz-seccion-administracion'), 's2 root ve la sección de una pantalla que puede abrir');
+        $check(!str_contains($deGeneral, 'zz-seccion-administracion'), 's3 DISCRIMINANTE: el general NO ve la sección de una pantalla que no puede abrir');
+        $check(!str_contains($deRoot, 'zz-seccion-no-registrada') && !str_contains($deGeneral, 'zz-seccion-no-registrada'),
+            's4 DISCRIMINANTE: la sección de una ruta no registrada no la ve nadie, tampoco root');
+        $check(str_contains($deRoot, 'zz-seccion-sin-marcador') && str_contains($deGeneral, 'zz-seccion-sin-marcador') && str_contains($deGeneral, 'zz-intro'),
+            's5 la sección sin marcador la ven los dos, como el texto de antes');
+        set_config('current_user', null);
+        set_config('pcsphp_current_user_stored', null);
+        $check(!MySpaceController::manualSectionVisible([$soloAdministracion, $laPuedenTodos]), 's6 sin usuario, ninguna sección marcada se ve');
+    } finally {
+        set_config('current_user', $previoUsuario);
+        set_config('pcsphp_current_user_stored', $previoGuardado);
     }
     echoTerminal(' ');
 

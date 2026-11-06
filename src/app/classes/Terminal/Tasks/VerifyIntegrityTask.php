@@ -2983,8 +2983,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * 61. El manual de usuario (ADR 0072): toda ruta que cita un capítulo, en `rutas` y en `ve`, existe, y la cifra de pantallas del panel sin
-     * capítulo solo baja (trinquete en `manual-coverage-baseline.json`).
+     * 61. El manual de usuario (ADR 0072): toda ruta que cita un capítulo, en `rutas` y en `ve`, existe; los marcadores de sección de sus
+     * fuentes (`<!-- ve: … -->`, H182) están tras un `##`, bien formados y con rutas del capítulo que existen; y la cifra de pantallas del
+     * panel sin capítulo solo baja (trinquete en `manual-coverage-baseline.json`).
      *
      * Pantalla: ruta GET con sesión cuya dirección cae bajo `/admin/`, fuera de las familias de `manual-not-screens.json`.
      * Las rutas salen de `get_routes()`, las de esta instalación: en un clon también valen. Sin la línea base o sin las
@@ -3022,6 +3023,47 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             foreach (is_array($seenBy) ? $seenBy : [] as $routeName) {
                 if (!is_string($routeName) || !array_key_exists($routeName, $routes)) {
                     $failures[] = 'el capítulo «' . ($chapter['slug'] ?? '?') . '» (' . ($chapter['idioma'] ?? '?') . ') tiene en `ve` la ruta «' . (is_string($routeName) ? $routeName : '?') . '», que no existe';
+                }
+            }
+        }
+
+        //a2) Las secciones (H182): `<!-- ve: … -->` solo en la línea siguiente a un `##`, bien formado, con rutas del
+        //capítulo que existan. Se mira la FUENTE de cada capítulo del índice; bin/manual aplica la misma regla al generar.
+        foreach ($index as $chapter) {
+            if (!is_array($chapter) || !is_string($chapter['slug'] ?? null) || !is_string($chapter['idioma'] ?? null) || !is_string($chapter['origen'] ?? null)) {
+                continue;
+            }
+            $source = $root . '/src/app/manual/' . $chapter['origen'] . '/' . $chapter['idioma'] . '/' . $chapter['slug'] . '.md';
+            $text = is_file($source) ? file_get_contents($source) : false;
+            if ($text === false) {
+                $failures[] = 'no se pudo leer la fuente del capítulo «' . $chapter['slug'] . '» (' . $chapter['idioma'] . '): ' . $source;
+                continue;
+            }
+            $chapterRoutes = $chapter['rutas'] ?? [];
+            $lines = preg_split('/\R/', $text) ?: [];
+            $inCode = false;
+            foreach ($lines as $i => $line) {
+                if (str_starts_with(ltrim($line), '```')) {
+                    $inCode = !$inCode;
+                }
+                if ($inCode || preg_match('/<!--\s*ve\b/', $line) !== 1) {
+                    continue;
+                }
+                $where = 'src/app/manual/' . $chapter['origen'] . '/' . $chapter['idioma'] . '/' . $chapter['slug'] . '.md:' . ($i + 1);
+                if (preg_match('/^##\s/', $lines[$i - 1] ?? '') !== 1) {
+                    $failures[] = "{$where}: el marcador de sección no está en la línea siguiente a un `##`";
+                    continue;
+                }
+                if (preg_match('/^<!-- ve: ([a-z0-9]+(?:-[a-z0-9]+)*(?:, [a-z0-9]+(?:-[a-z0-9]+)*)*) -->$/', trim($line), $marker) !== 1) {
+                    $failures[] = "{$where}: el marcador de sección está mal formado (<!-- ve: ruta, ruta -->)";
+                    continue;
+                }
+                foreach (explode(', ', $marker[1]) as $routeName) {
+                    if (!is_array($chapterRoutes) || !in_array($routeName, $chapterRoutes, true)) {
+                        $failures[] = "{$where}: la sección nombra «{$routeName}», que no está en las `rutas` del capítulo";
+                    } elseif (!array_key_exists($routeName, $routes)) {
+                        $failures[] = "{$where}: la sección nombra «{$routeName}», que no existe";
+                    }
                 }
             }
         }

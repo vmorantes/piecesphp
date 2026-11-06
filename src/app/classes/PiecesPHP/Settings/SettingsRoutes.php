@@ -67,13 +67,11 @@ class SettingsRoutes
         $declare([SettingsController::PARTNERS_TEXT_CONFIG], $owner, ConfigOptions::SHAPE_TEXT);
         $declare(array_values(SettingsController::BRAND_IMAGES_INVERT_ON_DARK), $owner, ConfigOptions::SHAPE_BOOL);
 
-        //SEO: la del idioma por omisión sin sufijo y las demás con «_<idioma>», como las guarda SettingsController.
+        //SEO: el nombre por idioma lo da SettingsController::seoOptionName() (sin sufijo el del idioma por omisión).
         $seoText = [SettingsController::SEO_OPTION_TITLE_APP, SettingsController::SEO_OPTION_OWNER, SettingsController::SEO_OPTION_DESCRIPTION, SettingsController::SEO_OPTION_SHARE_TITLE, SettingsController::SEO_OPTION_SHARE_DESCRIPTION, SettingsController::SEO_OPTION_OPEN_GRAPH_IMAGE];
-        $defaultLang = Config::get_default_lang();
         foreach (Config::get_allowed_langs() as $lang) {
-            $suffix = $lang === $defaultLang ? '' : "_{$lang}";
-            $declare(array_map(fn (string $name) => $name . $suffix, $seoText), $owner, ConfigOptions::SHAPE_TEXT);
-            $declare([SettingsController::SEO_OPTION_KEYWORDS . $suffix], $owner, ConfigOptions::SHAPE_JSON);
+            $declare(array_map(fn (string $name) => SettingsController::seoOptionName($name, $lang), $seoText), $owner, ConfigOptions::SHAPE_TEXT);
+            $declare([SettingsController::seoOptionName(SettingsController::SEO_OPTION_KEYWORDS, $lang)], $owner, ConfigOptions::SHAPE_JSON);
         }
         $declare([SettingsController::SEO_OPTION_X_ACCOUNT], $owner, ConfigOptions::SHAPE_TEXT);
 

@@ -31,6 +31,7 @@ use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UserSessionsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -514,8 +515,7 @@ class UserSessionsController extends AdminPanelController
      */
     protected static function isImpersonating(UserDataPackage $actor): bool
     {
-        $rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-        return Validator::isInteger($rootOriginalID) && (int) $rootOriginalID !== (int) $actor->id;
+        return Impersonation::isImpersonating();
     }
 
     /**
@@ -526,8 +526,7 @@ class UserSessionsController extends AdminPanelController
      */
     protected static function realActorID(UserDataPackage $actor): int
     {
-        $rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-        return Validator::isInteger($rootOriginalID) ? (int) $rootOriginalID : (int) $actor->id;
+        return Impersonation::rootOriginalID() ?? (int) $actor->id;
     }
 
     /**

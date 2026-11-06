@@ -10,6 +10,7 @@ artificial, Correo, OsTicket y Llaves de Mapas están en el grupo **«Sistema»*
 Scripts»**. Todas terminan con **«Cancelar»** y **«Guardar»**.
 
 ## Inteligencia artificial
+<!-- ve: configurations-integrations-ai -->
 
 Entra por **«Inteligencia artificial»**. Define el proveedor, el modelo y las claves que usa la plataforma para las
 funciones con inteligencia artificial.
@@ -28,6 +29,7 @@ funciones con inteligencia artificial.
 | Límite de tokens de IA | Sí | Solo informativo: la cuota contratada, con la que el informe calcula los tokens restantes. No limita el uso. Se guarda con su propio **«Guardar»**. |
 
 ## Correo
+<!-- ve: configurations-integrations-mail -->
 
 Entra por **«Correo»**. Define desde dónde y cómo sale el correo de la plataforma. Tiene dos pestañas:
 **Configuración** y **Pruebas**. **«Mostrar contraseña»** deja ver la contraseña que escribes.
@@ -56,6 +58,7 @@ Entra por **«Correo»**. Define desde dónde y cómo sale el correo de la plata
 Para ver lo que se envió, mira la pestaña **Correos enviados** de **Registros**.
 
 ## OsTicket
+<!-- ve: configurations-integrations-osticket -->
 
 Entra por **«OsTicket»**. Guarda la conexión con el sistema de soporte osTicket.
 
@@ -67,6 +70,7 @@ Entra por **«OsTicket»**. Guarda la conexión con el sistema de soporte osTick
 | Key | No | La clave de acceso a ese sistema. |
 
 ## Scripts
+<!-- ve: configurations-integrations-scripts -->
 
 Entra por **«Scripts»**. Aquí insertas código propio en el sitio público, en el panel o en ambos: analítica, píxeles de
 anuncios, chats y similares. **«Añadir script»** agrega uno nuevo a la lista.
@@ -78,6 +82,7 @@ anuncios, chats y similares. **«Añadir script»** agrega uno nuevo a la lista.
     página o exponer datos; prueba primero con el script desactivado.
 
 ## Llaves de Mapas
+<!-- ve: helpers-system-generic-content-admin-forms-mapbox-keys -->
 
 Entra por **«Llaves de Mapas»**. Guarda las llaves de acceso del servicio de mapas de la plataforma.
 

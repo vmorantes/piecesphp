@@ -9,6 +9,7 @@ ve: [organizations-admin-list, organizations-admin-forms-add]
 Aquí gestionas las organizaciones registradas y lo que se muestra de cada una.
 
 ## La lista de organizaciones
+<!-- ve: organizations-admin-list -->
 
 Se llega desde el menú lateral: **«Gestión de organizaciones»**.
 
@@ -26,6 +27,7 @@ Cada fila ofrece estas acciones:
 Arriba tienes **«Agregar organización»** y **«Exportar listado actual»**.
 
 ## Agregar y editar una organización
+<!-- ve: organizations-admin-forms-edit, organizations-admin-forms-add -->
 
 Los dos formularios son casi iguales. La edición añade el botón **«Perfil público»**, el botón **«Eliminar»** y los campos «Código» y «Contacto de la organización».
 

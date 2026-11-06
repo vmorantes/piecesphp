@@ -19,8 +19,8 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
-use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -232,6 +232,28 @@ class MySpaceController extends AdminPanelController
     }
 
     /**
+     * Si el usuario actual ve una sección del manual marcada con `<!-- ve: … -->` (H182): la regla del capítulo, permiso
+     * sobre alguna de sus rutas. Una ruta no registrada (un módulo apagado) da false, también a root. La llaman las vistas
+     * que genera bin/manual, con las rutas ya validadas.
+     *
+     * @param string[] $routes
+     * @return bool
+     */
+    public static function manualSectionVisible(array $routes): bool
+    {
+        $currentUser = getLoggedFrameworkUser();
+        if ($currentUser === null) {
+            return false;
+        }
+        foreach ($routes as $routeName) {
+            if (is_string($routeName) && Roles::hasPermissions($routeName, (int) $currentUser->type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Si la cuenta está sin aprobar: la misma comprobación que el recorte de SystemApprovalsMiddleware.
      *
      * @param UserDataPackage $user
@@ -304,8 +326,8 @@ class MySpaceController extends AdminPanelController
      */
     public static function isImpersonating(int $currentUserID): bool
     {
-        $rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-        return Validator::isInteger($rootOriginalID) && (int) $rootOriginalID !== $currentUserID;
+        //$currentUserID se queda por compatibilidad: la regla es una sola y la conoce Impersonation (H34).
+        return Impersonation::isImpersonating();
     }
 
     /**

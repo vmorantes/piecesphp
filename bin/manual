@@ -12,6 +12,10 @@
 #     oculto: true                           opcional y solo en proyecto: quita el capítulo del framework del mismo nombre
 #     ---
 #
+# Una sección (`##`) se condiciona con `<!-- ve: ruta, … -->` en la línea SIGUIENTE a su título (H182): hasta el siguiente
+# `##` o `#`, con sus `###`, solo la ve quien tiene permiso sobre alguna de esas rutas, que tienen que estar en las `rutas`
+# del capítulo. Un marcador en otro sitio, mal formado o con una ruta ajena para todo sin escribir nada.
+#
 # Un capítulo de proyecto con el mismo nombre de archivo sustituye al del framework. El orden lo da el prefijo NN. Las
 # imágenes van en img/ junto a cada idioma y se copian a los estáticos de MySpace (Statics/manual/<idioma>/), que las sirve.
 #
@@ -117,6 +121,43 @@ def cabecera(ruta, texto, origen):
     return titulo, rutas, ve, oculto, texto[m.end():]
 
 
+MARCADOR = re.compile(r'<!--\s*ve\b')
+MARCADOR_VALIDO = re.compile(r'<!-- ve: ([a-z0-9-]+(?:, [a-z0-9-]+)*) -->')
+
+
+def secciones(ruta, cuerpo, rutas):
+    """Parte el cuerpo en trozos [(texto, ve o None)]: el primero, lo de antes del primer `##`; luego uno por `##` o `#`.
+    Quita la línea del marcador. Los errores, a `errores` (H182); fuera de un bloque de código, cualquier `<!-- ve:` cuenta."""
+    lineas = cuerpo.split('\n')
+    trozos = [[[], None]]
+    en_codigo = False
+    for i, linea in enumerate(lineas):
+        if linea.lstrip().startswith('```'):
+            en_codigo = not en_codigo
+        if not en_codigo and re.match(r'#{1,2}\s', linea):
+            trozos.append([[linea], None])
+            continue
+        if not en_codigo and MARCADOR.search(linea):
+            donde = f'{relativa(ruta)}:{i + 1}'
+            anterior = lineas[i - 1] if i > 0 else ''
+            if not re.match(r'##\s', anterior) or len(trozos[-1][0]) != 1 or trozos[-1][1] is not None:
+                errores.append(f'{donde}: el marcador «{linea.strip()}» no está en la línea siguiente a un `##`')
+                continue
+            m = MARCADOR_VALIDO.fullmatch(linea.strip())
+            nombres = m.group(1).split(', ') if m else []
+            if m is None or any(RUTA_VALIDA.fullmatch(n) is None for n in nombres):
+                errores.append(f'{donde}: el marcador «{linea.strip()}» está mal formado (<!-- ve: ruta, ruta -->)')
+                continue
+            ajenas = [n for n in nombres if rutas == 'todos' or n not in rutas]
+            if ajenas:
+                errores.append(f'{donde}: el marcador nombra rutas que no están en las `rutas` del capítulo: {", ".join(ajenas)}')
+                continue
+            trozos[-1][1] = nombres
+            continue
+        trozos[-1][0].append(linea)
+    return [('\n'.join(texto), ve) for texto, ve in trozos]
+
+
 def fecha_de(ruta):
     """La del último commit de la fuente si está guardada tal cual; si no, la de hoy. Así --check no depende del disco."""
     rel = relativa(ruta)
@@ -183,7 +224,7 @@ for origen in ORIGENES:
             if oculto:
                 capitulos.setdefault(idioma, {}).pop(slug, None)
                 continue
-            capitulos.setdefault(idioma, {})[slug] = (titulo, rutas, ve, origen, cuerpo, ruta)
+            capitulos.setdefault(idioma, {})[slug] = (titulo, rutas, ve, origen, secciones(ruta, cuerpo, rutas), ruta)
 
 if errores:
     print('bin/manual: no se escribe nada:\n  ' + '\n  '.join(errores), file=sys.stderr)
@@ -197,12 +238,29 @@ indice = []
 faltan = []
 for idioma in sorted(capitulos):
     for slug in sorted(capitulos[idioma]):
-        titulo, rutas, ve, origen, cuerpo, ruta = capitulos[idioma][slug]
-        #El título va en la cabecera de la pantalla: el primer # del cuerpo no se repite.
-        cuerpo = re.sub(r'\A\s*#\s+[^\n]*\n', '', cuerpo, count=1)
-        md.reset()
+        titulo, rutas, ve, origen, trozos, ruta = capitulos[idioma][slug]
         citadas = []
-        html = fomantic(md.convert(cuerpo), idioma, citadas)
+
+        def convierte(texto):
+            md.reset()
+            return fomantic(md.convert(texto), idioma, citadas)
+
+        #El título va en la cabecera de la pantalla: el primer # del cuerpo no se repite.
+        quita_titulo = lambda texto: re.sub(r'\A\s*#\s+[^\n]*\n', '', texto, count=1)
+        if all(v is None for _, v in trozos):
+            #Sin secciones condicionadas, el capítulo entero de una vez: lo generado no cambia.
+            html = convierte(quita_titulo('\n'.join(t for t, _ in trozos)))
+        else:
+            partes = []
+            for n, (texto, v) in enumerate(trozos):
+                if n <= 1 and re.match(r'#\s', texto.lstrip('\n')):
+                    texto = quita_titulo(texto)
+                parte = convierte(texto)
+                if v is not None:
+                    lista = '[' + ', '.join(php_cadena(r) for r in v) + ']'
+                    parte = f'<?php if (\\MySpace\\Controllers\\MySpaceController::manualSectionVisible({lista})): ?>\n{parte}\n<?php endif; ?>'
+                partes.append(parte)
+            html = '\n'.join(p for p in partes if p != '')
         for img in citadas:
             if (idioma, img) not in imagenes:
                 faltan.append(f'{relativa(ruta)}: cita img/{img}, y no está en ninguna img/ de «{idioma}»')

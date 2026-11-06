@@ -79,11 +79,8 @@ class UsersApprovalHandler extends BaseApprovalHandler
     {
         $text = self::$BASE_TEXT;
         $mapper = $reference instanceof UsersModel ? $reference : new UsersModel($reference);
-        $id = $mapper->id;
-        if ($id !== null && $mapper == null) {
-            $mapper = UsersModel::getBy($id, 'id', [], null, true);
-        }
-        if ($mapper === null) {
+        //Con un id que no existe el constructor no lanza: deja el objeto sin id (medido en JEO, H75).
+        if ($mapper->id === null) {
             return $text;
         }
         $organization = $mapper->organization;

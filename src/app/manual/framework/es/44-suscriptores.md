@@ -8,6 +8,7 @@ rutas: [newsletter-admin-list, newsletter-admin-forms-add, newsletter-admin-form
 La lista de personas suscritas.
 
 ## El listado de suscriptores
+<!-- ve: newsletter-admin-list -->
 
 Cómo se llega: **«Suscriptores»**, en el menú lateral.
 
@@ -18,6 +19,7 @@ La tabla muestra: **#**, **Nombre**, **Email**, **Acepta recibir correos** y **A
 Arriba están **«Agregar suscriptor»** y **«Exportar listado actual»**.
 
 ## Agregar y editar un suscriptor
+<!-- ve: newsletter-admin-forms-add, newsletter-admin-forms-edit -->
 
 Cómo se llega: pulsa **«Agregar suscriptor»**, o **«Editar»** en la fila de un suscriptor.
 

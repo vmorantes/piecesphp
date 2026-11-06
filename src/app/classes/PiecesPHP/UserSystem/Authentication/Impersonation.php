@@ -8,6 +8,7 @@ namespace PiecesPHP\UserSystem\Authentication;
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
@@ -118,6 +119,10 @@ final class Impersonation
         if ((int) $target->type === UsersModel::TYPE_USER_ROOT) {
             return __(self::LANG_GROUP, 'No se puede actuar como otro usuario root.');
         }
+        //Sin rol, cada petición como ese usuario lanzaría RoleNotExistsException al mirar los permisos (H63).
+        if (!Roles::roleExists((int) $target->type)) {
+            return __(self::LANG_GROUP, 'El tipo del usuario no existe.');
+        }
         if (in_array($target->status, UsersModel::STATUSES_INACTIVE_EQUIVALENT)) {
             return __(self::LANG_GROUP, 'El usuario no está activo.');
         }
@@ -125,6 +130,30 @@ final class Impersonation
             return __(self::LANG_GROUP, 'La organización del usuario no está activa.');
         }
         return null;
+    }
+
+    /**
+     * El id de root mientras root tiene sesión (lo fija index.php, también sin suplantar); null si no.
+     *
+     * @return int|null
+     */
+    public static function rootOriginalID(): ?int
+    {
+        $value = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
+        return is_int($value) || (is_string($value) && ctype_digit($value)) ? (int) $value : null;
+    }
+
+    /**
+     * Si root está actuando como otro en esta petición: index.php fija el id de root y el del usuario con el que actúa,
+     * y solo difieren suplantando. La única regla: las cinco copias que había daban lo mismo en todo caso alcanzable (H34).
+     *
+     * @return bool
+     */
+    public static function isImpersonating(): bool
+    {
+        $rootID = self::rootOriginalID();
+        $asUserID = get_config(ROOT_ID_AS_CONNECT_CONFIG_NAME);
+        return $rootID !== null && Validator::isInteger($asUserID) && $rootID !== (int) $asUserID;
     }
 
     /**

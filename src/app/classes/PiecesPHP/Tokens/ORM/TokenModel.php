@@ -184,7 +184,8 @@ class TokenModel extends BaseModel
             $tokenExpired = BaseToken::isExpire($jwt, self::baseJWTKey(), null);
             //Datos que no se abren (otra clave, un formato anterior): ningún código casa.
             $tokenCode = $tokenData instanceof \stdClass && property_exists($tokenData, 'code') ? $tokenData->code : uniqid();
-            return $tokenCode == $code && !$tokenExpired;
+            //Como cadena y en tiempo constante: con == «000123» casaba con «123» y «100» con «1e2» (H63).
+            return is_scalar($tokenCode) && hash_equals((string) $tokenCode, $code) && !$tokenExpired;
         }
         return false;
     }

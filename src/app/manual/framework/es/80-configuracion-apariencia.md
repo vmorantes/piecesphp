@@ -10,6 +10,7 @@ marca, Fondos del inicio de sesión y Colores están en el grupo **«Apariencia�
 Archivos para buscadores, en **«SEO y Scripts»**.
 
 ## Imágenes de marca
+<!-- ve: configurations-appearance-brand-images -->
 
 Entra por **«Imágenes de marca»**. La plataforma es de marca blanca: estas imágenes identifican a tu organización en
 todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.
@@ -33,6 +34,7 @@ Para editar una imagen, púlsala. Además, cada una tiene el botón **«Cambiar 
 Cuando termines, pulsa **«Guardar»**.
 
 ## Fondos del inicio de sesión
+<!-- ve: configurations-appearance-backgrounds -->
 
 Entra por **«Fondos del inicio de sesión»**. Estas imágenes llenan el panel izquierdo del inicio de sesión; la
 plataforma muestra una al azar en cada visita.
@@ -43,6 +45,7 @@ Hay cinco fondos (**Fondo 1** a **Fondo 5**) y un **Fondo problemas de inicio**.
 tiene **«Cambiar imagen»** y un icono para descargarlo o verlo.
 
 ## Colores
+<!-- ve: configurations-appearance-colors -->
 
 Entra por **«Colores»**. El color de tu organización se usa solo como acento (botones, selección, enlaces y foco). Los
 colores complementarios se usan únicamente en gráficas y datos.
@@ -64,6 +67,7 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 | Radio | No | Lo redondeadas que salen las esquinas en todo el panel. |
 
 ## Identidad y SEO
+<!-- ve: configurations-appearance-seo -->
 
 Entra por **«Identidad y SEO»**. Reúne los datos del sitio que usan los buscadores y la vista previa cuando se comparte
 un enlace en redes sociales y aplicaciones de mensajería.
@@ -84,6 +88,7 @@ con **«Cambiar imagen»**. Al final, **«Cancelar»** o **«Guardar»**.
 | Palabras clave | No | Palabras clave del sitio. |
 
 ## Archivos para buscadores
+<!-- ve: configurations-appearance-site-files -->
 
 Entra por **«Archivos para buscadores»**. Es lo que leen los buscadores y las inteligencias artificiales: los archivos
 robots.txt, humans.txt y llms.txt. Para cada uno, **«Ver la configuración fija»** muestra la parte que el sistema ya

@@ -305,12 +305,10 @@ class UsersController extends AdminPanelController
 
                 $columns = [];
 
-                //El usuario de sistema no tiene rol a propósito: sin esta guarda, pintar el listado lo borraría.
-                if (!Roles::roleExists($element->type) && !UsersModel::isSystemUser((int) $element->id)) {
-                    //Si el rol no existe, se marca para eliminar
-                    $userMapper = new UsersModel($element->id);
-                    $userMapper->status = UsersModel::STATUS_USER_DELETED;
-                    $userMapper->update();
+                //Leer no escribe: un usuario cuyo tipo ya no existe sale tal cual, con su tipo rotulado (H20).
+                $typeName = $element->typeName;
+                if (!Roles::roleExists((int) $element->type)) {
+                    $typeName = __(self::LANG_GROUP, 'Tipo desconocido');
                 }
 
                 $columns[] = $element->idPadding;
@@ -319,7 +317,7 @@ class UsersController extends AdminPanelController
                 $columns[] = escape_html($element->email);
                 $columns[] = escape_html($element->username);
                 $columns[] = $element->statusText;
-                $columns[] = $element->typeName;
+                $columns[] = $typeName;
                 $columns[] = implode(' ', $buttons);
 
                 return $columns;

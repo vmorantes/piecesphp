@@ -9,6 +9,7 @@ Aquí consultas lo que el sistema anota: qué pasó, quién lo hizo y cuándo. S
 tiene permitidas.
 
 ## Registros
+<!-- ve: logs-admin-index -->
 
 Se llega por el botón de engranajes de la barra superior, **«Configuración del sistema» › «Registros y Logs»**,
 y la entrada del registro que buscas: **«Errores»**, **«Intentos de ingreso»**, **«Registro de ingresos»**,
@@ -44,6 +45,7 @@ Las pestañas **Accesos**, **Sesiones abiertas**, **Tokens y códigos** y **Tare
 pantalla, pero este manual todavía no describe su contenido.
 
 ## Correos enviados
+<!-- ve: system-status-mail-log -->
 
 Es la pestaña **Correos enviados** de **Registros**. Lista los correos que la plataforma envió o intentó enviar.
 
@@ -70,6 +72,7 @@ Con **«Filtrar»** y **«Limpiar»** acotas la lista; **«Exportar listado actu
 | Origen | No | Buscar por la parte del sistema que lo envió. |
 
 ## Registro de actividad
+<!-- ve: actions-logs-admin-list -->
 
 Se llega por **«Últimos movimientos»**, en el menú lateral. Responde a «quién hizo qué en el panel, y cuándo».
 

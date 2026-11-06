@@ -16,6 +16,7 @@ Elige **«Editar Cuenta»**: tu cuenta se abre en un panel lateral. Cambia lo qu
 Elige **«Cambiar contraseña»**. Para cambiarla, el sistema te pide primero la contraseña actual.
 
 ## La seguridad de tu cuenta
+<!-- ve: my-space-admin-user-security -->
 
 Elige **«Opciones de seguridad»**: se abre en la pestaña de la verificación en dos pasos. En la pestaña
 **«Mis sesiones»** ves las sesiones abiertas con tu cuenta. En cada una puedes **«Cerrar»** la que no reconozcas o **«Extender»** la tuya, y **«Cerrar las demás sesiones»** las cierra todas menos la que estás usando.

@@ -8,6 +8,7 @@ rutas: [data-transfer-hub, data-transfer-import-users, data-transfer-export-user
 Carga datos desde una hoja de cálculo, o descarga los del sistema en el formato que elijas.
 
 ## La pantalla principal
+<!-- ve: data-transfer-hub -->
 
 Cómo se llega: **«Importar y exportar»**, en el menú lateral.
 
@@ -19,6 +20,7 @@ Tiene dos pestañas:
 - **«Exportar»**: la misma tabla. En cada fila puedes **«Exportar»**, o descargar en **«Descargar XLSX»** o **«Descargar CSV»**.
 
 ## Importar usuarios
+<!-- ve: data-transfer-import-users -->
 
 Cómo se llega: en la pestaña **«Importar»**, pulsa **«Importar»** en la fila de usuarios; o por el botón de engranajes de la barra superior, **«Configuración del sistema» › «Gestión de usuarios» › «Importar usuarios»**.
 
@@ -49,6 +51,7 @@ Las columnas de la plantilla:
 | Organización | No | código de organización, codigo de organizacion |
 
 ## Exportar usuarios
+<!-- ve: data-transfer-export-users-form -->
 
 Cómo se llega: en la pestaña **«Exportar»**, pulsa **«Exportar»** en la fila de usuarios.
 

@@ -7,6 +7,7 @@ use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\Controllers\ImpersonationController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -20,9 +21,10 @@ $usersCanDeleteAccount = [
     UsersModel::TYPE_USER_ADMIN_ORG,
     UsersModel::TYPE_USER_GENERAL,
 ];
+//Se quedan para las barras propias de un proyecto.
 $asUserLoggedID = get_config(ROOT_ID_AS_CONNECT_CONFIG_NAME);
 $rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-$isLoggedOtherUser = $asUserLoggedID !== $rootOriginalID;
+$isLoggedOtherUser = Impersonation::isImpersonating();
 //Las dos rutas de la suplantación (P204 a): la cookie la escribe y la borra el servidor.
 $impersonationStartURL = ImpersonationController::routeName('start');
 $impersonationEndURL = ImpersonationController::routeName('end');

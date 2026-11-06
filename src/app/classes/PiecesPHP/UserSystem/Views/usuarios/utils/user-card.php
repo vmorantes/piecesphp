@@ -17,7 +17,7 @@ $statusColors = [
     UsersModel::STATUS_USER_APPROVED_PENDING => StatusLabel::WARNING,
 ];
 $statusText = UsersModel::statuses()[$mapper->status];
-$userTypeText = UsersModel::getTypeUserName($mapper->type);
+$userTypeText = UsersModel::getTypeUserName($mapper->type) ?? __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Tipo desconocido');
 $isBaseOrganization = $organizationMapper !== null && $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
 if ($mapper->type == UsersModel::TYPE_USER_GENERAL) {
     if ($isBaseOrganization && ORGANIZATIONS_MODULE) {

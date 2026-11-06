@@ -8,6 +8,7 @@ rutas: [built-in-banner-admin-list, built-in-banner-admin-forms-add, built-in-ba
 Aquí gestionas los banners y la imagen principal del sitio.
 
 ## El listado de banners
+<!-- ve: built-in-banner-admin-list -->
 
 Cómo se llega: **«Banners»**, en el menú lateral.
 
@@ -24,6 +25,7 @@ En cada fila puedes:
 Arriba están **«Agregar banner»** y **«Exportar listado actual»**.
 
 ## Agregar y editar un banner
+<!-- ve: built-in-banner-admin-forms-add, built-in-banner-admin-forms-edit -->
 
 Cómo se llega: pulsa **«Agregar banner»**, o **«Editar»** en la fila de un banner.
 
@@ -45,6 +47,7 @@ Botones: **«Guardar»** y, al editar, **«Eliminar»**.
 Al editar, el selector **«Idiomas»** elige en qué idioma escribes.
 
 ## La imagen principal
+<!-- ve: helpers-system-generic-content-admin-forms-home-image -->
 
 Cómo se llega: **«Imagen principal»**, en el menú lateral.
 

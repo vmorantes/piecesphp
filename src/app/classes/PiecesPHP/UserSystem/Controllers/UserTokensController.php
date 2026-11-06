@@ -21,10 +21,10 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
-use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
 use PiecesPHP\Tokens\ORM\TokenModel;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
@@ -477,8 +477,7 @@ class UserTokensController extends AdminPanelController
     protected static function denied(Response $response): ?Response
     {
         $actor = getLoggedFrameworkUserOrFail();
-        $rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-        $impersonating = Validator::isInteger($rootOriginalID) && (int) $rootOriginalID !== (int) $actor->id;
+        $impersonating = Impersonation::isImpersonating();
         if ($impersonating || (int) $actor->type !== UsersModel::TYPE_USER_ROOT) {
             return $response->withStatus(403)->withJson([
                 'success' => false,

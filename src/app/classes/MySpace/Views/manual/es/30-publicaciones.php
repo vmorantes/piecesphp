@@ -3,6 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Aquí gestionas lo que se publica en el sitio, con su categoría y su fecha.</p>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['publications-admin-list'])): ?>
 <h2 class="ui header">El listado de publicaciones</h2>
 <p>Cómo se llega: <strong>«Publicaciones» › «Publicaciones»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="El listado de publicaciones" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/publications-admin-list.webp')); ?>"></p>
@@ -20,6 +21,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <li><strong>«Categorías»</strong>, para ir a las categorías de publicaciones.</li>
 <li><strong>«Exportar listado actual»</strong>.</li>
 </ul>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['publications-admin-forms-add', 'publications-admin-forms-edit'])): ?>
 <h2 class="ui header">Agregar y editar una publicación</h2>
 <p>Cómo se llega: pulsa <strong>«Nueva publicación»</strong> en el listado, o <strong>«Editar»</strong> en la fila de una publicación.</p>
 <p><img class="ui image" alt="Agregar y editar una publicación" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/publications-admin-forms-add.webp')); ?>"></p>
@@ -122,6 +125,8 @@ Al editar una publicación ves además una pestaña por idioma (<strong>«Españ
 <li><strong>«Eliminar»</strong>, solo al editar.</li>
 <li><strong>«Ver en el sitio»</strong>, solo al editar.</li>
 </ul>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['publications-category-admin-list'])): ?>
 <h2 class="ui header">Las categorías de publicaciones</h2>
 <p>Cómo se llega: <strong>«Publicaciones» › «Categorías»</strong>, en el menú lateral, o el botón <strong>«Categorías»</strong> del listado.</p>
 <p><img class="ui image" alt="Las categorías de publicaciones" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/publications-category-admin-list.webp')); ?>"></p>
@@ -160,3 +165,4 @@ Al editar una publicación ves además una pestaña por idioma (<strong>«Españ
 </tbody>
 </table>
 <p>Botones: <strong>«Guardar»</strong>, <strong>«Cancelar»</strong> y, al editar, <strong>«Eliminar»</strong>.</p>
+<?php endif; ?>

@@ -9,6 +9,7 @@ Opciones de seguridad, respaldos y permisos. Se llega por el botón de engranaje
 **«Configuración del sistema» › «Sistema»**, y la pantalla por su nombre.
 
 ## Seguridad
+<!-- ve: configurations-system-security -->
 
 Entra por **«Seguridad»**. Reúne las opciones de seguridad de la plataforma. Al final, **«Cancelar»** o
 **«Guardar»**.
@@ -23,6 +24,7 @@ Entra por **«Seguridad»**. Reúne las opciones de seguridad de la plataforma. 
 | Días desde que se abrió que la cierran (tope) | Sí | Cuántos días, contados desde que se abrió, cierran la sesión. Con 0 no hay tope. |
 
 ## Respaldos
+<!-- ve: configurations-system-backups -->
 
 Entra por **«Respaldos»**. Define cada cuánto se respalda la base de datos, cuántos respaldos se guardan y qué tablas
 salen sin sus filas. Al final, **«Cancelar»** o **«Guardar»**.
@@ -48,6 +50,7 @@ que no escribió el sistema no se tocan nunca.
     sensibles del servidor.
 
 ## Rutas y permisos
+<!-- ve: configurations-system-routes -->
 
 Entra por **«Rutas y permisos»**. Es una tabla de consulta: qué rutas existen y qué tipos de usuario pueden usar cada
 una. Tiene las columnas **Nombre**, **Ruta**, **Controlador** y **Roles con acceso**.

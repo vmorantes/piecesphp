@@ -8,6 +8,7 @@ rutas: [admin, reports-manage-admin-generic-report-view, admin-about-framework]
 La pantalla de inicio es lo primero que ves al entrar: un resumen de lo que te toca de un vistazo.
 
 ## La pantalla de inicio
+<!-- ve: admin -->
 
 Cómo se llega: **«Inicio»**, en el menú lateral.
 
@@ -21,6 +22,7 @@ Arriba ves un saludo con tu nombre. Debajo hay tarjetas, cada una con su tema y 
 - **Informe general**: un resumen de las cifras de la plataforma, con el enlace **«Ver el informe»**.
 
 ## Informe general
+<!-- ve: reports-manage-admin-generic-report-view -->
 
 Las cifras de la plataforma: publicaciones, organizaciones y usuarios.
 
@@ -37,6 +39,7 @@ Qué se ve:
 Esta pantalla solo muestra cifras: no tiene formularios.
 
 ## Acerca de
+<!-- ve: admin-about-framework -->
 
 Datos de la plataforma: la versión instalada, su fecha, una descripción, las librerías propias y los plugins y dependencias de terceros con su licencia.
 

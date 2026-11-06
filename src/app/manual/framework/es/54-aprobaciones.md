@@ -12,6 +12,7 @@ Aquí ves los contenidos que están pendientes de aprobación.
 Desde el menú lateral: **«Aprobaciones»**.
 
 ## Qué se ve
+<!-- ve: system-approval-admin-list -->
 
 Una tabla con estas columnas: **Tiempo**, **Tipo de contenido**, **Fecha**, **Usuario** y **Acciones**. Si no hay nada pendiente, la pantalla dice «No hay información disponible».
 
@@ -22,6 +23,7 @@ Una tabla con estas columnas: **Tiempo**, **Tipo de contenido**, **Fecha**, **Us
 Para acotar la lista, elige un **Tipo de contenido** y un **Tiempo**, y pulsa **«Filtrar»**. **«Limpiar»** quita los filtros. **«Exportar listado actual»** descarga lo que estás viendo.
 
 ## Revisar un contenido
+<!-- ve: system-approval-admin-forms-approval -->
 
 Cómo se llega: en la lista, pulsa **«Revisar»** en la fila del contenido.
 

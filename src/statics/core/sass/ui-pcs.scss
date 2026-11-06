@@ -23,6 +23,7 @@ body {
     background-color: $bodyBackground;
 }
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 .#{$globalClassPcs} {
     font-size: $htmlFontSize;
     color: $colorThird;
@@ -46,6 +47,7 @@ body {
 }
 
 //Link
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 a {
 
     .#{$globalClassPcs} &,
@@ -64,6 +66,7 @@ a {
 }
 
 //Headers
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 h1 {
 
     .#{$globalClassPcs} &,
@@ -77,6 +80,7 @@ h1 {
     }
 }
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 h2 {
 
     .#{$globalClassPcs} &,
@@ -89,6 +93,7 @@ h2 {
     }
 }
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 h3 {
 
     .#{$globalClassPcs} &,
@@ -101,6 +106,7 @@ h3 {
     }
 }
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 h4 {
 
     .#{$globalClassPcs} &,
@@ -113,6 +119,7 @@ h4 {
     }
 }
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 h5 {
 
     .#{$globalClassPcs} &,
@@ -125,6 +132,7 @@ h5 {
     }
 }
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 h6 {
 
     .#{$globalClassPcs} &,
@@ -138,6 +146,7 @@ h6 {
 }
 
 //Paragraph
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 p {
 
     .#{$globalClassPcs} &,
@@ -152,6 +161,7 @@ p {
 }
 
 //List
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 ul,
 ol {
 
@@ -226,6 +236,7 @@ img {
     }
 }
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 .image {
 
     .#{$globalClassPcs} &,
@@ -240,6 +251,7 @@ img {
 }
 
 //Quotes
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 q,
 blockquote,
 p.cita,
@@ -260,6 +272,7 @@ p.quote {
 }
 
 //Footer
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 footer.#{$globalClassPcs} {
 
     .#{$globalClassPcs} &,

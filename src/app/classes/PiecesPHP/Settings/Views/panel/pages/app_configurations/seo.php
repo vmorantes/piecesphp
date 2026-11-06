@@ -14,10 +14,7 @@ use PiecesPHP\Settings\Controllers\SettingsController;
  * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
-$getName = function ($name, $lang) {
-    $dl = Config::get_default_lang();
-    return $lang == $dl ? $name : "{$name}_$lang";
-};
+$getName = fn ($name, $lang): string => \PiecesPHP\Settings\Controllers\SettingsController::seoOptionName((string) $name, (string) $lang);
 //El contador avisa y no corta (sin `maxlength`): un valor guardado más largo tiene que poder editarse.
 $counter = fn(string $inputId, int $max): string => '<span class="counter" data-seo-counter="' . escape_html($inputId) . '" data-max="' . $max . '" aria-live="polite"></span>';
 $siteHost = mb_strtoupper((string) parse_url(baseurl(), \PHP_URL_HOST));

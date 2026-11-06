@@ -19,6 +19,7 @@ use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\UserProblemsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserHierarchy;
+use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 CliActions::make('unit-tests:core/system-user', function ($args) {
@@ -192,6 +193,26 @@ CliActions::make('unit-tests:core/system-user', function ($args) {
         $sid = UserSessions::open((int) $root->id);
         $jwt = SessionToken::generateToken(['id' => (int) $root->id, 'sid' => $sid], null, SessionToken::DURATION_MAX, false);
 
+        //Un usuario cuyo tipo ya no existe (H20): el listado lo enseña tal cual y no lo marca borrado.
+        $tipoSinRol = 98765;
+        $sinRol = new UsersModel();
+        $sinRol->username = "{$prefijo}-sin-rol";
+        $sinRol->email = "{$prefijo}-sin-rol@example.com";
+        $sinRol->password = password_hash(bin2hex(random_bytes(16)), \PASSWORD_DEFAULT);
+        $sinRol->firstname = 'Zz';
+        $sinRol->secondname = '';
+        $sinRol->firstLastname = 'Agente';
+        $sinRol->secondLastname = '';
+        $sinRol->type = $tipoSinRol;
+        $sinRol->status = UsersModel::STATUS_USER_ACTIVE;
+        $sinRol->failedAttempts = 0;
+        $sinRol->organization = OrganizationMapper::INITIAL_ID_GLOBAL;
+        $sinRol->createdAt = new \DateTime();
+        $sinRol->modifiedAt = $sinRol->createdAt;
+        $sinRol->save();
+        $usuarios[] = (int) $sinRol->id;
+        $check(!\PiecesPHP\Core\Roles::roleExists($tipoSinRol), 'c7a CANARIO: el tipo del usuario de prueba no tiene rol');
+
         $listado = $pedir($ruta('users-datatables'), $jwt, null, $tabla);
         $nombres = array_map(fn($f) => (string) ($f[4] ?? ''), $filas($listado));
         $check($listado['status'] === 200 && count($nombres) > 0 && !in_array('system', $nombres, true), 'c7 el listado de usuarios (como root) no lo trae', (string) $listado['status']);
@@ -199,6 +220,12 @@ CliActions::make('unit-tests:core/system-user', function ($args) {
         $consulta->execute([$sistema]);
         $despues = $consulta->fetch(\PDO::FETCH_ASSOC);
         $check(is_array($despues) && (int) $despues['status'] === UsersModel::STATUS_USER_INACTIVE, 'c8 y pintar el listado no lo marca borrado');
+        //RETORNO-IGNORADO: lo que cuenta es la fila que sigue, y se comprueba.
+        $consulta->execute([(int) $sinRol->id]);
+        $sinRolTras = $consulta->fetch(\PDO::FETCH_ASSOC);
+        $check(is_array($sinRolTras) && (int) $sinRolTras['status'] === UsersModel::STATUS_USER_ACTIVE, 'c8a pintar el listado no marca borrado a quien tiene un tipo que no existe (H20)', json_encode($sinRolTras['status'] ?? null) ?: '');
+        $filaSinRol = array_values(array_filter($filas($listado), fn($f) => (string) ($f[4] ?? '') === "{$prefijo}-sin-rol"));
+        $check(count($filaSinRol) === 1 && (string) ($filaSinRol[0][6] ?? '') === __(UsersController::LANG_GROUP, 'Tipo desconocido'), 'c8b y sale en el listado con «Tipo desconocido»', json_encode($filaSinRol[0][6] ?? null) ?: '');
         $buscador = $pedir($ruta('users-search-dropdown'), $jwt, null, ['search' => 'system']);
         $encontrados = array_map(fn($r) => (string) ($r['value'] ?? $r['id'] ?? ''), is_array($buscador['json']['results'] ?? null) ? $buscador['json']['results'] : []);
         $check($buscador['status'] === 200 && !in_array((string) $sistema, $encontrados, true), 'c9 el buscador de usuarios no lo ofrece', $buscador['body']);
@@ -225,6 +252,11 @@ CliActions::make('unit-tests:core/system-user', function ($args) {
         //RETORNO-IGNORADO: lo que cuenta es el COUNT que sigue, y se comprueba.
         $huella->execute([$maxRegistro, (string) $sistema, LogsMapper::MESSAGES[LogsMapper::MSG_IMPERSONATION_START]]);
         $check($suplantar['status'] === 400 && (int) $huella->fetchColumn() === 0, 'd6 suplantarlo desde el panel: 400 y sin huella de inicio', (string) $suplantar['status']);
+        $suplantarSinRol = $pedir($ruta('user-impersonation-start'), $jwt, ['userID' => (int) $sinRol->id]);
+        //RETORNO-IGNORADO: lo que cuenta es el COUNT que sigue, y se comprueba.
+        $huella->execute([$maxRegistro, (string) $sinRol->id, LogsMapper::MESSAGES[LogsMapper::MSG_IMPERSONATION_START]]);
+        $check($suplantarSinRol['status'] === 400 && (int) $huella->fetchColumn() === 0 && ($suplantarSinRol['json']['message'] ?? '') === __(UserSystemFeaturesLang::LANG_GROUP, 'El tipo del usuario no existe.'),
+            'd7 suplantar a quien tiene un tipo que no existe: 400 con su motivo y sin huella de inicio (H63)', $suplantarSinRol['body']);
 
         //─── e · Lo hecho sin sesión es suyo ──────────────────────────────────────────────────────
         echoTerminal(' ');

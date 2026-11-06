@@ -26,7 +26,7 @@
 #   - un SUFIJO concatenado (x + '-activo') no marca nada como no verificable: solo los prefijos;
 #   - las líneas de un .scss se atribuyen por el .css.map: una línea sin regla propia (una llave sola, un comentario,
 #     una variable) no cuenta para nadie.
-import json, os, re, subprocess, sys
+import json, os, re, shutil, subprocess, sys
 
 OUT = 'files/dev/scss-census.json'
 ROOT = subprocess.run(['git', 'rev-parse', '--show-toplevel'], capture_output=True, text=True, check=True).stdout.strip()
@@ -255,6 +255,91 @@ WHOLE_DYNAMIC = [
 ]
 
 
+#Un token pegado a una extensión de archivo es el nombre de un archivo, no una clase (H181).
+FILE_NAME = re.compile(r'(?<![' + TOKEN_CHARS + r'])[' + TOKEN_CHARS + r']+\.(?:css|scss|js|ts|php|map|png|jpe?g|svg|webp|gif|json|html|md|woff2?)\b')
+
+
+#──── Sin comentarios ─────────────────────────────────────────────────────────────────────────────
+#Un comentario no es el uso de una clase: «sin ui-pcs para que el tema pinte» (header.php:87) la daba viva (H181).
+#El PHP lo trocea el propio PHP (token_get_all), el de las herramientas: PCSPHP_PHP_BIN, php8.5 o php8.4, como bin/cli.
+PHP_STRIP = r"""
+$salida = [];
+foreach (preg_split('/\n/', stream_get_contents(STDIN), -1, PREG_SPLIT_NO_EMPTY) as $ruta) {
+    $texto = '';
+    foreach (token_get_all(file_get_contents($ruta)) as $t) {
+        if (!is_array($t)) { $texto .= $t; continue; }
+        if ($t[0] === T_COMMENT || $t[0] === T_DOC_COMMENT) { $texto .= str_repeat("\n", substr_count($t[1], "\n")); continue; }
+        if ($t[0] === T_INLINE_HTML) {
+            $t[1] = preg_replace_callback('/<!--.*?-->/s', fn($m) => str_repeat("\n", substr_count($m[0], "\n")), $t[1]);
+        }
+        $texto .= $t[1];
+    }
+    $salida[$ruta] = $texto;
+}
+echo json_encode($salida, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
+"""
+
+
+def php_bin():
+    if os.environ.get('PCSPHP_PHP_BIN'):
+        return os.environ['PCSPHP_PHP_BIN']
+    for candidate in ('php8.5', 'php8.4'):
+        if shutil.which(candidate):
+            return candidate
+    return 'php'
+
+
+def php_without_comments(paths):
+    """{ruta: texto sin comentarios} o None si el PHP falla (el censo para: sin esto contaría los comentarios)."""
+    if not paths:
+        return {}
+    run = subprocess.run([php_bin(), '-r', PHP_STRIP], input='\n'.join(paths), capture_output=True, text=True)
+    if run.returncode != 0:
+        print(f'PARA: {php_bin()} no pudo quitar los comentarios del PHP:\n{run.stderr}')
+        return None
+    return json.loads(run.stdout)
+
+
+def js_without_comments(text):
+    """Quita // y /* */ respetando cadenas y plantillas; un literal de expresión regular con // dentro se lee mal (raro)."""
+    out, i, n, quote = [], 0, len(text), None
+    while i < n:
+        c = text[i]
+        if quote:
+            out.append(c)
+            if c == '\\' and i + 1 < n:
+                out.append(text[i + 1])
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+            i += 1
+            continue
+        if c in '\'"`':
+            quote = c
+        elif text.startswith('//', i):
+            end = text.find('\n', i)
+            i = n if end < 0 else end
+            continue
+        elif text.startswith('/*', i):
+            end = text.find('*/', i + 2)
+            end = n if end < 0 else end + 2
+            out.append('\n' * text.count('\n', i, end))
+            i = end
+            continue
+        out.append(c)
+        i += 1
+    return ''.join(out)
+
+#Clases armadas con un prefijo guardado en una variable: el censo no puede resolver la variable, así que se declara aquí
+#su valor (H181). Si la expresión o el valor dejan de estar en su archivo, el censo PARA: la declaración mentiría.
+VARIABLE_PREFIXES = [
+    {'file': 'src/statics/core/js/helpers-lib/GenericLoaderElement.js', 'expression': '${this.classPrefix}', 'value': 'ui-pcs-',
+     'where': 'GenericLoaderElement.js:20', 'why': 'el cargador global arma sus clases (global-loader, box, logo, loader…) con el prefijo de la instancia'},
+    {'file': 'src/statics/core/js/helpers-lib/GenericLoaderElement.js', 'expression': '${classPrefix}', 'value': 'ui-pcs-',
+     'where': 'GenericLoaderElement.js:225 y :244', 'why': 'remove() y currentActive() buscan el cargador con el prefijo por defecto'},
+]
+
 def kind_of(path):
     return 'php' if path.endswith(('.php', '.html')) else 'js'
 
@@ -349,16 +434,43 @@ def main():
     files = usage_files()
     tokens = set()
     texts = {}
+    stripped_php = php_without_comments([path for path in files if path.endswith('.php')])
+    if stripped_php is None:
+        return 2
     for path in files:
         text = open(path, encoding='utf-8', errors='replace').read()
         texts[path] = text
-        tokens.update(t for t in re.split(r'[^' + TOKEN_CHARS + r']+', text) if t)
+        if path.endswith('.php'):
+            text = stripped_php[path]
+        elif path.endswith(('.js', '.ts')):
+            text = js_without_comments(text)
+        elif path.endswith('.html'):
+            text = re.sub(r'<!--.*?-->', ' ', text, flags=re.S)
+        #Un nombre de archivo no es el uso de una clase: «ui-pcs.css» no hace viva a «ui-pcs» (H181).
+        tokens.update(t for t in re.split(r'[^' + TOKEN_CHARS + r']+', FILE_NAME.sub(' ', text)) if t)
+    #Lo que arma un prefijo declarado cuenta como token (H181).
+    by_variable = {}
+    for entry in VARIABLE_PREFIXES:
+        text = texts.get(entry['file'])
+        if text is None or entry['expression'] not in text or f"'{entry['value']}'" not in text:
+            print(f'PARA: el prefijo declarado {entry["expression"]} = {entry["value"]!r} ({entry["where"]}) ya no está en {entry["file"]}: '
+                  'corrige VARIABLE_PREFIXES')
+            return 2
+        for m in re.finditer(re.escape(entry['expression']) + r'([' + TOKEN_CHARS + r']+)', text):
+            name = entry['value'] + m.group(1)
+            tokens.add(name)
+            by_variable.setdefault(name, set()).add(entry['where'])
     odd = [name for name in declared if re.search(r'[^' + TOKEN_CHARS + r']', name)]
 
     def used(name):
         if name in odd:
             return any(name in text for text in texts.values())
         return name in tokens
+
+    #El sitio se ancla por lo que casa, no por su línea: una línea añadida arriba en un controlador o un script dejaba
+    #rancio el censo sin haber tocado ni una clase (H151).
+    def site(path, m):
+        return f'{path}: {" ".join(m.group(0).split())}'
 
     prefixes, concat_sites, whole_sites = {}, [], []
     for path, text in texts.items():
@@ -368,13 +480,12 @@ def main():
                 continue
             for m in pattern.finditer(text):
                 prefix = m.group(m.lastindex)
-                line = text.count('\n', 0, m.start()) + 1
-                prefixes.setdefault(prefix, []).append(f'{path}:{line}')
+                prefixes.setdefault(prefix, []).append(site(path, m))
         for pkind, pattern in WHOLE_DYNAMIC:
             if pkind != kind:
                 continue
             for m in pattern.finditer(text):
-                whole_sites.append(f'{path}:{text.count(chr(10), 0, m.start()) + 1}')
+                whole_sites.append(site(path, m))
 
     def bucket(name):
         if name in third:
@@ -513,6 +624,7 @@ def main():
         'unused_also_as_substring': substring_too,
         'concat_prefixes': {p: sorted(set(v)) for p, v in sorted(prefixes.items())},
         'whole_dynamic_sites': sorted(set(whole_sites)),
+        'variable_prefix_names': {name: sorted(w) for name, w in sorted(by_variable.items())},
         'classes': {
             name: {
                 'bucket': buckets[name],

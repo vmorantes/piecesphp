@@ -4,6 +4,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <p>Aquí consultas lo que el sistema anota: qué pasó, quién lo hizo y cuándo. Solo ves las partes que tu tipo de cuenta
 tiene permitidas.</p>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['logs-admin-index'])): ?>
 <h2 class="ui header">Registros</h2>
 <p>Se llega por el botón de engranajes de la barra superior, <strong>«Configuración del sistema» › «Registros y Logs»</strong>,
 y la entrada del registro que buscas: <strong>«Errores»</strong>, <strong>«Intentos de ingreso»</strong>, <strong>«Registro de ingresos»</strong>,
@@ -61,6 +62,8 @@ referencia, el tipo de error, el mensaje y el archivo donde ocurrió.</p>
 <h3 class="ui header">Las otras pestañas</h3>
 <p>Las pestañas <strong>Accesos</strong>, <strong>Sesiones abiertas</strong>, <strong>Tokens y códigos</strong> y <strong>Tareas programadas</strong> existen en la
 pantalla, pero este manual todavía no describe su contenido.</p>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['system-status-mail-log'])): ?>
 <h2 class="ui header">Correos enviados</h2>
 <p>Es la pestaña <strong>Correos enviados</strong> de <strong>Registros</strong>. Lista los correos que la plataforma envió o intentó enviar.</p>
 <p><img class="ui image" alt="Correos enviados" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/system-status-mail-log.webp')); ?>"></p>
@@ -139,6 +142,8 @@ pantalla, pero este manual todavía no describe su contenido.</p>
 </tr>
 </tbody>
 </table>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['actions-logs-admin-list'])): ?>
 <h2 class="ui header">Registro de actividad</h2>
 <p>Se llega por <strong>«Últimos movimientos»</strong>, en el menú lateral. Responde a «quién hizo qué en el panel, y cuándo».</p>
 <p><img class="ui image" alt="Registro de actividad" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/actions-logs-admin-list.webp')); ?>"></p>
@@ -176,3 +181,4 @@ pantalla, pero este manual todavía no describe su contenido.</p>
 </tr>
 </tbody>
 </table>
+<?php endif; ?>

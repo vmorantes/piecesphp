@@ -3,11 +3,14 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Los avisos que ven los usuarios del panel, por perfil y con sus fechas.</p>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['news-admin-list'])): ?>
 <h2 class="ui header">El listado de noticias</h2>
 <p>Cómo se llega: <strong>«Noticias internas»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="El listado de noticias" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/news-admin-list.webp')); ?>"></p>
 <p>La tabla muestra: <strong>Título</strong>, <strong>Estado</strong>, <strong>Fecha de inicio</strong>, <strong>Fecha de final</strong> y <strong>Acciones</strong>. En cada fila puedes <strong>«Editar»</strong> o <strong>«Eliminar»</strong> la noticia.</p>
 <p>Arriba están los botones <strong>«Nueva noticia»</strong>, <strong>«Categorías»</strong> y <strong>«Exportar listado actual»</strong>.</p>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['news-admin-forms-add', 'news-admin-forms-edit'])): ?>
 <h2 class="ui header">Agregar y editar una noticia</h2>
 <p>Cómo se llega: pulsa <strong>«Nueva noticia»</strong>, o <strong>«Editar»</strong> en la fila de una noticia.</p>
 <p><img class="ui image" alt="Agregar y editar una noticia" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/news-admin-forms-add.webp')); ?>"></p>
@@ -58,6 +61,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tbody>
 </table>
 <p>Botones: <strong>«Guardar»</strong>, <strong>«Cancelar»</strong> (vuelve al listado) y, al editar, <strong>«Eliminar»</strong>.</p>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['news-category-admin-list'])): ?>
 <h2 class="ui header">Las categorías de noticias</h2>
 <p>Cómo se llega: botón <strong>«Categorías»</strong> del listado de noticias.</p>
 <p><img class="ui image" alt="Las categorías de noticias" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/news-category-admin-list.webp')); ?>"></p>
@@ -86,3 +91,4 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </table>
 <p>Con <strong>«Cambiar imagen»</strong> eliges el ícono de la categoría: al crearla es obligatorio. Al editar, <strong>«Descargar / ver»</strong> abre el actual. Botones: <strong>«Guardar»</strong>, <strong>«Cancelar»</strong> y, al editar, <strong>«Eliminar»</strong>.</p>
 <p>Al editar, el selector <strong>«Idiomas»</strong> elige en qué idioma escribes.</p>
+<?php endif; ?>

@@ -3,6 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Aquí gestionas las organizaciones registradas y lo que se muestra de cada una.</p>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['organizations-admin-list'])): ?>
 <h2 class="ui header">La lista de organizaciones</h2>
 <p>Se llega desde el menú lateral: <strong>«Gestión de organizaciones»</strong>.</p>
 <p><img class="ui image" alt="La lista de organizaciones" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/organizations-admin-list.webp')); ?>"></p>
@@ -15,6 +16,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <li><strong>«Eliminar»</strong>.</li>
 </ul>
 <p>Arriba tienes <strong>«Agregar organización»</strong> y <strong>«Exportar listado actual»</strong>.</p>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['organizations-admin-forms-edit', 'organizations-admin-forms-add'])): ?>
 <h2 class="ui header">Agregar y editar una organización</h2>
 <p>Los dos formularios son casi iguales. La edición añade el botón <strong>«Perfil público»</strong>, el botón <strong>«Eliminar»</strong> y los campos «Código» y «Contacto de la organización».</p>
 <p><img class="ui image" alt="Agregar y editar una organización" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/organizations-admin-forms-edit.webp')); ?>"></p>
@@ -115,3 +118,4 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tbody>
 </table>
 <p>También puedes <strong>«Cambiar imagen»</strong> para poner la imagen de la organización. Termina con <strong>«Guardar»</strong>.</p>
+<?php endif; ?>

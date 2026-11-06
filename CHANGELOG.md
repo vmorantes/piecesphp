@@ -1,6 +1,17 @@
+# 10.4.0 (05-11-2026)
+
+- **El manual de usuario se ve por sección.** Cada sección que explica una pantalla solo la ve quien puede abrirla, y desaparece para todos si su pantalla no existe (un módulo apagado). En los capítulos de tu proyecto, pon `<!-- ve: ruta, … -->` en la línea siguiente al título `##` de la sección; `bin/manual` y `bin/cli verify-integrity` comprueban que esas rutas sean del capítulo y existan. Detalle en la guía, «Manual de usuario».
+- **El Mapa de contenidos**: los botones, arriba a la derecha; Filtros y Leyenda se abren juntos en una columna debajo, sin tapar el zoom; el botón de la leyenda lleva un icono de mapa.
+- **Abrir el listado de usuarios ya no cambia ningún dato.** Un usuario cuyo tipo ya no existe sale en él con «Tipo desconocido».
+- **No se puede actuar como un usuario cuyo tipo ya no existe**: se rechaza con un mensaje, en vez de un error en cada petición.
+- **Más estricta la comprobación del código de un token.**
+- **«Atrás» de las pantallas de problemas de acceso, traducible.**
+- **Para quien programa:** `Impersonation::isImpersonating()` y `Impersonation::rootOriginalID()` responden en un solo sitio si root está actuando como otro usuario y quién es root; `SettingsController::seoOptionName()` da el nombre de una opción SEO por idioma. Las variables `$asUserLoggedID` y `$rootOriginalID` de `topbar-data.php` se mantienen.
+- **Más CSS en desuso hasta la `11.0.0`**: la clase `ui-pcs`, que ya no pone ninguna vista, y todo lo que cuelga de ella (`ui-pcs.scss`, `.ui-pcs.button`). Si tu proyecto la usa, sigue funcionando hasta entonces.
+
 # 10.3.0 (05-11-2026)
 
-- **Varias pantallas del panel se pintan con los componentes del tema y se leen bien en modo oscuro**: las fichas del Directorio (persona y organización), «Mi perfil», el perfil público de una organización, los formularios de problemas de acceso (recuperar la contraseña o el usuario, cuenta bloqueada, otros problemas), Aprobaciones (la lista y la revisión) y los paneles del Mapa de contenidos. Su SCSS propio pasa de 1.583 líneas a 357 (contando los dos parciales de perfiles); lo que queda es lo que el tema no da, como lo que flota sobre el mapa. **Si tu proyecto cuelga estilos de las clases viejas de esas pantallas** (por ejemplo `.section` dentro de las fichas, `.base-text`, `.title-step`, `.time-tag`), revísalos: el marcado es otro.
+- **Varias pantallas se pintan con los componentes del tema** (y las del panel se leen bien en modo oscuro): las fichas del Directorio (persona y organización), «Mi perfil», el perfil público de una organización, los formularios de problemas de acceso (recuperar la contraseña o el usuario, cuenta bloqueada, otros problemas), Aprobaciones (la lista y la revisión) y los paneles del Mapa de contenidos. Su SCSS propio pasa de 1.583 líneas a 357 (contando los dos parciales de perfiles); lo que queda es lo que el tema no da, como lo que flota sobre el mapa. **Si tu proyecto cuelga estilos de las clases viejas de esas pantallas** (por ejemplo `.section` dentro de las fichas, `.base-text`, `.title-step`, `.time-tag`), revísalos: el marcado es otro.
 - **`_profile-view.scss` y `_profile-form.scss` quedan en desuso y salen en la `11.0.0`.** El framework ya no los carga; si tu proyecto los incluye, siguen funcionando igual.
 - **El manual de usuario cubre todas las pantallas del panel**: se añaden la revisión de un contenido pendiente de aprobación y la exportación de usuarios.
 - **Las migas de las fichas del Directorio, en una línea** (se pintaban como cajas apiladas), y la vista previa de una publicación en la revisión, con la letra del panel.

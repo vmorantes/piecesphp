@@ -88,6 +88,7 @@ return [
     'No se puede actuar como otro usuario root.' => 'You cannot act as another root user.',
     'El usuario no está activo.' => 'The user is not active.',
     'La organización del usuario no está activa.' => 'The user\'s organization is not active.',
+    'El tipo del usuario no existe.' => 'The user\'s type does not exist.',
     'Ya está actuando como otro usuario.' => 'You are already acting as another user.',
     'No está actuando como otro usuario.' => 'You are not acting as another user.',
     'No se puede actuar como otro usuario desde esta sesión.' => 'You cannot act as another user from this session.',

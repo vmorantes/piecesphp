@@ -8,6 +8,7 @@ rutas: [users-list, users-selection-create, users-form-create, users-form-edit]
 Aquí ves quién entra al panel, con qué tipo de usuario y en qué estado, y creas o editas cuentas.
 
 ## La lista de usuarios
+<!-- ve: users-list -->
 
 Se llega por el botón de engranajes de la barra superior: **«Configuración del sistema» › «Gestión de usuarios» › «Gestionar usuarios»**.
 
@@ -25,12 +26,14 @@ La lista se divide en pestañas según el estado de la cuenta:
 Cada pestaña muestra las cuentas en tarjetas: nombre, estado (activo o inactivo), tipo, usuario, correo y organización. Arriba eliges cuántas ver en **«Resultados visibles»** y buscas en **«Buscador»**; abajo está la paginación. El botón del lápiz de cada tarjeta, **«Editar»**, abre esa cuenta.
 
 ## Agregar un usuario
+<!-- ve: users-selection-create, users-form-create -->
 
 Pulsa **«Agregar usuario»**. Primero el sistema te lleva a elegir el tipo de usuario; al elegirlo, se abre el formulario de alta para ese tipo.
 
 ![Agregar un usuario](img/users-selection-create.webp)
 
 ## Agregar y editar
+<!-- ve: users-form-edit, users-form-create -->
 
 El formulario de alta y el de edición son casi iguales. En la edición, el título muestra el nombre de la persona y su tipo, y aparecen tres pestañas: **Cuenta**, **Foto de perfil** y **Sesiones**. En el alta solo está la pestaña **Cuenta**.
 

@@ -8,6 +8,7 @@ rutas: [locations, locations-countries-list, locations-countries-forms-add, loca
 Aquí se mantienen los lugares que usa el resto del panel: países, departamentos, ciudades y coordenadas.
 
 ## Cómo se llega
+<!-- ve: locations -->
 
 Desde el menú lateral: **«Ubicaciones»**. La pantalla de inicio de la sección ofrece un listado de los países, de los departamentos, de las ciudades y de las coordenadas.
 
@@ -16,6 +17,7 @@ Desde el menú lateral: **«Ubicaciones»**. La pantalla de inicio de la secció
 Cada listado tiene la misma forma: una tabla con un botón **«Editar»** por fila, un botón principal para agregar y **«Exportar listado actual»**. En los formularios, **«Cancelar»** vuelve al listado y **«Guardar»** guarda.
 
 ## Países
+<!-- ve: locations-countries-list -->
 
 Columnas: ID, código, nombre, región, activo o inactivo y acciones. Para crear uno, pulsa **«Agregar país»**.
 
@@ -31,6 +33,7 @@ Columnas: ID, código, nombre, región, activo o inactivo y acciones. Para crear
 | Activo/Inactivo | Sí | |
 
 ## Departamentos
+<!-- ve: locations-states-list -->
 
 Columnas: ID, código, nombre, país, activo o inactivo y acciones. Para crear uno, pulsa **«Agregar departamento»**.
 
@@ -44,6 +47,7 @@ Columnas: ID, código, nombre, país, activo o inactivo y acciones. Para crear u
 | Activo/Inactivo | Sí | |
 
 ## Ciudades
+<!-- ve: locations-cities-list -->
 
 Columnas: ID, código, nombre, país, departamento, activo o inactivo y acciones. Para crear una, pulsa **«Agregar ciudad»**.
 
@@ -58,6 +62,7 @@ Columnas: ID, código, nombre, país, departamento, activo o inactivo y acciones
 | Activo/Inactivo | Sí | |
 
 ## Coordenadas
+<!-- ve: locations-points-list -->
 
 Columnas: ID, nombre, país, departamento, ciudad, dirección, coordenadas, activo o inactivo y acciones. Para crear una, pulsa **«Agregar coordenada»**.
 
@@ -75,6 +80,7 @@ Columnas: ID, nombre, país, departamento, ciudad, dirección, coordenadas, acti
 Este formulario incluye un mapa. Con los botones del mapa puedes cambiar entre **«Vista satelital»** y **«Vista de dibujo»**, **«Centrar»** el mapa y acercarlo o alejarlo.
 
 ## Agregar y editar
+<!-- ve: locations-countries-forms-add, locations-countries-forms-edit, locations-states-forms-add, locations-states-forms-edit, locations-cities-forms-add, locations-cities-forms-edit, locations-points-forms-add, locations-points-forms-edit -->
 
 Para cada tipo de ubicación, el formulario de alta y el de edición tienen los mismos campos. Solo cambia el título («Agregar…» o «Editar…»).
 

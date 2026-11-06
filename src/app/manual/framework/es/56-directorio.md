@@ -12,6 +12,7 @@ El Directorio reúne a las personas y las organizaciones con su perfil público 
 Desde el menú lateral: **«Directorio»**.
 
 ## Qué se ve
+<!-- ve: directory-admin-list -->
 
 Una tabla con tres columnas: **Actor** (la persona u organización), **Ubicación** y **Acciones**.
 
@@ -26,12 +27,14 @@ Una tabla con tres columnas: **Actor** (la persona u organización), **Ubicació
     En la ficha de una organización, el botón **«Editar»** lleva a su perfil público. Se explica en el capítulo **Tu organización**.
 
 ## El perfil de una persona
+<!-- ve: profile-admin-profile -->
 
 Desde el **Directorio**, el botón **«Ver perfil»** de una persona abre su ficha pública. Arriba, las migas de pan te llevan de vuelta al Directorio. Es una pantalla para consultar: no tiene campos que llenar.
 
 ![El perfil de una persona](img/profile-admin-profile.webp)
 
 ## La ficha de una organización
+<!-- ve: profile-organization-admin-profile -->
 
 Con **«Ver perfil»** se abre la ficha de la organización, con las migas **Inicio › Directorio › nombre de la organización**. Es una pantalla para consultar. El botón **«Editar»** lleva a su perfil público.
 

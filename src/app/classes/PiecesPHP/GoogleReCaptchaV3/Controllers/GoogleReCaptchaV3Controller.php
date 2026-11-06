@@ -44,6 +44,10 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
     protected static $baseRouteName = 'google-recaptcha-v3';
 
     const LANG_GROUP = GoogleReCaptchaV3Lang::LANG_GROUP;
+    /**
+     * El nombre de su opción en la configuración: cambiarlo dejaría huérfana la ya guardada.
+     */
+    const CONFIG_NAME = 'GoogleReCaptchaV3Controller';
 
     public function __construct()
     {
@@ -151,9 +155,9 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
             //Verificar validez
             $recaptchaResult->success = $recaptchaResult->score >= 0.5;
 
-            $configElement = new SettingsModel('GoogleReCaptchaV3Controller');
+            $configElement = new SettingsModel(self::CONFIG_NAME);
             if ($configElement->id === null) {
-                $configElement->name = 'GoogleReCaptchaV3Controller';
+                $configElement->name = self::CONFIG_NAME;
                 $configElement->value = [];
                 $configElement->save();
                 $configElement->id = $configElement->getLastInsertID();
@@ -214,9 +218,9 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
         if (self::secretKey() === null) {
             return false;
         }
-        $configElement = new SettingsModel('GoogleReCaptchaV3Controller');
+        $configElement = new SettingsModel(self::CONFIG_NAME);
         if ($configElement->id === null) {
-            $configElement->name = 'GoogleReCaptchaV3Controller';
+            $configElement->name = self::CONFIG_NAME;
             $configElement->value = [];
             $configElement->save();
             $configElement->id = $configElement->getLastInsertID();

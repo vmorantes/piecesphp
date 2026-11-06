@@ -479,6 +479,19 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * El nombre de una opción (o de su campo) de SEO en un idioma: el del idioma por omisión sin sufijo y los demás con
+     * «_<idioma>». Lo usan el guardado, la lectura, la declaración de las opciones y la vista.
+     *
+     * @param string $option
+     * @param string $lang
+     * @return string
+     */
+    public static function seoOptionName(string $option, string $lang): string
+    {
+        return $lang === Config::get_default_lang() ? $option : "{$option}_{$lang}";
+    }
+
+    /**
      * La lista de fondos con una imagen puesta: sustituye la que lleva ese nombre (bg3 puede ser .jpg o .webp) y, si no
      * está, la añade. Un fondo vacío de la pantalla no tiene valor en la lista.
      *
@@ -889,8 +902,6 @@ class SettingsController extends AdminPanelController
 
                 try {
 
-                    $defaultLang = Config::get_default_lang();
-
                     $options = [
                         self::SEO_OPTION_TITLE_APP => $titleApp,
                         self::SEO_OPTION_OWNER => $owner,
@@ -911,9 +922,7 @@ class SettingsController extends AdminPanelController
 
                     foreach ($options as $optionName => $optionValue) {
 
-                        if ($lang !== $defaultLang) {
-                            $optionName .= "_{$lang}";
-                        }
+                        $optionName = self::seoOptionName($optionName, $lang);
 
                         $optionMapper = new SettingsModel($optionName);
 
@@ -941,10 +950,8 @@ class SettingsController extends AdminPanelController
                             $folder = 'statics/images';
                             $nameImage = 'open_graph';
 
-                            if ($lang !== $defaultLang) {
-                                $nameImage .= "_{$lang}";
-                                $nameOptionOG .= "_{$lang}";
-                            }
+                            $nameImage = self::seoOptionName($nameImage, $lang);
+                            $nameOptionOG = self::seoOptionName($nameOptionOG, $lang);
 
                             $extension = 'jpg';
                             $relativePath = "{$folder}/{$nameImage}.{$extension}";
@@ -2672,8 +2679,8 @@ class SettingsController extends AdminPanelController
                 }
 
                 if ($lang !== $defaultLang) {
-                    $nameLang = "{$nameOnConfig}_{$lang}";
-                    $nameLangOnForm = "{$nameOnForm}_{$lang}";
+                    $nameLang = self::seoOptionName($nameOnConfig, $lang);
+                    $nameLangOnForm = self::seoOptionName($nameOnForm, $lang);
                     $valueLang = SettingsModel::getConfigValue($nameLang);
                     $defaultValue = $valuesToAdd[$defaultLang][$nameOnForm];
 

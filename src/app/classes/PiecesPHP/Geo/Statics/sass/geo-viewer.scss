@@ -17,6 +17,8 @@ body.geo-viewer {
     //Lo que el armazón del panel pinta encima del mapa: nada desde el shell (la barra va encima, no sobre el contenido).
     --geo-reserve-left: 0px;
     --geo-reserve-top: 0px;
+    //Lo que ocupan abajo a la derecha el zoom y la atribución de Mapbox: la columna de los paneles acaba encima.
+    --geo-reserve-bottom: 110px;
 
     //El geovisor NO desplaza la página: ocupa el alto visible de main.content, la ventana menos la barra del shell (64 px;
     //56 en el móvil), sin relleno ni ancho máximo.
@@ -64,12 +66,30 @@ body.geo-viewer {
         text-align: center;
     }
 
-    .geo-toolbar {
+    //Botones y paneles en una columna a la derecha. Su alto acaba encima del zoom de Mapbox (abajo a la derecha): con
+    //los dos paneles abiertos, cada uno encoge y se desplaza por dentro. Sin ancho propio y alineada a la derecha, la
+    //columna no tapa más mapa que lo que pinta.
+    .geo-side {
         position: absolute;
-        top: var(--geo-gap);
-        left: calc(var(--geo-reserve-left) + var(--geo-gap));
+        top: calc(var(--geo-reserve-top) + var(--geo-gap));
+        right: var(--geo-gap);
         z-index: 3;
         display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: var(--geo-gap);
+        max-height: calc(100% - var(--geo-reserve-top) - var(--geo-gap) - var(--geo-reserve-bottom));
+        //En el móvil la columna va de lado a lado: el hueco junto a los botones sigue siendo mapa.
+        pointer-events: none;
+
+        > * {
+            pointer-events: auto;
+        }
+    }
+
+    .geo-toolbar {
+        display: flex;
+        flex: none;
         gap: 6px;
 
         .ui.icon.button {
@@ -86,27 +106,16 @@ body.geo-viewer {
     }
 
     .geo-panel {
-        position: absolute;
-        top: calc(var(--geo-gap) * 2 + 36px);
-        z-index: 2;
+        box-sizing: border-box;
+        flex: 0 1 auto;
+        min-height: 0;
         width: var(--geo-panel-width);
-        //Nunca hasta el borde de abajo: ahí va el contador.
-        max-height: calc(100% - var(--geo-gap) * 4 - 36px - 44px);
+        max-width: 100%;
         overflow-y: auto;
         padding: 0.75rem 1rem 1rem;
         border-radius: 8px;
         background: var(--geo-panel-background);
         box-shadow: 0 2px 12px var(--geo-panel-shadow);
-
-        &.geo-panel-filters {
-            left: calc(var(--geo-reserve-left) + var(--geo-gap));
-        }
-
-        &.geo-panel-legend {
-            right: var(--geo-gap);
-            top: calc(var(--geo-reserve-top) + var(--geo-gap));
-            max-height: calc(100% - var(--geo-reserve-top) - var(--geo-gap) * 2 - 110px);
-        }
 
         .geo-panel-header {
             display: flex;
@@ -288,23 +297,16 @@ body.geo-viewer {
     }
 }
 
-//En el móvil (el cajón del shell) los paneles van a todo el ancho, uno debajo de otro.
+//En el móvil (el cajón del shell) los paneles van a todo el ancho; geo-viewer.js abre uno a la vez.
 @media only screen and (max-width: 767.98px) {
     .geo-viewer-container {
-        .geo-toolbar {
-            top: calc(var(--geo-reserve-top) + var(--geo-gap));
+        .geo-side {
+            left: var(--geo-gap);
         }
 
         .geo-panel {
-
-            &.geo-panel-filters,
-            &.geo-panel-legend {
-                left: var(--geo-gap);
-                right: var(--geo-gap);
-                top: calc(var(--geo-reserve-top) + var(--geo-gap) * 2 + 36px);
-                width: auto;
-                max-height: calc(100% - var(--geo-reserve-top) - var(--geo-gap) * 4 - 36px - 70px);
-            }
+            align-self: stretch;
+            width: auto;
         }
     }
 }

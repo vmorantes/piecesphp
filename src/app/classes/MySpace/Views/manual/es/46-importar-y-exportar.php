@@ -3,6 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Carga datos desde una hoja de cálculo, o descarga los del sistema en el formato que elijas.</p>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['data-transfer-hub'])): ?>
 <h2 class="ui header">La pantalla principal</h2>
 <p>Cómo se llega: <strong>«Importar y exportar»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="La pantalla principal" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-hub.webp')); ?>"></p>
@@ -11,6 +12,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <li><strong>«Importar»</strong>: una tabla con <strong>Entidad</strong>, <strong>Descripción</strong>, <strong>Acciones</strong> y <strong>Activo</strong>. En cada fila puedes <strong>«Importar»</strong>, o descargar la plantilla en <strong>«Plantilla XLSX»</strong> o <strong>«Plantilla CSV»</strong>.</li>
 <li><strong>«Exportar»</strong>: la misma tabla. En cada fila puedes <strong>«Exportar»</strong>, o descargar en <strong>«Descargar XLSX»</strong> o <strong>«Descargar CSV»</strong>.</li>
 </ul>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['data-transfer-import-users'])): ?>
 <h2 class="ui header">Importar usuarios</h2>
 <p>Cómo se llega: en la pestaña <strong>«Importar»</strong>, pulsa <strong>«Importar»</strong> en la fila de usuarios; o por el botón de engranajes de la barra superior, <strong>«Configuración del sistema» › «Gestión de usuarios» › «Importar usuarios»</strong>.</p>
 <p><img class="ui image" alt="Importar usuarios" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-import-users.webp')); ?>"></p>
@@ -81,6 +84,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tr>
 </tbody>
 </table>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['data-transfer-export-users-form'])): ?>
 <h2 class="ui header">Exportar usuarios</h2>
 <p>Cómo se llega: en la pestaña <strong>«Exportar»</strong>, pulsa <strong>«Exportar»</strong> en la fila de usuarios.</p>
 <p><img class="ui image" alt="Exportar usuarios" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-export-users-form.webp')); ?>"></p>
@@ -89,3 +94,4 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>El archivo se llama <code>users-</code> seguido de la fecha y la hora, y trae una fila por usuario con estas columnas: Usuario,
 Correo, Primer nombre, Segundo nombre, Primer apellido, Segundo apellido, Tipo y Organización. Se puede volver a
 importar con <strong>«Importar usuarios»</strong>; no lleva contraseñas.</p>
+<?php endif; ?>

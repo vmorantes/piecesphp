@@ -9,7 +9,8 @@ const GEO_LABELS_MIN_ZOOM = 14
 const GEO_MOVE_WAIT = 300
 const GEO_TEXT_WAIT = 400
 const GEO_AVATARS_WAIT = 120
-const GEO_NARROW = '(max-width: 800px)'
+//El mismo corte que el @media de geo-viewer.scss: por encima, los paneles van en columna y caben los dos.
+const GEO_NARROW = '(max-width: 767.98px)'
 const GEO_STYLES = {
 	streets: 'mapbox://styles/mapbox/streets-v12',
 	satellite: 'mapbox://styles/mapbox/satellite-streets-v12',

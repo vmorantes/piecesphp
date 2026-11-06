@@ -16,7 +16,7 @@ use Terminal\Tasks\GenerateAppKeyTask;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/generic-tokens';
-$cliTaskDescription = 'Tokens genéricos: selector opaco, borrado solo del suyo, claves derivadas de app_key y el aviso de la de relleno';
+$cliTaskDescription = 'Tokens genéricos: selector opaco, borrado solo del suyo, claves derivadas de app_key, el aviso de la de relleno y el código comparado como cadena';
 
 CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
@@ -62,7 +62,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     try {
 
         //──── 1. Selectores ────────────────────────────────────────────────────────────────
-        echoTerminal('[1/4] El selector: 16 bytes aleatorios en hexadecimal, y un id no lo es');
+        echoTerminal('[1/5] El selector: 16 bytes aleatorios en hexadecimal, y un id no lo es');
 
         $selectores = [];
         for ($i = 0; $i < 1000; $i++) {
@@ -76,7 +76,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 2. Solo se borra el suyo ─────────────────────────────────────────────────────
-        echoTerminal('[2/4] El controlador solo alcanza y borra tokens de su tipo, y solo el suyo');
+        echoTerminal('[2/5] El controlador solo alcanza y borra tokens de su tipo, y solo el suyo');
 
         $selectorOtro = GenericTokenController::newSelector();
         $idOtro = $inserta('zz-prueba-token-de-recuperacion', TokenController::TOKEN_PASSWORD_RECOVERY, $selectorOtro);
@@ -98,7 +98,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 3. Claves derivadas ──────────────────────────────────────────────────────────
-        echoTerminal('[3/4] Las claves de los JWT se derivan de app_key, una por uso, sin literales');
+        echoTerminal('[3/5] Las claves de los JWT se derivan de app_key, una por uso, sin literales');
 
         $claveA = str_repeat('a', 64);
         $claveB = str_repeat('b', 64);
@@ -110,13 +110,26 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         echoTerminal(' ');
 
         //──── 4. El aviso de la app_key de relleno ─────────────────────────────────────────
-        echoTerminal('[4/4] El aviso salta con la app_key vacía o de relleno, y no con una buena');
+        echoTerminal('[4/5] El aviso salta con la app_key vacía o de relleno, y no con una buena');
 
         $check(Config::app_key_is_placeholder('') && Config::app_key_is_placeholder('TODO:secret') && Config::app_key_is_placeholder('   '),
             'DISCRIMINANTE: salta con la vacía y con la de relleno');
         $buena = GenerateAppKeyTask::generate();
         $check(!Config::app_key_is_placeholder($buena), 'no salta con una buena');
         $check(preg_match('/^[0-9a-f]{64}$/', $buena) === 1 && $buena !== GenerateAppKeyTask::generate(), 'generate-app-key: 64 hexadecimales, distinta cada vez');
+        echoTerminal(' ');
+
+        //──── 5. El código del token se compara como cadena ────────────────────────────────
+        echoTerminal('[5/5] checkJWTWithCode() compara el código como cadena estricta (H63)');
+
+        $conCeros = TokenModel::addJWTWithCode(['zz' => 'prueba'], '000123', 60);
+        $creadas[] = (int) $conCeros['id'];
+        $check(TokenModel::checkJWTWithCode($conCeros['jwt'], '000123'), 'CANARIO: el código exacto pasa');
+        $check(!TokenModel::checkJWTWithCode($conCeros['jwt'], '123') && !TokenModel::checkJWTWithCode($conCeros['jwt'], '123.0'),
+            'DISCRIMINANTE: «123» y «123.0» no pasan por «000123» (con == casaban como números)');
+        $exponente = TokenModel::addJWTWithCode(['zz' => 'prueba'], '100', 60);
+        $creadas[] = (int) $exponente['id'];
+        $check(!TokenModel::checkJWTWithCode($exponente['jwt'], '1e2'), 'DISCRIMINANTE: «1e2» no pasa por «100»');
         echoTerminal(' ');
 
     } catch (\Throwable $e) {

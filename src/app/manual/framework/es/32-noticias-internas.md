@@ -8,6 +8,7 @@ rutas: [news-admin-list, news-admin-forms-add, news-admin-forms-edit, news-categ
 Los avisos que ven los usuarios del panel, por perfil y con sus fechas.
 
 ## El listado de noticias
+<!-- ve: news-admin-list -->
 
 Cómo se llega: **«Noticias internas»**, en el menú lateral.
 
@@ -18,6 +19,7 @@ La tabla muestra: **Título**, **Estado**, **Fecha de inicio**, **Fecha de final
 Arriba están los botones **«Nueva noticia»**, **«Categorías»** y **«Exportar listado actual»**.
 
 ## Agregar y editar una noticia
+<!-- ve: news-admin-forms-add, news-admin-forms-edit -->
 
 Cómo se llega: pulsa **«Nueva noticia»**, o **«Editar»** en la fila de una noticia.
 
@@ -36,6 +38,7 @@ Cómo se llega: pulsa **«Nueva noticia»**, o **«Editar»** en la fila de una 
 Botones: **«Guardar»**, **«Cancelar»** (vuelve al listado) y, al editar, **«Eliminar»**.
 
 ## Las categorías de noticias
+<!-- ve: news-category-admin-list -->
 
 Cómo se llega: botón **«Categorías»** del listado de noticias.
 

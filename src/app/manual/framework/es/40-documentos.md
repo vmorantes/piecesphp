@@ -8,6 +8,7 @@ rutas: [documents-admin-list, documents-admin-explorer, documents-admin-forms-ad
 Los archivos que se comparten en el panel, con su tipo.
 
 ## Explorar los documentos
+<!-- ve: documents-admin-explorer -->
 
 Cómo se llega: **«Documentos» › «Explorar»**, en el menú lateral.
 
@@ -18,6 +19,7 @@ Es para buscar y abrir los documentos compartidos. Cada documento aparece en una
 En cada tarjeta, **«Abrir»** muestra el archivo. Si el documento no tiene archivo, la tarjeta dice **«Sin archivo»**.
 
 ## Gestionar los documentos
+<!-- ve: documents-admin-list -->
 
 Cómo se llega: **«Documentos» › «Gestionar»**, en el menú lateral.
 
@@ -28,6 +30,7 @@ La tabla muestra el **Nombre del documento** y sus **Acciones**. En cada fila pu
 Arriba están **«Tipos de documento»**, **«Nuevo documento»** y **«Exportar listado actual»**.
 
 ## Agregar y editar un documento
+<!-- ve: documents-admin-forms-add, documents-admin-forms-edit -->
 
 Cómo se llega: pulsa **«Nuevo documento»**, o **«Editar»** en la fila de un documento.
 
@@ -45,6 +48,7 @@ Con **«Cambiar imagen»** eliges la imagen del documento.
 Botones: **«Guardar»** y **«Cancelar»**. Al crear, el archivo se elige con **«Agregar documento»**. Al editar tienes además **«Ver documento»**, **«Cambiar documento»** y **«Eliminar»**.
 
 ## Tipos de documento
+<!-- ve: document-types-admin-list -->
 
 Cómo se llega: botón **«Tipos de documento»** del listado de documentos.
 

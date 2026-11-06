@@ -5,7 +5,7 @@
     <div class="ui spaced flex">
         <a href="<?= \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('problems-list'); ?>" class="ui basic labeled icon button back-color">
             <i class="arrow left icon"></i>
-            Atrás
+            <?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Atrás'); ?>
         </a>
         <a href="<?=\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login')?>" class="ui primary labeled icon button custom-color">
             <i class="icon user"></i>

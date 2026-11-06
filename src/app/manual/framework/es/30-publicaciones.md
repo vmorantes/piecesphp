@@ -8,6 +8,7 @@ rutas: [publications-admin-list, publications-admin-forms-add, publications-admi
 Aquí gestionas lo que se publica en el sitio, con su categoría y su fecha.
 
 ## El listado de publicaciones
+<!-- ve: publications-admin-list -->
 
 Cómo se llega: **«Publicaciones» › «Publicaciones»**, en el menú lateral.
 
@@ -30,6 +31,7 @@ Arriba también están los botones:
 - **«Exportar listado actual»**.
 
 ## Agregar y editar una publicación
+<!-- ve: publications-admin-forms-add, publications-admin-forms-edit -->
 
 Cómo se llega: pulsa **«Nueva publicación»** en el listado, o **«Editar»** en la fila de una publicación.
 
@@ -70,6 +72,7 @@ Botones:
 - **«Ver en el sitio»**, solo al editar.
 
 ## Las categorías de publicaciones
+<!-- ve: publications-category-admin-list -->
 
 Cómo se llega: **«Publicaciones» › «Categorías»**, en el menú lateral, o el botón **«Categorías»** del listado.
 

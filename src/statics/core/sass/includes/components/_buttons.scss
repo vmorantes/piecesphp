@@ -1,5 +1,6 @@
 @use '../variables' as *;
 
+// @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 .#{$globalClassPcs}.button,
 a.#{$globalClassPcs}.button {
     cursor: pointer;

@@ -3,6 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>La pantalla de inicio es lo primero que ves al entrar: un resumen de lo que te toca de un vistazo.</p>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['admin'])): ?>
 <h2 class="ui header">La pantalla de inicio</h2>
 <p>Cómo se llega: <strong>«Inicio»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="La pantalla de inicio" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/admin.webp')); ?>"></p>
@@ -13,6 +14,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <li><strong>Errores y avisos</strong>: está plegada. Pulsa <strong>«Desplegar»</strong> para ver las cifras. Su enlace es <strong>«Ver los errores»</strong>.</li>
 <li><strong>Informe general</strong>: un resumen de las cifras de la plataforma, con el enlace <strong>«Ver el informe»</strong>.</li>
 </ul>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['reports-manage-admin-generic-report-view'])): ?>
 <h2 class="ui header">Informe general</h2>
 <p>Las cifras de la plataforma: publicaciones, organizaciones y usuarios.</p>
 <p><img class="ui image" alt="Informe general" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/reports-manage-admin-generic-report-view.webp')); ?>"></p>
@@ -24,6 +27,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <li>Dos gráficos de anillo: <strong>«Total de usuarios generales»</strong> y <strong>«Total Organizaciones»</strong>. Cada uno reparte el total por país y muestra el número de cada parte.</li>
 </ul>
 <p>Esta pantalla solo muestra cifras: no tiene formularios.</p>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['admin-about-framework'])): ?>
 <h2 class="ui header">Acerca de</h2>
 <p>Datos de la plataforma: la versión instalada, su fecha, una descripción, las librerías propias y los plugins y dependencias de terceros con su licencia.</p>
 <p><img class="ui image" alt="Acerca de" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/admin-about-framework.webp')); ?>"></p>
@@ -34,3 +39,4 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <li>El botón <strong>«GitHub»</strong>, que abre el repositorio de PiecesPHP, el framework sobre el que está hecha la plataforma.</li>
 <li>Las secciones <strong>«Descripción»</strong>, <strong>«Librerías propias»</strong> y <strong>«Plugins, scripts y dependencias»</strong>.</li>
 </ul>
+<?php endif; ?>

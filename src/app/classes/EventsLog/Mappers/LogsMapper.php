@@ -11,6 +11,7 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
@@ -384,8 +385,7 @@ class LogsMapper extends EntityMapperExtensible
      */
     protected function declareActor($loggedUser): void
     {
-        $rootOriginalId = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
-        $rootOriginalId = is_int($rootOriginalId) || (is_string($rootOriginalId) && ctype_digit($rootOriginalId)) ? (int) $rootOriginalId : null;
+        $rootOriginalId = Impersonation::rootOriginalID();
         //SIN `isset()`: `id` es mágica y la clase no implementa `__isset()`, así que daba false
         //con el valor presente. Y `->userMapper` es el mapper entero, no el id.
         $loggedIdRaw = $loggedUser !== null ? ($loggedUser->id ?? null) : null;
