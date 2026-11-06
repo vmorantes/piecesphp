@@ -5,8 +5,10 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Aquí conectas la plataforma con servicios de fuera. Se llega por el botón de engranajes de la barra superior, <strong>«Configuración del sistema»</strong>: Inteligencia
 artificial, Correo, OsTicket y Llaves de Mapas están en el grupo <strong>«Sistema»</strong>, y Scripts, en <strong>«SEO y
 Scripts»</strong>. Todas terminan con <strong>«Cancelar»</strong> y <strong>«Guardar»</strong>.</p>
+<div class="ui styled fluid accordion" data-section-accordion>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-ai'])): ?>
-<h2 class="ui header">Inteligencia artificial</h2>
+<h2 class="active title" id="inteligencia-artificial"><span role="button" tabindex="0" aria-expanded="true" aria-controls="inteligencia-artificial-contenido"><i class="dropdown icon" aria-hidden="true"></i>Inteligencia artificial</span></h2>
+<div class="active content" id="inteligencia-artificial-contenido">
 <p>Entra por <strong>«Inteligencia artificial»</strong>. Define el proveedor, el modelo y las claves que usa la plataforma para las
 funciones con inteligencia artificial.</p>
 <p><img class="ui image" alt="Inteligencia artificial" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
@@ -61,9 +63,11 @@ funciones con inteligencia artificial.</p>
 </tr>
 </tbody>
 </table>
+</div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-mail'])): ?>
-<h2 class="ui header">Correo</h2>
+<h2 class="title" id="correo"><span role="button" tabindex="0" aria-expanded="false" aria-controls="correo-contenido"><i class="dropdown icon" aria-hidden="true"></i>Correo</span></h2>
+<div class="content" id="correo-contenido">
 <p>Entra por <strong>«Correo»</strong>. Define desde dónde y cómo sale el correo de la plataforma. Tiene dos pestañas:
 <strong>Configuración</strong> y <strong>Pruebas</strong>. <strong>«Mostrar contraseña»</strong> deja ver la contraseña que escribes.</p>
 <p><img class="ui image" alt="Correo" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-mail.webp')); ?>"></p>
@@ -144,9 +148,11 @@ de pruebas.</p>
 </tbody>
 </table>
 <p>Para ver lo que se envió, mira la pestaña <strong>Correos enviados</strong> de <strong>Registros</strong>.</p>
+</div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-osticket'])): ?>
-<h2 class="ui header">OsTicket</h2>
+<h2 class="title" id="osticket"><span role="button" tabindex="0" aria-expanded="false" aria-controls="osticket-contenido"><i class="dropdown icon" aria-hidden="true"></i>OsTicket</span></h2>
+<div class="content" id="osticket-contenido">
 <p>Entra por <strong>«OsTicket»</strong>. Guarda la conexión con el sistema de soporte osTicket.</p>
 <p><img class="ui image" alt="OsTicket" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-osticket.webp')); ?>"></p>
 <table class="ui celled table">
@@ -170,9 +176,11 @@ de pruebas.</p>
 </tr>
 </tbody>
 </table>
+</div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-scripts'])): ?>
-<h2 class="ui header">Scripts</h2>
+<h2 class="title" id="scripts"><span role="button" tabindex="0" aria-expanded="false" aria-controls="scripts-contenido"><i class="dropdown icon" aria-hidden="true"></i>Scripts</span></h2>
+<div class="content" id="scripts-contenido">
 <p>Entra por <strong>«Scripts»</strong>. Aquí insertas código propio en el sitio público, en el panel o en ambos: analítica, píxeles de
 anuncios, chats y similares. <strong>«Añadir script»</strong> agrega uno nuevo a la lista.</p>
 <p><img class="ui image" alt="Scripts" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-scripts.webp')); ?>"></p>
@@ -181,9 +189,11 @@ anuncios, chats y similares. <strong>«Añadir script»</strong> agrega uno nuev
 <p>Lo que escribas aquí se ejecuta tal cual en el navegador de cada visitante o usuario. Un error puede romper la
 página o exponer datos; prueba primero con el script desactivado.</p>
 </div>
+</div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['helpers-system-generic-content-admin-forms-mapbox-keys'])): ?>
-<h2 class="ui header">Llaves de Mapas</h2>
+<h2 class="title" id="llaves-de-mapas"><span role="button" tabindex="0" aria-expanded="false" aria-controls="llaves-de-mapas-contenido"><i class="dropdown icon" aria-hidden="true"></i>Llaves de Mapas</span></h2>
+<div class="content" id="llaves-de-mapas-contenido">
 <p>Entra por <strong>«Llaves de Mapas»</strong>. Guarda las llaves de acceso del servicio de mapas de la plataforma.</p>
 <p><img class="ui image" alt="Llaves de Mapas" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/helpers-system-generic-content-admin-forms-mapbox-keys.webp')); ?>"></p>
 <table class="ui celled table">
@@ -222,4 +232,6 @@ página o exponer datos; prueba primero con el script desactivado.</p>
 </tr>
 </tbody>
 </table>
+</div>
 <?php endif; ?>
+</div>

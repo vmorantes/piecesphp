@@ -3259,8 +3259,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
 
-        //a2) Las secciones (H182): `<!-- ve: … -->` solo en la línea siguiente a un `##`, bien formado, con rutas del
-        //capítulo que existan. Se mira la FUENTE de cada capítulo del índice; bin/manual aplica la misma regla al generar.
+        //a2) Las secciones (H182, H198): `<!-- ve: … -->` solo en la línea siguiente a un `##` o un `###`, bien formado,
+        //con rutas del capítulo que existan. Se mira la FUENTE de cada capítulo del índice; bin/manual aplica la misma regla.
         foreach ($index as $chapter) {
             if (!is_array($chapter) || !is_string($chapter['slug'] ?? null) || !is_string($chapter['idioma'] ?? null) || !is_string($chapter['origen'] ?? null)) {
                 continue;
@@ -3282,8 +3282,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue;
                 }
                 $where = 'src/app/manual/' . $chapter['origen'] . '/' . $chapter['idioma'] . '/' . $chapter['slug'] . '.md:' . ($i + 1);
-                if (preg_match('/^##\s/', $lines[$i - 1] ?? '') !== 1) {
-                    $failures[] = "{$where}: el marcador de sección no está en la línea siguiente a un `##`";
+                if (preg_match('/^#{2,3}\s/', $lines[$i - 1] ?? '') !== 1) {
+                    $failures[] = "{$where}: el marcador de sección no está en la línea siguiente a un `##` o un `###`";
                     continue;
                 }
                 if (preg_match('/^<!-- ve: ([a-z0-9]+(?:-[a-z0-9]+)*(?:, [a-z0-9]+(?:-[a-z0-9]+)*)*) -->$/', trim($line), $marker) !== 1) {

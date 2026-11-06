@@ -15,7 +15,202 @@ window.addEventListener('load', function (e) {
 	contentPasswordFields()
 	contentTabsAria()
 	contentLiveReadings()
+	contentSectionNav()
 })
+
+/**
+ * La navegación por secciones (section-nav.php, `data-section-nav`): en escritorio, el `ui sticky` del tema dentro de su
+ * rejilla; con la rejilla apilada, la columna se fija con CSS (position: sticky), porque el módulo no la sigue. Las anclas
+ * desplazan bajo la barra superior (y bajo la propia navegación, apilada), la que se ve se marca al desplazar y el
+ * desplegable la sigue. Los `ui accordion` con `data-section-accordion` se inician aquí, sin cerrar los demás al abrir uno:
+ * así, abrir el elemento de un ancla no mueve lo que está encima. Si ninguno viene abierto (el primero puede estar oculto
+ * para quien lee), se abre el primero que hay. Lo que se pulsa de cada título es su `[role="button"]`: aria-expanded y
+ * Intro o Espacio, aquí.
+ * @returns {void}
+ */
+function contentSectionNav() {
+	const stickies = []
+	if (typeof $ !== 'undefined' && typeof $.fn.accordion === 'function') {
+		$('[data-section-accordion]').each(function () {
+			const accordion = $(this)
+			if (accordion.children('.title.active').length === 0) {
+				accordion.children('.title').first().addClass('active').next('.content').addClass('active')
+			}
+			const syncExpanded = function () {
+				accordion.children('.title').each(function () {
+					$(this).find('> [role="button"]').attr('aria-expanded', String($(this).hasClass('active')))
+				})
+			}
+			accordion.accordion({
+				exclusive: false,
+				//Al abrir o cerrar cambia el alto del contexto del sticky: se vuelve a medir.
+				onChange: function () {
+					syncExpanded()
+					stickies.forEach((sticky) => $(sticky).sticky('refresh'))
+				},
+			})
+			syncExpanded()
+			accordion.on('keydown', '> .title > [role="button"]', function (event) {
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault()
+					$(this).trigger('click')
+				}
+			})
+		})
+	}
+	document.querySelectorAll('[data-section-nav]').forEach(function (sticky) {
+		const layout = sticky.closest('.ui.grid')
+		const links = Array.from(sticky.querySelectorAll('[data-section-nav-anchor]'))
+		const targets = links.map((link) => document.getElementById(link.getAttribute('data-section-nav-anchor'))).filter((target) => target !== null)
+		const jump = sticky.querySelector('[data-section-nav-jump]')
+		const desktop = window.matchMedia('(min-width: 992px)')
+		const barHeight = function () {
+			const bar = document.querySelector('header.bar')
+			return bar !== null ? bar.getBoundingClientRect().height : 0
+		}
+		//Lo que tapa el borde de arriba: la barra superior del panel y, por debajo de escritorio, la propia navegación fija.
+		const topOffset = function () {
+			let offset = barHeight()
+			if (!desktop.matches && sticky.parentElement !== null) {
+				offset += sticky.parentElement.getBoundingClientRect().height
+			}
+			return offset + 16
+		}
+		let stickyOn = false
+		const layoutChanged = function () {
+			document.documentElement.style.setProperty('--section-nav-bar-height', barHeight() + 'px')
+			//Al llegar por su ancla (también con el hash de la dirección), la sección no queda bajo lo fijo.
+			targets.forEach((target) => target.style.setProperty('scroll-margin-top', topOffset() + 'px'))
+			if (layout === null || typeof $ === 'undefined' || typeof $.fn.sticky !== 'function') {
+				return
+			}
+			if (desktop.matches && !stickyOn) {
+				//observeChanges: el contexto crece después (las vistas previas del banco de correos, un plegable abierto).
+				$(sticky).sticky({ context: layout, offset: barHeight() + 16, observeChanges: true })
+				stickyOn = true
+				stickies.push(sticky)
+			} else if (!desktop.matches && stickyOn) {
+				$(sticky).sticky('destroy')
+				sticky.removeAttribute('style')
+				stickyOn = false
+				stickies.splice(stickies.indexOf(sticky), 1)
+			}
+		}
+		layoutChanged()
+		window.addEventListener('resize', layoutChanged)
+
+		//Un ancla dentro de un plegable cerrado lo abre antes de desplazar. Devuelve lo que dura la animación del tema: mientras
+		//el contenido crece, la página puede no tener aún alto para dejar la sección arriba, y hay que volver a desplazar.
+		const openFolded = function (target) {
+			const title = target.closest('[data-section-accordion] > .title')
+			if (title === null || title.classList.contains('active') || typeof $ === 'undefined') {
+				return 0
+			}
+			const accordion = $(title.parentElement)
+			accordion.accordion('open', title)
+			const duration = Number(accordion.accordion('setting', 'duration'))
+			return Number.isFinite(duration) ? duration : 500
+		}
+		const scrollToTarget = function (target, smooth) {
+			const top = target.getBoundingClientRect().top + window.scrollY - topOffset()
+			window.scrollTo({ top: top, behavior: smooth ? 'smooth' : 'auto' })
+		}
+		const goTo = function (id, smooth) {
+			const target = document.getElementById(id)
+			if (target === null) {
+				return
+			}
+			const opening = openFolded(target)
+			scrollToTarget(target, smooth)
+			if (opening > 0) {
+				setTimeout(() => scrollToTarget(target, smooth), opening + 50)
+			}
+			history.replaceState(null, '', '#' + id)
+		}
+		links.forEach(function (link) {
+			link.addEventListener('click', function (event) {
+				event.preventDefault()
+				goTo(link.getAttribute('data-section-nav-anchor'), true)
+			})
+		})
+		if (jump !== null) {
+			//Con las flechas sobre el desplegable cerrado, algunos navegadores disparan `change` en cada paso: se espera a Intro
+			//o a que pierda el foco, para no sacar a nadie de la página a medio elegir.
+			let stepping = false
+			const follow = function () {
+				stepping = false
+				if (jump.value.startsWith('#')) {
+					goTo(jump.value.slice(1), true)
+				} else if (jump.value !== '') {
+					window.location.href = jump.value
+				}
+			}
+			jump.addEventListener('keydown', function (event) {
+				if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) {
+					stepping = true
+				} else if (event.key === 'Enter' && stepping) {
+					follow()
+				}
+			})
+			jump.addEventListener('blur', function () {
+				if (stepping) {
+					follow()
+				}
+			})
+			jump.addEventListener('change', function () {
+				if (!stepping) {
+					follow()
+				}
+			})
+		}
+		if (targets.length === 0) {
+			return
+		}
+
+		//La sección que se está viendo: la última cuyo borde de arriba ya pasó bajo lo fijo; al tocar fondo, la última,
+		//que quizá nunca llegue arriba.
+		const markCurrent = function () {
+			const limit = topOffset() + 8
+			let current = targets[0]
+			targets.forEach(function (target) {
+				if (target.getBoundingClientRect().top <= limit) {
+					current = target
+				}
+			})
+			//Solo si la página desplaza: en una que cabe entera, al cargar se marcaría la última.
+			const scrollable = document.documentElement.scrollHeight > window.innerHeight + 2
+			if (scrollable && window.scrollY > 0 && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+				current = targets[targets.length - 1]
+			}
+			links.forEach(function (link) {
+				const active = link.getAttribute('data-section-nav-anchor') === current.id
+				link.classList.toggle('active', active)
+				if (active) {
+					link.setAttribute('aria-current', 'true')
+				} else {
+					link.removeAttribute('aria-current')
+				}
+			})
+			if (jump !== null && jump.querySelector('option[value="#' + CSS.escape(current.id) + '"]') !== null && jump.value !== '#' + current.id) {
+				jump.value = '#' + current.id
+			}
+		}
+		let pending = false
+		window.addEventListener('scroll', function () {
+			if (!pending) {
+				pending = true
+				window.requestAnimationFrame(function () {
+					pending = false
+					markCurrent()
+				})
+			}
+		}, { passive: true })
+		markCurrent()
+		if (location.hash.length > 1 && targets.some((target) => target.id === location.hash.slice(1))) {
+			goTo(location.hash.slice(1), false)
+		}
+	})
+}
 
 /**
  * @description El campo de color (color-field.php): el selector del tema, sin botones, para que el cambio se vea en vivo.

@@ -4,7 +4,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <p>Aquí gestionas los banners y la imagen principal del sitio.</p>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['built-in-banner-admin-list'])): ?>
-<h2 class="ui header">El listado de banners</h2>
+<h2 class="ui header" id="el-listado-de-banners">El listado de banners</h2>
 <p>Cómo se llega: <strong>«Banners»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="El listado de banners" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/built-in-banner-admin-list.webp')); ?>"></p>
 <p>Una pestaña, <strong>«Todos»</strong>. La tabla muestra: <strong>#</strong>, <strong>Título</strong>, <strong>Posición</strong>, <strong>Imagen</strong>, <strong>Imagen móviles</strong>, <strong>Fecha activa</strong> y <strong>Acciones</strong>.</p>
@@ -17,7 +17,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Arriba están <strong>«Agregar banner»</strong> y <strong>«Exportar listado actual»</strong>.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['built-in-banner-admin-forms-add', 'built-in-banner-admin-forms-edit'])): ?>
-<h2 class="ui header">Agregar y editar un banner</h2>
+<h2 class="ui header" id="agregar-y-editar-un-banner">Agregar y editar un banner</h2>
 <p>Cómo se llega: pulsa <strong>«Agregar banner»</strong>, o <strong>«Editar»</strong> en la fila de un banner.</p>
 <p><img class="ui image" alt="Agregar y editar un banner" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/built-in-banner-admin-forms-add.webp')); ?>"></p>
 <table class="ui celled table">
@@ -66,7 +66,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Al editar, el selector <strong>«Idiomas»</strong> elige en qué idioma escribes.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['helpers-system-generic-content-admin-forms-home-image'])): ?>
-<h2 class="ui header">La imagen principal</h2>
+<h2 class="ui header" id="la-imagen-principal">La imagen principal</h2>
 <p>Cómo se llega: <strong>«Imagen principal»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="La imagen principal" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/helpers-system-generic-content-admin-forms-home-image.webp')); ?>"></p>
 <p>La pantalla muestra la imagen actual. Con <strong>«Cambiar imagen»</strong> eliges otra, con <strong>«Descargar / ver»</strong> abres la actual y con <strong>«Guardar»</strong> confirmas el cambio.</p>

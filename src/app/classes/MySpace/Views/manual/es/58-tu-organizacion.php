@@ -3,7 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>El perfil público de una organización es lo que los demás ven de ella en el Directorio y en el mapa.</p>
-<h2 class="ui header">El perfil público</h2>
+<h2 class="ui header" id="el-perfil-publico">El perfil público</h2>
 <p>Se abre con <strong>«Perfil público»</strong>, desde la lista o la edición de una organización; con <strong>«Mi organización»</strong>, en el menú de tu nombre, si tu cuenta lo tiene; o con <strong>«Editar»</strong>, en la ficha de la organización del Directorio. Dice, arriba, que es lo que los demás ven de la organización en el Directorio y en el mapa. Tiene dos pestañas: <strong>Datos generales</strong> y <strong>Datos profesionales</strong>. Si la organización no tiene persona encargada, el perfil no se puede modificar: elige una con <strong>«Cambiar»</strong>.</p>
 <p><img class="ui image" alt="El perfil público" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/my-organization-profile-admin-my-organization-profile.webp')); ?>"></p>
 <p>Desde aquí puedes:</p>

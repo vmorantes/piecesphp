@@ -1,6 +1,5 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use MySpace\Controllers\MySpaceController;
 
 /**
  * Un capítulo del manual de usuario (ADR 0072), con la lista de los que ve el usuario al lado. Solo piezas y marcado de
@@ -9,8 +8,8 @@ use MySpace\Controllers\MySpaceController;
  * @var string $langGroup
  * @var string $title
  * @var array<string|int,string|array{url:string}> $breadcrumbs
- * @var array<int,array{slug:string,titulo:string}> $chapters
- * @var string $current El slug del capítulo que se lee.
+ * @var array<int,array{label:string,href:string,active:bool,children:array<int,array{label:string,anchor:string}>}> $navItems
+ *      Los capítulos que ve, para la pieza section-nav; bajo el actual, sus secciones visibles.
  * @var string $content El HTML generado del capítulo.
  * @var \MySpace\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
@@ -26,11 +25,12 @@ use MySpace\Controllers\MySpaceController;
 
     <div class="ui stackable grid">
         <div class="four wide computer sixteen wide tablet column">
-            <nav class="ui vertical fluid secondary menu" aria-label="<?= escape_html(__($langGroup, 'Capítulos del manual')); ?>">
-                <?php foreach ($chapters as $chapter): ?>
-                <a class="<?= $chapter['slug'] === $current ? 'active ' : ''; ?>item" href="<?= escape_html(MySpaceController::routeName('manual-page', ['slug' => $chapter['slug']])); ?>"<?= $chapter['slug'] === $current ? ' aria-current="page"' : ''; ?>><?= escape_html($chapter['titulo']); ?></a>
-                <?php endforeach; ?>
-            </nav>
+            <?php
+                $helpController->_render('panel/built-in/content/section-nav.php', [
+                    'label' => __($langGroup, 'Capítulos del manual'),
+                    'items' => $navItems,
+                ]);
+            ?>
         </div>
         <div class="twelve wide computer sixteen wide tablet column">
             <article class="ui basic fitted segment">

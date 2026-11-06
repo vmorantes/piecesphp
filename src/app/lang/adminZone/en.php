@@ -348,6 +348,15 @@ $lang = [
     'Respaldos guardados' => 'Backups kept',
     'Último respaldo' => 'Last backup',
     'Próxima ejecución' => 'Next run',
+    'Navegación por secciones' => 'Section navigation',
+    'Para una página larga, como el banco de correos o el manual: fija al desplazar en escritorio y un desplegable por debajo. Un elemento lleva a otra página o a un ancla de esta; un nivel de hijos. Las secciones pueden ir plegadas en un ui accordion con data-section-accordion: un ancla abre su elemento.' => 'For a long page, such as the email bank or the manual: fixed while scrolling on desktop and a dropdown below that. An item leads to another page or to an anchor on this one; one level of children. Sections can be folded in a ui accordion with data-section-accordion: an anchor opens its item.',
+    'Secciones del ejemplo' => 'Example sections',
+    'Otra página' => 'Another page',
+    'Esta página' => 'This page',
+    'Primera sección' => 'First section',
+    'Segunda sección' => 'Second section',
+    'En escritorio, el menú se queda fijo al desplazar; por debajo, un desplegable lleva a cada sección.' => 'On desktop, the menu stays fixed while scrolling; below that, a dropdown leads to each section.',
+    'La que se ve se marca en el menú al desplazar.' => 'The one in view is marked in the menu while scrolling.',
 ];
 
 return $lang;

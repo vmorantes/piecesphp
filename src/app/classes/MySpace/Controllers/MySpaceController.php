@@ -147,8 +147,16 @@ class MySpaceController extends AdminPanelController
         $data['langGroup'] = MySpaceLang::LANG_GROUP;
         $data['title'] = $chapter['titulo'];
         $data['helpController'] = $this->helpController;
-        $data['chapters'] = $chapters;
-        $data['current'] = $chapter['slug'];
+        //El índice: los capítulos que ve y, bajo el actual, sus secciones visibles como anclas si tiene dos o más.
+        $sections = self::manualVisibleSections($chapter['secciones']);
+        $data['navItems'] = array_map(fn(array $candidate): array => [
+            'label' => $candidate['titulo'],
+            'href' => self::routeName('manual-page', ['slug' => $candidate['slug']]),
+            'active' => $candidate['slug'] === $chapter['slug'],
+            'children' => $candidate['slug'] === $chapter['slug'] && count($sections) >= 2
+                ? array_map(fn(array $section): array => ['label' => $section['titulo'], 'anchor' => $section['id']], $sections)
+                : [],
+        ], $chapters);
         $data['content'] = (string) $this->_render('manual/' . $chapter['idioma'] . '/' . $chapter['slug'] . '.php', [], false);
         $data['breadcrumbs'] = [
             __(MySpaceLang::LANG_GROUP, 'Inicio') => [
@@ -175,7 +183,7 @@ class MySpaceController extends AdminPanelController
      *
      * @param array<mixed>|null $index El índice que filtrar; sin él, el generado por bin/manual. Solo para la suite
      *        core/manual-visibility, que prueba la regla con uno sintético.
-     * @return array<int,array{slug:string,titulo:string,rutas:string|string[],ve:string[],idioma:string,origen:string,fecha:string}>
+     * @return array<int,array{slug:string,titulo:string,rutas:string|string[],ve:string[],secciones:array<int,array{id:string,titulo:string,ve:string[]}>,idioma:string,origen:string,fecha:string}>
      */
     public static function manualChapters(?array $index = null): array
     {
@@ -206,9 +214,16 @@ class MySpaceController extends AdminPanelController
             $routes = $routes === 'todos' ? 'todos' : array_values(array_filter(is_array($routes) ? $routes : [], 'is_string'));
             $seenBy = $entry['ve'] ?? [];
             $seenBy = array_values(array_filter(is_array($seenBy) ? $seenBy : [], 'is_string'));
+            $sections = [];
+            foreach (is_array($entry['secciones'] ?? null) ? $entry['secciones'] : [] as $section) {
+                if (is_array($section) && is_string($section['id'] ?? null) && is_string($section['titulo'] ?? null)) {
+                    $sectionSeenBy = is_array($section['ve'] ?? null) ? array_values(array_filter($section['ve'], 'is_string')) : [];
+                    $sections[] = ['id' => $section['id'], 'titulo' => $section['titulo'], 've' => $sectionSeenBy];
+                }
+            }
             //El del idioma actual gana; el español, solo si el capítulo falta en el idioma actual.
             if ($chapterLang === $lang || ($chapterLang === 'es' && !isset($bySlug[$slug]))) {
-                $bySlug[$slug] = ['slug' => $slug, 'titulo' => $title, 'rutas' => $routes, 've' => $seenBy, 'idioma' => $chapterLang, 'origen' => $origin, 'fecha' => $date];
+                $bySlug[$slug] = ['slug' => $slug, 'titulo' => $title, 'rutas' => $routes, 've' => $seenBy, 'secciones' => $sections, 'idioma' => $chapterLang, 'origen' => $origin, 'fecha' => $date];
             }
         }
         ksort($bySlug);
@@ -229,6 +244,18 @@ class MySpaceController extends AdminPanelController
             }
         }
         return $visible;
+    }
+
+    /**
+     * Las secciones (`##`) de un capítulo que ve el usuario actual: una marcada que no ve no está en el índice, como no
+     * está en el cuerpo (el mismo manualSectionVisible()).
+     *
+     * @param array<int,array{id:string,titulo:string,ve:string[]}> $sections Las de manualChapters().
+     * @return array<int,array{id:string,titulo:string,ve:string[]}>
+     */
+    public static function manualVisibleSections(array $sections): array
+    {
+        return array_values(array_filter($sections, fn(array $section): bool => $section['ve'] === [] || self::manualSectionVisible($section['ve'])));
     }
 
     /**

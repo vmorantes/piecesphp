@@ -1,3 +1,8 @@
+# 10.8.0 (06-11-2026)
+
+- **El manual del panel, por secciones y subsecciones.** Cada capítulo enseña su índice en el menú del manual, que se queda fijo al desplazar, y los capítulos con cinco secciones o más las pintan plegadas. El permiso por sección (`<!-- ve: … -->`) vale ahora también para las subsecciones (`###`). **Si tu proyecto tiene capítulos propios** en `src/app/manual/proyecto/`, regenera con `bin/manual`: en un capítulo de cinco secciones o más, un título `#` después de la primera sección es un error y el capítulo no se genera. Detalle en la guía «El manual de usuario».
+- **Nuevo: la navegación por secciones como pieza del panel** (`panel/built-in/content/section-nav.php`): un menú que se queda fijo al desplazar, marca la sección que se ve y se convierte en un desplegable en pantallas estrechas, con secciones plegables si las quieres. La usan el manual y «Correos del sitio», que no cambia de aspecto. Ejemplo en la guía «Pantallas de contenido» y en la hoja de diseño.
+
 # 10.7.0 (06-11-2026)
 
 - **Nuevo: comparar un proyecto con el framework.** `bin/cli clone-compare ruta=<raíz del proyecto>` dice de qué versión nació un proyecto hecho con PiecesPHP, de cuál copió más y, archivo por archivo, qué es igual, qué cambió, qué le falta y qué es propio, agrupado por módulo y con un informe en JSON. Solo lee, y nunca enseña el contenido de un archivo. Se ejecuta desde un repositorio git del framework con sus versiones. Es la primera pieza de las herramientas para actualizar proyectos antiguos. Detalle en la guía de la terminal, «clone-compare».

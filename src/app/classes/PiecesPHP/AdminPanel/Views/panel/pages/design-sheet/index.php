@@ -77,6 +77,7 @@ $sections = [
             'contenido-vacio' => [__($langGroup, 'Sin registros'), __($langGroup, 'Cuando un listado aún no tiene nada. No para una búsqueda sin resultados.')],
             'contenido-accion-principal' => [__($langGroup, 'Acción de peso'), __($langGroup, 'Una acción que toca mucho de una vez, al pie de la pantalla, con lo que hace y su botón. Roja y básica si destruye algo. A menos de 768 px se apila y el botón va a todo el ancho.')],
             'contenido-ventana' => [__($langGroup, 'Ventana de formulario'), __($langGroup, 'Para lo que tiene uno o dos campos, como las categorías. Lo que lleva imágenes, colores o muchos campos va en su página.'), [__($langGroup, 'Formularios › Categorías'), $categoriesLink]],
+            'contenido-secciones' => [__($langGroup, 'Navegación por secciones'), __($langGroup, 'Para una página larga, como el banco de correos o el manual: fija al desplazar en escritorio y un desplegable por debajo. Un elemento lleva a otra página o a un ancla de esta; un nivel de hijos. Las secciones pueden ir plegadas en un ui accordion con data-section-accordion: un ancla abre su elemento.')],
             'contenido-pestanas' => [__($langGroup, 'Pestañas'), __($langGroup, 'Para ver el mismo listado por estados: ui secondary pointing menu del tema, con un item por pestaña. tabs-controls queda solo de gancho para el JS. Vea esta página a menos de 768 px: las pestañas se deslizan.')],
         ],
     ],

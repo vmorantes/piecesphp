@@ -14,20 +14,27 @@
 #
 # Una sección (`##`) se condiciona con `<!-- ve: ruta, … -->` en la línea SIGUIENTE a su título (H182): hasta el siguiente
 # `##` o `#`, con sus `###`, solo la ve quien tiene permiso sobre alguna de esas rutas, que tienen que estar en las `rutas`
-# del capítulo. Un marcador en otro sitio, mal formado o con una ruta ajena para todo sin escribir nada.
+# del capítulo. Una subsección (`###`), igual (H198): hasta el siguiente `###`, `##` o `#`; dentro de un `##` marcado,
+# rigen los dos. Un marcador en otro sitio, mal formado o con una ruta ajena para todo sin escribir nada.
+#
+# Cada `##` lleva un id estable (el de su título, único en el capítulo), y el índice, la lista de secciones de cada capítulo.
+# Un capítulo con PLEGABLES_DESDE `##` o más pinta cada uno como elemento de un `ui styled fluid accordion` del tema
+# (`data-section-accordion`, que inicia la pieza section-nav), el primero abierto; con menos, títulos.
 #
 # Un capítulo de proyecto con el mismo nombre de archivo sustituye al del framework. El orden lo da el prefijo NN. Las
 # imágenes van en img/ junto a cada idioma y se copian a los estáticos de MySpace (Statics/manual/<idioma>/), que las sirve.
 #
 # Genera src/app/classes/MySpace/Views/manual/<idioma>/<slug>.php (el cuerpo, con el marcado de Fomantic) e index.php
-# (slug, titulo, rutas, ve si la hay, idioma, origen y fecha de la fuente), dentro del módulo que los pinta. Que una ruta citada
+# (slug, titulo, rutas, ve si la hay, secciones, idioma, origen y fecha de la fuente), dentro del módulo que los pinta. Que una ruta citada
 # EXISTA lo comprueba bin/cli verify-integrity, no este guion: no arranca la aplicación.
 #
 # Uso:
 #   bin/manual            regenera lo generado (si algún capítulo no vale o cita una imagen que no existe, falla sin escribir
 #                         nada y las nombra todas)
 #   bin/manual --check    falla si lo generado no es lo que daría regenerarlo; no escribe nada
-import datetime, os, re, shutil, subprocess, sys
+# PCSPHP_MANUAL_FUENTES, PCSPHP_MANUAL_VISTAS y PCSPHP_MANUAL_IMAGENES cambian las tres carpetas: solo para la suite
+# core/manual-visibility, que genera capítulos sintéticos en src/app/cache/.
+import datetime, os, re, shutil, subprocess, sys, unicodedata
 
 USO = 'Uso: bin/manual [--check]'
 for _opcion in sys.argv[1:]:
@@ -48,6 +55,15 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FUENTES = os.path.join(RAIZ, 'src', 'app', 'manual')
 VISTAS = os.path.join(RAIZ, 'src', 'app', 'classes', 'MySpace', 'Views', 'manual')
 IMAGENES = os.path.join(RAIZ, 'src', 'app', 'classes', 'MySpace', 'Statics', 'manual')
+#Las tres juntas y bajo src/app/cache/: regenerar BORRA en VISTAS e IMAGENES lo que no genera, y con solo FUENTES cambiada
+#se llevaría las vistas reales del manual.
+_ENTORNO = [os.environ.get(n, '') for n in ('PCSPHP_MANUAL_FUENTES', 'PCSPHP_MANUAL_VISTAS', 'PCSPHP_MANUAL_IMAGENES')]
+if any(_ENTORNO):
+    _CACHE = os.path.realpath(os.path.join(RAIZ, 'src', 'app', 'cache')) + os.sep
+    if not all(_ENTORNO) or any(not os.path.realpath(r).startswith(_CACHE) for r in _ENTORNO):
+        sys.exit('bin/manual: PCSPHP_MANUAL_FUENTES, PCSPHP_MANUAL_VISTAS y PCSPHP_MANUAL_IMAGENES van las tres juntas y bajo src/app/cache/')
+    FUENTES, VISTAS, IMAGENES = _ENTORNO
+PLEGABLES_DESDE = 5
 ORIGENES = ['framework', 'proyecto']
 RUTA_VALIDA = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
 AVISO = '//Generado por bin/manual: se edita el .md (%s).'
@@ -126,22 +142,24 @@ MARCADOR_VALIDO = re.compile(r'<!-- ve: ([a-z0-9-]+(?:, [a-z0-9-]+)*) -->')
 
 
 def secciones(ruta, cuerpo, rutas):
-    """Parte el cuerpo en trozos [(texto, ve o None)]: el primero, lo de antes del primer `##`; luego uno por `##` o `#`.
-    Quita la línea del marcador. Los errores, a `errores` (H182); fuera de un bloque de código, cualquier `<!-- ve:` cuenta."""
+    """Parte el cuerpo en trozos [(texto, ve o None, nivel)]: el primero, lo de antes del primer `##` (nivel 0); luego uno
+    por `#` o `##` (nivel 1 o 2) y uno por cada `###` marcado (nivel 3; uno sin marcar sigue dentro de su `##`). Quita la
+    línea del marcador. Los errores, a `errores` (H182, H198); fuera de un bloque de código, cualquier `<!-- ve:` cuenta."""
     lineas = cuerpo.split('\n')
-    trozos = [[[], None]]
+    trozos = [[[], None, 0]]
     en_codigo = False
     for i, linea in enumerate(lineas):
         if linea.lstrip().startswith('```'):
             en_codigo = not en_codigo
-        if not en_codigo and re.match(r'#{1,2}\s', linea):
-            trozos.append([[linea], None])
+        titulo = re.match(r'(#{1,3})\s', linea) if not en_codigo else None
+        if titulo:
+            trozos.append([[linea], None, len(titulo.group(1))])
             continue
         if not en_codigo and MARCADOR.search(linea):
             donde = f'{relativa(ruta)}:{i + 1}'
             anterior = lineas[i - 1] if i > 0 else ''
-            if not re.match(r'##\s', anterior) or len(trozos[-1][0]) != 1 or trozos[-1][1] is not None:
-                errores.append(f'{donde}: el marcador «{linea.strip()}» no está en la línea siguiente a un `##`')
+            if not re.match(r'#{2,3}\s', anterior) or len(trozos[-1][0]) != 1 or trozos[-1][1] is not None:
+                errores.append(f'{donde}: el marcador «{linea.strip()}» no está en la línea siguiente a un `##` o un `###`')
                 continue
             m = MARCADOR_VALIDO.fullmatch(linea.strip())
             nombres = m.group(1).split(', ') if m else []
@@ -155,7 +173,37 @@ def secciones(ruta, cuerpo, rutas):
             trozos[-1][1] = nombres
             continue
         trozos[-1][0].append(linea)
-    return [('\n'.join(texto), ve) for texto, ve in trozos]
+    #Un `###` sin marcar vuelve dentro del trozo anterior (lo generado de un capítulo sin subsecciones marcadas no cambia),
+    #salvo tras un `###` marcado: ahí iría dentro de su condición.
+    juntos = []
+    for texto, ve, nivel in trozos:
+        if nivel == 3 and ve is None and juntos and not (juntos[-1][2] == 3 and juntos[-1][1] is not None):
+            juntos[-1][0].extend(texto)
+        else:
+            juntos.append([texto, ve, nivel])
+    return [('\n'.join(texto), ve, nivel) for texto, ve, nivel in juntos]
+
+
+def slug_de(titulo, usados):
+    """El id de una sección: su título sin tildes ni signos, en minúsculas y con guiones; único en el capítulo."""
+    plano = unicodedata.normalize('NFKD', titulo).encode('ascii', 'ignore').decode('ascii').lower()
+    base = re.sub(r'[^a-z0-9]+', '-', plano).strip('-') or 'seccion'
+    candidato, n = base, 2
+    while candidato in usados:
+        candidato, n = f'{base}-{n}', n + 1
+    usados.add(candidato)
+    return candidato
+
+
+def titulo_plano(linea):
+    """El texto de un `##` sin su marcado de Markdown (énfasis, código y enlaces)."""
+    texto = re.sub(r'^#+\s+', '', linea).strip()
+    texto = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', texto)
+    #Solo los pares de marcado: un «snake_case» se queda como está.
+    texto = re.sub(r'(\*\*|__)(.+?)\1', r'\2', texto)
+    texto = re.sub(r'(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])', r'\1', texto)
+    texto = re.sub(r'(?<!\w)_(?!\s)(.+?)(?<!\s)_(?!\w)', r'\1', texto)
+    return re.sub(r'`([^`]*)`', r'\1', texto).strip()
 
 
 def fecha_de(ruta):
@@ -247,19 +295,77 @@ for idioma in sorted(capitulos):
 
         #El título va en la cabecera de la pantalla: el primer # del cuerpo no se repite.
         quita_titulo = lambda texto: re.sub(r'\A\s*#\s+[^\n]*\n', '', texto, count=1)
-        if all(v is None for _, v in trozos):
-            #Sin secciones condicionadas, el capítulo entero de una vez: lo generado no cambia.
-            html = convierte(quita_titulo('\n'.join(t for t, _ in trozos)))
+
+        def envuelve(parte, v):
+            lista = '[' + ', '.join(php_cadena(r) for r in v) + ']'
+            return f'<?php if (\\MySpace\\Controllers\\MySpaceController::manualSectionVisible({lista})): ?>\n{parte}\n<?php endif; ?>'
+
+        #Las secciones (`##`) con su id: el índice las lista y el cuerpo las lleva.
+        usados = set()
+        ids = {}
+        lista_secciones = []
+        for k, (texto, v, nivel) in enumerate(trozos):
+            if nivel == 2:
+                plano = titulo_plano(texto.split('\n', 1)[0])
+                ids[k] = slug_de(plano, usados)
+                lista_secciones.append((ids[k], plano, v))
+        con_id = lambda html, sid: html.replace('<h2 class="ui header">', f'<h2 class="ui header" id="{sid}">', 1)
+
+        if len(lista_secciones) >= PLEGABLES_DESDE:
+            #Plegables: lo de antes del primer `##`, como siempre; cada `##`, un elemento del acordeón con sus `###`.
+            antes, elementos = [], []
+            for k, (texto, v, nivel) in enumerate(trozos):
+                if nivel <= 1 or (nivel == 3 and not elementos):
+                    if elementos:
+                        errores.append(f'{relativa(ruta)}: un `#` después de un `##` en un capítulo con plegables')
+                        break
+                    if k <= 1 and re.match(r'#\s', texto.lstrip('\n')):
+                        texto = quita_titulo(texto)
+                    parte = convierte(texto)
+                    if parte != '':
+                        antes.append(envuelve(parte, v) if v is not None else parte)
+                elif nivel == 2:
+                    cabeza, _, resto = texto.partition('\n')
+                    interior = re.sub(r'\A<h2 class="ui header">(.*)</h2>\Z', r'\1', convierte(cabeza).strip(), flags=re.S)
+                    elementos.append([ids[k], interior, v, [convierte(resto)] if resto.strip() != '' else []])
+                else:
+                    elementos[-1][3].append(envuelve(convierte(texto), v) if v is not None else convierte(texto))
+            items = []
+            for n, (sid, interior, v, cuerpos) in enumerate(elementos):
+                abierto = 'active ' if n == 0 else ''
+                #El título sigue siendo un h2; lo que se pulsa (y se alcanza con el teclado) es su botón, como el acordeón de
+                #la barra superior del panel. contentSectionNav() le sincroniza aria-expanded y le atiende Intro y Espacio.
+                boton = (f'<span role="button" tabindex="0" aria-expanded="{"true" if n == 0 else "false"}" aria-controls="{sid}-contenido">'
+                         f'<i class="dropdown icon" aria-hidden="true"></i>{interior}</span>')
+                item = (f'<h2 class="{abierto}title" id="{sid}">{boton}</h2>\n'
+                        f'<div class="{abierto}content" id="{sid}-contenido">\n' + '\n'.join(c for c in cuerpos if c != '') + '\n</div>')
+                items.append(envuelve(item, v) if v is not None else item)
+            antes.append('<div class="ui styled fluid accordion" data-section-accordion>\n' + '\n'.join(items) + '\n</div>')
+            html = '\n'.join(antes)
+        elif all(v is None for _, v, _ in trozos):
+            #Sin secciones condicionadas, el capítulo entero de una vez: lo generado solo cambia por los ids.
+            html = convierte(quita_titulo('\n'.join(t for t, _, _ in trozos)))
+            if html.count('<h2 class="ui header">') != len(lista_secciones):
+                errores.append(f'{relativa(ruta)}: el HTML tiene {html.count("<h2 class=\"ui header\">")} título(s) h2 y la fuente {len(lista_secciones)} `##`')
+            for k in sorted(ids):
+                html = con_id(html, ids[k])
         else:
-            partes = []
-            for n, (texto, v) in enumerate(trozos):
-                if n <= 1 and re.match(r'#\s', texto.lstrip('\n')):
+            #Un `##` marcado envuelve también sus `###`; un `###` marcado, solo el suyo: dentro de uno marcado, rigen los dos.
+            grupos = []
+            for k, (texto, v, nivel) in enumerate(trozos):
+                if nivel <= 1 and k <= 1 and re.match(r'#\s', texto.lstrip('\n')):
                     texto = quita_titulo(texto)
                 parte = convierte(texto)
-                if v is not None:
-                    lista = '[' + ', '.join(php_cadena(r) for r in v) + ']'
-                    parte = f'<?php if (\\MySpace\\Controllers\\MySpaceController::manualSectionVisible({lista})): ?>\n{parte}\n<?php endif; ?>'
-                partes.append(parte)
+                if nivel == 2:
+                    parte = con_id(parte, ids[k])
+                if nivel == 3:
+                    grupos[-1][0].append(envuelve(parte, v) if v is not None else parte)
+                else:
+                    grupos.append([[parte], v if nivel == 2 else None])
+            partes = []
+            for contenido, v in grupos:
+                parte = '\n'.join(contenido)
+                partes.append(envuelve(parte, v) if v is not None and parte != '' else parte)
             html = '\n'.join(p for p in partes if p != '')
         for img in citadas:
             if (idioma, img) not in imagenes:
@@ -267,7 +373,11 @@ for idioma in sorted(capitulos):
         salidas[os.path.join(VISTAS, idioma, slug + '.php')] = (
             '<?php\n' + AVISO % relativa(ruta) + '\ndefined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");\n?>\n'
             + html + '\n')
-        indice.append((slug, titulo, rutas, ve, idioma, origen, fecha_de(ruta)))
+        indice.append((slug, titulo, rutas, ve, lista_secciones, idioma, origen, fecha_de(ruta)))
+
+if errores:
+    print('bin/manual: no se escribe nada:\n  ' + '\n  '.join(errores), file=sys.stderr)
+    sys.exit(1)
 
 if faltan:
     print(f'bin/manual: no se escribe nada: {len(faltan)} imagen(es) citada(s) que no existe(n):\n  ' + '\n  '.join(faltan), file=sys.stderr)
@@ -275,12 +385,18 @@ if faltan:
 
 lineas = ['<?php', AVISO % 'src/app/manual/', 'defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");', '',
           '//Los capítulos del manual: lo usa MySpaceController para filtrar por permiso e idioma.', 'return [']
-for slug, titulo, rutas, ve, idioma, origen, fecha in indice:
+for slug, titulo, rutas, ve, lista_secciones, idioma, origen, fecha in indice:
     rutas_php = php_cadena('todos') if rutas == 'todos' else '[' + ', '.join(php_cadena(r) for r in rutas) + ']'
     #`ve` solo se escribe si el capítulo la trae: sin ella, deciden todas las de `rutas`.
     ve_php = '' if ve is None else ' %s => [%s],' % (php_cadena('ve'), ', '.join(php_cadena(r) for r in ve))
-    lineas.append('    [%s => %s, %s => %s, %s => %s,%s %s => %s, %s => %s, %s => %s],' % (
+    #Cada `##` con su id, su título y, si la trae, su `ve`: el índice del capítulo en la navegación.
+    secciones_php = '[' + ', '.join('[%s => %s, %s => %s%s]' % (
+        php_cadena('id'), php_cadena(sid), php_cadena('titulo'), php_cadena(plano),
+        '' if sve is None else ', %s => [%s]' % (php_cadena('ve'), ', '.join(php_cadena(r) for r in sve)))
+        for sid, plano, sve in lista_secciones) + ']'
+    lineas.append('    [%s => %s, %s => %s, %s => %s,%s %s => %s, %s => %s, %s => %s, %s => %s],' % (
         php_cadena('slug'), php_cadena(slug), php_cadena('titulo'), php_cadena(titulo), php_cadena('rutas'), rutas_php, ve_php,
+        php_cadena('secciones'), secciones_php,
         php_cadena('idioma'), php_cadena(idioma), php_cadena('origen'), php_cadena(origen), php_cadena('fecha'), php_cadena(fecha)))
 lineas.append('];')
 salidas[os.path.join(VISTAS, 'index.php')] = '\n'.join(lineas) + '\n'

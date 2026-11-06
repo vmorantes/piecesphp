@@ -594,6 +594,32 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 }
 
+//──── Navegación por secciones (section-nav.php) ─────────────────────────────────────────
+//La lista en escritorio y el desplegable por debajo. Las clases «only» del tema van sobre columnas de la rejilla, no sobre
+//lo que hay dentro de una.
+.section-nav .section-nav-jump {
+    display: none;
+}
+
+@media only screen and (max-width: 991px) {
+    .section-nav .section-nav-menu {
+        display: none !important;
+    }
+
+    .section-nav .section-nav-jump {
+        display: block;
+    }
+
+    //Fija arriba, bajo la barra superior y sobre el contenido, con el fondo de la página para que no se transparente al
+    //pasar. El módulo sticky del tema no sigue a la columna cuando la rejilla se apila. La altura de la barra la mide el JS.
+    .ui.grid > .column:has(> .section-nav) {
+        position: sticky;
+        top: var(--section-nav-bar-height, 56px);
+        z-index: 5;
+        background: var(--theme-page);
+    }
+}
+
 //──── IMPRESIÓN ─────────────────────────────────────────────────────────────────────────
 @media print {
     @page {

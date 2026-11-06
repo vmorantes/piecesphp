@@ -32,15 +32,24 @@ Desde **«Inscripciones»**, en el menú lateral, ves las del periodo abierto…
   `oculto: true` en su cabecera lo oculta.
 - Los avisos, con la sintaxis de admonición: `!!! tip "Título"` y el texto sangrado debajo.
 
-- **Por sección**: si una sección explica una pantalla que no todos los que ven el capítulo pueden abrir, pon en la
-  línea siguiente a su título `<!-- ve: ruta, … -->`. La sección, hasta el siguiente `##`, solo se enseña a quien
-  tiene permiso sobre alguna de esas rutas, y desaparece para todos si la ruta no existe (un módulo apagado). Sus
-  rutas tienen que estar también en las `rutas` del capítulo. Por ejemplo:
+- **Por sección y por subsección**: si una sección (`##`) o una subsección (`###`) explica una pantalla que no todos los
+  que ven el capítulo pueden abrir, pon en la línea siguiente a su título `<!-- ve: ruta, … -->`. Una sección marcada
+  se oculta hasta el siguiente `##`, con sus subsecciones; una subsección, hasta el siguiente `###` o `##`. Solo la ve
+  quien tiene permiso sobre alguna de esas rutas, y desaparece para todos si la ruta no existe (un módulo apagado). Sus
+  rutas tienen que estar también en las `rutas` del capítulo; una subsección dentro de una sección marcada necesita las
+  dos. Por ejemplo:
 
     ```markdown
     ## Agregar un usuario
     <!-- ve: users-selection-create, users-form-create -->
     ```
+
+- **El índice del capítulo**: cada `##` recibe un ancla sacada de su título, y el menú del manual enseña, bajo el
+  capítulo que se lee, las secciones que ese usuario ve. Dos títulos `##` iguales en un capítulo reciben anclas
+  distintas, pero mejor no repetirlos.
+- **Plegables**: un capítulo con **cinco `##` o más** pinta cada sección plegada (la primera, abierta); con menos, como
+  títulos seguidos. Cuéntalo al escribir: si un capítulo se alarga, partirlo en dos suele leerse mejor que plegarlo.
+  En un capítulo plegable, **un `#` después del primer `##` es un error** y el capítulo no se genera.
 
 ## Generar
 

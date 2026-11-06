@@ -41,35 +41,19 @@ $anchor = fn(string $key): string => 'mail-catalog-' . $key;
     </div>
     <?php endif; ?>
 
-    <div class="ui stackable grid" data-mail-catalog-layout>
+    <div class="ui stackable grid">
 
         <div class="four wide computer sixteen wide tablet column">
-            <?php //Fija al desplazar (ui sticky del tema); a lo ancho de escritorio, la lista; por debajo, un desplegable. ?>
-            <div class="ui sticky" data-mail-catalog-sticky>
-                <nav class="ui vertical fluid menu mail-catalog-menu" aria-label="<?= $escape(__($langGroup, 'Correos del sitio')); ?>" data-mail-catalog-menu>
-                    <?php foreach ($groups as $group): ?>
-                    <div class="item">
-                        <div class="header"><?= $escape($group['module']); ?></div>
-                        <div class="menu">
-                            <?php foreach ($group['mails'] as $mail): ?>
-                            <a class="item" href="#<?= $escape($anchor($mail['key'])); ?>" data-mail-catalog-link="<?= $escape($mail['key']); ?>"><?= $escape($mail['name']); ?></a>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </nav>
-                <div class="field mail-catalog-jump">
-                    <select class="ui fluid dropdown" id="mail-catalog-jump" data-mail-catalog-jump aria-label="<?= $escape(__($langGroup, 'Ir a un correo')); ?>">
-                        <?php foreach ($groups as $group): ?>
-                        <optgroup label="<?= $escape($group['module']); ?>">
-                            <?php foreach ($group['mails'] as $mail): ?>
-                            <option value="<?= $escape($anchor($mail['key'])); ?>"><?= $escape($mail['name']); ?></option>
-                            <?php endforeach; ?>
-                        </optgroup>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
+            <?php
+                $helpController->_render('panel/built-in/content/section-nav.php', [
+                    'label' => __($langGroup, 'Correos del sitio'),
+                    'jumpLabel' => __($langGroup, 'Ir a un correo'),
+                    'items' => array_map(fn(array $group): array => [
+                        'label' => $group['module'],
+                        'children' => array_map(fn(array $mail): array => ['label' => $mail['name'], 'anchor' => $anchor($mail['key'])], $group['mails']),
+                    ], $groups),
+                ]);
+            ?>
         </div>
 
         <div class="twelve wide computer sixteen wide tablet column" data-mail-catalog-cards>

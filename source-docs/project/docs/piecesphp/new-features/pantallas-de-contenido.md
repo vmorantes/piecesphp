@@ -387,3 +387,38 @@ $direct = RowActions::action(__(self::LANG_GROUP, 'Editar'), self::routeName('fo
 
 Un ejemplo completo, con varios idiomas: las categorías de publicaciones
 (`src/app/classes/Publications/Views/categories/list.php` y su `PublicationsCategoryController::dataTables()`).
+
+## La navegación por secciones
+
+Para una página larga que se lee por partes (el manual, «Correos del sitio»): un menú vertical a la izquierda que **se
+queda fijo al desplazar**, marca la sección que se está viendo y, por debajo del ancho de escritorio, se convierte en un
+desplegable «Ir a…». Va **sola en la primera columna** de un `ui stackable grid`; el contenido, en la segunda.
+
+```php
+<div class="ui stackable grid">
+    <div class="four wide computer sixteen wide tablet column">
+        <?php $this->helpController->_render('panel/built-in/content/section-nav.php', [
+            'label' => __($langGroup, 'Secciones'),
+            'items' => [
+                ['label' => __($langGroup, 'Datos generales'), 'anchor' => 'datos-generales'],
+                ['label' => __($langGroup, 'Permisos'), 'anchor' => 'permisos'],
+                ['label' => __($langGroup, 'Otra página'), 'href' => $otherURL],
+            ],
+        ]); ?>
+    </div>
+    <div class="twelve wide computer sixteen wide tablet column">
+        <section id="datos-generales">…</section>
+        <section id="permisos">…</section>
+    </div>
+</div>
+```
+
+Cada elemento lleva a un **ancla** de la página (`anchor`, el id sin `#`) o a **otra página** (`href`); `active` marca la
+página actual. Un elemento puede tener **un nivel de hijos** (`children`), que se pintan bajo su título. Las secciones
+pueden ir **plegadas**: un `ui styled fluid accordion` con el atributo `data-section-accordion`, cada `title` con el id
+del ancla; un ancla del menú abre su sección antes de llevarte a ella. No hace falta JavaScript propio: el del panel la
+inicia por su atributo `data-section-nav`. El ejemplo vivo está en la hoja de diseño, «Pantallas de contenido».
+
+!!! warning "Un menú más alto que la pantalla"
+    Si el menú no cabe en la ventana, se desplaza con la página en lugar de quedarse fijo (es lo que hace el tema).
+

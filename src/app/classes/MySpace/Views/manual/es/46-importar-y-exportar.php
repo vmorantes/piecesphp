@@ -4,7 +4,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <p>Carga datos desde una hoja de cálculo, o descarga los del sistema en el formato que elijas.</p>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['data-transfer-hub'])): ?>
-<h2 class="ui header">La pantalla principal</h2>
+<h2 class="ui header" id="la-pantalla-principal">La pantalla principal</h2>
 <p>Cómo se llega: <strong>«Importar y exportar»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="La pantalla principal" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-hub.webp')); ?>"></p>
 <p>Tiene dos pestañas:</p>
@@ -14,7 +14,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </ul>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['data-transfer-import-users'])): ?>
-<h2 class="ui header">Importar usuarios</h2>
+<h2 class="ui header" id="importar-usuarios">Importar usuarios</h2>
 <p>Cómo se llega: en la pestaña <strong>«Importar»</strong>, pulsa <strong>«Importar»</strong> en la fila de usuarios; o por el botón de engranajes de la barra superior, <strong>«Configuración del sistema» › «Gestión de usuarios» › «Importar usuarios»</strong>.</p>
 <p><img class="ui image" alt="Importar usuarios" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-import-users.webp')); ?>"></p>
 <p>El sistema acepta archivos xlsx o csv de hasta 5 MB y 5000 filas.</p>
@@ -86,7 +86,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </table>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['data-transfer-export-users-form'])): ?>
-<h2 class="ui header">Exportar usuarios</h2>
+<h2 class="ui header" id="exportar-usuarios">Exportar usuarios</h2>
 <p>Cómo se llega: en la pestaña <strong>«Exportar»</strong>, pulsa <strong>«Exportar»</strong> en la fila de usuarios.</p>
 <p><img class="ui image" alt="Exportar usuarios" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/data-transfer-export-users-form.webp')); ?>"></p>
 <p>Elige el <strong>Formato</strong>, XLSX (el de fábrica) o CSV, y pulsa <strong>«Descargar»</strong>. Los atajos <strong>«Descargar XLSX»</strong> y

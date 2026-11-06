@@ -4,7 +4,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <p>Aquí ves quién entra al panel, con qué tipo de usuario y en qué estado, y creas o editas cuentas.</p>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['users-list'])): ?>
-<h2 class="ui header">La lista de usuarios</h2>
+<h2 class="ui header" id="la-lista-de-usuarios">La lista de usuarios</h2>
 <p>Se llega por el botón de engranajes de la barra superior: <strong>«Configuración del sistema» › «Gestión de usuarios» › «Gestionar usuarios»</strong>.</p>
 <p><img class="ui image" alt="La lista de usuarios" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/users-list.webp')); ?>"></p>
 <p>La lista se divide en pestañas según el estado de la cuenta:</p>
@@ -19,12 +19,12 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Cada pestaña muestra las cuentas en tarjetas: nombre, estado (activo o inactivo), tipo, usuario, correo y organización. Arriba eliges cuántas ver en <strong>«Resultados visibles»</strong> y buscas en <strong>«Buscador»</strong>; abajo está la paginación. El botón del lápiz de cada tarjeta, <strong>«Editar»</strong>, abre esa cuenta.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['users-selection-create', 'users-form-create'])): ?>
-<h2 class="ui header">Agregar un usuario</h2>
+<h2 class="ui header" id="agregar-un-usuario">Agregar un usuario</h2>
 <p>Pulsa <strong>«Agregar usuario»</strong>. Primero el sistema te lleva a elegir el tipo de usuario; al elegirlo, se abre el formulario de alta para ese tipo.</p>
 <p><img class="ui image" alt="Agregar un usuario" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/users-selection-create.webp')); ?>"></p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['users-form-edit', 'users-form-create'])): ?>
-<h2 class="ui header">Agregar y editar</h2>
+<h2 class="ui header" id="agregar-y-editar">Agregar y editar</h2>
 <p>El formulario de alta y el de edición son casi iguales. En la edición, el título muestra el nombre de la persona y su tipo, y aparecen tres pestañas: <strong>Cuenta</strong>, <strong>Foto de perfil</strong> y <strong>Sesiones</strong>. En el alta solo está la pestaña <strong>Cuenta</strong>.</p>
 <p><img class="ui image" alt="Agregar y editar" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/users-form-edit.webp')); ?>"></p>
 <table class="ui celled table">

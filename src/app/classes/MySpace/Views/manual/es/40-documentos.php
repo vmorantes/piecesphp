@@ -4,21 +4,21 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <p>Los archivos que se comparten en el panel, con su tipo.</p>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['documents-admin-explorer'])): ?>
-<h2 class="ui header">Explorar los documentos</h2>
+<h2 class="ui header" id="explorar-los-documentos">Explorar los documentos</h2>
 <p>Cómo se llega: <strong>«Documentos» › «Explorar»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="Explorar los documentos" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/documents-admin-explorer.webp')); ?>"></p>
 <p>Es para buscar y abrir los documentos compartidos. Cada documento aparece en una tarjeta con su nombre, su tipo y su descripción. Arriba hay un cuadro <strong>«Buscar»</strong> y abajo, la paginación.</p>
 <p>En cada tarjeta, <strong>«Abrir»</strong> muestra el archivo. Si el documento no tiene archivo, la tarjeta dice <strong>«Sin archivo»</strong>.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['documents-admin-list'])): ?>
-<h2 class="ui header">Gestionar los documentos</h2>
+<h2 class="ui header" id="gestionar-los-documentos">Gestionar los documentos</h2>
 <p>Cómo se llega: <strong>«Documentos» › «Gestionar»</strong>, en el menú lateral.</p>
 <p><img class="ui image" alt="Gestionar los documentos" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/documents-admin-list.webp')); ?>"></p>
 <p>La tabla muestra el <strong>Nombre del documento</strong> y sus <strong>Acciones</strong>. En cada fila puedes <strong>«Editar»</strong>, <strong>«Ver el archivo»</strong> o <strong>«Eliminar»</strong>.</p>
 <p>Arriba están <strong>«Tipos de documento»</strong>, <strong>«Nuevo documento»</strong> y <strong>«Exportar listado actual»</strong>.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['documents-admin-forms-add', 'documents-admin-forms-edit'])): ?>
-<h2 class="ui header">Agregar y editar un documento</h2>
+<h2 class="ui header" id="agregar-y-editar-un-documento">Agregar y editar un documento</h2>
 <p>Cómo se llega: pulsa <strong>«Nuevo documento»</strong>, o <strong>«Editar»</strong> en la fila de un documento.</p>
 <p><img class="ui image" alt="Agregar y editar un documento" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/documents-admin-forms-add.webp')); ?>"></p>
 <table class="ui celled table">
@@ -56,7 +56,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>Botones: <strong>«Guardar»</strong> y <strong>«Cancelar»</strong>. Al crear, el archivo se elige con <strong>«Agregar documento»</strong>. Al editar tienes además <strong>«Ver documento»</strong>, <strong>«Cambiar documento»</strong> y <strong>«Eliminar»</strong>.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['document-types-admin-list'])): ?>
-<h2 class="ui header">Tipos de documento</h2>
+<h2 class="ui header" id="tipos-de-documento">Tipos de documento</h2>
 <p>Cómo se llega: botón <strong>«Tipos de documento»</strong> del listado de documentos.</p>
 <p><img class="ui image" alt="Tipos de documento" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/document-types-admin-list.webp')); ?>"></p>
 <p>La tabla muestra el <strong>Nombre</strong> de cada tipo. En cada fila puedes <strong>«Editar»</strong>, <strong>«Traducir»</strong> o <strong>«Eliminar»</strong>. Arriba están <strong>«Nuevo tipo»</strong> y <strong>«Exportar listado actual»</strong>.</p>
