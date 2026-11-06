@@ -1,0 +1,5225 @@
+{
+  "formato": 1,
+  "tema": "piecesphp",
+  "commit": "5e3fdbb",
+  "fuenteSinCambios": true,
+  "generado": "2026-11-06T19:26:13.511Z",
+  "leyenda": {
+    "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
+    "js": "módulos sin los que su uso normal da errores",
+    "opcional": "lo que solo hace falta para una pieza o una función concreta, con el motivo",
+    "contenido": "otros componentes que sus ejemplos llevan dentro: los carga quien los use, no el componente",
+    "cargar": "orden de carga con el cierre transitivo de css y js (sin opcionales); jquery es el de examples/assets/library",
+    "base": "css (reset y site, de components/) la necesita todo componente; en una página con estilo propio, `suelta` en su lugar: tokens.css y base-ui.css, que no tocan html, body ni los títulos de la página",
+    "comprobacion": "conDependencias: piezas cuyos estilos computados difieren del CSS completo cargando base + componente + css + opcional + contenido (debe ser 0). suelto: con solo tokens.css en vez de la base. sueltoBaseUi: con tokens.css + base-ui.css, en una página con otro font-size en html. sueltoBaseUiMismoRem: igual, con el html al tamaño del tema y el body sin margen (lo que queda no es del rem ni de la posición en la página: iconos, banderas y emoji sin .ui toman color y fuente del texto que los rodea, y el inline dropdown, a propósito, su color)"
+  },
+  "base": {
+    "css": [
+      "reset",
+      "site"
+    ],
+    "js": [
+      "jquery"
+    ],
+    "tokens": "components/tokens.css",
+    "suelta": [
+      "tokens",
+      "base-ui"
+    ]
+  },
+  "componentes": {
+    "reset": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "nota": "base: la cargan todos"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "site": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "nota": "base: la cargan todos"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "button": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (37 de 80 ejemplos): i.right.arrow.icon ← i.icon"
+      },
+      "contenido": [
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 143,
+        "muestras": {
+          "icon": "i.right.arrow.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "85 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 143,
+          "propiedades": {
+            "font-size": 183,
+            "line-height": 183,
+            "scrollbar-color": 183,
+            "text-size-adjust": 183,
+            "block-size": 148,
+            "height": 148,
+            "inline-size": 148,
+            "perspective-origin": 148,
+            "transform-origin": 148,
+            "width": 148,
+            "scrollbar-width": 143,
+            "box-sizing": 119
+          },
+          "muestras": [
+            "button.ui.button en div.: appearance button → auto",
+            "a.ui.button en div.: block-size 40px → 22.8594px",
+            "div.ui.button en div.: block-size 40px → 22.8594px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 143,
+          "propiedades": {
+            "font-size": 183,
+            "line-height": 183,
+            "block-size": 148,
+            "height": 148,
+            "inline-size": 148,
+            "perspective-origin": 148,
+            "transform-origin": 148,
+            "width": 148,
+            "min-block-size": 89,
+            "min-height": 89,
+            "padding-block-end": 80,
+            "padding-block-start": 80
+          },
+          "muestras": [
+            "button.ui.button en div.: block-size 40px → 45.7031px",
+            "a.ui.button en div.: block-size 40px → 45.7031px",
+            "div.ui.button en div.: block-size 40px → 45.7031px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "button"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "chart": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "statistic"
+      ],
+      "comprobacion": {
+        "ejemplos": 6,
+        "piezas": 18,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 18,
+          "propiedades": {
+            "border-block-end-color": 18,
+            "border-block-start-color": 18,
+            "border-bottom-color": 18,
+            "border-inline-end-color": 18,
+            "border-inline-start-color": 18,
+            "border-left-color": 18,
+            "border-right-color": 18,
+            "border-top-color": 18,
+            "caret-color": 18,
+            "color": 18,
+            "column-rule-color": 18,
+            "font-family": 18
+          },
+          "muestras": [
+            "div.ui.chart en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "svg.canvas en div.ui.chart: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "polyline. en svg.canvas: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "chart"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "container": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "header": "CSS: solo si el marcado lleva esa pieza (2 de 19 ejemplos): p ← .ui.header + p",
+        "grid": "CSS: solo si el marcado lleva esa pieza (3 de 19 ejemplos): div.ui.grid.container ← .ui.grid"
+      },
+      "contenido": [
+        "header"
+      ],
+      "comprobacion": {
+        "ejemplos": 19,
+        "piezas": 275,
+        "muestras": {
+          "header": "p ← .ui.header + p",
+          "grid": "div.ui.grid.container ← .ui.grid"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "header": "2 piezas cambian sin él",
+          "grid": "15 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 275,
+          "propiedades": {
+            "border-block-end-color": 275,
+            "border-block-start-color": 275,
+            "border-bottom-color": 275,
+            "border-inline-end-color": 275,
+            "border-inline-start-color": 275,
+            "border-left-color": 275,
+            "border-right-color": 275,
+            "border-top-color": 275,
+            "box-sizing": 275,
+            "caret-color": 275,
+            "color": 275,
+            "column-rule-color": 275
+          },
+          "muestras": [
+            "div.ui.container en div.: block-size 20px → 18px",
+            "p. en div.ui.container: block-size 20px → 18px",
+            "div.ui.text.container en div.: block-size 147.438px → 173.672px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 267,
+          "propiedades": {
+            "perspective-origin": 267,
+            "transform-origin": 267,
+            "inline-size": 263,
+            "width": 263,
+            "block-size": 19,
+            "height": 19,
+            "margin-inline-end": 16,
+            "margin-inline-start": 16,
+            "margin-left": 16,
+            "margin-right": 16,
+            "padding-block-end": 12,
+            "padding-block-start": 12
+          },
+          "muestras": [
+            "div.ui.container en div.: inline-size 1136px → 1126.84px",
+            "p. en div.ui.container: inline-size 1136px → 1126.84px",
+            "div.ui.text.container en div.: block-size 147.438px → 168.484px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "container"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "divider": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "header": "CSS: solo si el marcado lleva esa pieza (13 de 39 ejemplos): h4.ui.horizontal.divider.header ← .ui.header",
+        "icon": "CSS: solo si el marcado lleva esa pieza (16 de 39 ejemplos): i.exchange.alternate.icon ← i.icon"
+      },
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 39,
+        "piezas": 55,
+        "muestras": {
+          "header": "h4.ui.horizontal.divider.header ← .ui.header",
+          "icon": "i.exchange.alternate.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "header": "26 piezas cambian sin él",
+          "icon": "32 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 55,
+          "propiedades": {
+            "box-sizing": 137,
+            "font-size": 137,
+            "scrollbar-color": 137,
+            "text-size-adjust": 137,
+            "line-height": 125,
+            "block-size": 111,
+            "height": 111,
+            "perspective-origin": 109,
+            "transform-origin": 109,
+            "-webkit-font-smoothing": 105,
+            "inline-size": 81,
+            "width": 81
+          },
+          "muestras": [
+            "div.ui.divider en div.: block-size 1px → 0px",
+            "div.ui.vertical.divider en div.: box-sizing border-box → content-box",
+            "div.ui.vertical.divider en div.: box-sizing border-box → content-box"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 55,
+          "propiedades": {
+            "font-size": 137,
+            "line-height": 125,
+            "perspective-origin": 109,
+            "transform-origin": 109,
+            "block-size": 105,
+            "height": 105,
+            "inline-size": 73,
+            "width": 73,
+            "background-position": 58,
+            "background-size": 58,
+            "bottom": 56,
+            "inset-block-end": 56
+          },
+          "muestras": [
+            "div.ui.divider en div.: font-size 12px → 13.7143px",
+            "div.ui.vertical.divider en div.: font-size 12px → 13.7143px",
+            "div.ui.vertical.divider en div.: font-size 12px → 13.7143px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 4,
+          "propiedades": {
+            "inset-inline-end": 4,
+            "inset-inline-start": 4,
+            "left": 4,
+            "right": 4
+          },
+          "muestras": [
+            "div.ui.vertical.divider en div.: inset-inline-end 687.688px → 685.188px",
+            "div.ui.vertical.divider en div.: inset-inline-end 687.938px → 685.438px",
+            "div.ui.vertical.divider en div.: inset-inline-end 677.5px → 675px"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "divider"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "emoji": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 80,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 80,
+          "propiedades": {
+            "border-block-end-color": 160,
+            "border-block-start-color": 160,
+            "border-bottom-color": 160,
+            "border-inline-end-color": 160,
+            "border-inline-start-color": 160,
+            "border-left-color": 160,
+            "border-right-color": 160,
+            "border-top-color": 160,
+            "box-sizing": 160,
+            "caret-color": 160,
+            "color": 160,
+            "column-rule-color": 160
+          },
+          "muestras": [
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 80,
+          "propiedades": {
+            "border-block-end-color": 160,
+            "border-block-start-color": 160,
+            "border-bottom-color": 160,
+            "border-inline-end-color": 160,
+            "border-inline-start-color": 160,
+            "border-left-color": 160,
+            "border-right-color": 160,
+            "border-top-color": 160,
+            "box-sizing": 160,
+            "caret-color": 160,
+            "color": 160,
+            "column-rule-color": 160
+          },
+          "muestras": [
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 80,
+          "propiedades": {
+            "border-block-end-color": 160,
+            "border-block-start-color": 160,
+            "border-bottom-color": 160,
+            "border-inline-end-color": 160,
+            "border-inline-start-color": 160,
+            "border-left-color": 160,
+            "border-right-color": 160,
+            "border-top-color": 160,
+            "box-sizing": 160,
+            "caret-color": 160,
+            "color": 160,
+            "column-rule-color": 160
+          },
+          "muestras": [
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "emoji"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "flag": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 80,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 80,
+          "propiedades": {
+            "border-block-end-color": 160,
+            "border-block-start-color": 160,
+            "border-bottom-color": 160,
+            "border-inline-end-color": 160,
+            "border-inline-start-color": 160,
+            "border-left-color": 160,
+            "border-right-color": 160,
+            "border-top-color": 160,
+            "box-sizing": 160,
+            "caret-color": 160,
+            "color": 160,
+            "column-rule-color": 160
+          },
+          "muestras": [
+            "i.ve.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.es.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.mx.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 80,
+          "propiedades": {
+            "border-block-end-color": 160,
+            "border-block-start-color": 160,
+            "border-bottom-color": 160,
+            "border-inline-end-color": 160,
+            "border-inline-start-color": 160,
+            "border-left-color": 160,
+            "border-right-color": 160,
+            "border-top-color": 160,
+            "box-sizing": 160,
+            "caret-color": 160,
+            "color": 160,
+            "column-rule-color": 160
+          },
+          "muestras": [
+            "i.ve.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.es.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.mx.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 80,
+          "propiedades": {
+            "border-block-end-color": 160,
+            "border-block-start-color": 160,
+            "border-bottom-color": 160,
+            "border-inline-end-color": 160,
+            "border-inline-start-color": 160,
+            "border-left-color": 160,
+            "border-right-color": 160,
+            "border-top-color": 160,
+            "box-sizing": 160,
+            "caret-color": 160,
+            "color": 160,
+            "column-rule-color": 160
+          },
+          "muestras": [
+            "i.ve.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.es.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.mx.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "flag"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "flex": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (1 de 19 ejemplos): i.clock.icon ← i.icon"
+      },
+      "contenido": [
+        "button",
+        "dropdown",
+        "header",
+        "icon",
+        "input",
+        "label",
+        "text"
+      ],
+      "comprobacion": {
+        "ejemplos": 19,
+        "piezas": 36,
+        "muestras": {
+          "icon": "i.clock.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "4 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 36,
+          "propiedades": {
+            "border-block-end-color": 37,
+            "border-block-start-color": 37,
+            "border-bottom-color": 37,
+            "border-inline-end-color": 37,
+            "border-inline-start-color": 37,
+            "border-left-color": 37,
+            "border-right-color": 37,
+            "border-top-color": 37,
+            "box-sizing": 37,
+            "caret-color": 37,
+            "color": 37,
+            "column-rule-color": 37
+          },
+          "muestras": [
+            "div.ui.flex en div.: block-size 40px → 45.7031px",
+            "div.ui.nowrap.flex en div.: block-size 40px → 45.7031px",
+            "div.ui.flex en div.: block-size 40px → 45.7031px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 28,
+          "propiedades": {
+            "perspective-origin": 27,
+            "transform-origin": 27,
+            "column-gap": 26,
+            "row-gap": 26,
+            "block-size": 25,
+            "height": 25,
+            "inline-size": 2,
+            "width": 2,
+            "min-block-size": 2,
+            "min-height": 2
+          },
+          "muestras": [
+            "div.ui.flex en div.: block-size 40px → 45.7031px",
+            "div.ui.nowrap.flex en div.: block-size 40px → 45.7031px",
+            "div.ui.flex en div.: column-gap 8px → 9.14286px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "flex"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "header": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (12 de 80 ejemplos): i.settings.icon ← i.icon"
+      },
+      "contenido": [
+        "image",
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 122,
+        "muestras": {
+          "icon": "i.settings.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "25 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 122,
+          "propiedades": {
+            "box-sizing": 143,
+            "font-size": 143,
+            "line-height": 143,
+            "scrollbar-color": 143,
+            "text-size-adjust": 143,
+            "perspective-origin": 128,
+            "transform-origin": 128,
+            "block-size": 122,
+            "height": 122,
+            "scrollbar-width": 122,
+            "-webkit-font-smoothing": 115,
+            "inline-size": 61
+          },
+          "muestras": [
+            "h1.ui.header en div.: block-size 32px → 36.5469px",
+            "h2.ui.header en div.: block-size 24px → 27.4219px",
+            "h3.ui.header en div.: block-size 24px → 27.4219px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 122,
+          "propiedades": {
+            "font-size": 143,
+            "line-height": 143,
+            "perspective-origin": 128,
+            "transform-origin": 128,
+            "block-size": 122,
+            "height": 122,
+            "inline-size": 39,
+            "width": 39,
+            "padding-block-end": 27,
+            "padding-bottom": 27,
+            "padding-inline-start": 27,
+            "padding-left": 27
+          },
+          "muestras": [
+            "h1.ui.header en div.: block-size 32px → 36.5469px",
+            "h2.ui.header en div.: block-size 24px → 27.4219px",
+            "h3.ui.header en div.: block-size 24px → 27.4219px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "header"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "icon": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 80,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 80,
+          "propiedades": {
+            "box-sizing": 160,
+            "font-size": 160,
+            "line-height": 160,
+            "scrollbar-color": 160,
+            "text-size-adjust": 160,
+            "border-block-end-color": 156,
+            "border-block-start-color": 156,
+            "border-bottom-color": 156,
+            "border-inline-end-color": 156,
+            "border-inline-start-color": 156,
+            "border-left-color": 156,
+            "border-right-color": 156
+          },
+          "muestras": [
+            "i.home.icon en div.: block-size 14px → 16px",
+            "i.user.icon en div.: block-size 14px → 16px",
+            "i.heart.icon en div.: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 80,
+          "propiedades": {
+            "box-sizing": 160,
+            "font-size": 160,
+            "line-height": 160,
+            "scrollbar-color": 160,
+            "text-size-adjust": 160,
+            "border-block-end-color": 156,
+            "border-block-start-color": 156,
+            "border-bottom-color": 156,
+            "border-inline-end-color": 156,
+            "border-inline-start-color": 156,
+            "border-left-color": 156,
+            "border-right-color": 156
+          },
+          "muestras": [
+            "i.home.icon en div.: block-size 14px → 16px",
+            "i.user.icon en div.: block-size 14px → 16px",
+            "i.heart.icon en div.: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 80,
+          "propiedades": {
+            "box-sizing": 160,
+            "scrollbar-color": 160,
+            "text-size-adjust": 160,
+            "border-block-end-color": 156,
+            "border-block-start-color": 156,
+            "border-bottom-color": 156,
+            "border-inline-end-color": 156,
+            "border-inline-start-color": 156,
+            "border-left-color": 156,
+            "border-right-color": 156,
+            "border-top-color": 156,
+            "caret-color": 156
+          },
+          "muestras": [
+            "i.home.icon en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.user.icon en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.heart.icon en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "image": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "icon",
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 77,
+        "piezas": 93,
+        "muestras": {
+          "transition": "img.ui.hidden.transition.small.image ← .transition"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "transition"
+        ],
+        "suelto": {
+          "piezas": 93,
+          "propiedades": {
+            "caret-color": 93,
+            "color": 93,
+            "column-rule-color": 93,
+            "font-family": 93,
+            "font-size": 93,
+            "line-height": 93,
+            "outline-color": 93,
+            "row-rule-color": 93,
+            "scrollbar-color": 93,
+            "scrollbar-width": 93,
+            "text-decoration-color": 93,
+            "text-emphasis-color": 93
+          },
+          "muestras": [
+            "img.ui.small.image en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "div.ui.small.image en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "img. en div.ui.small.image: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 46,
+          "propiedades": {
+            "font-size": 44,
+            "border-bottom-left-radius": 4,
+            "border-bottom-right-radius": 4,
+            "border-end-end-radius": 4,
+            "border-end-start-radius": 4,
+            "border-start-end-radius": 4,
+            "border-start-start-radius": 4,
+            "border-top-left-radius": 4,
+            "border-top-right-radius": 4,
+            "margin-inline-end": 3,
+            "margin-inline-start": 3,
+            "margin-left": 3
+          },
+          "muestras": [
+            "img.ui.small.image en div.: font-size 13px → 14.8571px",
+            "div.ui.small.image en div.: font-size 13px → 14.8571px",
+            "img. en div.ui.small.image: font-size 13px → 14.8571px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "image"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "input": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (35 de 80 ejemplos): i.search.icon ← i.icon",
+        "loader": "CSS: solo si el marcado lleva esa pieza (35 de 80 ejemplos): div.ui.fast.loading.icon.input ← .ui.ui.fast.loading",
+        "form": "CSS: solo si el marcado lleva esa pieza (1 de 80 ejemplos): textarea ← .ui.input textarea"
+      },
+      "contenido": [
+        "button",
+        "dropdown",
+        "icon",
+        "label",
+        "search"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 191,
+        "muestras": {
+          "icon": "i.search.icon ← i.icon",
+          "loader": "div.ui.fast.loading.icon.input ← .ui.ui.fast.loading",
+          "form": "textarea ← .ui.input textarea"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "40 piezas cambian sin él",
+          "loader": "35 piezas cambian sin él",
+          "form": "6 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 191,
+          "propiedades": {
+            "block-size": 261,
+            "font-size": 261,
+            "height": 261,
+            "line-height": 261,
+            "perspective-origin": 261,
+            "scrollbar-color": 261,
+            "text-size-adjust": 261,
+            "transform-origin": 261,
+            "box-sizing": 260,
+            "inline-size": 242,
+            "width": 242,
+            "scrollbar-width": 191
+          },
+          "muestras": [
+            "div.ui.input en div.: block-size 40px → 38.1719px",
+            "input. en div.ui.input: appearance none → auto",
+            "div.ui.input en div.: block-size 40px → 38.1719px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 191,
+          "propiedades": {
+            "block-size": 261,
+            "font-size": 261,
+            "height": 261,
+            "perspective-origin": 261,
+            "transform-origin": 261,
+            "inline-size": 225,
+            "width": 225,
+            "line-height": 185,
+            "inset-inline-start": 105,
+            "left": 105,
+            "bottom": 75,
+            "inset-block-end": 75
+          },
+          "muestras": [
+            "div.ui.input en div.: block-size 40px → 45.4219px",
+            "input. en div.ui.input: block-size 40px → 45.4219px",
+            "div.ui.input en div.: block-size 40px → 45.4219px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 4,
+          "propiedades": {
+            "bottom": 4,
+            "font-family": 4,
+            "inline-size": 4,
+            "inset-block-end": 4,
+            "inset-block-start": 4,
+            "perspective-origin": 4,
+            "top": 4,
+            "transform-origin": 4,
+            "width": 4
+          },
+          "muestras": [
+            "input.ui.invisible.file.input en div.: bottom -8208.94px → -8080.94px",
+            "input.ui.invisible.file.input en div.: bottom -8208.94px → -8080.94px",
+            "input.ui.invisible.file.input en div.: bottom -8848.94px → -8720.94px"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "input"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "label": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (22 de 80 ejemplos): i.mail.icon ← i.icon",
+        "image": "CSS: solo si el marcado lleva esa pieza (5 de 80 ejemplos): a.ui.image.label ← .ui.image"
+      },
+      "contenido": [
+        "image"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 110,
+        "muestras": {
+          "icon": "i.mail.icon ← i.icon",
+          "image": "a.ui.image.label ← .ui.image"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "25 piezas cambian sin él",
+          "image": "10 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 110,
+          "propiedades": {
+            "box-sizing": 215,
+            "font-size": 215,
+            "line-height": 215,
+            "scrollbar-color": 215,
+            "text-size-adjust": 215,
+            "block-size": 193,
+            "height": 193,
+            "inline-size": 193,
+            "perspective-origin": 193,
+            "transform-origin": 193,
+            "width": 193,
+            "font-family": 171
+          },
+          "muestras": [
+            "div.ui.label en div.: block-size 22px → 13.7188px",
+            "div.ui.label en div.: block-size 22px → 13.7188px",
+            "i.mail.icon en div.ui.label: block-size 12px → 13.7031px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 110,
+          "propiedades": {
+            "font-size": 215,
+            "line-height": 215,
+            "block-size": 193,
+            "height": 193,
+            "inline-size": 193,
+            "perspective-origin": 193,
+            "transform-origin": 193,
+            "width": 193,
+            "bottom": 121,
+            "inset-block-end": 121,
+            "inset-inline-start": 100,
+            "left": 100
+          },
+          "muestras": [
+            "div.ui.label en div.: block-size 22px → 25.125px",
+            "div.ui.label en div.: block-size 22px → 25.125px",
+            "i.mail.icon en div.ui.label: block-size 12px → 13.7031px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 19,
+          "propiedades": {
+            "bottom": 19,
+            "inset-block-end": 19,
+            "inset-inline-start": 17,
+            "left": 17,
+            "inset-inline-end": 2,
+            "right": 2
+          },
+          "muestras": [
+            "a.ui.left.corner.label en div.: bottom 2209px → 2194px",
+            "a.ui.right.corner.label en div.: bottom 2209px → 2194px",
+            "a.ui.left.corner.red.label en div.: bottom 2209px → 2194px"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "label"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "list": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (16 de 75 ejemplos): i.users.icon ← i.icon"
+      },
+      "contenido": [
+        "button",
+        "header",
+        "image",
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 75,
+        "piezas": 464,
+        "muestras": {
+          "icon": "i.users.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "43 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 464,
+          "propiedades": {
+            "box-sizing": 767,
+            "scrollbar-color": 767,
+            "text-size-adjust": 767,
+            "line-height": 760,
+            "font-size": 744,
+            "-webkit-font-smoothing": 705,
+            "font-family": 667,
+            "transform-origin": 643,
+            "perspective-origin": 642,
+            "inline-size": 559,
+            "width": 559,
+            "block-size": 514
+          },
+          "muestras": [
+            "div.ui.list en div.: block-size 72px → 82.2188px",
+            "div.item en div.ui.list: block-size 23px → 22.8438px",
+            "div.item en div.ui.list: block-size 26px → 22.8438px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 464,
+          "propiedades": {
+            "font-size": 744,
+            "line-height": 685,
+            "perspective-origin": 625,
+            "transform-origin": 625,
+            "block-size": 514,
+            "height": 514,
+            "inline-size": 491,
+            "width": 491,
+            "padding-block-start": 181,
+            "padding-top": 181,
+            "padding-block-end": 180,
+            "padding-bottom": 180
+          },
+          "muestras": [
+            "div.ui.list en div.: block-size 72px → 82.2188px",
+            "div.item en div.ui.list: block-size 23px → 26.2656px",
+            "div.item en div.ui.list: block-size 26px → 29.6875px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "list"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "loader": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 80,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 80,
+          "propiedades": {
+            "box-sizing": 240,
+            "font-family": 240,
+            "font-size": 240,
+            "line-height": 240,
+            "scrollbar-color": 240,
+            "text-size-adjust": 240,
+            "-webkit-font-smoothing": 240,
+            "block-size": 231,
+            "height": 231,
+            "inline-size": 230,
+            "width": 230,
+            "perspective-origin": 195
+          },
+          "muestras": [
+            "div.ui.loader en div.: block-size 32px → 36.5714px",
+            "div.ui.loader en div.: block-size 32px → 36.5714px",
+            "div.ui.active.loader en div.: block-size 32px → 36.5625px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 80,
+          "propiedades": {
+            "font-size": 240,
+            "block-size": 231,
+            "height": 231,
+            "inline-size": 230,
+            "width": 230,
+            "perspective-origin": 195,
+            "transform-origin": 195,
+            "margin-inline-start": 161,
+            "margin-left": 161,
+            "border-block-end-width": 160,
+            "border-block-start-width": 160,
+            "border-bottom-left-radius": 160
+          },
+          "muestras": [
+            "div.ui.loader en div.: block-size 32px → 36.5714px",
+            "div.ui.loader en div.: block-size 32px → 36.5714px",
+            "div.ui.active.loader en div.: block-size 32px → 36.5625px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 4,
+          "propiedades": {
+            "inset-inline-end": 4,
+            "inset-inline-start": 4,
+            "left": 4,
+            "right": 4
+          },
+          "muestras": [
+            "div.ui.active.loader en div.: inset-inline-end 663px → 660.5px",
+            "div.ui.active.text.loader en div.: inset-inline-end 620.484px → 617.984px",
+            "div.ui.active.loader en div.: inset-inline-end 663px → 660.5px"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "loader"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "placeholder": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 26,
+        "piezas": 114,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 114,
+          "propiedades": {
+            "border-block-end-color": 250,
+            "border-block-start-color": 250,
+            "border-bottom-color": 250,
+            "border-inline-end-color": 250,
+            "border-inline-start-color": 250,
+            "border-left-color": 250,
+            "border-right-color": 250,
+            "border-top-color": 250,
+            "box-sizing": 250,
+            "caret-color": 250,
+            "color": 250,
+            "column-rule-color": 250
+          },
+          "muestras": [
+            "div.ui.placeholder en div.: block-size 145px → 165.625px",
+            "div.image.header en div.ui.placeholder: block-size 42px → 47.9688px",
+            "div.line en div.image.header: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 100,
+          "propiedades": {
+            "inline-size": 159,
+            "perspective-origin": 159,
+            "transform-origin": 159,
+            "width": 159,
+            "inset-inline-end": 57,
+            "right": 57,
+            "inset-inline-start": 55,
+            "left": 55,
+            "max-inline-size": 22,
+            "max-width": 22,
+            "block-size": 10,
+            "height": 10
+          },
+          "muestras": [
+            "div.ui.placeholder en div.: inline-size 420px → 480px",
+            "div.image.header en div.ui.placeholder: inline-size 420px → 480px",
+            "div.line en div.image.header: inline-size 378px → 438px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "placeholder"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "rail": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "placeholder",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 30,
+        "piezas": 30,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 30,
+          "propiedades": {
+            "block-size": 30,
+            "border-block-end-color": 30,
+            "border-block-start-color": 30,
+            "border-bottom-color": 30,
+            "border-top-color": 30,
+            "box-sizing": 30,
+            "caret-color": 30,
+            "color": 30,
+            "column-rule-color": 30,
+            "font-family": 30,
+            "font-size": 30,
+            "height": 30
+          },
+          "muestras": [
+            "div.ui.left.rail en div.: block-size 2257px → 2242px",
+            "div.ui.right.rail en div.: block-size 2257px → 2242px",
+            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 30,
+          "propiedades": {
+            "block-size": 30,
+            "font-size": 30,
+            "height": 30,
+            "perspective-origin": 30,
+            "transform-origin": 30,
+            "inset-inline-end": 27,
+            "inset-inline-start": 27,
+            "left": 27,
+            "right": 27,
+            "margin-inline-end": 13,
+            "margin-right": 13,
+            "padding-inline-end": 13
+          },
+          "muestras": [
+            "div.ui.left.rail en div.: block-size 2257px → 2242px",
+            "div.ui.right.rail en div.: block-size 2257px → 2242px",
+            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 30,
+          "propiedades": {
+            "block-size": 30,
+            "height": 30,
+            "perspective-origin": 30,
+            "transform-origin": 30,
+            "inset-inline-end": 15,
+            "right": 15,
+            "inset-inline-start": 15,
+            "left": 15
+          },
+          "muestras": [
+            "div.ui.left.rail en div.: block-size 2257px → 2242px",
+            "div.ui.right.rail en div.: block-size 2257px → 2242px",
+            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "rail"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "reveal": {
+      "css": [
+        "image"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "label",
+        "placeholder",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 37,
+        "piezas": 111,
+        "muestras": {
+          "image": "div.ui.small.fade.reveal.image ← .ui.image"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "image": "81 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 111,
+          "propiedades": {
+            "border-block-end-color": 111,
+            "border-block-start-color": 111,
+            "border-bottom-color": 111,
+            "border-inline-end-color": 111,
+            "border-inline-start-color": 111,
+            "border-left-color": 111,
+            "border-right-color": 111,
+            "border-top-color": 111,
+            "box-sizing": 111,
+            "caret-color": 111,
+            "color": 111,
+            "column-rule-color": 111
+          },
+          "muestras": [
+            "div.ui.small.fade.reveal.image en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "img.visible.content en div.ui.small.fade.reveal.image: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "img.hidden.content en div.ui.small.fade.reveal.image: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 111,
+          "propiedades": {
+            "font-size": 101,
+            "block-size": 30,
+            "height": 30,
+            "perspective-origin": 30,
+            "transform-origin": 30,
+            "border-bottom-left-radius": 15,
+            "border-bottom-right-radius": 15,
+            "border-end-end-radius": 15,
+            "border-end-start-radius": 15,
+            "border-start-end-radius": 15,
+            "border-start-start-radius": 15,
+            "border-top-left-radius": 15
+          },
+          "muestras": [
+            "div.ui.small.fade.reveal.image en div.: font-size 13px → 14.8571px",
+            "img.visible.content en div.ui.small.fade.reveal.image: font-size 13px → 14.8571px",
+            "img.hidden.content en div.ui.small.fade.reveal.image: font-size 13px → 14.8571px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "image",
+          "reveal"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "segment": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "header": "CSS: solo si el marcado lleva esa pieza (3 de 80 ejemplos): p ← .ui.header + p",
+        "label": "CSS: solo si el marcado lleva esa pieza (3 de 80 ejemplos): p ← .ui.top.attached.label + :not(.attached)",
+        "loader": "CSS: solo si el marcado lleva esa pieza (2 de 80 ejemplos): div.ui.loading.segment ← .ui.ui.ui.ui.loading:not(.usual)"
+      },
+      "contenido": [
+        "button",
+        "divider",
+        "flex",
+        "form",
+        "grid",
+        "header",
+        "icon",
+        "image",
+        "input",
+        "label",
+        "placeholder",
+        "search",
+        "table",
+        "text"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 127,
+        "muestras": {
+          "header": "p ← .ui.header + p",
+          "label": "p ← .ui.top.attached.label + :not(.attached)",
+          "loader": "div.ui.loading.segment ← .ui.ui.ui.ui.loading:not(.usual)",
+          "placeholder": "div.ui.placeholder.segment ← .ui.placeholder"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "necesidad": {
+          "header": "3 piezas cambian sin él",
+          "label": "6 piezas cambian sin él",
+          "loader": "2 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 127,
+          "propiedades": {
+            "box-sizing": 149,
+            "font-family": 149,
+            "font-size": 149,
+            "line-height": 149,
+            "scrollbar-color": 149,
+            "text-size-adjust": 149,
+            "-webkit-font-smoothing": 149,
+            "perspective-origin": 146,
+            "transform-origin": 146,
+            "block-size": 141,
+            "height": 141,
+            "scrollbar-width": 127
+          },
+          "muestras": [
+            "div.ui.segment en div.: block-size 62px → 50px",
+            "p. en div.ui.segment: block-size 20px → 18px",
+            "div.ui.placeholder.segment en div.: block-size 260px → 297.141px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 127,
+          "propiedades": {
+            "font-size": 149,
+            "block-size": 140,
+            "height": 140,
+            "perspective-origin": 140,
+            "transform-origin": 140,
+            "padding-block-end": 81,
+            "padding-block-start": 81,
+            "padding-bottom": 81,
+            "padding-top": 81,
+            "padding-inline-end": 76,
+            "padding-inline-start": 76,
+            "padding-left": 76
+          },
+          "muestras": [
+            "div.ui.segment en div.: block-size 62px → 70.5469px",
+            "p. en div.ui.segment: block-size 20px → 22.8594px",
+            "div.ui.placeholder.segment en div.: block-size 260px → 297.141px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "segment"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "step": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (22 de 80 ejemplos): i.truck.icon ← i.icon"
+      },
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 866,
+        "muestras": {
+          "icon": "i.truck.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "112 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 866,
+          "propiedades": {
+            "box-sizing": 1303,
+            "font-size": 1303,
+            "line-height": 1303,
+            "scrollbar-color": 1303,
+            "text-size-adjust": 1303,
+            "perspective-origin": 1209,
+            "transform-origin": 1209,
+            "-webkit-font-smoothing": 1201,
+            "inline-size": 1200,
+            "width": 1200,
+            "block-size": 1132,
+            "height": 1132
+          },
+          "muestras": [
+            "div.ui.steps en div.: block-size 50px → 54.8438px",
+            "div.step en div.ui.steps: block-size 48px → 18.2812px",
+            "div.ui.steps en div.: block-size 69px → 76.5625px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 834,
+          "propiedades": {
+            "font-size": 1223,
+            "perspective-origin": 1177,
+            "transform-origin": 1177,
+            "inline-size": 1150,
+            "width": 1150,
+            "block-size": 1088,
+            "height": 1088,
+            "line-height": 536,
+            "bottom": 326,
+            "inset-block-end": 326,
+            "inset-block-start": 323,
+            "top": 323
+          },
+          "muestras": [
+            "div.ui.steps en div.: block-size 50px → 54.5625px",
+            "div.step en div.ui.steps: block-size 48px → 52.5625px",
+            "div.ui.steps en div.: block-size 69px → 78.5625px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "step"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "swatch": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 12,
+        "piezas": 13,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 13,
+          "propiedades": {
+            "font-family": 13,
+            "font-size": 13,
+            "line-height": 13,
+            "scrollbar-color": 13,
+            "scrollbar-width": 13,
+            "text-size-adjust": 13,
+            "-webkit-font-smoothing": 13,
+            "border-block-end-color": 11,
+            "border-block-start-color": 11,
+            "border-bottom-color": 11,
+            "border-inline-end-color": 11,
+            "border-inline-start-color": 11
+          },
+          "muestras": [
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 13,
+          "propiedades": {
+            "font-size": 13,
+            "line-height": 13,
+            "border-block-end-color": 11,
+            "border-block-start-color": 11,
+            "border-bottom-color": 11,
+            "border-inline-end-color": 11,
+            "border-inline-start-color": 11,
+            "border-left-color": 11,
+            "border-right-color": 11,
+            "border-top-color": 11,
+            "caret-color": 11,
+            "color": 11
+          },
+          "muestras": [
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 11,
+          "propiedades": {
+            "border-block-end-color": 11,
+            "border-block-start-color": 11,
+            "border-bottom-color": 11,
+            "border-inline-end-color": 11,
+            "border-inline-start-color": 11,
+            "border-left-color": 11,
+            "border-right-color": 11,
+            "border-top-color": 11,
+            "caret-color": 11,
+            "color": 11,
+            "column-rule-color": 11,
+            "outline-color": 11
+          },
+          "muestras": [
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "swatch"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "text": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 76,
+        "piezas": 76,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 76,
+          "propiedades": {
+            "box-sizing": 76,
+            "font-family": 76,
+            "font-size": 76,
+            "line-height": 76,
+            "scrollbar-color": 76,
+            "scrollbar-width": 76,
+            "text-size-adjust": 76,
+            "-webkit-font-smoothing": 76,
+            "border-block-end-color": 24,
+            "border-block-start-color": 24,
+            "border-bottom-color": 24,
+            "border-inline-end-color": 24
+          },
+          "muestras": [
+            "span.ui.text en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.disabled.text en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "span.ui.muted.text en div.: box-sizing border-box → content-box"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 17,
+          "propiedades": {
+            "font-size": 17,
+            "line-height": 17,
+            "letter-spacing": 6
+          },
+          "muestras": [
+            "span.ui.small.muted.text en div.: font-size 13px → 14.8571px",
+            "span.ui.mini.text en div.: font-size 12px → 13.7143px",
+            "span.ui.tiny.text en div.: font-size 12px → 13.7143px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "text"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "breadcrumb": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {
+        "segment": "CSS: solo si el marcado lleva esa pieza (2 de 18 ejemplos): div.ui.segment.breadcrumb ← .ui.segment"
+      },
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 18,
+        "piezas": 105,
+        "muestras": {
+          "icon": "i.right.angle.icon.divider ← i.icon",
+          "placeholder": "div.ui.segment.breadcrumb ← .ui.segment",
+          "segment": "div.ui.segment.breadcrumb ← .ui.segment"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "30 piezas cambian sin él",
+          "segment": "2 piezas cambian sin él"
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "suelto": {
+          "piezas": 105,
+          "propiedades": {
+            "box-sizing": 122,
+            "font-size": 122,
+            "line-height": 122,
+            "scrollbar-color": 122,
+            "text-size-adjust": 122,
+            "scrollbar-width": 105,
+            "block-size": 104,
+            "height": 104,
+            "inline-size": 104,
+            "perspective-origin": 104,
+            "transform-origin": 104,
+            "width": 104
+          },
+          "muestras": [
+            "div.ui.breadcrumb en div.: block-size 16px → 18.2812px",
+            "a.section en div.ui.breadcrumb: block-size 16px → 18.2812px",
+            "div.divider en div.ui.breadcrumb: block-size 14.8438px → 16.9688px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 105,
+          "propiedades": {
+            "font-size": 122,
+            "line-height": 122,
+            "block-size": 104,
+            "height": 104,
+            "inline-size": 104,
+            "perspective-origin": 104,
+            "transform-origin": 104,
+            "width": 104,
+            "margin-inline-end": 34,
+            "margin-inline-start": 34,
+            "margin-left": 34,
+            "margin-right": 34
+          },
+          "muestras": [
+            "div.ui.breadcrumb en div.: block-size 16px → 18.9688px",
+            "a.section en div.ui.breadcrumb: block-size 16px → 18.2812px",
+            "div.divider en div.ui.breadcrumb: block-size 14.8438px → 16.9688px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "breadcrumb"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "datatables": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (1 de 7 ejemplos): i.dropdown.icon ← i.icon",
+        "dropdown": "CSS: solo si el marcado lleva esa pieza (1 de 7 ejemplos): div.dt-input.selection.ui.dropdown ← .ui.dropdown"
+      },
+      "contenido": [
+        "button",
+        "checkbox",
+        "input",
+        "menu",
+        "placeholder",
+        "segment",
+        "table"
+      ],
+      "comprobacion": {
+        "ejemplos": 7,
+        "piezas": 49,
+        "muestras": {
+          "icon": "i.dropdown.icon ← i.icon",
+          "dropdown": "div.dt-input.selection.ui.dropdown ← .ui.dropdown"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "1 piezas cambian sin él",
+          "dropdown": "16 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 49,
+          "propiedades": {
+            "font-size": 50,
+            "scrollbar-color": 50,
+            "text-size-adjust": 50,
+            "scrollbar-width": 49,
+            "font-family": 48,
+            "-webkit-font-smoothing": 48,
+            "box-sizing": 46,
+            "line-height": 46,
+            "block-size": 40,
+            "height": 40,
+            "perspective-origin": 40,
+            "transform-origin": 40
+          },
+          "muestras": [
+            "div.dt-container.dt-semanticUI en div.: block-size 370px → 426.75px",
+            "div.dt-layout-row en div.dt-container.dt-semanticUI: block-size 60px → 43.1406px",
+            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: block-size 36px → 43.1406px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 44,
+          "propiedades": {
+            "block-size": 35,
+            "height": 35,
+            "perspective-origin": 35,
+            "transform-origin": 35,
+            "column-gap": 25,
+            "row-gap": 25,
+            "font-size": 12,
+            "inline-size": 10,
+            "width": 10,
+            "line-height": 8,
+            "padding-inline-end": 7,
+            "padding-inline-start": 7
+          },
+          "muestras": [
+            "div.dt-container.dt-semanticUI en div.: block-size 370px → 422.75px",
+            "div.dt-layout-row en div.dt-container.dt-semanticUI: block-size 60px → 68.5469px",
+            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: block-size 36px → 41.1406px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "datatables"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "form": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "input": "CSS: solo si el marcado lleva esa pieza (1 de 63 ejemplos): input ← .ui.form .field > input[type=\"file\"]",
+        "loader": "CSS: solo si el marcado lleva esa pieza (3 de 63 ejemplos): form.ui.loading.form.initial ← .ui.ui.ui.ui.loading:not(.usual)",
+        "segment": "CSS: solo si el marcado lleva esa pieza (4 de 63 ejemplos): form.ui.form.segment.initial ← .ui.segment",
+        "checkbox": "JS: su uso normal (4 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 5 veces y lo comprueba 0 (sin guarda)",
+        "transition": "JS: su uso normal (4 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 4 veces y lo comprueba 0 (sin guarda)",
+        "calendar": "JS: solo si el formulario lleva ese campo; los ejemplos del catálogo lo llevan y sin él dan error",
+        "dropdown": "JS: solo si el formulario lleva ese campo; los ejemplos del catálogo lo llevan y sin él dan error"
+      },
+      "contenido": [
+        "button",
+        "calendar",
+        "checkbox",
+        "dropdown",
+        "flag",
+        "icon",
+        "input",
+        "label",
+        "list",
+        "message",
+        "placeholder",
+        "popup",
+        "search",
+        "segment",
+        "table"
+      ],
+      "comprobacion": {
+        "ejemplos": 63,
+        "piezas": 860,
+        "muestras": {
+          "input": "input ← .ui.form .field > input[type=\"file\"]",
+          "loader": "form.ui.loading.form.initial ← .ui.ui.ui.ui.loading:not(.usual)",
+          "placeholder": "form.ui.form.segment.initial ← .ui.segment",
+          "segment": "form.ui.form.segment.initial ← .ui.segment"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "input": "20 piezas cambian sin él",
+          "loader": "3 piezas cambian sin él",
+          "segment": "20 piezas cambian sin él"
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "suelto": {
+          "piezas": 860,
+          "propiedades": {
+            "font-size": 875,
+            "scrollbar-color": 875,
+            "text-size-adjust": 875,
+            "-webkit-font-smoothing": 875,
+            "line-height": 872,
+            "scrollbar-width": 860,
+            "perspective-origin": 857,
+            "transform-origin": 857,
+            "block-size": 856,
+            "height": 856,
+            "box-sizing": 851,
+            "font-family": 717
+          },
+          "muestras": [
+            "form.ui.form.initial en div.: block-size 235.094px → 268.094px",
+            "div.field en form.ui.form.initial: block-size 63.5469px → 72.3438px",
+            "label. en div.field: block-size 17.9844px → 20.5625px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 860,
+          "propiedades": {
+            "font-size": 875,
+            "perspective-origin": 857,
+            "transform-origin": 857,
+            "block-size": 856,
+            "height": 856,
+            "inline-size": 576,
+            "width": 576,
+            "line-height": 411,
+            "margin-block-end": 370,
+            "margin-bottom": 370,
+            "padding-inline-end": 364,
+            "padding-right": 364
+          },
+          "muestras": [
+            "form.ui.form.initial en div.: block-size 235.094px → 268.094px",
+            "div.field en form.ui.form.initial: block-size 63.5469px → 72.3438px",
+            "label. en div.field: block-size 17.9844px → 20.5625px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": [
+          "error: Form: Field identifier undefined not found"
+        ],
+        "sin calendar": [
+          "error: Form: This module requires ui calendar"
+        ],
+        "sin dropdown": [
+          "error: Form: This module requires ui dropdown"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "form"
+        ],
+        "js": [
+          "jquery",
+          "form"
+        ]
+      }
+    },
+    "grid": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "divider",
+        "placeholder",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 561,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 561,
+          "propiedades": {
+            "box-sizing": 569,
+            "font-family": 569,
+            "font-size": 569,
+            "line-height": 569,
+            "perspective-origin": 569,
+            "scrollbar-color": 569,
+            "text-size-adjust": 569,
+            "transform-origin": 569,
+            "-webkit-font-smoothing": 569,
+            "scrollbar-width": 561,
+            "block-size": 548,
+            "height": 548
+          },
+          "muestras": [
+            "div.ui.grid en div.: block-size 82px → 177.062px",
+            "div.column en div.ui.grid: block-size 82px → 65.6875px",
+            "div.column en div.ui.grid: block-size 82px → 65.6875px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 561,
+          "propiedades": {
+            "perspective-origin": 543,
+            "transform-origin": 543,
+            "block-size": 533,
+            "height": 533,
+            "inline-size": 442,
+            "width": 442,
+            "padding-inline-end": 353,
+            "padding-inline-start": 353,
+            "padding-left": 353,
+            "padding-right": 353,
+            "padding-block-end": 268,
+            "padding-block-start": 268
+          },
+          "muestras": [
+            "div.ui.grid en div.: block-size 82px → 90.5312px",
+            "div.column en div.ui.grid: block-size 82px → 90.5312px",
+            "div.column en div.ui.grid: block-size 82px → 90.5312px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "grid"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "menu": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (9 de 80 ejemplos): i.clock.icon ← i.icon",
+        "text": "CSS: solo si el marcado lleva esa pieza (1 de 80 ejemplos): div.ui.vertical.text.menu ← .ui.vertical.text"
+      },
+      "contenido": [
+        "button",
+        "container",
+        "dropdown",
+        "grid",
+        "icon",
+        "image",
+        "input",
+        "label",
+        "list",
+        "search"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 366,
+        "muestras": {
+          "icon": "i.clock.icon ← i.icon",
+          "text": "div.ui.vertical.text.menu ← .ui.vertical.text"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "39 piezas cambian sin él",
+          "text": "10 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 366,
+          "propiedades": {
+            "box-sizing": 737,
+            "font-size": 737,
+            "line-height": 737,
+            "scrollbar-color": 737,
+            "text-size-adjust": 737,
+            "-webkit-font-smoothing": 701,
+            "perspective-origin": 531,
+            "transform-origin": 531,
+            "block-size": 506,
+            "height": 506,
+            "inline-size": 406,
+            "width": 406
+          },
+          "muestras": [
+            "div.ui.menu en div.: block-size 52px → 56.8281px",
+            "a.item en div.ui.menu: block-size 50px → 27.1406px",
+            "a.active.item en div.ui.menu: block-size 50px → 27.1406px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 366,
+          "propiedades": {
+            "font-size": 737,
+            "line-height": 569,
+            "perspective-origin": 529,
+            "transform-origin": 529,
+            "block-size": 506,
+            "height": 506,
+            "inline-size": 364,
+            "width": 364,
+            "padding-inline-end": 240,
+            "padding-inline-start": 240,
+            "padding-left": 234,
+            "padding-right": 234
+          },
+          "muestras": [
+            "div.ui.menu en div.: block-size 52px → 58.8281px",
+            "a.item en div.ui.menu: block-size 50px → 56.8281px",
+            "a.active.item en div.ui.menu: block-size 50px → 56.8281px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 5,
+          "propiedades": {
+            "inline-size": 3,
+            "perspective-origin": 3,
+            "transform-origin": 3,
+            "width": 3,
+            "inset-inline-end": 1,
+            "right": 1,
+            "inset-inline-start": 1,
+            "left": 1
+          },
+          "muestras": [
+            "div.ui.top.fixed.menu en div.: inline-size 1390px → 1385px",
+            "div.ui.bottom.fixed.menu en div.: inline-size 1390px → 1385px",
+            "div.ui.left.fixed.vertical.menu en div.: inset-inline-end 1180px → 1175px"
+          ]
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "menu"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "message": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (33 de 80 ejemplos): i.inbox.icon ← i.icon"
+      },
+      "contenido": [
+        "list"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 274,
+        "muestras": {
+          "icon": "i.inbox.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "109 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 274,
+          "propiedades": {
+            "box-sizing": 314,
+            "font-size": 314,
+            "line-height": 314,
+            "scrollbar-color": 314,
+            "text-size-adjust": 314,
+            "block-size": 276,
+            "height": 276,
+            "perspective-origin": 276,
+            "transform-origin": 276,
+            "scrollbar-width": 274,
+            "inline-size": 253,
+            "width": 253
+          },
+          "muestras": [
+            "div.ui.message en div.: block-size 66px → 47.9844px",
+            "div.header en div.ui.message: block-size 20px → 22.8438px",
+            "p. en div.ui.message: block-size 20px → 22.8594px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 274,
+          "propiedades": {
+            "font-size": 314,
+            "line-height": 314,
+            "block-size": 276,
+            "height": 276,
+            "perspective-origin": 276,
+            "transform-origin": 276,
+            "inline-size": 199,
+            "width": 199,
+            "min-block-size": 81,
+            "min-height": 81,
+            "padding-block-end": 81,
+            "padding-block-start": 81
+          },
+          "muestras": [
+            "div.ui.message en div.: block-size 66px → 75.3906px",
+            "div.header en div.ui.message: block-size 20px → 22.8438px",
+            "p. en div.ui.message: block-size 20px → 22.8594px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "message"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "table": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (11 de 80 ejemplos): i.large.green.checkmark.icon ← i.icon",
+        "segment": "CSS: solo si el marcado lleva esa pieza (2 de 80 ejemplos): table.ui.segment.table ← .ui.segment"
+      },
+      "contenido": [
+        "button",
+        "checkbox",
+        "header",
+        "icon",
+        "image",
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 1394,
+        "muestras": {
+          "icon": "i.large.green.checkmark.icon ← i.icon",
+          "placeholder": "table.ui.segment.table ← .ui.segment",
+          "segment": "table.ui.segment.table ← .ui.segment"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "327 piezas cambian sin él",
+          "segment": "2 piezas cambian sin él"
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "suelto": {
+          "piezas": 1394,
+          "propiedades": {
+            "font-size": 1441,
+            "line-height": 1441,
+            "scrollbar-color": 1441,
+            "text-size-adjust": 1441,
+            "perspective-origin": 1398,
+            "transform-origin": 1398,
+            "block-size": 1397,
+            "height": 1397,
+            "scrollbar-width": 1394,
+            "-webkit-font-smoothing": 1365,
+            "box-sizing": 1361,
+            "font-family": 1358
+          },
+          "muestras": [
+            "table.ui.table en div.: block-size 223px → 260.344px",
+            "thead. en table.ui.table: block-size 38px → 52.2344px",
+            "tr. en thead.: block-size 38px → 52.2344px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 1394,
+          "propiedades": {
+            "font-size": 1441,
+            "perspective-origin": 1372,
+            "transform-origin": 1372,
+            "block-size": 1320,
+            "height": 1320,
+            "padding-inline-end": 846,
+            "padding-inline-start": 846,
+            "padding-left": 846,
+            "padding-right": 846,
+            "inline-size": 841,
+            "width": 841,
+            "line-height": 242
+          },
+          "muestras": [
+            "table.ui.table en div.: block-size 223px → 251.531px",
+            "thead. en table.ui.table: block-size 38px → 43.4219px",
+            "tr. en thead.: block-size 38px → 43.4219px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "table"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "ad": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "button": "CSS: solo si el marcado lleva esa pieza (3 de 27 ejemplos): div.ui.button.test.ad ← .ui.button"
+      },
+      "contenido": [
+        "header",
+        "icon",
+        "placeholder",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 27,
+        "piezas": 27,
+        "muestras": {
+          "button": "div.ui.button.test.ad ← .ui.button"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "button": "3 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 27,
+          "propiedades": {
+            "box-sizing": 53,
+            "font-size": 53,
+            "line-height": 53,
+            "scrollbar-color": 53,
+            "text-size-adjust": 53,
+            "-webkit-font-smoothing": 53,
+            "perspective-origin": 48,
+            "transform-origin": 48,
+            "font-family": 47,
+            "scrollbar-width": 27,
+            "caret-color": 24,
+            "color": 24
+          },
+          "muestras": [
+            "div.ui.medium.rectangle.ad en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "div.ui.leaderboard.test.ad en div.: box-sizing border-box → content-box",
+            "div.ui.large.leaderboard.test.ad en div.: box-sizing border-box → content-box"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 26,
+          "propiedades": {
+            "font-size": 29,
+            "line-height": 29,
+            "block-size": 24,
+            "bottom": 24,
+            "height": 24,
+            "inset-block-end": 24,
+            "perspective-origin": 24,
+            "transform": 24,
+            "transform-origin": 24,
+            "min-block-size": 3,
+            "min-height": 3,
+            "padding-block-end": 3
+          },
+          "muestras": [
+            "div.ui.leaderboard.test.ad::after en div.: block-size 16px → 18.2812px",
+            "div.ui.large.leaderboard.test.ad::after en div.: block-size 16px → 18.2812px",
+            "div.ui.medium.rectangle.test.ad::after en div.: block-size 16px → 18.2812px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "ad"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "card": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (7 de 80 ejemplos): i.user.icon ← i.icon",
+        "loader": "CSS: solo si el marcado lleva esa pieza (2 de 80 ejemplos): div.ui.loading.card ← .ui.ui.ui.ui.loading:not(.usual)"
+      },
+      "contenido": [
+        "button",
+        "feed",
+        "header",
+        "icon",
+        "image",
+        "input"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 359,
+        "muestras": {
+          "icon": "i.user.icon ← i.icon",
+          "loader": "div.ui.loading.card ← .ui.ui.ui.ui.loading:not(.usual)",
+          "placeholder": "div.ui.card ← .ui.card"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "necesidad": {
+          "icon": "20 piezas cambian sin él",
+          "loader": "2 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 359,
+          "propiedades": {
+            "font-size": 549,
+            "line-height": 549,
+            "scrollbar-color": 549,
+            "text-size-adjust": 549,
+            "box-sizing": 548,
+            "perspective-origin": 524,
+            "transform-origin": 524,
+            "inline-size": 520,
+            "width": 520,
+            "-webkit-font-smoothing": 519,
+            "font-family": 442,
+            "scrollbar-width": 359
+          },
+          "muestras": [
+            "div.ui.card en div.: block-size 370.719px → 418.453px",
+            "div.image en div.ui.card: block-size 219.719px → 251.094px",
+            "img. en div.image: block-size 219.719px → 251.094px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 355,
+          "propiedades": {
+            "perspective-origin": 510,
+            "transform-origin": 510,
+            "inline-size": 504,
+            "width": 504,
+            "block-size": 338,
+            "height": 338,
+            "font-size": 158,
+            "line-height": 158,
+            "margin-block-start": 123,
+            "margin-top": 123,
+            "padding-block-end": 94,
+            "padding-block-start": 94
+          },
+          "muestras": [
+            "div.ui.card en div.: block-size 370.719px → 420.453px",
+            "div.image en div.ui.card: block-size 219.719px → 251.094px",
+            "img. en div.image: block-size 219.719px → 251.094px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "card"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "comment": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (2 de 22 ejemplos): i.star.icon ← i.icon"
+      },
+      "contenido": [
+        "button",
+        "form",
+        "header",
+        "icon"
+      ],
+      "comprobacion": {
+        "ejemplos": 22,
+        "piezas": 307,
+        "muestras": {
+          "icon": "i.star.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "5 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 307,
+          "propiedades": {
+            "box-sizing": 309,
+            "font-size": 309,
+            "line-height": 309,
+            "scrollbar-color": 309,
+            "text-size-adjust": 309,
+            "scrollbar-width": 307,
+            "font-family": 305,
+            "-webkit-font-smoothing": 305,
+            "block-size": 265,
+            "height": 265,
+            "perspective-origin": 264,
+            "transform-origin": 264
+          },
+          "muestras": [
+            "div.ui.comments en div.: block-size 534.422px → 655.906px",
+            "div.comment en div.ui.comments: block-size 73.1406px → 74.4062px",
+            "a.avatar en div.comment: block-size 32px → 36.5625px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 307,
+          "propiedades": {
+            "font-size": 309,
+            "line-height": 287,
+            "block-size": 265,
+            "height": 265,
+            "perspective-origin": 264,
+            "transform-origin": 264,
+            "inline-size": 201,
+            "width": 201,
+            "margin-inline-start": 51,
+            "margin-left": 51,
+            "margin-block-start": 43,
+            "margin-top": 43
+          },
+          "muestras": [
+            "div.ui.comments en div.: block-size 534.422px → 610.484px",
+            "div.comment en div.ui.comments: block-size 73.1406px → 83.5469px",
+            "a.avatar en div.comment: block-size 32px → 36.5625px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "comment"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "feed": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "label",
+        "text"
+      ],
+      "comprobacion": {
+        "ejemplos": 32,
+        "piezas": 751,
+        "muestras": {
+          "icon": "i.like.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "78 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 751,
+          "propiedades": {
+            "box-sizing": 935,
+            "font-size": 935,
+            "line-height": 935,
+            "scrollbar-color": 935,
+            "text-size-adjust": 935,
+            "block-size": 825,
+            "height": 825,
+            "perspective-origin": 825,
+            "transform-origin": 825,
+            "font-family": 808,
+            "-webkit-font-smoothing": 808,
+            "scrollbar-width": 751
+          },
+          "muestras": [
+            "div.ui.feed en div.: block-size 337.641px → 357.703px",
+            "div.event en div.ui.feed: block-size 61px → 59.375px",
+            "div.label en div.event: block-size 53px → 59.375px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 751,
+          "propiedades": {
+            "font-size": 935,
+            "perspective-origin": 825,
+            "transform-origin": 825,
+            "block-size": 823,
+            "height": 823,
+            "inline-size": 614,
+            "width": 614,
+            "line-height": 432,
+            "padding-block-start": 224,
+            "padding-top": 224,
+            "margin-block-end": 202,
+            "margin-bottom": 202
+          },
+          "muestras": [
+            "div.ui.feed en div.: block-size 337.641px → 380.562px",
+            "div.event en div.ui.feed: block-size 61px → 68.5156px",
+            "div.label en div.event: block-size 53px → 59.375px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "feed"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "item": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (3 de 29 ejemplos): i.green.check.icon ← i.icon"
+      },
+      "contenido": [
+        "button",
+        "icon",
+        "image",
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 29,
+        "piezas": 259,
+        "muestras": {
+          "icon": "i.green.check.icon ← i.icon",
+          "placeholder": "div.item ← .ui.items > .item"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "necesidad": {
+          "icon": "11 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 259,
+          "propiedades": {
+            "box-sizing": 375,
+            "font-size": 375,
+            "line-height": 375,
+            "scrollbar-color": 375,
+            "text-size-adjust": 375,
+            "-webkit-font-smoothing": 357,
+            "font-family": 321,
+            "perspective-origin": 259,
+            "scrollbar-width": 259,
+            "transform-origin": 259,
+            "inline-size": 205,
+            "width": 205
+          },
+          "muestras": [
+            "div.ui.items en div.: block-size 304.188px → 306.188px",
+            "div.item en div.ui.items: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "div.image en div.item: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 58,
+          "propiedades": {
+            "block-size": 38,
+            "height": 38,
+            "perspective-origin": 38,
+            "transform-origin": 38,
+            "margin-block-start": 20,
+            "margin-top": 20,
+            "margin-inline-end": 9,
+            "margin-right": 9,
+            "margin-block-end": 6,
+            "margin-bottom": 6,
+            "margin-inline-start": 1,
+            "margin-left": 1
+          },
+          "muestras": [
+            "div.content en div.item: block-size 95.8125px → 96.8125px",
+            "div.extra en div.content: margin-block-start 7px → 8px",
+            "div.content en div.item: block-size 95.8125px → 96.8125px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "item"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "statistic": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 32,
+        "piezas": 96,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 96,
+          "propiedades": {
+            "block-size": 98,
+            "box-sizing": 98,
+            "font-size": 98,
+            "height": 98,
+            "line-height": 98,
+            "perspective-origin": 98,
+            "scrollbar-color": 98,
+            "text-size-adjust": 98,
+            "transform-origin": 98,
+            "-webkit-font-smoothing": 98,
+            "scrollbar-width": 96,
+            "inline-size": 93
+          },
+          "muestras": [
+            "div.ui.statistic en div.: block-size 50px → 57.1094px",
+            "div.value en div.ui.statistic: block-size 32px → 36.5469px",
+            "div.label en div.ui.statistic: block-size 16px → 18.2812px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 96,
+          "propiedades": {
+            "block-size": 98,
+            "height": 98,
+            "perspective-origin": 98,
+            "transform-origin": 98,
+            "inline-size": 93,
+            "width": 93,
+            "font-size": 66,
+            "line-height": 66,
+            "letter-spacing": 34,
+            "margin-block-start": 25,
+            "margin-top": 25,
+            "margin-inline-start": 9
+          },
+          "muestras": [
+            "div.ui.statistic en div.: block-size 50px → 57.1094px",
+            "div.value en div.ui.statistic: block-size 32px → 36.5469px",
+            "div.label en div.ui.statistic: block-size 16px → 18.2812px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        }
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "statistic"
+        ],
+        "js": [
+          "jquery"
+        ]
+      }
+    },
+    "accordion": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {
+        "menu": "CSS: solo si el marcado lleva esa pieza (2 de 28 ejemplos): div.ui.vertical.accordion.menu ← .ui.menu",
+        "transition": "JS: su uso normal (2 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 3 veces y lo comprueba 3 (con guarda $.fn)"
+      },
+      "contenido": [
+        "checkbox",
+        "dropdown",
+        "form",
+        "header",
+        "icon"
+      ],
+      "comprobacion": {
+        "ejemplos": 28,
+        "piezas": 303,
+        "muestras": {
+          "icon": "i.dropdown.icon ← i.icon",
+          "menu": "div.ui.vertical.accordion.menu ← .ui.menu"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "65 piezas cambian sin él",
+          "menu": "25 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 303,
+          "propiedades": {
+            "font-size": 375,
+            "line-height": 375,
+            "scrollbar-color": 375,
+            "text-size-adjust": 375,
+            "box-sizing": 360,
+            "scrollbar-width": 303,
+            "-webkit-font-smoothing": 245,
+            "perspective-origin": 231,
+            "transform-origin": 231,
+            "block-size": 227,
+            "height": 227,
+            "inline-size": 167
+          },
+          "muestras": [
+            "div.ui.accordion en div.: block-size 143px → 190.531px",
+            "div.active.title en div.ui.accordion: block-size 34px → 22.8438px",
+            "i.dropdown.icon en div.active.title: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 197,
+          "propiedades": {
+            "perspective-origin": 173,
+            "transform-origin": 173,
+            "font-size": 157,
+            "line-height": 153,
+            "block-size": 152,
+            "height": 152,
+            "inline-size": 110,
+            "width": 110,
+            "padding-inline-end": 80,
+            "padding-inline-start": 80,
+            "padding-left": 80,
+            "padding-right": 80
+          },
+          "muestras": [
+            "i.dropdown.icon en div.active.title: block-size 14px → 16px",
+            "i.dropdown.icon en div.title: block-size 14px → 16px",
+            "i.dropdown.icon en div.title: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "accordion"
+        ],
+        "js": [
+          "jquery",
+          "accordion"
+        ]
+      }
+    },
+    "calendar": {
+      "css": [
+        "icon",
+        "table",
+        "popup"
+      ],
+      "js": [
+        "popup"
+      ],
+      "opcional": {
+        "grid": "CSS: solo si el marcado lleva esa pieza (2 de 63 ejemplos): div.ui.equal.width.grid ← .ui.grid"
+      },
+      "contenido": [
+        "button",
+        "icon",
+        "input",
+        "placeholder",
+        "popup",
+        "table"
+      ],
+      "comprobacion": {
+        "ejemplos": 63,
+        "piezas": 4716,
+        "muestras": {
+          "icon": "i.chevron.left.icon ← i.icon",
+          "placeholder": "div.ui.popup.calendar ← .ui.popup",
+          "grid": "div.ui.equal.width.grid ← .ui.grid",
+          "table": "table.ui.celled.center.aligned.unstackable.table.day.seven.column ← .ui.table",
+          "popup": "div.ui.popup.calendar ← .ui.popup"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "206 piezas cambian sin él",
+          "table": "4651 piezas cambian sin él",
+          "popup": "2556 piezas cambian sin él",
+          "grid": "258 piezas cambian sin él"
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "suelto": {
+          "piezas": 4716,
+          "propiedades": {
+            "font-size": 4918,
+            "line-height": 4918,
+            "scrollbar-color": 4918,
+            "text-size-adjust": 4918,
+            "box-sizing": 4838,
+            "scrollbar-width": 4716,
+            "font-family": 4638,
+            "-webkit-font-smoothing": 4638,
+            "block-size": 4162,
+            "height": 4162,
+            "padding-block-end": 3410,
+            "padding-block-start": 3410
+          },
+          "muestras": [
+            "div.ui.calendar en div.: block-size 40px → 38.1719px",
+            "div.ui.calendar en div.: block-size 40px → 38.1719px",
+            "div.ui.calendar en div.: block-size 40px → 38.1719px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 4698,
+          "propiedades": {
+            "block-size": 4144,
+            "height": 4144,
+            "font-size": 3415,
+            "line-height": 3015,
+            "padding-block-end": 2322,
+            "padding-block-start": 2322,
+            "padding-bottom": 2322,
+            "padding-top": 2322,
+            "padding-inline-end": 2250,
+            "padding-inline-start": 2250,
+            "padding-left": 2250,
+            "padding-right": 2250
+          },
+          "muestras": [
+            "div.ui.calendar en div.: block-size 40px → 45.7031px",
+            "div.ui.popup.calendar en div.ui.calendar: font-size 14px → 16px",
+            "table.ui.celled.center.aligned.unstackable.table.day.seven.column en div.ui.popup.calendar: font-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores",
+        "sin popup": [
+          "error: Calendar: UI Popup, a required component is not included in this page"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "table",
+          "popup",
+          "transition",
+          "calendar"
+        ],
+        "js": [
+          "jquery",
+          "popup",
+          "transition",
+          "calendar"
+        ]
+      }
+    },
+    "checkbox": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "button",
+        "image",
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 233,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 233,
+          "propiedades": {
+            "line-height": 364,
+            "scrollbar-color": 364,
+            "text-size-adjust": 364,
+            "-webkit-font-smoothing": 364,
+            "font-size": 361,
+            "inline-size": 355,
+            "width": 355,
+            "block-size": 353,
+            "height": 353,
+            "perspective-origin": 353,
+            "transform-origin": 353,
+            "font-family": 305
+          },
+          "muestras": [
+            "div.ui.checkbox.checked en div.: block-size 20px → 22.8594px",
+            "input.hidden en div.ui.checkbox.checked: block-size 16px → 18.2812px",
+            "label. en div.ui.checkbox.checked: block-size 20px → 22.8594px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 233,
+          "propiedades": {
+            "line-height": 364,
+            "font-size": 361,
+            "inline-size": 355,
+            "width": 355,
+            "block-size": 353,
+            "height": 353,
+            "perspective-origin": 353,
+            "transform-origin": 353,
+            "bottom": 202,
+            "inset-block-end": 202,
+            "inset-inline-end": 187,
+            "right": 187
+          },
+          "muestras": [
+            "div.ui.checkbox.checked en div.: block-size 20px → 22.8594px",
+            "input.hidden en div.ui.checkbox.checked: block-size 16px → 18.2812px",
+            "label. en div.ui.checkbox.checked: block-size 20px → 22.8594px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "checkbox"
+        ],
+        "js": [
+          "jquery",
+          "checkbox"
+        ]
+      }
+    },
+    "colorpicker": {
+      "css": [
+        "input"
+      ],
+      "js": [],
+      "opcional": {
+        "button": "CSS: solo si el marcado lleva esa pieza (1 de 17 ejemplos): button.ui.mini.basic.cancel.button ← .ui.button"
+      },
+      "contenido": [
+        "input",
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 17,
+        "piezas": 66,
+        "muestras": {
+          "button": "button.ui.mini.basic.cancel.button ← .ui.button",
+          "input": "div.ui.colorpicker.input ← .ui.input"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "input": "50 piezas cambian sin él",
+          "button": "2 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 66,
+          "propiedades": {
+            "font-size": 66,
+            "line-height": 66,
+            "scrollbar-color": 66,
+            "scrollbar-width": 66,
+            "text-size-adjust": 66,
+            "-webkit-font-smoothing": 66,
+            "perspective-origin": 65,
+            "transform-origin": 65,
+            "block-size": 64,
+            "height": 64,
+            "inline-size": 64,
+            "width": 64
+          },
+          "muestras": [
+            "div.ui.colorpicker.input en div.: block-size 40px → 38.1719px",
+            "button.trigger en div.ui.colorpicker.input: appearance button → auto",
+            "input. en div.ui.colorpicker.input: appearance none → auto"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 66,
+          "propiedades": {
+            "perspective-origin": 65,
+            "transform-origin": 65,
+            "inline-size": 64,
+            "width": 64,
+            "block-size": 63,
+            "font-size": 63,
+            "height": 63,
+            "line-height": 48,
+            "padding-inline-start": 20,
+            "padding-left": 20,
+            "padding-inline-end": 18,
+            "padding-right": 18
+          },
+          "muestras": [
+            "div.ui.colorpicker.input en div.: block-size 40px → 45.4219px",
+            "button.trigger en div.ui.colorpicker.input: block-size 20px → 22.8438px",
+            "input. en div.ui.colorpicker.input: block-size 40px → 45.4219px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 1,
+          "propiedades": {
+            "inset-inline-end": 1,
+            "right": 1
+          },
+          "muestras": [
+            "div.ui.colorpicker.panel.visible en div.: inset-inline-end 789px → 784px"
+          ]
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "input",
+          "colorpicker"
+        ],
+        "js": [
+          "jquery",
+          "colorpicker"
+        ]
+      }
+    },
+    "dimmer": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "header": "CSS: solo si el marcado lleva esa pieza (2 de 39 ejemplos): p ← .ui.header + p",
+        "transition": "JS: su uso normal (2 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 2 veces y lo comprueba 2 (con guarda $.fn)"
+      },
+      "contenido": [
+        "button",
+        "header",
+        "icon",
+        "loader"
+      ],
+      "comprobacion": {
+        "ejemplos": 39,
+        "piezas": 81,
+        "muestras": {
+          "header": "p ← .ui.header + p"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "header": "2 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 81,
+          "propiedades": {
+            "box-sizing": 81,
+            "font-family": 81,
+            "font-size": 81,
+            "line-height": 81,
+            "scrollbar-color": 81,
+            "scrollbar-width": 81,
+            "text-size-adjust": 81,
+            "-webkit-font-smoothing": 81,
+            "block-size": 46,
+            "height": 46,
+            "perspective-origin": 46,
+            "transform-origin": 46
+          },
+          "muestras": [
+            "div.ui.active.dimmer en div.: block-size 2257px → 2242px",
+            "div.ui.active.dimmer en div.: block-size 2257px → 2242px",
+            "div.content en div.ui.active.dimmer: block-size 169px → 186.266px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 34,
+          "propiedades": {
+            "perspective-origin": 32,
+            "transform-origin": 32,
+            "inline-size": 29,
+            "width": 29,
+            "block-size": 10,
+            "height": 10,
+            "inset-inline-end": 2,
+            "right": 2
+          },
+          "muestras": [
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.content en div.ui.active.dimmer: block-size 169px → 188.266px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 27,
+          "propiedades": {
+            "inline-size": 25,
+            "perspective-origin": 25,
+            "transform-origin": 25,
+            "width": 25,
+            "inset-inline-end": 2,
+            "right": 2
+          },
+          "muestras": [
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px"
+          ]
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "dimmer"
+        ],
+        "js": [
+          "jquery",
+          "dimmer"
+        ]
+      }
+    },
+    "dropdown": {
+      "css": [
+        "icon",
+        "transition"
+      ],
+      "js": [
+        "transition"
+      ],
+      "opcional": {
+        "button": "CSS: solo si el marcado lleva esa pieza (12 de 80 ejemplos): div.ui.floating.labeled.icon.dropdown.button ← .ui.button",
+        "flag": "CSS: solo si el marcado lleva esa pieza (4 de 80 ejemplos): i.ar.flag ← i.flag:not(.icon)",
+        "label": "CSS: solo si el marcado lleva esa pieza (4 de 80 ejemplos): div.ui.label.dropdown ← .ui.label",
+        "loader": "CSS: solo si el marcado lleva esa pieza (4 de 80 ejemplos): div.ui.loading.selection.dropdown ← .ui.ui.ui.ui.loading:not(.usual)",
+        "message": "CSS: solo si el marcado lleva esa pieza (1 de 80 ejemplos): div.message ← .ui.dropdown .menu > .message",
+        "api": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 4 veces y lo comprueba 1 (con guarda $.fn)"
+      },
+      "contenido": [
+        "button",
+        "divider",
+        "flag",
+        "header",
+        "icon",
+        "image",
+        "input",
+        "label",
+        "search",
+        "transition"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 781,
+        "muestras": {
+          "button": "div.ui.floating.labeled.icon.dropdown.button ← .ui.button",
+          "flag": "i.ar.flag ← i.flag:not(.icon)",
+          "icon": "i.dropdown.icon ← i.icon",
+          "label": "div.ui.label.dropdown ← .ui.label",
+          "loader": "div.ui.loading.selection.dropdown ← .ui.ui.ui.ui.loading:not(.usual)",
+          "message": "div.message ← .ui.dropdown .menu > .message",
+          "search": "div.ui.search.selection.dropdown ← .ui.search",
+          "transition": "div.menu.hidden.transition ← .transition"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "163 piezas cambian sin él",
+          "transition": "459 piezas cambian sin él",
+          "button": "46 piezas cambian sin él",
+          "flag": "25 piezas cambian sin él",
+          "label": "21 piezas cambian sin él",
+          "loader": "5 piezas cambian sin él",
+          "message": "1 piezas cambian sin él"
+        },
+        "sinEfecto": [
+          "search"
+        ],
+        "suelto": {
+          "piezas": 781,
+          "propiedades": {
+            "font-size": 928,
+            "scrollbar-color": 928,
+            "text-size-adjust": 928,
+            "line-height": 913,
+            "box-sizing": 904,
+            "scrollbar-width": 781,
+            "-webkit-font-smoothing": 692,
+            "font-family": 585,
+            "padding-block-end": 530,
+            "padding-block-start": 530,
+            "padding-bottom": 530,
+            "padding-inline-end": 530
+          },
+          "muestras": [
+            "div.ui.dropdown en div.: block-size 20px → 19px",
+            "div.text en div.ui.dropdown: block-size 20px → 18px",
+            "i.dropdown.icon en div.ui.dropdown: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 781,
+          "propiedades": {
+            "font-size": 928,
+            "line-height": 863,
+            "padding-block-end": 530,
+            "padding-block-start": 530,
+            "padding-bottom": 530,
+            "padding-inline-end": 530,
+            "padding-inline-start": 530,
+            "padding-left": 530,
+            "padding-right": 530,
+            "padding-top": 530,
+            "min-block-size": 367,
+            "min-height": 367
+          },
+          "muestras": [
+            "div.ui.dropdown en div.: font-size 14px → 16px",
+            "div.text en div.ui.dropdown: font-size 14px → 16px",
+            "i.dropdown.icon en div.ui.dropdown: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 17,
+          "propiedades": {
+            "caret-color": 23,
+            "color": 23,
+            "column-rule-color": 23,
+            "outline-color": 23,
+            "row-rule-color": 23,
+            "text-decoration-color": 23,
+            "text-emphasis-color": 23,
+            "-webkit-text-fill-color": 23,
+            "-webkit-text-stroke-color": 23,
+            "border-block-start-color": 18,
+            "border-top-color": 18,
+            "border-block-end-color": 17
+          },
+          "muestras": [
+            "div.ui.clearable.inline.dropdown en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.dropdown.icon en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.remove.icon en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "jsConTodo": "sin errores",
+        "sin transition": [
+          "excepción: $label.addClass(...).insertBefore(...).transition is not a function",
+          "error: Dropdown: This module requires ui transition"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "transition",
+          "dropdown"
+        ],
+        "js": [
+          "jquery",
+          "transition",
+          "dropdown"
+        ]
+      }
+    },
+    "embed": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 14,
+        "piezas": 51,
+        "muestras": {
+          "icon": "i.video.play.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "13 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 51,
+          "propiedades": {
+            "box-sizing": 77,
+            "font-size": 77,
+            "line-height": 77,
+            "scrollbar-color": 77,
+            "text-size-adjust": 77,
+            "border-block-end-color": 64,
+            "border-block-start-color": 64,
+            "border-bottom-color": 64,
+            "border-inline-end-color": 64,
+            "border-inline-start-color": 64,
+            "border-left-color": 64,
+            "border-right-color": 64
+          },
+          "muestras": [
+            "div.ui.embed.active en div.: block-size 675px → 0px",
+            "i.video.play.icon en div.ui.embed.active: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "img.placeholder en div.ui.embed.active: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 13,
+          "propiedades": {
+            "margin-inline-end": 13,
+            "margin-right": 13,
+            "font-size": 13,
+            "line-height": 13,
+            "inset-inline-end": 8,
+            "right": 8,
+            "block-size": 4,
+            "bottom": 4,
+            "height": 4,
+            "inline-size": 4,
+            "inset-block-end": 4,
+            "perspective-origin": 4
+          },
+          "muestras": [
+            "i.video.play.icon en div.ui.embed.active: margin-inline-end 3.5px → 4px",
+            "i.video.play.icon en div.ui.embed: inset-inline-end -3.5px → -4px",
+            "i.video.play.icon en div.ui.embed: inset-inline-end -3.5px → -4px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": [
+          "error: Embed: No URL specified [object Object]"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "embed"
+        ],
+        "js": [
+          "jquery",
+          "embed"
+        ]
+      }
+    },
+    "flyout": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {
+        "menu": "CSS: solo si el marcado lleva esa pieza (2 de 36 ejemplos): div.ui.left.vertical.menu.flyout.cat-flyout-local ← .ui.menu"
+      },
+      "contenido": [
+        "button",
+        "checkbox",
+        "form",
+        "header",
+        "icon"
+      ],
+      "comprobacion": {
+        "ejemplos": 36,
+        "piezas": 185,
+        "muestras": {
+          "icon": "i.close.icon ← i.icon",
+          "placeholder": "div.ui.visible.left.overlay.flyout ← .ui.flyout",
+          "menu": "div.ui.left.vertical.menu.flyout.cat-flyout-local ← .ui.menu"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "37 piezas cambian sin él",
+          "menu": "16 piezas cambian sin él"
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "suelto": {
+          "piezas": 185,
+          "propiedades": {
+            "box-sizing": 231,
+            "font-size": 231,
+            "line-height": 231,
+            "scrollbar-color": 231,
+            "text-size-adjust": 231,
+            "perspective-origin": 218,
+            "transform-origin": 218,
+            "inline-size": 214,
+            "width": 214,
+            "block-size": 186,
+            "height": 186,
+            "scrollbar-width": 185
+          },
+          "muestras": [
+            "div.ui.visible.left.overlay.flyout en div.: block-size 2257px → 2242px",
+            "i.close.icon en div.ui.visible.left.overlay.flyout: block-size 32px → 36.5625px",
+            "div.content en div.ui.visible.left.overlay.flyout: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 185,
+          "propiedades": {
+            "inline-size": 214,
+            "perspective-origin": 214,
+            "transform-origin": 214,
+            "width": 214,
+            "block-size": 102,
+            "height": 102,
+            "font-size": 92,
+            "line-height": 88,
+            "padding-inline-end": 59,
+            "padding-inline-start": 59,
+            "padding-left": 59,
+            "padding-right": 59
+          },
+          "muestras": [
+            "div.ui.visible.left.overlay.flyout en div.: inline-size 440px → 502.844px",
+            "i.close.icon en div.ui.visible.left.overlay.flyout: block-size 32px → 36.5625px",
+            "div.content en div.ui.visible.left.overlay.flyout: inline-size 440px → 502.844px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 89,
+          "propiedades": {
+            "inline-size": 54,
+            "perspective-origin": 54,
+            "transform-origin": 54,
+            "width": 54,
+            "inset-inline-start": 23,
+            "left": 23,
+            "inset-inline-end": 19,
+            "right": 19,
+            "transform": 9
+          },
+          "muestras": [
+            "div.ui.visible.left.overlay.flyout en div.: inset-inline-end 950px → 945px",
+            "div.ui.left.flyout.cat-flyout-local en div.: inset-inline-end 950px → 945px",
+            "div.ui.right.flyout.cat-flyout-local en div.: inset-inline-start 950px → 945px"
+          ]
+        },
+        "jsConTodo": [
+          "error: Flyout: Had to move flyout. For optimal performance make sure flyout and pusher are direct children of your body tag [object HTMLDivElement]"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "flyout"
+        ],
+        "js": [
+          "jquery",
+          "flyout"
+        ]
+      }
+    },
+    "modal": {
+      "css": [
+        "dimmer",
+        "transition"
+      ],
+      "js": [
+        "dimmer",
+        "transition"
+      ],
+      "opcional": {
+        "header": "CSS: solo si el marcado lleva esa pieza (2 de 41 ejemplos): p ← .ui.header + p",
+        "icon": "CSS: solo si el marcado lleva esa pieza (14 de 41 ejemplos): i.close.icon ← i.icon"
+      },
+      "contenido": [
+        "button",
+        "dropdown",
+        "flag",
+        "form",
+        "header",
+        "icon",
+        "image"
+      ],
+      "comprobacion": {
+        "ejemplos": 41,
+        "piezas": 233,
+        "muestras": {
+          "header": "p ← .ui.header + p",
+          "icon": "i.close.icon ← i.icon",
+          "placeholder": "div.ui.active.basic.small.modal.cat-modal-estatico ← .ui.modal",
+          "dimmer": "div.ui.inverted.dimmer ← .ui.dimmer"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "necesidad": {
+          "header": "2 piezas cambian sin él",
+          "icon": "15 piezas cambian sin él",
+          "dimmer": "2 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 233,
+          "propiedades": {
+            "box-sizing": 247,
+            "font-size": 247,
+            "line-height": 247,
+            "scrollbar-color": 247,
+            "text-size-adjust": 247,
+            "scrollbar-width": 233,
+            "-webkit-font-smoothing": 219,
+            "font-family": 183,
+            "padding-block-start": 125,
+            "padding-top": 125,
+            "padding-inline-start": 120,
+            "padding-left": 120
+          },
+          "muestras": [
+            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: block-size 217.859px → 280.922px",
+            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: block-size 52px → 54.8438px",
+            "p. en div.content: block-size 20px → 22.8438px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 233,
+          "propiedades": {
+            "font-size": 247,
+            "line-height": 173,
+            "padding-block-start": 125,
+            "padding-top": 125,
+            "padding-inline-start": 120,
+            "padding-left": 120,
+            "padding-inline-end": 112,
+            "padding-right": 112,
+            "padding-block-end": 76,
+            "padding-bottom": 76,
+            "block-size": 25,
+            "height": 25
+          },
+          "muestras": [
+            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: block-size 217.859px → 248.938px",
+            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: block-size 52px → 59.4062px",
+            "p. en div.content: block-size 20px → 22.8594px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores",
+        "sin dimmer": [
+          "error: Modal: UI Dimmer, a required component is not included in this page",
+          "excepción: Cannot read properties of undefined (reading 'removeClass')",
+          "excepción: Uncaught TypeError: Cannot read properties of undefined (reading '0')"
+        ],
+        "sin transition": [
+          "excepción: $module.transition is not a function"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "dimmer",
+          "transition",
+          "modal"
+        ],
+        "js": [
+          "jquery",
+          "dimmer",
+          "transition",
+          "modal"
+        ]
+      }
+    },
+    "nag": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 59,
+        "piezas": 185,
+        "muestras": {
+          "icon": "i.close.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "65 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 185,
+          "propiedades": {
+            "box-sizing": 250,
+            "font-size": 250,
+            "line-height": 250,
+            "scrollbar-color": 250,
+            "text-size-adjust": 250,
+            "scrollbar-width": 185,
+            "block-size": 183,
+            "height": 183,
+            "perspective-origin": 183,
+            "transform-origin": 183,
+            "inline-size": 129,
+            "width": 129
+          },
+          "muestras": [
+            "div.ui.nag en div.: block-size 45px → 22.8438px",
+            "span.title en div.ui.nag: block-size 20px → 22.8438px",
+            "i.close.icon en div.ui.nag: block-size 24px → 27.4219px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 185,
+          "propiedades": {
+            "font-size": 250,
+            "line-height": 250,
+            "block-size": 183,
+            "height": 183,
+            "perspective-origin": 183,
+            "transform-origin": 183,
+            "inline-size": 129,
+            "width": 129,
+            "bottom": 61,
+            "inset-block-end": 61,
+            "inset-block-start": 60,
+            "top": 60
+          },
+          "muestras": [
+            "div.ui.nag en div.: block-size 45px → 51.25px",
+            "span.title en div.ui.nag: block-size 20px → 22.8438px",
+            "i.close.icon en div.ui.nag: block-size 24px → 27.4219px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 10,
+          "propiedades": {
+            "inline-size": 5,
+            "perspective-origin": 5,
+            "transform-origin": 5,
+            "width": 5,
+            "inset-inline-start": 5,
+            "left": 5
+          },
+          "muestras": [
+            "div.ui.overlay.nag en div.: inline-size 1390px → 1385px",
+            "i.close.icon en div.ui.overlay.nag: inset-inline-start 1354px → 1349px",
+            "div.ui.bottom.overlay.nag en div.: inline-size 1390px → 1385px"
+          ]
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "nag"
+        ],
+        "js": [
+          "jquery",
+          "nag"
+        ]
+      }
+    },
+    "popup": {
+      "css": [
+        "transition"
+      ],
+      "js": [
+        "transition"
+      ],
+      "opcional": {
+        "loader": "CSS: solo si el marcado lleva esa pieza (3 de 63 ejemplos): div.ui.visible.blue.loading.bottom.left.popup ← .ui.ui.ui.ui.blue.loading:not(.usual):not(.button)"
+      },
+      "contenido": [
+        "button",
+        "divider",
+        "grid",
+        "header",
+        "icon",
+        "list",
+        "placeholder",
+        "rating",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 63,
+        "piezas": 105,
+        "muestras": {
+          "loader": "div.ui.visible.blue.loading.bottom.left.popup ← .ui.ui.ui.ui.blue.loading:not(.usual):not(.button)",
+          "placeholder": "div.ui.visible.bottom.left.popup ← .ui.popup"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "necesidad": {
+          "loader": "3 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 105,
+          "propiedades": {
+            "box-sizing": 171,
+            "font-size": 171,
+            "line-height": 171,
+            "scrollbar-color": 171,
+            "text-size-adjust": 171,
+            "-webkit-font-smoothing": 171,
+            "block-size": 162,
+            "height": 162,
+            "inline-size": 158,
+            "width": 158,
+            "perspective-origin": 157,
+            "font-family": 151
+          },
+          "muestras": [
+            "div.ui.visible.bottom.left.popup en div.: block-size 46px → 22.8594px",
+            "div.ui.visible.bottom.left.popup en div.: block-size 70px → 50.2656px",
+            "div.header en div.ui.visible.bottom.left.popup: block-size 20px → 22.8438px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 105,
+          "propiedades": {
+            "font-size": 171,
+            "line-height": 171,
+            "block-size": 162,
+            "height": 162,
+            "inline-size": 158,
+            "width": 158,
+            "perspective-origin": 157,
+            "transform-origin": 107,
+            "padding-block-start": 82,
+            "padding-top": 82,
+            "margin-block-start": 65,
+            "margin-inline-start": 65
+          },
+          "muestras": [
+            "div.ui.visible.bottom.left.popup en div.: block-size 46px → 52.2656px",
+            "div.ui.visible.bottom.left.popup en div.: block-size 70px → 79.6719px",
+            "div.header en div.ui.visible.bottom.left.popup: block-size 20px → 22.8438px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores",
+        "sin transition": [
+          "error: Popup: This module requires ui transition"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "transition",
+          "popup"
+        ],
+        "js": [
+          "jquery",
+          "transition",
+          "popup"
+        ]
+      }
+    },
+    "progress": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 279,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 279,
+          "propiedades": {
+            "block-size": 357,
+            "box-sizing": 357,
+            "font-family": 357,
+            "font-size": 357,
+            "height": 357,
+            "line-height": 357,
+            "perspective-origin": 357,
+            "scrollbar-color": 357,
+            "text-size-adjust": 357,
+            "transform-origin": 357,
+            "-webkit-font-smoothing": 357,
+            "scrollbar-width": 279
+          },
+          "muestras": [
+            "div.ui.progress.active en div.: block-size 20px → 22.8438px",
+            "div.bar en div.ui.progress.active: block-size 20px → 22.8438px",
+            "div.ui.indicating.progress en div.: block-size 20px → 22.8438px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 279,
+          "propiedades": {
+            "block-size": 357,
+            "font-size": 357,
+            "height": 357,
+            "perspective-origin": 357,
+            "transform-origin": 357,
+            "line-height": 277,
+            "bottom": 113,
+            "inset-block-end": 113,
+            "inset-block-start": 113,
+            "margin-block-start": 113,
+            "margin-top": 113,
+            "top": 113
+          },
+          "muestras": [
+            "div.ui.progress.active en div.: block-size 20px → 22.8438px",
+            "div.bar en div.ui.progress.active: block-size 20px → 22.8438px",
+            "div.ui.indicating.progress en div.: block-size 20px → 22.8438px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "progress"
+        ],
+        "js": [
+          "jquery",
+          "progress"
+        ]
+      }
+    },
+    "slider": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "label"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 1023,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 1023,
+          "propiedades": {
+            "box-sizing": 1574,
+            "font-family": 1574,
+            "font-size": 1574,
+            "line-height": 1574,
+            "perspective-origin": 1574,
+            "scrollbar-color": 1574,
+            "text-size-adjust": 1574,
+            "transform-origin": 1574,
+            "-webkit-font-smoothing": 1574,
+            "block-size": 1466,
+            "height": 1466,
+            "bottom": 1276
+          },
+          "muestras": [
+            "div.ui.slider en div.: block-size 46px → 20.5625px",
+            "div.inner en div.ui.slider: block-size 18px → 20.5625px",
+            "div.track en div.inner: block-size 6px → 6.84375px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "slider"
+        ],
+        "js": [
+          "jquery",
+          "slider"
+        ]
+      }
+    },
+    "rating": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 72,
+        "piezas": 399,
+        "muestras": {
+          "icon": "i.star.icon.active ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "399 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 399,
+          "propiedades": {
+            "box-sizing": 726,
+            "font-size": 726,
+            "line-height": 726,
+            "scrollbar-color": 726,
+            "text-size-adjust": 726,
+            "block-size": 399,
+            "height": 399,
+            "inline-size": 399,
+            "perspective-origin": 399,
+            "scrollbar-width": 399,
+            "transform-origin": 399,
+            "width": 399
+          },
+          "muestras": [
+            "div.ui.rating en div.: block-size 14px → 16px",
+            "i.star.icon.active en div.ui.rating: block-size 14px → 16px",
+            "i.star.icon.active en div.ui.rating: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 399,
+          "propiedades": {
+            "font-size": 726,
+            "line-height": 654,
+            "block-size": 399,
+            "height": 399,
+            "inline-size": 399,
+            "perspective-origin": 399,
+            "transform-origin": 399,
+            "width": 399
+          },
+          "muestras": [
+            "div.ui.rating en div.: block-size 14px → 16px",
+            "i.star.icon.active en div.ui.rating: block-size 14px → 16px",
+            "i.star.icon.active en div.ui.rating: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "rating"
+        ],
+        "js": [
+          "jquery",
+          "rating"
+        ]
+      }
+    },
+    "search": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "transition": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 2 veces y lo comprueba 1 (con guarda $.fn)",
+        "api": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 5 veces y lo comprueba 1 (con guarda $.fn)"
+      },
+      "contenido": [
+        "button",
+        "icon",
+        "input",
+        "loader"
+      ],
+      "comprobacion": {
+        "ejemplos": 39,
+        "piezas": 145,
+        "muestras": {
+          "loader": "div.ui.loading.search ← .ui.ui.ui.ui.loading:not(.usual)",
+          "transition": "div.results.transition.visible ← .transition"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "loader"
+        ],
+        "necesidad": {
+          "transition": "60 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 145,
+          "propiedades": {
+            "box-sizing": 145,
+            "font-size": 145,
+            "line-height": 145,
+            "scrollbar-color": 145,
+            "scrollbar-width": 145,
+            "text-size-adjust": 145,
+            "-webkit-font-smoothing": 145,
+            "font-family": 130,
+            "perspective-origin": 107,
+            "transform-origin": 107,
+            "block-size": 106,
+            "height": 106
+          },
+          "muestras": [
+            "div.ui.search en div.: block-size 40px → 45.4219px",
+            "input.prompt en div.ui.search: block-size 40px → 22.8594px",
+            "div.results en div.ui.search: box-sizing border-box → content-box"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 145,
+          "propiedades": {
+            "font-size": 145,
+            "perspective-origin": 107,
+            "transform-origin": 107,
+            "block-size": 104,
+            "height": 104,
+            "inline-size": 101,
+            "width": 101,
+            "padding-block-end": 54,
+            "padding-block-start": 54,
+            "padding-bottom": 54,
+            "padding-inline-end": 54,
+            "padding-inline-start": 54
+          },
+          "muestras": [
+            "div.ui.search en div.: block-size 40px → 45.4219px",
+            "input.prompt en div.ui.search: block-size 40px → 45.4219px",
+            "div.results en div.ui.search: font-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "search"
+        ],
+        "js": [
+          "jquery",
+          "search"
+        ]
+      }
+    },
+    "shape": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "button",
+        "card",
+        "header",
+        "icon",
+        "image",
+        "message",
+        "placeholder",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 5,
+        "piezas": 36,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 36,
+          "propiedades": {
+            "box-sizing": 36,
+            "font-family": 36,
+            "font-size": 36,
+            "line-height": 36,
+            "scrollbar-color": 36,
+            "scrollbar-width": 36,
+            "text-size-adjust": 36,
+            "-webkit-font-smoothing": 36,
+            "border-block-end-color": 18,
+            "border-block-start-color": 18,
+            "border-bottom-color": 18,
+            "border-inline-end-color": 18
+          },
+          "muestras": [
+            "div.ui.shape en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "div.sides en div.ui.shape: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "div.active.side en div.sides: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 8,
+          "propiedades": {
+            "block-size": 8,
+            "height": 8,
+            "inline-size": 8,
+            "perspective-origin": 8,
+            "transform-origin": 8,
+            "width": 8
+          },
+          "muestras": [
+            "div.ui.shape en div.: block-size 400px → 453.922px",
+            "div.sides en div.ui.shape: block-size 400px → 453.922px",
+            "div.active.side en div.sides: block-size 400px → 453.922px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "shape"
+        ],
+        "js": [
+          "jquery",
+          "shape"
+        ]
+      }
+    },
+    "sidebar": {
+      "css": [
+        "menu"
+      ],
+      "js": [],
+      "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (9 de 28 ejemplos): i.home.icon ← i.icon",
+        "segment": "CSS: solo si el marcado lleva esa pieza (1 de 28 ejemplos): div.ui.visible.right.inverted.segment.sidebar ← .ui.segment"
+      },
+      "contenido": [
+        "button",
+        "header",
+        "icon",
+        "input",
+        "label",
+        "menu",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 28,
+        "piezas": 124,
+        "muestras": {
+          "header": "p ← .ui.header + p",
+          "icon": "i.home.icon ← i.icon",
+          "placeholder": "div.ui.visible.right.inverted.segment.sidebar ← .ui.segment",
+          "segment": "div.ui.visible.right.inverted.segment.sidebar ← .ui.segment",
+          "menu": "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating ← .ui.menu"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "menu": "122 piezas cambian sin él",
+          "icon": "28 piezas cambian sin él",
+          "segment": "2 piezas cambian sin él"
+        },
+        "sinEfecto": [
+          "header",
+          "placeholder"
+        ],
+        "suelto": {
+          "piezas": 124,
+          "propiedades": {
+            "box-sizing": 244,
+            "font-size": 244,
+            "line-height": 244,
+            "scrollbar-color": 244,
+            "text-size-adjust": 244,
+            "-webkit-font-smoothing": 188,
+            "perspective-origin": 183,
+            "transform-origin": 183,
+            "inline-size": 143,
+            "width": 143,
+            "scrollbar-width": 124,
+            "block-size": 121
+          },
+          "muestras": [
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: box-sizing border-box → content-box",
+            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: block-size 40px → 16px",
+            "i.home.icon en a.active.item: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 124,
+          "propiedades": {
+            "font-size": 244,
+            "line-height": 189,
+            "perspective-origin": 183,
+            "transform-origin": 183,
+            "inline-size": 155,
+            "width": 155,
+            "block-size": 119,
+            "height": 119,
+            "padding-inline-end": 68,
+            "padding-inline-start": 68,
+            "padding-left": 68,
+            "padding-right": 68
+          },
+          "muestras": [
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: font-size 14px → 16px",
+            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: block-size 40px → 45.6875px",
+            "i.home.icon en a.active.item: block-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 28,
+          "propiedades": {
+            "inset-inline-end": 16,
+            "right": 16,
+            "inset-inline-start": 6,
+            "left": 6,
+            "inline-size": 6,
+            "perspective-origin": 6,
+            "transform-origin": 6,
+            "width": 6
+          },
+          "muestras": [
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: inset-inline-end 1134px → 1129px",
+            "div.ui.right.vertical.menu.sidebar en div.: inset-inline-start 1134px → 1129px",
+            "div.ui.top.inverted.labeled.icon.menu.sidebar en div.: inline-size 1390px → 1385px"
+          ]
+        },
+        "jsConTodo": [
+          "error: Sidebar: Had to move sidebar. For optimal performance make sure sidebar and pusher are direct children of your body tag [object HTMLDivElement]"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "menu",
+          "sidebar"
+        ],
+        "js": [
+          "jquery",
+          "sidebar"
+        ]
+      }
+    },
+    "shell": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {
+        "accordion": "JS: su uso normal (1 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 1 veces y lo comprueba 1 (con guarda $.fn)"
+      },
+      "contenido": [
+        "accordion",
+        "button",
+        "dropdown",
+        "header",
+        "icon",
+        "image",
+        "input",
+        "label",
+        "menu",
+        "message",
+        "popup",
+        "search"
+      ],
+      "comprobacion": {
+        "ejemplos": 4,
+        "piezas": 54,
+        "muestras": {
+          "header": "p ← .ui.header + p",
+          "icon": "i.angle.double.left.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "header"
+        ],
+        "necesidad": {
+          "icon": "8 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 54,
+          "propiedades": {
+            "font-size": 63,
+            "line-height": 63,
+            "scrollbar-color": 63,
+            "text-size-adjust": 63,
+            "scrollbar-width": 54,
+            "font-family": 51,
+            "-webkit-font-smoothing": 51,
+            "box-sizing": 46,
+            "border-block-start-color": 26,
+            "border-inline-start-color": 26,
+            "border-left-color": 26,
+            "border-top-color": 26
+          },
+          "muestras": [
+            "div.ui.shell en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "nav.navigation en div.ui.shell: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "div.brand en nav.navigation: column-gap 12px → 13.7143px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 42,
+          "propiedades": {
+            "font-size": 37,
+            "line-height": 37,
+            "perspective-origin": 22,
+            "transform-origin": 22,
+            "inline-size": 21,
+            "width": 21,
+            "block-size": 19,
+            "height": 19,
+            "column-gap": 13,
+            "row-gap": 13,
+            "padding-inline-end": 11,
+            "padding-inline-start": 11
+          },
+          "muestras": [
+            "div.brand en nav.navigation: column-gap 12px → 13.7143px",
+            "span.name en div.brand: block-size 24px → 54.8438px",
+            "button.toggle en nav.navigation: font-size 12px → 13.7143px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "shell"
+        ],
+        "js": [
+          "jquery",
+          "shell"
+        ]
+      }
+    },
+    "slideshow": {
+      "css": [
+        "icon"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "button"
+      ],
+      "comprobacion": {
+        "ejemplos": 23,
+        "piezas": 463,
+        "muestras": {
+          "icon": "i.chevron.left.icon ← i.icon"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "icon": "47 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 463,
+          "propiedades": {
+            "font-size": 577,
+            "line-height": 577,
+            "scrollbar-color": 577,
+            "text-size-adjust": 577,
+            "perspective-origin": 522,
+            "transform-origin": 522,
+            "inline-size": 521,
+            "width": 521,
+            "block-size": 511,
+            "height": 511,
+            "-webkit-font-smoothing": 483,
+            "box-sizing": 463
+          },
+          "muestras": [
+            "div.ui.slideshow en div.: block-size 378px → 432px",
+            "div.viewport en div.ui.slideshow: block-size 378px → 432px",
+            "div.slides en div.viewport: block-size 378px → 432px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 405,
+          "propiedades": {
+            "inline-size": 293,
+            "perspective-origin": 293,
+            "transform-origin": 293,
+            "width": 293,
+            "block-size": 147,
+            "height": 147,
+            "inset-block-start": 74,
+            "top": 74,
+            "border-bottom-left-radius": 67,
+            "border-bottom-right-radius": 67,
+            "border-end-end-radius": 67,
+            "border-end-start-radius": 67
+          },
+          "muestras": [
+            "div.ui.slideshow en div.: block-size 378px → 432px",
+            "div.viewport en div.ui.slideshow: block-size 378px → 432px",
+            "div.slides en div.viewport: block-size 378px → 432px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "icon",
+          "slideshow"
+        ],
+        "js": [
+          "jquery",
+          "slideshow"
+        ]
+      }
+    },
+    "sticky": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [
+        "header",
+        "label",
+        "menu",
+        "placeholder",
+        "segment"
+      ],
+      "comprobacion": {
+        "ejemplos": 5,
+        "piezas": 5,
+        "muestras": {},
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "suelto": {
+          "piezas": 5,
+          "propiedades": {
+            "block-size": 5,
+            "border-block-end-color": 5,
+            "border-block-start-color": 5,
+            "border-bottom-color": 5,
+            "border-inline-end-color": 5,
+            "border-inline-start-color": 5,
+            "border-left-color": 5,
+            "border-right-color": 5,
+            "border-top-color": 5,
+            "box-sizing": 5,
+            "caret-color": 5,
+            "color": 5
+          },
+          "muestras": [
+            "div.ui.sticky en div.: block-size 134px → 147.938px",
+            "div.ui.native.sticky en div.: block-size 60px → 63.6875px",
+            "div.ui.sticky en div.: block-size 190px → 216.766px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 5,
+          "propiedades": {
+            "block-size": 5,
+            "height": 5,
+            "perspective-origin": 5,
+            "transform-origin": 5
+          },
+          "muestras": [
+            "div.ui.sticky en div.: block-size 134px → 152.797px",
+            "div.ui.native.sticky en div.: block-size 60px → 65.6875px",
+            "div.ui.sticky en div.: block-size 190px → 216.766px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "sticky"
+        ],
+        "js": [
+          "jquery",
+          "sticky"
+        ]
+      }
+    },
+    "tab": {
+      "css": [
+        "segment"
+      ],
+      "js": [],
+      "opcional": {
+        "loader": "CSS: solo si el marcado lleva esa pieza (2 de 36 ejemplos): div.ui.loading.tab.segment ← .ui.ui.ui.ui.loading:not(.usual)",
+        "api": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 2 veces y lo comprueba 1 (con guarda $.fn)",
+        "state": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 1 veces y lo comprueba 0 (sin guarda)"
+      },
+      "contenido": [
+        "image",
+        "menu"
+      ],
+      "comprobacion": {
+        "ejemplos": 36,
+        "piezas": 55,
+        "muestras": {
+          "loader": "div.ui.loading.tab.segment ← .ui.ui.ui.ui.loading:not(.usual)",
+          "placeholder": "div.ui.bottom.attached.active.tab.segment ← .ui.segment",
+          "segment": "div.ui.bottom.attached.active.tab.segment ← .ui.segment"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "sinEfecto": [
+          "placeholder"
+        ],
+        "necesidad": {
+          "segment": "35 piezas cambian sin él",
+          "loader": "2 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 55,
+          "propiedades": {
+            "box-sizing": 59,
+            "caret-color": 59,
+            "color": 59,
+            "column-rule-color": 59,
+            "font-family": 59,
+            "font-size": 59,
+            "line-height": 59,
+            "outline-color": 59,
+            "row-rule-color": 59,
+            "scrollbar-color": 59,
+            "text-decoration-color": 59,
+            "text-emphasis-color": 59
+          },
+          "muestras": [
+            "div.ui.bottom.attached.active.tab.segment en div.: block-size 142px → 116px",
+            "p. en div.ui.bottom.attached.active.tab.segment: block-size 20px → 18px",
+            "div.ui.bottom.attached.tab.segment en div.: box-sizing border-box → content-box"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 46,
+          "propiedades": {
+            "font-size": 47,
+            "padding-block-start": 34,
+            "padding-top": 34,
+            "margin-block-end": 33,
+            "margin-bottom": 33,
+            "padding-block-end": 30,
+            "padding-bottom": 30,
+            "padding-inline-end": 30,
+            "padding-inline-start": 30,
+            "padding-left": 30,
+            "padding-right": 30,
+            "block-size": 19
+          },
+          "muestras": [
+            "div.ui.bottom.attached.active.tab.segment en div.: block-size 142px → 152.547px",
+            "p. en div.ui.bottom.attached.active.tab.segment: block-size 20px → 22.8594px",
+            "div.ui.bottom.attached.tab.segment en div.: font-size 14px → 16px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "segment",
+          "tab"
+        ],
+        "js": [
+          "jquery",
+          "tab"
+        ]
+      }
+    },
+    "toast": {
+      "css": [
+        "transition"
+      ],
+      "js": [
+        "transition"
+      ],
+      "opcional": {
+        "button": "CSS: solo si el marcado lleva esa pieza (5 de 80 ejemplos): div.actions.attached.ui.buttons ← .ui.attached.buttons",
+        "icon": "CSS: solo si el marcado lleva esa pieza (10 de 80 ejemplos): i.info.centered.icon ← i.icon",
+        "image": "CSS: solo si el marcado lleva esa pieza (1 de 80 ejemplos): div.image.ui.toast.compact ← .ui.image"
+      },
+      "contenido": [
+        "button",
+        "card",
+        "header",
+        "icon",
+        "image",
+        "message",
+        "placeholder",
+        "progress"
+      ],
+      "comprobacion": {
+        "ejemplos": 80,
+        "piezas": 323,
+        "muestras": {
+          "button": "div.actions.attached.ui.buttons ← .ui.attached.buttons",
+          "icon": "i.info.centered.icon ← i.icon",
+          "image": "div.image.ui.toast.compact ← .ui.image"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "button": "26 piezas cambian sin él",
+          "icon": "10 piezas cambian sin él",
+          "image": "4 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 323,
+          "propiedades": {
+            "box-sizing": 338,
+            "line-height": 338,
+            "scrollbar-color": 338,
+            "text-size-adjust": 338,
+            "font-size": 328,
+            "scrollbar-width": 323,
+            "perspective-origin": 321,
+            "transform-origin": 321,
+            "font-family": 318,
+            "-webkit-font-smoothing": 318,
+            "block-size": 317,
+            "height": 317
+          },
+          "muestras": [
+            "div.floating.toast-box.compact en div.ui.toast-container: block-size 67.875px → 75.2188px",
+            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: block-size 66px → 47.9688px",
+            "div.content en div.neutral.ui.toast.compact: block-size 42px → 47.9688px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 323,
+          "propiedades": {
+            "perspective-origin": 318,
+            "transform-origin": 318,
+            "block-size": 314,
+            "height": 314,
+            "inline-size": 168,
+            "width": 168,
+            "font-size": 94,
+            "line-height": 94,
+            "padding-inline-start": 81,
+            "padding-left": 81,
+            "margin-block-end": 79,
+            "margin-bottom": 79
+          },
+          "muestras": [
+            "div.floating.toast-box.compact en div.ui.toast-container: block-size 67.875px → 77.25px",
+            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: block-size 66px → 75.375px",
+            "div.content en div.neutral.ui.toast.compact: block-size 42px → 47.9688px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "jsConTodo": "sin errores",
+        "sin transition": [
+          "error: Toast: This module requires ui transition"
+        ]
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "transition",
+          "toast"
+        ],
+        "js": [
+          "jquery",
+          "transition",
+          "toast"
+        ]
+      }
+    },
+    "transition": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "nota": "sin marcado propio: se aplica a cualquier elemento; CSS sin medir",
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "transition"
+        ],
+        "js": [
+          "jquery",
+          "transition"
+        ]
+      }
+    },
+    "api": {
+      "css": [],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site"
+        ],
+        "js": [
+          "jquery",
+          "api"
+        ]
+      }
+    },
+    "state": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "api": "JS: su uso normal (1 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 2 veces y lo comprueba 1 (con guarda $.fn)"
+      },
+      "contenido": [],
+      "comprobacion": {
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site"
+        ],
+        "js": [
+          "jquery",
+          "state"
+        ]
+      }
+    },
+    "visibility": {
+      "css": [],
+      "js": [],
+      "opcional": {
+        "transition": "JS: su uso normal (1 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 2 veces y lo comprueba 2 (con guarda $.fn)"
+      },
+      "contenido": [],
+      "comprobacion": {
+        "jsConTodo": "sin errores"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site"
+        ],
+        "js": [
+          "jquery",
+          "visibility"
+        ]
+      }
+    }
+  }
+}

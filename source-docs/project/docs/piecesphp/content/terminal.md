@@ -100,6 +100,7 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | `system-alerts` | — | Enumera los avisos del sistema activos, con su gravedad y si están ocultos. Solo lectura |
 | `version` | — | Imprime la versión de la instalación, su fecha y el commit del que salió, con su fuente |
 | `version-stamp` | `commit=<40 hex>` | Escribe el sello de despliegue con el commit, para instalaciones sin `.git`. Sale con 1 si el hash no es válido o no hay ninguno |
+| `clone-compare` | `ruta=`, `framework=`, `contra=`, `salida=`, `detalle=yes` | Compara un proyecto hecho a partir del framework con el framework, archivo por archivo, y dice de qué versión partió. Solo lectura. Ver [10. clone-compare](#10-clone-compare) |
 | `clean-test-configs` | `apply=yes`, `key=<nombre>` | Retira las configuraciones de prueba (las que empiezan por el prefijo de prueba). Sin `apply=yes` solo las enumera |
 | `settings-migrate-extra-scripts` | — | Pasa los «Scripts adicionales» de Identidad y SEO a la pantalla «Scripts» y retira las opciones viejas. Se puede repetir: la segunda vez no hace nada |
 | `sessions-revoke-all` | `confirm=yes` | **Cierra las sesiones de todos los usuarios**. Exige `confirm=yes` |
@@ -253,6 +254,68 @@ bin/cli help task=<acción>   # la descripción de una sola
 ```
 
 El atajo `h` se retiró en la 8.0.0.
+
+---
+
+### 10. clone-compare
+Compara un proyecto que nació de PiecesPHP con el framework, archivo por archivo, para saber de qué versión partió y qué
+cambió. Sirve para preparar la actualización de un proyecto antiguo. **Solo lee**: no escribe en el proyecto ni en el
+framework, y nunca enseña el contenido de un archivo, solo rutas y cifras (un proyecto tiene configuración y claves).
+
+Se ejecuta desde un repositorio git del framework con sus etiquetas (las versiones `v*`) y apunta a la raíz del proyecto:
+
+```bash
+bin/cli clone-compare ruta=/var/www/html/mi-proyecto
+bin/cli clone-compare ruta=/var/www/html/mi-proyecto salida=/home/yo/comparacion.json detalle=yes
+bin/cli clone-compare ruta=/var/www/html/mi-proyecto contra=v10.0.0
+```
+
+| Parámetro | Qué hace |
+| :-- | :-- |
+| `ruta=` | La raíz del proyecto (obligatorio) |
+| `framework=` | La raíz del repositorio git del framework. Por omisión, el de esta instalación |
+| `contra=` | La versión contra la que se compara. Por omisión, la «más parecida» (abajo) |
+| `salida=` | Un archivo `.json` con el informe completo. No puede estar dentro del proyecto |
+| `detalle=yes` | Lista en pantalla las rutas de cada grupo; sin él, solo las cifras |
+
+**De qué versión partió.** Da dos respuestas, porque un proyecto que se actualizó a mano copiando archivos no tiene una
+sola:
+
+- **nacimiento**: la versión con la que comparte más rutas (los mismos archivos, aunque cambiaran). Es la versión de la que
+  nació. Si varias versiones tienen el mismo árbol de archivos, empatan, y el informe lo dice;
+- **más parecida**: la versión con más archivos idénticos. Es de la que más copió, y contra la que se compara si no das
+  `contra=`.
+
+Además, para cada archivo dice la **versión más reciente que lo tiene idéntico** (o ninguna, si es propio del proyecto o lo
+cambió), y cuántos archivos hay de cada versión. Un archivo que no cambió en años sale con la última versión que lo
+conserva igual, no con la que se copió.
+
+**Los grupos.** Cada archivo del proyecto y de la versión comparada cae en uno:
+
+| Grupo | Qué significa |
+| :-- | :-- |
+| `igual` | El mismo contenido (los finales de línea de Windows no cuentan) |
+| `igual-nivel-1` | Igual salvo espacios al final de las líneas o líneas en blanco al final del archivo |
+| `igual-nivel-2` | Solo PHP: igual salvo comentarios y espacios |
+| `modificado` | Cambió |
+| `solo-framework` | Está en el framework y no en el proyecto (borrado, renombrado o nuevo después) |
+| `solo-framework-no-viaja` | Lo mismo, pero el framework no lo entrega a los proyectos: no le falta nada |
+| `solo-proyecto` | Es del proyecto, o un archivo del framework que se movió de sitio |
+
+En pantalla salen las dos respuestas, el resumen, los diez módulos con más cambios y las cinco versiones de las que más
+archivos conserva. El JSON trae además la lista de rutas de cada grupo, el reparto por módulo y la versión de cada archivo.
+
+!!! warning "Lo que no ve"
+    - Si el proyecto es un repositorio git, solo mira lo versionado y lo nuevo que su `.gitignore` no ignora; si no lo es,
+      todo el disco. Nunca mira las dependencias (`src/vendor`, `node_modules`), las cachés, los registros, las subidas,
+      los respaldos ni `secure-keys/`.
+    - Un archivo movido de carpeta sale dos veces: en `solo-proyecto` y en `solo-framework`.
+    - Que un archivo sea idéntico a una versión no dice quién lo copió de quién: a veces el framework tomó código de un
+      proyecto.
+    - No lee `.gitattributes`: un archivo que tu proyecto guarda con otros finales de línea a propósito puede salir en
+      `igual-nivel-1` aunque sea igual.
+    - Lo que no se puede leer por permisos sale aparte (`ilegibles` en el JSON) y no cuenta en ningún grupo.
+    - Cada archivo se lee entero: uno enorme fuera de las carpetas excluidas puede agotar la memoria de PHP.
 
 ---
 

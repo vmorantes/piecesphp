@@ -2030,23 +2030,25 @@ function import_fomantic(array $plugins = [], bool $all = false)
 
 /**
  * Carga componentes sueltos del tema SIN el Fomantic entero (P296), para una página con su propio estilo que solo necesita,
- * por ejemplo, un toast: `import_fomantic_components(['toast'])`. Por cada nombre añade su .min.css y su .min.js (los que
- * existan) de statics/plugins/fomantic-piecesphp/components/, que trae bin/traer-tema, y ANTES sus dependencias, de forma
- * transitiva y sin repetir:
- * - `site`, siempre: define los tokens que usan todos (--accent-*, --r-*, --shadow-*, --theme-*). OJO: no es solo tokens;
- *   también da estilo a html, body, h1-h6, p, a, small, code, pre, b, ::selection, :focus-visible y las barras de
- *   desplazamiento. Si la página pone su propio estilo DESPUÉS de estos archivos, el suyo manda;
- * - las de su JavaScript y su marcado, en el mapa de abajo: los módulos que su JS puede llamar (`api` y `transition` para
- *   el desplegable, aunque solo los use con datos remotos o animando) y los componentes cuyo marcado pinta (`icon`,
- *   `button`…). El mapa es PROVISIONAL: se midió sobre el código del tema (Fomantic-UI/src/definitions/, commit 75a1b27),
- *   no se escribió a ojo, y se cambiará por el que el tema distribuya con su compilación cuando lo haga (H208); entonces
- *   se leerá de ahí y no de aquí.
+ * por ejemplo, un toast: `import_fomantic_components(['toast'])`. Lo que carga lo dice el mapa que distribuye el tema con su
+ * compilación (statics/plugins/fomantic-piecesphp/dependencias.json, que trae bin/traer-tema; H208), no esta función:
+ * - primero tokens.css y base-ui.css (`base.suelta` del mapa) EN LUGAR de reset y site: la base de base-ui va acotada a los
+ *   componentes del tema y no toca html, body ni los títulos y párrafos de la página;
+ * - después, por cada nombre en su orden, su `cargar` (sus dependencias ya resueltas por el tema, sin repetir): CSS de
+ *   components/<nombre>.min.css o .css, y JS igual; un nombre sin archivo de un tipo se salta en ese tipo;
+ * - jQuery (import_jquery()) solo si se añade algún JS: `button`, que no tiene, no lo carga.
+ * Los opcionales del mapa (`api` en el desplegable, `icon` en el toast…) NO entran solos: se piden como un nombre más,
+ * `['dropdown', 'api']`. Lo que va dentro del componente (`contenido`) lo carga quien lo pinta.
+ * Límite medido por el tema: lo que mide en rem depende del font-size del html de la página; con el del tema, 40 de 56
+ * componentes quedan idénticos al CSS completo (toast y message, sin diferencias).
  * Idempotente: add_global_asset() no repite un archivo. Con el tema entero en la página (import_fomantic()) no añade nada:
  * el entero ya trae todos los componentes, y cargar los dos duplicaría las reglas. Llama a una u otra, no a las dos.
+ * Las pruebas cambian la ruta del mapa con set_config('fomantic_components_map', <ruta relativa a basepath()>).
  *
- * @param string[] $components Nombres del tema: el archivo de components/ sin extensión (toast, button, message…).
+ * @param string[] $components Nombres del tema: claves de `componentes` en dependencias.json (toast, button, dropdown…).
  * @return void
- * @throws \InvalidArgumentException Si un nombre no es un componente del tema.
+ * @throws \InvalidArgumentException Si un nombre no es un componente del tema (no se añade nada, tampoco los buenos).
+ * @throws \RuntimeException Si el mapa falta, no es JSON o no es del formato 1 (no se añade nada).
  */
 function import_fomantic_components(array $components): void
 {
@@ -2054,65 +2056,75 @@ function import_fomantic_components(array $components): void
     if (is_array($imported) && isset($imported['fomantic-piecesphp'])) {
         return;
     }
-    $directory = 'statics/plugins/fomantic-piecesphp/components/';
-    //Medido en el código del tema (75a1b27); provisional hasta que el tema distribuya su mapa (H208). Sin entrada: sin dependencias.
-    $dependencies = [
-        'accordion' => ['js' => ['transition'], 'css' => []],
-        'calendar' => ['js' => ['popup'], 'css' => ['grid', 'icon', 'table']],
-        'colorpicker' => ['js' => [], 'css' => ['button', 'icon', 'input', 'swatch']],
-        'dimmer' => ['js' => ['transition'], 'css' => ['loader']],
-        'dropdown' => ['js' => ['api', 'transition'], 'css' => ['icon', 'label']],
-        'embed' => ['js' => [], 'css' => ['icon']],
-        'flyout' => ['js' => [], 'css' => ['button', 'header', 'icon', 'input']],
-        'form' => ['js' => ['calendar', 'checkbox', 'dropdown', 'transition'], 'css' => ['label', 'list']],
-        'modal' => ['js' => ['dimmer', 'transition'], 'css' => ['button', 'icon', 'input']],
-        'nag' => ['js' => [], 'css' => ['icon']],
-        'popup' => ['js' => ['transition'], 'css' => []],
-        'rating' => ['js' => [], 'css' => ['icon']],
-        'search' => ['js' => ['api', 'transition'], 'css' => ['icon']],
-        'shell' => ['js' => ['accordion'], 'css' => []],
-        'slideshow' => ['js' => [], 'css' => ['icon']],
-        'state' => ['js' => ['api'], 'css' => []],
-        'tab' => ['js' => ['api'], 'css' => []],
-        'toast' => ['js' => ['transition'], 'css' => ['button', 'header', 'icon', 'image', 'progress']],
-        'visibility' => ['js' => ['transition'], 'css' => []],
-    ];
-    $files = function (string $name) use ($directory): array {
-        $found = [];
-        foreach (['css', 'js'] as $type) {
-            $relative = "{$directory}{$name}.min.{$type}";
-            if (preg_match('/^[a-z]+$/', $name) === 1 && is_file(basepath($relative))) {
-                $found[$type] = $relative;
+    $directory = 'statics/plugins/fomantic-piecesphp/';
+    $mapPath = get_config('fomantic_components_map');
+    $mapPath = is_string($mapPath) && $mapPath !== '' ? $mapPath : "{$directory}dependencias.json";
+    static $maps = [];
+    if (!isset($maps[$mapPath])) {
+        $raw = is_file(basepath($mapPath)) ? file_get_contents(basepath($mapPath)) : false;
+        try {
+            $map = is_string($raw) ? json_decode($raw, true, 512, JSON_THROW_ON_ERROR) : null;
+        } catch (\JsonException $e) {
+            $map = null;
+        }
+        $valid = is_array($map) && ($map['formato'] ?? null) === 1 && is_array($map['componentes'] ?? null)
+            && is_array($map['base']['css'] ?? null) && is_array($map['base']['suelta'] ?? null);
+        if (!$valid) {
+            throw new \RuntimeException("import_fomantic_components(): el mapa del tema {$mapPath} falta, no es JSON o no tiene la forma del formato 1 (formato, base.css, base.suelta, componentes); lo trae bin/traer-tema.");
+        }
+        $maps[$mapPath] = $map;
+    }
+    $map = $maps[$mapPath];
+    $nameShape = '/^[a-z][a-z0-9-]*$/';
+    //El nombre se valida ANTES de componer la ruta: viene del llamador o del mapa, y no puede salir de components/.
+    $file = function (string $name, string $type) use ($directory, $nameShape, $mapPath): ?string {
+        if (preg_match($nameShape, $name) !== 1) {
+            throw new \RuntimeException("import_fomantic_components(): el mapa del tema {$mapPath} nombra «{$name}», que no es un nombre de componente.");
+        }
+        foreach (["{$name}.min.{$type}", "{$name}.{$type}"] as $candidate) {
+            if (is_file(basepath("{$directory}components/{$candidate}"))) {
+                return "{$directory}components/{$candidate}";
             }
         }
-        return $found;
+        return null;
     };
     //Primero se comprueban todos: un nombre malo no deja la página a medio cargar.
     foreach ($components as $name) {
-        if (!is_string($name) || $files($name) === []) {
+        if (!is_string($name) || preg_match($nameShape, $name) !== 1 || !is_array($map['componentes'][$name]['cargar'] ?? null)) {
             $shown = is_string($name) ? $name : gettype($name);
-            throw new \InvalidArgumentException("import_fomantic_components(): «{$shown}» no es un componente del tema (no hay {$directory}{$shown}.min.css ni .min.js).");
+            throw new \InvalidArgumentException("import_fomantic_components(): «{$shown}» no es un componente del tema (no está en {$mapPath}).");
         }
     }
-    $visited = [];
-    $add = function (string $name) use (&$add, &$visited, $dependencies, $files): void {
-        if (isset($visited[$name])) {
-            return;
+    //reset y site no se cargan nunca: son las que estilizan la página entera; la base de los sueltos es base.suelta.
+    $skip = ['css' => $map['base']['css'], 'js' => ['jquery']];
+    $lists = ['css' => [], 'js' => []];
+    foreach ($map['base']['suelta'] as $name) {
+        $found = is_string($name) ? $file($name, 'css') : null;
+        if ($found !== null) {
+            $lists['css'][$found] = true;
         }
-        $visited[$name] = true;
-        $needs = $dependencies[$name] ?? [];
-        foreach (array_merge($needs['js'] ?? [], $needs['css'] ?? []) as $dependency) {
-            if (is_string($dependency)) {
-                $add($dependency);
+    }
+    foreach ($components as $name) {
+        foreach (['css', 'js'] as $type) {
+            foreach ((array) ($map['componentes'][$name]['cargar'][$type] ?? []) as $needed) {
+                if (!is_string($needed) || in_array($needed, $skip[$type], true)) {
+                    continue;
+                }
+                $found = $file($needed, $type);
+                if ($found !== null) {
+                    $lists[$type][$found] = true;
+                }
             }
         }
-        foreach ($files($name) as $type => $file) {
-            add_global_asset($file, $type);
+    }
+    //jQuery delante del JS de los componentes: import_jquery() no repite si ya está importado.
+    if ($lists['js'] !== []) {
+        import_jquery();
+    }
+    foreach ($lists as $type => $files) {
+        foreach (array_keys($files) as $asset) {
+            add_global_asset($asset, $type);
         }
-    };
-    $add('site');
-    foreach ($components as $name) {
-        $add($name);
     }
 }
 

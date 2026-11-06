@@ -521,17 +521,29 @@ aviso flotante):
 import_fomantic_components(['toast']);
 ```
 
-Añade el CSS y el JavaScript de cada componente y, antes, los de los componentes que necesita (el toast necesita
-`transition` para animarse e `icon` para su icono; un desplegable, `api` para cargar opciones de un servidor) y `site`,
-que define los colores y medidas del tema. Un nombre que no es un componente lanza una excepción. Con `import_fomantic()`
-en la misma página no añade nada: llama a una u otra.
+Añade, por cada nombre, el CSS y el JavaScript del componente y, antes, los de los componentes sin los que su uso normal
+no funciona (el toast necesita `transition` para animarse; una ventana, `dimmer` y `transition`). La lista sale del mapa
+que publica el tema con cada versión (`statics/plugins/fomantic-piecesphp/dependencias.json`), no de una lista escrita a
+mano. Como base añade `tokens.css` (colores, radios y sombras del tema) y `base-ui.css`, que solo da estilo dentro de los
+componentes del tema: **no toca la letra, los colores ni los márgenes de `html`, `body`, los títulos ni los párrafos de tu
+página**. jQuery se añade solo si algún componente lleva JavaScript (un botón no lo carga). Un nombre que no es un
+componente lanza una excepción y no se añade nada de esa llamada. Con `import_fomantic()` en la misma página no añade
+nada: llama a una u otra.
 
-!!! warning "Pon tu estilo después"
-    `site` no trae solo colores y medidas: también da estilo a `html`, `body`, los títulos, los párrafos y los enlaces.
-    Si tu hoja se carga **después**, manda la tuya; si se carga antes, la página toma la letra y el fondo del tema.
+Lo que un componente usa solo para una función concreta **no se carga solo**: pídelo como un nombre más. Por ejemplo, un
+desplegable que carga sus opciones de un servidor necesita `api`:
 
-La lista de qué necesita cada componente es provisional: se midió en el código del tema y se sustituirá por la que el
-tema publique con cada versión.
+```php
+import_fomantic_components(['dropdown', 'api']);
+```
+
+Los componentes que pongas DENTRO de otro (un botón o un icono dentro de un toast) también los pides tú.
+
+!!! warning "Dos cosas que sí dependen de tu página"
+    - **El tamaño**: el tema mide en `rem`, así que sus componentes escalan con el `font-size` del `html` de tu página.
+      Con el tamaño del tema se ven como en el panel; con otro, más grandes o más pequeños.
+    - **`color-scheme`**: `tokens.css` lo declara en `:root` (`light`). Si tu página es oscura, los controles nativos
+      (casillas, barras de desplazamiento) se pintarían claros: declara tu `color-scheme` después.
 
 !!! warning "Trampas"
     - **Un nombre que no está en el catálogo se ignora en silencio** con `import_front_library()`. Con

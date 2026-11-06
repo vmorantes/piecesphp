@@ -1,0 +1,471 @@
+/* Base de los componentes sueltos acotada a .ui (reset y site sin tocar html, body ni los títulos de la
+   página), generado por examples/catalogo/dependencias.mjs. Va después de tokens.css. Límite: lo que el
+   tema mide en rem depende del font-size del html de la página. */
+:where(.ui, .dt-container, .ui *, .dt-container *),
+:where(.ui, .dt-container, .ui *, .dt-container *)::before,
+:where(.ui, .dt-container, .ui *, .dt-container *)::after {
+  box-sizing: inherit;
+}
+
+:where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
+  box-sizing: border-box;
+}
+
+:where(.ui, .dt-container) input[type="text"], input[type="text"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) input[type="email"], input[type="email"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) input[type="search"], input[type="search"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) input[type="password"], input[type="password"]:where(.ui, .dt-container) {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+:where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+}
+
+:where(.ui, .dt-container) main, main:where(.ui, .dt-container) {
+  display: block;
+}
+
+:where(.ui, .dt-container) h1, h1:where(.ui, .dt-container) {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+:where(.ui, .dt-container) hr, hr:where(.ui, .dt-container) {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible;
+}
+
+:where(.ui, .dt-container) pre, pre:where(.ui, .dt-container) {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+:where(.ui, .dt-container) a, a:where(.ui, .dt-container) {
+  background-color: transparent;
+}
+
+:where(.ui, .dt-container) abbr[title], abbr[title]:where(.ui, .dt-container) {
+  border-bottom: none;
+  text-decoration: underline;
+  -webkit-text-decoration: underline dotted;
+  text-decoration: underline dotted;
+}
+
+:where(.ui, .dt-container) b, b:where(.ui, .dt-container),
+:where(.ui, .dt-container) strong, strong:where(.ui, .dt-container) {
+  font-weight: bolder;
+}
+
+:where(.ui, .dt-container) code, code:where(.ui, .dt-container),
+:where(.ui, .dt-container) kbd, kbd:where(.ui, .dt-container),
+:where(.ui, .dt-container) samp, samp:where(.ui, .dt-container) {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+:where(.ui, .dt-container) small, small:where(.ui, .dt-container) {
+  font-size: 80%;
+}
+
+:where(.ui, .dt-container) sub, sub:where(.ui, .dt-container),
+:where(.ui, .dt-container) sup, sup:where(.ui, .dt-container) {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+:where(.ui, .dt-container) sub, sub:where(.ui, .dt-container) {
+  bottom: -0.25em;
+}
+
+:where(.ui, .dt-container) sup, sup:where(.ui, .dt-container) {
+  top: -0.5em;
+}
+
+:where(.ui, .dt-container) img, img:where(.ui, .dt-container) {
+  border-style: none;
+}
+
+:where(.ui, .dt-container) button, button:where(.ui, .dt-container),
+:where(.ui, .dt-container) input, input:where(.ui, .dt-container),
+:where(.ui, .dt-container) optgroup, optgroup:where(.ui, .dt-container),
+:where(.ui, .dt-container) select, select:where(.ui, .dt-container),
+:where(.ui, .dt-container) textarea, textarea:where(.ui, .dt-container) {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+}
+
+:where(.ui, .dt-container) button, button:where(.ui, .dt-container),
+:where(.ui, .dt-container) input, input:where(.ui, .dt-container) {
+  overflow: visible;
+}
+
+:where(.ui, .dt-container) button, button:where(.ui, .dt-container),
+:where(.ui, .dt-container) select, select:where(.ui, .dt-container) {
+  text-transform: none;
+}
+
+:where(.ui, .dt-container) button, button:where(.ui, .dt-container),
+:where(.ui, .dt-container) [type="button"], [type="button"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) [type="reset"], [type="reset"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) [type="submit"], [type="submit"]:where(.ui, .dt-container) {
+  -webkit-appearance: button;
+}
+
+:where(.ui, .dt-container) button::-moz-focus-inner, button:where(.ui, .dt-container)::-moz-focus-inner,
+:where(.ui, .dt-container) [type="button"]::-moz-focus-inner, [type="button"]:where(.ui, .dt-container)::-moz-focus-inner,
+:where(.ui, .dt-container) [type="reset"]::-moz-focus-inner, [type="reset"]:where(.ui, .dt-container)::-moz-focus-inner,
+:where(.ui, .dt-container) [type="submit"]::-moz-focus-inner, [type="submit"]:where(.ui, .dt-container)::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+:where(.ui, .dt-container) button:-moz-focusring, button:-moz-focusring:where(.ui, .dt-container),
+:where(.ui, .dt-container) [type="button"]:-moz-focusring, [type="button"]:-moz-focusring:where(.ui, .dt-container),
+:where(.ui, .dt-container) [type="reset"]:-moz-focusring, [type="reset"]:-moz-focusring:where(.ui, .dt-container),
+:where(.ui, .dt-container) [type="submit"]:-moz-focusring, [type="submit"]:-moz-focusring:where(.ui, .dt-container) {
+  outline: 1px dotted ButtonText;
+}
+
+:where(.ui, .dt-container) fieldset, fieldset:where(.ui, .dt-container) {
+  padding: 0.35em 0.75em 0.625em;
+}
+
+:where(.ui, .dt-container) legend, legend:where(.ui, .dt-container) {
+  box-sizing: border-box;
+  color: inherit;
+  display: table;
+  max-width: 100%;
+  padding: 0;
+  white-space: normal;
+}
+
+:where(.ui, .dt-container) progress, progress:where(.ui, .dt-container) {
+  vertical-align: baseline;
+}
+
+:where(.ui, .dt-container) textarea, textarea:where(.ui, .dt-container) {
+  overflow: auto;
+}
+
+:where(.ui, .dt-container) [type="checkbox"], [type="checkbox"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) [type="radio"], [type="radio"]:where(.ui, .dt-container) {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+:where(.ui, .dt-container) [type="number"]::-webkit-inner-spin-button, [type="number"]:where(.ui, .dt-container)::-webkit-inner-spin-button,
+:where(.ui, .dt-container) [type="number"]::-webkit-outer-spin-button, [type="number"]:where(.ui, .dt-container)::-webkit-outer-spin-button {
+  height: auto;
+}
+
+:where(.ui, .dt-container) [type="search"], [type="search"]:where(.ui, .dt-container) {
+  -webkit-appearance: textfield;
+  outline-offset: -2px;
+}
+
+:where(.ui, .dt-container) [type="search"]::-webkit-search-decoration, [type="search"]:where(.ui, .dt-container)::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+:where(.ui, .dt-container) ::-webkit-file-upload-button, *:where(.ui, .dt-container)::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+:where(.ui, .dt-container) details, details:where(.ui, .dt-container) {
+  display: block;
+}
+
+:where(.ui, .dt-container) summary, summary:where(.ui, .dt-container) {
+  display: list-item;
+}
+
+:where(.ui, .dt-container) template, template:where(.ui, .dt-container) {
+  display: none;
+}
+
+:where(.ui, .dt-container) [hidden], [hidden]:where(.ui, .dt-container) {
+  display: none;
+}
+
+:where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
+  font-size: 14px;
+}
+
+:where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
+  font-family: var(--font-body);
+  line-height: calc(1.42857143 * var(--font-size-base, 1rem));
+  color: var(--theme-text);
+}
+
+:where(.ui, .dt-container) h1, h1:where(.ui, .dt-container),
+:where(.ui, .dt-container) h2, h2:where(.ui, .dt-container),
+:where(.ui, .dt-container) h3, h3:where(.ui, .dt-container),
+:where(.ui, .dt-container) h4, h4:where(.ui, .dt-container),
+:where(.ui, .dt-container) h5, h5:where(.ui, .dt-container),
+:where(.ui, .dt-container) h6, h6:where(.ui, .dt-container) {
+  font-family: var(--font-heading);
+  line-height: 1.33333333em;
+  margin: calc(2rem - 0.16666666666666663em) 0 1rem;
+  font-weight: 600;
+  padding: 0;
+}
+
+:where(.ui, .dt-container) h1, h1:where(.ui, .dt-container) {
+  min-height: 1rem;
+  font-size: 1.71428571rem;
+}
+
+:where(.ui, .dt-container) h2, h2:where(.ui, .dt-container) {
+  font-size: 1.14285714rem;
+}
+
+:where(.ui, .dt-container) h3, h3:where(.ui, .dt-container) {
+  font-size: 1.14285714rem;
+}
+
+:where(.ui, .dt-container) h4, h4:where(.ui, .dt-container) {
+  font-size: 1rem;
+}
+
+:where(.ui, .dt-container) h5, h5:where(.ui, .dt-container) {
+  font-size: 0.92857143rem;
+}
+
+:where(.ui, .dt-container) h6, h6:where(.ui, .dt-container) {
+  font-size: 0.85714286rem;
+}
+
+:where(.ui, .dt-container) h1:first-child, h1:first-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h2:first-child, h2:first-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h3:first-child, h3:first-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h4:first-child, h4:first-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h5:first-child, h5:first-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h6:first-child, h6:first-child:where(.ui, .dt-container) {
+  margin-top: 0;
+}
+
+:where(.ui, .dt-container) h1:last-child, h1:last-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h2:last-child, h2:last-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h3:last-child, h3:last-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h4:last-child, h4:last-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h5:last-child, h5:last-child:where(.ui, .dt-container),
+:where(.ui, .dt-container) h6:last-child, h6:last-child:where(.ui, .dt-container) {
+  margin-bottom: 0;
+}
+
+:where(.ui, .dt-container) p, p:where(.ui, .dt-container) {
+  margin: 0 0 1em;
+  line-height: 1.42857143em;
+}
+
+:where(.ui, .dt-container) p:first-child, p:first-child:where(.ui, .dt-container) {
+  margin-top: 0;
+}
+
+:where(.ui, .dt-container) p:last-child, p:last-child:where(.ui, .dt-container) {
+  margin-bottom: 0;
+}
+
+:where(.ui, .dt-container) a, a:where(.ui, .dt-container) {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  text-decoration: none;
+}
+
+:where(.ui, .dt-container) a:hover, a:hover:where(.ui, .dt-container) {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  text-decoration: none;
+}
+
+:where(.ui, .dt-container) ::-webkit-scrollbar, *:where(.ui, .dt-container)::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 8px;
+}
+
+:where(.ui, .dt-container) ::-webkit-scrollbar-track, *:where(.ui, .dt-container)::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 0;
+}
+
+:where(.ui, .dt-container) ::-webkit-scrollbar-thumb, *:where(.ui, .dt-container)::-webkit-scrollbar-thumb {
+  cursor: pointer;
+  border-radius: 8px;
+  background: light-dark(#cfd5de, #3a4150);
+  -webkit-transition: color 0.2s ease;
+  transition: color 0.2s ease;
+}
+
+:where(.ui, .dt-container) ::-webkit-scrollbar-thumb:window-inactive, ::-webkit-scrollbar-thumb:window-inactive:where(.ui, .dt-container) {
+  background: light-dark(#cfd5de, #3a4150);
+}
+
+:where(.ui, .dt-container) ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:hover:where(.ui, .dt-container) {
+  background: light-dark(#99a1af, #535c6e);
+}
+
+.ui {
+  scrollbar-face-color: #bfbfbf;
+  scrollbar-shadow-color: #bfbfbf;
+  scrollbar-track-color: #e6e6e6;
+  scrollbar-arrow-color: #e6e6e6;
+}
+
+@supports (-moz-appearance: none) {
+.ui {
+  scrollbar-color: light-dark(#cfd5de, #3a4150) transparent;
+  scrollbar-width: thin;
+}
+}
+
+.ui.inverted:not(.dimmer)::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.ui.inverted:not(.dimmer) {
+  scrollbar-face-color: #656565;
+  scrollbar-shadow-color: #656565;
+  scrollbar-track-color: #323232;
+  scrollbar-arrow-color: #323232;
+}
+
+@supports (-moz-appearance: none) {
+.ui.inverted:not(.dimmer) {
+  scrollbar-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.1);
+}
+}
+
+:where(.ui, .dt-container) ::selection, *:where(.ui, .dt-container)::selection {
+  background-color: var(--theme-selection);
+  color: var(--theme-text);
+}
+
+:where(.ui, .dt-container) textarea::selection, textarea:where(.ui, .dt-container)::selection,
+:where(.ui, .dt-container) input::selection, input:where(.ui, .dt-container)::selection {
+  background-color: var(--theme-selection);
+  color: var(--theme-text);
+}
+
+:where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
+  font-size: var(--font-size-base);
+}
+
+:where(.ui, .dt-container) select option, select option:where(.ui, .dt-container),
+:where(.ui, .dt-container) select optgroup, select optgroup:where(.ui, .dt-container) {
+  background-color: var(--theme-surface-strong);
+  color: var(--theme-text);
+}
+
+:where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
+  line-height: calc(1.42857143 * var(--font-size-base, 1rem));
+  -webkit-font-smoothing: antialiased;
+}
+
+:where(.ui, .dt-container) :focus-visible, :focus-visible:where(.ui, .dt-container) {
+  outline: 2px solid var(--accent-600);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+:where(.ui, .dt-container, .ui *, .dt-container *),
+:where(.ui, .dt-container, .ui *, .dt-container *)::before,
+:where(.ui, .dt-container, .ui *, .dt-container *)::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+}
+}
+
+.ui.inverted a:not(.ui):not(.item):not(.header),
+.ui.inverted .content a:not(.ui):not(.item) {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h);
+}
+
+:where(.ui, .dt-container) h1, h1:where(.ui, .dt-container) {
+  line-height: 1.33333333;
+  letter-spacing: -0.015em;
+}
+
+:where(.ui, .dt-container) h2, h2:where(.ui, .dt-container),
+:where(.ui, .dt-container) h3, h3:where(.ui, .dt-container) {
+  line-height: 1.5;
+}
+
+:where(.ui, .dt-container) h4, h4:where(.ui, .dt-container) {
+  line-height: 1.42857143;
+}
+
+:where(.ui, .dt-container) h5, h5:where(.ui, .dt-container) {
+  line-height: 1.38461538;
+}
+
+:where(.ui, .dt-container) h6, h6:where(.ui, .dt-container) {
+  line-height: 1.33333333;
+}
+
+:where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
+  scrollbar-color: light-dark(#cfd5de, #3a4150) transparent;
+}
+
+:where(.ui, .dt-container, .ui *, .dt-container *) {
+  scrollbar-width: thin;
+}
+
+:where(.ui, .dt-container) small, small:where(.ui, .dt-container) {
+  font-size: 0.85714286em;
+  line-height: 1.33333333;
+}
+
+:where(.ui, .dt-container) code, code:where(.ui, .dt-container) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85714286em;
+  padding: 1px 6px;
+  border: 1px solid var(--theme-border);
+  border-radius: 5px;
+  background: light-dark(#f5f7fa, #20242d);
+  color: light-dark(#4b5363, #cfd5de);
+  white-space: nowrap;
+}
+
+:where(.ui, .dt-container) pre > code, pre > code:where(.ui, .dt-container) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  white-space: inherit;
+}
+
+.ui.form label code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+  font-weight: 400;
+  color: var(--theme-text-muted);
+}
+
+:where(.ui, .dt-container) b, b:where(.ui, .dt-container),
+:where(.ui, .dt-container) strong, strong:where(.ui, .dt-container) {
+  font-weight: 600;
+}
