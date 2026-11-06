@@ -549,3 +549,10 @@ casos**, y de ejecutar contra el cliente real solo lo que no se podía decidir l
 —`probar_guardia.py`, 350 casos— sirve para que no vuelvan. Cada bloqueo lleva al lado su pareja
 legítima, porque una guarda que lo bloquea todo también «pasa» la mitad de las pruebas.
 
+## El banco de correos (JEU, 2026-11-05)
+
+- **Comprobación 63**, «todo envío de correo está catalogado»: estática (mira el código, no lo registrado), por varias formas (`new Mailer`,
+  PHPMailer, `mail()`, `\mail(`, `mb_send_mail()`, `->Body =`/`.=`, `->msgHTML(`), con 8 canarios; una excepción con motivo en
+  `files/dev/mail-senders-exceptions.json` (`MailDemoTask`), que no viaja (H202).
+- **`core/mail-catalog`**: permisos, cada muestra sin enlaces vacíos ni marcadores sin sustituir (b1), el real igual que la vista
+  previa (c1), la prueba solo con el correo retenido (d8; 409 si no), clave no registrada 404 (d5). Sin probar: un módulo apagado (H202).

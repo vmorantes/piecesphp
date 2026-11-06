@@ -1,7 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/ContentImageEditor.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
 var Documents = {}
 
 Documents.configDocumentForm = function (onSuccess = null, ignoreRedirection = false, ignoreReload = false) {

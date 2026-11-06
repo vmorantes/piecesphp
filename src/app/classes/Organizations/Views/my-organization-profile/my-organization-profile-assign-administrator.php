@@ -49,15 +49,11 @@ if (OrganizationProfileController::allowedRoute('profile', ['organizationID' => 
 
                 <div class="container-standard-form">
 
-                    <div class="section-fields-divider">
-                        <div class="title s20"><?= escape_html($organizationMapper->currentLangData('name')); ?></div>
-                    </div>
+                    <h2 class="ui header"><?= escape_html($organizationMapper->currentLangData('name')); ?></h2>
 
                     <div class="inputs-general-data">
 
-                        <div class="section-fields-divider">
-                            <div class="title s20"><?= __($langGroup, 'Encargado de la organización'); ?></div>
-                        </div>
+                        <h2 class="ui header"><?= __($langGroup, 'Encargado de la organización'); ?></h2>
 
                         <div class="ui items identity-profile-card">
                             <div class="item">

@@ -1,6 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/js/user-system/main_system_user.js" />
-/// <reference path="../../../../../../statics/core/js/user-system/PiecesPHPSystemUserHelper.js" />
 
 window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, function (e) {
 	changeImageLogin()

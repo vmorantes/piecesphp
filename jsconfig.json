@@ -2,22 +2,25 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "ESNext",
-        "moduleResolution": "node",
-        "baseUrl": ".",
+        "moduleResolution": "bundler",
         "skipLibCheck": true,
         "lib": [
             "DOM",
             "DOM.Iterable",
             "ES2022"
+        ],
+        "types": [
+            "jquery"
         ]
     },
     "include": [
         "src/statics/**/*.js",
-        "src/app/classes/**/*.js"
+        "src/app/classes/**/*.js",
+        "src/statics/core/js/types/*.d.ts"
     ],
     "exclude": [
         "node_modules",
         "**/node_modules/*",
-        "src/statics/plugins/**/*",
+        "src/statics/plugins/**/*"
     ]
 }

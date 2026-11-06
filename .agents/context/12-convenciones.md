@@ -160,6 +160,9 @@ estable, que es del PO. `alpha.N` al cerrar cada lote; cada una cambia `APP_VERS
 `APP_VERSION_DATE` (`src/app/core/bootstrap.php`) y añade su fila a la tabla de pre-versiones de la
 sección de la MAYOR en el `CHANGELOG`, en el mismo commit. Las entradas del `CHANGELOG` no se reparten por
 pre-versión. `master` solo avanza a un commit etiquetado como pre-versión, y `last-stable`, a uno estable.
+**La fecha la vigila la comprobación 62** de `verify-integrity` (JES, `65759abf`): tiene que ser la del último commit
+que cambió `APP_VERSION` (`%cs`), o la de hoy si `APP_VERSION` está cambiada en el árbol. Las `10.2.3`, `10.3.0` y
+`10.4.0` salieron con la del 4 de noviembre porque la instrucción solo dictó la versión.
 
 **Después de crear la etiqueta, `bin/cli verify-integrity` otra vez** (`#1212`, 2026-10-09). La comprobación 47 genera
 la distribución desde la ÚLTIMA etiqueta: el `bin/verify` de antes de etiquetar mide la anterior y no puede ver lo que

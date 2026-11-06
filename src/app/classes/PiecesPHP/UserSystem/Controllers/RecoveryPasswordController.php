@@ -9,6 +9,7 @@ namespace PiecesPHP\UserSystem\Controllers;
 use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
+use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
@@ -425,21 +426,11 @@ class RecoveryPasswordController extends UsersController
 
         $to_name = $usuario->username;
 
-        $subject = __(self::LANG_GROUP, 'Recuperación de contraseña');
-
-        if (!$onlyCode) {
-            $message = $this->render('usuarios/mail/recovery_password_code', [
-                'code' => $code,
-                'url' => self::routeName('recovery-form') . '?code=' . rawurlencode($code) . '&email=' . rawurlencode($usuario->email),
-            ], false);
-        } else {
-            $message = $this->render('usuarios/mail/recovery_password_code_only', [
-                'code' => $code,
-                'text' => __(MAIL_TEMPLATES_LANG_GROUP, 'Recuperación de contraseña') . ':',
-                'text_button' => __(MAIL_TEMPLATES_LANG_GROUP, 'Ingresar el código'),
-                'note' => __(MAIL_TEMPLATES_LANG_GROUP, 'MENSAJE_DE_VALIDEZ'),
-            ], false);
-        }
+        //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+        $definition = new RecoveryPasswordMail($onlyCode);
+        $mailData = ['code' => $code, 'email' => (string) $usuario->email, 'renderer' => $this];
+        $subject = $definition->subject($mailData);
+        $message = $definition->render($mailData);
 
         $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);

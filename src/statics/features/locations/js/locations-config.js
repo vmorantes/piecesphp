@@ -1,7 +1,3 @@
-/// <reference path="../../../core/js/configurations.js" />
-/// <reference path="../../../core/js/helpers.js" />
-/// <reference path="../../../core/own-plugins/LocationsAdapter.js" />
-/// <reference path="../../../core/own-plugins/MapBoxAdapter.js" />
 window.addEventListener('load', function (e) {
 
 	showGenericLoader('Maps')

@@ -279,6 +279,7 @@ $-dividerDescriptionColor: #AAAAAA;
     }
 }
 
+// @en-desuso 11.0.0: las vistas del framework usan h2.ui.header con .sub.header del tema, legible en oscuro (JES); se borra en la 11.0.0
 @mixin section-fields-divider {
     .section-fields-divider {
 

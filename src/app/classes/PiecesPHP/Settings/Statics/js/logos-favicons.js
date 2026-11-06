@@ -1,5 +1,3 @@
-/// <reference path="../../js/helpers.js" />
-/// <reference path="../../own-plugins/ContentImageEditor.js" />
 showGenericLoader('logos-favicon')
 window.addEventListener('load', () => {
 

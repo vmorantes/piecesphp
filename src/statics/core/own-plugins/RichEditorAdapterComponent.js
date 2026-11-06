@@ -1,4 +1,3 @@
-/// <reference path="../../core/js/helpers.js" />
 /**
  * @param {RichEditorAdapterOptions} adapterOptions 
  * @param {Array} [toolbar=null] 

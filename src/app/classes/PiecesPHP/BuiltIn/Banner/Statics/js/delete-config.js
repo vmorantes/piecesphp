@@ -1,5 +1,3 @@
-/// <reference path="../../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('canDeleteBuiltInBanner', function (e) {
 
 	const langGroup = 'built-in-banner-lang'

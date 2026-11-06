@@ -1,5 +1,3 @@
-/// <reference path="../configurations.js" />
-/// <reference path="../helpers.js" />
 window.addEventListener('load', function () {
 	//Las cuatro de helpers.js (título, mensaje, alCerrar, opciones): el toast de Fomantic (sin él, confirmAction). genericFormHandler ya las usa.
 	const toasts = {

@@ -1,4 +1,3 @@
-/// <reference path="./configurations.js" />
 /**
  * Enlaza un gráfico de Apache ECharts con su leyenda de chart-legend.php (`.chart-data`): cada fila enciende o apaga su
  * serie, o su porción en una tarta o una dona, con el ratón y con el teclado (Enter o Espacio). La de cada fila es la que
@@ -104,6 +103,82 @@ function linkStatisticsApexChartLegend(chart, legend) {
 			}
 		})
 	})
+}
+
+/**
+ * Ajusta un gráfico de Apache ECharts a su lienzo y al tema, también al redimensionar (resizeStatisticsChart()):
+ * - en cada tarta o dona, el radio exterior es medio lado del lienzo menos lo que crece la porción resaltada: con el 100 %
+ *   el resalte se salía del lienzo y salía cortado en plano. El interior, `inner`;
+ * - el tooltip lleva la superficie, el texto y el borde del tema, resueltos a valor: ECharts no entiende var(), y sin esto
+ *   es una caja blanca también en oscuro.
+ * Va después de setOption(), una vez por gráfico. Sin tartas no hace nada más que el tooltip.
+ *
+ * @param {Object} chart La instancia de echarts.init(), ya con su setOption().
+ * @param {number|function(number): number} [inner] El radio interior: una fracción del exterior (0,65, una dona) o una
+ *      función que recibe el exterior en px y devuelve el interior en px. Sin él, una tarta llena.
+ * @returns {void}
+ */
+function fitStatisticsChart(chart, inner = 0) {
+	if (chart === null || typeof chart !== 'object' || typeof chart.getOption !== 'function' || typeof chart.getDom !== 'function') {
+		return
+	}
+	//Cuánto crece, en px, la porción resaltada (su `emphasis.scaleSize`): el exterior le deja ese hueco.
+	const growth = 5
+	const canvas = chart.getDom()
+	const [surface, text, border] = statisticsChartThemeColors(['var(--theme-surface)', 'var(--theme-text)', 'var(--theme-border)'])
+	const tooltip = { backgroundColor: surface, borderColor: border, textStyle: { color: text } }
+	const pies = (chart.getOption().series || []).map((serie) => serie.type === 'pie')
+	chart.setOption({ tooltip: tooltip })
+	//Otra llamada sobre el mismo gráfico encadenaría una segunda envoltura de resize().
+	if (!pies.includes(true) || chart.pcsFitted === true) {
+		return
+	}
+	chart.pcsFitted = true
+	const apply = function (lazy) {
+		const outer = Math.max(0, Math.min(canvas.clientWidth, canvas.clientHeight) / 2 - growth)
+		const innerRadius = Math.max(0, Math.min(typeof inner === 'function' ? inner(outer) : outer * inner, outer)) || 0
+		const series = pies.map((pie) => pie ? { radius: [innerRadius, outer], emphasis: { scale: true, scaleSize: growth } } : {})
+		chart.setOption({ series: series }, { lazyUpdate: lazy })
+	}
+	apply(false)
+	//El radio va en px: se vuelve a medir con el tamaño nuevo ANTES de resize() y sin pintar (lazyUpdate), para que lo
+	//pinte resize(), que no anima; si no, el aro saldría con el radio viejo y crecería después (desde cero, en una pestaña).
+	const resize = chart.resize.bind(chart)
+	chart.resize = function (options) {
+		apply(true)
+		resize(options)
+	}
+}
+
+/**
+ * Colores CSS (también var(--…)) resueltos a `rgba(…)`, que ECharts sí entiende: el navegador los resuelve sobre una sonda
+ * y un lienzo los pasa a sRGB (un token hecho con color-mix() se lee como oklab()).
+ *
+ * @param {string[]} values
+ * @returns {string[]}
+ */
+function statisticsChartThemeColors(values) {
+	const probe = document.createElement('span')
+	probe.hidden = true
+	document.body.appendChild(probe)
+	const context = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
+	const resolved = values.map(function (value) {
+		probe.style.color = ''
+		probe.style.color = value
+		const color = getComputedStyle(probe).color
+		if (context === null) {
+			return color
+		}
+		context.clearRect(0, 0, 1, 1)
+		//Un color que el lienzo no entiende deja el anterior sin avisar: se parte de transparente.
+		context.fillStyle = 'transparent'
+		context.fillStyle = color
+		context.fillRect(0, 0, 1, 1)
+		const pixel = context.getImageData(0, 0, 1, 1).data
+		return `rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, ${(pixel[3] / 255).toFixed(3)})`
+	})
+	probe.remove()
+	return resolved
 }
 
 /**

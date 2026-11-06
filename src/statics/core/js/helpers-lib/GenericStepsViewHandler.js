@@ -1,4 +1,3 @@
-///<reference path="../helpers.js" />
 /**
  * Muestra un paso de un conjunto y oculta los demás (un formulario por pasos, un asistente). Cada paso es un elemento con
  * el atributo `step`; los disparadores llevan `data-to-step` con un valor de paso, `next` o `previous`. El siguiente y el

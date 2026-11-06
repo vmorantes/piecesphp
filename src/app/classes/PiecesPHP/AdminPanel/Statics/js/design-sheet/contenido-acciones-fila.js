@@ -1,6 +1,2 @@
-/// <reference path="../configurations.js" />
-/// <reference path="../helpers.js" />
-window.addEventListener('load', function () {
-	//En un listado, en el `drawCallback` de su list.js: cada dibujado pinta filas nuevas.
-	$('[row-actions-menu]').dropdown({ action: 'hide' })
-})
+//Nada que iniciar: el menú «⋯» lo inicia y lo coloca el panel (contentRowActionsMenus(), admin-area/js/main.js), también
+//en las filas que DataTables pinta después. Un módulo no llama a .dropdown() sobre [row-actions-menu].

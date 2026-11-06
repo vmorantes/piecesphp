@@ -14,7 +14,10 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\MailCatalog\Definitions\ApprovalStatusMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 use SystemApprovals\Controllers\SystemApprovalsController;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\SystemApprovalManager;
 
 /**
@@ -45,6 +48,9 @@ class SystemApprovalsRoutes
 
         if (self::ENABLE) {
 
+            //Los avisos de aprobado y rechazado, en el catálogo de correos.
+            MailCatalog::register(new ApprovalStatusMail(SystemApprovalsMapper::STATUS_APPROVED), 'Aprobaciones');
+            MailCatalog::register(new ApprovalStatusMail(SystemApprovalsMapper::STATUS_REJECTED), 'Aprobaciones');
             $groupAdministration = SystemApprovalsController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);

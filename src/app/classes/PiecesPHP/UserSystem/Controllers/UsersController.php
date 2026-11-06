@@ -34,6 +34,10 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\MailCatalog\Definitions\OtherProblemsMail;
+use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
+use PiecesPHP\MailCatalog\Definitions\VerificationCodeMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Tokens\Controllers\TokenController;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
@@ -151,6 +155,8 @@ class UsersController extends AdminPanelController
     const NOT_MATCH_PASSWORDS = 'NOT_MATCH_PASSWORDS';
     const NO_EXTERNAL_LOGIN_AVAILABLE = 'NO_EXTERNAL_LOGIN_AVAILABLE';
     const INVALID_TWO_FACTOR_CODE = 'INVALID_TWO_FACTOR_CODE';
+    /** El tipo del usuario ya no es un rol: no entra, y no se le borra (P290, fase 1). */
+    const INVALID_USER_TYPE = 'INVALID_USER_TYPE';
 
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
@@ -510,7 +516,7 @@ class UsersController extends AdminPanelController
      * @param mixed $value
      * @return string|null
      */
-    protected static function safeNextURL(mixed $value): ?string
+    public static function safeNextURL(mixed $value): ?string
     {
         if (!is_string($value) || $value === '' || preg_match('/[\x00-\x1F\x7F\\\\]/', $value) === 1) {
             return null;
@@ -1089,6 +1095,19 @@ class UsersController extends AdminPanelController
                                 $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
                             }
                         }
+
+                    } elseif (!Roles::roleExists((int) $user->type)) {
+
+                        //Solo con la contraseña buena, como el resto de estados (P201): sin token ni borrado (P290, fase 1).
+                        $resultOperation->setValue('error', self::INVALID_USER_TYPE);
+                        $resultOperation->setValue('message', $this->getMessage(self::INVALID_USER_TYPE));
+                        LoginAttemptsModel::addLogin(
+                            (int) $user->id,
+                            $user->username,
+                            false,
+                            $resultOperation->getValue('message'),
+                            $extraDataLog
+                        );
 
                     } elseif ($statusOk) {
 
@@ -2311,6 +2330,11 @@ class UsersController extends AdminPanelController
     {
         //Opcional porque `AdminPanelController::routes()` recibe un grupo: sin el público, todo va al único.
         $groupPublic ??= $groupAdministration;
+        //Los correos de la recuperación y de los problemas de acceso, en el catálogo de correos (son del núcleo).
+        MailCatalog::register(new RecoveryPasswordMail(false));
+        MailCatalog::register(new VerificationCodeMail(VerificationCodeMail::FORGET));
+        MailCatalog::register(new VerificationCodeMail(VerificationCodeMail::BLOCKED));
+        MailCatalog::register(new OtherProblemsMail());
         //Cada ruta va al grupo que dice su `require_login`: así una ruta nueva no se equivoca de zona.
         $registrar = function (array $rutas) use ($groupAdministration, $groupPublic): void {
             foreach ($rutas as $ruta) {

@@ -222,3 +222,12 @@ tiene controlador: queda `UserSystem/ORM/TicketsLogModel.php` y la configuració
 `AdminPanelController` es la clase base de casi todos los controladores de módulo y
 aporta: usuario en sesión (`$this->user`), variables globales de vista, breadcrumbs,
 sidebar y las rutas base del panel (`admin`, tickets, usuarios).
+
+## Un módulo que envía correo (JEU, 2026-11-05)
+
+Todo correo es una definición de `PiecesPHP\MailCatalog\MailDefinition` (clave, nombre, cuándo sale, a quién, `subject(array $data)`,
+`sampleData()`, `render(array $data)`) registrada con `MailCatalog::register($definicion, '<Módulo>')` **dentro del interruptor del
+módulo** (ejemplos: `APIRoutes.php:55-56`, `PublicAreaController.php:472-474`). El envío real construye asunto y cuerpo con ella y le
+pasa su controlador en `renderer`; la vista previa pinta con `MailDefinition::viewRenderer()` y no construye el controlador del envío
+(consumiría avisos flash o tocaría la sesión). Un envío sin definición hace caer la comprobación 63. La guía para proyectos:
+`source-docs/project/docs/piecesphp/new-features/banco-de-correos.md`.

@@ -77,7 +77,7 @@ CliActions::make('unit-tests:core/mail-demo', function ($args) {
         echoTerminal(' ');
         echoTerminal('[c] El catálogo: una pieza por envío del framework, y nada con la marca de las pruebas');
         $catalogo = MailDemoTask::catalog();
-        $check(count($catalogo) === 11, 'c1 once correos: las nueve plantillas que envía el framework, con sus variantes', (string) count($catalogo));
+        $check(count($catalogo) === count(\PiecesPHP\MailCatalog\MailCatalog::all()) && count($catalogo) > 0, 'c1 un correo por definición registrada en el catálogo de correos (los módulos apagados no registran los suyos)', (string) count($catalogo));
         $vacios = array_filter($catalogo, fn (array $c): bool => trim(strip_tags($c['body'])) === '' || trim($c['subject']) === '');
         $check($vacios === [], 'c2 ninguno sale sin asunto ni sin cuerpo');
         $conMarca = array_filter($catalogo, fn (array $c): bool => str_contains($c['subject'] . $c['body'], TestLeftovers::MARK));

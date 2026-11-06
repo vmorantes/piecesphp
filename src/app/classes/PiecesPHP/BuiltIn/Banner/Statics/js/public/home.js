@@ -1,6 +1,3 @@
-/// <reference path="../../../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../BuiltInBannerAdapter.js" />
 CustomNamespace.loader()
 window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, function (e) {
 

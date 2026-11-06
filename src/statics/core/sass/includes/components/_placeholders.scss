@@ -5,7 +5,6 @@
 $-attachLabelShadow: #00000029;
 $-attachImageBackground: #F3F3F3;
 $-attachMetaColor: #B7B7B7;
-$-attachDescriptionColor: #626363;
 
 @mixin attach-placeholder {
 
@@ -149,6 +148,7 @@ $-attachDescriptionColor: #626363;
                     max-width: 100%;
                 }
 
+                // @en-desuso 11.0.0: ninguna vista del framework pinta .meta en el adjunto, y su color fijo no se lee en oscuro (JES); se borra en la 11.0.0
                 > .meta {
                     font-weight: $fwRegular;
                     font-size: pxToRem(12);
@@ -161,7 +161,6 @@ $-attachDescriptionColor: #626363;
                 font-weight: $fwRegular;
                 font-size: pxToRem(14);
                 line-height: pxToRem(14+3);
-                color: $-attachDescriptionColor;
                 padding-top: 8px;
             }
 

@@ -23,6 +23,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
 use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
+use PiecesPHP\MailCatalog\Definitions\ContactFormMail;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -240,23 +241,19 @@ class ContactFormsController extends PublicAreaController
 
                     } else {
 
-                        $title = get_config('title_app');
-                        $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
-                            baseurl(),
-                            $title,
-                        ]);
-
-                        $subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8') . ' - ' . get_title();
-
-                        $bodyMessage = $this->render('mailing/generic-contact-form', [
-                            'title' => $title,
+                        //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+                        $mailDefinition = new ContactFormMail();
+                        $mailData = [
                             'name' => $name,
                             'email' => $email,
                             'subject' => $subject,
                             'message' => $message,
                             'updates' => $updates,
-                        ], false);
-                        $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
+                            'titleSuffix' => get_title(),
+                            'renderer' => $this,
+                        ];
+                        $subject = $mailDefinition->subject($mailData);
+                        $bodyMessage = $mailDefinition->render($mailData);
                         $mailer = new Mailer();
                         $mailConfig = new MailConfig;
                         //El diálogo SMTP solo va al registro, y solo si el envío falla (el catch de abajo): nunca al cliente.

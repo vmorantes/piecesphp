@@ -1,5 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
 	//Sin la tabla en la base la vista no pinta el <table>: entonces no hay nada que inicializar.

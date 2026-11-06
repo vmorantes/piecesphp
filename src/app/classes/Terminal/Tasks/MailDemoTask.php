@@ -7,7 +7,6 @@
 namespace Terminal\Tasks;
 
 use PiecesPHP\Core\AppEnvironment;
-use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
@@ -16,14 +15,10 @@ use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
-use PiecesPHP\UserSystem\Authentication\OTPHandler;
-use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
-use PiecesPHP\UserSystem\Controllers\UserProblemsController;
-use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
-use SystemApprovals\Controllers\SystemApprovalsController;
 
 /**
  * MailDemoTask — manda un correo de cada plantilla del catálogo a la bandeja de pruebas, para verlos.
@@ -104,128 +99,19 @@ class MailDemoTask extends TerminalTaskAbstract
     }
 
     /**
-     * El catálogo: un correo por cada plantilla que el framework manda, pintado con las mismas variables
-     * que su envío real y datos de ejemplo. **No envía nada**.
+     * Un correo de cada definición del catálogo de correos (MailCatalog), pintado con sus datos de muestra por el mismo
+     * camino que su envío real. **No envía nada**.
      *
      * @return array<int,array{template:string,subject:string,body:string}>
      */
     public static function catalog(): array
     {
-        $app = Config::app_title();
-        $persona = 'Laura Gómez';
-        $correoPersona = 'demo-laura@localhost.test';
-        $codigo = 'DEMO42';
-        $plantillaBase = new \PiecesPHP\Tokens\Controllers\HelperController(null, []);
-        $plantillaSinEstilos = new \SystemApprovals\Controllers\HelperController(null, []);
-        $recuperacion = new RecoveryPasswordController();
-        $problemas = new UserProblemsController();
-        $aprobaciones = SystemApprovalsController::LANG_GROUP;
-        $nombre = htmlspecialchars($persona, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-
-        return [
-            [
-                'template' => 'usuarios/mail/recovery_password_code',
-                'subject' => (string) __(RecoveryPasswordController::LANG_GROUP, 'Recuperación de contraseña'),
-                'body' => (string) $recuperacion->render('usuarios/mail/recovery_password_code', [
-                    'code' => $codigo,
-                    'url' => RecoveryPasswordController::routeName('recovery-form') . '?code=' . rawurlencode($codigo) . '&email=' . rawurlencode($correoPersona),
-                ], false),
-            ],
-            [
-                'template' => 'usuarios/mail/recovery_password_code_only',
-                'subject' => (string) __(RecoveryPasswordController::LANG_GROUP, 'Recuperación de contraseña'),
-                'body' => (string) $recuperacion->render('usuarios/mail/recovery_password_code_only', [
-                    'code' => $codigo,
-                    'text' => __(MAIL_TEMPLATES_LANG_GROUP, 'Recuperación de contraseña') . ':',
-                    'text_button' => __(MAIL_TEMPLATES_LANG_GROUP, 'Ingresar el código'),
-                    'note' => __(MAIL_TEMPLATES_LANG_GROUP, 'MENSAJE_DE_VALIDEZ'),
-                ], false),
-            ],
-            [
-                'template' => 'usuarios/mail/user_forget_code',
-                'subject' => (string) __(UserProblemsController::LANG_GROUP, 'Código de verificación'),
-                'body' => (string) $problemas->render('usuarios/mail/user_forget_code', [
-                    'code' => $codigo,
-                    'url' => UserProblemsController::routeName('forget-form') . '?code=' . $codigo,
-                ], false),
-            ],
-            [
-                'template' => 'usuarios/mail/user_blocked_code',
-                'subject' => (string) __(UserProblemsController::LANG_GROUP, 'Código de verificación'),
-                'body' => (string) $problemas->render('usuarios/mail/user_blocked_code', [
-                    'code' => $codigo,
-                    'url' => UserProblemsController::routeName('blocked-form') . '?code=' . $codigo,
-                ], false),
-            ],
-            [
-                'template' => 'usuarios/mail/other-problems',
-                'subject' => (string) __(UserProblemsController::LANG_GROUP, 'Otros problemas') . ' - ' . $app,
-                'body' => (string) $problemas->render('usuarios/mail/other-problems', [
-                    'originURL' => baseurl(),
-                    'subject' => __(UserProblemsController::LANG_GROUP, 'Otros problemas') . ' - ' . $app,
-                    'mail' => $correoPersona,
-                    'name' => $persona,
-                    'message' => 'No consigo entrar desde el móvil: la página se queda en blanco después de escribir la contraseña.',
-                    'extra' => [['display' => 'Navegador', 'text' => 'Firefox 140 en Android']],
-                ], false),
-            ],
-            [
-                'template' => 'mails/otp-code',
-                'subject' => (string) __(OTPHandler::LANG_GROUP, 'Contraseña de un uso') . ' - ' . $app,
-                'body' => (string) (new UserSystemFeaturesController())->render('mails/otp-code', [
-                    'text' => __(OTPHandler::LANG_GROUP, 'Contraseña de un solo uso'),
-                    'note' => vsprintf(__(OTPHandler::LANG_GROUP, 'Tiene una validez de %s minutos'), [10]),
-                    'code' => '481516',
-                ], false),
-            ],
-            [
-                'template' => 'mailing/template_base',
-                'subject' => 'Comentario sobre el enlace compartido',
-                'body' => (string) $plantillaBase->render('mailing/template_base', [
-                    'text' => htmlspecialchars('El documento del enlace ya no está actualizado; ¿pueden enviar la versión nueva?', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                    'note' => '',
-                    'url' => '',
-                    'text_button' => '',
-                ], false, false),
-            ],
-            [
-                'template' => 'mailing/template_base_no_style (alta por la API)',
-                'subject' => (string) __(\API\Controllers\APIController::LANG_GROUP, 'Aprobaciones') . ' - ' . $app,
-                'body' => (string) $plantillaSinEstilos->render('mailing/template_base_no_style', [
-                    'text' => strReplaceTemplate(__(\API\Controllers\APIController::LANG_GROUP, 'Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación.'), ['{NAME}' => $nombre]),
-                    'url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName(''),
-                    'text_button' => __(\API\Controllers\APIController::LANG_GROUP, 'Iniciar sesión'),
-                ], false, false),
-            ],
-            [
-                'template' => 'mailing/template_base_no_style (aprobado)',
-                'subject' => (string) __($aprobaciones, 'Aprobaciones') . ' - ' . $app,
-                'body' => (string) $plantillaSinEstilos->render('mailing/template_base_no_style', [
-                    'text' => strReplaceTemplate(__($aprobaciones, 'Sr(a). {NAME}, le informamos que su contenido "{CONTENT_NAME}" ha sido aprobado'), ['{NAME}' => $nombre, '{CONTENT_NAME}' => 'Informe anual 2026']),
-                    'reason' => '',
-                ], false, false),
-            ],
-            [
-                'template' => 'mailing/template_base_no_style (rechazado)',
-                'subject' => (string) __($aprobaciones, 'Aprobaciones') . ' - ' . $app,
-                'body' => (string) $plantillaSinEstilos->render('mailing/template_base_no_style', [
-                    'text' => strReplaceTemplate(__($aprobaciones, 'Sr(a). {NAME}, le informamos que su contenido "{CONTENT_NAME}" ha sido rechazado'), ['{NAME}' => $nombre, '{CONTENT_NAME}' => 'Informe anual 2026']),
-                    'reason' => htmlspecialchars('Falta la fuente de las cifras del segundo apartado.', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                ], false, false),
-            ],
-            [
-                'template' => 'mailing/generic-contact-form',
-                'subject' => (string) __(LANG_GROUP, 'Contacto') . ': Información sobre los cursos - ' . $app,
-                'body' => (string) (new \App\Controller\ContactFormsController())->render('mailing/generic-contact-form', [
-                    'title' => vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [baseurl(), $app]),
-                    'name' => $persona,
-                    'email' => $correoPersona,
-                    'subject' => 'Información sobre los cursos',
-                    'message' => '¿Hay plazas para el curso de otoño? Me interesa el horario de tarde.',
-                    'updates' => true,
-                ], false),
-            ],
-        ];
+        $catalogo = [];
+        foreach (MailCatalog::all() as $key => $definition) {
+            $muestra = MailCatalog::preview($definition);
+            $catalogo[] = ['template' => (string) $key, 'subject' => $muestra['subject'], 'body' => $muestra['body']];
+        }
+        return $catalogo;
     }
 
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void

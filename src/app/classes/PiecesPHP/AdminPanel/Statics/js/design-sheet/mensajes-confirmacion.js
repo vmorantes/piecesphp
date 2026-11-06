@@ -1,5 +1,3 @@
-/// <reference path="../configurations.js" />
-/// <reference path="../helpers.js" />
 window.addEventListener('load', function () {
 	//confirmAction() devuelve una promesa: true si se confirma, false si se cancela. Aquí solo se enseña la respuesta.
 	$('[example-confirm]').on('click', function () {

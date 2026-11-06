@@ -1,8 +1,7 @@
-/// <reference path="../../core/js/helpers.js" />
-/// <reference path="../../core/js/configurations.js" />
 //Fuera del `load`: los list.js de los módulos inician DataTables en su propio `load`, que va después.
 contentTablesStackable()
 dataTablesTooltips()
+contentRowActionsMenus()
 
 window.addEventListener('load', function (e) {
 	timeOnPlatform()
@@ -193,6 +192,97 @@ function contentTablesStackable() {
 			})
 		})
 	})
+}
+
+/**
+ * @description El menú «⋯» de las acciones de fila (RowActions, `[row-actions-menu]`). Lo inicia el panel, el que viene en
+ * la página y el que pinta DataTables en cada dibujado, una vez cada uno: un módulo no lo inicia. Al abrirse sale con
+ * `position: fixed` a la altura de su botón (por qué, en admin_app_base.scss, junto a `.container-standard-table`); hacia
+ * arriba si abajo no cabe, y nunca fuera de la ventana por la izquierda. Se coloca al ponerse `active`, también si otro lo
+ * inició con sus ajustes, y se recoloca al desplazar cualquier cosa o redimensionar; se cierra si su botón deja de verse.
+ * Dentro de un antepasado con `transform` o `will-change: transform` (una `ui modal`), `fixed` no es relativo a la
+ * ventana y el menú saldría desplazado: hoy ningún «⋯» va en una ventana.
+ * @returns {void}
+ */
+function contentRowActionsMenus() {
+	const selector = '[row-actions-menu]'
+	const edge = 8
+	const init = (root) => {
+		$(root).find(selector).each(function () {
+			if ($(this).data('moduleDropdown') === undefined) {
+				//Con `auto` el tema le pone al menú la clase `left`, con `!important`: la dirección la decide place(). Y en
+				//`onShow`, antes de la animación: el tema elige `slide up` o `slide down` leyendo `upward` justo después.
+				$(this).dropdown({
+					action: 'hide',
+					direction: 'downward',
+					onShow: function () {
+						place(this)
+					},
+				})
+			}
+		})
+	}
+	//Con `!important`: las clases del tema (`upward`, `left`) colocan el menú con `!important` en algunos casos. El
+	//`min-width: 100%` del tema, con `fixed`, sería el ancho de la ventana.
+	const fix = (style, values) => Object.entries(values).forEach(([name, value]) => style.setProperty(name, value, 'important'))
+	const place = (dropdown) => {
+		const menu = dropdown.querySelector(':scope > .menu')
+		if (menu === null) {
+			return
+		}
+		const style = menu.style
+		//`fixed` ANTES de medir: medido aún `absolute`, la caja saca su barra vertical, la columna de acciones se corre y
+		//el menú queda lejos del botón cuando la barra se va.
+		fix(style, { position: 'fixed', top: '0px', left: '0px', right: 'auto', bottom: 'auto', margin: '0', 'min-width': 'max-content' })
+		let width = menu.offsetWidth
+		let height = menu.offsetHeight
+		if (height === 0) {
+			const previous = style.cssText
+			style.setProperty('display', 'block', 'important')
+			style.setProperty('visibility', 'hidden', 'important')
+			width = menu.offsetWidth
+			height = menu.offsetHeight
+			style.cssText = previous
+		}
+		//El hueco de 1em es el del menú `pointing` del tema, que deja sitio a su flecha.
+		const gap = parseFloat(getComputedStyle(menu).fontSize) || 14
+		const rect = dropdown.getBoundingClientRect()
+		const viewport = document.documentElement
+		const nags = parseFloat(getComputedStyle(document.body).getPropertyValue('--pcs-bottom-nags')) || 0
+		const below = viewport.clientHeight - nags - edge - rect.bottom - gap
+		const above = rect.top - gap - edge
+		const upward = height > below && above > below
+		const top = upward ? Math.max(edge, rect.top - gap - height) : rect.bottom + gap
+		const left = Math.max(edge, Math.min(rect.right - width, viewport.clientWidth - width - edge))
+		dropdown.classList.toggle('upward', upward)
+		fix(style, { top: `${top}px`, left: `${left}px` })
+	}
+	//Con `fixed` nada lo recorta: si su botón queda tapado o fuera (desplazado bajo la caja o bajo la barra), se cierra.
+	const placeOpen = () => document.querySelectorAll(`${selector}.active`).forEach((dropdown) => {
+		const rect = dropdown.getBoundingClientRect()
+		const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+		if (hit === null || !dropdown.contains(hit)) {
+			$(dropdown).dropdown('hide')
+			return
+		}
+		place(dropdown)
+	})
+
+	new MutationObserver((records) => records.forEach((record) => {
+		const target = record.target
+		if (!target.hasAttribute('row-actions-menu') || !target.classList.contains('active')) {
+			return
+		}
+		if (!String(record.oldValue || '').split(/\s+/).includes('active')) {
+			place(target)
+		}
+	})).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true })
+	document.addEventListener('scroll', placeOpen, { capture: true, passive: true })
+	window.addEventListener('resize', placeOpen)
+	$(document).on('draw.dt', function (event, settings) {
+		init(new DataTable.Api(settings).table().container())
+	})
+	$(() => init(document))
 }
 
 /**

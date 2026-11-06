@@ -105,6 +105,7 @@ $lang = [
         'ORGANIZATION_IS_NOT_ACTIVE'   => 'La organización "%1$s" no está activa.',
         'INVALID_TWO_FACTOR_CODE'      => 'Código autenticación de doble factor inválido.',
         'APPROVED_PENDING'             => 'Pendiente de aprobación',
+        'INVALID_USER_TYPE'            => 'Tu cuenta no tiene un tipo de usuario válido. Pide a un administrador que te asigne uno.',
     ],
     'avatarModule' => [
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',

@@ -242,7 +242,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         58 => ['source-docs', self::DOC_METHOD_EXCEPTIONS_RELATIVE_PATH],
         59 => ['bin/censo-estilos-en-linea'],
         60 => [self::PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH],
+        62 => ['.git'],
+        63 => [self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH],
     ];
+
+    /** El archivo que define APP_VERSION y APP_VERSION_DATE, relativo a la raíz (comprobación 62). */
+    const VERSION_DEFINES_RELATIVE_PATH = 'src/app/core/bootstrap.php';
+
+    /** Los envíos de correo que no construyen su cuerpo con una definición del catálogo, cada uno con su motivo (comprobación 63). */
+    const MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH = 'files/dev/mail-senders-exceptions.json';
+
+    /** Las configuraciones del editor y del compilador de TypeScript, relativas a la raíz (comprobación 64). */
+    const EDITOR_CONFIG_RELATIVE_PATHS = ['jsconfig.json', 'src/statics/core/ts/tsconfig.json'];
 
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
     {
@@ -509,6 +520,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 61. El manual: sus rutas existen y la cobertura de las pantallas solo sube (ADR 0072) ──
         $manualFailures = self::checkManualCoverage();
 
+        //──── 62. La fecha de versión es la del lanzamiento ──────────────────────────────
+        $versionDateFailures = Distribution::applies('62', self::DISTRIBUTION_REQUIREMENTS[62]) ? self::checkVersionDate() : [];
+
+        //──── 63. Todo envío de correo está catalogado (H189) ──────────────────────────────
+        $mailSenderFailures = Distribution::applies('63', self::DISTRIBUTION_REQUIREMENTS[63]) ? self::checkMailSendersCatalogued() : [];
+
+        //──── 64. El jsconfig y el tsconfig son JSON válido y ningún JS lleva /// <reference path> ─
+        $editorFailures = self::checkEditorConfigs();
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -533,7 +553,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($distributionFailures) + count($globalFailures) + count($dialogFailures) + count($frontConfigFailures)
          + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
-         + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures);
+         + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
+         + count($editorFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -615,6 +636,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($manualFailures as $line) {
             echoTerminal("\e[31mMANUAL:\e[39m {$line}");
+        }
+        foreach ($mailSenderFailures as $line) {
+            echoTerminal("\e[31mCORREO SIN CATALOGAR:\e[39m {$line}");
+        }
+        foreach ($editorFailures as $line) {
+            echoTerminal("\e[31mEDITOR:\e[39m {$line}");
+        }
+        foreach ($versionDateFailures as $line) {
+            echoTerminal("\e[31mFECHA DE VERSIÓN:\e[39m {$line}");
         }
         foreach ($distributionFailures as $line) {
             echoTerminal("\e[31mDISTRIBUCIÓN:\e[39m {$line}");
@@ -2980,6 +3010,208 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m " . ($line !== '' ? mb_substr($line, mb_strlen('TRINQUETE: ')) : 'claves de traducción comprobadas.'));
         return [];
+    }
+
+    /**
+     * 63. Todo envío de correo está catalogado (H189): un archivo que envía correo construye el cuerpo con el render() de
+     * una definición del catálogo (una clase que extiende MailDefinition) o figura, con su motivo, en
+     * mail-senders-exceptions.json. Es ESTÁTICA: mira el código, con el módulo encendido o apagado. Busca los envíos de
+     * varias formas, porque con una sola se escapan: `new Mailer`/`new PHPMailer`, `mail(`/`\mail(`/`mb_send_mail(`, y
+     * cualquier `->Body =`, `->Body .=` o `->msgHTML(`. El cuerpo vale si sale de `$d->render(` con `$d` creado con
+     * `new <Definición>(` o tomado de `MailCatalog::get(`, directo o por una variable asignada así. Su cota: no sigue
+     * variables entre archivos ni ve un cuerpo armado en otra clase.
+     *
+     * @return string[]
+     */
+    protected static function checkMailSendersCatalogued(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $files = [];
+        //También los nuevos sin versionar: un envío recién escrito no espera al commit para verse.
+        foreach (self::nulSeparated('git -C ' . escapeshellarg($root) . " -c core.quotePath=false ls-files -z --cached --others --exclude-standard -- 'src/app/*.php'") as $relative) {
+            if (!str_starts_with($relative, 'src/vendor/') && is_file($root . '/' . $relative)) {
+                $files[$relative] = (string) file_get_contents($root . '/' . $relative);
+            }
+        }
+        //Las definiciones salen del código, no de lo registrado: un módulo apagado no registra las suyas (#2446).
+        $definitions = [];
+        foreach ($files as $code) {
+            if (preg_match_all('/\bclass\s+(\w+)\s+extends\s+\\\\?(?:[\w\\\\]+\\\\)?MailDefinition\b/', $code, $found) > 0) {
+                $definitions = array_merge($definitions, $found[1]);
+            }
+        }
+        $definitions = array_values(array_unique($definitions));
+
+        //Canario: las formas se ven, y los bien hechos pasan.
+        $d = ['RecoveryPasswordMail'];
+        $casos = [
+            'bien' => ["<?php \$d = new RecoveryPasswordMail(true);\n\$m = new Mailer();\n\$m->Body = \$d->render(\$x);", false],
+            'por variable' => ["<?php \$d = new RecoveryPasswordMail(true);\n\$html = \$d->render(\$x);\n\$m = new Mailer();\n\$m->Body = \$html;", false],
+            'del catálogo' => ["<?php \$d = MailCatalog::get(\$k);\n\$m = new Mailer;\n\$m->Body = \$d->render(\$x);", false],
+            'sin definición' => ["<?php \$m = new Mailer();\n\$m->Body = '<p>hola</p>';", true],
+            'otro render' => ["<?php \$d = new RecoveryPasswordMail(true);\n\$html = \$vista->render(\$v);\n\$m = new Mailer();\n\$m->Body = \$html;", true],
+            'solo Body' => ["<?php \$correo->Body = \$html;", true],
+            'msgHTML' => ["<?php \$d = new RecoveryPasswordMail(true);\n\$m->msgHTML('<p>x</p>');", true],
+            'mail nativo' => ["<?php \\mail('a@b.c', 's', 'b');", true],
+        ];
+        foreach ($casos as $nombre => [$codigo, $debeFallar]) {
+            if ((self::mailSenderProblem($codigo, $d) !== null) !== $debeFallar || !self::sendsMail($codigo)) {
+                return ["canario muerto: el caso «{$nombre}» no se clasifica como debe: la comprobación no miró nada"];
+            }
+        }
+        if (count($definitions) === 0) {
+            return ['canario muerto: no encuentra ninguna clase que extienda MailDefinition: la comprobación no miró nada'];
+        }
+
+        $declared = json_decode((string) @file_get_contents($root . '/' . self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH), true);
+        if (!is_array($declared['excepciones'] ?? null)) {
+            return ['no se pudo leer ' . self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH . ': la comprobación no miró nada'];
+        }
+        $exceptions = [];
+        foreach ($declared['excepciones'] as $exception) {
+            if (is_array($exception) && is_string($exception['archivo'] ?? null) && is_string($exception['motivo'] ?? null) && trim($exception['motivo']) !== '') {
+                $exceptions[$exception['archivo']] = 0;
+            }
+        }
+
+        $failures = [];
+        $senders = 0;
+        foreach ($files as $relative => $code) {
+            //Fuera: el propio Mailer, las suites, y este archivo, cuyos canarios escriben envíos a propósito.
+            if (str_contains($relative, '/local-tests/') || $relative === 'src/app/core/psr4/PiecesPHP/Core/Mailer.php'
+                || $relative === 'src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php' || !self::sendsMail($code)) {
+                continue;
+            }
+            $senders++;
+            $problem = self::mailSenderProblem($code, $definitions);
+            if ($problem === null) {
+                continue;
+            }
+            if (array_key_exists($relative, $exceptions)) {
+                $exceptions[$relative]++;
+                continue;
+            }
+            $failures[] = "{$relative}: {$problem}. Construye el asunto y el cuerpo con una MailDefinition del catálogo, o decláralo con su motivo en " . self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH;
+        }
+        foreach ($exceptions as $file => $uses) {
+            if ($uses === 0) {
+                $failures[] = "«{$file}» de " . self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH . ' ya no tiene un envío sin catalogar: sobra';
+            }
+        }
+        echoTerminal("\e[94mINFO:\e[39m 63 correos catalogados: {$senders} archivo(s) que envían correo, " . count($definitions) . ' clase(s) de definición en el código, ' . count($exceptions)
+            . ' excepción(es) declarada(s). Estática; no sigue variables entre archivos ni ve un cuerpo armado en otra clase.');
+        return $failures;
+    }
+
+    /**
+     * Si un código envía correo, por cualquiera de sus formas.
+     *
+     * @param string $code
+     * @return bool
+     */
+    protected static function sendsMail(string $code): bool
+    {
+        return preg_match('/new\s+\\\\?(?:[\w\\\\]+\\\\)?(?:Mailer|PHPMailer)\b|(?<![\w>:$])\\\\?(?:mb_send_mail|mail)\s*\(|->Body\s*\.?=|->msgHTML\s*\(/', $code) === 1;
+    }
+
+    /**
+     * Por qué un código que envía correo no está catalogado, o null si lo está.
+     *
+     * @param string $code
+     * @param string[] $definitions Los nombres cortos de las clases que extienden MailDefinition
+     * @return string|null
+     */
+    protected static function mailSenderProblem(string $code, array $definitions): ?string
+    {
+        if (preg_match('/(?<![\w>:$])\\\\?(?:mb_send_mail|mail)\s*\(/', $code) === 1) {
+            return 'usa mail() o mb_send_mail() nativos';
+        }
+        if (preg_match('/->msgHTML\s*\(/', $code) === 1) {
+            return 'arma el cuerpo con msgHTML(), no con el render() de su definición';
+        }
+        //Las variables que son una definición: creadas con new <Definición>( o tomadas del catálogo.
+        $alternatives = implode('|', array_map(fn(string $short): string => preg_quote($short, '/'), $definitions));
+        $variables = [];
+        if (preg_match_all('/\$(\w+)\s*=\s*(?:new\s+\\\\?(?:[\w\\\\]+\\\\)?(?:' . $alternatives . ')\s*\(|MailCatalog::get\s*\()/', $code, $found) > 0) {
+            $variables = $found[1];
+        }
+        if ($variables === []) {
+            return 'envía correo sin crear ninguna definición del catálogo';
+        }
+        $fromDefinition = '\$(?:' . implode('|', array_map(fn(string $v): string => preg_quote($v, '/'), $variables)) . ')->render\s*\(';
+        $bodies = [];
+        if (preg_match_all('/->Body\s*(\.?=)([^;]*);/', $code, $matches, \PREG_SET_ORDER) !== false) {
+            $bodies = $matches;
+        }
+        foreach ($bodies as [, $operator, $body]) {
+            $direct = preg_match('/' . $fromDefinition . '/', $body) === 1;
+            $viaVariable = preg_match('/^\s*\$(\w+)\s*$/', $body, $variable) === 1
+                && preg_match('/\$' . preg_quote($variable[1], '/') . '\s*=\s*' . $fromDefinition . '/', $code) === 1;
+            if ($operator === '.=' || (!$direct && !$viaVariable)) {
+                return 'un cuerpo (->Body) no sale del render() de su definición: «' . trim(mb_substr($body, 0, 60)) . '»';
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 62. La fecha de versión es la del lanzamiento (H185): APP_VERSION_DATE es la fecha (`%cs`) del último commit que cambió la línea
+     * `define('APP_VERSION',` de bootstrap.php; si esa línea está cambiada en el árbol respecto a HEAD (un lanzamiento en preparación),
+     * la de hoy. Sin historia de git (un clon sin ella o la distribución) no aplica, y lo dice.
+     *
+     * @return string[]
+     */
+    protected static function checkVersionDate(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $relative = self::VERSION_DEFINES_RELATIVE_PATH;
+        //Canario: la versión no se confunde con la fecha, aunque la fecha vaya primero.
+        $sembrado = self::versionDefinesIn("define('APP_VERSION_DATE', (new \\DateTime('2001-02-03'))->format('Y-m-d'));\ndefine('APP_VERSION', 'v9.8.7');");
+        if ($sembrado !== ['version' => 'v9.8.7', 'date' => '2001-02-03']) {
+            return ['canario muerto: no separa APP_VERSION de APP_VERSION_DATE: la comprobación no miró nada (' . json_encode($sembrado) . ')'];
+        }
+
+        $current = self::versionDefinesIn((string) @file_get_contents($root . '/' . $relative));
+        if ($current['version'] === null || $current['date'] === null) {
+            return ["{$relative}: no se encuentran define('APP_VERSION', …) y define('APP_VERSION_DATE', …) con una fecha AAAA-MM-DD: la comprobación no miró nada"];
+        }
+
+        $git = 'git -C ' . escapeshellarg($root) . ' ';
+        $headRan = exec($git . 'show ' . escapeshellarg('HEAD:' . $relative) . ' 2>/dev/null', $headLines, $headStatus) !== false;
+        $logRan = exec($git . 'log -1 --format=%cs%x20%h -G ' . escapeshellarg("define\\('APP_VERSION',") . ' -- ' . escapeshellarg($relative) . ' 2>/dev/null', $logLines, $logStatus) !== false;
+        $log = trim(implode('', $logLines));
+        if (!$headRan || !$logRan || $headStatus !== 0 || $logStatus !== 0 || preg_match('/^(\d{4}-\d{2}-\d{2}) (\w+)$/', $log, $launch) !== 1) {
+            echoTerminal("\e[33mAVISO:\e[39m 62 fecha de versión: sin historia de git de {$relative}, no aplica.");
+            return [];
+        }
+
+        $head = self::versionDefinesIn(implode("\n", $headLines));
+        if ($head['version'] !== $current['version']) {
+            $reference = date('Y-m-d');
+            $why = "hoy, porque APP_VERSION está cambiada en el árbol ({$head['version']} → {$current['version']}): un lanzamiento en preparación";
+        } else {
+            $reference = $launch[1];
+            $why = "la del commit {$launch[2]}, el último que cambió APP_VERSION";
+        }
+
+        if ($current['date'] !== $reference) {
+            return ["{$relative}: APP_VERSION_DATE es {$current['date']} y la fecha de {$current['version']} es {$reference} ({$why}): pon APP_VERSION_DATE a {$reference} en el mismo commit que cambia APP_VERSION"];
+        }
+        echoTerminal("\e[94mINFO:\e[39m 62 fecha de versión: {$current['version']} con {$current['date']}, {$why}.");
+        return [];
+    }
+
+    /**
+     * Los valores de `define('APP_VERSION', …)` y de la fecha `AAAA-MM-DD` de `define('APP_VERSION_DATE', …)` en un código PHP.
+     *
+     * @param string $php
+     * @return array{version: string|null, date: string|null}
+     */
+    protected static function versionDefinesIn(string $php): array
+    {
+        $version = preg_match("/define\\(\\s*'APP_VERSION'\\s*,\\s*'([^']+)'\\s*\\)/", $php, $v) === 1 ? $v[1] : null;
+        $date = preg_match("/define\\(\\s*'APP_VERSION_DATE'\\s*,[^;]*?'(\\d{4}-\\d{2}-\\d{2})'/", $php, $d) === 1 ? $d[1] : null;
+        return ['version' => $version, 'date' => $date];
     }
 
     /**
@@ -6380,6 +6612,87 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         return $failures;
     }
+    /**
+     * 64. El editor y el compilador leen JSON válido, y ningún JS propio vuelve a las referencias `/// <reference path>`
+     * (decisión del PO, 2026-11-06). jsconfig.json y src/statics/core/ts/tsconfig.json se leen con json_decode estricto:
+     * TypeScript tolera una coma final, pero el editor la marca como problema y gulp lee el tsconfig. Y los .js versionados de
+     * src/ (sin vendor, plugins ni .min.js) no llevan la directiva: el jsconfig.json ya le da al editor todos los archivos, y
+     * una referencia a una ruta que no existe es un error del editor.
+     *
+     * @return string[]
+     */
+    protected static function checkEditorConfigs(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        $failures = [];
+        foreach (self::EDITOR_CONFIG_RELATIVE_PATHS as $relative) {
+            $text = @file_get_contents($root . '/' . $relative);
+            if (!is_string($text)) {
+                $failures[] = "{$relative}: no existe o no se puede leer.";
+                continue;
+            }
+            try {
+                $decoded = json_decode($text, true, 512, \JSON_THROW_ON_ERROR);
+                if (!is_array($decoded) || !is_array($decoded['compilerOptions'] ?? null)) {
+                    $failures[] = "{$relative}: es JSON, pero sin el objeto compilerOptions.";
+                }
+            } catch (\JsonException $e) {
+                $failures[] = "{$relative}: no es JSON estricto ({$e->getMessage()}); una coma final o un comentario lo rompen.";
+            }
+        }
+
+        //Canario: cae la directiva con espacios delante y sin ellos; no caen un comentario normal ni una que no sea `path`.
+        $sembrado = "/// <reference path=\"a.js\" />\n  ///<reference path='b.js'/>\n// /// <reference path=\"c.js\" />\n/// <reference types=\"jquery\" />\n";
+        if (self::jsReferenceLines($sembrado) !== [1, 2]) {
+            return array_merge($failures, ['canario muerto: el patrón no separa la directiva /// <reference path> de un comentario: la comprobación no miró nada']);
+        }
+        if (!is_dir($root . '/.git')) {
+            echoTerminal("\e[94mINFO:\e[39m referencias /// en los JS: sin .git no hay universo que medir; no se comprueba.");
+            return $failures;
+        }
+        $scripts = array_values(array_filter(
+            self::nulSeparated('git -C ' . escapeshellarg($root) . " -c core.quotePath=false ls-files -z -- 'src/**/*.js'"),
+            static fn (string $f): bool => !str_contains($f, '/vendor/') && !str_contains($f, '/plugins/') && !str_ends_with($f, '.min.js')
+        ));
+        if ($scripts === []) {
+            return array_merge($failures, ['canario muerto: git no lista ningún .js propio de src/; la comprobación no miró nada']);
+        }
+        foreach ($scripts as $relative) {
+            $text = @file_get_contents($root . '/' . $relative);
+            if (!is_string($text)) {
+                $failures[] = "{$relative}: no se pudo leer";
+                continue;
+            }
+            foreach (self::jsReferenceLines($text) as $line) {
+                $failures[] = "{$relative}:{$line} — /// <reference path>: quítala; el jsconfig.json ya le da al editor todos los archivos.";
+            }
+        }
+
+        if ($failures === []) {
+            echoTerminal("\e[94mINFO:\e[39m editor: " . count(self::EDITOR_CONFIG_RELATIVE_PATHS) . ' configuración(es) en JSON estricto y '
+                . count($scripts) . ' JS propio(s) sin /// <reference path>.');
+        }
+        return $failures;
+    }
+
+    /**
+     * Las líneas (desde 1) que son una directiva `/// <reference path=…>`.
+     *
+     * @param string $text
+     * @return int[]
+     */
+    protected static function jsReferenceLines(string $text): array
+    {
+        $lines = [];
+        foreach (preg_split('/\R/', $text) ?: [] as $index => $line) {
+            if (preg_match('/^\s*\/\/\/\s*<reference\s+path\s*=/', $line) === 1) {
+                $lines[] = $index + 1;
+            }
+        }
+        return $lines;
+    }
+
     /**
      * 54. Ningún color escrito a mano en el SCSS del panel (criterio del PO, «colores solo por variable»; bloque HF): cada
      * color es una variable de SCSS con nombre de su papel, en la paleta de src/statics/core/sass/includes/_variables.scss

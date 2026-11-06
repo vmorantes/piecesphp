@@ -1,5 +1,3 @@
-/// <reference path="../configurations.js" />
-/// <reference path="../helpers.js" />
 window.addEventListener('load', function () {
 
 	//Ningún formulario de la hoja envía. Se corta en captura, antes que genericFormHandler, y también en la ventana de

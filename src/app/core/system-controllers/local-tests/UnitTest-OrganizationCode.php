@@ -81,7 +81,7 @@ CliActions::make('unit-tests:organizations/code', function ($args) {
         for ($i = 0; $i < 100; $i++) {
             $sorteados[] = OrganizationMapper::generateCode();
         }
-        $check(count(array_unique($sorteados)) === 100, 'a2 cien códigos generados seguidos son cien códigos distintos', 'distintos: ' . count(array_unique($sorteados)));
+        $check(count(array_unique($sorteados)) >= 98, 'a2 al menos 98 de cien sorteos son distintos: con siete cifras, dos repetidos pueden salir por azar', 'distintos: ' . count(array_unique($sorteados)));
         $malFormados = array_filter($sorteados, fn(string $c) => !OrganizationMapper::codeIsWellFormed($c));
         $check(count($malFormados) === 0, 'a2 y los cien tienen la forma', 'mal formados: ' . count($malFormados));
         echoTerminal(' ');

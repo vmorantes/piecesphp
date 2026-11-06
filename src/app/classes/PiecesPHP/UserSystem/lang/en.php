@@ -101,4 +101,7 @@ return [
     'Usuario / correo' => 'User / email',
     'Tipo o usuario' => 'Type or user',
     'Evento o usuario' => 'Event or user',
+    '1 usuario tiene un tipo que ya no existe' => '1 user has a type that no longer exists',
+    '%d usuarios tienen un tipo que ya no existe' => '%d users have a type that no longer exists',
+    'Ver usuarios' => 'See users',
 ];

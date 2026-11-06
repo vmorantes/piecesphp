@@ -10,7 +10,6 @@ use MySpace\Controllers\MyProfileController;
 use News\Controllers\NewsController;
 use PiecesPHP\AdminPanel\DashboardCardRegistry;
 use PiecesPHP\Core\BaseController;
-use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\InstalledPackages;
 use PiecesPHP\Core\Mailer;
@@ -23,6 +22,8 @@ use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\MailCatalog\Definitions\SupportTicketMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
@@ -437,7 +438,10 @@ class AdminPanelController extends BaseController
         } elseif ($recipients === []) {
             $result->setMessage($message_without_recipients);
         } else {
-            $fullSubject = $subject . ' - ' . Config::app_title();
+            //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+            $mailDefinition = new SupportTicketMail();
+            $mailData = ['subject' => $subject, 'comments' => $comments];
+            $fullSubject = $mailDefinition->subject($mailData);
 
             $mail = new Mailer();
             $mailConfig = new MailConfig;
@@ -451,8 +455,7 @@ class AdminPanelController extends BaseController
             }
             $mail->isHTML(true);
             $mail->Subject = $fullSubject;
-            //Lo que escribe el usuario va escapado: el HTML del correo no ejecuta nada suyo.
-            $mail->Body = nl2br(escape_html($comments));
+            $mail->Body = $mailDefinition->render($mailData);
             $mail->AltBody = $comments;
             if (!$mail->checkSettedSMTP()) {
                 $mail->asSystemMailer();
@@ -652,6 +655,8 @@ class AdminPanelController extends BaseController
      */
     public static function ticketsRoutes(RouteGroup $group)
     {
+        //El ticket de soporte, en el catálogo de correos (es del núcleo).
+        MailCatalog::register(new SupportTicketMail());
         $groupSegmentURL = $group->getGroupSegment();
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';

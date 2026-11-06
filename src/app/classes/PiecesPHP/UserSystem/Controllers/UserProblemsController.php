@@ -7,10 +7,11 @@
 namespace PiecesPHP\UserSystem\Controllers;
 
 use EventsLog\Mappers\LogsMapper;
-use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use PiecesPHP\MailCatalog\Definitions\OtherProblemsMail;
+use PiecesPHP\MailCatalog\Definitions\VerificationCodeMail;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UserProblemsModel;
@@ -590,35 +591,14 @@ class UserProblemsController extends UsersController
 
         $to_name = $usuario->username;
 
-        /**
-         * @var string
-         */
-        $subject = __(self::LANG_GROUP, 'Código de verificación');
-        $message = '';
-
-        if ($type == self::TYPE_USER_FORGET) {
-            $url = self::routeName('forget-form') . '?code=' . $code;
-            /**
-             * @var string
-             */
-            $message = $this->render('usuarios/mail/user_forget_code', [
-                'code' => $code,
-                'url' => $url,
-
-            ], false);
-        } elseif ($type == self::TYPE_USER_BLOCKED) {
-            $url = self::routeName('blocked-form') . '?code=' . $code;
-            /**
-             * @var string
-             */
-            $message = $this->render('usuarios/mail/user_blocked_code', [
-                'code' => $code,
-                'url' => $url,
-
-            ], false);
-        } else {
+        if ($type !== self::TYPE_USER_FORGET && $type !== self::TYPE_USER_BLOCKED) {
             throw new \InvalidArgumentException("sendCode: tipo no soportado '{$type}'.");
         }
+        //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+        $definition = new VerificationCodeMail($type);
+        $mailData = ['code' => $code, 'renderer' => $this];
+        $subject = $definition->subject($mailData);
+        $message = $definition->render($mailData);
 
         /**
          * @var string
@@ -654,24 +634,11 @@ class UserProblemsController extends UsersController
      */
     private function sendMessageOtherProblems(string $email, string $name, string $message, ?array $extra = null): array
     {
-        $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . Config::app_title();
-
-        $customSubject = is_array($extra) && isset($extra['subject']) && is_string($extra['subject']) && mb_strlen(trim($extra['subject'])) > 0 ? trim($extra['subject']) : null;
-        if ($customSubject !== null) {
-            $subject = $customSubject . ' - ' . Config::app_title();
-        }
-
-        /**
-         * @var string
-         */
-        $message = $this->render('usuarios/mail/other-problems', [
-            'originURL' => baseurl(),
-            'subject' => $subject,
-            'mail' => $email,
-            'name' => $name,
-            'message' => $message,
-            'extra' => $extra,
-        ], false);
+        //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+        $definition = new OtherProblemsMail();
+        $mailData = ['email' => $email, 'name' => $name, 'message' => $message, 'extra' => $extra, 'renderer' => $this];
+        $subject = $definition->subject($mailData);
+        $message = $definition->render($mailData);
 
         $api = get_config('osTicketAPI');
         $key = get_config('osTicketAPIKey');

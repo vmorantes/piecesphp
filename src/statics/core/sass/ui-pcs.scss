@@ -3,7 +3,6 @@
 @use 'includes/components' as *;
 
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
-$bodyBackground: #FCFCFC;
 $devCssModeBackground: rgba(255, 0, 0, .1);
 $footerBorderColor: rgba(0, 0, 0, 0.14);
 $imageActionHoverBackground: #7070700d;
@@ -17,10 +16,10 @@ $imageActionHoverColor: #5b5b5b;
 
 //Generals
 //Sin font-size: lo pone el tema con --font-size-base, y aquí fijo anularía el tamaño base de la pantalla Colores.
+//Sin fondo: lo pone el tema en body (--theme-page), claro u oscuro; uno fijo aquí se veía claro al rebotar en oscuro (JES).
 html,
 body {
     font-weight: 400;
-    background-color: $bodyBackground;
 }
 
 // @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0

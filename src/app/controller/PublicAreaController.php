@@ -21,6 +21,8 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
+use PiecesPHP\MailCatalog\Definitions\ContactFormMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -468,6 +470,8 @@ class PublicAreaController extends BaseController
         //Otros controladores asociados
 
         if (PUBLIC_AREA_CONTACT_FORMS) {
+            //El formulario de contacto, en el catálogo de correos.
+            MailCatalog::register(new ContactFormMail(), 'Zona pública');
             $group = ContactFormsController::routes($group);
         }
 

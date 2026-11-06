@@ -1,8 +1,3 @@
-/// <reference path="../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../statics/core/own-plugins/MapBoxAdapter.js" />
-/// <reference path="../../../../../statics/core/own-plugins/MapBoxAdapterCustomControls.js" />
-/// <reference path="../../../../../statics/core/own-plugins/LocationsAdapter.js" />
 showGenericLoader('my-organization-profile')
 window.addEventListener('load', function () {
 

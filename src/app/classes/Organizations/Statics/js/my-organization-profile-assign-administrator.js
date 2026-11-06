@@ -1,5 +1,3 @@
-/// <reference path="../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../statics/core/js/helpers.js" />
 showGenericLoader('my-organization-profile-assign-administrator')
 window.addEventListener('load', function () {
 

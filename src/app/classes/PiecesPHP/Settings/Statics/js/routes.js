@@ -1,4 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
 window.addEventListener('load', () => {
 
 	const table = document.querySelector('[data-routes-table]')

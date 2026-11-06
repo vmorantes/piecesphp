@@ -190,7 +190,7 @@ $allowedManyLangs = count($langs) > 1;
                                     <div class="header">
                                         <div class="title"><?= __($langGroup, 'Agregar un nuevo anexo'); ?></div>
                                     </div>
-                                    <div class="description"><?= __($langGroup, 'Tamaño máximo del archivo 2MB'); ?></div>
+                                    <div class="description ui muted text"><?= __($langGroup, 'Tamaño máximo del archivo 2MB'); ?></div>
                                 </div>
                             </label>
                             <input type="file">

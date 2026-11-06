@@ -1,4 +1,3 @@
-/// <reference path="../../js/helpers.js" />
 showGenericLoader('colors')
 window.addEventListener('load', () => {
 

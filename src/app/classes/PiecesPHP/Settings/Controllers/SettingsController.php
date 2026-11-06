@@ -2257,6 +2257,7 @@ class SettingsController extends AdminPanelController
                 $status('health', __($statusLangGroup, 'Salud de la instalación'), 'heartbeat'),
                 $status('site-maintenance', __($statusLangGroup, 'Sitio en mantenimiento'), 'power off'),
                 $own('integrations-mail', __($langGroup, 'Correo'), 'envelope outline'),
+                $permission('mail-catalog-list', (string) \PiecesPHP\MailCatalog\Controllers\MailCatalogController::routeName('list'), __(\PiecesPHP\MailCatalog\MailCatalogLang::LANG_GROUP, 'Correos del sitio'), 'mail bulk'),
                 $helpers('forms-mapbox-keys', __($langGroup, 'Llaves de Mapas'), 'map'),
                 $own('system-routes', __($langGroup, 'Rutas y permisos'), 'shield alternate'),
                 $own('system-security', __($langGroup, 'Seguridad'), 'lock'),

@@ -79,7 +79,6 @@ chart.setOption({
     tooltip: { trigger: 'item' },
     series: [{
         type: 'pie',
-        radius: ['65%', '100%'],
         label: { show: false },
         data: items.map((item) => ({
             name: item.querySelector('.name').textContent.trim(),
@@ -87,6 +86,8 @@ chart.setOption({
         })),
     }],
 })
+//El radio de la dona (interior al 65 % del exterior) y el tooltip con los colores del tema, también al redimensionar.
+fitStatisticsChart(chart, 0.65)
 //La leyenda de la pieza, interactiva: un clic (o Enter/Espacio) oculta o muestra su porción o su serie.
 linkStatisticsChartLegend(chart, legend)
 //Con la ventana, y al hacerse visible su pestaña: dibujado en una oculta, mide cero.
@@ -96,6 +97,14 @@ resizeStatisticsChart(chart)
 **La leyenda nativa va declarada y oculta** (`legend: { show: false }`): `linkStatisticsChartLegend()` la usa para
 ocultar, con la misma acción, una serie o una porción de tarta. La fila apagada lleva la clase `series-hidden` y
 `aria-pressed="false"`. Cada fila se enlaza con la serie (o la porción) que se llama como el texto de su `.name`, así que el orden no importa. Una fila oculta, o una que no casa con ninguna serie, queda sin enlazar.
+
+**`fitStatisticsChart(chart, interior)`**, después de `setOption()`, una vez por gráfico: deja el radio exterior de cada
+tarta o dona a medio lado del lienzo menos lo que crece la porción al pasar el ratón (5 px), para que no salga cortada, y
+pone al tooltip la superficie, el texto y el borde del tema, en claro y en oscuro. `interior` es una fracción del exterior
+(`0.65`, una dona; `0`, una tarta llena) o una función que recibe el exterior en px y devuelve el interior en px. No le
+pongas `radius` a la serie: lo calcula ella, también cuando `resizeStatisticsChart()` redimensiona.
+`statisticsChartThemeColors(['var(--theme-text)', …])` devuelve esos colores ya resueltos, por si los necesitas en otra
+opción.
 
 **Los colores, ya resueltos**: ECharts no entiende `var(--…)`. Léelos del elemento que los tiene (como arriba, de la
 leyenda) o con `getComputedStyle()`.

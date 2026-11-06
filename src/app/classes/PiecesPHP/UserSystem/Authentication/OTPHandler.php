@@ -6,11 +6,11 @@ namespace PiecesPHP\UserSystem\Authentication;
 
 use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\BaseController;
-use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mailer;
+use PiecesPHP\MailCatalog\Definitions\OneUseCodeMail;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -121,13 +121,11 @@ class OTPHandler
 
                 TokenEvents::log(LogsMapper::MSG_TOKEN_ISSUED, TokenEvents::KIND_ONE_USE_CODE, (int) $userData->id, (string) $userData->username);
 
-                $subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8') . ' - ' . Config::app_title();
-                $bodyMessage = $controller->render($relativeView, [
-                    'text' => __(self::LANG_GROUP, 'Contraseña de un solo uso'),
-                    'note' => vsprintf(__(self::LANG_GROUP, 'Tiene una validez de %s minutos'), [$minutes]),
-                    'code' => $code,
-                ], false);
-                $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
+                //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+                $definition = new OneUseCodeMail();
+                $mailData = ['code' => $code, 'minutes' => $minutes, 'renderer' => $controller, 'view' => $relativeView];
+                $subject = $definition->subject($mailData);
+                $bodyMessage = $definition->render($mailData);
                 $mailer = new Mailer();
                 $mailConfig = new MailConfig;
                 $mailer->isHTML(true);

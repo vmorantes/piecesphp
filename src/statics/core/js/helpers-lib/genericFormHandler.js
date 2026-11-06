@@ -1,5 +1,3 @@
-///<reference path="./GenericLoaderElement.js" />
-///<reference path="../helpers.js" />
 /**
  * Manejador genérico de formularios, requiere jquery
  * 

@@ -1,4 +1,3 @@
-/// <reference path="./MapBoxAdapter.js" />
 window.addEventListener(MapBoxAdapter.events.ConfigurationReady, function () {
 
 	console.info('===Ajustes de intefaz de mapa en MapBoxAdapterCustomControls===')

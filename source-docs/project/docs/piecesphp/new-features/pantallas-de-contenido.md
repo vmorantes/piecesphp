@@ -152,8 +152,10 @@ $columns[] = RowActions::cell($direct, $others);
 - `RowActions::text(__(self::LANG_GROUP, 'Ver cuerpo'), $url)` pinta un botón de texto.
 - `RowActions::delete()` no borra nada: pinta el botón. El borrado lo sigue haciendo el JavaScript de tu módulo, que
   encuentra el botón por la marca que le pases en los atributos.
-- Si alguna fila puede llegar a tener más de tres acciones, inicia el menú en cada dibujado de la tabla, en el
-  `drawCallback` de tu `list.js`: `$('[row-actions-menu]').dropdown({ action: 'hide' })`.
+- Con más de tres acciones, las demás van en un menú «⋯». **Lo inicia y lo coloca el panel**, también en cada dibujado
+  de DataTables: tu `list.js` no tiene que hacer nada. Al abrirse sale por encima de la tabla, junto a su botón (hacia
+  arriba si abajo no cabe), así que nunca la hace desplazar en vertical ni sale recortado. Si tu módulo ya lo iniciaba,
+  puede seguir haciéndolo: no rompe nada. Un «⋯» dentro de una ventana modal saldría desplazado: no lo pongas ahí.
 
 ## El aviso de «aún no hay…»
 

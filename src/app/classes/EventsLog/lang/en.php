@@ -53,6 +53,7 @@ return [
     "Cuerpo de un correo ilegible" => "Unreadable email body",
     "Importador o exportador encendido o apagado" => "Importer or exporter turned on or off",
     "Sesión cerrada" => "Session closed",
+    "Prueba de un correo del catálogo" => "Test of a catalog email",
     "Sesión extendida" => "Session extended",
     "Otras sesiones propias cerradas" => "Own other sessions closed",
     "Código emitido" => "Code issued",

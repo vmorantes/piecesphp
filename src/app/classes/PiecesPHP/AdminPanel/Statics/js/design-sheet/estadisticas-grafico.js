@@ -1,5 +1,3 @@
-/// <reference path="../configurations.js" />
-/// <reference path="../helpers.js" />
 window.addEventListener('load', function () {
 	//Apache ECharts sobre el lienzo de chart-card.php. Nombres, valores y colores salen de su leyenda (chart-legend.php).
 	const container = document.querySelector('[example-chart]')
@@ -16,7 +14,6 @@ window.addEventListener('load', function () {
 		tooltip: { trigger: 'item' },
 		series: [{
 			type: 'pie',
-			radius: ['65%', '100%'],
 			label: { show: false },
 			data: items.map((item) => ({
 				name: item.querySelector('.name').textContent.trim(),
@@ -24,6 +21,8 @@ window.addEventListener('load', function () {
 			})),
 		}],
 	})
+	//El aro, al 65 % del radio; el radio, el tooltip y el redimensionado, comunes.
+	fitStatisticsChart(chart, 0.65)
 	linkStatisticsChartLegend(chart, legend)
 	resizeStatisticsChart(chart)
 })

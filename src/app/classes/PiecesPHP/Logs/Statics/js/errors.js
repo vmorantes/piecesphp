@@ -1,4 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
 window.addEventListener('load', function () {
 	$('[data-logs-errors].ui.accordion').accordion({ exclusive: false })
 	$('[data-logs-errors-filters] select.ui.dropdown').dropdown({ fullTextSearch: true })

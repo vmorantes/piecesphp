@@ -1,5 +1,3 @@
-/// <reference path="../configurations.js" />
-/// <reference path="../helpers.js" />
 window.addEventListener('load', function () {
 	const example = $('[example-steps]')
 	//El cuarto parámetro marca el ui steps: active el actual y completed los anteriores.

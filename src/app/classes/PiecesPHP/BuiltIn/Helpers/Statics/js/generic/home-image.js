@@ -1,6 +1,3 @@
-/// <reference path="../../../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../../../statics/core/own-plugins/ContentImageEditor.js" />
 showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('load', function () {
 

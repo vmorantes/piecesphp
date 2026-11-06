@@ -1,5 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('canDeleteDocumentType', function (e) {
 
 	const langGroup = 'appDocumentTypesLang'

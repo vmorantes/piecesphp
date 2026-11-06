@@ -75,6 +75,7 @@ nav:
             - Componentes HTML por grupo: piecesphp/new-features/componentes.md
             - Gráficos y estadísticas: piecesphp/new-features/estadisticas.md
             - El manual de usuario del panel: piecesphp/new-features/manual-de-usuario.md
+            - El banco de pruebas de correo: piecesphp/new-features/banco-de-correos.md
             - Datos de prueba: piecesphp/new-features/datos-de-prueba.md
             - Importar y exportar datos:
                 - piecesphp/new-features/data-transfer.md

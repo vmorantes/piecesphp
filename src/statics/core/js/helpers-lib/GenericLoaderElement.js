@@ -1,4 +1,3 @@
-///<reference path="../helpers.js" />
 /**
  * Clase que representa un elemento de cargador genérico y expone la API para gestionar cargadores genéricos
  * Hereda de HTMLElement y configura todos los elementos del cargador

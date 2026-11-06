@@ -1,8 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/ContentImageEditor.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/LocationsAdapter.js" />
 showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('load', function () {
 

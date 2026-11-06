@@ -12,6 +12,8 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\MailCatalog\Definitions\OneUseCodeMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\UserSystem\Controllers\ImpersonationController;
 use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
 use PiecesPHP\UserSystem\Controllers\UserSessionsController;
@@ -63,6 +65,10 @@ class UserSystemFeaturesRoutes
             //Sus tarjetas del inicio del panel (DashboardCardRegistry).
             UserSessionsController::registerDashboardCard();
             LoginAttemptsController::registerDashboardCard();
+            //Los usuarios cuyo tipo ya no es un rol (P290, fase 1): no entran ni se borran, y root lo ve en un aviso.
+            InvalidTypeUsersAlert::register();
+            //La contraseña de un uso, en el catálogo de correos.
+            MailCatalog::register(new OneUseCodeMail(), 'Funciones de usuario');
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();

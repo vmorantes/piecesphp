@@ -1,5 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
 	//Las donas de chart-card.php (Apache ECharts): nombres, valores y colores salen de su leyenda (chart-legend.php), que
@@ -18,7 +16,6 @@ window.addEventListener('load', function () {
 			tooltip: { trigger: 'item' },
 			series: [{
 				type: 'pie',
-				radius: ['65%', '100%'],
 				label: { show: false },
 				data: items.map((item) => ({
 					name: item.querySelector('.name').textContent.trim(),
@@ -26,6 +23,7 @@ window.addEventListener('load', function () {
 				})),
 			}],
 		})
+		fitStatisticsChart(chart, 0.65)
 		linkStatisticsChartLegend(chart, legend)
 		resizeStatisticsChart(chart)
 	}

@@ -24,6 +24,8 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParameterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\MailCatalog\Definitions\GenericTokenMessageMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Tokens\ORM\TokenModel;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
@@ -337,16 +339,11 @@ class GenericTokenController extends AdminPanelController
                     $mailer->setFrom($mailConfig->user(), $mailConfig->name());
                     $mailer->addAddress($mailConfig->user(), $mailConfig->name());
                     $mailer->isHTML(true);
-                    $mailer->Subject = mb_convert_encoding((string) $subject->getValue(), 'UTF-8');
-
-                    $data = [];
-
-                    $data['text'] = htmlspecialchars(mb_convert_encoding((string) $message->getValue(), 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-                    $data['note'] = '';
-                    $data['url'] = '';
-                    $data['text_button'] = '';
-
-                    $mailer->Body = $this->globalViews->render('mailing/template_base', $data, false, false);
+                    //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+                    $mailDefinition = new GenericTokenMessageMail();
+                    $mailData = ['subject' => (string) $subject->getValue(), 'message' => (string) $message->getValue(), 'renderer' => $this->globalViews];
+                    $mailer->Subject = $mailDefinition->subject($mailData);
+                    $mailer->Body = $mailDefinition->render($mailData);
 
                     if (!$mailer->checkSettedSMTP()) {
                         $mailer->asSystemMailer();
@@ -527,6 +524,8 @@ class GenericTokenController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = GenericTokenController::class;
         $routes = [];
+        //El mensaje desde un enlace con token, en el catálogo de correos (es del núcleo).
+        MailCatalog::register(new GenericTokenMessageMail());
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
         $routes[] = new Route(

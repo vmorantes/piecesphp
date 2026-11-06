@@ -38,6 +38,8 @@ final class UserSessions
     const REASON_CLOSED_BY_ADMIN = 'closed-by-admin';
     const REASON_REVOKE_ALL_USER = 'revoke-all-user';
     const REASON_REVOKE_ALL_GLOBAL = 'revoke-all-global';
+    /** El tipo del usuario ya no es un rol: el arranque le cierra la sesión sin borrarlo (P290, fase 1). */
+    const REASON_INVALID_TYPE = 'invalid-type';
 
     /**
      * La marca en `data` del token que el terminal se fabrica a sí mismo: sin fila, y solo vale en el terminal.

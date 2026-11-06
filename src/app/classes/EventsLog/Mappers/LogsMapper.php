@@ -122,6 +122,7 @@ class LogsMapper extends EntityMapperExtensible
     const MSG_SITE_MAINTENANCE_TOGGLED = 'SITE_MAINTENANCE_TOGGLED';
     const MSG_MAIL_BODY_VIEWED = 'MAIL_BODY_VIEWED';
     const MSG_MAIL_BODY_UNREADABLE = 'MAIL_BODY_UNREADABLE';
+    const MSG_MAIL_TEST_SENT = 'MAIL_TEST_SENT';
     const MSG_DATA_TRANSFER_TOGGLED = 'DATA_TRANSFER_TOGGLED';
     const MSG_SESSION_CLOSED = 'SESSION_CLOSED';
     const MSG_SESSION_EXTENDED = 'SESSION_EXTENDED';
@@ -153,6 +154,7 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_SITE_MAINTENANCE_TOGGLED => '%username% %action% el modo mantenimiento del sitio.',
         self::MSG_MAIL_BODY_VIEWED => '%username% vio el cuerpo del correo #%id% del registro.',
         self::MSG_MAIL_BODY_UNREADABLE => '%username% pidió el cuerpo del correo #%id% del registro, y no se pudo descifrar.',
+        self::MSG_MAIL_TEST_SENT => '%username% envió una prueba del correo «%key%» a %to%, en el servidor de pruebas.',
         self::MSG_DATA_TRANSFER_TOGGLED => '%username% %action% el %kind% «%key%» de Importar y exportar.',
         self::MSG_SESSION_CLOSED => '%username% cerró una sesión de %target% (%reason%).',
         self::MSG_SESSION_EXTENDED => '%username% extendió una sesión de %target% hasta el %until%.',
@@ -279,6 +281,7 @@ class LogsMapper extends EntityMapperExtensible
             self::MSG_SITE_MAINTENANCE_TOGGLED => __(self::LANG_GROUP, 'Modo mantenimiento del sitio'),
             self::MSG_MAIL_BODY_VIEWED => __(self::LANG_GROUP, 'Cuerpo de un correo consultado'),
             self::MSG_MAIL_BODY_UNREADABLE => __(self::LANG_GROUP, 'Cuerpo de un correo ilegible'),
+            self::MSG_MAIL_TEST_SENT => __(self::LANG_GROUP, 'Prueba de un correo del catálogo'),
             self::MSG_DATA_TRANSFER_TOGGLED => __(self::LANG_GROUP, 'Importador o exportador encendido o apagado'),
             self::MSG_SESSION_CLOSED => __(self::LANG_GROUP, 'Sesión cerrada'),
             self::MSG_SESSION_EXTENDED => __(self::LANG_GROUP, 'Sesión extendida'),

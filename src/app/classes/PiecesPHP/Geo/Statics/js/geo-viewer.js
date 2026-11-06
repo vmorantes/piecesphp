@@ -1,5 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
 
 const GEO_LANG_GROUP = 'geo-lang'
 //El centro por omisión es una opción (Configuración › Sistema › Llaves de Mapas); si no llega, Barranquilla, el de la página vieja.

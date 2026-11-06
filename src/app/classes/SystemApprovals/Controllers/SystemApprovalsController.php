@@ -35,6 +35,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\MailCatalog\Definitions\ApprovalStatusMail;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -345,32 +346,22 @@ class SystemApprovalsController extends AdminPanelController
                         //Solo si el estado cambia: un POST repetido no repite el correo.
                         if ($contactUser !== null && $previousStatus != $approvalStatus && self::noticeCanReach($contactUser)) {
                             try {
-                                $message = '';
-                                $contentName = __(self::LANG_GROUP, $mapper->referenceAlias);
-                                if ($mapper->status == SystemApprovalsMapper::STATUS_APPROVED) {
-                                    $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido aprobado"), [
-                                        '{NAME}' => htmlspecialchars((string) $contactUser->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                                        '{CONTENT_NAME}' => $contentName,
-                                    ]);
-                                } elseif ($mapper->status == SystemApprovalsMapper::STATUS_REJECTED) {
-                                    $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado"), [
-                                        '{NAME}' => htmlspecialchars((string) $contactUser->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                                        '{CONTENT_NAME}' => $contentName,
-                                    ]);
-                                }
+                                //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+                                $mailDefinition = new ApprovalStatusMail((string) $mapper->status);
+                                $mailData = [
+                                    'name' => (string) $contactUser->getFullName(),
+                                    'contentName' => __(self::LANG_GROUP, $mapper->referenceAlias),
+                                    'reason' => (string) $reason,
+                                    'renderer' => $this->helpController,
+                                ];
                                 $mailer = new Mailer();
                                 $mailConfig = new MailConfig;
-                                $subject = __(self::LANG_GROUP, 'Aprobaciones');
-                                set_title($subject);
-                                $subject = get_title(true);
+                                $subject = $mailDefinition->subject($mailData);
                                 $mailer->setFrom($mailConfig->user(), $mailConfig->name());
                                 $mailer->addAddress($contactUser->email, $contactUser->getFullName());
                                 $mailer->isHTML(true);
                                 $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
-                                $data = [];
-                                $data['text'] = mb_convert_encoding($message, 'UTF-8');
-                                $data['reason'] = htmlspecialchars(mb_convert_encoding((string) $reason, 'UTF-8'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-                                $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
+                                $mailer->Body = $mailDefinition->render($mailData);
                                 if (!$mailer->checkSettedSMTP()) {
                                     $mailer->asSystemMailer();
                                 }

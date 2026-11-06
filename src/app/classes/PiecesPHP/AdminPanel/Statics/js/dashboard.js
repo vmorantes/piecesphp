@@ -1,5 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
 //El inicio del panel: plegar y desplegar una tarjeta se guarda por usuario y recarga, porque plegada no trae su contenido.
 window.addEventListener('load', function () {
 

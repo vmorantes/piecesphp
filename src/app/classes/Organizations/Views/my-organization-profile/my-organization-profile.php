@@ -156,9 +156,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
                         <div class="horizontal-space"></div>
 
-                        <div class="section-fields-divider">
-                            <div class="title s20"><?= __($langGroup, 'Encargado de la organización'); ?></div>
-                        </div>
+                        <h2 class="ui header"><?= __($langGroup, 'Encargado de la organización'); ?></h2>
 
                         <div class="ui items identity-profile-card">
                             <div class="item">
@@ -186,14 +184,10 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                         <div class="ui stackable two column grid">
                             <div class="row">
                                 <div class="column">
-                                    <div class="section-fields-divider">
-                                        <div class="title s20">
-                                            <?= __($langGroup, 'Ubicación'); ?>
-                                        </div>
-                                        <div class="description fs16 black">
-                                            <?= __($langGroup, 'Se requiere la ubicación para la búsqueda en la vista cartográfica'); ?>
-                                        </div>
-                                    </div>
+                                    <h2 class="ui header">
+                                        <?= __($langGroup, 'Ubicación'); ?>
+                                        <div class="sub header"><?= __($langGroup, 'Se requiere la ubicación para la búsqueda en la vista cartográfica'); ?></div>
+                                    </h2>
                                     <div class="field required">
                                         <label><?= __(LOCATIONS_LANG_GROUP, 'País'); ?></label>
                                         <select required name="country" locations-component-auto-filled-country="<?= $organizationMapper->currentLangData('country') !== null ? $organizationMapper->currentLangData('country')->id : ''; ?>" class="ui dropdown" with-dropdown></select>
@@ -207,11 +201,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                     <input longitude-mapbox-handler name='longitude' type='hidden' required value="<?= $organizationMapper->longitude; ?>">
                                 </div>
                                 <div class="column">
-                                    <div class="section-fields-divider">
-                                        <div class="title s20">
-                                            <?= __($langGroup, 'Ubique el marcador en la ubicación'); ?>
-                                        </div>
-                                    </div>
+                                    <h2 class="ui header"><?= __($langGroup, 'Ubique el marcador en la ubicación'); ?></h2>
                                     <div class="field">
                                         <div id="map"></div>
                                     </div>
@@ -229,9 +219,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
 
                 <div class="container-standard-form">
                     <div class="field">
-                        <label class="section-fields-divider">
-                            <div class="title s20"><?= __($langGroup, 'Instituciones a las que pertenece actualmente'); ?></div>
-                        </label>
+                        <h2 class="ui header"><?= __($langGroup, 'Instituciones a las que pertenece actualmente'); ?></h2>
 
                         <select name="affiliatedInstitutions[]" multiple class="ui dropdown multiple auto additions search"><?= array_to_html_options($affiliatedInstitutionsOptions, $affiliatedInstitutions, true); ?></select>
                     </div>

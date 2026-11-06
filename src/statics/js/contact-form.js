@@ -1,5 +1,3 @@
-/// <reference path="./CustomNamespace.js" />
-/// <reference path="../core/js/helpers.js" />
 window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, function (e) {
 
 	let formSelector = '[contact-form]'

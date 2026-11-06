@@ -1,5 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
 	let langGroup = 'reportsManage'
@@ -121,16 +119,7 @@ window.addEventListener('load', function () {
 	 * @returns {string[]} El color que resuelve el navegador para cada uno
 	 */
 	function resolveColors(values) {
-		const probe = document.createElement('span')
-		probe.hidden = true
-		document.body.appendChild(probe)
-		const resolved = values.map((value) => {
-			probe.style.color = ''
-			probe.style.color = value
-			return getComputedStyle(probe).color
-		})
-		probe.remove()
-		return resolved
+		return statisticsChartThemeColors(values)
 	}
 
 	function configDonutChart(selector, series, labels, colors, style, background, unitText = '') {
@@ -163,7 +152,6 @@ window.addEventListener('load', function () {
 			},
 			series: [{
 				type: 'pie',
-				radius: donutRadius(container, donutThickness, proportionalInner),
 				silent: !hasData,
 				//Sin borde entre porciones ni alrededor.
 				itemStyle: { borderWidth: 0 },
@@ -203,26 +191,10 @@ window.addEventListener('load', function () {
 		if (hasData) {
 			linkStatisticsChartLegend(chart, legend)
 		}
-		//resizeStatisticsChart() llama a chart.resize() con la ventana y con la pestaña: ahí se vuelve a medir el aro.
-		const resize = chart.resize.bind(chart)
-		chart.resize = function (options) {
-			chart.setOption({ series: [{ radius: donutRadius(container, donutThickness, proportionalInner) }] })
-			resize(options)
-		}
+		//El aro de 65 px si el radio da para él y su hueco; si no, la proporción. fitStatisticsChart() lo vuelve a medir al
+		//redimensionar, con el hueco del resalte ya descontado del exterior.
+		fitStatisticsChart(chart, (outer) => outer >= donutThickness + 20 ? outer - donutThickness : outer * proportionalInner)
 		resizeStatisticsChart(chart)
-	}
-
-	/**
-	 * El radio [interior, exterior] de la dona para un aro de `thickness` px, medido sobre el lienzo tal como está.
-	 * @param {HTMLElement} canvas El `.canvas` del `ui chart`
-	 * @param {number} thickness El grosor del aro en px
-	 * @param {number} proportionalInner El interior, en fracción del radio, si el lienzo no da para el aro y su hueco
-	 * @returns {string[]}
-	 */
-	function donutRadius(canvas, thickness, proportionalInner) {
-		const radius = Math.min(canvas.clientWidth, canvas.clientHeight) / 2
-		const inner = radius >= thickness + 20 ? 1 - (thickness / radius) : proportionalInner
-		return [`${(inner * 100).toFixed(1)}%`, '100%']
 	}
 
 })

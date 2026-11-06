@@ -11,6 +11,7 @@ use PHPMailer\PHPMailer\SMTP;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Mailer;
+use PiecesPHP\MailCatalog\Definitions\MailSettingsTestMail;
 use PiecesPHP\Settings\Controllers\SettingsController;
 
 /**
@@ -120,8 +121,11 @@ class MailTester
             $mailer->setFrom(is_string($from) ? $from : '', is_string($fromName) ? $fromName : '');
             $mailer->addAddress($to);
             $mailer->isHTML(true);
-            $mailer->Subject = sprintf(__(self::LANG_GROUP, 'Correo de prueba de %s'), $app);
-            $mailer->Body = '<p>' . escape_html(sprintf(__(self::LANG_GROUP, 'Si lees esto, el correo sale de %s. Lo envió la prueba de Configuración › Sistema › Correo el %s.'), $app, date('Y-m-d H:i:s'))) . '</p>';
+            //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+            $mailDefinition = new MailSettingsTestMail();
+            $mailData = ['app' => $app, 'date' => date('Y-m-d H:i:s')];
+            $mailer->Subject = $mailDefinition->subject($mailData);
+            $mailer->Body = $mailDefinition->render($mailData);
             $sent = $mailer->send();
             $error = $sent ? null : $mailer->ErrorInfo;
         } catch (\Throwable $e) {

@@ -1,4 +1,3 @@
-///<reference path="../helpers.js" />
 class CookiesHandler {
 	constructor() { }
 }

@@ -40,6 +40,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
+use PiecesPHP\MailCatalog\Definitions\ApiUserCreatedMail;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\TaskRunMapper;
@@ -1302,23 +1303,17 @@ class APIController extends AdminPanelController
                     }
 
                     //Envío de correo - INICIO
-                    $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación."), [
-                        '{NAME}' => htmlspecialchars((string) $userByUsername->getFullName(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                    ]);
+                    //El asunto y el cuerpo, con su definición del catálogo de correos: la misma que pinta la vista previa.
+                    $mailDefinition = new ApiUserCreatedMail();
+                    $mailData = ['name' => (string) $userByUsername->getFullName(), 'renderer' => $this->helpController];
                     $mailer = new Mailer();
                     $mailConfig = new MailConfig;
-                    $subject = __(self::LANG_GROUP, 'Aprobaciones');
-                    set_title($subject);
-                    $subject = get_title(true);
+                    $subject = $mailDefinition->subject($mailData);
                     $mailer->setFrom($mailConfig->user(), $mailConfig->name());
                     $mailer->addAddress($userByUsername->email, $userByUsername->getFullName());
                     $mailer->isHTML(true);
                     $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
-                    $data = [];
-                    $data['text'] = mb_convert_encoding($message, 'UTF-8');
-                    $data['url'] = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
-                    $data['text_button'] = __(self::LANG_GROUP, 'Iniciar sesión');
-                    $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
+                    $mailer->Body = $mailDefinition->render($mailData);
                     if (!$mailer->checkSettedSMTP()) {
                         $mailer->asSystemMailer();
                     }

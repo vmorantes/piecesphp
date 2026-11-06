@@ -143,11 +143,15 @@ la ligereza de mi lenguaje»* (2026-08-24). Su frase textual solo se cita como f
   reconstruirlo (2026-09-13).
 - **Todo lo decidido queda documentado**, porque al final él tiene que reaprenderlo
   (2026-08-31), y porque quiere seguir gobernando el framework (2026-08-24).
-- **Una pregunta del PO se contesta; no se ejecuta.** «¿Podrías…?» pide una respuesta, no un
-  encargo. Nada se lanza (subagentes, lecturas masivas, instrucciones) hasta que él lo pida
-  explícitamente. Si hace falta concretar el alcance, se le pregunta y se espera. Nace el
-  2026-09-14: preguntó si se podían leer sus proyectos antiguos, pidiendo concisión, y el
-  arquitecto lanzó la lectura de 28 sin preguntar cuáles.
+- **Una pregunta del PO se contesta; no se ejecuta.** «¿Podrías…?» pide una respuesta, no un encargo: no se convierte en
+  trabajo (ni agentes, ni lecturas masivas, ni instrucciones) hasta terminar de hablar con él; si hace falta concretar el
+  alcance, se le pregunta y se espera. Nace el 2026-09-14: preguntó
+  si se podían leer sus proyectos antiguos, pidiendo concisión, y el arquitecto lanzó la lectura de 28 sin preguntar cuáles.
+  **No es una regla contra los agentes** (PO, 2026-11-05, P294: «surgió con motivo claro… no porque no quiera que lancen»):
+  para el trabajo ENCARGADO, arquitecto y coder usan los agentes que mejoren el trabajo (eficacia, seguridad, trabajo bien
+  hecho), de lectura o de escritura, sin preguntar; el modelo de cada uno lo pondera el arquitecto (ADR 0004). Escribir en el
+  árbol sigue siendo del coder y de los agentes que él lance.
+- **Fable, nunca** (PO, 2026-11-05): solo si el PO lo pide expresamente, y solo para el caso concreto que nombre.
 - **Respuestas en secciones numeradas** (1, 1.1, 2…), para que pueda citarlas en su respuesta
   («en 2.1…»). Vale para las explicaciones y los resúmenes al PO (2026-09-15).
 - **Cada mensaje del arquitecto al PO lleva un identificador `A-NNN`** en su primera línea.

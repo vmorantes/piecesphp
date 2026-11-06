@@ -1,6 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/js/helpers-lib/confirmAction.js" />
 window.addEventListener('load', function () {
 
 	//Registros › Tokens y códigos: los vigentes y su historia, por servidor.

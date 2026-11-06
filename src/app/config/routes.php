@@ -34,6 +34,7 @@ use PiecesPHP\Geo\GeoRoutes;
 use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
 use PiecesPHP\Logs\LogsRoutes as LogsViewerRoutes;
+use PiecesPHP\MailCatalog\MailCatalogRoutes;
 use PiecesPHP\Settings\Controllers\SiteFilesController;
 use PiecesPHP\Settings\SettingsRoutes;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
@@ -157,6 +158,9 @@ LocalizationSystemFeaturesRoutes::routes($zona_administrativa, $coreGroup);
 
 //Avisos del sistema y mantenimiento
 SystemStatusRoutes::routes($zona_administrativa);
+
+//Correos del sitio: el banco de pruebas de correo
+MailCatalogRoutes::routes($zona_administrativa);
 
 //Registros: una vista con las pestañas que aportan los módulos
 LogsViewerRoutes::routes($zona_administrativa);

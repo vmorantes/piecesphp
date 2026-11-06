@@ -1,4 +1,3 @@
-/// <reference path="./SimpleCropperAdapter.js" />
 /**
  * @function AttachmentPlaceholder
  *  

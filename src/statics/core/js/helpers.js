@@ -1,7 +1,3 @@
-///<reference path="./helpers-lib/CookiesHandler.js" />
-///<reference path="./helpers-lib/genericFormHandler.js" />
-///<reference path="./helpers-lib/GenericLoaderElement.js" />
-///<reference path="./helpers-lib/UtilPieces.js" />
 /**
  * @description Mensaje modal con tipo success (el toast de Fomantic; sin él, confirmAction)
  * @param {String} title Título del mensaje

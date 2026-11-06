@@ -1,21 +1,10 @@
 
-/// <reference path="./translations/es.js" />
-/// <reference path="./translations/en.js" />
-/// <reference path="./translations/fr.js" />
-/// <reference path="./translations/de.js" />
-/// <reference path="./translations/it.js" />
-/// <reference path="./translations/pt.js" />
-/// <reference path="./helpers.js" />
-/// <reference path="./user-system/PiecesPHPSystemUserHelper.js" />
 /**
- * Datos accesibles globalmente
- * @namespace
+ * Datos accesibles globalmente. Su tipo, cerrado, está en types/globals.d.ts: una propiedad nueva se declara allí.
+ * @type {PcsphpGlobals}
  */
-var pcsphpGlobals = {}
+var pcsphpGlobals = /** @type {PcsphpGlobals} */ ({})
 
-/**
- * @type {PiecesPHPSystemUserHelper}
- */
 pcsphpGlobals.globalAuthenticator = null
 
 //──── Events ────────────────────────────────────────────────────────────────────────────
@@ -172,9 +161,6 @@ pcsphpGlobals.cacheStamp = (function () {
 
 /**
  * Configuración de los calendarios
- * 
- * @property configCalendar
- * @type {Object}
  */
 pcsphpGlobals.configCalendar = {
 	type: 'date',
@@ -205,9 +191,6 @@ pcsphpGlobals.configCalendar = {
 
 /**
  * Configuración de las tablas DataTables
- * 
- * @property configCalendar
- * @type {Object}
  */
 pcsphpGlobals.configDataTables = {
 	"searching": true,
@@ -222,9 +205,6 @@ pcsphpGlobals.configDataTables = {
 
 /**
  * Configuración de Cropper
- * 
- * @property configCropper
- * @type {Object}
  */
 pcsphpGlobals.configCropper = {
 	aspectRatio: 4 / 3,

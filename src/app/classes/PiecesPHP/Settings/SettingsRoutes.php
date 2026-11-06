@@ -20,6 +20,8 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
+use PiecesPHP\MailCatalog\Definitions\MailSettingsTestMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Settings\Controllers\SiteFilesController;
 
@@ -45,6 +47,8 @@ class SettingsRoutes
         //Fuera del if: las filas existen y se leen aunque la pantalla esté apagada.
         self::declareConfigOptions();
         if (self::ENABLE) {
+            //El correo de prueba de Configuración › Correo, en el catálogo de correos.
+            MailCatalog::register(new MailSettingsTestMail());
             $group = SettingsController::routes($group);
             self::staticResolver($group);
         }

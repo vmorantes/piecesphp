@@ -482,13 +482,14 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         };
 
         $user = $validationUserObject->getUserFromDatabase();
-        //Si el rol no existe, se invalida la sesión y se marca como eliminado el usuario
+        //Si su tipo ya no es un rol, no hay sesión y se cierra su fila; el usuario NO se borra (P290, fase 1): un aviso se
+        //lo dice a root. El usuario de sistema no tiene rol a propósito: se le cierra la puerta igual.
         if (!Roles::roleExists($user->type ?? -999) && $user !== null) {
-            //El usuario de sistema no tiene rol a propósito: se le cierra la puerta, pero no se le borra.
-            if (!UsersModel::isSystemUser((int) $user->id)) {
-                $userMapper = new UsersModel($user->id);
-                $userMapper->status = UsersModel::STATUS_USER_DELETED;
-                $userMapper->update();
+            if (!UsersModel::isSystemUser((int) $user->id) && UserSessions::tokenIsValid($tokenSessionData, $tokenUserID)) {
+                $invalidTypeSession = UserSessions::current();
+                if ($invalidTypeSession !== null) {
+                    UserSessions::close((int) $invalidTypeSession['id'], null, UserSessions::REASON_INVALID_TYPE);
+                }
             }
             $isActiveSession = false;
             $user = null;
@@ -680,23 +681,24 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             }
         }
 
-        //Redirección al area administrativa desde formulario de logueo en caso de haber una session
-        $login_redirect = get_config('admin_url');
-        $relative_url = $login_redirect !== false ? ($login_redirect['relative'] ?? true) : true;
-        $relative_url = !is_bool($relative_url) ?true : $relative_url;
-        $admin_url = $login_redirect !== false ? ($login_redirect['url'] ?? '') : '';
-        if ($relative_url) {
-            $admin_url = baseurl($admin_url);
-        }
-
-        $admin_url = convert_lang_url($admin_url, get_config('default_lang'), get_config('app_lang'));
-
-        //Verifica que esté logueado
-        if ($isActiveSession) {
-
-            if ($name_route == 'users-form-login') {
-                return $emptyResponse->withRedirect($admin_url);
+        //Con sesión, el formulario de acceso vuelve a la página pedida (`next`, si es de este sitio) o al panel; nunca a la
+        //portada (P291 a). La `url` de admin_url vacía es la de fábrica: entonces, el panel; un clon que la puso la conserva.
+        if ($isActiveSession && $name_route == 'users-form-login') {
+            $nextURL = \PiecesPHP\UserSystem\Controllers\UsersController::safeNextURL($request->getQueryParams()['next'] ?? null);
+            if ($nextURL !== null) {
+                return $emptyResponse->withRedirect($nextURL);
             }
+            $login_redirect = get_config('admin_url');
+            $relative_url = $login_redirect !== false ? ($login_redirect['relative'] ?? true) : true;
+            $relative_url = !is_bool($relative_url) ?true : $relative_url;
+            $admin_url = $login_redirect !== false ? ($login_redirect['url'] ?? '') : '';
+            if (!is_string($admin_url) || $admin_url === '') {
+                $admin_url = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
+            } elseif ($relative_url) {
+                $admin_url = baseurl($admin_url);
+            }
+            $admin_url = convert_lang_url($admin_url, get_config('default_lang'), get_config('app_lang'));
+            return $emptyResponse->withRedirect($admin_url);
         }
 
         //Control de permisos por roles

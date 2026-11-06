@@ -1,7 +1,3 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/SimpleCropperAdapter.js" />
 //La prueba del recortador (Views/panel/pages/test-cropper.php): el resultado de cada recorte se avisa, no va a la consola.
 const testCropperLoaderName = 'test-cropper-loader'
 showGenericLoader(testCropperLoaderName)

@@ -12,6 +12,9 @@ use API\Adapters\SpeechToTextGroqAdapter;
 use API\Controllers\APIController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\MailCatalog\Definitions\ApiUserCreatedMail;
+use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
+use PiecesPHP\MailCatalog\MailCatalog;
 
 /**
  * APIRoutes.
@@ -46,6 +49,12 @@ class APIRoutes
             $groupAdministration = APIController::routes($groupAdministration);
 
             APILang::injectLang();
+
+            //Los correos de los usuarios por la API (el alta y el código de recuperación), en el catálogo de correos.
+            if (self::ENABLE_USERS) {
+                MailCatalog::register(new ApiUserCreatedMail(), 'API');
+                MailCatalog::register(new RecoveryPasswordMail(true), 'API');
+            }
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();

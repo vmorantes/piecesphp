@@ -234,6 +234,10 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     //La caja de un listado es un `ui fluid card` del tema (marcado de cada vista; un `ui segment` si la tabla no pasa por
     //DataTables, porque su primera celda iría pegada al borde): aquí solo lo que no es su aspecto, el
     //desplazamiento horizontal de una tabla ancha y la maqueta de la columna de acciones.
+    //El menú «⋯» de RowActions no cabe aquí: con `overflow-x: auto` (y el de `.dt-layout-full` del tema) el navegador
+    //calcula `overflow-y: auto`, y un menú `absolute` hacía desplazar la caja en vertical y salía recortado o tapado. Por
+    //eso contentRowActionsMenus() (admin-area/js/main.js) lo saca con `fixed` al abrirlo; `overflow: visible` aquí
+    //quitaría el desplazamiento horizontal de una tabla ancha. La flecha hacia abajo con `upward` ya la pone el tema.
     .container-standard-table {
         position: relative;
         overflow-x: auto;
@@ -519,6 +523,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 
     //Divisor de secciones en formulario
+    // @en-desuso 11.0.0: lo sustituye h2.ui.header del tema (JES); se borra en la 11.0.0
     @include section-fields-divider;
 
     //Normalización de enlaces
@@ -721,6 +726,7 @@ body.wait-to-action {
 //Fomantic
 .ui {
     &.form {
+        // @en-desuso 11.0.0: lo sustituye h2.ui.header del tema (JES); se borra en la 11.0.0
         @include section-fields-divider;
     }
 }

@@ -1,6 +1,4 @@
 //Referencias para ayuda del editor
-/// <reference path="../../../../../../../statics/js/CustomNamespace.js" />
-/// <reference path="../../PublicationsAdapter.js" />
 CustomNamespace.loader()
 window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, function (e) {
 

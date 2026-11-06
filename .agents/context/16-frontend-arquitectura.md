@@ -356,7 +356,10 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
   (`legend: {show: false}`): `legendToggleSelect` la usa para ocultar (en una dona funcionó también sin declararla,
   `#2342`; en las líneas, sin medir). Desde JDN acepta también una instancia de ApexCharts (compatibilidad hasta la
   `11.0.0`, H155), y `chart-card.php` sin `chartModifiers` pinta el contenedor de antes, sin `ui chart`. Y `resizeStatisticsChart(chart)` para la
-  ventana y las pestañas (`statics/core/js/statistics-chart-legend.js`). **Trampa**: con etiquetas blancas dentro del aro,
+  ventana y las pestañas (`statics/core/js/statistics-chart-legend.js`). **Toda tarta o dona pasa por
+  `fitStatisticsChart(chart, interior)`** (JEW, `dd623d0d`): con `radius` al 100 % la porción resaltada (`emphasis.scaleSize`,
+  5 px en ECharts 5.5.1) salía cortada en plano; el radio lo calcula en px en cada `resize()`, y el tooltip lleva los colores
+  del tema resueltos al iniciar (no cambian si el sistema pasa a oscuro sin recargar: H204). **Trampa**: con etiquetas blancas dentro del aro,
   un aro fino deja salir el texto de las porciones pequeñas sobre la tarjeta blanca, donde no se ve.
 - **Las piezas de estadísticas** (`view/panel/built-in/statistics/`, siete) **no traen su CSS**: la pantalla carga
   `statics/core/css/graphs-and-statistics.css` (el parcial `_graphs-and-statistics.scss`, compilado una vez en el
@@ -402,3 +405,18 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
 - **Una clave de traducción ES el texto español**: dentro de un grupo, «Inicio» como cabecera de columna se traduce igual
   que «Inicio» de las migas («Home»). Un texto que ya existe con otro sentido pide otra redacción (`#1244`).
 
+## Patrones nacidos en el banco de correos (JEU, 2026-11-05)
+
+- **Navegación fija de una página larga**: `ui vertical menu` dentro de `ui sticky` del tema a 992 px o más; por debajo, un
+  desplegable en una columna con `position: sticky` (el `ui sticky` no sigue a la columna cuando la rejilla se apila); `scroll-margin`
+  para que el ancla no quede bajo la barra. Hoy vive en `MailCatalog/Statics/`; pasa a pieza reutilizable con H200.
+- **Vista previa de un correo**: `<iframe srcdoc sandbox="allow-same-origin">` sin `allow-scripts`, con el alto de su contenido:
+  nunca una barra vertical propia (criterio del PO, 2026-10-31). Pintar un correo a mitad de página borra los assets globales (H89):
+  `MailCatalog::preview()` guarda y repone las claves de la página.
+- **El «⋯» de las acciones de fila lo inicia y lo coloca `contentRowActionsMenus()`** (`src/statics/admin-area/js/main.js`, JEV,
+  `f1cd5fbc`): al ponerse `active`, el `.menu` sale con `position: fixed` junto a su botón (hacia arriba si abajo no cabe); se
+  recoloca al desplazar y se cierra si su botón deja de verse. **La barra vertical la ponía `div.dt-layout-cell.dt-layout-full`**
+  (el `overflow-x` de DataTables), no solo `.container-standard-table`; no se arregla con `overflow: visible`, que quita el
+  desplazamiento horizontal. Límites: dentro de una `ui modal` (`will-change: transform`) `fixed` no es relativo a la ventana;
+  sin `max-height` si no cabe ni arriba ni abajo. La medida: `bin/tools/navegador/mide-acciones-fila.js` con `bin/navegador
+  --mide` (abre el «⋯» de la última fila); hoy solo Organizaciones pinta un «⋯» (4 acciones).

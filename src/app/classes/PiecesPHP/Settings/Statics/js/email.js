@@ -1,4 +1,3 @@
-/// <reference path="../../js/helpers.js" />
 showGenericLoader('email')
 window.addEventListener('load', () => {
 

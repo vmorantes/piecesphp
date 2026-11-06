@@ -1,4 +1,3 @@
-///<reference path="../../../../../../statics/core/js/helpers-lib/genericFormHandler.js" />
 window.addEventListener('load', () => {
 	//Los mandos del modo mantenimiento del sitio.
 	const formulario = document.querySelector('[site-maintenance-form]')

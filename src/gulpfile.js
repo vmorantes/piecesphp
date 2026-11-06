@@ -341,6 +341,25 @@ var destsPiecesPHPTS = {
 
 //---------Funciones de compilación
 
+/**
+ * Las opciones de compilación de un tsconfig.json: el mismo archivo que lee el editor, para que no haya dos fuentes.
+ * Si no se puede leer o trae una opción desconocida, la tarea falla en vez de compilar con otras.
+ *
+ * @param {string} file
+ * @returns {import('typescript').CompilerOptions}
+ */
+function tsCompilerOptions(file) {
+	const read = ts.readConfigFile(file, ts.sys.readFile)
+	if (read.error) {
+		throw new Error(`${file}: ${ts.flattenDiagnosticMessageText(read.error.messageText, ' ')}`)
+	}
+	const converted = ts.convertCompilerOptionsFromJson(read.config.compilerOptions || {}, path.dirname(path.resolve(file)))
+	if (converted.errors.length > 0) {
+		throw new Error(`${file}: ${converted.errors.map((error) => ts.flattenDiagnosticMessageText(error.messageText, ' ')).join('; ')}`)
+	}
+	return converted.options
+}
+
 function tsTask() {
 	const sources = sourcesOf(compilePiecesPHPTS.base)
 	if (sources === null) {
@@ -348,12 +367,7 @@ function tsTask() {
 	}
 	return sources
 		.pipe(initSourceMaps())
-		.pipe(typescriptCompile({
-			target: ts.ScriptTarget.ES5,
-			//Opciones importantes
-			skipLibCheck: true, //No buscar librerías .d.ts.
-			typeRoots: [], //No buscar tipos automáticamente en node_modules.
-		}))
+		.pipe(typescriptCompile(tsCompilerOptions('./statics/core/ts/tsconfig.json')))
 		.pipe(writeSourceMaps())
 		.pipe(writeIfChanged(destsPiecesPHPTS.base))
 }
