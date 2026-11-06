@@ -1,0 +1,2179 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Form
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+            Elements
+*******************************/
+
+
+/* --------------------
+        Form
+--------------------- */
+.ui.form {
+  position: relative;
+  max-width: 100%;
+}
+
+/* --------------------
+        Content
+--------------------- */
+.ui.form > p {
+  margin: 1.14285714em 0;
+}
+
+/* --------------------
+        Field
+--------------------- */
+.ui.form .field {
+  clear: both;
+  margin: 0 0 1.14285714em;
+}
+.ui.form .fields .fields,
+.ui.form .field:last-child,
+.ui.form .fields:last-child .field {
+  margin-bottom: 0;
+}
+.ui.form .fields .field {
+  clear: both;
+  margin: 0;
+}
+
+/* --------------------
+        Labels
+--------------------- */
+.ui.form .field > label {
+  display: block;
+  margin: 0 0 0.42857143em 0;
+  font-size: 0.92857143em;
+  font-weight: 600;
+  text-transform: none;
+}
+.ui.form:not(.inverted) .field > label:not(.button) {
+  color: var(--theme-text);
+}
+
+/* --------------------
+    Standard Inputs
+--------------------- */
+.ui.form textarea,
+.ui.form input:not([type]),
+.ui.form input[type="color"],
+.ui.form input[type="date"],
+.ui.form input[type="datetime-local"],
+.ui.form input[type="email"],
+.ui.form input[type="month"],
+.ui.form input[type="number"],
+.ui.form input[type="password"],
+.ui.form input[type="search"],
+.ui.form input[type="tel"],
+.ui.form input[type="time"],
+.ui.form input[type="text"],
+.ui.form input[type="file"],
+.ui.form input[type="url"],
+.ui.form input[type="week"] {
+  width: 100%;
+  vertical-align: top;
+}
+
+/* Set max height on unusual input */
+.ui.form ::-webkit-datetime-edit,
+.ui.form ::-webkit-inner-spin-button {
+  height: 1.42857143em;
+}
+.ui.form input:not([type]),
+.ui.form input[type="color"],
+.ui.form input[type="date"],
+.ui.form input[type="datetime-local"],
+.ui.form input[type="email"],
+.ui.form input[type="month"],
+.ui.form input[type="number"],
+.ui.form input[type="password"],
+.ui.form input[type="search"],
+.ui.form input[type="tel"],
+.ui.form input[type="time"],
+.ui.form input[type="text"],
+.ui.form input[type="file"],
+.ui.form input[type="url"],
+.ui.form input[type="week"] {
+  font-family: var(--font-body);
+  margin: 0;
+  outline: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  line-height: 1.42857143em;
+  padding: 0.64285714em 0.85714286em;
+  font-size: 1em;
+  background: var(--theme-surface);
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  color: var(--theme-text);
+  border-radius: var(--r-md, 8px);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  transition: color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.form input[type="color"] {
+  padding: initial;
+}
+.ui.form input::-webkit-calendar-picker-indicator {
+  padding: 0;
+  opacity: 0.5;
+  -webkit-transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+/* Text Area */
+.ui.input textarea,
+.ui.form textarea {
+  margin: 0;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  padding: 0.64285714em 0.85714286em;
+  background: var(--theme-surface);
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  outline: none;
+  color: var(--theme-text);
+  border-radius: var(--r-md, 8px);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  transition: color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  font-size: 1em;
+  font-family: var(--font-body);
+  line-height: 1.42857143;
+  resize: vertical;
+  min-height: 2.71428571em;
+}
+
+/* Fork: un campo de código (`textarea.ui.code.segment`) lleva el fondo y la letra del bloque de
+   código, pero el relleno de un textarea del formulario (el del segmento es el de un <pre>) */
+.ui.form textarea.ui.code.segment {
+  padding: 0.64285714em 0.85714286em;
+}
+.ui.input > textarea {
+  flex: 1 1 auto;
+  max-width: 100%;
+}
+.ui.form textarea:not([rows]) {
+  height: 12em;
+  min-height: 8em;
+  max-height: 24em;
+}
+.ui.form textarea,
+.ui.form input[type="checkbox"] {
+  vertical-align: top;
+}
+
+/* --------------------
+    Checkbox margin
+--------------------- */
+.ui.form .fields:not(.grouped):not(.inline) .field:not(:only-child) label + .ui.ui.checkbox {
+  margin-top: 0.7em;
+}
+.ui.form .fields:not(.grouped):not(.inline) .field:not(:only-child) .ui.checkbox {
+  margin-top: 2.62857143em;
+}
+.ui.form .fields:not(.grouped):not(.inline) .field:not(:only-child) .ui.toggle.checkbox {
+  margin-top: 2.42857143em;
+}
+.ui.form .fields:not(.grouped):not(.inline) .field:not(:only-child) .ui.slider.checkbox {
+  margin-top: 2.82857143em;
+}
+.ui.ui.form .field .fields .field:not(:only-child) .ui.checkbox {
+  margin-top: 0.6em;
+}
+.ui.ui.form .field .fields .field:not(:only-child) .ui.toggle.checkbox {
+  margin-top: 0.5em;
+}
+.ui.ui.form .field .fields .field:not(:only-child) .ui.slider.checkbox {
+  margin-top: 0.7em;
+}
+
+/* Fork: la casilla que va debajo del control de su campo (p. ej. «Usar TLS» bajo el puerto) no
+   se alinea con los inputs de la fila: queda a una distancia corta del control (D52).
+   Especificidad por encima de la del toggle en una fila (`.fields:not(…) .field:not(…) .ui.toggle…`) */
+.ui.ui.ui.ui.form .fields .field > :is(input, select, textarea, .ui.input, .ui.dropdown) ~ .ui.checkbox,
+.ui.ui.ui.ui.form .fields .field > :is(input, select, textarea, .ui.input, .ui.dropdown) ~ :not(.ui) > .ui.checkbox {
+  margin-top: 0.57142857rem;
+}
+
+/* --------------------
+          Transparent
+    --------------------- */
+.ui.form .field .transparent.input:not(.icon) input,
+.ui.form .field input.transparent,
+.ui.form .field textarea.transparent {
+  padding: 0.64285714em 0.85714286em;
+}
+.ui.form .field input.transparent,
+.ui.form .field textarea.transparent {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* --------------------------
+  Input w/ attached Button
+--------------------------- */
+.ui.form input.attached {
+  width: auto;
+}
+
+/* --------------------
+     Basic Select
+--------------------- */
+.ui.form select {
+  display: block;
+  height: auto;
+  width: 100%;
+  background: var(--theme-surface);
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  border-radius: var(--r-md, 8px);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  padding: 0.64285714em 0.85714286em;
+  color: var(--theme-text);
+  transition: color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* --------------------
+       Dropdown
+--------------------- */
+
+/* Block */
+.ui.form .field > .selection.dropdown:not(.compact) {
+  min-width: auto;
+  width: 100%;
+}
+.ui.form .field > .selection.dropdown > .dropdown.icon {
+  float: right;
+}
+
+/* Inline */
+.ui.form .inline.fields .field > .selection.dropdown,
+.ui.form .inline.field > .selection.dropdown {
+  width: auto;
+}
+.ui.form .inline.fields .field > .selection.dropdown > .dropdown.icon,
+.ui.form .inline.field > .selection.dropdown > .dropdown.icon {
+  float: none;
+}
+
+/* --------------------
+       UI Input
+--------------------- */
+
+/* Block */
+.ui.form .field .ui.input,
+.ui.form .fields .field .ui.input,
+.ui.form .wide.field .ui.input {
+  width: 100%;
+}
+
+/* Inline */
+.ui.form .inline.fields .field:not(.wide) .ui.input,
+.ui.form .inline.field:not(.wide) .ui.input {
+  width: auto;
+  vertical-align: middle;
+}
+
+/* Auto Input */
+.ui.form .fields .field .ui.input input,
+.ui.form .fields .field .ui.input textarea,
+.ui.form .field .ui.input input,
+.ui.form .field .ui.input textarea {
+  width: 100%;
+}
+
+/* Full Width Input */
+.ui.form .ten.fields .ui.input input,
+.ui.form .nine.fields .ui.input input,
+.ui.form .eight.fields .ui.input input,
+.ui.form .seven.fields .ui.input input,
+.ui.form .six.fields .ui.input input,
+.ui.form .five.fields .ui.input input,
+.ui.form .four.fields .ui.input input,
+.ui.form .three.fields .ui.input input,
+.ui.form .two.fields .ui.input input,
+.ui.form .wide.field .ui.input input {
+  flex: 1 0 auto;
+  width: 0;
+}
+
+/* --------------------
+   Types of Messages
+--------------------- */
+.ui.form .error.message,
+.ui.form .error.message:empty {
+  display: none;
+}
+.ui.form .info.message,
+.ui.form .info.message:empty {
+  display: none;
+}
+.ui.form .success.message,
+.ui.form .success.message:empty {
+  display: none;
+}
+.ui.form .warning.message,
+.ui.form .warning.message:empty {
+  display: none;
+}
+
+/* Assumptions */
+.ui.form .message:first-child {
+  margin-top: 0;
+}
+
+/* --------------------
+   Validation Prompt
+--------------------- */
+.ui.form .field .prompt.label {
+  white-space: normal;
+  background: var(--theme-surface) !important;
+  border: 1px solid light-dark(#fecdca, #7a271a) !important;
+  color: light-dark(#b42318, #fda29b) !important;
+}
+.ui.form .field .prompt.label li::before {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.form .inline.fields .field .prompt,
+.ui.form .inline.field .prompt {
+  vertical-align: top;
+  margin: -0.25em 0 -0.5em 0.5em;
+}
+.ui.form .inline.fields .field .prompt::before,
+.ui.form .inline.field .prompt::before {
+  border-width: 0 0 1px 1px;
+  bottom: auto;
+  right: auto;
+  top: 50%;
+  left: 0;
+}
+
+
+/*******************************
+            States
+*******************************/
+
+
+/* --------------------
+      Autofilled
+--------------------- */
+.ui.form .field.field input:-webkit-autofill {
+  box-shadow: 0 0 0 100px #fffff0 inset !important;
+  border-color: #e5dfa1 !important;
+}
+
+/* Focus */
+.ui.form .field.field input:-webkit-autofill:focus {
+  box-shadow: 0 0 0 100px #fffff0 inset !important;
+  border-color: #d5c315 !important;
+}
+
+/* --------------------
+      Placeholder
+--------------------- */
+
+/* browsers require these rules separate */
+.ui.form :-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.form ::-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.form ::placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.form :-ms-input-placeholder {
+  color: var(--theme-text-muted) !important;
+}
+.ui.form :focus:-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.form :focus::-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.form :focus::placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.form :focus:-ms-input-placeholder {
+  color: var(--theme-text-muted) !important;
+}
+
+/* --------------------
+        Focus
+--------------------- */
+.ui.form input:not([type]):focus,
+.ui.form input[type="color"]:focus,
+.ui.form input[type="date"]:focus,
+.ui.form input[type="datetime-local"]:focus,
+.ui.form input[type="email"]:focus,
+.ui.form input[type="month"]:focus,
+.ui.form input[type="number"]:focus,
+.ui.form input[type="password"]:focus,
+.ui.form input[type="search"]:focus,
+.ui.form input[type="tel"]:focus,
+.ui.form input[type="time"]:focus,
+.ui.form input[type="text"]:focus,
+.ui.form input[type="file"]:focus,
+.ui.form input[type="url"]:focus,
+.ui.form input[type="week"]:focus {
+  color: var(--theme-text);
+  border-color: var(--accent-1, var(--accent, #356dca));
+  border-radius: var(--r-md, 8px);
+  background: var(--theme-surface);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+.ui.form .ui.action.input:not([class*="left action"]) input:not([type]):focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="color"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="date"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="datetime-local"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="email"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="month"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="number"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="password"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="search"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="tel"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="time"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="text"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="file"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="url"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) input[type="week"]:focus,
+.ui.form .ui.action.input:not([class*="left action"]) textarea:focus {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.ui.form .ui[class*="left action"].input input:not([type]),
+.ui.form .ui[class*="left action"].input input[type="color"],
+.ui.form .ui[class*="left action"].input input[type="date"],
+.ui.form .ui[class*="left action"].input input[type="datetime-local"],
+.ui.form .ui[class*="left action"].input input[type="email"],
+.ui.form .ui[class*="left action"].input input[type="month"],
+.ui.form .ui[class*="left action"].input input[type="number"],
+.ui.form .ui[class*="left action"].input input[type="password"],
+.ui.form .ui[class*="left action"].input input[type="search"],
+.ui.form .ui[class*="left action"].input input[type="tel"],
+.ui.form .ui[class*="left action"].input input[type="time"],
+.ui.form .ui[class*="left action"].input input[type="text"],
+.ui.form .ui[class*="left action"].input input[type="file"],
+.ui.form .ui[class*="left action"].input input[type="url"],
+.ui.form .ui[class*="left action"].input input[type="week"],
+.ui.form .ui[class*="left action"].input textarea {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+.ui.form textarea:focus {
+  color: var(--theme-text);
+  border-color: var(--accent-1, var(--accent, #356dca));
+  border-radius: var(--r-md, 8px);
+  background: var(--theme-surface);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+  -webkit-appearance: none;
+}
+
+/* Focus */
+.ui.form input:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
+/* --------------------
+            States
+    --------------------- */
+
+/* On Form */
+.ui.form.error .error.message:not(:empty) {
+  display: block;
+}
+.ui.form.error .compact.error.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form.error .icon.error.message:not(:empty) {
+  display: flex;
+}
+
+/* On Field(s) */
+.ui.form .fields.error .error.message:not(:empty),
+.ui.form .field.error .error.message:not(:empty) {
+  display: block;
+}
+.ui.form .fields.error .compact.error.message:not(:empty),
+.ui.form .field.error .compact.error.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form .fields.error .icon.error.message:not(:empty),
+.ui.form .field.error .icon.error.message:not(:empty) {
+  display: flex;
+}
+.ui.ui.form .fields.error .field label,
+.ui.ui.form .fields.error > label,
+.ui.ui.form .fields.error .field .ui.label:not(.corner),
+.ui.ui.form .field.error label,
+.ui.ui.form .field.error .ui.label:not(.corner),
+.ui.ui.form .fields.error .field .input,
+.ui.ui.form .field.error .input {
+  color: light-dark(#b42318, #fda29b);
+}
+@supports selector(:has(.f)) {
+  .ui.form .fields:has(.error) > label {
+    color: light-dark(#b42318, #fda29b);
+  }
+}
+.ui.form .fields.error .field .ui.label,
+.ui.form .field.error .ui.label {
+  background-color: light-dark(#fef3f2, #351513);
+}
+
+/* Fork: el texto de la etiqueta va sobre su relleno (@lbg), no sobre la página: por la
+           luminosidad del relleno (D36). */
+.ui.ui.ui.form .fields.error .field .ui.label:not(.corner),
+.ui.ui.ui.form .field.error .ui.label:not(.corner) {
+  color: oklch(from light-dark(#fef3f2, #351513) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.error .field .corner.label,
+.ui.form .field.error .corner.label {
+  border-color: light-dark(#b42318, #fda29b);
+  
+/* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
+               blanco fijo no se leía */
+  color: oklch(from light-dark(#b42318, #fda29b) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.error .field textarea,
+.ui.form .fields.error .field select,
+.ui.form .fields.error .field input:not([type]),
+.ui.form .fields.error .field input[type="color"],
+.ui.form .fields.error .field input[type="date"],
+.ui.form .fields.error .field input[type="datetime-local"],
+.ui.form .fields.error .field input[type="email"],
+.ui.form .fields.error .field input[type="month"],
+.ui.form .fields.error .field input[type="number"],
+.ui.form .fields.error .field input[type="password"],
+.ui.form .fields.error .field input[type="search"],
+.ui.form .fields.error .field input[type="tel"],
+.ui.form .fields.error .field input[type="time"],
+.ui.form .fields.error .field input[type="text"],
+.ui.form .fields.error .field input[type="file"],
+.ui.form .fields.error .field input[type="url"],
+.ui.form .fields.error .field input[type="week"],
+.ui.form .field.error textarea,
+.ui.form .field.error select,
+.ui.form .field.error input:not([type]),
+.ui.form .field.error input[type="color"],
+.ui.form .field.error input[type="date"],
+.ui.form .field.error input[type="datetime-local"],
+.ui.form .field.error input[type="email"],
+.ui.form .field.error input[type="month"],
+.ui.form .field.error input[type="number"],
+.ui.form .field.error input[type="password"],
+.ui.form .field.error input[type="search"],
+.ui.form .field.error input[type="tel"],
+.ui.form .field.error input[type="time"],
+.ui.form .field.error input[type="text"],
+.ui.form .field.error input[type="file"],
+.ui.form .field.error input[type="url"],
+.ui.form .field.error input[type="week"] {
+  color: light-dark(#b42318, #fda29b);
+  background: light-dark(#fef3f2, #351513);
+  border-color: #f04438;
+  border-radius: "";
+  box-shadow: none;
+}
+
+/* Fork: `:user-invalid`, no `:invalid`: `initial` lo pone `.form()`, y un formulario sin él
+           salía en rojo al cargar con cualquier `required` vacío (D70) */
+.ui.form:not(.initial) .field textarea:user-invalid,
+.ui.form:not(.initial) .field input:user-invalid {
+  color: light-dark(#b42318, #fda29b);
+  background: light-dark(#fef3f2, #351513);
+  border-color: #f04438;
+  border-radius: "";
+  box-shadow: none;
+}
+.ui.form .field.error textarea:focus,
+.ui.form .field.error select:focus,
+.ui.form .field.error input:not([type]):focus,
+.ui.form .field.error input[type="color"]:focus,
+.ui.form .field.error input[type="date"]:focus,
+.ui.form .field.error input[type="datetime-local"]:focus,
+.ui.form .field.error input[type="email"]:focus,
+.ui.form .field.error input[type="month"]:focus,
+.ui.form .field.error input[type="number"]:focus,
+.ui.form .field.error input[type="password"]:focus,
+.ui.form .field.error input[type="search"]:focus,
+.ui.form .field.error input[type="tel"]:focus,
+.ui.form .field.error input[type="time"]:focus,
+.ui.form .field.error input[type="text"]:focus,
+.ui.form .field.error input[type="file"]:focus,
+.ui.form .field.error input[type="url"]:focus,
+.ui.form .field.error input[type="week"]:focus {
+  background: light-dark(#fef3f2, #351513);
+  border-color: #f04438;
+  color: light-dark(#b42318, #fda29b);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #f04438 22%, transparent);
+}
+.ui.form .field.error > textarea:hover:not(:focus),
+.ui.form .field.error > input:hover:not(:focus) {
+  border-color: #f04438;
+}
+
+/* Preserve Native Select Stylings */
+.ui.form .field.error select {
+  -webkit-appearance: menulist-button;
+}
+
+/*------------------
+            Input State
+        --------------------*/
+
+
+/* Transparent */
+.ui.form .field.error .transparent.input input,
+.ui.form .field.error .transparent.input textarea,
+.ui.form .field.error input.transparent,
+.ui.form .field.error textarea.transparent {
+  background-color: light-dark(#fef3f2, #351513) !important;
+  color: light-dark(#b42318, #fda29b) !important;
+}
+
+/* Autofilled */
+.ui.form .error.error input:-webkit-autofill {
+  box-shadow: 0 0 0 100px #fffaf0 inset !important;
+  border-color: #e0b4b4 !important;
+}
+
+/* Placeholder */
+.ui.form .error :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+}
+.ui.form .error ::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+}
+.ui.form .error .ui.dropdown > .default.text,
+.ui.form .error ::placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+}
+.ui.form .error :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface)) !important;
+}
+.ui.form .error :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+}
+.ui.form .error :focus::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+}
+.ui.form .error .ui.dropdown > input:focus ~ .default.text,
+.ui.form .error :focus::placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+}
+.ui.form .error :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface)) !important;
+}
+
+/*------------------
+            Dropdown State
+        --------------------*/
+
+.ui.form .fields.error .field .ui.dropdown,
+.ui.form .fields.error .field .ui.dropdown .item,
+.ui.form .field.error .ui.dropdown,
+.ui.form .field.error .ui.dropdown > .text,
+.ui.form .field.error .ui.dropdown .item {
+  background: light-dark(#fef3f2, #351513);
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.form .fields.error .field .ui.dropdown,
+.ui.form .field.error .ui.dropdown {
+  border-color: #f04438 !important;
+}
+.ui.form .fields.error .field .ui.dropdown:hover,
+.ui.form .field.error .ui.dropdown:hover {
+  border-color: #f04438 !important;
+}
+.ui.form .fields.error .field .ui.dropdown:hover .menu,
+.ui.form .field.error .ui.dropdown:hover .menu {
+  border-color: #f04438;
+}
+.ui.form .fields.error .field .ui.multiple.selection.dropdown > .label,
+.ui.form .field.error .ui.multiple.selection.dropdown > .label {
+  background-color: color-mix(in srgb, light-dark(#fecdca, #7a271a) 60%, var(--theme-surface));
+  color: light-dark(#b42318, #fda29b);
+}
+
+/* Hover */
+.ui.form .fields.error .field .ui.dropdown .menu .item:hover,
+.ui.form .field.error .ui.dropdown .menu .item:hover {
+  background-color: #fbe7e7;
+}
+
+/* Selected */
+.ui.form .fields.error .field .ui.dropdown .menu .selected.item,
+.ui.form .field.error .ui.dropdown .menu .selected.item {
+  background-color: #fbe7e7;
+}
+
+/* Active */
+.ui.form .fields.error .field .ui.dropdown .menu .active.item,
+.ui.form .field.error .ui.dropdown .menu .active.item {
+  background-color: #fdcfcf !important;
+}
+
+/*--------------------
+            Checkbox State
+        ---------------------*/
+
+.ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label,
+.ui.form .field.error .checkbox:not(.toggle):not(.slider) label {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.form .field.error .checkbox:not(.toggle):not(.slider) label::before {
+  background: light-dark(#fef3f2, #351513);
+  border-color: #f04438;
+}
+.ui.form .fields.error .field .checkbox label::after,
+.ui.form .field.error .checkbox label::after {
+  color: light-dark(#b42318, #fda29b);
+}
+
+/* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
+           el checkbox marcado y el resto de controles del campo (D48) */
+.ui.form .fields.error .field .ui.toggle.checkbox input:checked ~ label::before,
+.ui.form .field.error .ui.toggle.checkbox input:checked ~ label::before {
+  background-color: light-dark(#b42318, #fda29b);
+}
+
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+.ui.inverted.form .fields.error .field label,
+.ui.inverted.form .error.field label {
+  color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) c h);
+}
+.ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label,
+.ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label {
+  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) c h);
+}
+@supports selector(:has(.f)) {
+  .ui.inverted.form .fields:has(.error) > label {
+    color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) c h);
+  }
+}
+
+/* On Form */
+.ui.form.info .info.message:not(:empty) {
+  display: block;
+}
+.ui.form.info .compact.info.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form.info .icon.info.message:not(:empty) {
+  display: flex;
+}
+
+/* On Field(s) */
+.ui.form .fields.info .info.message:not(:empty),
+.ui.form .field.info .info.message:not(:empty) {
+  display: block;
+}
+.ui.form .fields.info .compact.info.message:not(:empty),
+.ui.form .field.info .compact.info.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form .fields.info .icon.info.message:not(:empty),
+.ui.form .field.info .icon.info.message:not(:empty) {
+  display: flex;
+}
+.ui.ui.form .fields.info .field label,
+.ui.ui.form .fields.info > label,
+.ui.ui.form .fields.info .field .ui.label:not(.corner),
+.ui.ui.form .field.info label,
+.ui.ui.form .field.info .ui.label:not(.corner),
+.ui.ui.form .fields.info .field .input,
+.ui.ui.form .field.info .input {
+  color: light-dark(#0e7090, #67e3f9);
+}
+@supports selector(:has(.f)) {
+  .ui.form .fields:has(.info) > label {
+    color: light-dark(#0e7090, #67e3f9);
+  }
+}
+.ui.form .fields.info .field .ui.label,
+.ui.form .field.info .ui.label {
+  background-color: light-dark(#ecfdff, #0a2a33);
+}
+
+/* Fork: el texto de la etiqueta va sobre su relleno (@lbg), no sobre la página: por la
+           luminosidad del relleno (D36). */
+.ui.ui.ui.form .fields.info .field .ui.label:not(.corner),
+.ui.ui.ui.form .field.info .ui.label:not(.corner) {
+  color: oklch(from light-dark(#ecfdff, #0a2a33) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.info .field .corner.label,
+.ui.form .field.info .corner.label {
+  border-color: light-dark(#0e7090, #67e3f9);
+  
+/* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
+               blanco fijo no se leía */
+  color: oklch(from light-dark(#0e7090, #67e3f9) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.info .field textarea,
+.ui.form .fields.info .field select,
+.ui.form .fields.info .field input:not([type]),
+.ui.form .fields.info .field input[type="color"],
+.ui.form .fields.info .field input[type="date"],
+.ui.form .fields.info .field input[type="datetime-local"],
+.ui.form .fields.info .field input[type="email"],
+.ui.form .fields.info .field input[type="month"],
+.ui.form .fields.info .field input[type="number"],
+.ui.form .fields.info .field input[type="password"],
+.ui.form .fields.info .field input[type="search"],
+.ui.form .fields.info .field input[type="tel"],
+.ui.form .fields.info .field input[type="time"],
+.ui.form .fields.info .field input[type="text"],
+.ui.form .fields.info .field input[type="file"],
+.ui.form .fields.info .field input[type="url"],
+.ui.form .fields.info .field input[type="week"],
+.ui.form .field.info textarea,
+.ui.form .field.info select,
+.ui.form .field.info input:not([type]),
+.ui.form .field.info input[type="color"],
+.ui.form .field.info input[type="date"],
+.ui.form .field.info input[type="datetime-local"],
+.ui.form .field.info input[type="email"],
+.ui.form .field.info input[type="month"],
+.ui.form .field.info input[type="number"],
+.ui.form .field.info input[type="password"],
+.ui.form .field.info input[type="search"],
+.ui.form .field.info input[type="tel"],
+.ui.form .field.info input[type="time"],
+.ui.form .field.info input[type="text"],
+.ui.form .field.info input[type="file"],
+.ui.form .field.info input[type="url"],
+.ui.form .field.info input[type="week"] {
+  color: light-dark(#0e7090, #67e3f9);
+  background: light-dark(#ecfdff, #0a2a33);
+  border-color: #06aed4;
+  border-radius: "";
+  box-shadow: none;
+}
+
+/* Fork: `:user-invalid`, no `:invalid`: `initial` lo pone `.form()`, y un formulario sin él
+           salía en rojo al cargar con cualquier `required` vacío (D70) */
+.ui.form .field.info textarea:focus,
+.ui.form .field.info select:focus,
+.ui.form .field.info input:not([type]):focus,
+.ui.form .field.info input[type="color"]:focus,
+.ui.form .field.info input[type="date"]:focus,
+.ui.form .field.info input[type="datetime-local"]:focus,
+.ui.form .field.info input[type="email"]:focus,
+.ui.form .field.info input[type="month"]:focus,
+.ui.form .field.info input[type="number"]:focus,
+.ui.form .field.info input[type="password"]:focus,
+.ui.form .field.info input[type="search"]:focus,
+.ui.form .field.info input[type="tel"]:focus,
+.ui.form .field.info input[type="time"]:focus,
+.ui.form .field.info input[type="text"]:focus,
+.ui.form .field.info input[type="file"]:focus,
+.ui.form .field.info input[type="url"]:focus,
+.ui.form .field.info input[type="week"]:focus {
+  background: light-dark(#ecfdff, #0a2a33);
+  border-color: #06aed4;
+  color: light-dark(#0e7090, #67e3f9);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #06aed4 22%, transparent);
+}
+.ui.form .field.info > textarea:hover:not(:focus),
+.ui.form .field.info > input:hover:not(:focus) {
+  border-color: #06aed4;
+}
+
+/* Preserve Native Select Stylings */
+.ui.form .field.info select {
+  -webkit-appearance: menulist-button;
+}
+
+/*------------------
+            Input State
+        --------------------*/
+
+
+/* Transparent */
+.ui.form .field.info .transparent.input input,
+.ui.form .field.info .transparent.input textarea,
+.ui.form .field.info input.transparent,
+.ui.form .field.info textarea.transparent {
+  background-color: light-dark(#ecfdff, #0a2a33) !important;
+  color: light-dark(#0e7090, #67e3f9) !important;
+}
+
+/* Autofilled */
+.ui.form .info.info input:-webkit-autofill {
+  box-shadow: 0 0 0 100px #f0faff inset !important;
+  border-color: #b3e0e0 !important;
+}
+
+/* Placeholder */
+.ui.form .info :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+}
+.ui.form .info ::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+}
+.ui.form .info .ui.dropdown > .default.text,
+.ui.form .info ::placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+}
+.ui.form .info :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface)) !important;
+}
+.ui.form .info :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+}
+.ui.form .info :focus::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+}
+.ui.form .info .ui.dropdown > input:focus ~ .default.text,
+.ui.form .info :focus::placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+}
+.ui.form .info :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface)) !important;
+}
+
+/*------------------
+            Dropdown State
+        --------------------*/
+
+.ui.form .fields.info .field .ui.dropdown,
+.ui.form .fields.info .field .ui.dropdown .item,
+.ui.form .field.info .ui.dropdown,
+.ui.form .field.info .ui.dropdown > .text,
+.ui.form .field.info .ui.dropdown .item {
+  background: light-dark(#ecfdff, #0a2a33);
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.form .fields.info .field .ui.dropdown,
+.ui.form .field.info .ui.dropdown {
+  border-color: #06aed4 !important;
+}
+.ui.form .fields.info .field .ui.dropdown:hover,
+.ui.form .field.info .ui.dropdown:hover {
+  border-color: #06aed4 !important;
+}
+.ui.form .fields.info .field .ui.dropdown:hover .menu,
+.ui.form .field.info .ui.dropdown:hover .menu {
+  border-color: #06aed4;
+}
+.ui.form .fields.info .field .ui.multiple.selection.dropdown > .label,
+.ui.form .field.info .ui.multiple.selection.dropdown > .label {
+  background-color: color-mix(in srgb, light-dark(#a5f0fc, #155b75) 60%, var(--theme-surface));
+  color: light-dark(#0e7090, #67e3f9);
+}
+
+/* Hover */
+.ui.form .fields.info .field .ui.dropdown .menu .item:hover,
+.ui.form .field.info .ui.dropdown .menu .item:hover {
+  background-color: #e9f2fb;
+}
+
+/* Selected */
+.ui.form .fields.info .field .ui.dropdown .menu .selected.item,
+.ui.form .field.info .ui.dropdown .menu .selected.item {
+  background-color: #e9f2fb;
+}
+
+/* Active */
+.ui.form .fields.info .field .ui.dropdown .menu .active.item,
+.ui.form .field.info .ui.dropdown .menu .active.item {
+  background-color: #cef1fd !important;
+}
+
+/*--------------------
+            Checkbox State
+        ---------------------*/
+
+.ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label,
+.ui.form .field.info .checkbox:not(.toggle):not(.slider) label {
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.form .field.info .checkbox:not(.toggle):not(.slider) label::before {
+  background: light-dark(#ecfdff, #0a2a33);
+  border-color: #06aed4;
+}
+.ui.form .fields.info .field .checkbox label::after,
+.ui.form .field.info .checkbox label::after {
+  color: light-dark(#0e7090, #67e3f9);
+}
+
+/* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
+           el checkbox marcado y el resto de controles del campo (D48) */
+.ui.form .fields.info .field .ui.toggle.checkbox input:checked ~ label::before,
+.ui.form .field.info .ui.toggle.checkbox input:checked ~ label::before {
+  background-color: light-dark(#0e7090, #67e3f9);
+}
+
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+.ui.inverted.form .fields.info .field label,
+.ui.inverted.form .info.field label {
+  color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) c h);
+}
+.ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label,
+.ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label {
+  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) c h);
+}
+@supports selector(:has(.f)) {
+  .ui.inverted.form .fields:has(.info) > label {
+    color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) c h);
+  }
+}
+
+/* On Form */
+.ui.form.success .success.message:not(:empty) {
+  display: block;
+}
+.ui.form.success .compact.success.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form.success .icon.success.message:not(:empty) {
+  display: flex;
+}
+
+/* On Field(s) */
+.ui.form .fields.success .success.message:not(:empty),
+.ui.form .field.success .success.message:not(:empty) {
+  display: block;
+}
+.ui.form .fields.success .compact.success.message:not(:empty),
+.ui.form .field.success .compact.success.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form .fields.success .icon.success.message:not(:empty),
+.ui.form .field.success .icon.success.message:not(:empty) {
+  display: flex;
+}
+.ui.ui.form .fields.success .field label,
+.ui.ui.form .fields.success > label,
+.ui.ui.form .fields.success .field .ui.label:not(.corner),
+.ui.ui.form .field.success label,
+.ui.ui.form .field.success .ui.label:not(.corner),
+.ui.ui.form .fields.success .field .input,
+.ui.ui.form .field.success .input {
+  color: light-dark(#067647, #75e0a7);
+}
+@supports selector(:has(.f)) {
+  .ui.form .fields:has(.success) > label {
+    color: light-dark(#067647, #75e0a7);
+  }
+}
+.ui.form .fields.success .field .ui.label,
+.ui.form .field.success .ui.label {
+  background-color: light-dark(#ecfdf3, #0c2a1c);
+}
+
+/* Fork: el texto de la etiqueta va sobre su relleno (@lbg), no sobre la página: por la
+           luminosidad del relleno (D36). */
+.ui.ui.ui.form .fields.success .field .ui.label:not(.corner),
+.ui.ui.ui.form .field.success .ui.label:not(.corner) {
+  color: oklch(from light-dark(#ecfdf3, #0c2a1c) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.success .field .corner.label,
+.ui.form .field.success .corner.label {
+  border-color: light-dark(#067647, #75e0a7);
+  
+/* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
+               blanco fijo no se leía */
+  color: oklch(from light-dark(#067647, #75e0a7) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.success .field textarea,
+.ui.form .fields.success .field select,
+.ui.form .fields.success .field input:not([type]),
+.ui.form .fields.success .field input[type="color"],
+.ui.form .fields.success .field input[type="date"],
+.ui.form .fields.success .field input[type="datetime-local"],
+.ui.form .fields.success .field input[type="email"],
+.ui.form .fields.success .field input[type="month"],
+.ui.form .fields.success .field input[type="number"],
+.ui.form .fields.success .field input[type="password"],
+.ui.form .fields.success .field input[type="search"],
+.ui.form .fields.success .field input[type="tel"],
+.ui.form .fields.success .field input[type="time"],
+.ui.form .fields.success .field input[type="text"],
+.ui.form .fields.success .field input[type="file"],
+.ui.form .fields.success .field input[type="url"],
+.ui.form .fields.success .field input[type="week"],
+.ui.form .field.success textarea,
+.ui.form .field.success select,
+.ui.form .field.success input:not([type]),
+.ui.form .field.success input[type="color"],
+.ui.form .field.success input[type="date"],
+.ui.form .field.success input[type="datetime-local"],
+.ui.form .field.success input[type="email"],
+.ui.form .field.success input[type="month"],
+.ui.form .field.success input[type="number"],
+.ui.form .field.success input[type="password"],
+.ui.form .field.success input[type="search"],
+.ui.form .field.success input[type="tel"],
+.ui.form .field.success input[type="time"],
+.ui.form .field.success input[type="text"],
+.ui.form .field.success input[type="file"],
+.ui.form .field.success input[type="url"],
+.ui.form .field.success input[type="week"] {
+  color: light-dark(#067647, #75e0a7);
+  background: light-dark(#ecfdf3, #0c2a1c);
+  border-color: #17b26a;
+  border-radius: "";
+  box-shadow: none;
+}
+
+/* Fork: `:user-invalid`, no `:invalid`: `initial` lo pone `.form()`, y un formulario sin él
+           salía en rojo al cargar con cualquier `required` vacío (D70) */
+.ui.form .field.success textarea:focus,
+.ui.form .field.success select:focus,
+.ui.form .field.success input:not([type]):focus,
+.ui.form .field.success input[type="color"]:focus,
+.ui.form .field.success input[type="date"]:focus,
+.ui.form .field.success input[type="datetime-local"]:focus,
+.ui.form .field.success input[type="email"]:focus,
+.ui.form .field.success input[type="month"]:focus,
+.ui.form .field.success input[type="number"]:focus,
+.ui.form .field.success input[type="password"]:focus,
+.ui.form .field.success input[type="search"]:focus,
+.ui.form .field.success input[type="tel"]:focus,
+.ui.form .field.success input[type="time"]:focus,
+.ui.form .field.success input[type="text"]:focus,
+.ui.form .field.success input[type="file"]:focus,
+.ui.form .field.success input[type="url"]:focus,
+.ui.form .field.success input[type="week"]:focus {
+  background: light-dark(#ecfdf3, #0c2a1c);
+  border-color: #17b26a;
+  color: light-dark(#067647, #75e0a7);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #17b26a 22%, transparent);
+}
+.ui.form .field.success > textarea:hover:not(:focus),
+.ui.form .field.success > input:hover:not(:focus) {
+  border-color: #17b26a;
+}
+
+/* Preserve Native Select Stylings */
+.ui.form .field.success select {
+  -webkit-appearance: menulist-button;
+}
+
+/*------------------
+            Input State
+        --------------------*/
+
+
+/* Transparent */
+.ui.form .field.success .transparent.input input,
+.ui.form .field.success .transparent.input textarea,
+.ui.form .field.success input.transparent,
+.ui.form .field.success textarea.transparent {
+  background-color: light-dark(#ecfdf3, #0c2a1c) !important;
+  color: light-dark(#067647, #75e0a7) !important;
+}
+
+/* Autofilled */
+.ui.form .success.success input:-webkit-autofill {
+  box-shadow: 0 0 0 100px #f0fff0 inset !important;
+  border-color: #bee0b3 !important;
+}
+
+/* Placeholder */
+.ui.form .success :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+}
+.ui.form .success ::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+}
+.ui.form .success .ui.dropdown > .default.text,
+.ui.form .success ::placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+}
+.ui.form .success :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface)) !important;
+}
+.ui.form .success :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+}
+.ui.form .success :focus::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+}
+.ui.form .success .ui.dropdown > input:focus ~ .default.text,
+.ui.form .success :focus::placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+}
+.ui.form .success :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface)) !important;
+}
+
+/*------------------
+            Dropdown State
+        --------------------*/
+
+.ui.form .fields.success .field .ui.dropdown,
+.ui.form .fields.success .field .ui.dropdown .item,
+.ui.form .field.success .ui.dropdown,
+.ui.form .field.success .ui.dropdown > .text,
+.ui.form .field.success .ui.dropdown .item {
+  background: light-dark(#ecfdf3, #0c2a1c);
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.form .fields.success .field .ui.dropdown,
+.ui.form .field.success .ui.dropdown {
+  border-color: #17b26a !important;
+}
+.ui.form .fields.success .field .ui.dropdown:hover,
+.ui.form .field.success .ui.dropdown:hover {
+  border-color: #17b26a !important;
+}
+.ui.form .fields.success .field .ui.dropdown:hover .menu,
+.ui.form .field.success .ui.dropdown:hover .menu {
+  border-color: #17b26a;
+}
+.ui.form .fields.success .field .ui.multiple.selection.dropdown > .label,
+.ui.form .field.success .ui.multiple.selection.dropdown > .label {
+  background-color: color-mix(in srgb, light-dark(#abefc6, #1b5e3c) 60%, var(--theme-surface));
+  color: light-dark(#067647, #75e0a7);
+}
+
+/* Hover */
+.ui.form .fields.success .field .ui.dropdown .menu .item:hover,
+.ui.form .field.success .ui.dropdown .menu .item:hover {
+  background-color: #e9fbe9;
+}
+
+/* Selected */
+.ui.form .fields.success .field .ui.dropdown .menu .selected.item,
+.ui.form .field.success .ui.dropdown .menu .selected.item {
+  background-color: #e9fbe9;
+}
+
+/* Active */
+.ui.form .fields.success .field .ui.dropdown .menu .active.item,
+.ui.form .field.success .ui.dropdown .menu .active.item {
+  background-color: #dafdce !important;
+}
+
+/*--------------------
+            Checkbox State
+        ---------------------*/
+
+.ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label,
+.ui.form .field.success .checkbox:not(.toggle):not(.slider) label {
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.form .field.success .checkbox:not(.toggle):not(.slider) label::before {
+  background: light-dark(#ecfdf3, #0c2a1c);
+  border-color: #17b26a;
+}
+.ui.form .fields.success .field .checkbox label::after,
+.ui.form .field.success .checkbox label::after {
+  color: light-dark(#067647, #75e0a7);
+}
+
+/* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
+           el checkbox marcado y el resto de controles del campo (D48) */
+.ui.form .fields.success .field .ui.toggle.checkbox input:checked ~ label::before,
+.ui.form .field.success .ui.toggle.checkbox input:checked ~ label::before {
+  background-color: light-dark(#067647, #75e0a7);
+}
+
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+.ui.inverted.form .fields.success .field label,
+.ui.inverted.form .success.field label {
+  color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) c h);
+}
+.ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label,
+.ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label {
+  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) c h);
+}
+@supports selector(:has(.f)) {
+  .ui.inverted.form .fields:has(.success) > label {
+    color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) c h);
+  }
+}
+
+/* On Form */
+.ui.form.warning .warning.message:not(:empty) {
+  display: block;
+}
+.ui.form.warning .compact.warning.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form.warning .icon.warning.message:not(:empty) {
+  display: flex;
+}
+
+/* On Field(s) */
+.ui.form .fields.warning .warning.message:not(:empty),
+.ui.form .field.warning .warning.message:not(:empty) {
+  display: block;
+}
+.ui.form .fields.warning .compact.warning.message:not(:empty),
+.ui.form .field.warning .compact.warning.message:not(:empty) {
+  display: inline-block;
+}
+.ui.form .fields.warning .icon.warning.message:not(:empty),
+.ui.form .field.warning .icon.warning.message:not(:empty) {
+  display: flex;
+}
+.ui.ui.form .fields.warning .field label,
+.ui.ui.form .fields.warning > label,
+.ui.ui.form .fields.warning .field .ui.label:not(.corner),
+.ui.ui.form .field.warning label,
+.ui.ui.form .field.warning .ui.label:not(.corner),
+.ui.ui.form .fields.warning .field .input,
+.ui.ui.form .field.warning .input {
+  color: light-dark(#b54708, #fdb022);
+}
+@supports selector(:has(.f)) {
+  .ui.form .fields:has(.warning) > label {
+    color: light-dark(#b54708, #fdb022);
+  }
+}
+.ui.form .fields.warning .field .ui.label,
+.ui.form .field.warning .ui.label {
+  background-color: light-dark(#fffaeb, #2e2108);
+}
+
+/* Fork: el texto de la etiqueta va sobre su relleno (@lbg), no sobre la página: por la
+           luminosidad del relleno (D36). */
+.ui.ui.ui.form .fields.warning .field .ui.label:not(.corner),
+.ui.ui.ui.form .field.warning .ui.label:not(.corner) {
+  color: oklch(from light-dark(#fffaeb, #2e2108) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.warning .field .corner.label,
+.ui.form .field.warning .corner.label {
+  border-color: light-dark(#b54708, #fdb022);
+  
+/* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
+               blanco fijo no se leía */
+  color: oklch(from light-dark(#b54708, #fdb022) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.form .fields.warning .field textarea,
+.ui.form .fields.warning .field select,
+.ui.form .fields.warning .field input:not([type]),
+.ui.form .fields.warning .field input[type="color"],
+.ui.form .fields.warning .field input[type="date"],
+.ui.form .fields.warning .field input[type="datetime-local"],
+.ui.form .fields.warning .field input[type="email"],
+.ui.form .fields.warning .field input[type="month"],
+.ui.form .fields.warning .field input[type="number"],
+.ui.form .fields.warning .field input[type="password"],
+.ui.form .fields.warning .field input[type="search"],
+.ui.form .fields.warning .field input[type="tel"],
+.ui.form .fields.warning .field input[type="time"],
+.ui.form .fields.warning .field input[type="text"],
+.ui.form .fields.warning .field input[type="file"],
+.ui.form .fields.warning .field input[type="url"],
+.ui.form .fields.warning .field input[type="week"],
+.ui.form .field.warning textarea,
+.ui.form .field.warning select,
+.ui.form .field.warning input:not([type]),
+.ui.form .field.warning input[type="color"],
+.ui.form .field.warning input[type="date"],
+.ui.form .field.warning input[type="datetime-local"],
+.ui.form .field.warning input[type="email"],
+.ui.form .field.warning input[type="month"],
+.ui.form .field.warning input[type="number"],
+.ui.form .field.warning input[type="password"],
+.ui.form .field.warning input[type="search"],
+.ui.form .field.warning input[type="tel"],
+.ui.form .field.warning input[type="time"],
+.ui.form .field.warning input[type="text"],
+.ui.form .field.warning input[type="file"],
+.ui.form .field.warning input[type="url"],
+.ui.form .field.warning input[type="week"] {
+  color: light-dark(#b54708, #fdb022);
+  background: light-dark(#fffaeb, #2e2108);
+  border-color: #f79009;
+  border-radius: "";
+  box-shadow: none;
+}
+
+/* Fork: `:user-invalid`, no `:invalid`: `initial` lo pone `.form()`, y un formulario sin él
+           salía en rojo al cargar con cualquier `required` vacío (D70) */
+.ui.form .field.warning textarea:focus,
+.ui.form .field.warning select:focus,
+.ui.form .field.warning input:not([type]):focus,
+.ui.form .field.warning input[type="color"]:focus,
+.ui.form .field.warning input[type="date"]:focus,
+.ui.form .field.warning input[type="datetime-local"]:focus,
+.ui.form .field.warning input[type="email"]:focus,
+.ui.form .field.warning input[type="month"]:focus,
+.ui.form .field.warning input[type="number"]:focus,
+.ui.form .field.warning input[type="password"]:focus,
+.ui.form .field.warning input[type="search"]:focus,
+.ui.form .field.warning input[type="tel"]:focus,
+.ui.form .field.warning input[type="time"]:focus,
+.ui.form .field.warning input[type="text"]:focus,
+.ui.form .field.warning input[type="file"]:focus,
+.ui.form .field.warning input[type="url"]:focus,
+.ui.form .field.warning input[type="week"]:focus {
+  background: light-dark(#fffaeb, #2e2108);
+  border-color: #f79009;
+  color: light-dark(#b54708, #fdb022);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #f79009 22%, transparent);
+}
+.ui.form .field.warning > textarea:hover:not(:focus),
+.ui.form .field.warning > input:hover:not(:focus) {
+  border-color: #f79009;
+}
+
+/* Preserve Native Select Stylings */
+.ui.form .field.warning select {
+  -webkit-appearance: menulist-button;
+}
+
+/*------------------
+            Input State
+        --------------------*/
+
+
+/* Transparent */
+.ui.form .field.warning .transparent.input input,
+.ui.form .field.warning .transparent.input textarea,
+.ui.form .field.warning input.transparent,
+.ui.form .field.warning textarea.transparent {
+  background-color: light-dark(#fffaeb, #2e2108) !important;
+  color: light-dark(#b54708, #fdb022) !important;
+}
+
+/* Autofilled */
+.ui.form .warning.warning input:-webkit-autofill {
+  box-shadow: 0 0 0 100px #ffffe0 inset !important;
+  border-color: #e0e0b3 !important;
+}
+
+/* Placeholder */
+.ui.form .warning :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+}
+.ui.form .warning ::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+}
+.ui.form .warning .ui.dropdown > .default.text,
+.ui.form .warning ::placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+}
+.ui.form .warning :-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface)) !important;
+}
+.ui.form .warning :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+}
+.ui.form .warning :focus::-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+}
+.ui.form .warning .ui.dropdown > input:focus ~ .default.text,
+.ui.form .warning :focus::placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+}
+.ui.form .warning :focus:-ms-input-placeholder {
+  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface)) !important;
+}
+
+/*------------------
+            Dropdown State
+        --------------------*/
+
+.ui.form .fields.warning .field .ui.dropdown,
+.ui.form .fields.warning .field .ui.dropdown .item,
+.ui.form .field.warning .ui.dropdown,
+.ui.form .field.warning .ui.dropdown > .text,
+.ui.form .field.warning .ui.dropdown .item {
+  background: light-dark(#fffaeb, #2e2108);
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.form .fields.warning .field .ui.dropdown,
+.ui.form .field.warning .ui.dropdown {
+  border-color: #f79009 !important;
+}
+.ui.form .fields.warning .field .ui.dropdown:hover,
+.ui.form .field.warning .ui.dropdown:hover {
+  border-color: #f79009 !important;
+}
+.ui.form .fields.warning .field .ui.dropdown:hover .menu,
+.ui.form .field.warning .ui.dropdown:hover .menu {
+  border-color: #f79009;
+}
+.ui.form .fields.warning .field .ui.multiple.selection.dropdown > .label,
+.ui.form .field.warning .ui.multiple.selection.dropdown > .label {
+  background-color: color-mix(in srgb, light-dark(#fedf89, #6b4a10) 60%, var(--theme-surface));
+  color: light-dark(#b54708, #fdb022);
+}
+
+/* Hover */
+.ui.form .fields.warning .field .ui.dropdown .menu .item:hover,
+.ui.form .field.warning .ui.dropdown .menu .item:hover {
+  background-color: #fbfbe9;
+}
+
+/* Selected */
+.ui.form .fields.warning .field .ui.dropdown .menu .selected.item,
+.ui.form .field.warning .ui.dropdown .menu .selected.item {
+  background-color: #fbfbe9;
+}
+
+/* Active */
+.ui.form .fields.warning .field .ui.dropdown .menu .active.item,
+.ui.form .field.warning .ui.dropdown .menu .active.item {
+  background-color: #fdfdce !important;
+}
+
+/*--------------------
+            Checkbox State
+        ---------------------*/
+
+.ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label,
+.ui.form .field.warning .checkbox:not(.toggle):not(.slider) label {
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.form .field.warning .checkbox:not(.toggle):not(.slider) label::before {
+  background: light-dark(#fffaeb, #2e2108);
+  border-color: #f79009;
+}
+.ui.form .fields.warning .field .checkbox label::after,
+.ui.form .field.warning .checkbox label::after {
+  color: light-dark(#b54708, #fdb022);
+}
+
+/* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
+           el checkbox marcado y el resto de controles del campo (D48) */
+.ui.form .fields.warning .field .ui.toggle.checkbox input:checked ~ label::before,
+.ui.form .field.warning .ui.toggle.checkbox input:checked ~ label::before {
+  background-color: light-dark(#b54708, #fdb022);
+}
+
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+.ui.inverted.form .fields.warning .field label,
+.ui.inverted.form .warning.field label {
+  color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) c h);
+}
+.ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label,
+.ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label {
+  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) c h);
+}
+@supports selector(:has(.f)) {
+  .ui.inverted.form .fields:has(.warning) > label {
+    color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) c h);
+  }
+}
+
+/* --------------------
+           Disabled
+    --------------------- */
+.ui.form .disabled.fields .field,
+.ui.form .disabled.field,
+.ui.form .field :disabled {
+  pointer-events: none;
+  opacity: 0.45;
+}
+.ui.form .field.disabled > label,
+.ui.form .fields.disabled > label {
+  opacity: 0.45;
+}
+.ui.form .field.disabled :disabled {
+  opacity: 1;
+}
+
+/* --------------
+        Loading
+    --------------- */
+.ui.loading.form {
+  position: relative;
+  cursor: default;
+  pointer-events: none;
+}
+.ui.loading.form::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  background: color-mix(in srgb, var(--theme-surface) 80%, transparent);
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+}
+.ui.loading.form.segments::before {
+  border-radius: var(--r-md, 8px);
+}
+.ui.loading.form::after {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 50%;
+  margin: -1.5em 0 0 -1.5em;
+  width: 3em;
+  height: 3em;
+  animation: loader 0.6s infinite linear;
+  border: 0.2em solid #687181;
+  border-radius: 500rem;
+  box-shadow: 0 0 0 1px transparent;
+  visibility: visible;
+  z-index: 101;
+}
+
+
+/*******************************
+         Element Types
+*******************************/
+
+
+/* --------------------
+         Required Field
+    --------------------- */
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > label::after,
+.ui.form .required.fields.inline > label::after,
+.ui.form .required.fields.grouped > label::after,
+.ui.form .required.field > label::after,
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > .checkbox::after,
+.ui.form .required.field > .checkbox::after,
+.ui.form label.required::after {
+  margin: 0 0 0 0.84615385em;
+  content: "*";
+  color: var(--theme-text-muted);
+}
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > label::after,
+.ui.form .required.fields.inline > label::after,
+.ui.form .required.fields.grouped > label::after,
+.ui.form .required.field > label::after,
+.ui.form label.required::after {
+  display: inline-block;
+  vertical-align: top;
+}
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > .checkbox::after,
+.ui.form .required.field > .checkbox::after {
+  position: absolute;
+  top: 0;
+  left: 100%;
+}
+
+/* Fork: el asterisco es del campo, y si el campo tiene su etiqueta ya va en ella. La casilla que
+       acompaña al control («Auto TLS» bajo «Protocolo») no lo repite; la que es el campo, sin
+       etiqueta propia, lo conserva */
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > label ~ .checkbox::after,
+.ui.form .required.field > label ~ .checkbox::after {
+  content: none;
+}
+.ui.ui.ui.ui.form .fields:not(.required) > label:empty::after,
+.ui.ui.ui.ui.form .fields:not(.grouped):not(.inline) > .field:not(.required) > label:empty::after {
+  content: " ";
+  display: inline-block;
+}
+.ui.ui.ui.ui.form .inline.fields .field:not(.required) > label:empty {
+  display: none;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* --------------------
+        Inverted Colors
+    --------------------- */
+.ui.inverted.form label,
+.ui.form .inverted.segment label,
+.ui.form .inverted.segment .field > label:not(.button),
+.ui.form .inverted.segment .ui.checkbox label,
+.ui.inverted.form .ui.checkbox label,
+.ui.inverted.form .grouped.fields > label,
+.ui.inverted.form .inline.fields > label,
+.ui.inverted.form .inline.fields .field > label,
+.ui.inverted.form .inline.fields .field > p,
+.ui.inverted.form .inline.field > label,
+.ui.inverted.form .inline.field > p {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.loading.form {
+  color: #fff;
+}
+.ui.inverted.loading.form::before {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+/* Inverted Field */
+.ui.inverted.form input:not([type]),
+.ui.inverted.form input[type="color"],
+.ui.inverted.form input[type="date"],
+.ui.inverted.form input[type="datetime-local"],
+.ui.inverted.form input[type="email"],
+.ui.inverted.form input[type="month"],
+.ui.inverted.form input[type="number"],
+.ui.inverted.form input[type="password"],
+.ui.inverted.form input[type="search"],
+.ui.inverted.form input[type="tel"],
+.ui.inverted.form input[type="time"],
+.ui.inverted.form input[type="text"],
+.ui.inverted.form input[type="file"],
+.ui.inverted.form input[type="url"],
+.ui.inverted.form input[type="week"] {
+  background: var(--theme-surface);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--theme-text);
+  box-shadow: none;
+}
+
+/* --------------------
+         Field Groups
+    --------------------- */
+
+/* Grouped Vertically */
+.ui.form .grouped.fields {
+  display: block;
+  margin: 0 0 1.14285714em;
+}
+.ui.form .grouped.fields:last-child {
+  margin-bottom: 0;
+}
+.ui.form .grouped.fields > label {
+  margin: 0 0 0.42857143em 0;
+  color: var(--theme-text);
+  font-size: 0.92857143em;
+  font-weight: 600;
+  text-transform: none;
+}
+.ui.form .grouped.fields .field,
+.ui.form .grouped.inline.fields .field {
+  display: block;
+  margin: 0.35714286em 0;
+  padding: 0;
+}
+.ui.form .grouped.inline.fields .ui.checkbox {
+  margin-bottom: 0.4em;
+}
+
+/* --------------------
+        Fields
+--------------------- */
+
+/* Split fields */
+.ui.form .fields {
+  display: flex;
+  flex-direction: row;
+  margin: 0 -0.71428571em 1.14285714em;
+}
+.ui.form .fields > .field {
+  flex: 0 1 auto;
+  padding-left: 0.71428571em;
+  padding-right: 0.71428571em;
+}
+.ui.form .fields > .field:first-child {
+  border-left: none;
+  box-shadow: none;
+}
+
+/* Other Combinations */
+.ui.form .two.fields > .fields,
+.ui.form .two.fields > .field {
+  width: 50%;
+}
+.ui.form .three.fields > .fields,
+.ui.form .three.fields > .field {
+  width: 33.33333333%;
+}
+.ui.form .four.fields > .fields,
+.ui.form .four.fields > .field {
+  width: 25%;
+}
+.ui.form .five.fields > .fields,
+.ui.form .five.fields > .field {
+  width: 20%;
+}
+.ui.form .six.fields > .fields,
+.ui.form .six.fields > .field {
+  width: 16.66666667%;
+}
+.ui.form .seven.fields > .fields,
+.ui.form .seven.fields > .field {
+  width: 14.28571429%;
+}
+.ui.form .eight.fields > .fields,
+.ui.form .eight.fields > .field {
+  width: 12.5%;
+}
+.ui.form .nine.fields > .fields,
+.ui.form .nine.fields > .field {
+  width: 11.11111111%;
+}
+.ui.form .ten.fields > .fields,
+.ui.form .ten.fields > .field {
+  width: 10%;
+}
+
+/* Swap to full width on mobile */
+@media only screen and (max-width: 767.98px) {
+  .ui.form .fields {
+    flex-wrap: wrap;
+    margin-bottom: 0;
+  }
+  .ui.form:not(.unstackable) .fields:not(.unstackable) > .fields,
+  .ui.form:not(.unstackable) .fields:not(.unstackable) > .field {
+    width: 100%;
+    margin: 0 0 1.14285714em;
+  }
+  
+/* Fork: el grupo conserva su margen (colapsa con un separador, como en escritorio) y su último
+       campo apilado no suma otro: dentro del flex no colapsa y dejaba el doble de aire */
+  .ui.form:not(.unstackable) .fields:not(.unstackable) {
+    margin-bottom: 1.14285714em;
+  }
+  .ui.form:not(.unstackable) .fields:not(.unstackable) > .field:last-child,
+  .ui.form:not(.unstackable) .fields:not(.unstackable) > .fields:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* Sizing Combinations */
+.ui.form .fields .wide.field {
+  width: 6.25%;
+  padding-left: 0.71428571em;
+  padding-right: 0.71428571em;
+}
+.ui.form .one.wide.field {
+  width: 6.25%;
+}
+.ui.form .two.wide.field {
+  width: 12.5%;
+}
+.ui.form .three.wide.field {
+  width: 18.75%;
+}
+.ui.form .four.wide.field {
+  width: 25%;
+}
+.ui.form .five.wide.field {
+  width: 31.25%;
+}
+.ui.form .six.wide.field {
+  width: 37.5%;
+}
+.ui.form .seven.wide.field {
+  width: 43.75%;
+}
+.ui.form .eight.wide.field {
+  width: 50%;
+}
+.ui.form .nine.wide.field {
+  width: 56.25%;
+}
+.ui.form .ten.wide.field {
+  width: 62.5%;
+}
+.ui.form .eleven.wide.field {
+  width: 68.75%;
+}
+.ui.form .twelve.wide.field {
+  width: 75%;
+}
+.ui.form .thirteen.wide.field {
+  width: 81.25%;
+}
+.ui.form .fourteen.wide.field {
+  width: 87.5%;
+}
+.ui.form .fifteen.wide.field {
+  width: 93.75%;
+}
+.ui.form .sixteen.wide.field {
+  width: 100%;
+}
+
+/* --------------------
+     Equal Width
+--------------------- */
+.ui[class*="equal width"].form .fields > .field,
+.ui.form [class*="equal width"].fields > .field {
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+/* --------------------
+        Inline Fields
+    --------------------- */
+.ui.form .inline.fields {
+  margin: 0 0 1.14285714em;
+  align-items: center;
+}
+.ui.form .inline.fields .field {
+  margin: 0;
+  padding: 0 1.42857143em 0 0;
+}
+
+/* Inline Label */
+.ui.form .inline.fields > label,
+.ui.form .inline.fields .field > label,
+.ui.form .inline.fields .field > p,
+.ui.form .inline.field > label,
+.ui.form .inline.field > p {
+  display: inline-block;
+  width: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+  vertical-align: baseline;
+  font-size: 0.92857143em;
+  font-weight: 600;
+  color: var(--theme-text);
+  text-transform: none;
+}
+
+/* Grouped Inline Label */
+.ui.form .inline.fields > label {
+  margin: 0.03571em 1em 0 0;
+}
+
+/* Inline Input */
+.ui.form .inline.fields .field > input,
+.ui.form .inline.fields .field > select,
+.ui.form .inline.field > input,
+.ui.form .inline.field > select {
+  display: inline-block;
+  width: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+  vertical-align: middle;
+  font-size: 1em;
+}
+.ui.form .inline.fields .field .calendar:not(.popup),
+.ui.form .inline.field .calendar:not(.popup) {
+  display: inline-block;
+}
+.ui.form .inline.fields .field .calendar:not(.popup) > .input > input,
+.ui.form .inline.field .calendar:not(.popup) > .input > input {
+  width: 13.11em;
+}
+
+/* Label */
+.ui.form .inline.fields .field > :first-child,
+.ui.form .inline.field > :first-child {
+  margin: 0 0.85714286em 0 0;
+}
+.ui.form .inline.fields .field > :only-child,
+.ui.form .inline.field > :only-child {
+  margin: 0;
+}
+
+/* Wide */
+.ui.form .inline.fields .wide.field {
+  display: flex;
+  align-items: center;
+}
+.ui.form .inline.fields .wide.field > input,
+.ui.form .inline.fields .wide.field > select {
+  width: 100%;
+}
+
+/* --------------------
+        Sizes
+--------------------- */
+.ui.form,
+.ui.form .field .dropdown,
+.ui.form .field .dropdown .menu > .item {
+  font-size: 1rem;
+}
+.ui.mini.form,
+.ui.mini.form .field .dropdown,
+.ui.mini.form .field .dropdown .menu > .item {
+  font-size: 0.78571429rem;
+}
+.ui.tiny.form,
+.ui.tiny.form .field .dropdown,
+.ui.tiny.form .field .dropdown .menu > .item {
+  font-size: 0.85714286rem;
+}
+.ui.small.form,
+.ui.small.form .field .dropdown,
+.ui.small.form .field .dropdown .menu > .item {
+  font-size: 0.92857143rem;
+}
+.ui.large.form,
+.ui.large.form .field .dropdown,
+.ui.large.form .field .dropdown .menu > .item {
+  font-size: 1.14285714rem;
+}
+.ui.big.form,
+.ui.big.form .field .dropdown,
+.ui.big.form .field .dropdown .menu > .item {
+  font-size: 1.28571429rem;
+}
+.ui.huge.form,
+.ui.huge.form .field .dropdown,
+.ui.huge.form .field .dropdown .menu > .item {
+  font-size: 1.42857143rem;
+}
+.ui.massive.form,
+.ui.massive.form .field .dropdown,
+.ui.massive.form .field .dropdown .menu > .item {
+  font-size: 1.71428571rem;
+}
+
+/* --------------------
+         Description
+    --------------------- */
+
+/* Fork: variación propia (ayuda bajo el campo y contador opcional a la derecha):
+       <div class="description">Texto <span class="counter">0/160</span></div> */
+.ui.form .field > .description {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85714286rem;
+  margin: 0.42857143rem 0 0;
+  color: var(--theme-text-muted);
+  font-size: 0.85714286rem;
+  line-height: 1.33333333;
+}
+.ui.form .field > .description > .counter {
+  flex: none;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------
+           Actions
+    --------------------- */
+
+/* Fork: variación propia (barra de botones del formulario): a la derecha, separada por una
+       línea. `attached` la pega al pie del contenedor como barra con fondo. */
+.ui.form .actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.71428571rem;
+  margin-top: 1.71428571rem;
+  padding-top: 1.14285714rem;
+  border-top: 1px solid var(--theme-border);
+}
+.ui.form .actions > .ui.button {
+  margin: 0;
+}
+.ui.form .attached.actions {
+  margin: 0.57142857rem -1.42857143rem 0;
+  padding: 1.14285714rem 1.42857143rem;
+  background: light-dark(#fafbfc, #161920);
+  border-radius: 0 0 var(--r-lg, 12px) var(--r-lg, 12px);
+}
+@media only screen and (max-width: 767.98px) {
+  .ui.form .actions > .ui.button {
+    flex: 1 1 0;
+  }
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+      PiecesPHP: Form
+*******************************/
+
+
+/* -------------------
+       Etiquetas
+-------------------- */
+
+/* Interlineado de Etiqueta (13/18); Fomantic no tiene variable para él */
+.ui.form .field > label,
+.ui.form .fields > label {
+  line-height: 1.38461538;
+}
+
+/* -------------------
+   Sección del formulario
+-------------------- */
+
+/* `h4.ui.dividing.header` por sección: Cuerpo 600, línea de 1px y aire de sección */
+.ui.form .ui.dividing.header {
+  margin: 1.57142857rem 0 1rem;
+  padding-bottom: 0.57142857rem;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text);
+  font-size: 1rem;
+  line-height: 1.42857143;
+  font-weight: 600;
+}
+.ui.form .ui.dividing.header:first-child {
+  margin-top: 0;
+}
+
+/* -------------------
+  Mensaje de validación
+-------------------- */
+
+/* `ui basic red pointing prompt label` bajo el campo: Pequeño 600, radio sm, 8px de separación */
+.ui.form .field .prompt.label {
+  margin-top: 0.57142857rem;
+  padding: 0.28571429rem 0.71428571rem;
+  border-radius: var(--r-sm, 6px);
+  font-size: 0.85714286rem;
+  line-height: 1.33333333;
+  font-weight: 600;
+}
+
+/* La flecha toma el borde y el fondo del mensaje */
+.ui.form .field .prompt.label::before {
+  background: var(--theme-surface);
+  border-color: light-dark(#fecdca, #7a271a);
+}
+
+/* `select` nativo de una línea: sin la flecha del navegador, con el chevron del diseño (14px,
+   gris medio que se lee en ambos modos) a 12px del borde y el interlineado de 20px del input
+   (40px de alto). Con estado también: la regla de estado de Fomantic devuelve la apariencia
+   nativa y su `background` abreviado borraba el chevron. El múltiple es una lista: sin chevron. */
+.ui.form select:not([multiple]),
+.ui.form .field select:not([multiple]),
+.ui.form .fields .field select:not([multiple]) {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2.42857143rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A93A3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85714286rem center;
+  background-size: 1rem;
+  cursor: pointer;
+}
+.ui.form select {
+  line-height: 1.42857143rem;
+}
+
+/* Ayuda bajo un interruptor: alineada con su texto (46px), hasta 640px; en móvil, sin sangría
+   (pp-hint-toggle) */
+.ui.form .field > .ui.toggle.checkbox ~ .description {
+  max-width: calc(640px + 3.28571429rem);
+  padding-left: 3.28571429rem;
+}
+@media only screen and (max-width: 767.98px) {
+  .ui.form .field > .ui.toggle.checkbox ~ .description {
+    padding-left: 0;
+  }
+}
+
+/* Párrafo de apoyo al principio del contenedor: el padding ya da el aire */
+.ui.form > p:first-child {
+  margin-top: 0;
+}
+
+/* Cifras tabulares en los campos numéricos */
+.ui.form input[type="number"],
+.ui.form input[inputmode="numeric"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Form inverted, campo deshabilitado: fondo translúcido y borde tenue sobre el fondo oscuro (el
+   blanco al 45 % de opacidad era un bloque gris pesado) */
+.ui.inverted.form .disabled.field :is(input, textarea, select),
+.ui.inverted.form .field :is(input, textarea, select):disabled {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
+}

@@ -1,0 +1,1283 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Progress
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+            Progress
+*******************************/
+
+.ui.progress {
+  position: relative;
+  display: flex;
+  max-width: 100%;
+  border: none;
+  margin: 1em 0 2.42857143rem;
+  box-shadow: none;
+  background: light-dark(#eef1f5, #262b36);
+  padding: 0;
+  border-radius: var(--r-full, 999px);
+}
+.ui.basic.progress {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+.ui.progress:first-child {
+  margin: 0 0 2.42857143rem;
+}
+.ui.progress:last-child {
+  margin: 0 0 1.42857143rem;
+}
+
+
+/*******************************
+            Content
+*******************************/
+
+
+/* Activity Bar */
+.ui.progress .bar {
+  display: block;
+  line-height: 1;
+  position: relative;
+  width: 0;
+  background: var(--accent-1, var(--accent, #356dca));
+  border-radius: var(--r-full, 999px);
+  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+}
+.ui.progress .bar:not(:empty) {
+  min-width: 2rem;
+}
+.ui.ui.ui.progress:not([data-percent]):not(.indeterminate) .bar:not(:empty),
+.ui.ui.ui.progress[data-percent="0"]:not(.indeterminate) .bar:not(:empty) {
+  background: transparent;
+}
+.ui.progress[data-percent="0"] .bar .progress {
+  color: var(--theme-text);
+}
+.ui.inverted.progress[data-percent="0"] .bar .progress {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Percent Complete */
+.ui.progress .bar > .progress {
+  white-space: nowrap;
+  position: absolute;
+  width: auto;
+  font-size: 0.85714286rem;
+  top: 50%;
+  right: 0.57142857rem;
+  left: auto;
+  bottom: auto;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: none;
+  margin-top: -0.5em;
+  font-weight: 600;
+  text-align: left;
+}
+.ui.right.aligned.progress {
+  justify-content: flex-end;
+}
+.ui.right.aligned.progress .bar > .progress {
+  left: 0.57142857rem;
+  right: auto;
+}
+
+/* Label */
+.ui.progress > .label {
+  position: absolute;
+  width: 100%;
+  font-size: 0.85714286rem;
+  top: 100%;
+  right: auto;
+  left: 0;
+  bottom: auto;
+  color: var(--theme-text-muted);
+  font-weight: 400;
+  text-shadow: none;
+  margin-top: 0.28571429rem;
+  text-align: left;
+  transition: color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+
+/*******************************
+            Types
+*******************************/
+
+
+/* Indicating */
+.ui.indicating.progress[data-percent^="1"] .bar,
+.ui.indicating.progress[data-percent^="2"] .bar {
+  background-color: #d95c5c;
+}
+.ui.indicating.progress[data-percent^="3"] .bar {
+  background-color: #efbc72;
+}
+.ui.indicating.progress[data-percent^="4"] .bar,
+.ui.indicating.progress[data-percent^="5"] .bar {
+  background-color: #e6bb48;
+}
+.ui.indicating.progress[data-percent^="6"] .bar {
+  background-color: #ddc928;
+}
+.ui.indicating.progress[data-percent^="7"] .bar,
+.ui.indicating.progress[data-percent^="8"] .bar {
+  background-color: #b4d95c;
+}
+.ui.indicating.progress[data-percent^="9"] .bar,
+.ui.indicating.progress[data-percent^="100"] .bar {
+  background-color: #66da81;
+}
+
+/* Indicating Label */
+.ui.indicating.progress[data-percent^="1"] .label,
+.ui.indicating.progress[data-percent^="2"] .label {
+  color: var(--theme-text);
+}
+.ui.indicating.progress[data-percent^="3"] .label {
+  color: var(--theme-text);
+}
+.ui.indicating.progress[data-percent^="4"] .label,
+.ui.indicating.progress[data-percent^="5"] .label {
+  color: var(--theme-text);
+}
+.ui.indicating.progress[data-percent^="6"] .label {
+  color: var(--theme-text);
+}
+.ui.indicating.progress[data-percent^="7"] .label,
+.ui.indicating.progress[data-percent^="8"] .label {
+  color: var(--theme-text);
+}
+.ui.indicating.progress[data-percent^="9"] .label,
+.ui.indicating.progress[data-percent^="100"] .label {
+  color: var(--theme-text);
+}
+
+/* Inverted Indicating Label */
+.ui.inverted.indicating.progress[data-percent^="1"] .label,
+.ui.inverted.indicating.progress[data-percent^="2"] .label {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.indicating.progress[data-percent^="3"] .label {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.indicating.progress[data-percent^="4"] .label,
+.ui.inverted.indicating.progress[data-percent^="5"] .label {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.indicating.progress[data-percent^="6"] .label {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.indicating.progress[data-percent^="7"] .label,
+.ui.inverted.indicating.progress[data-percent^="8"] .label {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.indicating.progress[data-percent^="9"] .label,
+.ui.inverted.indicating.progress[data-percent^="100"] .label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Single Digits */
+.ui.indicating.progress[data-percent="1"] .bar,
+.ui.indicating.progress[data-percent^="1."] .bar,
+.ui.indicating.progress[data-percent="2"] .bar,
+.ui.indicating.progress[data-percent^="2."] .bar,
+.ui.indicating.progress[data-percent="3"] .bar,
+.ui.indicating.progress[data-percent^="3."] .bar,
+.ui.indicating.progress[data-percent="4"] .bar,
+.ui.indicating.progress[data-percent^="4."] .bar,
+.ui.indicating.progress[data-percent="5"] .bar,
+.ui.indicating.progress[data-percent^="5."] .bar,
+.ui.indicating.progress[data-percent="6"] .bar,
+.ui.indicating.progress[data-percent^="6."] .bar,
+.ui.indicating.progress[data-percent="7"] .bar,
+.ui.indicating.progress[data-percent^="7."] .bar,
+.ui.indicating.progress[data-percent="8"] .bar,
+.ui.indicating.progress[data-percent^="8."] .bar,
+.ui.indicating.progress[data-percent="9"] .bar,
+.ui.indicating.progress[data-percent^="9."] .bar {
+  background-color: #d95c5c;
+}
+.ui.indicating.progress[data-percent="0"] .label,
+.ui.indicating.progress[data-percent^="0."] .label,
+.ui.indicating.progress[data-percent="1"] .label,
+.ui.indicating.progress[data-percent^="1."] .label,
+.ui.indicating.progress[data-percent="2"] .label,
+.ui.indicating.progress[data-percent^="2."] .label,
+.ui.indicating.progress[data-percent="3"] .label,
+.ui.indicating.progress[data-percent^="3."] .label,
+.ui.indicating.progress[data-percent="4"] .label,
+.ui.indicating.progress[data-percent^="4."] .label,
+.ui.indicating.progress[data-percent="5"] .label,
+.ui.indicating.progress[data-percent^="5."] .label,
+.ui.indicating.progress[data-percent="6"] .label,
+.ui.indicating.progress[data-percent^="6."] .label,
+.ui.indicating.progress[data-percent="7"] .label,
+.ui.indicating.progress[data-percent^="7."] .label,
+.ui.indicating.progress[data-percent="8"] .label,
+.ui.indicating.progress[data-percent^="8."] .label,
+.ui.indicating.progress[data-percent="9"] .label,
+.ui.indicating.progress[data-percent^="9."] .label {
+  color: var(--theme-text);
+}
+.ui.inverted.indicating.progress[data-percent="0"] .label,
+.ui.inverted.indicating.progress[data-percent^="0."] .label,
+.ui.inverted.indicating.progress[data-percent="1"] .label,
+.ui.inverted.indicating.progress[data-percent^="1."] .label,
+.ui.inverted.indicating.progress[data-percent="2"] .label,
+.ui.inverted.indicating.progress[data-percent^="2."] .label,
+.ui.inverted.indicating.progress[data-percent="3"] .label,
+.ui.inverted.indicating.progress[data-percent^="3."] .label,
+.ui.inverted.indicating.progress[data-percent="4"] .label,
+.ui.inverted.indicating.progress[data-percent^="4."] .label,
+.ui.inverted.indicating.progress[data-percent="5"] .label,
+.ui.inverted.indicating.progress[data-percent^="5."] .label,
+.ui.inverted.indicating.progress[data-percent="6"] .label,
+.ui.inverted.indicating.progress[data-percent^="6."] .label,
+.ui.inverted.indicating.progress[data-percent="7"] .label,
+.ui.inverted.indicating.progress[data-percent^="7."] .label,
+.ui.inverted.indicating.progress[data-percent="8"] .label,
+.ui.inverted.indicating.progress[data-percent^="8."] .label,
+.ui.inverted.indicating.progress[data-percent="9"] .label,
+.ui.inverted.indicating.progress[data-percent^="9."] .label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Indicating Success */
+.ui.ui.indicating.progress.success .label {
+  color: light-dark(#067647, #75e0a7);
+}
+
+
+/*******************************
+             States
+*******************************/
+
+
+/* --------------
+         Success
+    --------------- */
+.ui.ui.progress.success .bar {
+  background-color: #17b26a;
+}
+.ui.ui.progress.success .bar,
+.ui.ui.progress.success .bar::after {
+  animation: none;
+}
+.ui.progress.success > .label {
+  color: light-dark(#067647, #75e0a7);
+}
+
+/* --------------
+         Warning
+    --------------- */
+.ui.ui.progress.warning .bar {
+  background-color: #f79009;
+}
+.ui.ui.progress.warning .bar,
+.ui.ui.progress.warning .bar::after {
+  animation: none;
+}
+.ui.progress.warning > .label {
+  color: light-dark(#b54708, #fdb022);
+}
+
+/* --------------
+         Error
+    --------------- */
+.ui.ui.progress.error .bar {
+  background-color: #f04438;
+}
+.ui.ui.progress.error .bar,
+.ui.ui.progress.error .bar::after {
+  animation: none;
+}
+.ui.progress.error > .label {
+  color: light-dark(#b42318, #fda29b);
+}
+
+/* --------------
+         Active
+    --------------- */
+.ui.active.progress .bar {
+  position: relative;
+}
+.ui.active.progress .bar:not(:empty) {
+  min-width: 2rem;
+}
+.ui.active.progress .bar::after {
+  content: "";
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: var(--r-full, 999px);
+  animation: progress-active 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  transform-origin: left;
+}
+.ui.active.right.aligned.progress .bar::after {
+  transform-origin: right;
+}
+@keyframes progress-active {
+  0% {
+    opacity: 0.3;
+    transform: scale(0, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* --------------
+        Disabled
+    --------------- */
+.ui.disabled.progress {
+  opacity: 0.35;
+}
+.ui.ui.disabled.progress .bar,
+.ui.ui.disabled.progress .bar::after {
+  animation: none;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* --------------
+        Inverted
+    --------------- */
+.ui.inverted.progress:not(.basic) {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+}
+.ui.inverted.progress .bar {
+  background: var(--accent-1, var(--accent, #356dca));
+}
+.ui.inverted.progress .bar > .progress {
+  color: #1f2430;
+}
+.ui.inverted.progress > .label {
+  color: #fff;
+}
+
+/* Fork: también el indicating, cuya regla de estado (.ui.ui.indicating) ganaba */
+.ui.inverted.progress.success > .label,
+.ui.ui.inverted.indicating.progress.success > .label {
+  color: oklch(from #17b26a max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: también el indicating, cuya regla de estado (.ui.ui.indicating) ganaba */
+.ui.inverted.progress.warning > .label,
+.ui.ui.inverted.indicating.progress.warning > .label {
+  color: oklch(from #f79009 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: también el indicating, cuya regla de estado (.ui.ui.indicating) ganaba */
+.ui.inverted.progress.error > .label,
+.ui.ui.inverted.indicating.progress.error > .label {
+  color: oklch(from #f04438 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* --------------
+        Attached
+    --------------- */
+
+/* bottom attached */
+.ui.progress.attached {
+  background: transparent;
+  position: relative;
+  border: none;
+  margin: 0;
+}
+.ui.progress.attached,
+.ui.progress.attached .bar {
+  height: 0.21428571rem;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 0 0 0 0;
+}
+.ui.progress.attached .bar {
+  border-radius: 0;
+}
+
+/* top attached */
+.ui.progress.top.attached,
+.ui.progress.top.attached .bar {
+  top: 0;
+  border-radius: 0 0 0 0;
+}
+.ui.progress.top.attached .bar {
+  border-radius: 0;
+}
+
+/* Coupling */
+.ui.segment > .ui.attached.progress,
+.ui.card > .ui.attached.progress {
+  position: absolute;
+  top: auto;
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+}
+.ui.segment > .ui.bottom.attached.progress,
+.ui.card > .ui.bottom.attached.progress {
+  top: 100%;
+  bottom: auto;
+}
+
+/* --------------
+     Colors
+--------------- */
+.ui.indeterminate.primary.progress .bar::before,
+.ui.primary.progress .bar,
+.ui.progress .primary.bar {
+  background-color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.inverted.indeterminate.primary.progress .bar::before,
+.ui.primary.inverted.progress .bar,
+.ui.inverted.progress .primary.bar {
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.primary.progress .bar > .progress,
+.ui.progress .primary.bar > .progress {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.primary.inverted.progress .bar > .progress,
+.ui.inverted.progress .primary.bar > .progress {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.secondary.progress .bar::before,
+.ui.secondary.progress .bar,
+.ui.progress .secondary.bar {
+  background-color: var(--accent-2, #7a5af8);
+}
+.ui.inverted.indeterminate.secondary.progress .bar::before,
+.ui.secondary.inverted.progress .bar,
+.ui.inverted.progress .secondary.bar {
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.secondary.progress .bar > .progress,
+.ui.progress .secondary.bar > .progress {
+  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.secondary.inverted.progress .bar > .progress,
+.ui.inverted.progress .secondary.bar > .progress {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.accent-1.progress .bar::before,
+.ui.accent-1.progress .bar,
+.ui.progress .accent-1.bar {
+  background-color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.inverted.indeterminate.accent-1.progress .bar::before,
+.ui.accent-1.inverted.progress .bar,
+.ui.inverted.progress .accent-1.bar {
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.accent-1.progress .bar > .progress,
+.ui.progress .accent-1.bar > .progress {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.accent-1.inverted.progress .bar > .progress,
+.ui.inverted.progress .accent-1.bar > .progress {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.accent-2.progress .bar::before,
+.ui.accent-2.progress .bar,
+.ui.progress .accent-2.bar {
+  background-color: var(--accent-2, #7a5af8);
+}
+.ui.inverted.indeterminate.accent-2.progress .bar::before,
+.ui.accent-2.inverted.progress .bar,
+.ui.inverted.progress .accent-2.bar {
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.accent-2.progress .bar > .progress,
+.ui.progress .accent-2.bar > .progress {
+  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.accent-2.inverted.progress .bar > .progress,
+.ui.inverted.progress .accent-2.bar > .progress {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.accent-3.progress .bar::before,
+.ui.accent-3.progress .bar,
+.ui.progress .accent-3.bar {
+  background-color: var(--accent-3, #c11574);
+}
+.ui.inverted.indeterminate.accent-3.progress .bar::before,
+.ui.accent-3.inverted.progress .bar,
+.ui.inverted.progress .accent-3.bar {
+  background-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.accent-3.progress .bar > .progress,
+.ui.progress .accent-3.bar > .progress {
+  color: oklch(from var(--accent-3, #c11574) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.accent-3.inverted.progress .bar > .progress,
+.ui.inverted.progress .accent-3.bar > .progress {
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.red.progress .bar::before,
+.ui.red.progress .bar,
+.ui.progress .red.bar {
+  background-color: #f04438;
+}
+.ui.inverted.indeterminate.red.progress .bar::before,
+.ui.red.inverted.progress .bar,
+.ui.inverted.progress .red.bar {
+  background-color: #f97066;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.red.progress .bar > .progress,
+.ui.progress .red.bar > .progress {
+  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.red.inverted.progress .bar > .progress,
+.ui.inverted.progress .red.bar > .progress {
+  color: oklch(from #f97066 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.orange.progress .bar::before,
+.ui.orange.progress .bar,
+.ui.progress .orange.bar {
+  background-color: #ef6820;
+}
+.ui.inverted.indeterminate.orange.progress .bar::before,
+.ui.orange.inverted.progress .bar,
+.ui.inverted.progress .orange.bar {
+  background-color: #f38744;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.orange.progress .bar > .progress,
+.ui.progress .orange.bar > .progress {
+  color: oklch(from #ef6820 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.orange.inverted.progress .bar > .progress,
+.ui.inverted.progress .orange.bar > .progress {
+  color: oklch(from #f38744 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.yellow.progress .bar::before,
+.ui.yellow.progress .bar,
+.ui.progress .yellow.bar {
+  background-color: #f79009;
+}
+.ui.inverted.indeterminate.yellow.progress .bar::before,
+.ui.yellow.inverted.progress .bar,
+.ui.inverted.progress .yellow.bar {
+  background-color: #fdb022;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.yellow.progress .bar > .progress,
+.ui.progress .yellow.bar > .progress {
+  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.yellow.inverted.progress .bar > .progress,
+.ui.inverted.progress .yellow.bar > .progress {
+  color: oklch(from #fdb022 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.olive.progress .bar::before,
+.ui.olive.progress .bar,
+.ui.progress .olive.bar {
+  background-color: #84a11b;
+}
+.ui.inverted.indeterminate.olive.progress .bar::before,
+.ui.olive.inverted.progress .bar,
+.ui.inverted.progress .olive.bar {
+  background-color: #a6c43a;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.olive.progress .bar > .progress,
+.ui.progress .olive.bar > .progress {
+  color: oklch(from #84a11b calc((0.6 - l) * 1000) 0 0);
+}
+.ui.olive.inverted.progress .bar > .progress,
+.ui.inverted.progress .olive.bar > .progress {
+  color: oklch(from #a6c43a calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.green.progress .bar::before,
+.ui.green.progress .bar,
+.ui.progress .green.bar {
+  background-color: #17b26a;
+}
+.ui.inverted.indeterminate.green.progress .bar::before,
+.ui.green.inverted.progress .bar,
+.ui.inverted.progress .green.bar {
+  background-color: #47cd89;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.green.progress .bar > .progress,
+.ui.progress .green.bar > .progress {
+  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0);
+}
+.ui.green.inverted.progress .bar > .progress,
+.ui.inverted.progress .green.bar > .progress {
+  color: oklch(from #47cd89 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.teal.progress .bar::before,
+.ui.teal.progress .bar,
+.ui.progress .teal.bar {
+  background-color: #06aed4;
+}
+.ui.inverted.indeterminate.teal.progress .bar::before,
+.ui.teal.inverted.progress .bar,
+.ui.inverted.progress .teal.bar {
+  background-color: #22ccee;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.teal.progress .bar > .progress,
+.ui.progress .teal.bar > .progress {
+  color: oklch(from #06aed4 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.teal.inverted.progress .bar > .progress,
+.ui.inverted.progress .teal.bar > .progress {
+  color: oklch(from #22ccee calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.blue.progress .bar::before,
+.ui.blue.progress .bar,
+.ui.progress .blue.bar {
+  background-color: #2e90fa;
+}
+.ui.inverted.indeterminate.blue.progress .bar::before,
+.ui.blue.inverted.progress .bar,
+.ui.inverted.progress .blue.bar {
+  background-color: #53b1fd;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.blue.progress .bar > .progress,
+.ui.progress .blue.bar > .progress {
+  color: oklch(from #2e90fa calc((0.6 - l) * 1000) 0 0);
+}
+.ui.blue.inverted.progress .bar > .progress,
+.ui.inverted.progress .blue.bar > .progress {
+  color: oklch(from #53b1fd calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.violet.progress .bar::before,
+.ui.violet.progress .bar,
+.ui.progress .violet.bar {
+  background-color: #7a5af8;
+}
+.ui.inverted.indeterminate.violet.progress .bar::before,
+.ui.violet.inverted.progress .bar,
+.ui.inverted.progress .violet.bar {
+  background-color: #9b8afb;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.violet.progress .bar > .progress,
+.ui.progress .violet.bar > .progress {
+  color: oklch(from #7a5af8 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.violet.inverted.progress .bar > .progress,
+.ui.inverted.progress .violet.bar > .progress {
+  color: oklch(from #9b8afb calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.purple.progress .bar::before,
+.ui.purple.progress .bar,
+.ui.progress .purple.bar {
+  background-color: #9e4cc9;
+}
+.ui.inverted.indeterminate.purple.progress .bar::before,
+.ui.purple.inverted.progress .bar,
+.ui.inverted.progress .purple.bar {
+  background-color: #c084e8;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.purple.progress .bar > .progress,
+.ui.progress .purple.bar > .progress {
+  color: oklch(from #9e4cc9 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.purple.inverted.progress .bar > .progress,
+.ui.inverted.progress .purple.bar > .progress {
+  color: oklch(from #c084e8 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.pink.progress .bar::before,
+.ui.pink.progress .bar,
+.ui.progress .pink.bar {
+  background-color: #c11574;
+}
+.ui.inverted.indeterminate.pink.progress .bar::before,
+.ui.pink.inverted.progress .bar,
+.ui.inverted.progress .pink.bar {
+  background-color: #ee46bc;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.pink.progress .bar > .progress,
+.ui.progress .pink.bar > .progress {
+  color: oklch(from #c11574 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.pink.inverted.progress .bar > .progress,
+.ui.inverted.progress .pink.bar > .progress {
+  color: oklch(from #ee46bc calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.brown.progress .bar::before,
+.ui.brown.progress .bar,
+.ui.progress .brown.bar {
+  background-color: #6e4a2e;
+}
+.ui.inverted.indeterminate.brown.progress .bar::before,
+.ui.brown.inverted.progress .bar,
+.ui.inverted.progress .brown.bar {
+  background-color: #b08463;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.brown.progress .bar > .progress,
+.ui.progress .brown.bar > .progress {
+  color: oklch(from #6e4a2e calc((0.6 - l) * 1000) 0 0);
+}
+.ui.brown.inverted.progress .bar > .progress,
+.ui.inverted.progress .brown.bar > .progress {
+  color: oklch(from #b08463 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.grey.progress .bar::before,
+.ui.grey.progress .bar,
+.ui.progress .grey.bar {
+  background-color: #687181;
+}
+.ui.inverted.indeterminate.grey.progress .bar::before,
+.ui.grey.inverted.progress .bar,
+.ui.inverted.progress .grey.bar {
+  background-color: #99a1af;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.grey.progress .bar > .progress,
+.ui.progress .grey.bar > .progress {
+  color: oklch(from #687181 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.grey.inverted.progress .bar > .progress,
+.ui.inverted.progress .grey.bar > .progress {
+  color: oklch(from #99a1af calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indeterminate.black.progress .bar::before,
+.ui.black.progress .bar,
+.ui.progress .black.bar {
+  background-color: light-dark(#1f2430, #535c6e);
+}
+.ui.inverted.indeterminate.black.progress .bar::before,
+.ui.black.inverted.progress .bar,
+.ui.inverted.progress .black.bar {
+  background-color: #4b5363;
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno (D36) */
+.ui.black.progress .bar > .progress,
+.ui.progress .black.bar > .progress {
+  color: oklch(from light-dark(#1f2430, #535c6e) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.black.inverted.progress .bar > .progress,
+.ui.inverted.progress .black.bar > .progress {
+  color: oklch(from #4b5363 calc((0.6 - l) * 1000) 0 0);
+}
+
+/* Fork: texto de la barra según la luminosidad de su relleno en los estados e indicating (D36) */
+
+/* En sliding, swinging y filling el color va en un ::before que se mueve: el texto queda sobre el carril,
+       así que lleva el texto de la página (o el de inverted), no el del relleno. */
+.ui.ui.sliding.indeterminate.progress .bar > .progress,
+.ui.ui.swinging.indeterminate.progress .bar > .progress,
+.ui.ui.filling.indeterminate.progress .bar > .progress {
+  color: inherit;
+}
+.ui.ui.inverted.sliding.indeterminate.progress .bar > .progress,
+.ui.ui.inverted.swinging.indeterminate.progress .bar > .progress,
+.ui.ui.inverted.filling.indeterminate.progress .bar > .progress {
+  color: #fff;
+}
+.ui.progress .bar > .progress {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.progress .bar > .progress {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indicating.progress[data-percent^="1"] .bar > .progress,
+.ui.indicating.progress[data-percent^="2"] .bar > .progress {
+  color: oklch(from #d95c5c calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indicating.progress[data-percent^="3"] .bar > .progress {
+  color: oklch(from #efbc72 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indicating.progress[data-percent^="4"] .bar > .progress,
+.ui.indicating.progress[data-percent^="5"] .bar > .progress {
+  color: oklch(from #e6bb48 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indicating.progress[data-percent^="6"] .bar > .progress {
+  color: oklch(from #ddc928 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indicating.progress[data-percent^="7"] .bar > .progress,
+.ui.indicating.progress[data-percent^="8"] .bar > .progress {
+  color: oklch(from #b4d95c calc((0.6 - l) * 1000) 0 0);
+}
+.ui.indicating.progress[data-percent^="9"] .bar > .progress,
+.ui.indicating.progress[data-percent^="100"] .bar > .progress {
+  color: oklch(from #66da81 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.ui.progress.success .bar > .progress {
+  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0);
+}
+.ui.ui.progress.warning .bar > .progress {
+  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.ui.progress.error .bar > .progress {
+  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0);
+}
+
+/* --------------
+     Sizes
+--------------- */
+.ui.progress {
+  font-size: 1rem;
+}
+.ui.progress .bar {
+  height: 1.42857143rem;
+}
+.ui.mini.progress {
+  font-size: 0.78571429rem;
+}
+.ui.mini.progress .bar {
+  height: 0.28571429rem;
+}
+.ui.tiny.progress {
+  font-size: 0.85714286rem;
+}
+.ui.tiny.progress .bar {
+  height: 0.42857143rem;
+}
+.ui.small.progress {
+  font-size: 0.92857143rem;
+}
+.ui.small.progress .bar {
+  height: 0.71428571rem;
+}
+.ui.large.progress {
+  font-size: 1.14285714rem;
+}
+.ui.large.progress .bar {
+  height: 2.5em;
+}
+.ui.big.progress {
+  font-size: 1.28571429rem;
+}
+.ui.big.progress .bar {
+  height: 3.5em;
+}
+.ui.huge.progress {
+  font-size: 1.42857143rem;
+}
+.ui.huge.progress .bar {
+  height: 4em;
+}
+.ui.massive.progress {
+  font-size: 1.71428571rem;
+}
+.ui.massive.progress .bar {
+  height: 5em;
+}
+
+/* ---------------
+      Indeterminate
+    ---------------- */
+.ui.indeterminate.progress .bar {
+  width: 100%;
+}
+.ui.indeterminate.progress .bar .progress,
+.ui.progress .bar .centered.progress {
+  text-align: center;
+  position: relative;
+  right: 0;
+}
+.ui.indeterminate.progress .bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--r-full, 999px);
+  animation: progress-pulsating 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  transform-origin: center;
+  width: 100%;
+}
+.ui.slow.indeterminate.progress .bar::before {
+  animation-duration: 4s;
+}
+.ui.fast.indeterminate.progress .bar::before {
+  animation-duration: 1s;
+}
+.ui.swinging.indeterminate.progress .bar::before {
+  transform-origin: left;
+  animation-name: progress-swinging;
+}
+.ui.sliding.indeterminate.progress .bar::before {
+  transform-origin: left;
+  animation-name: progress-sliding;
+}
+.ui.filling.indeterminate.progress .bar::before {
+  animation-name: progress-filling;
+}
+.ui.indeterminate.progress:not(.sliding):not(.filling):not(.swinging) .bar::before {
+  background: #fff;
+}
+.ui.sliding.indeterminate.progress .bar,
+.ui.swinging.indeterminate.progress .bar,
+.ui.filling.indeterminate.progress .bar {
+  background: light-dark(#eef1f5, #262b36);
+}
+.ui.sliding.indeterminate.progress .bar .progress,
+.ui.swinging.indeterminate.progress .bar .progress {
+  color: #1f2430;
+}
+.ui.inverted.sliding.indeterminate.progress .bar,
+.ui.inverted.swinging.indeterminate.progress .bar,
+.ui.inverted.filling.indeterminate.progress .bar {
+  background: rgba(255, 255, 255, 0.08);
+}
+.ui.inverted.sliding.indeterminate.progress .bar .progress,
+.ui.inverted.swinging.indeterminate.progress .bar .progress {
+  color: rgba(255, 255, 255, 0.7);
+}
+@keyframes progress-swinging {
+  0%,
+  100% {
+    width: 10%;
+    left: -25%;
+  }
+  25%,
+  65% {
+    width: 70%;
+  }
+  50% {
+    width: 10%;
+    left: 100%;
+  }
+}
+@keyframes progress-sliding {
+  0% {
+    width: 10%;
+    left: -25%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 10%;
+    left: 100%;
+  }
+}
+@keyframes progress-filling {
+  0% {
+    transform: scale(0, 1);
+  }
+  80% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes progress-pulsating {
+  0% {
+    transform: scale(0, 1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* ---------------
+         Circular
+    ---------------- */
+
+/* Fork: variación propia (progress circular: anillo con el porcentaje en el centro). El JS
+       publica --progress-percent en el elemento; el anillo es ::before (color = currentColor,
+       pista = resto del conic-gradient, hueco con mask). La .bar queda sin alto pero conserva
+       el ancho que le da el JS, del que sale el porcentaje animado de la etiqueta. */
+@property --progress-percent {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+.ui.ui.circular.progress {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  width: 6em;
+  max-width: none;
+  height: 6em;
+  margin: 0 1em 2.42857143rem 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  box-shadow: none;
+  background: transparent;
+  transition: --progress-percent 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.ui.circular.progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  color: var(--accent-1, var(--accent, #356dca));
+  background-image: conic-gradient(currentColor calc(var(--progress-percent, 0) * 1%), light-dark(#eef1f5, #262b36) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 0.5em - 0.5px), #000 calc(100% - 0.5em));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 0.5em - 0.5px), #000 calc(100% - 0.5em));
+}
+.ui.ui.circular.progress .bar {
+  position: static;
+  height: 0;
+  min-width: 0;
+  background: transparent;
+  overflow: visible;
+}
+.ui.ui.circular.progress .bar::before,
+.ui.ui.circular.progress .bar::after {
+  content: none;
+  animation: none;
+}
+.ui.ui.circular.progress .bar > .progress {
+  display: block;
+  position: absolute;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: auto;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  color: var(--theme-text-muted);
+  font-size: 1.25em;
+  font-weight: 600;
+  text-shadow: none;
+  text-align: center;
+}
+.ui.ui.circular.progress > .label {
+  top: 100%;
+  right: auto;
+  left: 50%;
+  width: max-content;
+  transform: translateX(-50%);
+}
+.ui.ui.indeterminate.circular.progress::before {
+  --progress-percent: 25;
+  animation: progress-circular-spin 1s linear infinite;
+}
+@keyframes progress-circular-spin {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+.ui.ui.ui.circular.progress.success::before {
+  color: #17b26a;
+}
+.ui.ui.ui.circular.progress.warning::before {
+  color: #f79009;
+}
+.ui.ui.ui.circular.progress.error::before {
+  color: #f04438;
+}
+.ui.ui.inverted.circular.progress::before {
+  color: var(--accent-1, var(--accent, #356dca));
+  background-image: conic-gradient(currentColor calc(var(--progress-percent, 0) * 1%), rgba(255, 255, 255, 0.08) 0);
+}
+.ui.ui.inverted.circular.progress .bar > .progress {
+  color: #fff;
+}
+.ui.circular.primary.progress::before {
+  color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.inverted.circular.primary.progress::before {
+  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+.ui.circular.secondary.progress::before {
+  color: var(--accent-2, #7a5af8);
+}
+.ui.inverted.circular.secondary.progress::before {
+  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+.ui.circular.accent-1.progress::before {
+  color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.inverted.circular.accent-1.progress::before {
+  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+.ui.circular.accent-2.progress::before {
+  color: var(--accent-2, #7a5af8);
+}
+.ui.inverted.circular.accent-2.progress::before {
+  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+.ui.circular.accent-3.progress::before {
+  color: var(--accent-3, #c11574);
+}
+.ui.inverted.circular.accent-3.progress::before {
+  color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+}
+.ui.circular.red.progress::before {
+  color: #f04438;
+}
+.ui.inverted.circular.red.progress::before {
+  color: #f97066;
+}
+.ui.circular.orange.progress::before {
+  color: #ef6820;
+}
+.ui.inverted.circular.orange.progress::before {
+  color: #f38744;
+}
+.ui.circular.yellow.progress::before {
+  color: #f79009;
+}
+.ui.inverted.circular.yellow.progress::before {
+  color: #fdb022;
+}
+.ui.circular.olive.progress::before {
+  color: #84a11b;
+}
+.ui.inverted.circular.olive.progress::before {
+  color: #a6c43a;
+}
+.ui.circular.green.progress::before {
+  color: #17b26a;
+}
+.ui.inverted.circular.green.progress::before {
+  color: #47cd89;
+}
+.ui.circular.teal.progress::before {
+  color: #06aed4;
+}
+.ui.inverted.circular.teal.progress::before {
+  color: #22ccee;
+}
+.ui.circular.blue.progress::before {
+  color: #2e90fa;
+}
+.ui.inverted.circular.blue.progress::before {
+  color: #53b1fd;
+}
+.ui.circular.violet.progress::before {
+  color: #7a5af8;
+}
+.ui.inverted.circular.violet.progress::before {
+  color: #9b8afb;
+}
+.ui.circular.purple.progress::before {
+  color: #9e4cc9;
+}
+.ui.inverted.circular.purple.progress::before {
+  color: #c084e8;
+}
+.ui.circular.pink.progress::before {
+  color: #c11574;
+}
+.ui.inverted.circular.pink.progress::before {
+  color: #ee46bc;
+}
+.ui.circular.brown.progress::before {
+  color: #6e4a2e;
+}
+.ui.inverted.circular.brown.progress::before {
+  color: #b08463;
+}
+.ui.circular.grey.progress::before {
+  color: #687181;
+}
+.ui.inverted.circular.grey.progress::before {
+  color: #99a1af;
+}
+.ui.circular.black.progress::before {
+  color: light-dark(#1f2430, #535c6e);
+}
+.ui.inverted.circular.black.progress::before {
+  color: #4b5363;
+}
+
+
+/*******************************
+            Progress
+*******************************/
+
+
+
+/*******************************
+   PiecesPHP: Progress Overrides
+*******************************/
+
+
+/* Cifras tabulares en el porcentaje y línea de Pequeño en la etiqueta */
+.ui.progress .bar > .progress {
+  font-variant-numeric: tabular-nums;
+}
+.ui.progress > .label {
+  line-height: 1.33333333;
+}
+
+/* small y tiny: la barra no admite texto; el porcentaje sale debajo, a la derecha, en text-2
+   (la barra estática deja que se posicione respecto a la pista, sin recortarlo) */
+.ui.ui.small.progress .bar,
+.ui.ui.tiny.progress .bar,
+.ui.ui.mini.progress .bar {
+  position: static;
+}
+.ui.ui.small.progress .bar > .progress,
+.ui.ui.tiny.progress .bar > .progress,
+.ui.ui.mini.progress .bar > .progress {
+  top: calc(100% + 0.28571429rem);
+  right: 0;
+  margin-top: 0;
+  font-size: 0.85714286rem;
+  line-height: 1.33333333;
+  color: light-dark(#4b5363, #cfd5de);
+}
+.ui.ui.small.progress .bar:not(:empty),
+.ui.ui.tiny.progress .bar:not(:empty),
+.ui.ui.mini.progress .bar:not(:empty) {
+  min-width: 0.42857143rem;
+}
+
+/* La etiqueta conserva su tamaño en small y tiny */
+.ui.small.progress > .label,
+.ui.tiny.progress > .label,
+.ui.mini.progress > .label {
+  font-size: 0.85714286rem;
+}

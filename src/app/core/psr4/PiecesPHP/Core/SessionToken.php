@@ -349,17 +349,30 @@ class SessionToken
         $name = self::tokenName();
         $name_on_server = 'HTTP_' . strtoupper($name);
 
-        if (isset($_SERVER[$name_on_server])) {
+        //Una cabecera VACÍA cuenta como ausente: el JavaScript ya no tiene el token (H188), y un código que aún la mande con
+        //getJWT() —que da ''— se quedaría sin sesión teniendo la cookie. Una cabecera con valor manda, como siempre.
+        if (self::receivedByHeader()) {
 
             $JWT = $_SERVER[$name_on_server];
 
-        } elseif (isset($_COOKIE[$name])) {
+        } elseif (isset($_COOKIE[$name]) && is_string($_COOKIE[$name])) {
 
             $JWT = $_COOKIE[$name];
 
         }
 
         return $JWT;
+    }
+
+    /**
+     * Si el token de esta petición llega por la cabecera (con valor): entonces manda sobre la cookie.
+     *
+     * @return bool
+     */
+    public static function receivedByHeader(): bool
+    {
+        $header = $_SERVER['HTTP_' . strtoupper(self::tokenName())] ?? null;
+        return is_string($header) && trim($header) !== '';
     }
 
     /**

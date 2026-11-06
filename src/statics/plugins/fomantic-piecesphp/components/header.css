@@ -1,0 +1,1014 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Header
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+            Header
+*******************************/
+
+
+/* Standard */
+.ui.header {
+  border: none;
+  margin: calc(2rem - 0.16666666666666663em) 0 1.14285714rem;
+  padding: 0 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.42857143em;
+  text-transform: none;
+  color: var(--theme-text);
+}
+.ui.header:first-child {
+  margin-top: 0;
+}
+.ui.header:last-child {
+  margin-bottom: 0;
+}
+
+/* --------------
+       Sub Header
+    --------------- */
+.ui.header .sub.header {
+  display: block;
+  font-weight: 400;
+  padding: 0;
+  margin: 0.14285714rem 0 0;
+  font-size: 0.85714286rem;
+  line-height: 1.33333333;
+  color: var(--theme-text-muted);
+}
+
+/* --------------
+      Icon
+--------------- */
+.ui.header > .icons,
+.ui.header > i.icon {
+  display: table-cell;
+  opacity: 1;
+  font-size: 1.5em;
+  padding-top: 0;
+  vertical-align: middle;
+}
+
+/* With Text Node */
+.ui.header:not(.icon) > .icons:only-child,
+.ui.header:not(.icon) > i.icon:only-child {
+  display: inline-block;
+  padding: 0;
+  margin-right: 0.75rem;
+}
+
+/* -------------------
+        Image
+-------------------- */
+.ui.header > .image:not(.icon),
+.ui.header > img {
+  display: inline-block;
+  margin-top: 0.16666667em;
+  width: 2.5em;
+  height: auto;
+  vertical-align: middle;
+}
+.ui.header > .image:not(.icon):only-child,
+.ui.header > img:only-child {
+  margin-right: 0.75rem;
+}
+
+/* --------------
+     Content
+--------------- */
+.ui.header .content {
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* After Image */
+.ui.header > img + .content,
+.ui.header > .image + .content {
+  padding-left: 0.75rem;
+  vertical-align: middle;
+}
+
+/* After Icon */
+.ui.header:not(.icon):not(.centered):not(.aligned) > .icons + .content,
+.ui.header:not(.icon):not(.centered):not(.aligned) > i.icon + .content {
+  padding-left: 0.75rem;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/* --------------
+ Loose Coupling
+--------------- */
+.ui.header .ui.label {
+  font-size: "";
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Positioning */
+.ui.header + p {
+  margin-top: 0;
+}
+
+
+/*******************************
+            Types
+*******************************/
+
+
+/* --------------
+     Page
+--------------- */
+h1.ui.header {
+  font-size: 1.71428571rem;
+}
+h1.ui.header .sub.header {
+  font-size: 1rem;
+}
+h2.ui.header {
+  font-size: 1.14285714rem;
+}
+h2.ui.header .sub.header {
+  font-size: 1rem;
+}
+h3.ui.header {
+  font-size: 1.14285714rem;
+}
+h3.ui.header .sub.header {
+  font-size: 0.85714286rem;
+}
+h4.ui.header {
+  font-size: 1rem;
+}
+h4.ui.header .sub.header {
+  font-size: 0.85714286rem;
+}
+h5.ui.header {
+  font-size: 0.92857143rem;
+}
+h5.ui.header .sub.header {
+  font-size: 0.85714286rem;
+}
+h6.ui.header {
+  font-size: 0.85714286rem;
+}
+h6.ui.header .sub.header {
+  font-size: 0.85714286rem;
+}
+
+/* --------------
+ Content Heading
+--------------- */
+.ui.mini.header {
+  font-size: 0.85714286rem;
+}
+.ui.mini.header .sub.header {
+  font-size: 0.85714286rem;
+}
+.ui.mini.sub.header {
+  font-size: 0.78571429em;
+}
+.ui.tiny.header {
+  font-size: 0.92857143rem;
+}
+.ui.tiny.header .sub.header {
+  font-size: 0.85714286rem;
+}
+.ui.tiny.sub.header {
+  font-size: 0.78571429em;
+}
+.ui.small.header {
+  font-size: 1rem;
+}
+.ui.small.header .sub.header {
+  font-size: 0.85714286rem;
+}
+.ui.small.sub.header {
+  font-size: 0.78571429em;
+}
+.ui.large.header {
+  font-size: 1.71428571rem;
+}
+.ui.large.header .sub.header {
+  font-size: 1rem;
+}
+.ui.large.sub.header {
+  font-size: 0.92857143em;
+}
+.ui.big.header {
+  font-size: 2rem;
+  min-height: 1em;
+}
+.ui.big.header .sub.header {
+  font-size: 1rem;
+}
+.ui.big.sub.header {
+  font-size: 1em;
+}
+.ui.huge.header {
+  font-size: 2.28571429rem;
+  min-height: 1em;
+}
+.ui.huge.header .sub.header {
+  font-size: 1rem;
+}
+.ui.huge.sub.header {
+  font-size: 1em;
+}
+.ui.massive.header {
+  font-size: 4rem;
+  min-height: 1em;
+}
+.ui.massive.header .sub.header {
+  font-size: 0.85714286rem;
+}
+.ui.massive.sub.header {
+  font-size: 1.14285714em;
+}
+
+/* --------------
+       Sub Heading
+    --------------- */
+.ui.sub.header {
+  padding: 0;
+  margin-bottom: 0.14285714rem;
+  font-weight: 600;
+  font-size: 0.85714286em;
+  text-transform: none;
+  color: var(--theme-text-muted);
+}
+
+/* -------------------
+            Icon
+    -------------------- */
+.ui.icon.header {
+  display: inline-block;
+  text-align: center;
+  margin: 2rem 0 1.14285714rem;
+}
+.ui.icon.header::after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+.ui.icon.header:first-child {
+  margin-top: 0;
+}
+.ui.icon.header > .image.icon,
+.ui.icon.header > .icons,
+.ui.icon.header > i.icon {
+  float: none;
+  display: block;
+  width: auto;
+  height: auto;
+  line-height: 1;
+  padding: 0;
+  font-size: 3em;
+  margin: 0 auto 0.5rem;
+  opacity: 1;
+}
+.ui.icon.header .corner.icon {
+  font-size: 0.45em;
+}
+
+/* Fork: el grupo de iconos ocupaba todo el ancho y su esquina salía en el borde derecho */
+.ui.icon.header > .icons {
+  width: max-content;
+}
+.ui.icon.header .content {
+  display: block;
+  padding: 0;
+}
+.ui.icon.header > i.circular {
+  font-size: 2em;
+}
+.ui.icon.header > i.square {
+  font-size: 2em;
+}
+.ui.block.icon.header > .image.icon,
+.ui.block.icon.header > .icons,
+.ui.block.icon.header > i.icon {
+  margin-bottom: 0;
+}
+.ui.icon.header.aligned {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+
+/*******************************
+            States
+*******************************/
+
+.ui.disabled.header {
+  opacity: 0.45;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* -------------------
+          Inverted
+    -------------------- */
+.ui.inverted.header {
+  color: #fff;
+}
+.ui.inverted.header .sub.header {
+  color: rgba(255, 255, 255, 0.8);
+}
+.ui.inverted.attached.header {
+  background: #1f2430;
+  box-shadow: none;
+  border-color: transparent;
+}
+.ui.inverted.block.header {
+  background: #1f2430;
+  box-shadow: none;
+  border-bottom: none;
+}
+
+/* -------------------
+       Colors
+-------------------- */
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.primary.header {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+}
+a.ui.primary.header:hover {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+}
+.ui.primary.dividing.header {
+  border-bottom: 2px solid var(--accent-1, var(--accent, #356dca));
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.primary.header.header.header {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+}
+a.ui.inverted.primary.header.header.header:hover {
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) c h);
+}
+.ui.inverted.primary.dividing.header {
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.secondary.header {
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+}
+a.ui.secondary.header:hover {
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+}
+.ui.secondary.dividing.header {
+  border-bottom: 2px solid var(--accent-2, #7a5af8);
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.secondary.header.header.header {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+}
+a.ui.inverted.secondary.header.header.header:hover {
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) c h);
+}
+.ui.inverted.secondary.dividing.header {
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.accent-1.header {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+}
+a.ui.accent-1.header:hover {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+}
+.ui.accent-1.dividing.header {
+  border-bottom: 2px solid var(--accent-1, var(--accent, #356dca));
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.accent-1.header.header.header {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+}
+a.ui.inverted.accent-1.header.header.header:hover {
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) c h);
+}
+.ui.inverted.accent-1.dividing.header {
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.accent-2.header {
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+}
+a.ui.accent-2.header:hover {
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+}
+.ui.accent-2.dividing.header {
+  border-bottom: 2px solid var(--accent-2, #7a5af8);
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.accent-2.header.header.header {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+}
+a.ui.inverted.accent-2.header.header.header:hover {
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) c h);
+}
+.ui.inverted.accent-2.dividing.header {
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.accent-3.header {
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+}
+a.ui.accent-3.header:hover {
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+}
+.ui.accent-3.dividing.header {
+  border-bottom: 2px solid var(--accent-3, #c11574);
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.accent-3.header.header.header {
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+}
+a.ui.inverted.accent-3.header.header.header:hover {
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) max(l, 0.8) c h);
+}
+.ui.inverted.accent-3.dividing.header {
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.red.header {
+  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+}
+a.ui.red.header:hover {
+  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+}
+.ui.red.dividing.header {
+  border-bottom: 2px solid #f04438;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.red.header.header.header {
+  color: oklch(from #f97066 max(l, 0.8) c h);
+}
+a.ui.inverted.red.header.header.header:hover {
+  color: oklch(from #ff3b2d max(l, 0.8) c h);
+}
+.ui.inverted.red.dividing.header {
+  border-bottom: 2px solid #f97066;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.orange.header {
+  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+}
+a.ui.orange.header:hover {
+  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+}
+.ui.orange.dividing.header {
+  border-bottom: 2px solid #ef6820;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.orange.header.header.header {
+  color: oklch(from #f38744 max(l, 0.8) c h);
+}
+a.ui.inverted.orange.header.header.header:hover {
+  color: oklch(from #fb6609 max(l, 0.8) c h);
+}
+.ui.inverted.orange.dividing.header {
+  border-bottom: 2px solid #f38744;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.yellow.header {
+  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+}
+a.ui.yellow.header:hover {
+  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+}
+.ui.yellow.dividing.header {
+  border-bottom: 2px solid #f79009;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.yellow.header.header.header {
+  color: oklch(from #fdb022 max(l, 0.8) c h);
+}
+a.ui.inverted.yellow.header.header.header:hover {
+  color: oklch(from #ec9900 max(l, 0.8) c h);
+}
+.ui.inverted.yellow.dividing.header {
+  border-bottom: 2px solid #fdb022;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.olive.header {
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+}
+a.ui.olive.header:hover {
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+}
+.ui.olive.dividing.header {
+  border-bottom: 2px solid #84a11b;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.olive.header.header.header {
+  color: oklch(from #a6c43a max(l, 0.8) c h);
+}
+a.ui.inverted.olive.header.header.header:hover {
+  color: oklch(from #88a229 max(l, 0.8) c h);
+}
+.ui.inverted.olive.dividing.header {
+  border-bottom: 2px solid #a6c43a;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.green.header {
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+}
+a.ui.green.header:hover {
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+}
+.ui.green.dividing.header {
+  border-bottom: 2px solid #17b26a;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.green.header.header.header {
+  color: oklch(from #47cd89 max(l, 0.8) c h);
+}
+a.ui.inverted.green.header.header.header:hover {
+  color: oklch(from #2ab76f max(l, 0.8) c h);
+}
+.ui.inverted.green.dividing.header {
+  border-bottom: 2px solid #47cd89;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.teal.header {
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+}
+a.ui.teal.header:hover {
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+}
+.ui.teal.dividing.header {
+  border-bottom: 2px solid #06aed4;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.teal.header.header.header {
+  color: oklch(from #22ccee max(l, 0.8) c h);
+}
+a.ui.inverted.teal.header.header.header:hover {
+  color: oklch(from #06b4d7 max(l, 0.8) c h);
+}
+.ui.inverted.teal.dividing.header {
+  border-bottom: 2px solid #22ccee;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.blue.header {
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+}
+a.ui.blue.header:hover {
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+}
+.ui.blue.dividing.header {
+  border-bottom: 2px solid #2e90fa;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.blue.header.header.header {
+  color: oklch(from #53b1fd max(l, 0.8) c h);
+}
+a.ui.inverted.blue.header.header.header:hover {
+  color: oklch(from #1e9aff max(l, 0.8) c h);
+}
+.ui.inverted.blue.dividing.header {
+  border-bottom: 2px solid #53b1fd;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.violet.header {
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+}
+a.ui.violet.header:hover {
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+}
+.ui.violet.dividing.header {
+  border-bottom: 2px solid #7a5af8;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.violet.header.header.header {
+  color: oklch(from #9b8afb max(l, 0.8) c h);
+}
+a.ui.inverted.violet.header.header.header:hover {
+  color: oklch(from #6d53ff max(l, 0.8) c h);
+}
+.ui.inverted.violet.dividing.header {
+  border-bottom: 2px solid #9b8afb;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.purple.header {
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+}
+a.ui.purple.header:hover {
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+}
+.ui.purple.dividing.header {
+  border-bottom: 2px solid #9e4cc9;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.purple.header.header.header {
+  color: oklch(from #c084e8 max(l, 0.8) c h);
+}
+a.ui.inverted.purple.header.header.header:hover {
+  color: oklch(from #ab52e7 max(l, 0.8) c h);
+}
+.ui.inverted.purple.dividing.header {
+  border-bottom: 2px solid #c084e8;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.pink.header {
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+}
+a.ui.pink.header:hover {
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+}
+.ui.pink.dividing.header {
+  border-bottom: 2px solid #c11574;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.pink.header.header.header {
+  color: oklch(from #ee46bc max(l, 0.8) c h);
+}
+a.ui.inverted.pink.header.header.header:hover {
+  color: oklch(from #f40daf max(l, 0.8) c h);
+}
+.ui.inverted.pink.dividing.header {
+  border-bottom: 2px solid #ee46bc;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.brown.header {
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+}
+a.ui.brown.header:hover {
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+}
+.ui.brown.dividing.header {
+  border-bottom: 2px solid #6e4a2e;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.brown.header.header.header {
+  color: oklch(from #b08463 max(l, 0.8) c h);
+}
+a.ui.inverted.brown.header.header.header:hover {
+  color: oklch(from #986a48 max(l, 0.8) c h);
+}
+.ui.inverted.brown.dividing.header {
+  border-bottom: 2px solid #b08463;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.grey.header {
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+}
+a.ui.grey.header:hover {
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+}
+.ui.grey.dividing.header {
+  border-bottom: 2px solid #687181;
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.grey.header.header.header {
+  color: oklch(from #99a1af max(l, 0.8) c h);
+}
+a.ui.inverted.grey.header.header.header:hover {
+  color: oklch(from #7b869a max(l, 0.8) c h);
+}
+.ui.inverted.grey.dividing.header {
+  border-bottom: 2px solid #99a1af;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+.ui.black.header {
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+}
+a.ui.black.header:hover {
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+}
+.ui.black.dividing.header {
+  border-bottom: 2px solid light-dark(#1f2430, #535c6e);
+}
+
+/* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
+.ui.inverted.black.header.header.header {
+  color: oklch(from #4b5363 max(l, 0.8) c h);
+}
+a.ui.inverted.black.header.header.header:hover {
+  color: oklch(from #000000 max(l, 0.8) c h);
+}
+.ui.inverted.black.dividing.header {
+  border-bottom: 2px solid #4b5363;
+}
+
+/* -------------------
+           Aligned
+    -------------------- */
+.ui.left.aligned.header {
+  text-align: left;
+}
+.ui.right.aligned.header {
+  text-align: right;
+}
+.ui.centered.header,
+.ui.center.aligned.header {
+  text-align: center;
+}
+.ui.justified.header {
+  text-align: justify;
+}
+.ui.justified.header::after {
+  display: inline-block;
+  content: "";
+  width: 100%;
+}
+
+/* -------------------
+           Floated
+    -------------------- */
+.ui.floated.header,
+.ui[class*="left floated"].header {
+  float: left;
+  margin-top: 0;
+  margin-right: 0.5em;
+}
+.ui[class*="right floated"].header {
+  float: right;
+  margin-top: 0;
+  margin-left: 0.5em;
+}
+
+/* -------------------
+           Fitted
+    -------------------- */
+.ui.fitted.header {
+  padding: 0;
+}
+
+/* -------------------
+          Dividing
+    -------------------- */
+.ui.dividing.header {
+  padding-bottom: 0.57142857rem;
+  border-bottom: 1px solid var(--theme-border);
+}
+.ui.dividing.header .sub.header {
+  padding-bottom: 0.21428571rem;
+}
+.ui.dividing.header i.icon {
+  margin-bottom: 0;
+}
+.ui.inverted.dividing.header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* -------------------
+            Block
+    -------------------- */
+.ui.block.header {
+  background: var(--theme-fill);
+  padding: 0.78571429rem 1rem;
+  box-shadow: none;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--r-md, 8px);
+}
+.ui.block.header:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+  font-size: 1rem;
+}
+.ui.mini.block.header {
+  font-size: 0.78571429rem;
+}
+.ui.tiny.block.header {
+  font-size: 0.85714286rem;
+}
+.ui.small.block.header {
+  font-size: 0.92857143rem;
+}
+.ui.large.block.header {
+  font-size: 1.14285714rem;
+}
+.ui.big.block.header {
+  font-size: 1.28571429rem;
+}
+.ui.huge.block.header {
+  font-size: 1.42857143rem;
+}
+.ui.massive.block.header {
+  font-size: 1.71428571rem;
+}
+
+/* -------------------
+           Attached
+    -------------------- */
+.ui.attached.header {
+  background: var(--theme-surface);
+  padding: 0.78571429rem 1rem;
+  margin: 0 -1px;
+  box-shadow: none;
+  border: 1px solid var(--theme-border);
+  border-radius: 0;
+}
+.ui.attached.block.header {
+  background: var(--theme-fill);
+}
+.ui.attached:not(.top).header {
+  border-top: none;
+}
+.ui.top.attached.header {
+  border-radius: var(--r-md, 8px) var(--r-md, 8px) 0 0;
+}
+.ui.bottom.attached.header {
+  border-radius: 0 0 var(--r-md, 8px) var(--r-md, 8px);
+}
+.ui.seamless.attached:not(.bottom).header {
+  border-bottom: none;
+}
+
+/* Attached Sizes */
+.ui.attached.header:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+  font-size: 1em;
+}
+.ui.mini.attached.header {
+  font-size: 0.78571429em;
+}
+.ui.tiny.attached.header {
+  font-size: 0.85714286em;
+}
+.ui.small.attached.header {
+  font-size: 0.92857143em;
+}
+.ui.large.attached.header {
+  font-size: 1.14285714em;
+}
+.ui.big.attached.header {
+  font-size: 1.28571429em;
+}
+.ui.huge.attached.header {
+  font-size: 1.42857143em;
+}
+.ui.massive.attached.header {
+  font-size: 1.71428571em;
+}
+
+/* -------------------
+        Sizing
+-------------------- */
+.ui.header:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+  font-size: 1.14285714rem;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+   PiecesPHP: Header Overrides
+*******************************/
+
+
+/* Interlineado y tracking de cada estilo de la escala (Fomantic usa uno solo para todos). Las
+   clases de tamaño van después que las etiquetas h1…h6 y, con más especificidad, ganan. */
+
+/* Título 24/32 600, -0.015em */
+h1.ui.header {
+  line-height: 1.33333333;
+  letter-spacing: -0.015em;
+}
+
+/* Lead 16/24 600 */
+h2.ui.header,
+h3.ui.header {
+  line-height: 1.5;
+}
+
+/* Cuerpo 14/20 600 */
+h4.ui.header {
+  line-height: 1.42857143;
+}
+
+/* Etiqueta 13/18 600 */
+h5.ui.header {
+  line-height: 1.38461538;
+}
+
+/* Pequeño 12/16 600 */
+h6.ui.header {
+  line-height: 1.33333333;
+}
+.ui.mini.header {
+  line-height: 1.33333333;
+  letter-spacing: normal;
+}
+.ui.tiny.header {
+  line-height: 1.38461538;
+  letter-spacing: normal;
+}
+.ui.small.header {
+  line-height: 1.42857143;
+  letter-spacing: normal;
+}
+.ui.medium.header {
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+.ui.large.header {
+  line-height: 1.33333333;
+  letter-spacing: -0.015em;
+}
+
+/* 28/36 600 (inferido) */
+.ui.big.header {
+  line-height: 1.28571429;
+  letter-spacing: -0.015em;
+}
+
+/* Display 32/40 700, -0.02em */
+.ui.huge.header {
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+/* Cifra destacada 56/60 700, -0.03em y cifras tabulares (inferido para massive) */
+.ui.massive.header {
+  font-weight: 700;
+  line-height: 1.07142857;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* El sub header no hereda el tracking negativo de los títulos grandes */
+.ui.header .sub.header {
+  letter-spacing: normal;
+}
+
+/* Bajada de la página y de la sección (h1/h2 > .sub.header): Cuerpo 14/20 en --text-3; la de
+   la página, como máximo 640px (pp-page-head p); la de la sección ocupa todo el ancho. El
+   título de página deja 24px hasta el contenido. */
+h1.ui.header .sub.header,
+h2.ui.header .sub.header {
+  line-height: 1.42857143;
+}
+h1.ui.header .sub.header {
+  max-width: 640px;
+  text-wrap: pretty;
+}
+h1.ui.header:not(:last-child) {
+  margin-bottom: 1.71428571rem;
+}
+
+/* Cabecera de tarjeta (`ui medium header`, .pp-card-title + .pp-card-sub): Lead con la bajada en
+   Pequeño, también en un h2 */
+.ui.medium.header .sub.header {
+  font-size: 0.85714286rem;
+  line-height: 1.33333333;
+}
+
+/* Cifra destacada de color (.pp-err-code): el acento mismo, no su tinta de texto (D35). Es texto
+   grande (56px), al que le basta 3:1 en ambos modos */
+.ui.massive.primary.header {
+  color: var(--accent-1, var(--accent, #356dca));
+}

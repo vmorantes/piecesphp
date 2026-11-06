@@ -1,0 +1,623 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Nag
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+             Nag
+*******************************/
+
+.ui.nag {
+  display: none;
+  opacity: 1;
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0.85714286rem 3.14285714rem 0.85714286rem 1.14285714rem;
+  background: light-dark(#f5f7fa, #20242d);
+  box-shadow: none;
+  font-size: 1rem;
+  text-align: left;
+  
+/* Fork: texto, título y cierre según la luminosidad del fondo (D36): el título blanco sobre
+       #909090 no llegaba a 3:1 */
+  color: oklch(from light-dark(#f5f7fa, #20242d) calc((0.6 - l) * 1000) 0 0);
+  border-radius: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+a.ui.nag {
+  cursor: pointer;
+}
+.ui.nag > .title {
+  display: inline-block;
+  margin: 0;
+  color: oklch(from light-dark(#f5f7fa, #20242d) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.nag > .close.icon {
+  cursor: pointer;
+  opacity: 0.75;
+  position: absolute;
+  top: 50%;
+  right: 0.85714286rem;
+  font-size: 1rem;
+  margin: -0.85714286rem 0 0;
+  color: oklch(from light-dark(#f5f7fa, #20242d) calc((0.6 - l) * 1000) 0 0);
+  transition: opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.nag:not(.overlay):not(.fixed) {
+  border-radius: 0;
+}
+
+
+/*******************************
+             States
+*******************************/
+
+
+/* Hover */
+.ui.nag:hover {
+  background: light-dark(#f5f7fa, #20242d);
+  opacity: 1;
+}
+.ui.nag > .close:hover {
+  opacity: 1;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* --------------
+         Static
+    --------------- */
+.ui.overlay.nags,
+.ui.overlay.nag {
+  position: absolute;
+}
+
+/* --------------
+         Fixed
+    --------------- */
+.ui.fixed.nags,
+.ui.fixed.nag {
+  position: fixed;
+}
+
+/* --------------
+         Bottom
+    --------------- */
+.ui.bottom.nags,
+.ui.bottom.nag {
+  border-radius: 0;
+  top: auto;
+  bottom: 0;
+}
+
+/* --------------
+         Inverted
+    --------------- */
+.ui.inverted.nags .nag,
+.ui.inverted.nag {
+  background-color: var(--theme-surface-strong);
+  color: var(--theme-text);
+}
+.ui.inverted.nags .nag > .close,
+.ui.inverted.nag > .close {
+  color: light-dark(#99a1af, #737c8c);
+}
+.ui.inverted.nags .nag > .title,
+.ui.inverted.nag > .title {
+  color: var(--theme-text);
+}
+
+/* --------------
+         Inline
+    --------------- */
+
+/* Fork: variación propia (aviso dentro del contenido, no una barra flotante): alineado a la
+       izquierda, sin sombra ni radio, opaco y con línea inferior. */
+.ui.inline.nag {
+  position: relative;
+  top: auto;
+  z-index: auto;
+  opacity: 1;
+  text-align: left;
+  border-radius: 0;
+  box-shadow: none;
+  border-bottom: 1px solid var(--theme-border);
+}
+.ui.inline.nag > .icon:not(.close) {
+  margin: 0 0.75em 0 0;
+}
+.ui.inline.nag > .title {
+  margin: 0;
+}
+
+/* Un título largo se parte junto al ícono en vez de bajar debajo de él; el enlace toma el
+       color del estado, en semibold y subrayado */
+.ui.inline.nag > .icon:not(.close) + .title {
+  max-width: calc(100% - 4em);
+  vertical-align: top;
+}
+.ui.inline.nag > .title a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --------------
+         States
+    --------------- */
+
+/* Fork: variación propia (estados claros, como message): fondo, texto y línea del estado
+       de los globales. success y error son alias de positive y negative. */
+.ui.positive.nag,
+.ui.success.nag {
+  background-color: light-dark(#ecfdf3, #0c2a1c);
+  color: light-dark(#067647, #75e0a7);
+  border-bottom-color: light-dark(#abefc6, #1b5e3c);
+}
+.ui.negative.nag,
+.ui.error.nag {
+  background-color: light-dark(#fef3f2, #351513);
+  color: light-dark(#b42318, #fda29b);
+  border-bottom-color: light-dark(#fecdca, #7a271a);
+}
+.ui.info.nag {
+  background-color: light-dark(#ecfdff, #0a2a33);
+  color: light-dark(#0e7090, #67e3f9);
+  border-bottom-color: light-dark(#a5f0fc, #155b75);
+}
+.ui.warning.nag {
+  background-color: light-dark(#fffaeb, #2e2108);
+  color: light-dark(#b54708, #fdb022);
+  border-bottom-color: light-dark(#fedf89, #6b4a10);
+}
+.ui:is(.positive, .success, .negative, .error, .info, .warning).nag > .title,
+.ui:is(.positive, .success, .negative, .error, .info, .warning).nag > .close.icon {
+  color: inherit;
+}
+
+/* -------------------
+            Sizes
+    -------------------- */
+.ui.mini.nag,
+.ui.mini.nags .nag {
+  font-size: 0.78571429rem;
+}
+.ui.tiny.nag,
+.ui.tiny.nags .nag {
+  font-size: 0.85714286rem;
+}
+.ui.small.nag,
+.ui.small.nags .nag {
+  font-size: 0.92857143rem;
+}
+.ui.large.nag,
+.ui.large.nags .nag {
+  font-size: 1.14285714rem;
+}
+.ui.big.nag,
+.ui.big.nags .nag {
+  font-size: 1.28571429rem;
+}
+.ui.huge.nag,
+.ui.huge.nags .nag {
+  font-size: 1.42857143rem;
+  line-height: 1;
+}
+.ui.massive.nag,
+.ui.massive.nags .nag {
+  font-size: 1.71428571rem;
+  line-height: 1;
+}
+
+/* --------------
+     Colors
+-------------- */
+.ui.primary.nag {
+  background-color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.inverted.primary.nag {
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.primary.nag,
+.ui.primary.nag > .title,
+.ui.primary.nag > .close.icon {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.primary.nag,
+.ui.inverted.primary.nag > .title,
+.ui.inverted.primary.nag > .close.icon {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.secondary.nag {
+  background-color: var(--accent-2, #7a5af8);
+}
+.ui.inverted.secondary.nag {
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.secondary.nag,
+.ui.secondary.nag > .title,
+.ui.secondary.nag > .close.icon {
+  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.secondary.nag,
+.ui.inverted.secondary.nag > .title,
+.ui.inverted.secondary.nag > .close.icon {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.accent-1.nag {
+  background-color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.inverted.accent-1.nag {
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.accent-1.nag,
+.ui.accent-1.nag > .title,
+.ui.accent-1.nag > .close.icon {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.accent-1.nag,
+.ui.inverted.accent-1.nag > .title,
+.ui.inverted.accent-1.nag > .close.icon {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.accent-2.nag {
+  background-color: var(--accent-2, #7a5af8);
+}
+.ui.inverted.accent-2.nag {
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.accent-2.nag,
+.ui.accent-2.nag > .title,
+.ui.accent-2.nag > .close.icon {
+  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.accent-2.nag,
+.ui.inverted.accent-2.nag > .title,
+.ui.inverted.accent-2.nag > .close.icon {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.accent-3.nag {
+  background-color: var(--accent-3, #c11574);
+}
+.ui.inverted.accent-3.nag {
+  background-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.accent-3.nag,
+.ui.accent-3.nag > .title,
+.ui.accent-3.nag > .close.icon {
+  color: oklch(from var(--accent-3, #c11574) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.accent-3.nag,
+.ui.inverted.accent-3.nag > .title,
+.ui.inverted.accent-3.nag > .close.icon {
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.red.nag {
+  background-color: #f04438;
+}
+.ui.inverted.red.nag {
+  background-color: #f97066;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.red.nag,
+.ui.red.nag > .title,
+.ui.red.nag > .close.icon {
+  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.red.nag,
+.ui.inverted.red.nag > .title,
+.ui.inverted.red.nag > .close.icon {
+  color: oklch(from #f97066 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.orange.nag {
+  background-color: #ef6820;
+}
+.ui.inverted.orange.nag {
+  background-color: #f38744;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.orange.nag,
+.ui.orange.nag > .title,
+.ui.orange.nag > .close.icon {
+  color: oklch(from #ef6820 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.orange.nag,
+.ui.inverted.orange.nag > .title,
+.ui.inverted.orange.nag > .close.icon {
+  color: oklch(from #f38744 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.yellow.nag {
+  background-color: #f79009;
+}
+.ui.inverted.yellow.nag {
+  background-color: #fdb022;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.yellow.nag,
+.ui.yellow.nag > .title,
+.ui.yellow.nag > .close.icon {
+  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.yellow.nag,
+.ui.inverted.yellow.nag > .title,
+.ui.inverted.yellow.nag > .close.icon {
+  color: oklch(from #fdb022 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.olive.nag {
+  background-color: #84a11b;
+}
+.ui.inverted.olive.nag {
+  background-color: #a6c43a;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.olive.nag,
+.ui.olive.nag > .title,
+.ui.olive.nag > .close.icon {
+  color: oklch(from #84a11b calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.olive.nag,
+.ui.inverted.olive.nag > .title,
+.ui.inverted.olive.nag > .close.icon {
+  color: oklch(from #a6c43a calc((0.6 - l) * 1000) 0 0);
+}
+.ui.green.nag {
+  background-color: #17b26a;
+}
+.ui.inverted.green.nag {
+  background-color: #47cd89;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.green.nag,
+.ui.green.nag > .title,
+.ui.green.nag > .close.icon {
+  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.green.nag,
+.ui.inverted.green.nag > .title,
+.ui.inverted.green.nag > .close.icon {
+  color: oklch(from #47cd89 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.teal.nag {
+  background-color: #06aed4;
+}
+.ui.inverted.teal.nag {
+  background-color: #22ccee;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.teal.nag,
+.ui.teal.nag > .title,
+.ui.teal.nag > .close.icon {
+  color: oklch(from #06aed4 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.teal.nag,
+.ui.inverted.teal.nag > .title,
+.ui.inverted.teal.nag > .close.icon {
+  color: oklch(from #22ccee calc((0.6 - l) * 1000) 0 0);
+}
+.ui.blue.nag {
+  background-color: #2e90fa;
+}
+.ui.inverted.blue.nag {
+  background-color: #53b1fd;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.blue.nag,
+.ui.blue.nag > .title,
+.ui.blue.nag > .close.icon {
+  color: oklch(from #2e90fa calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.blue.nag,
+.ui.inverted.blue.nag > .title,
+.ui.inverted.blue.nag > .close.icon {
+  color: oklch(from #53b1fd calc((0.6 - l) * 1000) 0 0);
+}
+.ui.violet.nag {
+  background-color: #7a5af8;
+}
+.ui.inverted.violet.nag {
+  background-color: #9b8afb;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.violet.nag,
+.ui.violet.nag > .title,
+.ui.violet.nag > .close.icon {
+  color: oklch(from #7a5af8 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.violet.nag,
+.ui.inverted.violet.nag > .title,
+.ui.inverted.violet.nag > .close.icon {
+  color: oklch(from #9b8afb calc((0.6 - l) * 1000) 0 0);
+}
+.ui.purple.nag {
+  background-color: #9e4cc9;
+}
+.ui.inverted.purple.nag {
+  background-color: #c084e8;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.purple.nag,
+.ui.purple.nag > .title,
+.ui.purple.nag > .close.icon {
+  color: oklch(from #9e4cc9 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.purple.nag,
+.ui.inverted.purple.nag > .title,
+.ui.inverted.purple.nag > .close.icon {
+  color: oklch(from #c084e8 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.pink.nag {
+  background-color: #c11574;
+}
+.ui.inverted.pink.nag {
+  background-color: #ee46bc;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.pink.nag,
+.ui.pink.nag > .title,
+.ui.pink.nag > .close.icon {
+  color: oklch(from #c11574 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.pink.nag,
+.ui.inverted.pink.nag > .title,
+.ui.inverted.pink.nag > .close.icon {
+  color: oklch(from #ee46bc calc((0.6 - l) * 1000) 0 0);
+}
+.ui.brown.nag {
+  background-color: #6e4a2e;
+}
+.ui.inverted.brown.nag {
+  background-color: #b08463;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.brown.nag,
+.ui.brown.nag > .title,
+.ui.brown.nag > .close.icon {
+  color: oklch(from #6e4a2e calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.brown.nag,
+.ui.inverted.brown.nag > .title,
+.ui.inverted.brown.nag > .close.icon {
+  color: oklch(from #b08463 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.grey.nag {
+  background-color: #687181;
+}
+.ui.inverted.grey.nag {
+  background-color: #99a1af;
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.grey.nag,
+.ui.grey.nag > .title,
+.ui.grey.nag > .close.icon {
+  color: oklch(from #687181 calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.grey.nag,
+.ui.inverted.grey.nag > .title,
+.ui.inverted.grey.nag > .close.icon {
+  color: oklch(from #99a1af calc((0.6 - l) * 1000) 0 0);
+}
+.ui.black.nag {
+  background-color: light-dark(#1f2430, #535c6e);
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.black.nag {
+  background-color: #4b5363;
+}
+.ui.inverted.black.nag .title {
+  color: var(--theme-text);
+}
+
+/* Fork: texto según la luminosidad del relleno (D36) */
+.ui.black.nag,
+.ui.black.nag > .title,
+.ui.black.nag > .close.icon {
+  color: oklch(from light-dark(#1f2430, #535c6e) calc((0.6 - l) * 1000) 0 0);
+}
+.ui.inverted.black.nag,
+.ui.inverted.black.nag > .title,
+.ui.inverted.black.nag > .close.icon {
+  color: oklch(from #4b5363 calc((0.6 - l) * 1000) 0 0);
+}
+
+
+/*******************************
+               Groups
+    *******************************/
+
+.ui.nags {
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+.ui.ui.nags .nag {
+  border-radius: 0;
+}
+.ui.nags:not(.bottom) .nag:last-child {
+  border-radius: 0;
+}
+.ui.bottom.nags .nag:first-child {
+  border-radius: 0;
+}
+.ui.nags:not(.fixed):not(.overlay) .nag:first-child {
+  border-radius: 0;
+}
+.ui.nags:not(.fixed):not(.overlay) .nag:only-child {
+  border-radius: 0;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+     PiecesPHP: Nag Overrides
+*******************************/
+
+
+/* Barra neutra: texto en text (la capa común lo decidía por la luminosidad del fondo, que en
+   g-50 da negro puro) y borde inferior line */
+.ui.nag {
+  line-height: 1.42857143;
+  border-bottom: 1px solid var(--theme-border);
+}
+.ui.nag,
+.ui.nag > .title {
+  color: var(--theme-text);
+}
+
+/* Cierre de 24px con radio sm; al pasar, tinte del color del texto */
+.ui.nag > .close.icon {
+  width: 1.71428571rem;
+  height: 1.71428571rem;
+  line-height: 1.71428571;
+  text-align: center;
+  border-radius: var(--r-sm, 6px);
+  color: light-dark(#99a1af, #737c8c);
+}
+.ui.nag > .close.icon:hover {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* Variantes de estado: variación `states` del fork (nag.less) con los colores de estado del
+   tema (globales). */

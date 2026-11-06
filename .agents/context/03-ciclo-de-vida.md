@@ -39,7 +39,10 @@ En orden:
    `:303`, `:304`), las tres ya protegidas por un `!== null` previo.
    **La sesión, medida en `#403` y `#407`.** No vive en `$_SESSION`: vive en un JWT (`id` y `type`, 31 días por
    defecto) que llega por la cabecera `JWTAuth` o por la cookie del mismo nombre (`SessionToken::getJWTReceived()`; con
-   las dos, manda la cabecera). `UserDataPackage` es una foto de la petición guardada en `Config`, que es `static`: muere
+   las dos, manda la cabecera CON VALOR; una vacía cae a la cookie, JEZ). **Desde JEZ (`ab40565d`, `0c285686`) la cookie
+   la pone y la borra el servidor** (`UserSystem/Authentication/SessionCookie`: `HttpOnly`, caducidad del token, solo si el
+   acceso es XHR, contra el CSRF de inicio de sesión) y el JS no guarda el token (`getJWT()` en desuso, devuelve `''`); la
+   cabecera NUNCA fue defensa CSRF: la barrera es `SameSite=Lax`. Suite `core/session-cookie`. `UserDataPackage` es una foto de la petición guardada en `Config`, que es `static`: muere
    con ella. **Dos mundos en el CLI:** las acciones de `CliActions` (las suites) retornan antes de `$app->run()`
    (`index.php:933-940`) y corren SIN sesión —ese es su contrato—; las TAREAS del sistema de rutas pasan por el
    middleware y reciben la sesión automática de root (`index.php:317`). `TerminalData` declara

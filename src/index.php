@@ -32,6 +32,7 @@ use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\LoadFailures;
 use PiecesPHP\UserSystem\Authentication\Impersonation;
+use PiecesPHP\UserSystem\Authentication\SessionCookie;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\ImpersonationController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -490,6 +491,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 if ($invalidTypeSession !== null) {
                     UserSessions::close((int) $invalidTypeSession['id'], null, UserSessions::REASON_INVALID_TYPE);
                 }
+                //Y su cookie fuera: es HttpOnly, el navegador no puede borrarla.
+                SessionCookie::forget();
             }
             $isActiveSession = false;
             $user = null;

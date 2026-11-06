@@ -1,0 +1,197 @@
+
+/* Fork: componente propio, no existe en Fomantic. */
+
+
+/*******************************
+             Flex
+*******************************/
+
+
+/* Fila de piezas con separación uniforme: la maquetación que Fomantic resuelve con grid, lista o
+   botones agrupados, para todo lo demás (cabecera con acción, barra de filtros, ícono + texto…).
+   Los márgenes de los hijos se anulan: dentro de una fila la separación es solo el gap (D52). */
+.ui.flex {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.57142857rem;
+  min-width: 0;
+}
+
+/* Especificidad (0,5,0) para ganar a los márgenes de grupo de Fomantic (`.ui.labels .label`…) y
+   al párrafo de una tarjeta (`.ui.cards > .card > .content p`, 0,4,1) */
+.ui.ui.ui.ui.flex > * {
+  margin: 0;
+}
+
+/* Un ícono con caja (baldosa o círculo) no se encoge con un texto largo al lado: se deforma */
+.ui.flex > i.bordered.icon,
+.ui.flex > i.circular.icon {
+  flex: none;
+}
+
+/* Por defecto los hijos no se estiran ni se encogen por debajo de su contenido; el que lleva
+   `fluid` ocupa el espacio libre y puede encogerse (con `ui truncated text` dentro, recorta). */
+.ui.flex > * {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.ui.flex > .fluid {
+  flex: 1 1 0;
+}
+.ui.ui.flex > .right.floated {
+  float: none;
+  margin-left: auto;
+}
+
+
+/*******************************
+          Variations
+*******************************/
+
+
+/* Separación */
+.ui.tight.flex {
+  gap: 0.28571429rem;
+}
+.ui.relaxed.flex {
+  gap: 0.85714286rem;
+}
+.ui.very.relaxed.flex {
+  gap: 1.14285714rem;
+}
+.ui.wide.flex {
+  gap: 1.71428571rem;
+}
+.ui.fitted.flex {
+  gap: 0;
+}
+
+/* Columna */
+.ui.vertical.flex {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+.ui.vertical.flex > .fluid {
+  flex: 1 1 auto;
+  align-self: stretch;
+}
+
+/* En columna, centrar y alinear es a lo ancho: los hijos conservan su ancho */
+.ui.vertical.centered.flex {
+  justify-content: flex-start;
+  align-items: center;
+}
+.ui.vertical.left.aligned.flex {
+  align-items: flex-start;
+}
+.ui.vertical.right.aligned.flex {
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+
+/* Reparto en el eje principal */
+.ui.spaced.flex {
+  justify-content: space-between;
+}
+.ui.centered.flex {
+  justify-content: center;
+}
+.ui.right.aligned.flex {
+  justify-content: flex-end;
+}
+
+/* Alineación en el eje transversal */
+.ui.top.aligned.flex {
+  align-items: flex-start;
+}
+.ui.bottom.aligned.flex {
+  align-items: flex-end;
+}
+.ui.middle.aligned.flex {
+  align-items: center;
+}
+.ui.stretched.flex {
+  align-items: stretch;
+}
+
+/* Alto de la ventana (páginas públicas: login, error) */
+.ui.fullscreen.flex {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(170deg, var(--accent-25) 0%, var(--theme-page) 50%, var(--theme-surface) 100%);
+}
+
+/* Hijos a partes iguales; `mobile equal width` solo en móvil (botones de un filtro) */
+.ui.equal.width.flex:not(.mobile) > * {
+  flex: 1 1 0;
+}
+@media only screen and (max-width: 767.98px) {
+  .ui.mobile.equal.width.flex > * {
+    flex: 1 1 0;
+  }
+}
+
+/* Hijo que en móvil crece hasta llenar su línea (`mobile stretched`: el botón de una tarjeta que el
+   diseño estira en el teléfono) */
+@media only screen and (max-width: 767.98px) {
+  .ui.flex > .mobile.stretched {
+    flex: 1 1 auto;
+  }
+}
+
+/* Columna que en móvil pasa a fila alineada a la izquierda (`vertical mobile horizontal`): una
+   cifra con su unidad debajo y a la derecha en escritorio, en línea en el teléfono */
+@media only screen and (max-width: 767.98px) {
+  .ui.ui.vertical.mobile.horizontal.flex {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    column-gap: 0.28571429rem;
+  }
+}
+
+/* Fila que reserva el alto de dos líneas aunque sus piezas quepan en una (`double`): las
+   etiquetas de una tarjeta de usuario, para que todas midan lo mismo sin importar el texto */
+.ui.double.flex {
+  align-content: flex-start;
+  min-height: 3.57142857rem;
+}
+
+/* Una sola línea (los hijos `fluid` se encogen) */
+.ui.nowrap.flex {
+  flex-wrap: nowrap;
+}
+
+/* En bloque o en línea */
+.ui.inline.flex {
+  display: inline-flex;
+}
+
+/* Apilada en móvil: columna estirada por debajo del punto de corte de tableta */
+
+/* Especificidad por encima de las alineaciones (`bottom aligned`, `spaced`…) */
+@media only screen and (max-width: 767.98px) {
+  .ui.ui.ui.stackable.flex {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+  .ui.ui.ui.stackable.flex > .right.floated {
+    margin-left: 0;
+  }
+  
+/* En columna, `fluid` toma el alto de su contenido: con la base 0 de la fila, un título
+           se quedaba en una línea y el texto montaba lo siguiente (F-3) */
+  .ui.ui.ui.stackable.flex > .fluid {
+    flex: 1 1 auto;
+  }
+}
+
+
+/*******************************
+         Flex Overrides
+*******************************/
+

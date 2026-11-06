@@ -109,6 +109,7 @@ var PCSPHP_TRANSLATIONS_EN = {
 		'USUARIO_BLOQUEADO': '<span class="text">User</span> <span class="mark">blocked</span>',
 		'ERROR_AL_INGRESAR': 'Login failed',
 		'Demasiados intentos': 'Too many attempts',
+		'Cuenta sin un tipo válido': 'Account without a valid type',
 	},
 	userProblems: {
 		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'It will be solved very soon, please check your mail in the next few hours. <br> The email may be in "Spam", please check the spam folder. The sender of the email is <strong>%r</strong>.',

@@ -1,0 +1,69 @@
+
+/* Fork: componente propio, no existe en Fomantic. */
+
+
+/*******************************
+             Chart
+*******************************/
+
+
+/* Hueco con medidas para una gráfica (ECharts, Chart.js…), que las necesita explícitas (D52).
+   La librería dibuja en `.canvas` (o en el propio `ui chart` si no tiene hijos); un
+   `ui statistic` dentro queda centrado encima (la cifra de una dona). `:not(.icon)`: un
+   `ui big chart area icon` también lleva `.ui.chart`, y sin él tomaba el alto del hueco. */
+.ui.chart:not(.icon) {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 140px;
+}
+
+/* width/height: un elemento reemplazado (svg, canvas) no se estira solo con inset */
+.ui.chart > .canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ui.chart > .ui.statistic {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  pointer-events: none;
+}
+
+
+/*******************************
+          Variations
+*******************************/
+
+.ui.square.chart {
+  flex: none;
+  width: 150px;
+  height: 150px;
+}
+.ui.spark.chart {
+  flex: none;
+  width: 96px;
+  height: 36px;
+}
+.ui.short.chart {
+  height: 100px;
+}
+.ui.tall.chart {
+  height: 220px;
+}
+.ui.very.tall.chart {
+  height: 300px;
+}
+
+
+/*******************************
+        Chart Overrides
+*******************************/
+

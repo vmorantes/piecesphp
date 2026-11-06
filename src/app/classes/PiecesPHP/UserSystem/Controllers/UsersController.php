@@ -41,6 +41,7 @@ use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Tokens\Controllers\TokenController;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Authentication\SessionCookie;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
@@ -483,7 +484,7 @@ class UsersController extends AdminPanelController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_front_library('fomantic-piecesphp', []);
+        import_fomantic();
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 
@@ -1142,7 +1143,13 @@ class UsersController extends AdminPanelController
 
                                 //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES (tipo, estado y organización, de la fila en cada
                                 //petición); lleva además el identificador de su sesión, cuya fila manda (ADR 0026).
-                                $resultOperation->setValue('token', UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth')));
+                                $token = UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth'));
+                                $resultOperation->setValue('token', $token);
+                                //La cookie, solo al JavaScript del propio sitio (X-Requested-With): un formulario de otro sitio
+                                //no puede mandarla, y sin esto metería su sesión en este navegador. El cuerpo, para la API.
+                                if ($request->isXhr()) {
+                                    SessionCookie::put($token);
+                                }
 
                                 //Valores de usuario devueltos, FILTRADOS POR LISTA BLANCA: se toma lo declarado,
                                 //no se quita lo que sobra. Así una columna nueva no viaja sola al navegador.
@@ -1316,6 +1323,15 @@ class UsersController extends AdminPanelController
             $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
             if ($organizationMapper != null && !in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN)) {
                 $resultOperation->setValue('isAuth', false);
+            }
+        }
+        //La cookie, al día: con sesión se vuelve a poner (pasa a HttpOnly la que escribía el JavaScript hasta la 10.5); sin
+        //ella, se borra la que llegó. Solo si el token vino EN la cookie: uno de cabecera no se copia a ella, ni la borra.
+        if (!SessionToken::receivedByHeader() && is_string($JWT) && $JWT !== '') {
+            if ($resultOperation->getValue('isAuth') === true) {
+                SessionCookie::put($JWT);
+            } else {
+                SessionCookie::forget();
             }
         }
         return $response->withJson($resultOperation->getValues());

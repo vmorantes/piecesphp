@@ -1,0 +1,309 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Comment
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+            Standard
+*******************************/
+
+
+/* --------------
+    Comments
+--------------- */
+.ui.comments {
+  margin: 1.5em 0;
+  max-width: 650px;
+}
+.ui.comments:first-child {
+  margin-top: 0;
+}
+.ui.comments:last-child {
+  margin-bottom: 0;
+}
+
+/* --------------
+     Comment
+--------------- */
+.ui.comments .comment {
+  position: relative;
+  background: none;
+  margin: 0.57142857rem 0 0;
+  padding: 0.57142857rem 0 0;
+  border: none;
+  border-top: none;
+  line-height: 1.42857143;
+}
+.ui.comments .comment:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* --------------------
+    Nested Comments
+--------------------- */
+.ui.comments .comment > .comments {
+  margin: 0 0 0.5em 0.5em;
+  padding: 1em 0 1em 1em;
+}
+.ui.comments .comment > .comments::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.ui.comments .comment > .comments .comment {
+  border: none;
+  border-top: none;
+  background: none;
+}
+
+/* --------------
+         Avatar
+    --------------- */
+.ui.comments .comment .avatar {
+  display: block;
+  width: 2.28571429rem;
+  height: 2.28571429rem;
+  float: left;
+  margin: 0;
+}
+.ui.comments .comment img.avatar,
+.ui.comments .comment .avatar img {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  border-radius: 500rem;
+}
+
+/* --------------
+     Content
+--------------- */
+.ui.comments .comment > .content {
+  display: block;
+}
+
+/* If there is an avatar move content over */
+.ui.comments .comment > .avatar ~ .content {
+  margin-left: 3.14285714rem;
+}
+
+/* --------------
+         Author
+    --------------- */
+.ui.comments .comment .author {
+  font-size: 1em;
+  color: var(--theme-text);
+  font-weight: 600;
+}
+.ui.comments .comment a.author {
+  cursor: pointer;
+}
+.ui.comments .comment a.author:hover {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+}
+
+/* --------------
+         Metadata
+    --------------- */
+.ui.comments .comment .metadata {
+  display: inline-block;
+  margin-left: 0.5em;
+  color: var(--theme-text-muted);
+  font-size: 0.85714286rem;
+}
+.ui.comments .comment .metadata > * {
+  display: inline-block;
+  margin: 0 0.5em 0 0;
+}
+.ui.comments .comment .metadata > :last-child {
+  margin-right: 0;
+}
+
+/* --------------------
+     Comment Text
+--------------------- */
+.ui.comments .comment .text {
+  margin: 0.14285714rem 0 0.42857143rem;
+  font-size: 1em;
+  word-wrap: break-word;
+  color: var(--theme-text);
+  line-height: 1.42857143;
+}
+
+/* --------------------
+         User Actions
+    --------------------- */
+.ui.comments .comment .actions {
+  font-size: 0.85714286rem;
+}
+.ui.comments .comment .actions a {
+  cursor: pointer;
+  display: inline-block;
+  margin: 0 0.75em 0 0;
+  color: var(--theme-text-muted);
+}
+.ui.comments .comment .actions a:last-child {
+  margin-right: 0;
+}
+.ui.comments .comment .actions a.active,
+.ui.comments .comment .actions a:hover {
+  color: var(--theme-text);
+}
+
+/* --------------------
+          Reply Form
+    --------------------- */
+.ui.comments > .reply.form {
+  margin-top: 1em;
+}
+.ui.comments .comment .reply.form {
+  width: 100%;
+  margin-top: 1em;
+}
+.ui.comments .reply.form textarea {
+  font-size: 1em;
+  height: 12em;
+}
+
+
+/*******************************
+            State
+*******************************/
+
+.ui.collapsed.comments,
+.ui.comments .collapsed.comments,
+.ui.comments .collapsed.comment {
+  display: none;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* --------------------
+            Threaded
+    --------------------- */
+.ui.threaded.comments .comment > .comments {
+  margin: -1.5em 0 -1em 1.14285714rem;
+  padding: 3em 0 2em 2.25em;
+  box-shadow: -1px 0 0 light-dark(#d8dde5, #3a4150);
+}
+
+/* --------------------
+            Minimal
+    --------------------- */
+.ui.minimal.comments .comment .actions {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  transition: opacity 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition-delay: 0.1s;
+}
+.ui.minimal.comments .comment > .content:hover > .actions {
+  opacity: 1;
+}
+
+/* -------------------
+        Sizes
+-------------------- */
+.ui.comments {
+  font-size: 1rem;
+}
+.ui.mini.comments {
+  font-size: 0.78571429rem;
+}
+.ui.tiny.comments {
+  font-size: 0.85714286rem;
+}
+.ui.small.comments {
+  font-size: 0.92857143rem;
+}
+.ui.large.comments {
+  font-size: 1.14285714rem;
+}
+.ui.big.comments {
+  font-size: 1.28571429rem;
+}
+.ui.huge.comments {
+  font-size: 1.42857143rem;
+}
+.ui.massive.comments {
+  font-size: 1.71428571rem;
+}
+
+/* -------------------
+            Inverted
+    -------------------- */
+.ui.inverted.comments .comment {
+  background-color: #1f2430;
+}
+.ui.inverted.comments .comment .author,
+.ui.inverted.comments .comment .text {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.comments .comment .metadata,
+.ui.inverted.comments .comment .actions a {
+  color: rgba(255, 255, 255, 0.7);
+}
+.ui.inverted.comments .comment a.author:hover,
+.ui.inverted.comments .comment .actions a.active,
+.ui.inverted.comments .comment .actions a:hover {
+  color: #ffffff;
+}
+.ui.inverted.threaded.comments .comment > .comments {
+  box-shadow: -1px 0 0 #555;
+}
+.ui.disabled.comments,
+.ui.comments .disabled.comment {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+  PiecesPHP: Comment Overrides
+*******************************/
+
+
+/* Texto del comentario en text-2 (sin variable de color) */
+.ui.comments:not(.inverted) .comment > .content > .text {
+  color: light-dark(#4b5363, #cfd5de);
+}
+
+/* Avatar de iniciales (.avatar.pp-accent del diseño): sin imagen, círculo --accent-100 con
+   anillo --accent-200 e iniciales --accent-700 en Pequeño 600 */
+.ui.comments .comment > .avatar:not(:has(img)) {
+  display: grid;
+  place-items: center;
+  border-radius: 500rem;
+  background: var(--accent-100);
+  box-shadow: inset 0 0 0 1px var(--accent-200);
+  color: var(--accent-700);
+  font-size: 0.85714286rem;
+  line-height: 1;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Imágenes del avatar recortadas al círculo */
+.ui.comments .comment > .avatar img,
+.ui.comments .comment img.avatar {
+  object-fit: cover;
+}

@@ -67,7 +67,7 @@ class RecoveryPasswordController extends UsersController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_front_library('fomantic-piecesphp', []);
+        import_fomantic();
         /* Librerías de la aplicación */
         import_app_libraries(['baseStyle']);
 

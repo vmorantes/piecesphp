@@ -17,8 +17,8 @@ use PiecesPHP\Core\Config;
 $assets = [];
 
 /**
- * Fomantic UI v2.9.4
- * https://fomantic-ui.com/
+ * Fomantic UI v2.9.4 (https://fomantic-ui.com/), el de antes del tema. EN DESUSO: el framework ya no lo carga; solo
+ * import_semantic(), que sale con esta entrada y su carpeta en la 11.0.0.
  */
 $assets['semantic']['css'] = [
     'statics/plugins/semantic/semantic.min.css',
@@ -31,7 +31,7 @@ $assets['semantic']['plugins'] = [
 
 /**
  * El tema del panel (P245 b; ADR 0069): un fork de Fomantic UI 2.9.4 con el tema piecesphp, copiado por bin/traer-tema
- * (su ORIGEN.json dice de dónde salió). Lo cargan el panel y el acceso; la zona pública sigue con 'semantic'.
+ * (su ORIGEN.json dice de dónde salió). Lo cargan el panel, el acceso y la zona pública, con import_fomantic().
  */
 $assets['fomantic-piecesphp']['css'] = [
     'statics/plugins/fomantic-piecesphp/semantic.min.css',

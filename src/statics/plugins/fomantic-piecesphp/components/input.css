@@ -1,0 +1,1854 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Input
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+           Standard
+*******************************/
+
+
+/* --------------------
+        Inputs
+--------------------- */
+.ui.input {
+  position: relative;
+  font-weight: 400;
+  font-style: normal;
+  display: inline-flex;
+  color: var(--theme-text);
+}
+.ui.input > input {
+  margin: 0;
+  max-width: 100%;
+  flex: 1 1 auto;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  text-align: left;
+  line-height: 1.42857143em;
+  font-family: var(--font-body);
+  background: var(--theme-surface);
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  color: var(--theme-text);
+  border-radius: var(--r-md, 8px);
+  transition: box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+}
+.ui.input > input:not([type="color"]) {
+  padding: 0.64285714em 0.85714286em;
+}
+.ui.input > input::-webkit-calendar-picker-indicator {
+  padding: 0;
+  opacity: 1;
+  -webkit-transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+/* --------------------
+      Placeholder
+--------------------- */
+
+/* browsers require these rules separate */
+.ui.input > input:-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.input > input::-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.input > input::placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.input > input::-moz-placeholder {
+  opacity: 1;
+}
+.ui.input > input:-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+
+
+/*******************************
+            States
+*******************************/
+
+
+/* --------------------
+            Disabled
+    --------------------- */
+.ui.disabled.input,
+.ui.input:not(.disabled) input[disabled] {
+  opacity: 0.45;
+}
+.ui.disabled.input > input,
+.ui.input:not(.disabled) input[disabled] {
+  pointer-events: none;
+}
+
+/* --------------------
+        Active
+--------------------- */
+.ui.input > input:active,
+.ui.input.down input {
+  border-color: color-mix(in srgb, var(--theme-border) 100%, var(--theme-text) 20%);
+  background: var(--theme-surface);
+  color: var(--theme-text);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+}
+.ui.form .field > textarea:hover:not(:focus),
+.ui.input > textarea:hover:not(:focus),
+.ui.form .field > input:hover:not(:focus),
+.ui.input > input:hover:not(:focus) {
+  border-color: light-dark(#cfd5de, #3a4150);
+}
+
+/* --------------------
+           Loading
+    --------------------- */
+
+/* Fork: el spinner a opacidad completa (heredaba la del ícono del campo, 0,5, y el arco de
+       color se veía pálido) */
+.ui.ui.loading.input > i.icon {
+  opacity: 1;
+}
+.ui.ui.loading.input > i.icon::before {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 50%;
+  margin: -0.64285714em 0 0 -0.64285714em;
+  width: 1.28571429em;
+  height: 1.28571429em;
+  border-radius: 500rem;
+  border: 0.2em solid var(--theme-border);
+}
+.ui.ui.loading.input > i.icon::after {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 50%;
+  margin: -0.64285714em 0 0 -0.64285714em;
+  width: 1.28571429em;
+  height: 1.28571429em;
+  animation: loader 0.6s infinite linear;
+  border: 0.2em solid #687181;
+  border-radius: 500rem;
+  box-shadow: 0 0 0 1px transparent;
+}
+
+/* --------------------
+        Focus
+--------------------- */
+.ui.input.focus > input,
+.ui.input > input:focus {
+  border-color: var(--accent-1, var(--accent, #356dca));
+  background: var(--theme-surface);
+  color: var(--theme-text);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+.ui.input.focus > input:-ms-input-placeholder, .ui.input > input:focus:-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.input.focus > input::-ms-input-placeholder, .ui.input > input:focus::-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.input.focus > input::placeholder,
+.ui.input > input:focus::placeholder {
+  color: var(--theme-text-muted);
+}
+.ui.input.focus > input:-ms-input-placeholder,
+.ui.input > input:focus:-ms-input-placeholder {
+  color: var(--theme-text-muted);
+}
+
+/* --------------------
+            States
+    --------------------- */
+.ui.input.error > input {
+  background-color: light-dark(#fef3f2, #351513);
+  border-color: light-dark(#fecdca, #7a271a);
+  color: light-dark(#b42318, #fda29b);
+  box-shadow: none;
+}
+
+/* Placeholder */
+.ui.input.error > input:-ms-input-placeholder {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.input.error > input::-ms-input-placeholder {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.input.error > input::placeholder {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.input.error > input:-ms-input-placeholder {
+  color: light-dark(#b42318, #fda29b) !important;
+}
+
+/* Focused Placeholder */
+.ui.input.error > input:focus:-ms-input-placeholder {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.input.error > input:focus::-ms-input-placeholder {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.input.error > input:focus::placeholder {
+  color: light-dark(#b42318, #fda29b);
+}
+.ui.input.error > input:focus:-ms-input-placeholder {
+  color: light-dark(#b42318, #fda29b) !important;
+}
+.ui.input.info > input {
+  background-color: light-dark(#ecfdff, #0a2a33);
+  border-color: light-dark(#a5f0fc, #155b75);
+  color: light-dark(#0e7090, #67e3f9);
+  box-shadow: none;
+}
+
+/* Placeholder */
+.ui.input.info > input:-ms-input-placeholder {
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.input.info > input::-ms-input-placeholder {
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.input.info > input::placeholder {
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.input.info > input:-ms-input-placeholder {
+  color: light-dark(#0e7090, #67e3f9) !important;
+}
+
+/* Focused Placeholder */
+.ui.input.info > input:focus:-ms-input-placeholder {
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.input.info > input:focus::-ms-input-placeholder {
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.input.info > input:focus::placeholder {
+  color: light-dark(#0e7090, #67e3f9);
+}
+.ui.input.info > input:focus:-ms-input-placeholder {
+  color: light-dark(#0e7090, #67e3f9) !important;
+}
+.ui.input.success > input {
+  background-color: light-dark(#ecfdf3, #0c2a1c);
+  border-color: light-dark(#abefc6, #1b5e3c);
+  color: light-dark(#067647, #75e0a7);
+  box-shadow: none;
+}
+
+/* Placeholder */
+.ui.input.success > input:-ms-input-placeholder {
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.input.success > input::-ms-input-placeholder {
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.input.success > input::placeholder {
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.input.success > input:-ms-input-placeholder {
+  color: light-dark(#067647, #75e0a7) !important;
+}
+
+/* Focused Placeholder */
+.ui.input.success > input:focus:-ms-input-placeholder {
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.input.success > input:focus::-ms-input-placeholder {
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.input.success > input:focus::placeholder {
+  color: light-dark(#067647, #75e0a7);
+}
+.ui.input.success > input:focus:-ms-input-placeholder {
+  color: light-dark(#067647, #75e0a7) !important;
+}
+.ui.input.warning > input {
+  background-color: light-dark(#fffaeb, #2e2108);
+  border-color: light-dark(#fedf89, #6b4a10);
+  color: light-dark(#b54708, #fdb022);
+  box-shadow: none;
+}
+
+/* Placeholder */
+.ui.input.warning > input:-ms-input-placeholder {
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.input.warning > input::-ms-input-placeholder {
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.input.warning > input::placeholder {
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.input.warning > input:-ms-input-placeholder {
+  color: light-dark(#b54708, #fdb022) !important;
+}
+
+/* Focused Placeholder */
+.ui.input.warning > input:focus:-ms-input-placeholder {
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.input.warning > input:focus::-ms-input-placeholder {
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.input.warning > input:focus::placeholder {
+  color: light-dark(#b54708, #fdb022);
+}
+.ui.input.warning > input:focus:-ms-input-placeholder {
+  color: light-dark(#b54708, #fdb022) !important;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* --------------------
+          Transparent
+    --------------------- */
+.ui.transparent.input > textarea,
+.ui.transparent.input > input {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  padding: 0;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.field .ui.transparent.input > textarea {
+  padding: 0.64285714em 0.85714286em;
+}
+
+/* Transparent Icon */
+:not(.field) > .ui.transparent.icon.input > i.icon {
+  width: 1.1em;
+}
+:not(.field) > .ui.ui.ui.transparent.icon.input > input {
+  padding-left: 0;
+  padding-right: 2em;
+}
+:not(.field) > .ui.ui.ui.transparent[class*="left icon"].input > input {
+  padding-left: 2em;
+  padding-right: 0;
+}
+
+/* Transparent Inverted */
+.ui.transparent.inverted.input {
+  color: #fff;
+}
+.ui.ui.transparent.inverted.input > textarea,
+.ui.ui.transparent.inverted.input > input {
+  color: inherit;
+}
+
+/* Fork: también el textarea (quedaba con el gris del navegador sobre el fondo oscuro) */
+.ui.transparent.inverted.input > input:-ms-input-placeholder, .ui.transparent.inverted.input > textarea:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.ui.transparent.inverted.input > input::-ms-input-placeholder, .ui.transparent.inverted.input > textarea::-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.ui.transparent.inverted.input > input::placeholder,
+.ui.transparent.inverted.input > textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.ui.transparent.inverted.input > input:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* --------------------
+             Icon
+    --------------------- */
+.ui.icon.input > i.icon {
+  cursor: default;
+  position: absolute;
+  line-height: 1;
+  text-align: center;
+  top: 0;
+  right: 0;
+  margin: 0;
+  height: 100%;
+  width: 2.52857143em;
+  opacity: 1;
+  border-radius: 0 var(--r-md, 8px) var(--r-md, 8px) 0;
+  transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.icon.input > i.icon:not(.link) {
+  pointer-events: none;
+}
+.ui.ui.ui.ui.icon.input:not(.corner) > textarea,
+.ui.ui.ui.ui.icon.input:not(.corner) > input {
+  padding-right: 2.52857143em;
+}
+.ui.icon.input > i.icon::before,
+.ui.icon.input > i.icon::after {
+  left: 0;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  width: 100%;
+  margin-top: -0.5em;
+}
+.ui.icon.input > i.link.icon {
+  cursor: pointer;
+}
+.ui.icon.input > i.circular.icon {
+  top: 0.35em;
+  right: 0.5em;
+}
+
+/* Left Icon Input */
+.ui[class*="left icon"].input > i.icon {
+  right: auto;
+  left: 1px;
+  border-radius: var(--r-md, 8px) 0 0 var(--r-md, 8px);
+}
+.ui[class*="left icon"].input > i.circular.icon {
+  right: auto;
+  left: 0.5em;
+}
+.ui.ui.ui.ui[class*="left icon"]:not([class*="left corner"]).input > textarea,
+.ui.ui.ui.ui[class*="left icon"]:not([class*="left corner"]).input > input {
+  padding-left: 2.52857143em;
+}
+.ui.ui.ui.ui[class*="left icon"]:not(.corner).input > textarea,
+.ui.ui.ui.ui[class*="left icon"]:not(.corner).input > input {
+  padding-right: 0.85714286em;
+}
+
+/* Fork: el ícono por encima de un dropdown acoplado (si el dropdown es opaco lo tapaba) */
+.ui.icon.input > i.icon:has(+ .ui.dropdown) {
+  z-index: 11;
+}
+
+/* Fork: un segundo ícono (p. ej. el ojo de mostrar la contraseña, `link icon`) va a la
+       derecha de un `left icon input` en lugar de montarse sobre el primero */
+.ui[class*="left icon"].input > i.icon ~ i.icon {
+  right: 1px;
+  left: auto;
+  border-radius: 0 var(--r-md, 8px) var(--r-md, 8px) 0;
+}
+.ui.ui.ui.ui[class*="left icon"]:not(.corner).input:has(> i.icon ~ i.icon) > input {
+  padding-right: 2.52857143em;
+}
+
+/* Focus */
+.ui.input > input:focus::-webkit-calendar-picker-indicator,
+.ui.icon.input > textarea:focus ~ i.icon,
+.ui.icon.input > input:focus ~ i.icon {
+  opacity: 1;
+}
+
+/* --------------------
+            Labeled
+    --------------------- */
+
+/* Adjacent Label */
+.ui.labeled.input > .label {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 1em;
+}
+.ui.labeled.input > .label:not(.corner) {
+  padding-top: 0.71428571em;
+  padding-bottom: 0.71428571em;
+}
+
+/* Regular Label on Left */
+.ui.labeled.input:not([class*="corner labeled"]) .label:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.ui.labeled.input:not([class*="corner labeled"]) .label:first-child + input {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left-color: transparent;
+}
+.ui.labeled.input:not([class*="corner labeled"]) .label:first-child + input:focus {
+  border-left-color: var(--accent-1, var(--accent, #356dca));
+}
+
+/* Regular Label on Right */
+.ui[class*="right labeled"].input > input {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right-color: transparent !important;
+}
+.ui[class*="right labeled"].input > input + .label {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.ui[class*="right labeled"].input > input:focus {
+  border-right-color: var(--accent-1, var(--accent, #356dca)) !important;
+}
+
+/* Corner Label */
+.ui.labeled.input .corner.label {
+  top: 1px;
+  right: 1px;
+  font-size: 0.64285714em;
+  border-radius: 0 var(--r-md, 8px) 0 0;
+}
+
+/* Fork: el triángulo es casi tan alto como el campo y su punta inferior asomaba por la
+       esquina redondeada de abajo; el de la izquierda, además, redondeaba la esquina contraria. */
+.ui.labeled.input .corner.label,
+.ui.labeled.input .corner.label::after {
+  border-radius: 0 var(--r-md, 8px) var(--r-md, 8px) 0;
+}
+.ui.labeled.input .left.corner.label,
+.ui.labeled.input .left.corner.label::after {
+  border-radius: var(--r-md, 8px) 0 0 var(--r-md, 8px);
+}
+
+/* Fork: tamaño propio del triángulo; con el de la etiqueta (4em) era más alto que los campos
+       bajos y asomaba por debajo */
+.ui.labeled.input .corner.label {
+  width: 4em;
+  height: 4em;
+}
+.ui.labeled.input .corner.label::after {
+  border-right-width: 4em;
+  border-bottom-width: 4em;
+}
+.ui.labeled.input .left.corner.label::after {
+  border-top-width: 4em;
+  border-right-width: 4em;
+  border-bottom-width: 0;
+}
+
+/* Spacing with corner label */
+.ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > .ui.dropdown,
+.ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > textarea,
+.ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > input {
+  padding-right: 2.5em;
+}
+.ui[class*="corner labeled"].icon.input:not([class*="left corner labeled"]) > .ui.dropdown,
+.ui[class*="corner labeled"].icon.input:not([class*="left corner labeled"]) > textarea,
+.ui[class*="corner labeled"].icon.input:not([class*="left corner labeled"]) > input {
+  padding-right: 3.25em;
+}
+.ui[class*="corner labeled"].icon.input:not([class*="left corner labeled"]) > i.icon {
+  margin-right: 1.25em;
+}
+
+/* Left Labeled */
+.ui[class*="left icon"].input > .ui.dropdown:first-child,
+.ui[class*="left icon"].input > i.icon + .ui.dropdown,
+.ui[class*="left corner labeled"].input > .ui.dropdown,
+.ui[class*="left corner labeled"].input > textarea,
+.ui[class*="left corner labeled"].input > input {
+  padding-left: 2.5em;
+}
+.ui[class*="corner labeled"]:not([class*="left corner labeled"])[class*="left icon"].input > .ui.dropdown,
+.ui[class*="corner labeled"]:not([class*="left corner labeled"])[class*="left icon"].input > textarea,
+.ui[class*="corner labeled"]:not([class*="left corner labeled"])[class*="left icon"].input > input {
+  padding-right: 3.25em;
+}
+.ui.ui[class*="left corner labeled"][class*="left icon"].input > .ui.dropdown,
+.ui.ui[class*="left corner labeled"][class*="left icon"].input > textarea,
+.ui.ui[class*="left corner labeled"][class*="left icon"].input > input {
+  padding-left: 4em;
+}
+.ui[class*="left corner labeled"].icon.input > i.icon {
+  margin-left: 1.25em;
+}
+.ui[class*="left corner labeled"].icon:not([class*="left icon"]).input > input {
+  padding-right: 2.5em;
+}
+.ui[class*="corner labeled"]:not([class*="left corner labeled"]).icon:not([class*="left icon"]).input > input {
+  padding-right: 5em;
+}
+.ui[class*="left icon"].input > .ui.dropdown > .search,
+.ui[class*="left corner labeled"].input > .ui.dropdown > .search {
+  padding-left: 2.5em;
+}
+.ui[class*="left icon"].input > .ui.dropdown > .menu,
+.ui[class*="left corner labeled"].input > .ui.dropdown > .menu {
+  padding-left: 1.25em;
+}
+.ui[class*="left icon"].input > .ui.dropdown > .menu > .item,
+.ui[class*="left corner labeled"].input > .ui.dropdown > .menu > .item {
+  padding-left: 2.5em;
+  margin-left: -1.25em;
+}
+.ui[class*="left corner labeled"][class*="left icon"].input > .ui.dropdown > .search {
+  padding-left: 4em;
+}
+.ui[class*="left corner labeled"][class*="left icon"].input > .ui.dropdown > .menu > .item {
+  padding-left: 4em;
+}
+.ui.icon.input:not([class*="left icon"]) > .ui.dropdown > .search,
+.ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > .ui.dropdown > .search {
+  padding-right: 5.75em;
+}
+.ui.icon.input:not([class*="left icon"]) > .ui.dropdown > .remove.icon,
+.ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > .ui.dropdown > .remove.icon,
+.ui.icon.input:not([class*="left icon"]) > .ui.dropdown > .dropdown.icon,
+.ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > .ui.dropdown > .dropdown.icon {
+  padding-right: 2.5em;
+}
+@supports selector(:has(.f)) {
+  .ui.icon.input:not([class*="left icon"]) > .ui.dropdown > .dropdown.icon {
+    padding-right: initial;
+  }
+  .ui.icon.input:not([class*="left icon"]):not(:has(.ui.dropdown ~ input)) > .ui.dropdown > .dropdown.icon {
+    padding-right: 2.5em;
+  }
+}
+.ui.ui[class*="corner labeled"]:not([class*="left corner labeled"]).icon:not([class*="left icon"]).input > .ui.dropdown > .search {
+  padding-right: 7.25em;
+}
+.ui.ui[class*="corner labeled"]:not([class*="left corner labeled"]).icon:not([class*="left icon"]).input > .ui.dropdown > .remove.icon,
+.ui.ui[class*="corner labeled"]:not([class*="left corner labeled"]).icon:not([class*="left icon"]).input > .ui.dropdown > .dropdown.icon {
+  padding-right: 4em;
+}
+.ui.icon.input > .ui.visible.dropdown ~ i.icon,
+.ui.icon.input > .ui.active.dropdown ~ i.icon,
+.ui[class*="corner labeled"].input > .ui.visible.dropdown ~ .ui.corner.label,
+.ui[class*="corner labeled"].input > .ui.active.dropdown ~ .ui.corner.label {
+  z-index: 10;
+}
+.ui.icon.input > textarea ~ i.icon {
+  height: 3em;
+}
+:not(.field) > .ui.transparent.icon.input > textarea ~ i.icon {
+  height: 1.3em;
+}
+
+/* Corner Label Position */
+.ui.input > .ui.corner.label {
+  top: 1px;
+  right: 1px;
+}
+.ui.input > .ui.left.corner.label {
+  right: auto;
+  left: 1px;
+}
+
+/* Labeled and action input states */
+.ui.form .field.error > .ui.action.input > .ui.button,
+.ui.form .field.error > .ui.labeled.input:not([class*="corner labeled"]) > .ui.label,
+.ui.action.input.error > .ui.button,
+.ui.labeled.input.error:not([class*="corner labeled"]) > .ui.label {
+  border-top: 1px solid light-dark(#fecdca, #7a271a);
+  border-bottom: 1px solid light-dark(#fecdca, #7a271a);
+}
+.ui.form .field.error > .ui[class*="left action"].input > .ui.button,
+.ui.form .field.error > .ui.labeled.input:not(.right):not([class*="corner labeled"]) > .ui.label,
+.ui[class*="left action"].input.error > .ui.button,
+.ui.labeled.input.error:not(.right):not([class*="corner labeled"]) > .ui.label {
+  border-left: 1px solid light-dark(#fecdca, #7a271a);
+}
+.ui.form .field.error > .ui.action.input:not([class*="left action"]) > input + .ui.button,
+.ui.form .field.error > .ui.right.labeled.input:not([class*="corner labeled"]) > input + .ui.label,
+.ui.action.input.error:not([class*="left action"]) > input + .ui.button,
+.ui.right.labeled.input.error:not([class*="corner labeled"]) > input + .ui.label,
+.ui.form .field.error > .ui.action.input:not([class*="left action"]) > textarea + .ui.button,
+.ui.form .field.error > .ui.right.labeled.input:not([class*="corner labeled"]) > textarea + .ui.label,
+.ui.action.input.error:not([class*="left action"]) > textarea + .ui.button,
+.ui.right.labeled.input.error:not([class*="corner labeled"]) > textarea + .ui.label {
+  border-right: 1px solid light-dark(#fecdca, #7a271a);
+}
+.ui.form .field.error > .ui.right.labeled.input:not([class*="corner labeled"]) > .ui.label:first-child,
+.ui.right.labeled.input.error:not([class*="corner labeled"]) > .ui.label:first-child {
+  border-left: 1px solid light-dark(#fecdca, #7a271a);
+}
+.ui.form .field.info > .ui.action.input > .ui.button,
+.ui.form .field.info > .ui.labeled.input:not([class*="corner labeled"]) > .ui.label,
+.ui.action.input.info > .ui.button,
+.ui.labeled.input.info:not([class*="corner labeled"]) > .ui.label {
+  border-top: 1px solid light-dark(#a5f0fc, #155b75);
+  border-bottom: 1px solid light-dark(#a5f0fc, #155b75);
+}
+.ui.form .field.info > .ui[class*="left action"].input > .ui.button,
+.ui.form .field.info > .ui.labeled.input:not(.right):not([class*="corner labeled"]) > .ui.label,
+.ui[class*="left action"].input.info > .ui.button,
+.ui.labeled.input.info:not(.right):not([class*="corner labeled"]) > .ui.label {
+  border-left: 1px solid light-dark(#a5f0fc, #155b75);
+}
+.ui.form .field.info > .ui.action.input:not([class*="left action"]) > input + .ui.button,
+.ui.form .field.info > .ui.right.labeled.input:not([class*="corner labeled"]) > input + .ui.label,
+.ui.action.input.info:not([class*="left action"]) > input + .ui.button,
+.ui.right.labeled.input.info:not([class*="corner labeled"]) > input + .ui.label,
+.ui.form .field.info > .ui.action.input:not([class*="left action"]) > textarea + .ui.button,
+.ui.form .field.info > .ui.right.labeled.input:not([class*="corner labeled"]) > textarea + .ui.label,
+.ui.action.input.info:not([class*="left action"]) > textarea + .ui.button,
+.ui.right.labeled.input.info:not([class*="corner labeled"]) > textarea + .ui.label {
+  border-right: 1px solid light-dark(#a5f0fc, #155b75);
+}
+.ui.form .field.info > .ui.right.labeled.input:not([class*="corner labeled"]) > .ui.label:first-child,
+.ui.right.labeled.input.info:not([class*="corner labeled"]) > .ui.label:first-child {
+  border-left: 1px solid light-dark(#a5f0fc, #155b75);
+}
+.ui.form .field.success > .ui.action.input > .ui.button,
+.ui.form .field.success > .ui.labeled.input:not([class*="corner labeled"]) > .ui.label,
+.ui.action.input.success > .ui.button,
+.ui.labeled.input.success:not([class*="corner labeled"]) > .ui.label {
+  border-top: 1px solid light-dark(#abefc6, #1b5e3c);
+  border-bottom: 1px solid light-dark(#abefc6, #1b5e3c);
+}
+.ui.form .field.success > .ui[class*="left action"].input > .ui.button,
+.ui.form .field.success > .ui.labeled.input:not(.right):not([class*="corner labeled"]) > .ui.label,
+.ui[class*="left action"].input.success > .ui.button,
+.ui.labeled.input.success:not(.right):not([class*="corner labeled"]) > .ui.label {
+  border-left: 1px solid light-dark(#abefc6, #1b5e3c);
+}
+.ui.form .field.success > .ui.action.input:not([class*="left action"]) > input + .ui.button,
+.ui.form .field.success > .ui.right.labeled.input:not([class*="corner labeled"]) > input + .ui.label,
+.ui.action.input.success:not([class*="left action"]) > input + .ui.button,
+.ui.right.labeled.input.success:not([class*="corner labeled"]) > input + .ui.label,
+.ui.form .field.success > .ui.action.input:not([class*="left action"]) > textarea + .ui.button,
+.ui.form .field.success > .ui.right.labeled.input:not([class*="corner labeled"]) > textarea + .ui.label,
+.ui.action.input.success:not([class*="left action"]) > textarea + .ui.button,
+.ui.right.labeled.input.success:not([class*="corner labeled"]) > textarea + .ui.label {
+  border-right: 1px solid light-dark(#abefc6, #1b5e3c);
+}
+.ui.form .field.success > .ui.right.labeled.input:not([class*="corner labeled"]) > .ui.label:first-child,
+.ui.right.labeled.input.success:not([class*="corner labeled"]) > .ui.label:first-child {
+  border-left: 1px solid light-dark(#abefc6, #1b5e3c);
+}
+.ui.form .field.warning > .ui.action.input > .ui.button,
+.ui.form .field.warning > .ui.labeled.input:not([class*="corner labeled"]) > .ui.label,
+.ui.action.input.warning > .ui.button,
+.ui.labeled.input.warning:not([class*="corner labeled"]) > .ui.label {
+  border-top: 1px solid light-dark(#fedf89, #6b4a10);
+  border-bottom: 1px solid light-dark(#fedf89, #6b4a10);
+}
+.ui.form .field.warning > .ui[class*="left action"].input > .ui.button,
+.ui.form .field.warning > .ui.labeled.input:not(.right):not([class*="corner labeled"]) > .ui.label,
+.ui[class*="left action"].input.warning > .ui.button,
+.ui.labeled.input.warning:not(.right):not([class*="corner labeled"]) > .ui.label {
+  border-left: 1px solid light-dark(#fedf89, #6b4a10);
+}
+.ui.form .field.warning > .ui.action.input:not([class*="left action"]) > input + .ui.button,
+.ui.form .field.warning > .ui.right.labeled.input:not([class*="corner labeled"]) > input + .ui.label,
+.ui.action.input.warning:not([class*="left action"]) > input + .ui.button,
+.ui.right.labeled.input.warning:not([class*="corner labeled"]) > input + .ui.label,
+.ui.form .field.warning > .ui.action.input:not([class*="left action"]) > textarea + .ui.button,
+.ui.form .field.warning > .ui.right.labeled.input:not([class*="corner labeled"]) > textarea + .ui.label,
+.ui.action.input.warning:not([class*="left action"]) > textarea + .ui.button,
+.ui.right.labeled.input.warning:not([class*="corner labeled"]) > textarea + .ui.label {
+  border-right: 1px solid light-dark(#fedf89, #6b4a10);
+}
+.ui.form .field.warning > .ui.right.labeled.input:not([class*="corner labeled"]) > .ui.label:first-child,
+.ui.right.labeled.input.warning:not([class*="corner labeled"]) > .ui.label:first-child {
+  border-left: 1px solid light-dark(#fedf89, #6b4a10);
+}
+
+/* --------------------
+            Action
+    --------------------- */
+.ui.action.input > .button,
+.ui.action.input > .buttons {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.ui.action.input > .button,
+.ui.action.input > .buttons > .button {
+  padding-top: 0.71428571em;
+  padding-bottom: 0.71428571em;
+  margin: 0;
+}
+
+/* Input when ui Left */
+.ui[class*="left action"].input > input,
+.ui[class*="left action"].input > textarea {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left-color: transparent;
+}
+
+/* Input when ui Right */
+.ui.action.input:not([class*="left action"]) > input,
+.ui.action.input:not([class*="left action"]) > textarea {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right-color: transparent;
+}
+
+/* Button and Dropdown */
+.ui.action.input > .dropdown:first-child,
+.ui.action.input > .button:first-child,
+.ui.action.input > .buttons:first-child > .button {
+  border-radius: var(--r-md, 8px) 0 0 var(--r-md, 8px);
+}
+.ui.action.input > .dropdown:not(:first-child),
+.ui.action.input > .button:not(:first-child),
+.ui.action.input > .buttons:not(:first-child) > .button {
+  border-radius: 0;
+}
+.ui.action.input > .dropdown:last-child,
+.ui.action.input > .button:last-child,
+.ui.action.input > .buttons:last-child > .button {
+  border-radius: 0 var(--r-md, 8px) var(--r-md, 8px) 0;
+}
+
+/* Input Focus */
+.ui.action.input:not([class*="left action"]) > input:focus,
+.ui.action.input:not([class*="left action"]) > textarea:focus {
+  border-right-color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.ui[class*="left action"].input > input:focus,
+.ui.ui[class*="left action"].input > textarea:focus {
+  border-left-color: var(--accent-1, var(--accent, #356dca));
+}
+
+/* --------------------
+           Inverted
+    --------------------- */
+
+/* Standard */
+.ui.inverted.input > input {
+  border: none;
+}
+
+/* --------------------
+            Fluid
+    --------------------- */
+.ui.fluid.input {
+  display: flex;
+}
+.ui.fluid.input > input {
+  width: 0 !important;
+}
+
+/* --------------------
+            File
+    --------------------- */
+
+/* width hack for chrome/edge */
+.ui.file.input {
+  width: 100%;
+}
+.ui.file.input input[type="file"] {
+  width: 0;
+}
+.ui.form .field > input[type="file"],
+.ui.file.input:not(.action) input[type="file"] {
+  padding: 0;
+}
+.ui.action.file.input input[type="file"]::-webkit-file-upload-button {
+  display: none;
+}
+.ui.form .field input[type="file"]::-webkit-file-upload-button,
+.ui.file.input input[type="file"]::-webkit-file-upload-button {
+  border: none;
+  cursor: pointer;
+  padding: 0.64285714em 0.85714286em;
+  margin-right: 1em;
+  background: light-dark(#eef1f5, #262b36);
+  font-weight: 600;
+  color: var(--theme-text);
+}
+.ui.form .field input[type="file"]::-webkit-file-upload-button:hover,
+.ui.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, light-dark(#eef1f5, #262b36), var(--theme-text) 5%);
+  color: var(--theme-text);
+}
+.ui.action.file.input input[type="file"]::-ms-browse {
+  display: none;
+}
+.ui.form .field input[type="file"]::-ms-browse,
+.ui.file.input input[type="file"]::-ms-browse {
+  border: none;
+  cursor: pointer;
+  padding: 0.64285714em 0.85714286em;
+  margin: 0;
+  background: light-dark(#eef1f5, #262b36);
+  font-weight: 600;
+  color: var(--theme-text);
+}
+.ui.form .field input[type="file"]::-ms-browse:hover,
+.ui.file.input input[type="file"]::-ms-browse:hover {
+  background: color-mix(in oklab, light-dark(#eef1f5, #262b36), var(--theme-text) 5%);
+  color: var(--theme-text);
+}
+
+/* IE needs additional styling for input field :S */
+@media all and (-ms-high-contrast: none) {
+  .ui.file.input > input[type="file"],
+  input[type="file"].ui.file.input {
+    padding: 0 !important;
+  }
+}
+.ui.action.file.input input[type="file"]::-webkit-file-upload-button {
+  display: none;
+}
+.ui.action.file.input input[type="file"]::file-selector-button {
+  display: none;
+}
+.ui.form .field input[type="file"]::-webkit-file-upload-button, .ui.file.input input[type="file"]::-webkit-file-upload-button {
+  border: none;
+  cursor: pointer;
+  padding: 0.64285714em 0.85714286em;
+  margin-right: 1em;
+  background: light-dark(#eef1f5, #262b36);
+  font-weight: 600;
+  color: var(--theme-text);
+}
+.ui.form .field input[type="file"]::file-selector-button,
+.ui.file.input input[type="file"]::file-selector-button {
+  border: none;
+  cursor: pointer;
+  padding: 0.64285714em 0.85714286em;
+  margin-right: 1em;
+  background: light-dark(#eef1f5, #262b36);
+  font-weight: 600;
+  color: var(--theme-text);
+}
+.ui.form .field input[type="file"]::-webkit-file-upload-button:hover, .ui.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, light-dark(#eef1f5, #262b36), var(--theme-text) 5%);
+  color: var(--theme-text);
+}
+.ui.form .field input[type="file"]::file-selector-button:hover,
+.ui.file.input input[type="file"]::file-selector-button:hover {
+  background: color-mix(in oklab, light-dark(#eef1f5, #262b36), var(--theme-text) 5%);
+  color: var(--theme-text);
+}
+input[type="file"].ui.invisible.file.input,
+.ui.invisible.file.input input[type="file"] {
+  left: -99999px;
+  position: absolute;
+}
+input[type="file"].ui.file.input:focus + label.ui.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.button:not(.basic):not(.tertiary) {
+  background: color-mix(in oklab, light-dark(#eef1f5, #262b36), var(--theme-text) 5%);
+  color: color-mix(in srgb, var(--theme-text) 92%, transparent);
+}
+input[type="file"].ui.file.input:focus + label.ui.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.button:not(.basic):not(.tertiary).inverted {
+  background: #fff;
+}
+
+/* this is related to existing buttons, so the button color variable is used here! */
+input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary) {
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted {
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+}
+input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary) {
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted {
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+}
+input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary) {
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted {
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+}
+input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary) {
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted {
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+}
+input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary) {
+  background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted {
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
+}
+input[type="file"].ui.file.input:focus + label.ui.red.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.red.button:not(.basic):not(.tertiary) {
+  background-color: #f92516;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.red.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.red.button:not(.basic):not(.tertiary).inverted {
+  background-color: #ff3b2d;
+}
+input[type="file"].ui.file.input:focus + label.ui.orange.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.orange.button:not(.basic):not(.tertiary) {
+  background-color: #f05706;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.orange.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.orange.button:not(.basic):not(.tertiary).inverted {
+  background-color: #fb6609;
+}
+input[type="file"].ui.file.input:focus + label.ui.yellow.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.yellow.button:not(.basic):not(.tertiary) {
+  background-color: #e78300;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.yellow.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.yellow.button:not(.basic):not(.tertiary).inverted {
+  background-color: #ec9900;
+}
+input[type="file"].ui.file.input:focus + label.ui.olive.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.olive.button:not(.basic):not(.tertiary) {
+  background-color: #759112;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.olive.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.olive.button:not(.basic):not(.tertiary).inverted {
+  background-color: #88a229;
+}
+input[type="file"].ui.file.input:focus + label.ui.green.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.green.button:not(.basic):not(.tertiary) {
+  background-color: #0da25d;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.green.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.green.button:not(.basic):not(.tertiary).inverted {
+  background-color: #2ab76f;
+}
+input[type="file"].ui.file.input:focus + label.ui.teal.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.teal.button:not(.basic):not(.tertiary) {
+  background-color: #009dc1;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.teal.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.teal.button:not(.basic):not(.tertiary).inverted {
+  background-color: #06b4d7;
+}
+input[type="file"].ui.file.input:focus + label.ui.blue.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.blue.button:not(.basic):not(.tertiary) {
+  background-color: #0f83ff;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.blue.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.blue.button:not(.basic):not(.tertiary).inverted {
+  background-color: #1e9aff;
+}
+input[type="file"].ui.file.input:focus + label.ui.violet.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.violet.button:not(.basic):not(.tertiary) {
+  background-color: #6239ff;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.violet.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.violet.button:not(.basic):not(.tertiary).inverted {
+  background-color: #6d53ff;
+}
+input[type="file"].ui.file.input:focus + label.ui.purple.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.purple.button:not(.basic):not(.tertiary) {
+  background-color: #9534c8;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.purple.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.purple.button:not(.basic):not(.tertiary).inverted {
+  background-color: #ab52e7;
+}
+input[type="file"].ui.file.input:focus + label.ui.pink.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.pink.button:not(.basic):not(.tertiary) {
+  background-color: #b20b67;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.pink.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.pink.button:not(.basic):not(.tertiary).inverted {
+  background-color: #f40daf;
+}
+input[type="file"].ui.file.input:focus + label.ui.brown.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.brown.button:not(.basic):not(.tertiary) {
+  background-color: #5f3e24;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.brown.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.brown.button:not(.basic):not(.tertiary).inverted {
+  background-color: #986a48;
+}
+input[type="file"].ui.file.input:focus + label.ui.grey.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.grey.button:not(.basic):not(.tertiary) {
+  background-color: #5d6573;
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.grey.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.grey.button:not(.basic):not(.tertiary).inverted {
+  background-color: #7b869a;
+}
+input[type="file"].ui.file.input:focus + label.ui.black.button:not(.basic):not(.tertiary),
+.ui.file.input input[type="file"]:focus + label.ui.black.button:not(.basic):not(.tertiary) {
+  background-color: light-dark(#2b3140, #5f6879);
+  color: #fff;
+}
+input[type="file"].ui.file.input:focus + label.ui.black.button:not(.basic):not(.tertiary).inverted,
+.ui.file.input input[type="file"]:focus + label.ui.black.button:not(.basic):not(.tertiary).inverted {
+  background-color: #000000;
+}
+input[type="file"].ui.primary.file.input::-webkit-file-upload-button,
+.ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover,
+.ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.primary.file.input::-ms-browse,
+.ui.primary.file.input input[type="file"]::-ms-browse {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.primary.file.input::-ms-browse:hover,
+.ui.primary.file.input input[type="file"]::-ms-browse:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.primary.file.input::-webkit-file-upload-button, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.primary.file.input::file-selector-button,
+.ui.primary.file.input input[type="file"]::file-selector-button {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.primary.file.input::file-selector-button:hover,
+.ui.primary.file.input input[type="file"]::file-selector-button:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.secondary.file.input::-webkit-file-upload-button,
+.ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover,
+.ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.secondary.file.input::-ms-browse,
+.ui.secondary.file.input input[type="file"]::-ms-browse {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.secondary.file.input::-ms-browse:hover,
+.ui.secondary.file.input input[type="file"]::-ms-browse:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.secondary.file.input::-webkit-file-upload-button, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.secondary.file.input::file-selector-button,
+.ui.secondary.file.input input[type="file"]::file-selector-button {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.secondary.file.input::file-selector-button:hover,
+.ui.secondary.file.input input[type="file"]::file-selector-button:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button,
+.ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover,
+.ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.accent-1.file.input::-ms-browse,
+.ui.accent-1.file.input input[type="file"]::-ms-browse {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.accent-1.file.input::-ms-browse:hover,
+.ui.accent-1.file.input input[type="file"]::-ms-browse:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.accent-1.file.input::file-selector-button,
+.ui.accent-1.file.input input[type="file"]::file-selector-button {
+  background: var(--accent-1, var(--accent, #356dca));
+  color: #fff;
+}
+input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.accent-1.file.input::file-selector-button:hover,
+.ui.accent-1.file.input input[type="file"]::file-selector-button:hover {
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button,
+.ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover,
+.ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.accent-2.file.input::-ms-browse,
+.ui.accent-2.file.input input[type="file"]::-ms-browse {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.accent-2.file.input::-ms-browse:hover,
+.ui.accent-2.file.input input[type="file"]::-ms-browse:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.accent-2.file.input::file-selector-button,
+.ui.accent-2.file.input input[type="file"]::file-selector-button {
+  background: var(--accent-2, #7a5af8);
+  color: #fff;
+}
+input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.accent-2.file.input::file-selector-button:hover,
+.ui.accent-2.file.input input[type="file"]::file-selector-button:hover {
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button,
+.ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-3, #c11574);
+  color: #fff;
+}
+input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover,
+.ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+}
+input[type="file"].ui.accent-3.file.input::-ms-browse,
+.ui.accent-3.file.input input[type="file"]::-ms-browse {
+  background: var(--accent-3, #c11574);
+  color: #fff;
+}
+input[type="file"].ui.accent-3.file.input::-ms-browse:hover,
+.ui.accent-3.file.input input[type="file"]::-ms-browse:hover {
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+}
+input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
+  background: var(--accent-3, #c11574);
+  color: #fff;
+}
+input[type="file"].ui.accent-3.file.input::file-selector-button,
+.ui.accent-3.file.input input[type="file"]::file-selector-button {
+  background: var(--accent-3, #c11574);
+  color: #fff;
+}
+input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+}
+input[type="file"].ui.accent-3.file.input::file-selector-button:hover,
+.ui.accent-3.file.input input[type="file"]::file-selector-button:hover {
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+}
+input[type="file"].ui.red.file.input::-webkit-file-upload-button,
+.ui.red.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #f04438;
+  color: #fff;
+}
+input[type="file"].ui.red.file.input::-webkit-file-upload-button:hover,
+.ui.red.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #f92516;
+}
+input[type="file"].ui.red.file.input::-ms-browse,
+.ui.red.file.input input[type="file"]::-ms-browse {
+  background: #f04438;
+  color: #fff;
+}
+input[type="file"].ui.red.file.input::-ms-browse:hover,
+.ui.red.file.input input[type="file"]::-ms-browse:hover {
+  background: #f92516;
+}
+input[type="file"].ui.red.file.input::-webkit-file-upload-button, .ui.red.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #f04438;
+  color: #fff;
+}
+input[type="file"].ui.red.file.input::file-selector-button,
+.ui.red.file.input input[type="file"]::file-selector-button {
+  background: #f04438;
+  color: #fff;
+}
+input[type="file"].ui.red.file.input::-webkit-file-upload-button:hover, .ui.red.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #f92516;
+}
+input[type="file"].ui.red.file.input::file-selector-button:hover,
+.ui.red.file.input input[type="file"]::file-selector-button:hover {
+  background: #f92516;
+}
+input[type="file"].ui.orange.file.input::-webkit-file-upload-button,
+.ui.orange.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #ef6820;
+  color: #fff;
+}
+input[type="file"].ui.orange.file.input::-webkit-file-upload-button:hover,
+.ui.orange.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #f05706;
+}
+input[type="file"].ui.orange.file.input::-ms-browse,
+.ui.orange.file.input input[type="file"]::-ms-browse {
+  background: #ef6820;
+  color: #fff;
+}
+input[type="file"].ui.orange.file.input::-ms-browse:hover,
+.ui.orange.file.input input[type="file"]::-ms-browse:hover {
+  background: #f05706;
+}
+input[type="file"].ui.orange.file.input::-webkit-file-upload-button, .ui.orange.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #ef6820;
+  color: #fff;
+}
+input[type="file"].ui.orange.file.input::file-selector-button,
+.ui.orange.file.input input[type="file"]::file-selector-button {
+  background: #ef6820;
+  color: #fff;
+}
+input[type="file"].ui.orange.file.input::-webkit-file-upload-button:hover, .ui.orange.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #f05706;
+}
+input[type="file"].ui.orange.file.input::file-selector-button:hover,
+.ui.orange.file.input input[type="file"]::file-selector-button:hover {
+  background: #f05706;
+}
+input[type="file"].ui.yellow.file.input::-webkit-file-upload-button,
+.ui.yellow.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #f79009;
+  color: #fff;
+}
+input[type="file"].ui.yellow.file.input::-webkit-file-upload-button:hover,
+.ui.yellow.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #e78300;
+}
+input[type="file"].ui.yellow.file.input::-ms-browse,
+.ui.yellow.file.input input[type="file"]::-ms-browse {
+  background: #f79009;
+  color: #fff;
+}
+input[type="file"].ui.yellow.file.input::-ms-browse:hover,
+.ui.yellow.file.input input[type="file"]::-ms-browse:hover {
+  background: #e78300;
+}
+input[type="file"].ui.yellow.file.input::-webkit-file-upload-button, .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #f79009;
+  color: #fff;
+}
+input[type="file"].ui.yellow.file.input::file-selector-button,
+.ui.yellow.file.input input[type="file"]::file-selector-button {
+  background: #f79009;
+  color: #fff;
+}
+input[type="file"].ui.yellow.file.input::-webkit-file-upload-button:hover, .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #e78300;
+}
+input[type="file"].ui.yellow.file.input::file-selector-button:hover,
+.ui.yellow.file.input input[type="file"]::file-selector-button:hover {
+  background: #e78300;
+}
+input[type="file"].ui.olive.file.input::-webkit-file-upload-button,
+.ui.olive.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #84a11b;
+  color: #fff;
+}
+input[type="file"].ui.olive.file.input::-webkit-file-upload-button:hover,
+.ui.olive.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #759112;
+}
+input[type="file"].ui.olive.file.input::-ms-browse,
+.ui.olive.file.input input[type="file"]::-ms-browse {
+  background: #84a11b;
+  color: #fff;
+}
+input[type="file"].ui.olive.file.input::-ms-browse:hover,
+.ui.olive.file.input input[type="file"]::-ms-browse:hover {
+  background: #759112;
+}
+input[type="file"].ui.olive.file.input::-webkit-file-upload-button, .ui.olive.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #84a11b;
+  color: #fff;
+}
+input[type="file"].ui.olive.file.input::file-selector-button,
+.ui.olive.file.input input[type="file"]::file-selector-button {
+  background: #84a11b;
+  color: #fff;
+}
+input[type="file"].ui.olive.file.input::-webkit-file-upload-button:hover, .ui.olive.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #759112;
+}
+input[type="file"].ui.olive.file.input::file-selector-button:hover,
+.ui.olive.file.input input[type="file"]::file-selector-button:hover {
+  background: #759112;
+}
+input[type="file"].ui.green.file.input::-webkit-file-upload-button,
+.ui.green.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #17b26a;
+  color: #fff;
+}
+input[type="file"].ui.green.file.input::-webkit-file-upload-button:hover,
+.ui.green.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #0da25d;
+}
+input[type="file"].ui.green.file.input::-ms-browse,
+.ui.green.file.input input[type="file"]::-ms-browse {
+  background: #17b26a;
+  color: #fff;
+}
+input[type="file"].ui.green.file.input::-ms-browse:hover,
+.ui.green.file.input input[type="file"]::-ms-browse:hover {
+  background: #0da25d;
+}
+input[type="file"].ui.green.file.input::-webkit-file-upload-button, .ui.green.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #17b26a;
+  color: #fff;
+}
+input[type="file"].ui.green.file.input::file-selector-button,
+.ui.green.file.input input[type="file"]::file-selector-button {
+  background: #17b26a;
+  color: #fff;
+}
+input[type="file"].ui.green.file.input::-webkit-file-upload-button:hover, .ui.green.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #0da25d;
+}
+input[type="file"].ui.green.file.input::file-selector-button:hover,
+.ui.green.file.input input[type="file"]::file-selector-button:hover {
+  background: #0da25d;
+}
+input[type="file"].ui.teal.file.input::-webkit-file-upload-button,
+.ui.teal.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #06aed4;
+  color: #fff;
+}
+input[type="file"].ui.teal.file.input::-webkit-file-upload-button:hover,
+.ui.teal.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #009dc1;
+}
+input[type="file"].ui.teal.file.input::-ms-browse,
+.ui.teal.file.input input[type="file"]::-ms-browse {
+  background: #06aed4;
+  color: #fff;
+}
+input[type="file"].ui.teal.file.input::-ms-browse:hover,
+.ui.teal.file.input input[type="file"]::-ms-browse:hover {
+  background: #009dc1;
+}
+input[type="file"].ui.teal.file.input::-webkit-file-upload-button, .ui.teal.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #06aed4;
+  color: #fff;
+}
+input[type="file"].ui.teal.file.input::file-selector-button,
+.ui.teal.file.input input[type="file"]::file-selector-button {
+  background: #06aed4;
+  color: #fff;
+}
+input[type="file"].ui.teal.file.input::-webkit-file-upload-button:hover, .ui.teal.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #009dc1;
+}
+input[type="file"].ui.teal.file.input::file-selector-button:hover,
+.ui.teal.file.input input[type="file"]::file-selector-button:hover {
+  background: #009dc1;
+}
+input[type="file"].ui.blue.file.input::-webkit-file-upload-button,
+.ui.blue.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #2e90fa;
+  color: #fff;
+}
+input[type="file"].ui.blue.file.input::-webkit-file-upload-button:hover,
+.ui.blue.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #0f83ff;
+}
+input[type="file"].ui.blue.file.input::-ms-browse,
+.ui.blue.file.input input[type="file"]::-ms-browse {
+  background: #2e90fa;
+  color: #fff;
+}
+input[type="file"].ui.blue.file.input::-ms-browse:hover,
+.ui.blue.file.input input[type="file"]::-ms-browse:hover {
+  background: #0f83ff;
+}
+input[type="file"].ui.blue.file.input::-webkit-file-upload-button, .ui.blue.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #2e90fa;
+  color: #fff;
+}
+input[type="file"].ui.blue.file.input::file-selector-button,
+.ui.blue.file.input input[type="file"]::file-selector-button {
+  background: #2e90fa;
+  color: #fff;
+}
+input[type="file"].ui.blue.file.input::-webkit-file-upload-button:hover, .ui.blue.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #0f83ff;
+}
+input[type="file"].ui.blue.file.input::file-selector-button:hover,
+.ui.blue.file.input input[type="file"]::file-selector-button:hover {
+  background: #0f83ff;
+}
+input[type="file"].ui.violet.file.input::-webkit-file-upload-button,
+.ui.violet.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #7a5af8;
+  color: #fff;
+}
+input[type="file"].ui.violet.file.input::-webkit-file-upload-button:hover,
+.ui.violet.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #6239ff;
+}
+input[type="file"].ui.violet.file.input::-ms-browse,
+.ui.violet.file.input input[type="file"]::-ms-browse {
+  background: #7a5af8;
+  color: #fff;
+}
+input[type="file"].ui.violet.file.input::-ms-browse:hover,
+.ui.violet.file.input input[type="file"]::-ms-browse:hover {
+  background: #6239ff;
+}
+input[type="file"].ui.violet.file.input::-webkit-file-upload-button, .ui.violet.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #7a5af8;
+  color: #fff;
+}
+input[type="file"].ui.violet.file.input::file-selector-button,
+.ui.violet.file.input input[type="file"]::file-selector-button {
+  background: #7a5af8;
+  color: #fff;
+}
+input[type="file"].ui.violet.file.input::-webkit-file-upload-button:hover, .ui.violet.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #6239ff;
+}
+input[type="file"].ui.violet.file.input::file-selector-button:hover,
+.ui.violet.file.input input[type="file"]::file-selector-button:hover {
+  background: #6239ff;
+}
+input[type="file"].ui.purple.file.input::-webkit-file-upload-button,
+.ui.purple.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #9e4cc9;
+  color: #fff;
+}
+input[type="file"].ui.purple.file.input::-webkit-file-upload-button:hover,
+.ui.purple.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #9534c8;
+}
+input[type="file"].ui.purple.file.input::-ms-browse,
+.ui.purple.file.input input[type="file"]::-ms-browse {
+  background: #9e4cc9;
+  color: #fff;
+}
+input[type="file"].ui.purple.file.input::-ms-browse:hover,
+.ui.purple.file.input input[type="file"]::-ms-browse:hover {
+  background: #9534c8;
+}
+input[type="file"].ui.purple.file.input::-webkit-file-upload-button, .ui.purple.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #9e4cc9;
+  color: #fff;
+}
+input[type="file"].ui.purple.file.input::file-selector-button,
+.ui.purple.file.input input[type="file"]::file-selector-button {
+  background: #9e4cc9;
+  color: #fff;
+}
+input[type="file"].ui.purple.file.input::-webkit-file-upload-button:hover, .ui.purple.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #9534c8;
+}
+input[type="file"].ui.purple.file.input::file-selector-button:hover,
+.ui.purple.file.input input[type="file"]::file-selector-button:hover {
+  background: #9534c8;
+}
+input[type="file"].ui.pink.file.input::-webkit-file-upload-button,
+.ui.pink.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #c11574;
+  color: #fff;
+}
+input[type="file"].ui.pink.file.input::-webkit-file-upload-button:hover,
+.ui.pink.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #b20b67;
+}
+input[type="file"].ui.pink.file.input::-ms-browse,
+.ui.pink.file.input input[type="file"]::-ms-browse {
+  background: #c11574;
+  color: #fff;
+}
+input[type="file"].ui.pink.file.input::-ms-browse:hover,
+.ui.pink.file.input input[type="file"]::-ms-browse:hover {
+  background: #b20b67;
+}
+input[type="file"].ui.pink.file.input::-webkit-file-upload-button, .ui.pink.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #c11574;
+  color: #fff;
+}
+input[type="file"].ui.pink.file.input::file-selector-button,
+.ui.pink.file.input input[type="file"]::file-selector-button {
+  background: #c11574;
+  color: #fff;
+}
+input[type="file"].ui.pink.file.input::-webkit-file-upload-button:hover, .ui.pink.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #b20b67;
+}
+input[type="file"].ui.pink.file.input::file-selector-button:hover,
+.ui.pink.file.input input[type="file"]::file-selector-button:hover {
+  background: #b20b67;
+}
+input[type="file"].ui.brown.file.input::-webkit-file-upload-button,
+.ui.brown.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #6e4a2e;
+  color: #fff;
+}
+input[type="file"].ui.brown.file.input::-webkit-file-upload-button:hover,
+.ui.brown.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #5f3e24;
+}
+input[type="file"].ui.brown.file.input::-ms-browse,
+.ui.brown.file.input input[type="file"]::-ms-browse {
+  background: #6e4a2e;
+  color: #fff;
+}
+input[type="file"].ui.brown.file.input::-ms-browse:hover,
+.ui.brown.file.input input[type="file"]::-ms-browse:hover {
+  background: #5f3e24;
+}
+input[type="file"].ui.brown.file.input::-webkit-file-upload-button, .ui.brown.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #6e4a2e;
+  color: #fff;
+}
+input[type="file"].ui.brown.file.input::file-selector-button,
+.ui.brown.file.input input[type="file"]::file-selector-button {
+  background: #6e4a2e;
+  color: #fff;
+}
+input[type="file"].ui.brown.file.input::-webkit-file-upload-button:hover, .ui.brown.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #5f3e24;
+}
+input[type="file"].ui.brown.file.input::file-selector-button:hover,
+.ui.brown.file.input input[type="file"]::file-selector-button:hover {
+  background: #5f3e24;
+}
+input[type="file"].ui.grey.file.input::-webkit-file-upload-button,
+.ui.grey.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #687181;
+  color: #fff;
+}
+input[type="file"].ui.grey.file.input::-webkit-file-upload-button:hover,
+.ui.grey.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #5d6573;
+}
+input[type="file"].ui.grey.file.input::-ms-browse,
+.ui.grey.file.input input[type="file"]::-ms-browse {
+  background: #687181;
+  color: #fff;
+}
+input[type="file"].ui.grey.file.input::-ms-browse:hover,
+.ui.grey.file.input input[type="file"]::-ms-browse:hover {
+  background: #5d6573;
+}
+input[type="file"].ui.grey.file.input::-webkit-file-upload-button, .ui.grey.file.input input[type="file"]::-webkit-file-upload-button {
+  background: #687181;
+  color: #fff;
+}
+input[type="file"].ui.grey.file.input::file-selector-button,
+.ui.grey.file.input input[type="file"]::file-selector-button {
+  background: #687181;
+  color: #fff;
+}
+input[type="file"].ui.grey.file.input::-webkit-file-upload-button:hover, .ui.grey.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: #5d6573;
+}
+input[type="file"].ui.grey.file.input::file-selector-button:hover,
+.ui.grey.file.input input[type="file"]::file-selector-button:hover {
+  background: #5d6573;
+}
+input[type="file"].ui.black.file.input::-webkit-file-upload-button,
+.ui.black.file.input input[type="file"]::-webkit-file-upload-button {
+  background: light-dark(#1f2430, #535c6e);
+  color: #fff;
+}
+input[type="file"].ui.black.file.input::-webkit-file-upload-button:hover,
+.ui.black.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: light-dark(#2b3140, #5f6879);
+}
+input[type="file"].ui.black.file.input::-ms-browse,
+.ui.black.file.input input[type="file"]::-ms-browse {
+  background: light-dark(#1f2430, #535c6e);
+  color: #fff;
+}
+input[type="file"].ui.black.file.input::-ms-browse:hover,
+.ui.black.file.input input[type="file"]::-ms-browse:hover {
+  background: light-dark(#2b3140, #5f6879);
+}
+input[type="file"].ui.black.file.input::-webkit-file-upload-button, .ui.black.file.input input[type="file"]::-webkit-file-upload-button {
+  background: light-dark(#1f2430, #535c6e);
+  color: #fff;
+}
+input[type="file"].ui.black.file.input::file-selector-button,
+.ui.black.file.input input[type="file"]::file-selector-button {
+  background: light-dark(#1f2430, #535c6e);
+  color: #fff;
+}
+input[type="file"].ui.black.file.input::-webkit-file-upload-button:hover, .ui.black.file.input input[type="file"]::-webkit-file-upload-button:hover {
+  background: light-dark(#2b3140, #5f6879);
+}
+input[type="file"].ui.black.file.input::file-selector-button:hover,
+.ui.black.file.input input[type="file"]::file-selector-button:hover {
+  background: light-dark(#2b3140, #5f6879);
+}
+
+/* --------------------
+        Size
+--------------------- */
+.ui.input {
+  font-size: 1em;
+}
+.ui.mini.input {
+  font-size: 0.78571429em;
+}
+.ui.tiny.input {
+  font-size: 0.85714286em;
+}
+.ui.small.input {
+  font-size: 0.92857143em;
+}
+.ui.large.input {
+  font-size: 1.14285714em;
+}
+.ui.big.input {
+  font-size: 1.28571429em;
+}
+.ui.huge.input {
+  font-size: 1.42857143em;
+}
+.ui.massive.input {
+  font-size: 1.71428571em;
+}
+
+/* Fork: campo de código (D52; casillas de un código OTP): texto centrado y cifras de ancho fijo */
+.ui.code.input {
+  width: 3em;
+}
+.ui.code.input > input {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+  font-size: 1.57142857rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fork: selector de color compacto (D52): la muestra a su ancho, también en un `ui form` (que da
+   width: 100% a los inputs) */
+.ui.input > input[type="color"],
+.ui.form .field .ui.input > input[type="color"] {
+  flex: none;
+  width: 3.14285714rem;
+  height: 2.85714286rem;
+  padding: 0.42857143rem;
+  cursor: pointer;
+}
+
+/* La muestra llena la caja (el navegador le deja un margen que la reduce a una franja) */
+.ui.input > input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.ui.input > input[type="color"]::-webkit-color-swatch {
+  border: 1px solid var(--theme-border);
+  border-radius: 6px;
+}
+.ui.input > input[type="color"]::-moz-color-swatch {
+  border: 1px solid var(--theme-border);
+  border-radius: 6px;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+   PiecesPHP: Input Overrides
+*******************************/
+
+
+/* Foco único del diseño (contorno 2px --accent-600 a 2px) además del borde y el halo de las
+   variables: `.ui.input > input` pone `outline: none` con más especificidad que la regla
+   global de site.overrides. */
+.ui.input > input:focus-visible,
+.ui.input > textarea:focus-visible {
+  outline: 2px solid var(--accent-600);
+  outline-offset: 2px;
+}
+
+/* Ícono decorativo del campo en --text-4 (solo decorativo: el texto va en --text-3); los de
+   enlace (`link icon`) conservan el color del texto */
+.ui.icon.input > i.icon:not(.link) {
+  color: light-dark(#99a1af, #737c8c);
+}
+
+/* -------------------
+    Action input
+-------------------- */
+
+/* Botón de ícono pegado al campo (ojo de la contraseña, «Examinar» del archivo): superficie
+   hundida, borde line-strong e ícono --text-3, sin sombra; al pasar, el tinte del acento. Con
+   aria-pressed="true" (contraseña visible) el ícono queda en el color del acento. Los botones
+   de color (primary…) conservan el suyo. */
+.ui.action.input > .ui.icon.button:not(.primary):not(.basic):not([class*="accent-"]):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black):not(.positive):not(.negative):not(.secondary),
+.ui.action.input > .ui.buttons > .ui.icon.button:not(.primary):not(.basic) {
+  background: light-dark(#fafbfc, #161920);
+  box-shadow: 0 0 0 1px light-dark(#d8dde5, #3a4150) inset;
+}
+
+/* El de solo ícono en --text-3; el de archivo con texto (label), más abajo, en el texto principal */
+.ui.action.input > .ui.icon.button:not(label):not(.primary):not(.basic):not([class*="accent-"]):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black):not(.positive):not(.negative):not(.secondary),
+.ui.action.input > .ui.buttons > .ui.icon.button:not(.primary):not(.basic) {
+  color: var(--theme-text-muted);
+}
+.ui.action.input > .ui.icon.button:not(.primary):not(.basic):not([class*="accent-"]):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black):not(.positive):not(.negative):not(.secondary):hover,
+.ui.action.input > .ui.buttons > .ui.icon.button:not(.primary):not(.basic):hover {
+  background: var(--accent-50);
+  color: var(--accent-text);
+  box-shadow: 0 0 0 1px light-dark(#d8dde5, #3a4150) inset;
+}
+.ui.action.input > .ui.icon.button[aria-pressed="true"] {
+  color: var(--accent-text);
+}
+
+/* Botón de archivo con texto (`label.ui.icon.button` + ícono + «Examinar»): ancho libre, 14px
+   a los lados, 6px entre ícono y texto, y texto principal */
+.ui.action.input > label.ui.icon.button:not(.primary):not(.basic) {
+  gap: 0.42857143em;
+  padding-left: 1em;
+  padding-right: 1em;
+  color: var(--theme-text);
+}
+.ui.action.input > label.ui.icon.button > .icon {
+  color: var(--theme-text-muted);
+}
+
+/* Etiqueta acoplada (labeled): su texto centrado en el alto del campo, en cualquier tamaño (con el
+   relleno de Fomantic y el interlineado de 1em quedaba ~3px alto) */
+.ui.labeled.input > .label:not(.corner) {
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Selector de color bloqueado (la serie 1 = el acento): la muestra se ve entera; el candado lo dice */
+.ui.input > input[type="color"]:disabled {
+  opacity: 1;
+  cursor: default;
+}

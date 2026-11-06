@@ -80,7 +80,8 @@ class PiecesPHPSystemUserHelper {
 							//rellene `extraData` en su respuesta, y entonces se guardará; mientras no, no se escribe nada.
 							instance.extraData = typeof res.extraData == 'object' ? res.extraData : null
 							instance.setUserData(res.userData ?? {})
-							instance.setJWT(res.token)
+							//El token ya no se guarda aquí: el servidor puso la cookie HttpOnly. setJWT() guarda los datos extra.
+							instance.setJWT()
 						}
 
 						resolve(res)
@@ -112,7 +113,7 @@ class PiecesPHPSystemUserHelper {
 						if (res.isAuth == true) {
 
 							instance.extraData = instance.getExtraData()
-							instance.setJWT(instance.getJWT())
+							instance.setJWT()
 
 							if (typeof onSuccess == 'function') {
 								onSuccess()
@@ -166,26 +167,29 @@ class PiecesPHPSystemUserHelper {
 
 	}
 
+	/**
+	 * Si este navegador tiene una sesión según lo último que dijo el servidor (los datos del usuario que guardan el acceso y
+	 * verify()). El token es una cookie HttpOnly que el JavaScript no ve: la respuesta cierta es la de verify(), que
+	 * pregunta al servidor; esta es síncrona y no puede. Con `destroyIfInvalid`, sin sesión borra lo que quede de una vieja.
+	 * @param {Boolean} destroyIfInvalid
+	 * @param {Boolean} reloadOnDestroy
+	 * @returns {Boolean}
+	 */
 	hasSession(destroyIfInvalid = false, reloadOnDestroy = false) {
 		const userData = this.getUserData()
-		const JWT = this.getJWT()
-		const hasUserData = userData !== null && typeof userData === 'object' && typeof userData.id === 'number'
-		const hasJWT = typeof JWT == 'string' && JWT.length > 0
-		const validSession = hasUserData && hasJWT
-		if (destroyIfInvalid) {
-			if (!validSession && hasJWT) {
-				this.deleteSession(reloadOnDestroy)
-			}
+		const validSession = userData !== null && typeof userData === 'object' && typeof userData.id === 'number'
+		if (destroyIfInvalid && !validSession && this.hasLegacyToken()) {
+			this.deleteSession(reloadOnDestroy)
 		}
 		return validSession
 	}
 
-	setJWT(JWT) {
-		if (typeof JWT != 'string') {
-			JWT = ''
-		}
-		document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=${encodeURI(JWT)};path=/;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
-		localStorage.setItem(PiecesPHPSystemUserHelper.localJWTAuthName, encodeURI(JWT))
+	/**
+	 * Guarda los datos extra de la sesión. El token NO: lo pone el servidor en una cookie HttpOnly (H188). Borra el que
+	 * guardaba aquí la versión anterior.
+	 */
+	setJWT() {
+		this.forgetLegacyToken()
 		//Sin datos extra NO se escribe la clave: `setItem(clave, null)` guarda la CADENA "null", y quien la leyera
 		//recibiría un texto donde espera un objeto. Si quedó una de antes, se retira.
 		if (this.extraData !== null) {
@@ -195,12 +199,38 @@ class PiecesPHPSystemUserHelper {
 		}
 	}
 
+	/**
+	 * @deprecated 10.x: el token es una cookie HttpOnly que el JavaScript no ve; devuelve ''. Sale en la 11.0.0. Las
+	 * peticiones al propio sitio llevan la cookie solas; la API por cabecera es para integradores, no para la página.
+	 * @returns {String}
+	 */
 	getJWT() {
-		let JWT = localStorage.getItem(PiecesPHPSystemUserHelper.localJWTAuthName)
-		if (typeof JWT != 'string') {
-			JWT = ''
+		return ''
+	}
+
+	/**
+	 * Si queda el token que guardaba la versión anterior en el localStorage o en una cookie legible.
+	 * @returns {Boolean}
+	 */
+	hasLegacyToken() {
+		const stored = localStorage.getItem(PiecesPHPSystemUserHelper.localJWTAuthName)
+		const cookie = this.getCookie(PiecesPHPSystemUserHelper.localJWTAuthName)
+		return (typeof stored == 'string' && stored.length > 0) || (typeof cookie == 'string' && cookie.trim().length > 0)
+	}
+
+	/**
+	 * Borra el token que guardaba la versión anterior: el del localStorage y las cookies legibles que escribía (sin
+	 * dominio, con el host y con .host). La HttpOnly del servidor no se puede tocar desde aquí, y así debe ser.
+	 */
+	forgetLegacyToken() {
+		const name = PiecesPHPSystemUserHelper.localJWTAuthName
+		//Una fecha pasada en formato de fecha: un número de milisegundos no lo es, y la cookie se quedaba.
+		const expired = new Date(0).toUTCString()
+		const secure = location.protocol === 'https:' ? ';Secure' : ''
+		localStorage.removeItem(name)
+		for (const domain of ['', `;domain=${location.hostname}`, `;domain=.${location.hostname}`]) {
+			document.cookie = `${name}=;expires=${expired};path=/;SameSite=Lax${secure}${domain}`
 		}
-		return JWT
 	}
 
 	getExtraData() {
@@ -237,8 +267,9 @@ class PiecesPHPSystemUserHelper {
 	}
 
 	/**
-	 * Cierra la sesión EN EL SERVIDOR (su fila; ADR 0026, fase B) y después borra la de este navegador, salga bien o mal.
-	 * La dirección la da el servidor en <meta name="logout-url">; sin ella, solo se borra la del navegador.
+	 * Cierra la sesión EN EL SERVIDOR (su fila; ADR 0026, fase B), que borra la cookie, y después lo que guarda este
+	 * navegador, salga bien o mal. La dirección la da el servidor en <meta name="logout-url">; sin ella, solo lo del
+	 * navegador.
 	 * @param {Boolean} reload
 	 */
 	logoutOnServer(reload = true) {
@@ -246,16 +277,12 @@ class PiecesPHPSystemUserHelper {
 		const meta = document.querySelector('html head meta[name="logout-url"]')
 		let url = meta !== null ? meta.getAttribute('value') : null
 		url = typeof url === 'string' && url.trim().length > 0 ? atob(url.trim()) : ''
-		let JWT = this.getJWT()
-		const JWTFromCookie = this.getCookie(PiecesPHPSystemUserHelper.localJWTAuthName)
-		JWT = JWT.length > 0 ? JWT : (typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : '')
-		if (url === '' || JWT.length === 0) {
+		if (url === '') {
 			instance.deleteSession(reload)
 			return
 		}
-		const headers = { 'X-Requested-With': 'XMLHttpRequest' }
-		headers[PiecesPHPSystemUserHelper.localJWTAuthName] = JWT
-		fetch(url, { method: 'POST', credentials: 'same-origin', headers: headers })
+		//La cookie de sesión va sola: el servidor cierra la fila y la borra.
+		fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
 			.catch(() => null)
 			.finally(() => instance.deleteSession(reload))
 	}
@@ -287,18 +314,17 @@ class PiecesPHPSystemUserHelper {
 		return this
 	}
 
+	/**
+	 * Borra la sesión de este navegador: los datos guardados y el token viejo. La cookie HttpOnly la borra el servidor (al
+	 * cerrar sesión, o en verify() si ya no vale). Recarga si había una sesión que borrar.
+	 * @param {Boolean} reload
+	 */
 	deleteSession(reload = true) {
 
-		//Una fecha pasada en formato de fecha: un número de milisegundos no lo es, y la cookie se quedaba.
-		const expired = new Date(0).toUTCString()
-		let JWT = this.getJWT()
-		let JWTFromCookie = this.getCookie(PiecesPHPSystemUserHelper.localJWTAuthName)
-		JWTFromCookie = typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : ''
-		JWT = JWT.length > 0 ? JWT : JWTFromCookie
+		const hadSession = this.getUserData() !== null || this.hasLegacyToken()
 
-		if (JWT.length > 0) {
-			document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=;expires=${expired};path=/;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
-			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthName)
+		if (hadSession) {
+			this.forgetLegacyToken()
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)
 			localStorage.removeItem(PiecesPHPSystemUserHelper.localUserDataName)
 			//En el login no se recarga: la recarga perdería la URL a la que volver, que llega en un aviso de un solo uso.
@@ -515,7 +541,7 @@ class PiecesPHPSystemUserHelper {
 
 		}
 
-		mapHeaders.set(PiecesPHPSystemUserHelper.remoteJWTAuthName, this.getJWT()) //Token de autenticación
+		//Sin cabecera del token: la cookie de sesión (HttpOnly) va sola en las peticiones al propio sitio.
 		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
 		if (this.expectedLang !== null) {
 			mapHeaders.set('PCSPHP-Response-Expected-Language', this.expectedLang)

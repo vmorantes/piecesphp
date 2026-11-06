@@ -228,6 +228,11 @@ function configLoginForm() {
 			titleError.html(_i18n('loginForm', 'Demasiados intentos'))
 			messageError.html(data.message)
 
+		} else if ('INVALID_USER_TYPE' == error) {
+
+			titleError.html(_i18n('loginForm', 'Cuenta sin un tipo válido'))
+			messageError.html(data.message)
+
 		} else if ('MISSING_OR_UNEXPECTED_PARAMS' == error) {
 
 			titleError.html('Error')

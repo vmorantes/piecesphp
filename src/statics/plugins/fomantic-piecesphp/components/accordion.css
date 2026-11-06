@@ -1,0 +1,539 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Accordion
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+            Accordion
+*******************************/
+
+.ui.accordion,
+.ui.accordion .accordion {
+  max-width: 100%;
+}
+.ui.accordion .accordion {
+  margin: 1em 0 0;
+  padding: 0;
+}
+
+/* Title */
+.ui.accordion.menu .item > .title,
+.ui.accordion > .title,
+.ui.accordion .accordion > .title {
+  cursor: pointer;
+  padding: 0.5em 0;
+  font-family: var(--font-heading);
+  font-size: 1em;
+  color: var(--theme-text);
+  list-style: none;
+  line-height: 1.42857143;
+}
+
+/* Default Styling */
+.ui.accordion:not(.styled) .title ~ .content,
+.ui.accordion:not(.styled) .accordion .title ~ .content {
+  margin: "";
+  padding: 0.5em 0 1em;
+}
+.ui.accordion:not(.styled) .title ~ .content:last-child {
+  padding-bottom: 0;
+}
+
+/* Arrow */
+.ui.accordion .ui.header > .dropdown.icon,
+.ui.accordion .title > .dropdown.icon,
+.ui.accordion .accordion .title > .dropdown.icon {
+  display: inline-block;
+  float: none;
+  opacity: 1;
+  width: 1.14285714rem;
+  height: 1em;
+  margin: 0 0.71428571rem 0 0;
+  padding: 0;
+  font-size: 1rem;
+  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  vertical-align: middle;
+  transform: none;
+}
+.ui.accordion .ui.header > .dropdown.icon.right,
+.ui.accordion .title > .dropdown.icon.right,
+.ui.accordion .accordion .title > .dropdown.icon.right {
+  float: right;
+  transform: rotate(180deg);
+}
+
+/* --------------
+    Coupling
+--------------- */
+
+/* Menu */
+.ui.accordion.menu .item .title {
+  display: block;
+  padding: 0;
+}
+.ui.accordion.menu .item .title > .dropdown.icon {
+  float: right;
+  margin: 0 0.71428571rem 0 0;
+  transform: rotate(180deg);
+}
+
+/* Header */
+.ui.accordion .ui.header > .dropdown.icon {
+  font-size: 1rem;
+  margin: 0 0.71428571rem 0 0;
+}
+
+
+/*******************************
+            States
+*******************************/
+
+.ui.accordion[open] > .title > .dropdown.icon,
+.ui.accordion .accordion[open] > .title > .dropdown.icon,
+.ui.accordion .active.title > .dropdown.icon,
+.ui.accordion .accordion .active.title > .dropdown.icon {
+  transform: rotate(90deg);
+}
+.ui.accordion.menu .item .active.title > .dropdown.icon {
+  transform: rotate(90deg);
+}
+
+
+/*******************************
+            Types
+*******************************/
+
+
+/* --------------
+         Styled
+    --------------- */
+.ui.styled.accordion {
+  width: 600px;
+}
+.ui.styled.accordion,
+.ui.styled.accordion .accordion {
+  border-radius: var(--r-lg, 12px);
+  background: var(--theme-surface);
+  box-shadow: 0 0 0 1px var(--theme-border);
+}
+.ui.styled.accordion > .title,
+.ui.styled.accordion .accordion > .title {
+  margin: 0;
+  padding: 1rem 1.14285714rem;
+  color: var(--theme-text);
+  font-weight: 600;
+  border-top: 1px solid var(--theme-border);
+  transition: background 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.styled.accordion > .title:first-child,
+.ui.styled.accordion .accordion > .title:first-child {
+  border-top: none;
+}
+
+/* Content */
+.ui.styled.accordion > .content {
+  margin: 0;
+  padding: 0 1.14285714rem 1.14285714rem 3rem;
+}
+.ui.styled.accordion .accordion > .content {
+  margin: 0;
+  padding: 0 1.14285714rem 1.14285714rem 3rem;
+}
+
+/* Hover */
+.ui.styled.accordion > .title:hover {
+  background: light-dark(#fafbfc, #161920);
+  color: var(--theme-text);
+}
+.ui.styled.accordion .accordion > .title:hover {
+  background: light-dark(#fafbfc, #161920);
+  color: var(--theme-text);
+}
+
+/* Active */
+.ui.styled.accordion[open] > .title,
+.ui.styled.accordion .active.title {
+  background: transparent;
+  color: var(--accent-text);
+}
+.ui.styled.accordion .accordion[open] > .title,
+.ui.styled.accordion .accordion .active.title {
+  background: transparent;
+  color: var(--accent-text);
+}
+
+/* --------------
+         Compact
+    --------------- */
+
+/* Default Styling */
+.ui.compact.accordion:not(.styled) > .title,
+.ui.compact.accordion:not(.styled) .accordion > .title {
+  padding: 0.25em 0;
+}
+.ui.compact.accordion:not(.styled) .title ~ .content,
+.ui.compact.accordion:not(.styled) .accordion .title ~ .content {
+  padding: 0.25em 0 0.5em;
+}
+
+/* Styled */
+.ui.compact.styled.accordion > .title,
+.ui.compact.styled.accordion .accordion > .title {
+  padding: 0.57142857rem 0.85714286rem;
+}
+.ui.compact.styled.accordion .title ~ .content,
+.ui.compact.styled.accordion .accordion .title ~ .content {
+  padding: 0 0.85714286rem 0.71428571rem 2.71428571rem;
+}
+
+/* --------------
+    Very Compact
+  --------------- */
+.ui[class*="very compact"].accordion:not(.styled) > .title,
+.ui[class*="very compact"].accordion:not(.styled) .accordion > .title {
+  padding: 0.125em 0;
+}
+.ui[class*="very compact"].accordion:not(.styled) .title ~ .content,
+.ui[class*="very compact"].accordion:not(.styled) .accordion .title ~ .content {
+  padding: 0.125em 0 0.25em;
+}
+.ui[class*="very compact"].styled.accordion > .title,
+.ui[class*="very compact"].styled.accordion .accordion > .title {
+  padding: 0.1875em 0.25em;
+}
+.ui[class*="very compact"].styled.accordion .title ~ .content,
+.ui[class*="very compact"].styled.accordion .accordion .title ~ .content {
+  padding: 0.125em 0.25em 0.375em;
+}
+
+
+/*******************************
+            States
+*******************************/
+
+
+/* --------------
+   Not Active
+--------------- */
+.ui.accordion:not(details) .title ~ .content:not(.active),
+.ui.accordion .accordion:not(details) .title ~ .content:not(.active) {
+  display: none;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* --------------
+         Fluid
+    --------------- */
+.ui.fluid.accordion,
+.ui.fluid.accordion .accordion {
+  width: 100%;
+}
+
+/* --------------
+         Inverted
+    --------------- */
+
+/* Fork: el contenido de un accordion inverted heredaba el texto oscuro de la página (D36) */
+.ui.inverted.accordion:not(.menu) {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.accordion.menu .item > .title,
+.ui.inverted.accordion > .title,
+.ui.inverted.accordion .accordion > .title {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.styled.accordion,
+.ui.inverted.styled.accordion .accordion {
+  background: #1f2430;
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3))), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.ui.inverted.styled.accordion > .title,
+.ui.inverted.styled.accordion .accordion > .title {
+  color: rgba(255, 255, 255, 0.7);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hover */
+.ui.inverted.styled.accordion > .title:hover {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.styled.accordion .accordion > .title:hover {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Active */
+.ui.inverted.styled.accordion[open] > .title,
+.ui.inverted.styled.accordion .active.title {
+  background: transparent;
+  color: #ffffff;
+}
+.ui.inverted.styled.accordion .accordion[open] > .title,
+.ui.inverted.styled.accordion .accordion .active.title {
+  background: transparent;
+  color: #ffffff;
+}
+.ui.basic.styled.accordion,
+.ui.basic.styled.accordion .accordion {
+  background: transparent;
+  box-shadow: none;
+}
+.ui.basic.styled.accordion > .title,
+.ui.basic.styled.accordion .accordion > .title {
+  border: none;
+  color: var(--theme-text-muted);
+}
+.ui.basic.styled.accordion > .title:hover,
+.ui.basic.styled.accordion .accordion > .title:hover {
+  background: transparent;
+  color: var(--theme-text);
+}
+.ui.basic.styled.accordion[open] > .title,
+.ui.basic.styled.accordion .active.title,
+.ui.basic.styled.accordion .accordion[open] > .title,
+.ui.basic.styled.accordion .accordion .active.title {
+  background: transparent;
+  color: var(--theme-text);
+}
+.ui.inverted.basic.styled.accordion > .title,
+.ui.inverted.basic.styled.accordion .accordion > .title {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+}
+.ui.inverted.basic.styled.accordion > .title:hover,
+.ui.inverted.basic.styled.accordion .accordion > .title:hover {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.inverted.basic.styled.accordion[open] > .title,
+.ui.inverted.basic.styled.accordion .active.title,
+.ui.inverted.basic.styled.accordion .accordion[open] > .title,
+.ui.inverted.basic.styled.accordion .accordion .active.title {
+  background: transparent;
+  color: #ffffff;
+}
+.ui.tree.accordion:not(.styled) .title ~ .content,
+.ui.tree.accordion:not(.styled) .accordion .title ~ .content {
+  padding: 0;
+}
+.ui.tree.accordion > .content,
+.ui.tree.accordion .accordion > .content {
+  margin-left: 1.7em;
+}
+.ui.tree.accordion .accordion {
+  margin-top: 0;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+@font-face {
+  font-family: Accordion;
+  src: url("data:application/font-woff;base64,d09GRk9UVE8AAAREAAsAAAAABkAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABDRkYgAAAC7AAAAQoAAAE/j/fxwUZGVE0AAAQUAAAAHAAAAByNqvxQR0RFRgAAA/gAAAAcAAAAIAAnABhPUy8yAAABYAAAAEIAAABgTadW5mNtYXAAAAKMAAAAUQAAAWAFZuKDaGVhZAAAAQgAAAAyAAAANg8zT8toaGVhAAABPAAAABoAAAAkApkA5mhtdHgAAAQwAAAAEwAAABYBtwASbWF4cAAAAVgAAAAGAAAABgAGUABuYW1lAAABpAAAAOYAAAGq/HAhWXBvc3QAAALgAAAADAAAACAAAwAAeJxjYGRgYADi8KWRsvH8Nl8ZuJkYQOD838XvQPT9hGxNIOXJsJ0xD0hzMIClARzsCcoAAHicY2BkYGB88P8BkGQAg+0wBhywAgBgjgOAAAAAAFAAAAYAAHicY2BmOM84gYGVgYHRhzGNgYHBHUp/ZZBkaGFABYwCSJyANNcUBgcGhg+3GB/8fwCUfMCgAFIDV6AAhIwARVcMJwAAeJx1jrFOwzAURU/SNKgFIVgQ6uSRKWolZjaQOnQBqQNb2lpRpMqW3HTowhew8U9I/BU37WOjtmyfd/3utYEbvsn4G7lxRsmtcc4FD8YD6U/GhfjNeMglybjU/DQeM+FHrqwY2QsnzrgSnTjnmnvjgfSpcSF+Nh5yx7txKf3DeMwjX31soqajJdCoqLs26HzFq9yz1WVS6Zv9tk5nmv8Vl0pI7CRHXThmVPofS592bQxuVk3PGF+Ohk6WRhHhGNO3eTbSVhy0z1mra6HV91YyxdC5xgevFL9xq4Obr+MixlDxC/HTOrsAAHicY2BgYGaAYBkGRgYQiALyGMF8FgY7IM3FwMHABISMDAofbv3/+/8/WJXCh5tgNuP/x2A+RC8bUC0DUB8rWIgNiJkY8AJm/NJDHgAALqoOxgAAAHicY2BmwAsAAH0ABHicPY7BSsNAEIZnkk2zlhg1JKAYxOrJi6RepMdC8SKefAJP4kVBzCtkNw7ZjeK1j9C38Rn6CO5CDrppigwMM8P/f/8gMAaIGL4+vD09PwJ6gLCwp2AnaM88e+7bQ0aRTxE7GcPRffJL9D9EIX2bW+sFOXzu5QD7OSwPcuA5Xiew05N8CIDDLiSQuTqGSVmU0/KqKG+Kxaxv8+llMURvHwBAgRJrfEeCEaLns9HdRxzHP/FqaV4yaptWK25SkwZKu4Va0rUSWjYVVbz7CqmqhZBSiNodqGqk5l2vFqrW1PJ4tWbGqZxVKa31htA6gmN2aTBwBobzuYsU1YYkGheyZVBqLjKKxn8cSmvuAAB4nGNgZGBg4AFiAQYJBiYgzQLEIJoRggEFbQBAAAAAAQAAAADeTO04AAAAAM/9o+4AAAAA32BrKXicY2BAAEYQsZ1BiIEBAAPpAMsA") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Dropdown Icon */
+.ui.accordion .ui.header > .dropdown.icon,
+.ui.accordion .title > .dropdown.icon,
+.ui.accordion .accordion .title > .dropdown.icon {
+  font-family: Accordion;
+  line-height: 1;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+  font-weight: normal;
+  font-style: normal;
+  text-align: center;
+}
+.ui.accordion .ui.header > .dropdown.icon::before,
+.ui.accordion .title > .dropdown.icon::before,
+.ui.accordion .accordion .title > .dropdown.icon::before {
+  content: "\f0da" 
+/* rtl: "\f0d9" */;
+}
+
+
+/*******************************
+  PiecesPHP: Accordion Overrides
+*******************************/
+
+
+/* El fondo del título al pasar sigue el radio del acordeón */
+.ui.styled.accordion {
+  overflow: hidden;
+}
+
+/* Flecha en text-4 */
+.ui.accordion .title > .dropdown.icon {
+  color: light-dark(#99a1af, #737c8c);
+}
+
+/* Contenido en text-2 */
+.ui.styled.accordion:not(.inverted) > .content,
+.ui.styled.accordion:not(.inverted) .accordion > .content {
+  color: light-dark(#4b5363, #cfd5de);
+}
+
+/* Foco: contorno hacia dentro (el acordeón recorta lo que sale) y halo interior */
+.ui.styled.accordion .title:focus-visible {
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 3px var(--accent-ring);
+}
+
+/* --------------------------------------------------------------
+   Acordeón de navegación (panel de Configuración, pp-cfg-*): un
+   acordeón cuyos títulos llevan `bordered icon` (mosaico de 32px)
+   y cuyos contenidos son `ui link list`
+--------------------------------------------------------------- */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) {
+  display: flex;
+  align-items: center;
+  gap: 0.85714286rem;
+  margin: 0.28571429rem 0;
+  padding: 0.71428571rem 0.57142857rem;
+  border-radius: var(--r-md, 8px);
+  color: var(--theme-text);
+  font-weight: 600;
+  transition: background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon):hover {
+  background: light-dark(#f5f7fa, #20242d);
+}
+
+/* Línea entre grupos (pp-cfg-group + pp-cfg-group): 4px bajo el título anterior o pegada a los
+   enlaces abiertos, y 4px hasta el siguiente. En columna, para que los márgenes no se colapsen */
+.ui.accordion:not(.styled):has(> .title > i.bordered.icon) {
+  display: flex;
+  flex-direction: column;
+}
+.ui.accordion:not(.styled) > .content + .title:has(> i.bordered.icon),
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .title:has(> i.bordered.icon) {
+  position: relative;
+  margin-top: 0.35714286rem;
+}
+.ui.accordion:not(.styled) > .content + .title:has(> i.bordered.icon)::before,
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .title:has(> i.bordered.icon)::before {
+  content: "";
+  position: absolute;
+  top: -0.35714286rem;
+  right: 0;
+  left: 0;
+  border-top: 1px solid var(--theme-border);
+}
+
+/* Mosaico de 32px con el glifo centrado (el relleno vertical de bordered es !important en
+   Fomantic: simétrico, la rejilla lo centra) */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > i.bordered.icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.28571429rem;
+  height: 2.28571429rem;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-size: 1rem;
+  background: light-dark(#f5f7fa, #20242d);
+  border-radius: var(--r-md, 8px);
+  box-shadow: 0 0 0 1px var(--theme-border) inset;
+  color: var(--theme-text-muted);
+  transition: background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon).active > i.bordered.icon {
+  background: var(--accent-50);
+  box-shadow: 0 0 0 1px var(--accent-100) inset;
+  color: var(--accent-1, var(--accent, #356dca));
+}
+
+/* Contador junto al texto; el chevron a la derecha, hacia abajo y hacia arriba al abrir */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > .label {
+  margin: 0;
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > i.dropdown.icon {
+  order: 1;
+  margin: 0 0 0 auto;
+  font-size: 0.85714286rem;
+  transform: none;
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > i.dropdown.icon::before {
+  font-family: "icons";
+  content: "\f078";
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon).active > i.dropdown.icon {
+  transform: rotate(180deg);
+}
+
+/* Enlaces del grupo: línea a la izquierda, 36px, hover en el tinte del acento */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content {
+  margin: 0 0 0 1.71428571rem;
+  padding: 0 0 0.71428571rem 1.64285714rem;
+  border-left: 1px solid light-dark(#d8dde5, #3a4150);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list {
+  margin: 0;
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item {
+  display: flex;
+  align-items: center;
+  min-height: 2.57142857rem;
+  padding: 0 0.71428571rem;
+  border-radius: var(--r-md, 8px);
+  color: light-dark(#4b5363, #cfd5de);
+  transition: background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item:hover,
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .active.item {
+  background: var(--accent-50);
+  color: var(--accent-text);
+}
+
+/* La flecha del enlace (pp-go): chevron de 12px en el acento a la derecha, que aparece al pasar
+   o con el foco */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item::after {
+  content: "\f054";
+  margin-left: auto;
+  font-family: icons;
+  font-size: 0.85714286rem;
+  color: var(--accent-1, var(--accent, #356dca));
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item:hover::after,
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item:focus-visible::after {
+  opacity: 1;
+  transform: none;
+}
+
+/* Sin resultados del filtro (pp-cfg-empty): el texto atenuado tras el acordeón, centrado y con
+   relleno 32 / 16 */
+.ui.accordion:not(.styled):has(> .title > i.bordered.icon) + .ui.muted.text {
+  margin: 0;
+  padding: 2.28571429rem 1.14285714rem;
+  text-align: center;
+}
+
+/* Móvil: títulos de 48px como mínimo y enlaces de 44px (área táctil) */
+@media only screen and (max-width: 767.98px) {
+  .ui.accordion:not(.styled) > .title:has(> i.bordered.icon) {
+    min-height: 3.42857143rem;
+  }
+  .ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item {
+    min-height: 3.14285714rem;
+  }
+}

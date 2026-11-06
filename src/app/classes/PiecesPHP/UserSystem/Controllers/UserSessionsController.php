@@ -32,6 +32,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
 use PiecesPHP\UserSystem\Authentication\Impersonation;
+use PiecesPHP\UserSystem\Authentication\SessionCookie;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UserSessionsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -79,7 +80,7 @@ class UserSessionsController extends AdminPanelController
     protected static $baseRouteName = 'user-sessions';
 
     /**
-     * Cierra la sesión de esta petición en el servidor. El navegador borra su cookie después, salga bien o mal.
+     * Cierra la sesión de esta petición en el servidor y borra su cookie (HttpOnly: el navegador no puede).
      *
      * @param Request $request
      * @param Response $response
@@ -92,6 +93,7 @@ class UserSessionsController extends AdminPanelController
         if ($current !== null) {
             UserSessions::close((int) $current['id'], self::realActorID($actor), UserSessions::REASON_LOGOUT);
         }
+        SessionCookie::forget();
         return $response->withJson(['success' => true]);
     }
 
@@ -124,6 +126,9 @@ class UserSessionsController extends AdminPanelController
             '%reason%' => $reason,
         ], (int) $row['userID']);
         $isCurrent = (string) $row['sessionHash'] === UserSessions::currentHash();
+        if ($isCurrent) {
+            SessionCookie::forget();
+        }
         return $response->withJson([
             'success' => true,
             'name' => __(self::LANG_GROUP, 'Cerrar sesión'),

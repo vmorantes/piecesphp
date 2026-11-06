@@ -1,0 +1,265 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Placeholder
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+/* -------------------
+      Content
+-------------------- */
+.ui.placeholder {
+  position: static;
+  overflow: hidden;
+  animation: placeholderShimmer 1.8s linear;
+  animation-iteration-count: infinite;
+  background-color: #fff;
+  background-image: linear-gradient(to right, light-dark(#eef1f5, #262b36) 0, light-dark(#fafbfc, #2c323e) 15%, light-dark(#eef1f5, #262b36) 30%);
+  background-size: 1200px 100%;
+  max-width: 30rem;
+}
+@keyframes placeholderShimmer {
+  0% {
+    background-position: -1200px 0;
+  }
+  100% {
+    background-position: 1200px 0;
+  }
+}
+.ui.placeholder + .ui.placeholder {
+  margin-top: 2rem;
+}
+.ui.placeholder + .ui.placeholder {
+  animation-delay: 0.15s;
+}
+.ui.placeholder + .ui.placeholder + .ui.placeholder {
+  animation-delay: 0.3s;
+}
+.ui.placeholder + .ui.placeholder + .ui.placeholder + .ui.placeholder {
+  animation-delay: 0.45s;
+}
+.ui.placeholder + .ui.placeholder + .ui.placeholder + .ui.placeholder + .ui.placeholder {
+  animation-delay: 0.6s;
+}
+.ui.placeholder,
+.ui.placeholder > ::before,
+.ui.placeholder .image.header::after,
+.ui.placeholder .line,
+.ui.placeholder .line::after {
+  background-color: #fff;
+}
+.ui.placeholder.hidden {
+  display: none;
+}
+
+/* Image */
+.ui.placeholder .image:not(.header):not(.ui):not(.icon) {
+  height: 100px;
+}
+.ui.placeholder .square.image:not(.header) {
+  height: 0;
+  overflow: hidden;
+  
+/* 1/1 aspect ratio */
+  padding-top: 100%;
+}
+.ui.placeholder .rectangular.image:not(.header) {
+  height: 0;
+  overflow: hidden;
+  
+/* 4/3 aspect ratio */
+  padding-top: 75%;
+}
+
+/* Lines */
+.ui.placeholder .line {
+  position: relative;
+  height: 0.85714286em;
+}
+.ui.placeholder .line::before,
+.ui.placeholder .line::after {
+  top: 100%;
+  position: absolute;
+  content: "";
+  background-color: inherit;
+}
+.ui.placeholder .line::before {
+  left: 0;
+}
+.ui.placeholder .line::after {
+  right: 0;
+}
+
+/* Any Lines */
+.ui.placeholder .line {
+  margin-bottom: 0.5em;
+}
+.ui.placeholder .line::before,
+.ui.placeholder .line::after {
+  height: 0.5em;
+}
+.ui.placeholder .line:not(:first-child) {
+  margin-top: 0.5em;
+}
+
+/* Line Outdent */
+.ui.placeholder .line:nth-child(1)::after {
+  width: 0;
+}
+.ui.placeholder .line:nth-child(2)::after {
+  width: 50%;
+}
+.ui.placeholder .line:nth-child(3)::after {
+  width: 10%;
+}
+.ui.placeholder .line:nth-child(4)::after {
+  width: 35%;
+}
+.ui.placeholder .line:nth-child(5)::after {
+  width: 65%;
+}
+
+/* Header Image + 2 Lines */
+.ui.placeholder .header {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header Line 1 & 2 */
+.ui.placeholder .header .line {
+  margin-bottom: 0.64285714em;
+}
+.ui.placeholder .header .line::before,
+.ui.placeholder .header .line::after {
+  height: 0.64285714em;
+}
+.ui.placeholder .header .line:not(:first-child) {
+  margin-top: 0.64285714em;
+}
+.ui.placeholder .header .line::after {
+  width: 20%;
+}
+.ui.placeholder .header .line:nth-child(2)::after {
+  width: 60%;
+}
+
+/* Image Header */
+.ui.placeholder .image.header .line {
+  margin-left: 3em;
+}
+.ui.placeholder .image.header .line::before {
+  width: 0.71428571rem;
+}
+.ui.placeholder .image.header::after {
+  display: block;
+  height: 0.85714286em;
+  content: "";
+  margin-left: 3em;
+}
+
+/* Spacing */
+.ui.placeholder .image .line:first-child,
+.ui.placeholder .paragraph .line:first-child,
+.ui.placeholder .header .line:first-child {
+  height: 0.01px;
+}
+
+/* Fork: solo en el placeholder de carga. Sin `:not(.segment)` caía también en `ui placeholder
+   segment`, otro componente: un `.sub.header` recibía 20px de más encima */
+.ui.placeholder:not(.segment) .image:not(:first-child)::before,
+.ui.placeholder:not(.segment) .paragraph:not(:first-child)::before,
+.ui.placeholder:not(.segment) .header:not(:first-child)::before {
+  height: 1.42857143em;
+  content: "";
+  display: block;
+}
+
+/* Inverted Content Loader */
+.ui.inverted.placeholder {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.08) 0, rgba(255, 255, 255, 0.14) 15%, rgba(255, 255, 255, 0.08) 30%);
+}
+.ui.inverted.placeholder,
+.ui.inverted.placeholder > ::before,
+.ui.inverted.placeholder .image.header::after,
+.ui.inverted.placeholder .line,
+.ui.inverted.placeholder .line::after {
+  background-color: #1f2430;
+}
+
+
+/*******************************
+            Variations
+*******************************/
+
+
+/* -------------------
+        Sizes
+-------------------- */
+.ui.placeholder .full.line.line.line::after {
+  width: 0;
+}
+.ui.placeholder .very.long.line.line.line::after {
+  width: 10%;
+}
+.ui.placeholder .long.line.line.line::after {
+  width: 35%;
+}
+.ui.placeholder .medium.line.line.line::after {
+  width: 50%;
+}
+.ui.placeholder .short.line.line.line::after {
+  width: 65%;
+}
+.ui.placeholder .very.short.line.line.line::after {
+  width: 80%;
+}
+
+/* -------------------
+            Fluid
+    -------------------- */
+.ui.fluid.placeholder {
+  max-width: none;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+ PiecesPHP: Placeholder Overrides
+*******************************/
+
+
+/* El default enmascara los huecos con blanco fijo; aquí, con el fondo sobre el que está: la
+   página por defecto y la superficie dentro de segment, card, modal, popup, flyout o item
+   (la variable se hereda) */
+body {
+  --pcsphp-placeholder-mask: var(--theme-page);
+}
+.ui.segment,
+.ui.card,
+.ui.modal,
+.ui.popup,
+.ui.flyout,
+.ui.items > .item {
+  --pcsphp-placeholder-mask: var(--theme-surface);
+}
+.ui.placeholder,
+.ui.placeholder > ::before,
+.ui.placeholder .image.header::after,
+.ui.placeholder .line,
+.ui.placeholder .line::after {
+  background-color: var(--pcsphp-placeholder-mask, var(--theme-surface));
+}
+
+/* Bloque con radio sm (tokens.md §5) y barrido con la curva del tema, como pp-shine */
+.ui.placeholder {
+  border-radius: var(--r-sm, 6px);
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}

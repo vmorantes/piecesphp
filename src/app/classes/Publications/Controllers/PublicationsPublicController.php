@@ -78,7 +78,7 @@ class PublicationsPublicController extends BaseController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         import_jquery();
-        import_semantic();
+        import_fomantic();
         import_app_libraries();
         import_app_front_libraries();
 

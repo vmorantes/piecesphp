@@ -1,0 +1,358 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Text
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+             Text
+*******************************/
+
+span.ui.text {
+  line-height: 1;
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.primary.text {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+}
+span.ui.inverted.primary.text {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.secondary.text {
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+}
+span.ui.inverted.secondary.text {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.accent-1.text {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+}
+span.ui.inverted.accent-1.text {
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.accent-2.text {
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+}
+span.ui.inverted.accent-2.text {
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.accent-3.text {
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+}
+span.ui.inverted.accent-3.text {
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.red.text {
+  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+}
+span.ui.inverted.red.text {
+  color: oklch(from #f97066 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.orange.text {
+  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+}
+span.ui.inverted.orange.text {
+  color: oklch(from #f38744 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.yellow.text {
+  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+}
+span.ui.inverted.yellow.text {
+  color: oklch(from #fdb022 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.olive.text {
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+}
+span.ui.inverted.olive.text {
+  color: oklch(from #a6c43a max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.green.text {
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+}
+span.ui.inverted.green.text {
+  color: oklch(from #47cd89 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.teal.text {
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+}
+span.ui.inverted.teal.text {
+  color: oklch(from #22ccee max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.blue.text {
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+}
+span.ui.inverted.blue.text {
+  color: oklch(from #53b1fd max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.violet.text {
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+}
+span.ui.inverted.violet.text {
+  color: oklch(from #9b8afb max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.purple.text {
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+}
+span.ui.inverted.purple.text {
+  color: oklch(from #c084e8 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.pink.text {
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+}
+span.ui.inverted.pink.text {
+  color: oklch(from #ee46bc max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.brown.text {
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+}
+span.ui.inverted.brown.text {
+  color: oklch(from #b08463 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.grey.text {
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+}
+span.ui.inverted.grey.text {
+  color: oklch(from #99a1af max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
+span.ui.black.text {
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+}
+span.ui.inverted.black.text {
+  color: oklch(from #4b5363 max(l, 0.8) c h);
+  
+/* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+span.ui.error.text {
+  
+/* Fork: tinta del estado, legible en ambos modos (D36) */
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+}
+span.ui.info.text {
+  
+/* Fork: tinta del estado, legible en ambos modos (D36) */
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.75) c h));
+}
+span.ui.success.text {
+  
+/* Fork: tinta del estado, legible en ambos modos (D36) */
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+}
+span.ui.warning.text {
+  
+/* Fork: tinta del estado, legible en ambos modos (D36) */
+  color: light-dark(oklch(from #f79009 min(l, 0.42) c h), oklch(from #f79009 max(l, 0.75) c h));
+}
+span.ui.disabled.text {
+  opacity: 0.45;
+}
+
+/* Fork: variación propia (texto secundario: el atenuado del tema, no un gris de la paleta, que
+   en los temas propios es una tinta oscura). A diferencia del resto de `ui text`, vale también
+   para los elementos de texto habituales, no solo `span`. */
+:is(span, small, p, div, label, time, strong).ui.muted.text {
+  color: var(--theme-text-muted);
+}
+
+/* Fork: la contraria de `muted` (D53): el color de texto de la página, para destacar una celda o
+   un glifo dentro de un contenedor de texto secundario (una tabla cuyo texto es el atenuado) */
+:is(span, small, p, div, label, time, strong).ui.main.text {
+  color: var(--theme-text);
+}
+
+/* Fork: variaciones propias de maquetación del texto, en cualquier elemento (D52: sin `style` en
+   el marcado). Truncado: una línea con puntos suspensivos (necesita un ancho, p. ej. hijo de
+   `ui flex` o de una celda). Partible: corta palabras largas (correos, URL, rutas) en vez de
+   desbordar. Vertical: texto girado (de abajo arriba) para huecos estrechos y altos. */
+.ui.truncated.text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Fork: varias líneas con elipsis (`--lines`, 2 por defecto) y cifras de ancho fijo */
+.ui.clamped.text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines, 2);
+  line-clamp: var(--lines, 2);
+  overflow: hidden;
+}
+.ui.tabular.text {
+  font-variant-numeric: tabular-nums;
+}
+.ui.regular.text {
+  font-weight: 400;
+}
+.ui.vertical.text {
+  -ms-writing-mode: tb-rl;
+      writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+.ui.breaking.text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Sizes */
+
+/* Fork: también en los elementos de texto habituales (`a`, `b`, `strong`, `label`…), no solo en
+   `span` (un enlace o una etiqueta en Pequeño); nunca en `div`, para no tocar `ui text menu` */
+:is(span, small, p, label, time, strong, b, em, a).ui.medium.text {
+  font-size: 1rem;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.mini.text {
+  font-size: 0.85714286rem;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.tiny.text {
+  font-size: 0.85714286rem;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.small.text {
+  font-size: 0.92857143rem;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.large.text {
+  font-size: 1.14285714rem;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.big.text {
+  font-size: 1.71428571rem;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.huge.text {
+  font-size: 2.28571429rem;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.massive.text {
+  font-size: 4rem;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+   PiecesPHP: Text Overrides
+*******************************/
+
+
+/* Cada tamaño con el interlineado de su estilo (tokens.md §4); Título, Display y Cifra
+   destacada, además, con su tracking negativo */
+:is(span, small, p, label, time, strong, b, em, a).ui.mini.text,
+:is(span, small, p, label, time, strong, b, em, a).ui.tiny.text {
+  line-height: 1.33333333;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.small.text {
+  line-height: 1.38461538;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.medium.text {
+  line-height: 1.42857143;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.large.text {
+  line-height: 1.5;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.big.text {
+  line-height: 1.33333333;
+  letter-spacing: -0.015em;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.huge.text {
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+:is(span, small, p, label, time, strong, b, em, a).ui.massive.text {
+  line-height: 1.07142857;
+  letter-spacing: -0.03em;
+}
+
+/* Colores de estado: el -text del diseño (tokens.md §3), con su versión oscura, en vez de la
+   tinta calculada; green/success, yellow/warning, red/error y teal/info son el mismo estado */
+span.ui.green.text,
+span.ui.success.text {
+  color: light-dark(#067647, #75e0a7);
+}
+span.ui.yellow.text,
+span.ui.warning.text {
+  color: light-dark(#b54708, #fdb022);
+}
+span.ui.red.text,
+span.ui.error.text {
+  color: light-dark(#b42318, #fda29b);
+}
+span.ui.teal.text,
+span.ui.info.text {
+  color: light-dark(#0e7090, #67e3f9);
+}

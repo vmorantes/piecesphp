@@ -1,0 +1,9 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Rail
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */.ui.rail{position:absolute;top:0;width:300px;height:100%}.ui.left.rail{left:auto;right:100%;padding:0 1.14285714rem 0 0;margin:0 1.14285714rem 0 0}.ui.right.rail{left:100%;right:auto;padding:0 0 0 1.14285714rem;margin:0 0 0 1.14285714rem}.ui.left.internal.rail{left:0;right:auto;padding:0 0 0 1.14285714rem;margin:0 0 0 1.14285714rem}.ui.right.internal.rail{left:auto;right:0;padding:0 1.14285714rem 0 0;margin:0 1.14285714rem 0 0}.ui.dividing.rail{width:301.42857143px}.ui.left.dividing.rail{padding:0 1.42857143rem 0 0;margin:0 1.42857143rem 0 0;border-right:1px solid var(--theme-border)}.ui.right.dividing.rail{border-left:1px solid var(--theme-border);padding:0 0 0 1.42857143rem;margin:0 0 0 1.42857143rem}.ui.close.rail{width:calc(300px + .7142857142857143rem)}.ui.close.left.rail{padding:0 .71428571rem 0 0;margin:0 .71428571rem 0 0}.ui.close.right.rail{padding:0 0 0 .71428571rem;margin:0 0 0 .71428571rem}.ui.very.close.rail{width:calc(300px + .42857142857142855rem)}.ui.very.close.left.rail{padding:0 .42857143rem 0 0;margin:0 .42857143rem 0 0}.ui.very.close.right.rail{padding:0 0 0 .42857143rem;margin:0 0 0 .42857143rem}.ui.attached.left.rail,.ui.attached.right.rail{padding:0;margin:0}.ui.rail{font-size:1rem}.ui.mini.rail{font-size:.78571429rem}.ui.tiny.rail{font-size:.85714286rem}.ui.small.rail{font-size:.92857143rem}.ui.large.rail{font-size:1.14285714rem}.ui.big.rail{font-size:1.28571429rem}.ui.huge.rail{font-size:1.42857143rem}.ui.massive.rail{font-size:1.71428571rem}

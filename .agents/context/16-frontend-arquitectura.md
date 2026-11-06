@@ -383,8 +383,14 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
   (Selectors 4). El de `ui primary` SALIÓ en JBX: desde
   `a506068a` el panel y el acceso cargan el tema nuevo (`statics/plugins/fomantic-piecesphp/`, biblioteca
   `fomantic-piecesphp` de `assets.php`, traído con `bin/traer-tema`, que no viaja; su origen en `ORIGEN.json`), y
-  `containers.php` le publica `--accent` desde `main_brand_color` (desde JCP; antes, un puente en `ui-pcs.scss`). **Trampas**: la zona pública sigue con `import_semantic()`
-  (`statics/plugins/semantic/`): una página que cargue las dos rompe; `--accent-2` del tema no se deriva del color de
+  `containers.php` le publica `--accent` desde `main_brand_color` (desde JCP; antes, un puente en `ui-pcs.scss`). **Desde JEY**
+  (`3fa39429`, `8e59d83e`, `662ad7f9`) se trae ENTERO (con `components/`: 224 archivos, 17 MB), se carga con `import_fomantic()`
+  en todo el framework, también la zona pública, e `import_semantic()` (`statics/plugins/semantic/`) queda en desuso para los
+  clones hasta la `11.0.0`. **`import_fomantic_components([...])`** carga componentes sueltos con sus dependencias (mapa
+  PROVISIONAL dentro de la función, medido en `src/definitions/` del tema en `75a1b27`, hasta que el tema distribuya el
+  suyo: H208); con `import_fomantic()` en la página no añade nada. **Trampa**: `components/site.css` (dependencia de todos)
+  estiliza `html`, `body`, títulos, enlaces y barras, no solo tokens: el estilo propio de la página va DESPUÉS. **Trampas**:
+  una página que cargue `semantic` y `fomantic-piecesphp` rompe; `--accent-2` del tema no se deriva del color de
   marca; la fuente del panel la sigue poniendo el CSS propio (Poppins), no el tema.
 - **`brand-color` pone `margin: 0`** (`ui-pcs.scss:346`) y anula el margen de Fomantic: dos botones así seguidos quedan
   pegados. Las acciones de fila se separan con `.row-actions { gap }` (`_content-screens.scss`, `#1250`).

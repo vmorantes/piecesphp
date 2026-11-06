@@ -18,9 +18,9 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
-use PiecesPHP\Core\SessionToken;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Authentication\Impersonation;
+use PiecesPHP\UserSystem\Authentication\SessionCookie;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -305,7 +305,7 @@ class MySpaceController extends AdminPanelController
             '%username%' => $currentUser->username,
         ], 'id', (string) $currentUser->id, UsersModel::TABLE);
 
-        self::forgetSessionCookie();
+        SessionCookie::forget();
 
         return $response->withJson([
             'success' => true,
@@ -328,24 +328,6 @@ class MySpaceController extends AdminPanelController
     {
         //$currentUserID se queda por compatibilidad: la regla es una sola y la conoce Impersonation (H34).
         return Impersonation::isImpersonating();
-    }
-
-    /**
-     * Caduca la cookie de sesión en las tres formas y con las opciones con que la pone el cliente (setJWT() de
-     * PiecesPHPGenericHandlerSession.js): sin dominio, el host y .host, path /, SameSite Lax y Secure en https.
-     *
-     * @return void
-     */
-    private static function forgetSessionCookie(): void
-    {
-        $name = SessionToken::tokenName();
-        $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? explode(':', $_SERVER['HTTP_HOST'])[0] : '';
-        $options = ['expires' => 1, 'path' => '/', 'secure' => get_config('domain_protocol') === 'https://', 'httponly' => false, 'samesite' => 'Lax'];
-        setcookie($name, '', $options);
-        if ($host !== '') {
-            setcookie($name, '', $options + ['domain' => $host]);
-            setcookie($name, '', $options + ['domain' => '.' . $host]);
-        }
     }
 
     /**

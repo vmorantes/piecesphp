@@ -1,0 +1,548 @@
+
+/* Fork: componente propio, no existe en Fomantic. */
+
+
+/*******************************
+            Slideshow
+*******************************/
+
+.ui.slideshow {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 48rem;
+  margin: 1em 0;
+  font-family: var(--font-body);
+}
+.ui.slideshow:first-child {
+  margin-top: 0;
+}
+.ui.slideshow:last-child {
+  margin-bottom: 0;
+}
+
+/* Viewport: recorta la pista de diapositivas */
+.ui.slideshow > .viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-lg, 12px);
+  background: var(--theme-surface);
+  box-shadow: 0 0 0 1px var(--theme-border), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+}
+
+/* Pista */
+.ui.slideshow .slides {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateX(calc(var(--slideshow-index, 0) * -100%));
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Diapositiva */
+.ui.slideshow .slides > .slide {
+  position: relative;
+  flex: 0 0 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--theme-surface);
+  color: var(--theme-text);
+}
+
+/* Imagen a sangre */
+.ui.slideshow .slides > .slide > img,
+.ui.slideshow .slides > .slide > .image,
+.ui.slideshow .slides > .slide > .image > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* Contenido (diapositiva sin imagen) */
+.ui.slideshow .slides > .slide > .content {
+  position: relative;
+  padding: 2em 4.5em;
+  text-align: center;
+}
+.ui.slideshow .slides > .slide > .content > .header {
+  margin: 0 0 0.5em;
+  font-family: var(--font-heading);
+  font-size: 1.14285714em;
+  font-weight: 600;
+  line-height: 1.2857em;
+  color: var(--theme-text);
+}
+.ui.slideshow .slides > .slide > .content > .description {
+  color: var(--theme-text-muted);
+}
+
+/* Pie sobre la imagen */
+.ui.slideshow .slides > .slide > .caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 3em 4.5em 2.5em;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+  color: #fff;
+  text-align: center;
+}
+.ui.slideshow .slides > .slide > .caption > .header {
+  margin: 0 0 0.25em;
+  font-family: var(--font-heading);
+  font-size: 1.14285714em;
+  font-weight: 600;
+  color: #fff;
+}
+.ui.slideshow .slides > .slide > .caption > .description {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+
+/*******************************
+            Controls
+*******************************/
+
+.ui.slideshow > .control {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.143em;
+  height: 3.143em;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, #fff 85%, transparent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  color: #1f2430;
+  font-size: 1em;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.ui.slideshow > .control > .icon {
+  margin: 0;
+  height: auto;
+  width: auto;
+  opacity: 1;
+}
+.ui.slideshow > .previous.control {
+  left: 0.75em;
+}
+.ui.slideshow > .next.control {
+  right: 0.75em;
+}
+.ui.slideshow > .control:hover {
+  background: #fff;
+  color: #1f2430;
+}
+.ui.slideshow > .control:focus-visible,
+.ui.slideshow .indicators > .indicator:focus-visible {
+  outline: 2px solid var(--accent-600);
+  outline-offset: 2px;
+}
+.ui.slideshow > .control:disabled,
+.ui.slideshow > .disabled.control {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Reproducir / pausar */
+.ui.slideshow > .toggle.control {
+  top: auto;
+  right: 0.75em;
+  bottom: 0.75em;
+  width: 2.286em;
+  height: 2.286em;
+  font-size: 0.857em;
+  transform: none;
+}
+
+
+/*******************************
+           Indicators
+*******************************/
+
+.ui.slideshow .indicators {
+  position: absolute;
+  right: 0;
+  bottom: 0.857em;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.571em;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+.ui.slideshow .indicators > .indicator {
+  flex: 0 0 auto;
+  width: 0.571em;
+  height: 0.571em;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 500rem;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Área táctil mayor que el punto */
+.ui.slideshow .indicators > .indicator::before {
+  content: "";
+  display: block;
+  margin: -0.5em;
+  width: calc(100% + 2 * 0.5em);
+  height: calc(100% + 2 * 0.5em);
+}
+.ui.slideshow .indicators > .indicator:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+.ui.slideshow .indicators > .active.indicator {
+  width: 1.429em;
+  background: #fff;
+}
+
+/* Diapositivas solo de contenido (sin imagen): los indicadores van sobre la superficie del tema,
+   no sobre una foto, y el blanco con sombra se veía como aros huecos */
+.ui.slideshow:not(:has(.slides .slide img, .slides .slide .image)) .indicators > .indicator {
+  background: color-mix(in srgb, currentColor 25%, transparent);
+  box-shadow: none;
+}
+.ui.slideshow:not(:has(.slides .slide img, .slides .slide .image)) .indicators > .indicator:hover {
+  background: color-mix(in srgb, currentColor 45%, transparent);
+}
+.ui.slideshow:not(:has(.slides .slide img, .slides .slide .image)) .indicators > .active.indicator {
+  background: var(--accent-1, var(--accent, #356dca));
+}
+
+
+/*******************************
+             States
+*******************************/
+
+
+/* Sin transición mientras se inicializa o si el usuario la reduce */
+.ui.slideshow.initializing .slides,
+.ui.slideshow.initializing .slides > .slide {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui.slideshow .slides,
+  .ui.slideshow .slides > .slide,
+  .ui.slideshow .indicators > .indicator {
+    transition: none;
+  }
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* --------------
+         Fluid
+    --------------- */
+.ui.fluid.slideshow {
+  max-width: none;
+}
+
+/* --------------
+         Fade
+    --------------- */
+.ui.fade.slideshow .slides {
+  display: grid;
+  transform: none;
+}
+.ui.fade.slideshow .slides > .slide {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.fade.slideshow .slides > .active.slide {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --------------
+        Outside
+    --------------- */
+
+/* Controles a los lados y puntos debajo, fuera de la imagen */
+.ui.outside.slideshow {
+  padding: 0 calc(3.143em + 0.75em) 2.286em;
+}
+.ui.outside.slideshow > .control {
+  top: calc(50% - 2.286em / 2);
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  background: var(--theme-surface-strong);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  color: var(--theme-text-muted);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.ui.outside.slideshow > .control:hover {
+  background: light-dark(#fafbfc, #161920);
+  color: var(--theme-text);
+}
+.ui.outside.slideshow > .previous.control {
+  left: 0;
+}
+.ui.outside.slideshow > .next.control {
+  right: 0;
+}
+.ui.outside.slideshow > .toggle.control {
+  top: auto;
+  right: calc(3.143em + 0.75em);
+  bottom: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+.ui.outside.slideshow .indicators {
+  bottom: 0;
+  height: 2.286em;
+}
+.ui.outside.slideshow .indicators > .indicator {
+  background: light-dark(#cfd5de, #3a4150);
+  box-shadow: none;
+}
+.ui.outside.slideshow .indicators > .indicator:hover {
+  background: light-dark(#99a1af, #737c8c);
+}
+.ui.outside.slideshow .indicators > .active.indicator {
+  background: var(--accent-1, var(--accent, #356dca));
+}
+
+/* --------------
+     Colors
+--------------- */
+.ui.primary.slideshow .indicators > .active.indicator,
+.ui.primary.slideshow .indicators > .active.indicator:hover {
+  background: var(--accent-1, var(--accent, #356dca));
+}
+.ui.primary.slideshow > .control:focus-visible,
+.ui.primary.slideshow .indicators > .indicator:focus-visible {
+  outline-color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.primary.outside.slideshow > .control:hover {
+  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+.ui.secondary.slideshow .indicators > .active.indicator,
+.ui.secondary.slideshow .indicators > .active.indicator:hover {
+  background: var(--accent-2, #7a5af8);
+}
+.ui.secondary.slideshow > .control:focus-visible,
+.ui.secondary.slideshow .indicators > .indicator:focus-visible {
+  outline-color: var(--accent-2, #7a5af8);
+}
+.ui.secondary.outside.slideshow > .control:hover {
+  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+.ui.accent-1.slideshow .indicators > .active.indicator,
+.ui.accent-1.slideshow .indicators > .active.indicator:hover {
+  background: var(--accent-1, var(--accent, #356dca));
+}
+.ui.accent-1.slideshow > .control:focus-visible,
+.ui.accent-1.slideshow .indicators > .indicator:focus-visible {
+  outline-color: var(--accent-1, var(--accent, #356dca));
+}
+.ui.accent-1.outside.slideshow > .control:hover {
+  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+}
+.ui.accent-2.slideshow .indicators > .active.indicator,
+.ui.accent-2.slideshow .indicators > .active.indicator:hover {
+  background: var(--accent-2, #7a5af8);
+}
+.ui.accent-2.slideshow > .control:focus-visible,
+.ui.accent-2.slideshow .indicators > .indicator:focus-visible {
+  outline-color: var(--accent-2, #7a5af8);
+}
+.ui.accent-2.outside.slideshow > .control:hover {
+  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+}
+.ui.accent-3.slideshow .indicators > .active.indicator,
+.ui.accent-3.slideshow .indicators > .active.indicator:hover {
+  background: var(--accent-3, #c11574);
+}
+.ui.accent-3.slideshow > .control:focus-visible,
+.ui.accent-3.slideshow .indicators > .indicator:focus-visible {
+  outline-color: var(--accent-3, #c11574);
+}
+.ui.accent-3.outside.slideshow > .control:hover {
+  color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+}
+.ui.red.slideshow .indicators > .active.indicator,
+.ui.red.slideshow .indicators > .active.indicator:hover {
+  background: #f04438;
+}
+.ui.red.slideshow > .control:focus-visible,
+.ui.red.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #f04438;
+}
+.ui.red.outside.slideshow > .control:hover {
+  color: #f92516;
+}
+.ui.orange.slideshow .indicators > .active.indicator,
+.ui.orange.slideshow .indicators > .active.indicator:hover {
+  background: #ef6820;
+}
+.ui.orange.slideshow > .control:focus-visible,
+.ui.orange.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #ef6820;
+}
+.ui.orange.outside.slideshow > .control:hover {
+  color: #f05706;
+}
+.ui.yellow.slideshow .indicators > .active.indicator,
+.ui.yellow.slideshow .indicators > .active.indicator:hover {
+  background: #f79009;
+}
+.ui.yellow.slideshow > .control:focus-visible,
+.ui.yellow.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #f79009;
+}
+.ui.yellow.outside.slideshow > .control:hover {
+  color: #e78300;
+}
+.ui.olive.slideshow .indicators > .active.indicator,
+.ui.olive.slideshow .indicators > .active.indicator:hover {
+  background: #84a11b;
+}
+.ui.olive.slideshow > .control:focus-visible,
+.ui.olive.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #84a11b;
+}
+.ui.olive.outside.slideshow > .control:hover {
+  color: #759112;
+}
+.ui.green.slideshow .indicators > .active.indicator,
+.ui.green.slideshow .indicators > .active.indicator:hover {
+  background: #17b26a;
+}
+.ui.green.slideshow > .control:focus-visible,
+.ui.green.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #17b26a;
+}
+.ui.green.outside.slideshow > .control:hover {
+  color: #0da25d;
+}
+.ui.teal.slideshow .indicators > .active.indicator,
+.ui.teal.slideshow .indicators > .active.indicator:hover {
+  background: #06aed4;
+}
+.ui.teal.slideshow > .control:focus-visible,
+.ui.teal.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #06aed4;
+}
+.ui.teal.outside.slideshow > .control:hover {
+  color: #009dc1;
+}
+.ui.blue.slideshow .indicators > .active.indicator,
+.ui.blue.slideshow .indicators > .active.indicator:hover {
+  background: #2e90fa;
+}
+.ui.blue.slideshow > .control:focus-visible,
+.ui.blue.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #2e90fa;
+}
+.ui.blue.outside.slideshow > .control:hover {
+  color: #0f83ff;
+}
+.ui.violet.slideshow .indicators > .active.indicator,
+.ui.violet.slideshow .indicators > .active.indicator:hover {
+  background: #7a5af8;
+}
+.ui.violet.slideshow > .control:focus-visible,
+.ui.violet.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #7a5af8;
+}
+.ui.violet.outside.slideshow > .control:hover {
+  color: #6239ff;
+}
+.ui.purple.slideshow .indicators > .active.indicator,
+.ui.purple.slideshow .indicators > .active.indicator:hover {
+  background: #9e4cc9;
+}
+.ui.purple.slideshow > .control:focus-visible,
+.ui.purple.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #9e4cc9;
+}
+.ui.purple.outside.slideshow > .control:hover {
+  color: #9534c8;
+}
+.ui.pink.slideshow .indicators > .active.indicator,
+.ui.pink.slideshow .indicators > .active.indicator:hover {
+  background: #c11574;
+}
+.ui.pink.slideshow > .control:focus-visible,
+.ui.pink.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #c11574;
+}
+.ui.pink.outside.slideshow > .control:hover {
+  color: #b20b67;
+}
+.ui.brown.slideshow .indicators > .active.indicator,
+.ui.brown.slideshow .indicators > .active.indicator:hover {
+  background: #6e4a2e;
+}
+.ui.brown.slideshow > .control:focus-visible,
+.ui.brown.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #6e4a2e;
+}
+.ui.brown.outside.slideshow > .control:hover {
+  color: #5f3e24;
+}
+.ui.grey.slideshow .indicators > .active.indicator,
+.ui.grey.slideshow .indicators > .active.indicator:hover {
+  background: #687181;
+}
+.ui.grey.slideshow > .control:focus-visible,
+.ui.grey.slideshow .indicators > .indicator:focus-visible {
+  outline-color: #687181;
+}
+.ui.grey.outside.slideshow > .control:hover {
+  color: #5d6573;
+}
+.ui.black.slideshow .indicators > .active.indicator,
+.ui.black.slideshow .indicators > .active.indicator:hover {
+  background: light-dark(#1f2430, #535c6e);
+}
+.ui.black.slideshow > .control:focus-visible,
+.ui.black.slideshow .indicators > .indicator:focus-visible {
+  outline-color: light-dark(#1f2430, #535c6e);
+}
+.ui.black.outside.slideshow > .control:hover {
+  color: light-dark(#2b3140, #5f6879);
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+

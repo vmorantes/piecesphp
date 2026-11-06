@@ -715,7 +715,7 @@ class AdminPanelController extends BaseController
         /* JQuery */
         import_jquery();
         /* Semantic */
-        import_front_library('fomantic-piecesphp', []);
+        import_fomantic();
         /* DataTables */
         import_datatables();
         /* Cropper */

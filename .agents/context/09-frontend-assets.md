@@ -49,7 +49,9 @@ $assets['nombre_lib']['plugins'] = ['plugin_name' => ['js' => ['...']]];
 
 ### Importadores de librerías
 
-`import_jquery`, `import_jqueryui`, `import_semantic`, `import_datatables`,
+`import_jquery`, `import_jqueryui`, `import_fomantic` (el tema entero; JEY, `8e59d83e`), `import_fomantic_components`
+(componentes sueltos sin el tema entero, con sus dependencias; JEY, `f7b55fcc`), `import_semantic` (el Fomantic viejo, en
+desuso; sale en la `11.0.0`), `import_datatables`,
 `import_swal2`, `import_cropper`,
 `import_echarts`, `import_apexcharts` (en desuso desde JDL; sale en la `11.0.0`),
 `import_default_rich_editor`,

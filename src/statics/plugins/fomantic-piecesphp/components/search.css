@@ -1,0 +1,580 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Search
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+             Search
+*******************************/
+
+.ui.search {
+  position: relative;
+}
+.ui.search > .prompt {
+  margin: 0;
+  outline: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  text-shadow: none;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.42857143em;
+  padding: 0.64285714em 0.85714286em;
+  font-size: 1em;
+  background: var(--theme-surface);
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  color: var(--theme-text);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  transition: background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.search .prompt {
+  border-radius: var(--r-md, 8px);
+}
+
+/* --------------
+     Icon
+--------------- */
+.ui.search .prompt ~ .search.icon {
+  cursor: pointer;
+}
+
+/* --------------
+    Results
+--------------- */
+.ui.search > .results {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  transform-origin: center top;
+  white-space: normal;
+  text-align: left;
+  text-transform: none;
+  background: var(--theme-surface);
+  margin-top: 0.57142857rem;
+  width: 31.42857143rem;
+  border-radius: var(--r-lg, 12px);
+  box-shadow: var(--shadow-lg, 0 24px 48px -12px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 8px 16px -8px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)));
+  border: 1px solid var(--theme-border);
+  z-index: 998;
+}
+.ui.search > .results > :first-child {
+  border-radius: var(--r-lg, 12px) var(--r-lg, 12px) 0 0;
+}
+.ui.search > .results > :last-child {
+  border-radius: 0 0 var(--r-lg, 12px) var(--r-lg, 12px);
+}
+
+/* --------------
+    Result
+--------------- */
+.ui.search > .results .result {
+  cursor: pointer;
+  display: block;
+  overflow: hidden;
+  font-size: 1em;
+  padding: 0.78571429em 0.71428571em;
+  color: var(--theme-text);
+  line-height: 1.42857143;
+  border-bottom: none;
+}
+.ui.search > .results .result:last-child {
+  border-bottom: none !important;
+}
+
+/* Image */
+.ui.search > .results .result .image {
+  float: right;
+  overflow: hidden;
+  background: none;
+  width: 5em;
+  height: 3em;
+  border-radius: var(--r-sm, 6px);
+}
+.ui.search > .results .result .image img {
+  display: block;
+  width: auto;
+  height: 100%;
+}
+
+/* --------------
+      Info
+--------------- */
+.ui.search > .results .result .image + .content {
+  margin: 0 6em 0 0;
+}
+.ui.search > .results .result .title {
+  margin: -0.16666667em 0 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1em;
+  color: var(--theme-text);
+}
+.ui.search > .results .result .description {
+  margin-top: 0;
+  font-size: 0.85714286em;
+  color: var(--theme-text-muted);
+}
+.ui.search > .results .result .price {
+  float: right;
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  
+/* Fork: tinta legible en ambos modos (D36) */
+}
+
+/* --------------
+    Message
+--------------- */
+.ui.search > .results > .message {
+  padding: 2em 1.14285714em;
+}
+.ui.search > .results > .message .header {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--theme-text);
+}
+.ui.search > .results > .message .description {
+  margin-top: 0.25rem;
+  font-size: 1em;
+  color: var(--theme-text-muted);
+}
+
+/* View All Results */
+.ui.search > .results > .action {
+  display: block;
+  border-top: none;
+  background: light-dark(#fafbfc, #161920);
+  padding: 0.92857143em 1em;
+  color: var(--accent-600);
+  font-weight: 600;
+  text-align: center;
+}
+
+
+/*******************************
+            States
+*******************************/
+
+
+/* --------------------
+       Focus
+--------------------- */
+.ui.search > .prompt:focus {
+  border-color: var(--accent-1, var(--accent, #356dca));
+  background: var(--theme-surface);
+  color: var(--theme-text);
+}
+
+/* --------------------
+           Loading
+    --------------------- */
+.ui.loading.search .input > i.icon::before {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 50%;
+  margin: -0.64285714em 0 0 -0.64285714em;
+  width: 1.28571429em;
+  height: 1.28571429em;
+  border-radius: 500rem;
+  border: 0.2em solid var(--theme-border);
+}
+.ui.loading.search .input > i.icon::after {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 50%;
+  margin: -0.64285714em 0 0 -0.64285714em;
+  width: 1.28571429em;
+  height: 1.28571429em;
+  animation: loader 0.6s infinite linear;
+  border: 0.2em solid #687181;
+  border-radius: 500rem;
+  box-shadow: 0 0 0 1px transparent;
+}
+
+/* --------------
+      Hover
+--------------- */
+.ui.search > .results .result:hover,
+.ui.category.search > .results .category .result:hover {
+  background: light-dark(#f5f7fa, #20242d);
+}
+.ui.search .action:hover:not(div) {
+  background: light-dark(#f5f7fa, #20242d);
+}
+
+/* --------------
+      Active
+--------------- */
+.ui.category.search > .results .category.active {
+  background: var(--theme-surface);
+}
+.ui.category.search > .results .category.active > .name {
+  color: var(--theme-text-muted);
+}
+.ui.search > .results .result.active,
+.ui.category.search > .results .category .result.active {
+  position: relative;
+  border-left-color: transparent;
+  background: var(--accent-50);
+  box-shadow: none;
+}
+.ui.search > .results .result.active .title {
+  color: var(--theme-text);
+}
+.ui.search > .results .result.active .description {
+  color: var(--theme-text-muted);
+}
+
+/* --------------------
+            Disabled
+    ---------------------- */
+
+/* Disabled */
+.ui.disabled.search {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+
+/*******************************
+           Types
+*******************************/
+
+
+/* --------------
+        Clear Icon
+    --------------- */
+.ui.search > .icon.input > .remove.icon {
+  pointer-events: all;
+  transition: opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+  opacity: 0.6;
+}
+.ui.search > .icon.input > .remove.icon:hover {
+  opacity: 1;
+}
+.ui.search > .icon.input:not([class*="left icon"]) > .icon ~ .remove.icon {
+  right: 1.85714em;
+}
+.ui.search input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  cursor: pointer;
+  -webkit-transition: opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 0.6;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 352 512'%3E%3Cpath d='M242.7 256l100.1-100.1c12.3-12.3 12.3-32.2 0-44.5l-22.2-22.2c-12.3-12.3-32.2-12.3-44.5 0L176 189.3 75.9 89.2c-12.3-12.3-32.2-12.3-44.5 0L9.2 111.5c-12.3 12.3-12.3 32.2 0 44.5L109.3 256 9.2 356.1c-12.3 12.3-12.3 32.2 0 44.5l22.2 22.2c12.3 12.3 32.2 12.3 44.5 0L176 322.7l100.1 100.1c12.3 12.3 32.2 12.3 44.5 0l22.2-22.2c12.3-12.3 12.3-32.2 0-44.5L242.7 256z'/%3E%3C/svg%3E") no-repeat;
+  height: 1em;
+  width: 1em;
+}
+.ui.search input[type="search"]::-webkit-search-cancel-button:hover {
+  opacity: 1;
+}
+.ui.loading.search input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+.ui.search > .icon.input > input:-ms-input-placeholder ~ .remove.icon {
+  display: none;
+}
+.ui.search > .icon.input > input:placeholder-shown ~ .remove.icon,
+.ui.search.loading > .icon.input > .remove.icon {
+  display: none;
+}
+.ui.search > .icon.input > input:-ms-input-placeholder ~ .remove.icon {
+  display: none;
+}
+
+/* --------------
+        Category
+    --------------- */
+.ui.category.search .results {
+  width: 28em;
+}
+.ui.category.search .results.animating,
+.ui.category.search .results.visible {
+  display: table;
+}
+
+/* Category */
+.ui.category.search > .results .category {
+  display: table-row;
+  background: var(--theme-surface);
+  box-shadow: none;
+  transition: background 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Last Category */
+.ui.category.search > .results .category:last-child {
+  border-bottom: none;
+}
+
+/* First / Last */
+.ui.category.search > .results .category:first-child .name + .result {
+  border-radius: 0 var(--r-lg, 12px) 0 0;
+}
+.ui.category.search > .results .category:last-child .result:last-child {
+  border-radius: 0 0 var(--r-lg, 12px) 0;
+}
+
+/* Category Result Name */
+.ui.category.search > .results .category > .name {
+  display: table-cell;
+  text-overflow: ellipsis;
+  width: 100px;
+  white-space: nowrap;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.85714286em;
+  padding: 0.71428571em 0.71428571em 0.42857143em;
+  font-weight: 600;
+  color: var(--theme-text-muted);
+  border-bottom: 1px solid var(--theme-border);
+}
+
+/* Category Result */
+.ui.category.search > .results .category .results {
+  display: table-cell;
+  background: var(--theme-surface);
+  border-left: 1px solid var(--theme-border);
+  border-bottom: 1px solid var(--theme-border);
+}
+.ui.category.search > .results .category .result {
+  border-bottom: none;
+  transition: background 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 0.78571429em 0.71428571em;
+}
+.ui.horizontal.category.search > .results .category,
+.ui.horizontal.category.search > .results .category > .name,
+.ui.horizontal.category.search > .results .category > .results {
+  display: block;
+}
+.ui.horizontal.category.search > .results .category > .results {
+  width: 100%;
+  border-left: 0;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/* -------------------
+         Scrolling
+    -------------------- */
+.ui.scrolling.search > .results,
+.ui.search.long > .results,
+.ui.search.short > .results {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -ms-scroll-chaining: none;
+      overscroll-behavior: none;
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+}
+@media only screen and (max-width: 767.98px) {
+  .ui.scrolling.search > .results {
+    max-height: 12.57142857em;
+  }
+  .resizable.ui.scrolling.search > .results {
+    height: 12.57142857em;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .ui.scrolling.search > .results {
+    max-height: 18.85714286em;
+  }
+  .resizable.ui.scrolling.search > .results {
+    height: 18.85714286em;
+  }
+}
+@media only screen and (min-width: 992px) {
+  .ui.scrolling.search > .results {
+    max-height: 25.14285714em;
+  }
+  .resizable.ui.scrolling.search > .results {
+    height: 25.14285714em;
+  }
+}
+@media only screen and (min-width: 1920px) {
+  .ui.scrolling.search > .results {
+    max-height: 37.71428571em;
+  }
+  .resizable.ui.scrolling.search > .results {
+    height: 37.71428571em;
+  }
+}
+.ui.scrolling.resizable.search > .results {
+  resize: vertical;
+  max-height: none;
+}
+@media only screen and (max-width: 767.98px) {
+  .ui.search.short > .results {
+    max-height: 12.57142857em;
+  }
+  .ui.search[class*="very short"] > .results {
+    max-height: 9.42857143em;
+  }
+  .ui.search.long > .results {
+    max-height: 25.14285714em;
+  }
+  .ui.search[class*="very long"] > .results {
+    max-height: 37.71428571em;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .ui.search.short > .results {
+    max-height: 18.85714286em;
+  }
+  .ui.search[class*="very short"] > .results {
+    max-height: 14.14285714em;
+  }
+  .ui.search.long > .results {
+    max-height: 37.71428571em;
+  }
+  .ui.search[class*="very long"] > .results {
+    max-height: 56.57142857em;
+  }
+}
+@media only screen and (min-width: 992px) {
+  .ui.search.short > .results {
+    max-height: 25.14285714em;
+  }
+  .ui.search[class*="very short"] > .results {
+    max-height: 18.85714286em;
+  }
+  .ui.search.long > .results {
+    max-height: 50.28571429em;
+  }
+  .ui.search[class*="very long"] > .results {
+    max-height: 75.42857143em;
+  }
+}
+@media only screen and (min-width: 1920px) {
+  .ui.search.short > .results {
+    max-height: 37.71428571em;
+  }
+  .ui.search[class*="very short"] > .results {
+    max-height: 28.28571429em;
+  }
+  .ui.search.long > .results {
+    max-height: 75.42857143em;
+  }
+  .ui.search[class*="very long"] > .results {
+    max-height: 113.14285714em;
+  }
+}
+
+/* -------------------
+         Left / Right
+    -------------------- */
+.ui[class*="left aligned"].search > .results {
+  right: auto;
+  left: 0;
+}
+.ui[class*="right aligned"].search > .results {
+  right: 0;
+  left: auto;
+}
+
+/* --------------
+    Fluid
+--------------- */
+.ui.fluid.search .results {
+  width: 100%;
+}
+
+/* --------------
+      Sizes
+--------------- */
+.ui.search {
+  font-size: 1em;
+}
+.ui.mini.search {
+  font-size: 0.78571429em;
+}
+.ui.tiny.search {
+  font-size: 0.85714286em;
+}
+.ui.small.search {
+  font-size: 0.92857143em;
+}
+.ui.large.search {
+  font-size: 1.14285714em;
+}
+.ui.big.search {
+  font-size: 1.28571429em;
+}
+.ui.huge.search {
+  font-size: 1.42857143em;
+}
+.ui.massive.search {
+  font-size: 1.71428571em;
+}
+
+/* --------------
+      Mobile
+--------------- */
+@media only screen and (max-width: 767.98px) {
+  .ui.search .results {
+    max-width: calc(100vw - 2rem);
+  }
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+   PiecesPHP: Search Overrides
+*******************************/
+
+
+/* Foco del campo (.pp-cmd.open): borde de acento, superficie y halo --accent-ring; también
+   cuando el prompt va dentro de un ui input */
+.ui.search > .prompt:focus,
+.ui.search > .ui.input > .prompt:focus {
+  border-color: var(--accent-1, var(--accent, #356dca));
+  background: var(--theme-surface);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+/* Resultados con 6px de margen interior e ítems con radio md (.pp-cmd-list) */
+.ui.search:not(.category) > .results {
+  padding: 0.42857143rem;
+}
+.ui.search:not(.category) > .results .result,
+.ui.search:not(.category) > .results > .result:first-child,
+.ui.search:not(.category) > .results > .result:last-child {
+  border-radius: var(--r-md, 8px);
+}
+
+/* Coincidencias sin fondo, en --accent-600 y 600 (el default solo las pinta con la variación
+   highlightMatches activa; sin ella quedaba el amarillo del navegador) */
+.ui.search > .results mark {
+  background: transparent;
+  color: var(--accent-600);
+  font-weight: 600;
+}
+
+/* Cifras tabulares en precios */
+.ui.search > .results .result .price {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Descripción del resultado activo: sobre el tinte del acento, text-3 no llega a 4,5:1 */
+.ui.search > .results .result.active .description {
+  color: light-dark(#4b5363, #cfd5de);
+}

@@ -1,0 +1,778 @@
+
+/* Fork: componente propio, no existe en Fomantic. */
+
+
+/*******************************
+          DataTables
+*******************************/
+
+
+/* stylelint-disable selector-class-pattern -- las clases son las de DataTables (dataTable, dataTables_empty) */
+
+/* Piel de DataTables (2.x y 3.x) con su integración de Fomantic (datatables.net-se). Sustituye a
+   dataTables.semanticui.css y responsive.semanticui.css; su JS se sigue cargando, porque es el que
+   pone el marcado de Fomantic: buscador en `ui input`, «Ver N» en `ui selection dropdown`,
+   paginación en `ui pagination menu` y «Procesando» en `ui segment`. Solo aspecto: no cambia la
+   estructura que generan DataTables ni Fomantic. Las raíces son las de DataTables
+   (`.dt-container`, `table.dataTable`), no `.ui.datatables`. */
+
+/* --------------
+     Filas
+--------------- */
+
+/* Filas de controles («Ver N», buscador, info, paginación) y la de la tabla */
+.dt-container {
+  position: relative;
+  color: light-dark(#4b5363, #cfd5de);
+}
+.dt-container .dt-layout-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85714286rem;
+  margin: 0;
+  padding: 0.85714286rem 1.42857143rem;
+}
+.dt-container .dt-layout-row.dt-layout-table {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.dt-container .dt-layout-cell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.57142857rem 0.85714286rem;
+  min-width: 0;
+}
+.dt-container .dt-layout-cell:empty {
+  display: none;
+}
+.dt-container .dt-layout-start {
+  justify-content: flex-start;
+  margin-right: auto;
+}
+.dt-container .dt-layout-end {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+/* La tabla no stackable (la integración le pone `unstackable`) se desplaza en vez de desbordar */
+.dt-container .dt-layout-full {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+.dt-container .dt-layout-full > :only-child {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* --------------
+    Controles
+--------------- */
+.dt-container .dt-length,
+.dt-container .dt-search {
+  display: flex;
+  align-items: center;
+  gap: 0.57142857rem;
+}
+.dt-container .dt-length label,
+.dt-container .dt-search label,
+.dt-container .dt-info {
+  margin: 0;
+  color: var(--theme-text-muted);
+}
+.dt-container .dt-info {
+  white-space: nowrap;
+}
+
+/* «Ver N»: la integración convierte el select en `ui selection dropdown` (y lo oculta); sin
+   ancho mínimo, el de Fomantic (14em) lo estiraba */
+.dt-container .dt-length .ui.selection.dropdown {
+  min-width: 0;
+}
+.dt-container .dt-length select {
+  vertical-align: middle;
+}
+
+/* Buscador: `span.ui.input` > `input.dt-search` */
+.dt-container .dt-search span.ui.input {
+  display: inline-flex;
+}
+.dt-container .dt-search .ui.input > input {
+  width: 20.71428571rem;
+  max-width: 100%;
+}
+
+/* Paginación: `ui pagination menu` de la integración */
+.dt-container .dt-paging .ui.pagination.menu {
+  margin: 0;
+}
+
+/* --------------
+   Procesando
+--------------- */
+
+/* `div.dt-processing.ui.segment` (role=status): el texto y, en su último hijo, los cuatro puntos
+   animados de DataTables, centrado sobre la tabla */
+.dt-container .dt-processing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  width: 14em;
+  margin: 0;
+  padding: 1em;
+  transform: translate(-50%, -50%);
+  box-shadow: var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  color: inherit;
+  text-align: center;
+}
+.dt-container .dt-processing > div:last-child {
+  position: relative;
+  width: 3.8125rem;
+  height: 0.8125rem;
+  margin: 0.75em auto 0;
+}
+.dt-container .dt-processing > div:last-child > div {
+  position: absolute;
+  top: 0;
+  width: 0.8125rem;
+  height: 0.8125rem;
+  border-radius: 50%;
+  background: var(--accent-1, var(--accent, #356dca));
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.dt-container .dt-processing > div:last-child > div:nth-child(1) {
+  left: 0;
+  animation: datatablesLoaderGrow 0.6s infinite;
+}
+.dt-container .dt-processing > div:last-child > div:nth-child(2) {
+  left: 0;
+  animation: datatablesLoaderMove 0.6s infinite;
+}
+.dt-container .dt-processing > div:last-child > div:nth-child(3) {
+  left: 1.5rem;
+  animation: datatablesLoaderMove 0.6s infinite;
+}
+.dt-container .dt-processing > div:last-child > div:nth-child(4) {
+  left: 3rem;
+  animation: datatablesLoaderShrink 0.6s infinite;
+}
+@keyframes datatablesLoaderGrow {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes datatablesLoaderShrink {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes datatablesLoaderMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(1.5rem, 0);
+  }
+}
+
+/* --------------
+      Tabla
+--------------- */
+table.dataTable.table {
+  margin: 0;
+}
+table.dataTable th,
+table.dataTable td {
+  box-sizing: border-box;
+}
+table.dataTable.nowrap th,
+table.dataTable.nowrap td {
+  white-space: nowrap;
+}
+table.dataTable tfoot:empty {
+  display: none;
+}
+
+/* Cabecera y pie de columna: título y flechas de orden en una fila */
+table.dataTable > thead > tr > th,
+table.dataTable > thead > tr > td {
+  vertical-align: middle;
+}
+table.dataTable .dt-column-header,
+table.dataTable .dt-column-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.42857143rem;
+}
+table.dataTable .dt-column-title {
+  flex-grow: 0;
+}
+table.dataTable .dt-column-title:empty {
+  display: none;
+}
+
+/* Ordenable: cursor, contorno al pasar y foco por teclado (la cabecera lleva tabindex) */
+table.dataTable > thead > tr > .dt-orderable-asc,
+table.dataTable > thead > tr > .dt-orderable-desc {
+  cursor: pointer;
+}
+table.dataTable > thead > tr > .dt-orderable-asc:hover,
+table.dataTable > thead > tr > .dt-orderable-desc:hover {
+  outline: none;
+  outline-offset: -2px;
+  color: var(--theme-text);
+}
+table.dataTable > thead > tr > .dt-ordering-asc,
+table.dataTable > thead > tr > .dt-ordering-desc {
+  color: var(--theme-text);
+}
+table.dataTable > thead > tr > :active {
+  outline: none;
+}
+table.dataTable > thead > tr > [tabindex]:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Flechas de orden: dos triángulos tenues (subir en ::before, bajar en ::after) y el del sentido
+   activo resaltado */
+table.dataTable > thead > tr > * .dt-column-order {
+  position: relative;
+  flex: none;
+  width: 10px;
+  height: 16px;
+}
+table.dataTable > thead > tr > .dt-orderable-none:not(.dt-ordering-asc, .dt-ordering-desc) .dt-column-order:empty {
+  display: none;
+}
+table.dataTable > thead > tr > .dt-orderable-asc .dt-column-order::before,
+table.dataTable > thead > tr > .dt-ordering-asc .dt-column-order::before,
+table.dataTable > thead > tr > .dt-orderable-desc .dt-column-order::after,
+table.dataTable > thead > tr > .dt-ordering-desc .dt-column-order::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  margin-left: -4px;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  opacity: 0.35;
+}
+table.dataTable > thead > tr > .dt-orderable-asc .dt-column-order::before,
+table.dataTable > thead > tr > .dt-ordering-asc .dt-column-order::before {
+  bottom: calc(50% + 1px);
+  border-bottom: 5px solid currentColor;
+}
+table.dataTable > thead > tr > .dt-orderable-desc .dt-column-order::after,
+table.dataTable > thead > tr > .dt-ordering-desc .dt-column-order::after {
+  top: calc(50% + 1px);
+  border-top: 5px solid currentColor;
+}
+table.dataTable > thead > tr > .dt-ordering-asc .dt-column-order::before,
+table.dataTable > thead > tr > .dt-ordering-desc .dt-column-order::after {
+  opacity: 1;
+  color: var(--accent-1, var(--accent, #356dca));
+}
+
+/* --------------
+   Alineación
+--------------- */
+
+/* Columnas de cifras y fechas (DataTables pone dt-type-* según los datos). Especificidad (0,2,4):
+   gana a la celda de Fomantic (`.ui.table > tbody > tr > td`, 0,2,3, text-align: inherit) y
+   pierde ante sus clases de alineación (`.ui.table [class*="left aligned"]`, 0,3,0) y las de
+   ayuda de abajo. */
+table.dataTable.table > :is(thead, tbody, tfoot) > tr > :is(th, td):where(.dt-type-numeric) {
+  text-align: left;
+}
+table.dataTable.table > :is(thead, tbody, tfoot) > tr > :is(th, td):where(.dt-type-date) {
+  text-align: left;
+}
+
+/* Clases de ayuda de DataTables (columns.className): todas las celdas, solo cabecera y pie
+   (dt-head-*) o solo cuerpo (dt-body-*) */
+table.dataTable.table th.dt-left,
+table.dataTable.table td.dt-left,
+table.dataTable.table thead th.dt-head-left,
+table.dataTable.table thead td.dt-head-left,
+table.dataTable.table tfoot th.dt-head-left,
+table.dataTable.table tfoot td.dt-head-left,
+table.dataTable.table tbody th.dt-body-left,
+table.dataTable.table tbody td.dt-body-left {
+  text-align: left;
+}
+table.dataTable.table th.dt-center,
+table.dataTable.table td.dt-center,
+table.dataTable.table thead th.dt-head-center,
+table.dataTable.table thead td.dt-head-center,
+table.dataTable.table tfoot th.dt-head-center,
+table.dataTable.table tfoot td.dt-head-center,
+table.dataTable.table tbody th.dt-body-center,
+table.dataTable.table tbody td.dt-body-center {
+  text-align: center;
+}
+table.dataTable.table th.dt-right,
+table.dataTable.table td.dt-right,
+table.dataTable.table thead th.dt-head-right,
+table.dataTable.table thead td.dt-head-right,
+table.dataTable.table tfoot th.dt-head-right,
+table.dataTable.table tfoot td.dt-head-right,
+table.dataTable.table tbody th.dt-body-right,
+table.dataTable.table tbody td.dt-body-right {
+  text-align: right;
+}
+table.dataTable.table th.dt-justify,
+table.dataTable.table td.dt-justify,
+table.dataTable.table thead th.dt-head-justify,
+table.dataTable.table thead td.dt-head-justify,
+table.dataTable.table tfoot th.dt-head-justify,
+table.dataTable.table tfoot td.dt-head-justify,
+table.dataTable.table tbody th.dt-body-justify,
+table.dataTable.table tbody td.dt-body-justify {
+  text-align: justify;
+}
+table.dataTable.table th.dt-nowrap,
+table.dataTable.table td.dt-nowrap,
+table.dataTable.table thead th.dt-head-nowrap,
+table.dataTable.table thead td.dt-head-nowrap,
+table.dataTable.table tfoot th.dt-head-nowrap,
+table.dataTable.table tfoot td.dt-head-nowrap,
+table.dataTable.table tbody th.dt-body-nowrap,
+table.dataTable.table tbody td.dt-body-nowrap {
+  white-space: nowrap;
+}
+
+/* Sin resultados («No hay datos»): una celda que ocupa toda la fila */
+table.dataTable.table td.dt-empty,
+table.dataTable.table td.dataTables_empty {
+  vertical-align: middle;
+  color: var(--theme-text-muted);
+  text-align: center;
+}
+
+/* La fila del título y las flechas sigue la alineación de su celda: a la derecha, las flechas
+   pasan delante del título; centrada, el conjunto se centra */
+table.dataTable th:is(.dt-right, .dt-head-right, [class*="right aligned"]) > :is(.dt-column-header, .dt-column-footer) {
+  flex-direction: row-reverse;
+}
+table.dataTable th:is(.dt-center, .dt-head-center, [class*="center aligned"]) > :is(.dt-column-header, .dt-column-footer) {
+  justify-content: center;
+}
+
+/* --------------
+  Fila elegida
+--------------- */
+
+/* Extensión Select: `tr.selected` (y la columna de su casilla, td.dt-select) */
+table.dataTable > tbody > tr.selected > * {
+  background: var(--accent-25);
+  color: var(--theme-text);
+}
+table.dataTable > tbody > tr.selected:hover > * {
+  background: var(--accent-50);
+}
+table.dataTable > tbody > tr.selected a:not(.ui) {
+  color: inherit;
+}
+table.dataTable th.dt-select,
+table.dataTable td.dt-select {
+  width: 2.57142857rem;
+  text-align: center;
+}
+
+/* --------------
+   Filas hijas
+--------------- */
+
+/* row().child() con una columna de control (td.dt-control): triángulo que apunta a la fila y
+   baja al abrirla */
+table.dataTable tbody td.dt-control {
+  cursor: pointer;
+  text-align: center;
+}
+table.dataTable tbody td.dt-control::before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dtr-control::before,
+table.dataTable.dtr-column > tbody > tr > .dtr-control::before,
+table.dataTable.dtr-column > tbody > tr > .control::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  border-top: 5px solid transparent;
+  border-right: 0 solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 10px solid color-mix(in srgb, currentColor 50%, transparent);
+}
+table.dataTable tbody tr.dt-hasChild td.dt-control::before,
+table.dataTable.dtr-inline.collapsed > tbody > tr.dtr-expanded > .dtr-control::before,
+table.dataTable.dtr-column > tbody > tr.dtr-expanded > .dtr-control::before,
+table.dataTable.dtr-column > tbody > tr.dtr-expanded > .control::before {
+  border-top: 10px solid color-mix(in srgb, currentColor 50%, transparent);
+  border-right: 5px solid transparent;
+  border-bottom: 0 solid transparent;
+  border-left: 5px solid transparent;
+}
+
+/* Responsive: columnas ocultas en una fila hija (dtr-inline, en la primera celda, o dtr-column,
+   en una columna propia) */
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dtr-control,
+table.dataTable.dtr-column > tbody > tr > .dtr-control,
+table.dataTable.dtr-column > tbody > tr > .control {
+  cursor: pointer;
+}
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dtr-control::before {
+  margin-right: 0.57142857rem;
+}
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dtr-control.arrow-right::before,
+table.dataTable.dtr-column > tbody > tr > .dtr-control.arrow-right::before,
+table.dataTable.dtr-column > tbody > tr > .control.arrow-right::before {
+  border-right: 10px solid color-mix(in srgb, currentColor 50%, transparent);
+  border-left: 0 solid transparent;
+}
+table.dataTable.dtr-inline.collapsed.compact > tbody > tr > .dtr-control {
+  padding-left: 0.333em;
+}
+table.dataTable.dtr-inline.collapsed > tbody > tr > .child,
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dt-empty,
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dataTables_empty {
+  cursor: default !important;
+}
+table.dataTable.dtr-inline.collapsed > tbody > tr > .child::before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dt-empty::before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > .dataTables_empty::before {
+  display: none !important;
+}
+table.dataTable > tbody > tr.child:hover {
+  background: transparent !important;
+}
+table.dataTable > tbody > tr.child ul.dtr-details {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+table.dataTable > tbody > tr.child ul.dtr-details > li {
+  padding: 0.5em 0;
+  border-bottom: 1px solid var(--theme-border);
+}
+table.dataTable > tbody > tr.child ul.dtr-details > li:first-child {
+  padding-top: 0;
+}
+table.dataTable > tbody > tr.child ul.dtr-details > li:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+table.dataTable > tbody > tr.child span.dtr-title {
+  display: inline-block;
+  min-width: 75px;
+  margin-right: 0.57142857rem;
+  color: var(--theme-text);
+  font-weight: 600;
+}
+
+/* Responsive con modal (responsive.semanticui.js 4.1.1): `ui modal` con un botón × en la cabecera;
+   con la opción `header`, la cabecera se vacía y solo lleva su `h4.title` */
+.ui.modal > .header > button.close[data-dismiss="modal"] {
+  float: right;
+  margin: 0 0 0 0.57142857rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 1.5em;
+  line-height: 1;
+  opacity: 0.6;
+  cursor: pointer;
+}
+.ui.modal > .header > button.close[data-dismiss="modal"]:hover {
+  opacity: 1;
+}
+.ui.modal > .header > h4.title {
+  margin: 0;
+  font: inherit;
+}
+
+/* --------------
+  Desplazamiento
+--------------- */
+
+/* scrollX / scrollY: la cabecera, el cuerpo y el pie van en tablas separadas; las cabeceras
+   clonadas en el cuerpo solo dan los anchos */
+.dt-container .dt-scroll {
+  width: 100%;
+  padding: 0;
+}
+.dt-container .dt-scroll-head table.dataTable,
+.dt-container .dt-scroll-body table.dataTable,
+.dt-container .dt-scroll-foot table.dataTable {
+  margin: 0;
+}
+.dt-container .dt-scroll-head table.dataTable {
+  border-bottom: none;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.dt-container .dt-scroll-body table.dataTable {
+  border-top: none;
+  border-bottom-width: 0;
+  border-radius: 0;
+}
+.dt-container .dt-scroll-body table.dataTable.no-footer {
+  border-bottom-width: 1px;
+}
+.dt-container .dt-scroll-foot table.dataTable {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.dt-container .dt-scroll-body thead tr,
+.dt-container .dt-scroll-body tfoot tr {
+  height: 0;
+}
+.dt-container .dt-scroll-body thead tr > *,
+.dt-container .dt-scroll-body tfoot tr > * {
+  height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+}
+.dt-container .dt-scroll-body thead .dt-scroll-sizing,
+.dt-container .dt-scroll-body tfoot .dt-scroll-sizing {
+  height: 0 !important;
+  overflow: hidden !important;
+}
+.dt-container .dt-scroll-body > table.dataTable > thead > tr > * {
+  overflow: hidden;
+}
+.dt-container .dt-scroll-body thead .dt-column-order {
+  display: none;
+}
+
+/* --------------
+      Móvil
+--------------- */
+
+/* Las filas de controles se apilan centradas; el buscador ocupa el ancho, con su etiqueta encima,
+   para que el placeholder quepa */
+@media only screen and (max-width: 767.98px) {
+  .dt-container .dt-layout-row:not(.dt-layout-table) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.71428571rem;
+  }
+  .dt-container .dt-layout-row:not(.dt-layout-table) > .dt-layout-cell {
+    justify-content: center;
+    margin: 0;
+    text-align: center;
+  }
+  .dt-container .dt-layout-cell > .dt-search {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    gap: 0.42857143rem;
+  }
+  .dt-container .dt-search > label {
+    flex: 1 1 100%;
+    text-align: left;
+  }
+  .dt-container .dt-search span.ui.input {
+    flex: 1 1 auto;
+  }
+  .dt-container .dt-search .ui.input > input {
+    width: 100%;
+  }
+  .dt-container .dt-info {
+    white-space: normal;
+  }
+}
+
+
+/*******************************
+      DataTables Overrides
+*******************************/
+
+
+
+/*******************************
+      PiecesPHP: DataTables
+*******************************/
+
+
+/* stylelint-disable selector-class-pattern -- las clases son las de DataTables (dataTable, dataTables_empty) */
+
+/* -------------------
+      Controles
+-------------------- */
+
+/* «Ver N» y buscador: controles de 36px con borde fuerte, radio md y sombra xs */
+.dt-container .dt-length .ui.selection.dropdown {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.57142857rem;
+  padding: 0 2.14285714rem 0 0.85714286rem;
+  border-color: light-dark(#d8dde5, #3a4150);
+  border-radius: var(--r-md, 8px);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+}
+.dt-container .dt-length .ui.selection.dropdown > .dropdown.icon {
+  top: 50%;
+  right: 0.71428571rem;
+  padding: 0;
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+/* Sin el JS de dropdown, el select nativo con su chevron dibujado con el color del texto
+   atenuado */
+.dt-container .dt-length select.dt-input {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2.57142857rem;
+  padding: 0 2.14285714rem 0 0.85714286rem;
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  border-radius: var(--r-md, 8px);
+  background-color: var(--theme-surface);
+  background-image: linear-gradient(45deg, transparent 50%, var(--theme-text-muted) 50%), linear-gradient(135deg, var(--theme-text-muted) 50%, transparent 50%);
+  background-position: right 1.07142857rem center, right 0.78571429rem center;
+  background-size: 0.28571429rem 0.28571429rem;
+  background-repeat: no-repeat;
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  color: var(--theme-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Buscador: la lupa del diseño, dibujada con máscara en el color del placeholder */
+.dt-container .dt-search span.ui.input {
+  position: relative;
+}
+.dt-container .dt-search span.ui.input::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0.71428571rem;
+  z-index: 1;
+  width: 1.14285714rem;
+  height: 1.14285714rem;
+  transform: translateY(-50%);
+  background: light-dark(#99a1af, #737c8c);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.75' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m20 20-4.2-4.2'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.75' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m20 20-4.2-4.2'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+.dt-container .dt-search .ui.input > input {
+  height: 2.57142857rem;
+  padding: 0 0.85714286rem 0 2.42857143rem;
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  border-radius: var(--r-md, 8px);
+  background: var(--theme-surface);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  color: var(--theme-text);
+  font: inherit;
+}
+.dt-container .dt-search .ui.input > input:-ms-input-placeholder {
+  color: light-dark(#99a1af, #737c8c);
+}
+.dt-container .dt-search .ui.input > input::-ms-input-placeholder {
+  color: light-dark(#99a1af, #737c8c);
+}
+.dt-container .dt-search .ui.input > input::placeholder {
+  color: light-dark(#99a1af, #737c8c);
+}
+.dt-container .dt-length select.dt-input:focus-visible,
+.dt-container .dt-search .ui.input > input:focus {
+  border-color: var(--accent-1, var(--accent, #356dca));
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+/* -------------------
+        Tabla
+-------------------- */
+
+/* Sin margen ni borde propio: la enmarca su contenedor */
+table.ui.table.dataTable {
+  margin: 0 !important;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Fechas atenuadas y tabulares */
+table.dataTable td.dt-type-date {
+  color: var(--theme-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------------------
+      Paginación
+-------------------- */
+
+/* Anterior y Siguiente con borde; los puntos suspensivos, sin caja; en móvil solo esos y la
+   actual */
+.dt-paging .dt-paging-button[data-dt-idx="previous"],
+.dt-paging .dt-paging-button[data-dt-idx="next"],
+.dt-paging .dt-paging-button.first,
+.dt-paging .dt-paging-button.last {
+  padding: 0 0.85714286rem;
+  border-color: light-dark(#d8dde5, #3a4150);
+  background: var(--theme-surface);
+  box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+}
+.dt-paging .dt-paging-button.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.dt-paging .dt-paging-button[data-dt-idx="ellipsis"],
+.dt-paging .dt-paging-button.ellipsis {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  opacity: 1;
+  color: light-dark(#99a1af, #737c8c);
+}
+@media only screen and (max-width: 767.98px) {
+  .dt-paging .dt-paging-button.item:not(.active):not([data-dt-idx="previous"]):not([data-dt-idx="next"]):not(.first):not(.last) {
+    display: none;
+  }
+}
+
+/* -------------------
+      Contextos
+-------------------- */
+
+/* Dentro de un segmento (D52; .pp-base > .dt-container): las filas de controles no suman
+   relleno lateral al del segmento; 16px hasta la tabla y desde ella */
+.ui.segment:not(.fitted) > .dt-container > .dt-layout-row {
+  padding: 0 0 1.14285714rem;
+}
+.ui.segment:not(.fitted) > .dt-container > .dt-layout-row:last-child {
+  padding: 1.14285714rem 0 0;
+}
+.ui.segment:not(.fitted) > .dt-container > .dt-layout-row.dt-layout-table {
+  padding: 0;
+}
+
+/* Tabla `fixed`: en tableta y móvil vuelve al ancho natural de sus columnas con un mínimo de
+   760px y se desplaza, en vez de estrujarse (rutas-permisos: table-layout:auto;min-width:760px
+   en ≤1023px) */
+@media only screen and (max-width: 991.98px) {
+  .dt-container .dt-layout-full > .ui.fixed.table {
+    table-layout: auto;
+    min-width: 760px;
+  }
+}
+
+/* Justo bajo la cabecera de una tarjeta (`.content` con el título): la primera fila de
+   controles no suma su relleno superior al de la cabecera (12px en el original, no 30) */
+.ui.card > .content + .dt-container > .dt-layout-row:first-child {
+  padding-top: 0;
+}

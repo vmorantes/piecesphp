@@ -80,7 +80,7 @@ class PublicAreaController extends BaseController
         $this->init();
 
         import_jquery();
-        import_semantic();
+        import_fomantic();
         import_app_libraries();
         import_app_front_libraries();
         if (GoogleReCaptchaV3Routes::ENABLE) {

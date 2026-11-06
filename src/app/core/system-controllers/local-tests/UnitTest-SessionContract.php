@@ -409,19 +409,20 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
         if (is_string($paqueteJs) && $paqueteJs !== '') {
             //El cuerpo de setJWT() y NO el archivo entero: ese mismo `removeItem` está también en el cierre de sesión,
             //así que buscarlo en todo el archivo daba verde con el arreglo deshecho. Medido al provocar.
-            $inicioSetJWT = strpos($paqueteJs, 'setJWT(JWT) {');
+            $inicioSetJWT = strpos($paqueteJs, 'setJWT() {');
             $cuerpoSetJWT = $inicioSetJWT === false ? '' : substr($paqueteJs, $inicioSetJWT, (strpos($paqueteJs, 'getJWT()', $inicioSetJWT) ?: strlen($paqueteJs)) - $inicioSetJWT);
             $check($cuerpoSetJWT !== '', 'l2 se localiza el cuerpo de setJWT()', strlen($cuerpoSetJWT) . ' bytes');
             $check(str_contains($cuerpoSetJWT, 'localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)'),
                 'l2 y sin datos extra RETIRA la clave del almacén en vez de escribir la cadena «null»');
             $check(preg_match('/setItem\(\s*PiecesPHPSystemUserHelper\.localJWTAuthExtraDataName\s*,\s*this\.extraData\s*!==\s*null\s*\?/', $paqueteJs) !== 1,
                 'l3 y ya no queda el ternario que pasaba null a setItem()');
-            //El cuerpo de deleteSession(), por lo mismo que en l2. Unos milisegundos no son una fecha y la cookie se quedaba.
-            $inicioDelete = strpos($paqueteJs, 'deleteSession(reload = true) {');
-            $cuerpoDelete = $inicioDelete === false ? '' : substr($paqueteJs, $inicioDelete, (strpos($paqueteJs, 'getCookies()', $inicioDelete) ?: strlen($paqueteJs)) - $inicioDelete);
-            $check($cuerpoDelete !== '', 'l4 se localiza el cuerpo de deleteSession()', strlen($cuerpoDelete) . ' bytes');
+            //El cuerpo de forgetLegacyToken(), por lo mismo que en l2: desde H188 el JavaScript solo caduca la cookie VIEJA
+            //(la de la sesión es HttpOnly y la borra el servidor). Unos milisegundos no son una fecha y la cookie se quedaba.
+            $inicioDelete = strpos($paqueteJs, 'forgetLegacyToken() {');
+            $cuerpoDelete = $inicioDelete === false ? '' : substr($paqueteJs, $inicioDelete, (strpos($paqueteJs, 'getExtraData()', $inicioDelete) ?: strlen($paqueteJs)) - $inicioDelete);
+            $check($cuerpoDelete !== '', 'l4 se localiza el cuerpo de forgetLegacyToken()', strlen($cuerpoDelete) . ' bytes');
             $check(!str_contains($cuerpoDelete, 'expires=${now}') && str_contains($cuerpoDelete, 'toUTCString()'),
-                'l4 y cerrar la sesión caduca la cookie del token con una fecha pasada, no con milisegundos');
+                'l4 y borrar el token viejo caduca su cookie con una fecha pasada, no con milisegundos');
         }
 
         //─── m · Inactividad y tope salen de la configuración; session_duration ya no manda (P142) ─

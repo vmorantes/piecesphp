@@ -1,3 +1,11 @@
+# 10.6.0 (06-11-2026)
+
+- **La sesión del panel sobrevive a cerrar el navegador, y su cookie ya no la puede leer el JavaScript de la página.** La pone el servidor al iniciar sesión, con la caducidad del token, solo para este host (no para sus subdominios) y con `SameSite` `Lax` aunque `cookies.php` diga `None`. La borra el servidor al cerrar sesión. El JavaScript ya no guarda el token: `getJWT()` del helper de usuarios queda en desuso hasta la `11.0.0` y devuelve vacío. Las peticiones del propio sitio entran con la cookie sola, y la API sigue aceptando el token en la cabecera (una cabecera vacía cuenta como ausente). **Si tu proyecto mandaba el token con `getJWT()`**, no tienes que cambiar nada para las peticiones del mismo sitio. **Al actualizar, cierra todas las sesiones** para que nadie siga con un token anterior.
+- **Toda la plataforma carga el tema nuevo**, también la zona pública, con `import_fomantic()`. `import_semantic()` y el Fomantic anterior (`statics/plugins/semantic/`) quedan en desuso y salen en la `11.0.0`: si tu proyecto los usa en sus páginas, cámbialos por `import_fomantic()` y revisa cómo se ven.
+- **Nuevo: un componente del tema sin el tema entero.** `import_fomantic_components(['toast'])` carga ese componente y lo que necesita, para una página con su propio estilo. Detalle y avisos en la guía de configuración, «Fomantic UI».
+- **El tema se trae entero** (`bin/traer-tema`), con sus componentes sueltos.
+- **El aviso de una cuenta sin un tipo válido lleva su propio título** en el acceso.
+
 # 10.5.0 (06-11-2026)
 
 - **Nuevo: el banco de pruebas de correo.** La pantalla «Correos del sitio» (Configuración del sistema › Sistema) enseña todos los correos que el sitio puede enviar, con datos de muestra y pintados por el mismo camino que el envío real, y deja enviar uno de prueba a la dirección que elijas. La ven root y el administrador general, y solo salen los correos de los módulos activos. **Si tu proyecto envía correos propios**, decláralos: cada uno es una subclase de `MailDefinition` registrada con `MailCatalog::register()` desde su módulo, dentro de su interruptor de activación. `bin/cli verify-integrity` falla si un envío no construye su cuerpo con una definición. Detalle y ejemplo en la guía «El banco de pruebas de correo».

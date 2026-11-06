@@ -2,12 +2,20 @@ class PiecesPHPGenericHandlerSession {
 
 	constructor(tokenName, onLogout, expectedLang) {
 		this.tokenName = tokenName
+		//La sesión de usuarios ya no guarda el token en el navegador: es una cookie HttpOnly que pone el servidor (H188).
+		//Con otro nombre (una sesión aislada de un proyecto, SessionTokenIsolated), todo sigue como antes.
+		this.isUserSession = typeof PiecesPHPSystemUserHelper != 'undefined' && tokenName === PiecesPHPSystemUserHelper.sessionTokenName
 		this.onLogout = typeof onLogout == 'function' ? onLogout : () => { }
 		this.expectedLang = typeof expectedLang == 'string' && expectedLang.trim().length > 0 ? expectedLang : null
 		this.verifyPairLocalStorageAndCookieSession()
 	}
 
 	verifyPairLocalStorageAndCookieSession() {
+
+		if (this.isUserSession) {
+			this.forgetLegacyToken()
+			return
+		}
 
 		const currentJWT = this.getJWT()
 		let currentJWTFromCookie = this.getCookie(this.tokenName)
@@ -32,7 +40,16 @@ class PiecesPHPGenericHandlerSession {
 		}
 	}
 
+	/**
+	 * Guarda el token de una sesión aislada. Con el nombre de la sesión de usuarios no guarda nada (es una cookie HttpOnly
+	 * del servidor) y borra el token de la versión anterior.
+	 * @param {String} JWT
+	 */
 	setJWT(JWT) {
+		if (this.isUserSession) {
+			this.forgetLegacyToken()
+			return
+		}
 		if (typeof JWT != 'string') {
 			JWT = ''
 		}
@@ -43,7 +60,15 @@ class PiecesPHPGenericHandlerSession {
 		localStorage.setItem(this.tokenName, encodeURI(JWT))
 	}
 
+	/**
+	 * El token de una sesión aislada. Con el nombre de la sesión de usuarios, '' (en desuso hasta la 11.0.0: es una cookie
+	 * HttpOnly que el JavaScript no ve).
+	 * @returns {String}
+	 */
 	getJWT() {
+		if (this.isUserSession) {
+			return ''
+		}
 		let JWT = localStorage.getItem(this.tokenName)
 		if (typeof JWT != 'string') {
 			JWT = ''
@@ -51,7 +76,42 @@ class PiecesPHPGenericHandlerSession {
 		return JWT
 	}
 
+	/**
+	 * Si queda el token que guardaba la versión anterior en el localStorage o en una cookie legible.
+	 * @returns {Boolean}
+	 */
+	hasLegacyToken() {
+		const stored = localStorage.getItem(this.tokenName)
+		const cookie = this.getCookie(this.tokenName)
+		return (typeof stored == 'string' && stored.length > 0) || (typeof cookie == 'string' && cookie.trim().length > 0) || Array.isArray(cookie)
+	}
+
+	/**
+	 * Borra el token de la versión anterior: el localStorage y las cookies legibles (sin dominio, el host y .host). La
+	 * HttpOnly del servidor no se puede tocar desde aquí.
+	 */
+	forgetLegacyToken() {
+		//Una fecha pasada en formato de fecha: un número de milisegundos no lo es, y la cookie se quedaba.
+		const expired = new Date(0).toUTCString()
+		const attributes = `;SameSite=Lax${location.protocol === 'https:' ? ';Secure' : ''}`
+		localStorage.removeItem(this.tokenName)
+		for (const domain of ['', `;domain=${location.hostname}`, `;domain=.${location.hostname}`]) {
+			document.cookie = `${this.tokenName}=;expires=${expired};path=/${domain}${attributes}`
+		}
+	}
+
 	deleteSession() {
+
+		if (this.isUserSession) {
+			//La cookie HttpOnly la borra el servidor al cerrar sesión; aquí, lo que quede de la versión anterior.
+			const hadLegacyToken = this.hasLegacyToken()
+			this.onLogout()
+			this.forgetLegacyToken()
+			if (hadLegacyToken) {
+				window.location.reload()
+			}
+			return
+		}
 
 		//Una fecha pasada en formato de fecha: un número de milisegundos no lo es, y la cookie se quedaba.
 		const expired = new Date(0).toUTCString()
@@ -262,7 +322,10 @@ class PiecesPHPGenericHandlerSession {
 
 		}
 
-		mapHeaders.set(this.tokenName, this.getJWT())
+		//La sesión de usuarios no lleva cabecera: su cookie HttpOnly va sola en las peticiones al propio sitio.
+		if (!this.isUserSession) {
+			mapHeaders.set(this.tokenName, this.getJWT())
+		}
 		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
 		if (this.expectedLang !== null) {
 			mapHeaders.set('PCSPHP-Response-Expected-Language', this.expectedLang)
@@ -277,7 +340,7 @@ class PiecesPHPGenericHandlerSession {
 	}
 
 	capitalize(str) {
-		return typeof str == 'string' ? str.split('').map(e, i => i == 0 ? e.toUpperCase() : e).join('') : ''
+		return typeof str == 'string' ? str.split('').map((e, i) => i == 0 ? e.toUpperCase() : e).join('') : ''
 	}
 
 	/**

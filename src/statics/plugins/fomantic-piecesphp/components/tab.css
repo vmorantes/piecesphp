@@ -1,0 +1,90 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Tab
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+           UI Tabs
+*******************************/
+
+.ui.tab {
+  display: none;
+}
+
+
+/*******************************
+             States
+*******************************/
+
+
+/* --------------------
+       Active
+--------------------- */
+.ui.tab.active,
+.ui.tab.open {
+  display: block;
+}
+
+/* --------------------
+           Loading
+    --------------------- */
+.ui.tab.loading {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  min-height: 260px;
+}
+.ui.tab.loading * {
+  position: relative !important;
+  left: -10000px !important;
+}
+.ui.tab.loading::before,
+.ui.tab.loading.segment::before {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 50%;
+  margin: -1.5em 0 0 -1.5em;
+  width: 3em;
+  height: 3em;
+  border-radius: 500rem;
+  border: 0.2em solid var(--theme-border);
+}
+.ui.tab.loading::after,
+.ui.tab.loading.segment::after {
+  position: absolute;
+  content: "";
+  top: 50%;
+  left: 50%;
+  margin: -1.5em 0 0 -1.5em;
+  width: 3em;
+  height: 3em;
+  animation: loader 0.6s infinite linear;
+  border: 0.2em solid #687181;
+  border-radius: 500rem;
+  box-shadow: 0 0 0 1px transparent;
+}
+
+
+/*******************************
+         Tab Overrides
+*******************************/
+
+
+
+/*******************************
+    PiecesPHP: Tab Overrides
+*******************************/
+
+
+/* Panel de pestañas de página (.pp-tabs > .ui.tab, design.md §3.25): 16px de aire bajo las
+   pestañas (ui secondary pointing menu). Los tab segment llevan su propio relleno. */
+.ui.secondary.pointing.menu:not(.vertical) ~ .ui.tab:not(.segment) {
+  padding-top: 1.14285714rem;
+}

@@ -302,6 +302,13 @@ Qué cookies pasan por aquí, según el código:
   esta cookie.**
 - **Las cookies que escribe `setCookieByConfig()`**: la del idioma (`PREFER_LANG_BY_COOKIE`, ver [`lang.php`](#langphp)).
   Lleva `samesite`.
+- **La cookie de la sesión del panel** (`JWTAuth`, o el nombre de `session_token_name`): la pone el **servidor** al
+  iniciar sesión, siempre `HttpOnly` (el JavaScript de la página no puede leerla) y con la misma caducidad que el token,
+  así que la sesión sobrevive a cerrar el navegador. De aquí toma `path`; **no lleva dominio** aunque `domain` lo diga
+  (vale solo para este host, no para sus subdominios); `samesite` es el de aquí salvo `None`, que pasa a `Lax`; y lleva
+  `secure` si aquí es `true` o si la petición llega por https (también detrás de un proxy que lo diga con
+  `X-Forwarded-Proto`). La borra el servidor al cerrar sesión. La API sigue aceptando el token en la cabecera del mismo
+  nombre; una cabecera vacía cuenta como ausente y se usa la cookie.
 - **La de «conectarse como otro usuario»** (`asUserID`): la escribe `ImpersonationController` con las mismas opciones
   (`cookie_options_by_config()`), `samesite` incluido, pero siempre `httponly` y con la caducidad de la suplantación.
 
@@ -502,6 +509,29 @@ de `$all` **depende de la función**: `import_datatables()` y `import_semantic()
 `import_cropper()`, `import_mapbox()` y otras traen `true`.
 
 Para una librería propia, usa `import_front_library('mi_libreria', ['miPlugin'])` directamente.
+
+**Fomantic UI**: `import_fomantic()` carga el tema del framework entero (es lo que usan el panel, el acceso y la zona
+pública). `import_semantic()`, el Fomantic de antes, sigue funcionando en desuso y sale en la `11.0.0`: cámbiala por
+`import_fomantic()`.
+
+**Un componente suelto, sin el tema entero** (para una página con su propio estilo que solo necesita, por ejemplo, un
+aviso flotante):
+
+```php
+import_fomantic_components(['toast']);
+```
+
+Añade el CSS y el JavaScript de cada componente y, antes, los de los componentes que necesita (el toast necesita
+`transition` para animarse e `icon` para su icono; un desplegable, `api` para cargar opciones de un servidor) y `site`,
+que define los colores y medidas del tema. Un nombre que no es un componente lanza una excepción. Con `import_fomantic()`
+en la misma página no añade nada: llama a una u otra.
+
+!!! warning "Pon tu estilo después"
+    `site` no trae solo colores y medidas: también da estilo a `html`, `body`, los títulos, los párrafos y los enlaces.
+    Si tu hoja se carga **después**, manda la tuya; si se carga antes, la página toma la letra y el fondo del tema.
+
+La lista de qué necesita cada componente es provisional: se midió en el código del tema y se sustituirá por la que el
+tema publique con cada versión.
 
 !!! warning "Trampas"
     - **Un nombre que no está en el catálogo se ignora en silencio** con `import_front_library()`. Con

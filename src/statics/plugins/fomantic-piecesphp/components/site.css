@@ -1,0 +1,470 @@
+/*!
+ * # Fomantic-UI 2.9.4 - Site
+ * https://github.com/fomantic/Fomantic-UI/
+ *
+ *
+ * Released under the MIT license
+ * https://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+             Page
+*******************************/
+
+@font-face {
+  font-family: "Inter";
+  src: url("./../themes/piecesphp/assets/fonts/Inter-Variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+html,
+body {
+  height: 100%;
+}
+html {
+  font-size: 14px;
+}
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-width: 320px;
+  background: var(--theme-page);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.42857143em;
+  color: var(--theme-text);
+}
+
+
+/*******************************
+             Headers
+*******************************/
+
+
+/* Fork: h6 también (Fomantic define @h6 pero no lo aplicaba: quedaba el del navegador) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  line-height: 1.33333333em;
+  margin: calc(2rem - 0.16666666666666663em) 0 1rem;
+  font-weight: 600;
+  padding: 0;
+}
+h1 {
+  min-height: 1rem;
+  font-size: 1.71428571rem;
+}
+h2 {
+  font-size: 1.14285714rem;
+}
+h3 {
+  font-size: 1.14285714rem;
+}
+h4 {
+  font-size: 1rem;
+}
+h5 {
+  font-size: 0.92857143rem;
+}
+h6 {
+  font-size: 0.85714286rem;
+}
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+  margin-top: 0;
+}
+h1:last-child,
+h2:last-child,
+h3:last-child,
+h4:last-child,
+h5:last-child,
+h6:last-child {
+  margin-bottom: 0;
+}
+
+
+/*******************************
+             Text
+*******************************/
+
+p {
+  margin: 0 0 1em;
+  line-height: 1.42857143em;
+}
+p:first-child {
+  margin-top: 0;
+}
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* -------------------
+        Links
+-------------------- */
+a {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  text-decoration: none;
+}
+a:hover {
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  text-decoration: none;
+}
+
+
+/*******************************
+         Scrollbars
+*******************************/
+
+
+/* Force Simple Scrollbars */
+body ::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 8px;
+}
+body ::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 0;
+}
+body ::-webkit-scrollbar-thumb {
+  cursor: pointer;
+  border-radius: 8px;
+  background: light-dark(#cfd5de, #3a4150);
+  -webkit-transition: color 0.2s ease;
+  transition: color 0.2s ease;
+}
+body ::-webkit-scrollbar-thumb:window-inactive {
+  background: light-dark(#cfd5de, #3a4150);
+}
+body ::-webkit-scrollbar-thumb:hover {
+  background: light-dark(#99a1af, #535c6e);
+}
+body .ui {
+  
+/* IE11 */
+  scrollbar-face-color: #bfbfbf;
+  scrollbar-shadow-color: #bfbfbf;
+  scrollbar-track-color: #e6e6e6;
+  scrollbar-arrow-color: #e6e6e6;
+}
+@supports (-moz-appearance: none) {
+  body .ui {
+    
+/* firefox: first color thumb, second track */
+    scrollbar-color: light-dark(#cfd5de, #3a4150) transparent;
+    scrollbar-width: thin;
+  }
+}
+
+/* Inverted UI */
+body .ui.inverted:not(.dimmer)::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+body .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+body .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(255, 255, 255, 0.15);
+}
+body .ui.inverted:not(.dimmer)::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+body .ui.inverted:not(.dimmer) {
+  
+/* IE11 */
+  scrollbar-face-color: #656565;
+  scrollbar-shadow-color: #656565;
+  scrollbar-track-color: #323232;
+  scrollbar-arrow-color: #323232;
+}
+@supports (-moz-appearance: none) {
+  body .ui.inverted:not(.dimmer) {
+    
+/* firefox: first color thumb, second track */
+    scrollbar-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.1);
+  }
+}
+
+
+/*******************************
+          Highlighting
+*******************************/
+
+
+/* Site */
+::selection {
+  background-color: var(--theme-selection);
+  color: var(--theme-text);
+}
+
+/* Form */
+textarea::selection,
+input::selection {
+  background-color: var(--theme-selection);
+  color: var(--theme-text);
+}
+
+/* Fork: el atributo hidden oculta también los componentes que fijan su propio display
+   (`ui placeholder segment`, `ui menu`, `ui label`, ítems de lista, contenido de acordeón…): así el JS muestra y oculta sin estilos (D52) */
+.ui[hidden],
+.ui [hidden] {
+  display: none !important;
+}
+
+
+/*******************************
+        Global Overrides
+*******************************/
+
+
+
+/*******************************
+    PiecesPHP: Site Overrides
+*******************************/
+
+
+
+/*******************************
+    Core: Site Overrides
+*******************************/
+
+
+/* Contrato de tema: modo claro/oscuro estándar (color-scheme + light-dark()) y tipografía.
+   El modo lo decide siempre el implementador (D25): sin atributo, claro. */
+:root {
+  color-scheme: light;
+  --theme-page: light-dark(#f5f7fa, #12151b);
+  --theme-surface: light-dark(#fff, #1a1e27);
+  --theme-surface-strong: light-dark(#fff, #262b36);
+  --theme-text: light-dark(#1f2430, #e8ebf0);
+  --theme-text-muted: light-dark(#687181, #a1a9b7);
+  --theme-border: light-dark(#e7eaf0, #2c323e);
+  --theme-fill: light-dark(#eef1f5, #262b36);
+}
+
+/* Acentos y tipografía por defecto del tema publicados como variables, para que var(--accent-N)
+   funcione también en el CSS del proyecto. En html (especificidad menor que :root): el
+   :root { --accent-N; --font-size-base… } del proyecto gana se cargue antes o después del tema. */
+html {
+  --accent-1: var(--accent, #356dca);
+  --accent-2: #7a5af8;
+  --accent-3: #c11574;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-size-base: 14px;
+}
+
+/* Tintes del acento y serie de datos: las vistas los usan como variables, y sin definir un `fill` cae a
+   negro. En html: un tema o el proyecto los redefinen en :root */
+html {
+  --accent-solid: var(--accent-1);
+  --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
+  --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
+  --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));
+  --accent-200: color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface));
+  --accent-300: color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface));
+  --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 88%, #000), color-mix(in oklab, var(--accent-1) 70%, #fff));
+  --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 72%, #000), color-mix(in oklab, var(--accent-1) 55%, #fff));
+  --accent-text: light-dark(color-mix(in oklab, var(--accent-1) 70%, #1f2430), color-mix(in oklab, var(--accent-1) 55%, #fff));
+  --accent-ring: color-mix(in srgb, var(--accent-1) 22%, transparent);
+  --theme-selection: color-mix(in oklab, var(--accent-1) 30%, var(--theme-surface));
+  --data-1: var(--accent-1);
+  --data-2: #7a5af8;
+  --data-3: #c11574;
+  --data-4: #6e4a2e;
+  --data-5: light-dark(#1d2939, #cfd5de);
+}
+
+/* data-theme en <html>: "dark" oscuro, "light" claro, "auto" sigue al sistema (opt-in). */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+:root[data-theme="auto"] {
+  color-scheme: light dark;
+}
+html {
+  font-size: var(--font-size-base);
+}
+body {
+  font-size: 1rem;
+}
+
+/* Opciones nativas de <select>: superficie y texto del tema (el desplegable del sistema no
+   siempre hereda el fondo del select) (D36). */
+select option,
+select optgroup {
+  background-color: var(--theme-surface-strong);
+  color: var(--theme-text);
+}
+
+/* Tokens del diseño publicados como variables CSS (tokens.md §1, §2, §5, §10). En html y no en
+   :root, como los acentos de la capa común: si el host entrega los tonos precalculados en
+   :root { --accent-25: … }, ganan los suyos (README del diseño, contrato de entrada).
+   Los tintes se mezclan con la superficie: en claro es blanco (= el diseño); en oscuro, la
+   superficie oscura (inferido). */
+html {
+  --accent-solid: var(--accent-1);
+  --accent-contrast: var(--accent-1-text, oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0));
+  --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
+  --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
+  --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));
+  --accent-200: color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface));
+  --accent-300: color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface));
+  --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 88%, #000), color-mix(in oklab, var(--accent-1) 70%, #fff));
+  --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 72%, #000), color-mix(in oklab, var(--accent-1) 55%, #fff));
+  --accent-text: light-dark(color-mix(in oklab, var(--accent-1) 70%, #1f2430), color-mix(in oklab, var(--accent-1) 55%, #fff));
+  --accent-ring: color-mix(in srgb, var(--accent-1) 22%, transparent);
+  --data-1: var(--accent-1);
+  --data-2: #7a5af8;
+  --data-3: #c11574;
+  --data-4: #6e4a2e;
+  --data-5: light-dark(#1d2939, #cfd5de);
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-full: 999px;
+  --shadow-xs: 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3));
+  --shadow-md: 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3));
+  --shadow-lg: 0 24px 48px -12px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 8px 16px -8px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4));
+  --shadow-modal: 0 24px 60px light-dark(rgba(17, 21, 30, 0.28), rgba(0, 0, 0, 0.6));
+}
+
+/* Párrafos y cifras como el diseño: interlineado de Cuerpo, cifras tabulares en tablas,
+   estadísticas y contadores (las reglas de cada componente lo completan). */
+body {
+  line-height: 1.42857143em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Foco único (tokens.md §1): contorno 2px --accent-600 a 2px y el halo decorativo de 3px en
+   los campos. Nunca sin reemplazo. */
+:focus-visible {
+  outline: 2px solid var(--accent-600);
+  outline-offset: 2px;
+}
+
+/* Sin desplazamientos ni transiciones si el usuario lo pide */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Enlaces sueltos dentro de un bloque inverted (segment, item, feed…): la tinta clara del acento
+   (la rama oscura de la capa común); con la de claro quedaban en 1,8:1 sobre el fondo oscuro. */
+.ui.inverted a:not(.ui):not(.item):not(.header),
+.ui.inverted .content a:not(.ui):not(.item) {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h);
+}
+
+/* Encabezados sueltos (sin `ui header`): el interlineado de cada estilo de la escala (Título,
+   Lead, Cuerpo, Etiqueta, Pequeño) en vez del único @headerLineHeight */
+h1 {
+  line-height: 1.33333333;
+  letter-spacing: -0.015em;
+}
+h2,
+h3 {
+  line-height: 1.5;
+}
+h4 {
+  line-height: 1.42857143;
+}
+h5 {
+  line-height: 1.38461538;
+}
+h6 {
+  line-height: 1.33333333;
+}
+
+/* Barras de desplazamiento finas y en los grises del tema en toda la página, también la principal
+   (las de Fomantic solo alcanzan a los elementos dentro de body). Las propiedades estándar se
+   heredan y, en Chrome, mandan sobre ::-webkit-scrollbar. */
+html {
+  scrollbar-color: light-dark(#cfd5de, #3a4150) transparent;
+}
+
+/* scrollbar-width no se hereda: a todos, sin especificidad para que un componente pueda cambiarlo */
+:where(html, html *) {
+  scrollbar-width: thin;
+}
+
+/* `small` con el Pequeño del diseño (D52; --fs-small 12px, --lh-small 16px; el `smaller` del
+   navegador daba 11,7px) y su interlineado: Fomantic hereda el del texto ya calculado
+   (20px) y las ayudas y descripciones salían más altas */
+small {
+  font-size: 0.85714286em;
+  line-height: 1.33333333;
+}
+
+/* `code`: chip monoespaciado de 12px (code de las vistas de referencia tipografia e iconos: g-50,
+   línea, radio 5px, 1px 6px, text-2). En la etiqueta de un campo (og:title…), solo el texto
+   atenuado y en peso normal (.ui.form label code) */
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85714286em;
+  padding: 1px 6px;
+  border: 1px solid var(--theme-border);
+  border-radius: 5px;
+  background: light-dark(#f5f7fa, #20242d);
+  color: light-dark(#4b5363, #cfd5de);
+  white-space: nowrap;
+}
+
+/* Dentro de un bloque `pre` no es un chip: conserva los saltos de línea del bloque y toma su
+   fondo y su color (T-1: el nowrap dejaba cada bloque de código en una sola línea) */
+pre > code {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  white-space: inherit;
+}
+.ui.form label code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+  font-weight: 400;
+  color: var(--theme-text-muted);
+}
+
+/* Texto atenuado sobre el panel de marca (tinted) y el damero: el text-3 del diseño (#687181) se
+   queda en 4,3–4,4:1 sobre sus tonos más oscuros (accent-50, g-100); un punto más oscuro llega a
+   AA (P27) sin que se note. En oscuro, el mismo atenuado */
+.ui.tinted.segment,
+.ui.grid > .tinted.column,
+.ui.grid > .row > .tinted.column,
+.ui.card > .checkered.image,
+.ui.cards > .card > .checkered.image {
+  --theme-text-muted: light-dark(#646c7c, #a1a9b7);
+}
+
+/* Negrita en el texto corrido: Semibold 600 (tipografia: solo 400, 600 y 700, y 700 reservado a
+   Display); el `bolder` del navegador daba 700. Así pinta el original en las vistas del panel */
+b,
+strong {
+  font-weight: 600;
+}
