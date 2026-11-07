@@ -51,6 +51,7 @@ class FileManagerController extends AdminPanelController
 
     const BASE_VIEW_DIR = '';
     const BASE_JS_DIR = 'js';
+    const BASE_CSS_DIR = 'css';
     const LANG_GROUP = FileManagerLang::LANG_GROUP;
 
     /**
@@ -144,6 +145,9 @@ class FileManagerController extends AdminPanelController
         import_jqueryui();
 
         set_custom_assets([
+            FileManagerRoutes::staticRoute(self::BASE_CSS_DIR . '/elfinder-theme.css'),
+        ], 'css');
+        set_custom_assets([
             FileManagerRoutes::staticRoute(self::BASE_JS_DIR . '/file-manager.js'),
         ], 'js');
 
@@ -173,6 +177,9 @@ class FileManagerController extends AdminPanelController
         import_elfinder();
         import_jqueryui();
 
+        set_custom_assets([
+            FileManagerRoutes::staticRoute(self::BASE_CSS_DIR . '/elfinder-theme.css'),
+        ], 'css');
         set_custom_assets([
             FileManagerRoutes::staticRoute(self::BASE_JS_DIR . '/file-manager-rich-editor.js'),
         ], 'js');

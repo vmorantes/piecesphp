@@ -20,7 +20,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             ]);
         ?>
 
-        <div class="filemanager-container">
+        <div class="ui segment filemanager-container">
             <div class="filemanager-component" data-route="<?= $configurationRoute; ?>" data-base-url="<?= baseurl('statics/plugins/elfinder'); ?>"></div>
         </div>
 

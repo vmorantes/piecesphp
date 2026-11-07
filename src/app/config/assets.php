@@ -203,7 +203,6 @@ $assets['elfinder']['js'] = [
 $assets['elfinder']['css'] = [
     'statics/plugins/jquery-ui/jquery-ui.min.css',
     'statics/plugins/elfinder/css/elfinder.full.css',
-    'statics/plugins/elfinder/css/theme.css',
 ];
 $assets['elfinder']['plugins'] = [];
 

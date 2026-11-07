@@ -74,7 +74,20 @@ sesiones lo borra sin dejar prueba de que se envió. Por eso, **al recibir cada 
 archivo del tramo (§2.4) una línea con: el número, la hora, el estado, **los hashes de los commits** y los cuatro
 números. Con eso, una sesión nueva reconstruye la cadena desde el repositorio y no desde la memoria de nadie.
 
-Lo que NO se pega: salidas enteras de verificación, ni nada que lleve un secreto.
+Lo que NO se pega: salidas enteras de verificación, ni nada que lleve un secreto. **Sí se pega el veredicto de la
+verificación en una línea** (suites, PHPStan, LIMPIA o no): es lo único del reporte que git no guarda.
+
+**La ronda de cierre se parte en DOS** (PO, 2026-11-06: perder el reporte del cierre «es porque tu cierre de jornada fue
+mediocre»). Si el commit del estado va DENTRO de la última ronda con contenido, su reporte llega por fuerza después del
+último commit y ningún disco lo recoge: un `/clear` lo borra, con el veredicto de la verificación entera que avala la
+etiqueta. Por eso:
+
+1. **La ronda con contenido** (documentación, versión, verificación ENTERA, etiqueta, `master` y `last-stable`) **NO
+   commitea el estado.** Su reporte se anota en el tramo al recibirlo, con el veredicto en una línea.
+2. **La ronda del estado** solo commitea `.agents/estado/`. Todo lo que diría su reporte se lee en git (el hash y el
+   árbol vacío): perderlo no pierde nada. La siguiente apertura la anota como heredada midiendo, sin pedir nada.
+
+Pasó el 2026-11-06 con `#2492`/`#2493`: la etiqueta `v10.8.0` quedó puesta y la salida de su ENTERA, perdida.
 
 **Cuando el rastro falta** —porque el canal se perdió— se escribe lo que se puede medir y **se marca lo que no**:
 «reconstruido desde git; los cuatro números, SIN VERIFICAR». Un hueco dicho es estado; un hueco tapado con una

@@ -1,0 +1,844 @@
+//elFinder con el tema del panel, en claro y en oscuro. Va en el módulo y no en statics/plugins/elfinder/: esa carpeta
+//se reemplaza entera al actualizar elFinder y lo que se escriba ahí se pierde.
+//Solo variables del tema (tokens.css): cambian solas entre claro y oscuro. Un color literal aquí es un defecto.
+//El marcado es el de elFinder y jQuery UI («smoothness»): se reescriben sus clases, no se cambia el marcado.
+//Todo va dentro de :root: aunque assets.php ya no lo nombra, elFinder carga su css/theme.css por su cuenta (cssAutoLoad,
+//elfinder.full.js:1189-1262) DESPUÉS de esta hoja, porque el sello de caché del enlace le impide ver que elfinder.full.css
+//ya está. La clase de más de :root es lo que hace ganar a esta hoja sin tocar el JS de elFinder ni el de las vistas.
+:root {
+
+    //─── La base: superficie, texto, bordes y fuente ──────────────────────────────────────────────────────────
+    .elfinder,
+    .std42-dialog {
+        color: var(--theme-text);
+        font-family: var(--font-body);
+        border-color: var(--theme-border);
+
+        .ui-widget,
+        .ui-widget input,
+        .ui-widget select,
+        .ui-widget textarea,
+        .ui-widget button {
+            font-family: var(--font-body);
+        }
+
+        &.ui-widget-content,
+        .ui-widget-content {
+            background: var(--theme-surface);
+            color: var(--theme-text);
+            border-color: var(--theme-border);
+        }
+
+        .ui-widget-content a {
+            color: var(--accent-text);
+        }
+
+        .ui-widget-header {
+            background: var(--theme-fill);
+            color: var(--theme-text);
+            border-color: var(--theme-border);
+        }
+
+        //Botones y estados de jQuery UI.
+        .ui-state-default,
+        .ui-widget-content .ui-state-default,
+        .ui-widget-header .ui-state-default {
+            background: var(--theme-surface);
+            color: var(--theme-text);
+            border-color: var(--theme-border);
+        }
+
+        .ui-state-hover,
+        .ui-widget-content .ui-state-hover,
+        .ui-widget-header .ui-state-hover,
+        .ui-state-focus,
+        .ui-widget-content .ui-state-focus,
+        .ui-widget-header .ui-state-focus {
+            background: var(--theme-fill);
+            color: var(--theme-text);
+            border-color: var(--theme-border);
+        }
+
+        .ui-state-active,
+        .ui-widget-content .ui-state-active,
+        .ui-widget-header .ui-state-active {
+            background: var(--theme-selection);
+            color: var(--theme-text);
+            border-color: var(--theme-selection);
+        }
+
+        .ui-state-highlight,
+        .ui-widget-content .ui-state-highlight,
+        .ui-widget-header .ui-state-highlight {
+            background: var(--accent-50);
+            color: var(--theme-text);
+            border-color: var(--accent-200);
+        }
+
+        .ui-state-disabled {
+            opacity: 0.45;
+        }
+
+        .ui-corner-all {
+            border-radius: var(--r-sm);
+        }
+
+        //Campos.
+        input,
+        textarea,
+        select {
+            color: var(--theme-text);
+            background-color: var(--theme-surface);
+            border: 1px solid var(--theme-border);
+            border-radius: var(--r-xs);
+
+            &:focus {
+                outline: none;
+                border-color: var(--accent-solid);
+                box-shadow: 0 0 0 3px var(--accent-ring);
+            }
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--accent-ring);
+            outline-offset: 1px;
+        }
+    }
+
+    //─── El contenedor ───────────────────────────────────────────────────────────────────────────────────────
+    .elfinder.ui-widget {
+        border-radius: var(--r-md);
+        //Sin overflow: hidden: el menú contextual y los diálogos viven dentro y se recortarían.
+        box-shadow: var(--shadow-xs);
+    }
+
+    .elfinder .elfinder-workzone {
+        background: var(--theme-surface);
+        border-color: var(--theme-border);
+    }
+
+    //─── Barra de herramientas ───────────────────────────────────────────────────────────────────────────────
+    //Botones del tamaño y el radio de un «ui basic icon button»: sin caja hasta pasar el ratón; grupos con aire.
+    .elfinder .elfinder-toolbar {
+        background: var(--theme-surface);
+        border: 0;
+        border-bottom: 1px solid var(--theme-border);
+        padding: 6px 8px;
+
+        .elfinder-button {
+            min-width: 16px;
+            height: 16px;
+            padding: 3px;
+            border: 1px solid transparent;
+            border-radius: var(--r-sm);
+            background: transparent;
+            color: var(--theme-text-muted);
+
+            &.ui-state-hover {
+                background: var(--theme-fill);
+                border-color: var(--theme-border);
+                color: var(--accent-text);
+            }
+
+            &.ui-state-active {
+                background: var(--accent-50);
+                border-color: var(--accent-200);
+                color: var(--accent-text);
+            }
+
+            &.ui-state-disabled {
+                background: transparent;
+                border-color: transparent;
+            }
+        }
+
+        //Un grupo, un bloque: el separador suave va entre grupos, no entre botones (elFinder pone uno entre cada par).
+        .elfinder-buttonset {
+            margin: 2px 0;
+            padding: 0 4px;
+            border: 0;
+            border-right: 1px solid var(--theme-border);
+            border-radius: 0;
+            background: transparent;
+
+            &:last-of-type {
+                border-right: 0;
+            }
+        }
+
+        .elfinder-toolbar-button-separator {
+            width: 2px;
+            border: 0;
+        }
+
+        //Los iconos de jQuery UI del buscador (lupa y aspa), con la fuente del panel.
+        .elfinder-button-search .ui-icon-search,
+        .elfinder-button-search .ui-icon-close {
+            background: none;
+            color: var(--theme-text-muted);
+            font-family: icons;
+            font-size: 12px;
+            line-height: 16px;
+            text-align: center;
+            text-indent: 0;
+        }
+
+        .elfinder-button-search .ui-icon-search::before {
+            content: '\f002'; //search
+        }
+
+        .elfinder-button-search .ui-icon-close::before {
+            content: '\f00d'; //times
+        }
+
+        .elfinder-button-search input[type=text] {
+            background: var(--theme-surface);
+            border: 1px solid var(--theme-border);
+            border-radius: var(--r-full);
+            color: var(--theme-text);
+        }
+    }
+
+    .elfinder .elfinder-toolbar-swipe-handle,
+    .elfinder-ltr .elfinder-navbar-swipe-handle,
+    .elfinder-rtl .elfinder-navbar-swipe-handle {
+        background: transparent;
+    }
+
+    //Menús que abren los botones (ordenar, vista…).
+    .elfinder .elfinder-button-menu {
+        background: var(--theme-surface-strong);
+        border-color: var(--theme-border);
+        border-radius: var(--r-sm);
+        box-shadow: var(--shadow-md);
+
+        .elfinder-button-menu-item {
+            color: var(--theme-text);
+        }
+
+        .ui-state-hover {
+            background: var(--accent-solid);
+            color: var(--accent-contrast);
+        }
+
+        .elfinder-button-menu-item-separated {
+            border-top-color: var(--theme-border);
+        }
+    }
+
+    //─── Árbol de carpetas ───────────────────────────────────────────────────────────────────────────────────
+    .elfinder .elfinder-navbar {
+        background: var(--theme-page);
+        border-color: var(--theme-border);
+        color: var(--theme-text);
+
+        .elfinder-navbar-dir {
+            color: var(--theme-text);
+            border-radius: var(--r-xs);
+            border-color: transparent;
+        }
+
+        .ui-state-hover {
+            background: var(--theme-fill);
+            color: var(--theme-text);
+            border-color: transparent;
+        }
+
+        .ui-state-active {
+            background: var(--accent-solid);
+            color: var(--accent-contrast);
+            border-color: var(--accent-solid);
+        }
+
+        .ui-droppable-hover {
+            background: transparent;
+        }
+
+        .elfinder-droppable-active {
+            background: var(--accent-100);
+        }
+    }
+
+    .elfinder-disabled .elfinder-navbar .ui-state-active {
+        background: var(--theme-fill);
+        border-color: var(--theme-border);
+        color: var(--theme-text-muted);
+    }
+
+    //─── Área de archivos ────────────────────────────────────────────────────────────────────────────────────
+    .elfinder .elfinder-cwd-wrapper {
+        background: var(--theme-surface);
+    }
+
+    .elfinder .elfinder-cwd-wrapper.elfinder-cwd-wrapper-trash {
+        background: var(--theme-page);
+    }
+
+    .elfinder .elfinder-cwd-wrapper.elfinder-droppable-active,
+    .elfinder-cwd .elfinder-droppable-active {
+        outline-color: var(--accent-solid);
+    }
+
+    .elfinder .elfinder-cwd-wrapper-empty .elfinder-cwd:after {
+        color: var(--theme-text-muted);
+    }
+
+    //En iconos.
+    .elfinder-cwd-view-icons .elfinder-cwd-file {
+        .elfinder-cwd-filename {
+            color: var(--theme-text);
+            border-radius: var(--r-xs);
+        }
+
+        .ui-state-hover,
+        .ui-state-active {
+            background: var(--theme-fill);
+            border-radius: var(--r-sm);
+        }
+
+        .elfinder-cwd-filename.ui-state-hover,
+        &.ui-selected .elfinder-cwd-filename {
+            background: var(--accent-solid);
+            color: var(--accent-contrast);
+        }
+    }
+
+    .elfinder-cwd-view-icons .elfinder-cwd-file.ui-selected .elfinder-cwd-icon,
+    .elfinder-cwd-view-icons .elfinder-cwd-file.ui-selected .elfinder-cwd-file-wrapper {
+        background: var(--theme-selection);
+        border-radius: var(--r-sm);
+    }
+
+    //El rótulo de la extensión: neutro y legible en los dos modos (el tema de elFinder lo pintaba con un color por tipo).
+    .elfinder-cwd-icon:before {
+        color: var(--theme-text);
+        background-color: var(--theme-fill);
+        border: 1px solid var(--theme-border);
+    }
+
+    //En lista.
+    .elfinder .elfinder-cwd table {
+        background: var(--theme-surface);
+        color: var(--theme-text);
+        border-color: var(--theme-border);
+
+        thead td {
+            background: var(--theme-fill);
+            color: var(--theme-text-muted);
+            border-color: var(--theme-border);
+
+            &.ui-state-hover {
+                background: var(--theme-surface-strong);
+                color: var(--theme-text);
+            }
+
+            &.ui-state-active {
+                background: var(--theme-surface-strong);
+                color: var(--theme-text);
+                filter: none;
+            }
+        }
+
+        tr {
+            border: 1px solid transparent;
+            border-top: 1px solid var(--theme-border);
+        }
+
+        tr:nth-child(odd),
+        tr.elfinder-odd-row {
+            background-color: var(--theme-page);
+        }
+
+        td {
+            color: var(--theme-text);
+        }
+
+        td.ui-state-hover {
+            background: var(--theme-fill);
+            color: var(--theme-text);
+        }
+
+        tr.ui-selected td,
+        td.ui-state-active {
+            background: var(--accent-solid);
+            color: var(--accent-contrast);
+        }
+    }
+
+    .elfinder-cwd .elfinder-droppable-active td {
+        background: var(--accent-100);
+    }
+
+    .elfinder .elfinder-cwd-wrapper-list.elfinder-cwd-fixheader:before,
+    .elfinder-droppable-active + .elfinder-cwd-wrapper-list.elfinder-cwd-fixheader:before {
+        background-color: var(--theme-fill);
+    }
+
+    .elfinder-cwd.elfinder-table-header-sticky table {
+        border-top-color: var(--theme-border);
+    }
+
+    .elfinder-disabled .elfinder-cwd-view-icons .elfinder-cwd-file .elfinder-cwd-filename.ui-state-hover,
+    .elfinder-disabled .elfinder-cwd table td.ui-state-hover {
+        background: var(--theme-fill);
+        color: var(--theme-text-muted);
+    }
+
+    //─── Ruta y barra de estado ──────────────────────────────────────────────────────────────────────────────
+    .elfinder .elfinder-statusbar {
+        background: var(--theme-fill);
+        color: var(--theme-text-muted);
+        border-color: var(--theme-border);
+
+        a,
+        .elfinder-path-dir {
+            color: var(--theme-text-muted);
+            text-decoration: none;
+        }
+
+        a:hover,
+        .elfinder-path-dir:hover {
+            color: var(--accent-text);
+        }
+    }
+
+    .elfinder .elfinder-path,
+    .elfinder .elfinder-stat-size,
+    .elfinder .elfinder-stat-selected {
+        color: var(--theme-text-muted);
+    }
+
+    //─── Menú contextual ─────────────────────────────────────────────────────────────────────────────────────
+    .elfinder-contextmenu,
+    .elfinder .elfinder-contextmenu-sub {
+        background: var(--theme-surface-strong);
+        color: var(--theme-text);
+        border: 1px solid var(--theme-border);
+        border-radius: var(--r-sm);
+        box-shadow: var(--shadow-md);
+        padding: 4px 0;
+
+        .elfinder-contextmenu-item {
+            color: var(--theme-text);
+        }
+
+        .ui-state-hover {
+            background: var(--accent-solid);
+            color: var(--accent-contrast);
+        }
+
+        .ui-state-active {
+            background: var(--accent-300);
+            color: var(--theme-text);
+        }
+    }
+
+    .elfinder .elfinder-contextmenu-separator {
+        border-top-color: var(--theme-border);
+    }
+
+    //─── Diálogos de jQuery UI que abre elFinder ─────────────────────────────────────────────────────────────
+    .std42-dialog,
+    .std42-dialog .ui-widget-content,
+    .std42-dialog.elfinder-bg-translucent {
+        background: var(--theme-surface);
+        background-image: none;
+        color: var(--theme-text);
+    }
+
+    .std42-dialog.elfinder-bg-translucent .ui-widget-content {
+        background: transparent;
+    }
+
+    .std42-dialog {
+        border: 1px solid var(--theme-border);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow-modal);
+
+        .ui-dialog-titlebar {
+            background: var(--theme-fill);
+            color: var(--theme-text);
+            border: 0;
+            border-bottom: 1px solid var(--theme-border);
+            border-radius: var(--r-lg) var(--r-lg) 0 0;
+        }
+
+        .ui-dialog-buttonpane {
+            background: var(--theme-surface);
+            border-color: var(--theme-border);
+
+            .ui-button {
+                border-radius: var(--r-sm);
+            }
+
+            //El primer botón es la acción principal (Aceptar, Guardar, Subir).
+            .ui-dialog-buttonset .ui-button:first-child {
+                background: var(--accent-solid);
+                color: var(--accent-contrast);
+                border-color: var(--accent-solid);
+
+                &.ui-state-hover {
+                    background: var(--accent-600);
+                    border-color: var(--accent-600);
+                }
+            }
+        }
+
+        .elfinder-help,
+        .elfinder-help .ui-widget-content {
+            background: var(--theme-surface);
+        }
+
+        select {
+            border-color: var(--theme-border);
+        }
+    }
+
+    .elfinder-info-tb td {
+        color: var(--theme-text);
+    }
+
+    .elfinder-info-tb td.elfinder-info-label {
+        color: var(--theme-text-muted);
+    }
+
+    .elfinder-upload-dropbox {
+        border-color: var(--theme-border);
+        border-radius: var(--r-md);
+        color: var(--theme-text-muted);
+
+        &.ui-state-hover {
+            background: var(--accent-50);
+            border-color: var(--accent-solid);
+        }
+    }
+
+    .elfinder-notify {
+        border-bottom-color: var(--theme-border);
+    }
+
+    .elfinder-notify-progressbar {
+        background: var(--theme-fill);
+        border-color: var(--theme-border);
+    }
+
+    .elfinder-ui-progressbar {
+        background-color: var(--accent-solid);
+    }
+
+    .ui-widget-content.elfinder-ui-tooltip {
+        background: var(--theme-surface-strong);
+        color: var(--theme-text);
+        border-color: var(--theme-border);
+    }
+
+    .elfinder-ui-tooltip.ui-widget-shadow,
+    .elfinder .elfinder-ui-tooltip.ui-widget-shadow {
+        box-shadow: var(--shadow-md);
+    }
+
+    //─── Vista rápida ────────────────────────────────────────────────────────────────────────────────────────
+    .elfinder-quicklook {
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow-modal);
+    }
+
+    .elfinder-quicklook-titlebar {
+        background: var(--theme-fill);
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+    }
+
+    .elfinder-quicklook-title {
+        color: var(--theme-text);
+    }
+
+    .elfinder-quicklook-preview-text-wrapper,
+    .elfinder-quicklook-preview-archive-wrapper {
+        background: var(--theme-surface);
+        color: var(--theme-text);
+    }
+
+    .elfinder-quicklook-info-progress {
+        background-color: var(--accent-solid);
+    }
+
+    //─── Barras de desplazamiento ────────────────────────────────────────────────────────────────────────────
+    .elfinder,
+    .std42-dialog {
+        scrollbar-color: var(--theme-border) transparent;
+    }
+
+    .elfinder:not(.elfinder-mobile) *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .elfinder:not(.elfinder-mobile) *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .elfinder:not(.elfinder-mobile) *::-webkit-scrollbar-thumb {
+        background-color: var(--theme-border);
+        border-radius: var(--r-full);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+
+        &:hover {
+            background-color: var(--theme-text-muted);
+        }
+    }
+
+    .elfinder:not(.elfinder-mobile) *::-webkit-scrollbar-corner {
+        background-color: transparent;
+    }
+
+    //─── Iconos: la fuente del panel en lugar de los sprites de colores de elFinder ─────────────────────────
+    //Los códigos son los de la fuente «icons» del tema (fomantic-piecesphp/components/icon.css, i.icon.<nombre>).
+    //Una orden que no esté aquí conserva su icono de elFinder.
+    $command-icons: (back: '\f060', //arrow left
+        forward: '\f061', //arrow right
+        up: '\f3bf', //level up alternate
+        home: '\f015', //home
+        reload: '\f2f1', //sync alternate
+        netmount: '\f1e6', //plug
+        getfile: '\f00c', //check
+        open: '\f07c', //folder open
+        opennew: '\f35d', //external alternate
+        download: '\f019', //download
+        upload: '\f093', //upload
+        mkdir: '\f65e', //folder plus
+        mkdirin: '\f65e', //folder plus
+        mkfile: '\f15b', //file
+        copy: '\f0c5', //copy
+        cut: '\f0c4', //cut
+        paste: '\f0ea', //paste
+        duplicate: '\f24d', //clone
+        trash: '\f2ed', //trash alternate
+        rm: '\f00d', //times
+        empty: '\f12d', //eraser
+        rename: '\f246', //i cursor
+        edit: '\f044', //edit
+        resize: '\f125', //crop
+        archive: '\f187', //archive
+        extract: '\f49e', //box open
+        info: '\f05a', //info circle
+        quicklook: '\f06e', //eye
+        view: '\f009', //th large
+        view-list: '\f03a', //list
+        sort: '\f160', //sort amount down
+        help: '\f059', //question circle
+        preference: '\f013', //cog
+        fullscreen: '\f065', //expand
+        hide: '\f070', //eye slash
+        selectall: '\f14a', //check square
+        selectnone: '\f146', //minus square
+        selectinvert: '\f362', //exchange
+        places: '\f02e', //bookmark
+        undo: '\f0e2', //undo
+        redo: '\f01e', //redo
+        chmod: '\f023', //lock
+        search: '\f002', //search
+    );
+
+    .elfinder-button-icon,
+    .elfinder-navbar-icon {
+        font-family: icons;
+        font-style: normal;
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    @each $command,
+    $glyph in $command-icons {
+        .elfinder-button-icon.elfinder-button-icon-#{$command} {
+            background: none;
+            color: inherit;
+            font-size: 14px;
+            line-height: 16px;
+            text-align: center;
+
+            &::before {
+                content: $glyph;
+            }
+        }
+    }
+
+    .elfinder-contextmenu .elfinder-contextmenu-icon,
+    .elfinder .elfinder-contextmenu-sub .elfinder-contextmenu-icon {
+        color: var(--theme-text-muted);
+    }
+
+    .elfinder-contextmenu .ui-state-hover .elfinder-contextmenu-icon,
+    .elfinder .elfinder-contextmenu-sub .ui-state-hover .elfinder-contextmenu-icon {
+        color: inherit;
+    }
+
+    //El árbol: discos, papelera, «Lugares» y carpetas.
+    .elfinder-navbar .elfinder-navbar-icon {
+        background: none;
+        color: var(--theme-text-muted);
+        font-size: 14px;
+        line-height: 16px;
+        text-align: center;
+
+        &::before {
+            content: '\f07b'; //folder
+        }
+    }
+
+    .elfinder-navbar .elfinder-navbar-expanded > .elfinder-navbar-icon::before,
+    .elfinder-navbar .ui-state-active > .elfinder-navbar-icon::before {
+        content: '\f07c'; //folder open
+    }
+
+    .elfinder-navbar .elfinder-navbar-root-local > .elfinder-navbar-icon::before {
+        content: '\f0a0'; //hdd
+    }
+
+    .elfinder-navbar .elfinder-navbar-root-trash > .elfinder-navbar-icon::before {
+        content: '\f2ed'; //trash alternate
+    }
+
+    .elfinder-navbar .elfinder-places .elfinder-navbar-root > .elfinder-navbar-icon::before {
+        content: '\f02e'; //bookmark
+    }
+
+    .elfinder-navbar .ui-state-hover > .elfinder-navbar-icon {
+        color: var(--accent-text);
+    }
+
+    .elfinder-navbar .ui-state-active > .elfinder-navbar-icon {
+        color: inherit;
+    }
+
+    //El área de archivos (y el título de los diálogos de información y de borrado, que usan la misma clase): carpeta con
+    //el acento y un icono por familia de tipo. Las miniaturas reales
+    //(.elfinder-cwd-bgurl) se quedan. El glifo va en ::after: ::before es la etiqueta de la extensión.
+    .elfinder-cwd-icon:not(.elfinder-cwd-bgurl) {
+        background: none;
+        color: var(--theme-text-muted);
+        font-family: icons;
+        font-style: normal;
+        font-weight: 400;
+        text-align: center;
+        -webkit-font-smoothing: antialiased;
+
+        &::after {
+            content: '\f15b'; //file
+            position: static;
+            display: block;
+            width: auto;
+            height: auto;
+            background: none;
+            font-size: 40px;
+            line-height: 48px;
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .elfinder-cwd-view-list .elfinder-cwd .elfinder-cwd-icon:not(.elfinder-cwd-bgurl)::after,
+    .elfinder-cwd.elfinder-cwd-view-list .elfinder-cwd-icon:not(.elfinder-cwd-bgurl)::after {
+        font-size: 14px;
+        line-height: 16px;
+    }
+
+    $type-icons: (directory: '\f07b', //folder
+        image: '\f1c5', //file image
+        pdf: '\f1c1', //file pdf
+        text: '\f15c', //file alternate
+        plain: '\f15c',
+        rtf: '\f15c',
+        msword: '\f1c2', //file word
+        vnd-ms-excel: '\f1c3', //file excel
+        vnd-ms-powerpoint: '\f1c4', //file powerpoint
+        zip: '\f1c6', //file archive
+        x-zip: '\f1c6',
+        x-7z-compressed: '\f1c6',
+        x-rar: '\f1c6',
+        x-rar-compressed: '\f1c6',
+        x-tar: '\f1c6',
+        x-gzip: '\f1c6',
+        x-bzip: '\f1c6',
+        x-bzip2: '\f1c6',
+        x-xz: '\f1c6',
+        audio: '\f1c7', //file audio
+        video: '\f1c8', //file video
+        html: '\f1c9', //file code
+        css: '\f1c9',
+        javascript: '\f1c9',
+        x-javascript: '\f1c9',
+        json: '\f1c9',
+        xml: '\f1c9',
+        x-php: '\f1c9',
+        x-python: '\f1c9',
+        x-sh: '\f1c9',
+        x-shellscript: '\f1c9',
+    );
+
+    @each $type,
+    $glyph in $type-icons {
+        .elfinder-cwd-icon-#{$type}:not(.elfinder-cwd-bgurl)::after {
+            content: $glyph;
+        }
+    }
+
+    .elfinder-cwd-icon-directory:not(.elfinder-cwd-bgurl) {
+        color: var(--accent-solid);
+    }
+
+    .elfinder-cwd .elfinder-navbar-root-local .elfinder-cwd-icon:not(.elfinder-cwd-bgurl)::after {
+        content: '\f0a0'; //hdd
+    }
+
+    .elfinder-cwd .elfinder-navbar-root-trash .elfinder-cwd-icon:not(.elfinder-cwd-bgurl)::after {
+        content: '\f2ed'; //trash alternate
+    }
+
+    .elfinder-cwd .ui-selected .elfinder-cwd-icon:not(.elfinder-cwd-bgurl),
+    .elfinder-cwd .elfinder-droppable-active .elfinder-cwd-icon:not(.elfinder-cwd-bgurl) {
+        color: var(--accent-text);
+    }
+
+    //El aspa de los diálogos: el sprite de jQuery UI no se ve en oscuro.
+    .std42-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close .ui-icon,
+    .std42-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close:hover .ui-icon {
+        background: none;
+        border: 0;
+        color: var(--theme-text-muted);
+        font-family: icons;
+        font-size: 12px;
+        line-height: 16px;
+        text-align: center;
+        text-indent: 0;
+
+        &::before {
+            content: '\f00d'; //times
+        }
+    }
+
+    .std42-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close:hover .ui-icon {
+        color: var(--accent-text);
+    }
+
+    //─── El gestor como una pantalla del panel: elFinder dentro de la tarjeta del tema ──────────────────────
+    //La tarjeta es el «ui segment» de la vista (file-manager.php); elFinder pierde su caja y la llena de borde a borde.
+    .ui.segment.filemanager-container {
+        padding: 0;
+
+        > .elfinder.ui-widget {
+            border: 0;
+            border-radius: inherit;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .elfinder-toolbar {
+            border-radius: var(--r-lg) var(--r-lg) 0 0;
+        }
+
+        .elfinder-statusbar {
+            border-radius: 0 0 var(--r-lg) var(--r-lg);
+        }
+    }
+}

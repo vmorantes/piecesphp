@@ -267,9 +267,12 @@ class PiecesPHPSystemUserHelper {
 	}
 
 	/**
-	 * Cierra la sesión EN EL SERVIDOR (su fila; ADR 0026, fase B), que borra la cookie, y después lo que guarda este
-	 * navegador, salga bien o mal. La dirección la da el servidor en <meta name="logout-url">; sin ella, solo lo del
-	 * navegador.
+	 * Cierra la sesión EN EL SERVIDOR (su fila; ADR 0026, fase B), que borra la cookie, y solo entonces lo que guarda
+	 * este navegador. La dirección la da el servidor en <meta name="logout-url">; sin ella, solo lo del navegador.
+	 * - Éxito (JSON con success === true): se borra lo local y se recarga.
+	 * - 401 o 403: ya no había sesión en el servidor; se borra lo local igual.
+	 * - Cualquier otra cosa (red caída, 5xx, 503, JSON sin success): la cookie HttpOnly sigue viva, así que NO se borra
+	 *   lo local: hacerlo diría «has salido» con la sesión abierta. Se avisa y el usuario lo reintenta.
 	 * @param {Boolean} reload
 	 */
 	logoutOnServer(reload = true) {
@@ -281,10 +284,36 @@ class PiecesPHPSystemUserHelper {
 			instance.deleteSession(reload)
 			return
 		}
+		const fail = () => {
+			const t = (message) => typeof _i18n == 'function' ? _i18n('general', message) : message
+			const title = t('No se pudo cerrar la sesión')
+			const message = t('No se pudo cerrar la sesión en el servidor. Tu sesión sigue abierta: inténtalo de nuevo.')
+			if (typeof errorMessage == 'function') {
+				errorMessage(title, message)
+			} else {
+				console.error(message)
+			}
+		}
 		//La cookie de sesión va sola: el servidor cierra la fila y la borra.
 		fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-			.catch(() => null)
-			.finally(() => instance.deleteSession(reload))
+			.then((response) => {
+				if (response.status === 401 || response.status === 403) {
+					instance.deleteSession(reload)
+					return
+				}
+				if (!response.ok) {
+					fail()
+					return
+				}
+				return response.json().then((json) => {
+					if (json !== null && typeof json == 'object' && json.success === true) {
+						instance.deleteSession(reload)
+					} else {
+						fail()
+					}
+				})
+			})
+			.catch(() => fail())
 	}
 
 	setTriggerLogout(selector) {

@@ -96,6 +96,8 @@ $lang = [
         'Home'                       => 'Home',
         'Error interno'              => 'Internal error',
         'Ocurrió un error interno. Si lo reporta, indique la referencia %s.' => 'An internal error occurred. If you report it, please include reference %s.',
+        'No se pudo cerrar la sesión' => 'Could not log out',
+        'No se pudo cerrar la sesión en el servidor. Tu sesión sigue abierta: inténtalo de nuevo.' => 'Could not log out on the server. Your session is still open: please try again.',
     ],
     'errors' => [
         'RESTRICTED_AREA'              => 'Try to access a restricted area. For which you do not have permissions.',

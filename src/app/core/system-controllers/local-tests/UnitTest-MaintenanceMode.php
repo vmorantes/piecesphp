@@ -217,6 +217,20 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
             'i3 y antes de escribir');
         $check(\PiecesPHP\Core\Roles::hasPermissions('configurations-appearance-colors-save', UsersModel::TYPE_USER_ROOT) && !\PiecesPHP\Core\Roles::hasPermissions('configurations-appearance-colors-save', UsersModel::TYPE_USER_GENERAL), 'i4 la abre el principal, no un usuario general');
 
+        //─── j · Quien tenía la sesión abierta puede cerrarla (P299) ────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[j] Con el modo encendido, un tipo no permitido puede cerrar su sesión, y nada más');
+        set_config(MaintenanceMode::ENABLED_CONFIG, true);
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]);
+        $check(MaintenanceMode::blocks('user-sessions-logout', UsersModel::TYPE_USER_GENERAL) === false, 'j1 un usuario general (no permitido) llega al cierre de sesión');
+        $check(is_array(get_route_info('admin')), 'j2 canario: la ruta del panel «admin» existe con ese nombre');
+        $check(MaintenanceMode::blocks('admin', UsersModel::TYPE_USER_GENERAL) === true, 'j2 pero el panel le sigue detenido: la excepción es solo el cierre');
+        $check(MaintenanceMode::blocks('users-login-request', UsersModel::TYPE_USER_GENERAL) === false, 'j3 llega al acceso');
+        $check(MaintenanceMode::blocks('admin', UsersModel::TYPE_USER_ADMIN_GRAL) === false, 'j3 y el administrador general (permitido) vuelve a entrar al panel');
+        $check(MaintenanceMode::blocks('users-login-request', null) === false, 'j4 sin sesión se llega al acceso');
+        set_config(MaintenanceMode::ENABLED_CONFIG, $modoPrevio);
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, $rolesPrevios);
+
     } finally {
         //El modo NUNCA se queda encendido por una suite, ni aunque algo lance.
         set_config(MaintenanceMode::ENABLED_CONFIG, $modoPrevio);

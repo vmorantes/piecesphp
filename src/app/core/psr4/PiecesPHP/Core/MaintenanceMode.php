@@ -66,6 +66,8 @@ class MaintenanceMode
      *   modo y su guardado, que son el camino de vuelta. **Las dos son de root y root pasa siempre**,
      *   así que hoy son redundantes; se dejan porque la garantía de root vive en código y esta lista
      *   es lo que hace que el traslado de los mandos no rompa la vuelta.
+     * - `user-sessions-logout`: sin ella, un usuario de un tipo no permitido no puede cerrar la sesión
+     *   que ya tenía y la cookie HttpOnly se queda. §8 sigue pidiendo sesión: no la abre sin ella.
      *
      * @var string[]
      */
@@ -77,6 +79,7 @@ class MaintenanceMode
         'admin-global-variables-css',
         'system-status-site-maintenance',
         'system-status-site-maintenance-save',
+        'user-sessions-logout',
     ];
 
     /**

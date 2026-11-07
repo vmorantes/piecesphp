@@ -1,3 +1,9 @@
+# 10.9.0 (06-11-2026)
+
+- **El gestor de archivos lleva el aspecto del panel, en claro y en oscuro.** elFinder usa los colores, los bordes, las sombras y la fuente del tema, y los iconos del panel en la barra, el menú contextual, el árbol y los tipos de archivo; la pantalla del gestor es una tarjeta que ocupa el alto de la ventana. Antes salía entero en blanco en modo oscuro. La hoja vive en el módulo (`FileManager/Statics/sass/elfinder-theme.scss`) y no en la carpeta de elFinder, así que actualizar elFinder no la borra; `import_elfinder()` ya no carga el `theme.css` de elFinder (elFinder lo sigue cargando por su cuenta, y la hoja del panel manda sobre él). Detalle en la guía «Gestor de archivos».
+- **Las páginas del panel sin menú lateral siguen el modo claro u oscuro del usuario** (hoy, la ventana del gestor de archivos que abre el editor).
+- **Cerrar sesión funciona con el modo mantenimiento encendido**, también para quien no está entre los tipos permitidos: antes recibía la pantalla de mantenimiento y la sesión seguía abierta en el navegador. Y si el servidor no consigue cerrar la sesión, el panel lo avisa y no borra nada del navegador (antes decía que habías salido con la sesión abierta). Tras cerrar sesión con el modo encendido, la página recarga en la pantalla de mantenimiento: para volver a entrar, abre `users/login/`.
+
 # 10.8.0 (06-11-2026)
 
 - **El manual del panel, por secciones y subsecciones.** Cada capítulo enseña su índice en el menú del manual, que se queda fijo al desplazar, y los capítulos con cinco secciones o más las pintan plegadas. El permiso por sección (`<!-- ve: … -->`) vale ahora también para las subsecciones (`###`). **Si tu proyecto tiene capítulos propios** en `src/app/manual/proyecto/`, regenera con `bin/manual`: en un capítulo de cinco secciones o más, un título `#` después de la primera sección es un error y el capítulo no se genera. Detalle en la guía «El manual de usuario».

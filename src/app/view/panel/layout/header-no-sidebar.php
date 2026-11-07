@@ -1,6 +1,11 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); ?>
+<?php
+//El modo de color del usuario, como en header.php: sin él, el gestor que abre el editor sale siempre en claro.
+$themeUser = getLoggedFrameworkUser();
+$themeMode = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::themeModeOf((int) $themeUser->id) : \PiecesPHP\AdminPanel\Controllers\AdminPanelController::THEME_MODE_AUTO;
+?>
 <!DOCTYPE html>
-<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>">
+<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>"<?= ' data-theme="' . escape_html($themeMode) . '"'; ?>>
 
 <head>
     <meta charset="UTF-8">

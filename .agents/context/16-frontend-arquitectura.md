@@ -234,7 +234,7 @@ El CSS de todas estas clases vive en `src/statics/core/sass/admin_app_base.scss`
 - `panel/pages/about-framework.php` (`main`), `dashboard.php` (`div.banner-zone`), `test-cropper.php`,
   `generic_token/*`.
 - **Usuarios** (`src/app/classes/PiecesPHP/UserSystem/Views/usuarios/`): `form.php` y `select-type-user.php`; los 18 formularios por tipo son `form-by-type/user-form.php` desde JCY (`8339ea25`): cada `<modo>/<tipo>/form.php` solo fija `$formMode` y `$formType`.
-- **FileManager**: `file-manager.php` (con estilo en línea) y `file-manager-rich-editor.php`.
+- **FileManager**: `file-manager.php` (una tarjeta `ui segment` desde JFH) y `file-manager-rich-editor.php`. **Su tema, `FileManager/Statics/sass/elfinder-theme.scss`, va entero dentro de `:root`**: elFinder carga su `css/theme.css` por su cuenta (`cssAutoLoad`, `elfinder.full.js:1189-1262`) DESPUÉS de nuestra hoja, aunque no esté en `assets.php`; una regla fuera de `:root` pierde contra él (`#2498` D2). `header-no-sidebar.php` pone `data-theme` desde JFH (`097b89a4`): una vista sin él sale en claro.
 
 Los parciales (`panel/built-in/utilities/*`, `util/*`, `map-elements`) no son páginas y no cuentan. **Alinear esas
 vistas no es un lote hasta que el PO lo decida**; su objetivo, si llega, es «parecerse un poco más», no copiar

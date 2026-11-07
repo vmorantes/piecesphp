@@ -52,6 +52,26 @@ conector. Lo ignora git.
 - **`netmount`**: su botón se ve, pero no hay controlador que montar. elFinder no da una forma limpia de apagarlo.
 - **Un archivo de texto plano llamado `.jpg`** entra como texto y se sirve como imagen, sin activar nada.
 
+## La apariencia
+
+elFinder lleva el aspecto del panel, en claro y en oscuro, con una hoja propia del módulo:
+`src/app/classes/PiecesPHP/FileManager/Statics/sass/elfinder-theme.scss`, que `gulp sass-modules` compila a la carpeta
+`css/` hermana y que el controlador carga en las dos vistas, detrás de `import_elfinder()`. Usa solo las variables del tema
+(`--theme-*`, `--accent-*`, `--r-*`, `--shadow-*`, `--font-body`), así que sigue al modo del usuario sin más trabajo, y
+sustituye los iconos de elFinder (barra, menú contextual, árbol y tipos de archivo) por la fuente de iconos del panel. Las
+miniaturas de las imágenes se quedan.
+
+- **Vive fuera de `src/statics/plugins/elfinder/` a propósito**: esa carpeta se reemplaza entera al actualizar elFinder
+  (abajo), y un tema escrito ahí se perdería.
+- **elFinder carga además su propio `src/statics/plugins/elfinder/css/theme.css`** (su opción `cssAutoLoad`, activa por omisión) aunque ya no esté en la
+  lista de `import_elfinder()`, y lo carga DESPUÉS de nuestra hoja. Por eso todas sus reglas van dentro de `:root`: un punto
+  más de especificidad que gana sin tocar el JS de las vistas. Una regla nueva de la hoja, también dentro de `:root`.
+- **La vista del gestor es una tarjeta del panel** (`ui segment` en `file-manager.php`) que ocupa el alto de la ventana: el
+  alto lo calcula la opción `height` de `file-manager.js` al cargar (elFinder lo escribe en línea), con 420 px de mínimo. No
+  se recalcula al redimensionar la ventana.
+- **Lo que todavía viene de elFinder**: los avisos flotantes (info, error, éxito) con sus colores fijos, las flechas del
+  árbol, el asa de redimensionar y los iconos de la vista rápida.
+
 ## Añadir una carpeta
 
 `structureOptions($dirs, $trashes)` arma cada raíz con sus valores seguros: `acceptedName` (rechaza `.php` y compañía en

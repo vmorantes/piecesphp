@@ -41,7 +41,7 @@ Hay tres mandos, en un solo formulario y con un botón:
 
 ## Lo que pasa siempre, aunque el modo esté encendido
 
-Siete rutas **nunca** se bloquean, y viven enumeradas con su motivo en
+Ocho rutas **nunca** se bloquean, y viven enumeradas con su motivo en
 `MaintenanceMode::ALWAYS_ALLOWED`:
 
 | Ruta | Por qué |
@@ -53,8 +53,9 @@ Siete rutas **nunca** se bloquean, y viven enumeradas con su motivo en
 | `admin-global-variables-css` | El CSS de variables que pide la propia vista `503` |
 | `system-status-site-maintenance` | La pantalla desde la que se apaga |
 | `system-status-site-maintenance-save` | Su guardado |
+| `user-sessions-logout` | Cerrar sesión: sin ella, quien ya tenía la sesión abierta y no está entre los tipos permitidos no podría cerrarla, y en un equipo compartido el siguiente entraría con ella |
 
-Las dos últimas **hoy son redundantes**, porque el usuario principal pasa siempre y esas dos rutas
+Las dos de la pantalla del modo **hoy son redundantes**, porque el usuario principal pasa siempre y esas dos rutas
 son solo suyas. Se quedan a propósito: son lo que hace que un traslado de los mandos no rompa el
 camino de vuelta, y dejarían de ser redundantes si el modo se abriera a otro rol.
 
@@ -66,7 +67,13 @@ mano. La lista es el camino de vuelta.
     El modo se comprueba **antes** del control de acceso, no en su lugar. Un anónimo que pida
     `system-status-site-maintenance` con el modo encendido **acaba en el formulario de acceso**, no
     dentro de la pantalla: sigue haciendo falta sesión y rol. Saltarse el mantenimiento no salta los
-    permisos.
+    permisos. Lo mismo con `user-sessions-logout`: sigue pidiendo sesión.
+
+!!! warning "Al cerrar sesión con el modo encendido, la página recarga en la pantalla de mantenimiento"
+    El cierre funciona para todos, pero la recarga pide la misma página ya sin sesión y el modo
+    responde con la pantalla `503`, que no enlaza al acceso: para volver a entrar hay que abrir
+    `users/login/` a mano. Si el servidor no consigue cerrar la sesión (red caída, error), el panel
+    lo avisa y no borra nada del navegador, porque la sesión sigue abierta.
 
 ## El usuario principal nunca queda fuera
 
@@ -174,7 +181,7 @@ La pantalla que se sirve es `src/app/view/pages/503.php`, de la misma familia qu
 `bin/cli gates` corre `core/maintenance-mode`. Además del comportamiento, ata siete cosas que, si se
 rompen, **dejarían el modo inservible sin que nada fallara**:
 
-1. Que los siete nombres de `ALWAYS_ALLOWED` **existan como rutas registradas**. Un nombre mal
+1. Que los ocho nombres de `ALWAYS_ALLOWED` **existan como rutas registradas**. Un nombre mal
    escrito ahí no abre un hueco: **cierra el camino de vuelta**.
 2. Que la vista prometida **exista en disco**.
 3. Que la lista siga viajando como JSON, y que los mandos **no hayan vuelto** a la pestaña de

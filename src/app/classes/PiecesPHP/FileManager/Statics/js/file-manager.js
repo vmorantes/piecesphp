@@ -15,6 +15,16 @@ window.addEventListener('load', function () {
 		url: fileManagerComponent.data('route'),
 		baseUrl: fileManagerComponent.data('base-url') + '/',
 		lang: replaceLangs(pcsphpGlobals.lang),
+		//Hasta el pie de la ventana sin desplazar la página: elFinder fija la altura en línea (400 px por omisión) y el CSS
+		//no puede ganarle. Se restan los rellenos, bordes y márgenes inferiores de los contenedores, medidos, no supuestos.
+		height: (function (element) {
+			let below = 0
+			for (let node = element.parentElement; node !== null && node !== document.body; node = node.parentElement) {
+				const style = getComputedStyle(node)
+				below += parseFloat(style.paddingBottom) + parseFloat(style.borderBottomWidth) + parseFloat(style.marginBottom)
+			}
+			return Math.max(420, Math.floor(window.innerHeight - element.getBoundingClientRect().top - below))
+		})(fileManagerComponent.get(0)),
 	})
 
 })
