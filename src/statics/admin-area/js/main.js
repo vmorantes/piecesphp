@@ -67,13 +67,14 @@ function contentSectionNav() {
 		const themedJump = jump !== null && typeof $ !== 'undefined' && typeof $.fn.dropdown === 'function'
 		if (themedJump) {
 			$(jump).dropdown({ selectOnKeydown: false })
-			//El envoltorio del tema recibe el foco y no copia el nombre del select: sin esto, un lector no sabe qué es.
-			const wrapper = jump.closest('.ui.dropdown')
-			if (wrapper !== null && jump.hasAttribute('aria-label')) {
-				wrapper.setAttribute('aria-label', jump.getAttribute('aria-label'))
+			//Vive en configurations.min.js, que se genera: un clon sin recompilar no la tiene, y sin ella se cae todo lo de abajo.
+			if (typeof copyDropdownAccessibleName === 'function') {
+				copyDropdownAccessibleName(jump)
 			}
 		}
 		const desktop = window.matchMedia('(min-width: 992px)')
+		//El aire entre lo fijo de arriba y lo que queda debajo.
+		const gap = 16
 		//Hasta el borde INFERIOR de la barra, no su alto: suplantando, la franja la baja y la barra (sticky, encima) taparía el menú.
 		const barHeight = function () {
 			const bar = document.querySelector('header.bar')
@@ -85,13 +86,15 @@ function contentSectionNav() {
 			if (!desktop.matches && sticky.parentElement !== null) {
 				offset += sticky.parentElement.getBoundingClientRect().height
 			}
-			return offset + 16
+			return offset + gap
 		}
 		let stickyOn = false
 		const layoutChanged = function () {
-			document.documentElement.style.setProperty('--section-nav-bar-height', barHeight() + 'px')
-			//El mismo desplazamiento que el sticky de abajo: con él, el CSS limita el alto del menú a lo que cabe.
-			document.documentElement.style.setProperty('--section-nav-offset', (barHeight() + 16) + 'px')
+			const bar = barHeight()
+			//Uno solo para el CSS y el sticky: con él, el CSS limita el alto del menú a lo que cabe bajo lo fijo.
+			const stickyOffset = bar + gap
+			document.documentElement.style.setProperty('--section-nav-bar-height', bar + 'px')
+			document.documentElement.style.setProperty('--section-nav-offset', stickyOffset + 'px')
 			//Al llegar por su ancla (también con el hash de la dirección), la sección no queda bajo lo fijo.
 			targets.forEach((target) => target.style.setProperty('scroll-margin-top', topOffset() + 'px'))
 			if (layout === null || typeof $ === 'undefined' || typeof $.fn.sticky !== 'function') {
@@ -99,9 +102,13 @@ function contentSectionNav() {
 			}
 			if (desktop.matches && !stickyOn) {
 				//observeChanges: el contexto crece después (las vistas previas del banco de correos, un plegable abierto).
-				$(sticky).sticky({ context: layout, offset: barHeight() + 16, observeChanges: true })
+				$(sticky).sticky({ context: layout, offset: stickyOffset, observeChanges: true })
 				stickyOn = true
 				stickies.push(sticky)
+			} else if (desktop.matches && stickyOn && $(sticky).sticky('setting', 'offset') !== stickyOffset) {
+				//Ya iniciado: la barra cambia de alto al redimensionar y el sticky se quedaría con el desplazamiento del arranque.
+				$(sticky).sticky('setting', 'offset', stickyOffset)
+				$(sticky).sticky('refresh')
 			} else if (!desktop.matches && stickyOn) {
 				$(sticky).sticky('destroy')
 				sticky.removeAttribute('style')

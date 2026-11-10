@@ -1361,6 +1361,25 @@ function configMirrorScrollX(namespace = 'default', selector = null) {
 }
 
 /**
+ * Pone en el desplegable del tema el nombre (aria-label) de su select: Fomantic no lo copia y, sin él, un lector anuncia
+ * lo que recibe el foco sin decir qué es. El foco lo recibe el envoltorio o, en los de búsqueda, su input.search. Va
+ * después de iniciar el desplegable; sobre un select sin iniciar no hace nada.
+ * @param {HTMLSelectElement|JQuery} select
+ * @returns {void}
+ */
+function copyDropdownAccessibleName(select) {
+	$(select).each(function () {
+		const label = this.getAttribute('aria-label')
+		const wrapper = this.parentElement !== null ? this.parentElement.closest('.ui.dropdown') : null
+		if (label === null || label === '' || wrapper === null) {
+			return
+		}
+		const focused = wrapper.querySelector(':scope > input.search') ?? wrapper
+		focused.setAttribute('aria-label', label)
+	})
+}
+
+/**
  * Configura un dropdown
  * @param {String} selectSelector 
  * @param {Object} defaultOptions 
@@ -1458,6 +1477,7 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 		}
 
 		dropdown = $(select).dropdown(options)
+		copyDropdownAccessibleName(select)
 		dropdown.getText = function () {
 			return dropdown.dropdown('get text')
 		}
