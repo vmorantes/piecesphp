@@ -19,7 +19,8 @@ $tabClass = fn(string $tab): string => $tab === 'state' ? ' active' : '';
 
 <?php if ($cron['open']) : ?>
 <?php //Sin el cron en marcha hay que decirlo: las instrucciones van en su pestaña, no a la vista. ?>
-<div class="ui warning message" data-task-runs-cron-pending><?= __($langGroup, 'Aún no hay ejecuciones anotadas: mire la pestaña Instrucciones para poner el cron.'); ?></div>
+<?php //«Abierta» es también «hay, pero ninguna en 24 h»: entonces no se dice que no haya ninguna. ?>
+<div class="ui warning message" data-task-runs-cron-pending><?= $cron['lastRunAgo'] === null ? __($langGroup, 'Aún no hay ejecuciones anotadas: revisa la pestaña «Instrucciones» para poner el cron.') : __($langGroup, 'Ninguna ejecución en las últimas 24 horas: revisa la pestaña «Instrucciones».'); ?></div>
 <?php endif; ?>
 
 <div class="ui secondary pointing menu" data-task-runs-tabs>

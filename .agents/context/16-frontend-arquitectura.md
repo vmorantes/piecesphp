@@ -386,7 +386,7 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
   `containers.php` le publica `--accent` desde `main_brand_color` (desde JCP; antes, un puente en `ui-pcs.scss`). **Desde JEY**
   (`3fa39429`, `8e59d83e`, `662ad7f9`) se trae ENTERO (con `components/`: 224 archivos, 17 MB), se carga con `import_fomantic()`
   en todo el framework, también la zona pública, e `import_semantic()` (`statics/plugins/semantic/`) queda en desuso para los
-  clones hasta la `11.0.0`. **`section-nav`** (`panel/built-in/content/section-nav.php`, JFE `c57b3d1c`): la navegación fija por secciones; la usan «Correos del sitio» y el manual; JS `contentSectionNav()` en `admin-area/js/main.js`, CSS en `admin_app_base.scss`. **Trampa sin arreglar (H213)**: fijada, su `ui sticky` lleva `z-index` 20, el mismo que `header.bar`, y como va después en el documento queda ENCIMA de los resultados de Ctrl K (medido a medias por el coder, `#2491` §8). **`import_fomantic_components([...])`** carga componentes sueltos con lo que su uso normal necesita, leído de `dependencias.json` del tema (H208, JFB, `77004625`): base `tokens.css` + `base-ui.css` (nunca `reset` ni `site`), el `cargar` de cada nombre, los opcionales solo pedidos por nombre, jQuery solo si hay JS; con `import_fomantic()` en la página no añade nada; las pruebas cambian el mapa con `set_config('fomantic_components_map', …)`. **Trampas**: escala con el `font-size` del `html` de la página (el tema mide en `rem`); `tokens.css` declara `color-scheme` en `:root`; **traer el tema con CSS nuevo deja rancio el censo de SCSS**: `bin/artefactos` antes de verificar (`#2479` H7). **Trampas**:
+  clones hasta la `11.0.0`. **`section-nav`** (`panel/built-in/content/section-nav.php`, JFE `c57b3d1c`): la navegación fija por secciones; la usan «Correos del sitio» y el manual; JS `contentSectionNav()` en `admin-area/js/main.js`, CSS en `admin_app_base.scss`. **Trampas (JFL, `7ede3c6b`)**: fijada es `position: fixed` y va después de la barra superior; con el `z-index` 20 del `ui sticky` (el de `header.bar`) tapaba los resultados de Ctrl K, que viven DENTRO del contexto de apilamiento de la barra: por eso lleva `z-index: auto` (`admin_app_base.scss`); el desplazamiento se mide desde el BORDE INFERIOR de la barra (`getBoundingClientRect().bottom`), no desde su alto, porque la franja de suplantación la baja 36 px; desde 992 px el menú tiene `max-height: calc(100vh - var(--section-nav-offset))` con desplazamiento propio, y `--section-nav-offset` lo publica el JS (no se actualiza el del sticky al redimensionar: H214 b). El tema no tiene variable de capas. **`import_fomantic_components([...])`** carga componentes sueltos con lo que su uso normal necesita, leído de `dependencias.json` del tema (H208, JFB, `77004625`): base `tokens.css` + `base-ui.css` (nunca `reset` ni `site`), el `cargar` de cada nombre, los opcionales solo pedidos por nombre, jQuery solo si hay JS; con `import_fomantic()` en la página no añade nada; las pruebas cambian el mapa con `set_config('fomantic_components_map', …)`. **Trampas**: escala con el `font-size` del `html` de la página (el tema mide en `rem`); `tokens.css` declara `color-scheme` en `:root`; **traer el tema con CSS nuevo deja rancio el censo de SCSS**: `bin/artefactos` antes de verificar (`#2479` H7). **Trampas**:
   una página que cargue `semantic` y `fomantic-piecesphp` rompe; `--accent-2` del tema no se deriva del color de
   marca; la fuente del panel la sigue poniendo el CSS propio (Poppins), no el tema.
 - **`brand-color` pone `margin: 0`** (`ui-pcs.scss:346`) y anula el margen de Fomantic: dos botones así seguidos quedan
@@ -423,3 +423,29 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
   desplazamiento horizontal. Límites: dentro de una `ui modal` (`will-change: transform`) `fixed` no es relativo a la ventana;
   sin `max-height` si no cabe ni arriba ni abajo. La medida: `bin/tools/navegador/mide-acciones-fila.js` con `bin/navegador
   --mide` (abre el «⋯» de la última fila); hoy solo Organizaciones pinta un «⋯» (4 acciones).
+
+## Lo que manda al revisar: NUESTRO PANEL (P300, 2026-11-09)
+
+Hasta el 2026-11-09 mandaba «la guía del tema > sus escaparates > el prototipo» (fase de rediseño). **Desde P300 manda el
+panel implementado**, y el tema se compara contra él:
+
+- **Ningún agente cambia el panel para parecerse a un escaparate.** Los escaparates de PiecesPHP
+  (`Fomantic-UI/examples/catalogo/paginas/escaparate-piecesphp-*.html`) los pone al día el agente del tema replicando el
+  panel, y pueden ir por detrás (H220: la comprobación que lista los desfasados).
+- **La excepción son los errores evidentes del panel** (texto ilegible, contraste roto, algo desalineado o cortado, y lo
+  que el prototipo pedía y no se implementó, como la insignia «Activa» del 2FA en el menú de usuario): no se copian y se
+  corrigen aquí. Lo que el escaparate tenga mejor por gusto es una **propuesta**: decide el PO.
+- **El patrón del tema sigue mandando sobre CÓMO se compone** (ADR 0069; un defecto propio se sustituye por el tema, §6):
+  un botón destructivo es `ui basic negative button`, no un rojo sólido (el texto negro sobre `#f04438` es del tema y a
+  propósito, por contraste AA; el `DESIGN.md` del tema admite también `ui negative button`, pero sus patrones usan el
+  básico, y ese es el nuestro); cancelar o neutro, `ui basic button`; `confirmAction(…, 'red')` ya pinta el básico negativo
+  (JFM, `8f5c22c1`).
+- **Un desplegable de formulario lo pinta el tema entero**: la vieja «sobreescritura de formulario fomantic» de
+  `admin_app_base.scss` (texto en `position: absolute`, `flex` en los múltiples) metía el texto bajo la flecha y dejaba una
+  línea vacía en los múltiples; salió en JFP (`e39e8adf`). Un `<select class="ui dropdown">` que nadie inicia con
+  `.dropdown()` sale nativo (el salto de «Correos del sitio» lo era); al iniciarlo, el envoltorio del tema no copia el
+  `aria-label` del `select`: hay que copiarlo (H224).
+- **Cada `bin/traer-tema` lleva capturas antes y después, a 1440 Y a 390** (la de JFO fue solo a 1440 y dejó pasar una
+  regresión de móvil en la cabecera de página), de la hoja de diseño (etiquetas de estado, piezas) y de las
+  pantallas que cambian: el punto de las etiquetas de estado partido en celdas estrechas entró con una traída y nadie lo
+  vio. El tema compila en vivo: lo que se verifica es lo de `ORIGEN.json`, con `sin_commitear` 0.

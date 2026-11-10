@@ -21,6 +21,10 @@
   padding: 1.42857143rem 1.42857143rem;
   border-radius: var(--r-lg, 12px);
   border: 1px solid var(--theme-border);
+  
+/* Fork: el relleno publicado para lo que deba llegar al borde (la barra attached de un form) */
+  --segment-vertical-padding: 1.42857143rem;
+  --segment-horizontal-padding: 1.42857143rem;
 }
 .ui.segment:first-child {
   margin-top: 0;
@@ -574,7 +578,7 @@
   background-color: var(--accent-1, var(--accent, #356dca));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.accent-1.segment:not(.piled) {
   border-color: var(--accent-1, var(--accent, #356dca));
@@ -593,7 +597,7 @@
   background-color: var(--accent-2, #7a5af8);
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.accent-2.segment:not(.piled) {
   border-color: var(--accent-2, #7a5af8);
@@ -612,7 +616,7 @@
   background-color: var(--accent-3, #c11574);
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from var(--accent-3, #c11574) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.accent-3.segment:not(.piled) {
   border-color: var(--accent-3, #c11574);
@@ -631,7 +635,7 @@
   background-color: #f04438;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.red.segment:not(.piled) {
   border-color: #f04438;
@@ -650,7 +654,7 @@
   background-color: #ef6820;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #ef6820 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.orange.segment:not(.piled) {
   border-color: #ef6820;
@@ -669,7 +673,7 @@
   background-color: #f79009;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.yellow.segment:not(.piled) {
   border-color: #f79009;
@@ -688,7 +692,7 @@
   background-color: #84a11b;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #84a11b calc((0.6 - l) * 1000) 0 0);
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.olive.segment:not(.piled) {
   border-color: #84a11b;
@@ -707,7 +711,7 @@
   background-color: #17b26a;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0);
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.green.segment:not(.piled) {
   border-color: #17b26a;
@@ -726,7 +730,7 @@
   background-color: #06aed4;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #06aed4 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.teal.segment:not(.piled) {
   border-color: #06aed4;
@@ -745,7 +749,7 @@
   background-color: #2e90fa;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #2e90fa calc((0.6 - l) * 1000) 0 0);
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.blue.segment:not(.piled) {
   border-color: #2e90fa;
@@ -764,7 +768,7 @@
   background-color: #7a5af8;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #7a5af8 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.violet.segment:not(.piled) {
   border-color: #7a5af8;
@@ -783,7 +787,7 @@
   background-color: #9e4cc9;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #9e4cc9 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.purple.segment:not(.piled) {
   border-color: #9e4cc9;
@@ -802,7 +806,7 @@
   background-color: #c11574;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #c11574 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.pink.segment:not(.piled) {
   border-color: #c11574;
@@ -821,7 +825,7 @@
   background-color: #6e4a2e;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #6e4a2e calc((0.6 - l) * 1000) 0 0);
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.brown.segment:not(.piled) {
   border-color: #6e4a2e;
@@ -840,7 +844,7 @@
   background-color: #687181;
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from #687181 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.grey.segment:not(.piled) {
   border-color: #687181;
@@ -859,7 +863,7 @@
   background-color: light-dark(#1f2430, #535c6e);
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: oklch(from light-dark(#1f2430, #535c6e) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.black.segment:not(.piled) {
   border-color: light-dark(#1f2430, #535c6e);

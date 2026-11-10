@@ -289,7 +289,8 @@ $dashboardCardGap: pxToRem(16);
         flex-direction: column;
         row-gap: pxToRem(16);
         max-width: 100%;
-        min-width: 350px;
+        //Sin el min(), un contenedor más estrecho que 350 px (el móvil) hace que la tarjeta desborde.
+        min-width: min(350px, 100%);
         //Sin alto propio: en una rejilla, la fila las estira al alto de la más alta.
         padding: pxToRem(20) pxToRem(24);
         //Las tarjetas son hermanas en una rejilla: el margen vertical de `ui segment` las desalinearía.
@@ -501,7 +502,8 @@ $dashboardCardGap: pxToRem(16);
         flex-direction: column;
         row-gap: pxToRem(16);
         max-width: 100%;
-        min-width: 350px;
+        //Sin el min(), un contenedor más estrecho que 350 px (el móvil) hace que la tarjeta desborde.
+        min-width: min(350px, 100%);
         padding: pxToRem(20) pxToRem(24);
         margin: 0;
         text-decoration: none !important;

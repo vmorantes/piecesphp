@@ -1,12 +1,11 @@
 <?php
 
 return [
-    "Opciones de seguridad" => "Security options",
     "QR" => "QR",
     "Eliminar" => "Delete",
     "Cerrar" => "Close",
     "Cancelar" => "Cancel",
-    "Seguridad de usuario" => "User security",
+    "Seguridad" => "Security",
     "Manual" => "Manual",
     "Capítulos del manual" => "Manual chapters",
     "Autenticación de dos factores (con app TOTP)" => "Two-factor authentication (with TOTP app)",
@@ -69,7 +68,7 @@ return [
     "Contraseña errónea." => "Wrong password.",
     "Activado." => "Activated.",
     "QR de 2FA" => "2FA QR",
-    "Revise su correo electrónico para obtener el cógido de un uso." => "Check your email to get the one-time code.",
+    "Revise su correo electrónico para obtener el código de un uso." => "Check your email to get the one-time code.",
     "El código de la aplicación es inválido." => "The application code is invalid.",
     "Desactivado." => "Deactivated.",
     "Generación de TOTP" => "TOTP Generation",

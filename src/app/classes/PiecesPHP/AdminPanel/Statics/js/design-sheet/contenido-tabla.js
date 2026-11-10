@@ -8,5 +8,7 @@ window.addEventListener('load', function () {
 		ordering: false,
 		responsive: false,
 		autoWidth: false,
+		//Sin paginación ni búsqueda, DataTables pinta igual sus filas de arriba y abajo, vacías: franjas en blanco.
+		layout: { topStart: null, topEnd: null, bottomStart: null, bottomEnd: null },
 	})
 })

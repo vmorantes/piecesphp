@@ -238,8 +238,8 @@ a.ui.label {
   content: "";
   background-color: inherit;
   background-image: none;
-  width: 1.56em;
-  height: 1.56em;
+  width: 1.2963657em;
+  height: 1.2963657em;
   transition: none;
 }
 .ui.tag.labels .label::after,
@@ -693,7 +693,7 @@ a.ui.basic.label:hover {
 .ui.ui.ui.primary.label {
   background-color: var(--accent-1, var(--accent, #356dca));
   border-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
@@ -701,7 +701,7 @@ a.ui.basic.label:hover {
 a.ui.ui.ui.primary.label:hover {
   background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
   border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
@@ -732,7 +732,7 @@ a.ui.ui.ui.basic.primary.label:hover {
   border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -742,7 +742,7 @@ a.ui.ui.ui.inverted.primary.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -783,7 +783,7 @@ a.ui.ui.ui.inverted.basic.primary.label:hover {
 .ui.ui.ui.secondary.label {
   background-color: var(--accent-2, #7a5af8);
   border-color: var(--accent-2, #7a5af8);
-  color: var(--accent-2-text, oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
@@ -791,7 +791,7 @@ a.ui.ui.ui.inverted.basic.primary.label:hover {
 a.ui.ui.ui.secondary.label:hover {
   background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
   border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: var(--accent-2-text, oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
@@ -822,7 +822,7 @@ a.ui.ui.ui.basic.secondary.label:hover {
   border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -832,7 +832,7 @@ a.ui.ui.ui.inverted.secondary.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -873,7 +873,7 @@ a.ui.ui.ui.inverted.basic.secondary.label:hover {
 .ui.ui.ui.accent-1.label {
   background-color: var(--accent-1, var(--accent, #356dca));
   border-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
@@ -881,7 +881,7 @@ a.ui.ui.ui.inverted.basic.secondary.label:hover {
 a.ui.ui.ui.accent-1.label:hover {
   background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
   border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
@@ -912,7 +912,7 @@ a.ui.ui.ui.basic.accent-1.label:hover {
   border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -922,7 +922,7 @@ a.ui.ui.ui.inverted.accent-1.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -963,7 +963,7 @@ a.ui.ui.ui.inverted.basic.accent-1.label:hover {
 .ui.ui.ui.accent-2.label {
   background-color: var(--accent-2, #7a5af8);
   border-color: var(--accent-2, #7a5af8);
-  color: var(--accent-2-text, oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
@@ -971,7 +971,7 @@ a.ui.ui.ui.inverted.basic.accent-1.label:hover {
 a.ui.ui.ui.accent-2.label:hover {
   background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
   border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: var(--accent-2-text, oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
@@ -1002,7 +1002,7 @@ a.ui.ui.ui.basic.accent-2.label:hover {
   border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1012,7 +1012,7 @@ a.ui.ui.ui.inverted.accent-2.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1053,7 +1053,7 @@ a.ui.ui.ui.inverted.basic.accent-2.label:hover {
 .ui.ui.ui.accent-3.label {
   background-color: var(--accent-3, #c11574);
   border-color: var(--accent-3, #c11574);
-  color: var(--accent-3-text, oklch(from var(--accent-3, #c11574) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
@@ -1061,7 +1061,7 @@ a.ui.ui.ui.inverted.basic.accent-2.label:hover {
 a.ui.ui.ui.accent-3.label:hover {
   background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
   border-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
-  color: var(--accent-3-text, oklch(from var(--accent-3, #c11574) calc((0.6 - l) * 1000) 0 0));
+  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
@@ -1092,7 +1092,7 @@ a.ui.ui.ui.basic.accent-3.label:hover {
   border-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1102,7 +1102,7 @@ a.ui.ui.ui.inverted.accent-3.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1143,7 +1143,7 @@ a.ui.ui.ui.inverted.basic.accent-3.label:hover {
 .ui.ui.ui.red.label {
   background-color: #f04438;
   border-color: #f04438;
-  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1151,7 +1151,7 @@ a.ui.ui.ui.inverted.basic.accent-3.label:hover {
 a.ui.ui.ui.red.label:hover {
   background-color: #f92516;
   border-color: #f92516;
-  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1182,7 +1182,7 @@ a.ui.ui.ui.basic.red.label:hover {
   border-color: #f97066;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #f97066 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f97066 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1192,7 +1192,7 @@ a.ui.ui.ui.inverted.red.label:hover {
   border-color: #ff3b2d;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #ff3b2d calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ff3b2d srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1233,7 +1233,7 @@ a.ui.ui.ui.inverted.basic.red.label:hover {
 .ui.ui.ui.orange.label {
   background-color: #ef6820;
   border-color: #ef6820;
-  color: oklch(from #ef6820 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1241,7 +1241,7 @@ a.ui.ui.ui.inverted.basic.red.label:hover {
 a.ui.ui.ui.orange.label:hover {
   background-color: #f05706;
   border-color: #f05706;
-  color: oklch(from #ef6820 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1272,7 +1272,7 @@ a.ui.ui.ui.basic.orange.label:hover {
   border-color: #f38744;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #f38744 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f38744 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1282,7 +1282,7 @@ a.ui.ui.ui.inverted.orange.label:hover {
   border-color: #fb6609;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #fb6609 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #fb6609 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1323,7 +1323,7 @@ a.ui.ui.ui.inverted.basic.orange.label:hover {
 .ui.ui.ui.yellow.label {
   background-color: #f79009;
   border-color: #f79009;
-  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1331,7 +1331,7 @@ a.ui.ui.ui.inverted.basic.orange.label:hover {
 a.ui.ui.ui.yellow.label:hover {
   background-color: #e78300;
   border-color: #e78300;
-  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1362,7 +1362,7 @@ a.ui.ui.ui.basic.yellow.label:hover {
   border-color: #fdb022;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #fdb022 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #fdb022 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1372,7 +1372,7 @@ a.ui.ui.ui.inverted.yellow.label:hover {
   border-color: #ec9900;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #ec9900 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ec9900 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1413,7 +1413,7 @@ a.ui.ui.ui.inverted.basic.yellow.label:hover {
 .ui.ui.ui.olive.label {
   background-color: #84a11b;
   border-color: #84a11b;
-  color: oklch(from #84a11b calc((0.6 - l) * 1000) 0 0);
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1421,7 +1421,7 @@ a.ui.ui.ui.inverted.basic.yellow.label:hover {
 a.ui.ui.ui.olive.label:hover {
   background-color: #759112;
   border-color: #759112;
-  color: oklch(from #84a11b calc((0.6 - l) * 1000) 0 0);
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1452,7 +1452,7 @@ a.ui.ui.ui.basic.olive.label:hover {
   border-color: #a6c43a;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #a6c43a calc((0.6 - l) * 1000) 0 0);
+  color: color(from #a6c43a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1462,7 +1462,7 @@ a.ui.ui.ui.inverted.olive.label:hover {
   border-color: #88a229;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #88a229 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #88a229 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1503,7 +1503,7 @@ a.ui.ui.ui.inverted.basic.olive.label:hover {
 .ui.ui.ui.green.label {
   background-color: #17b26a;
   border-color: #17b26a;
-  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0);
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1511,7 +1511,7 @@ a.ui.ui.ui.inverted.basic.olive.label:hover {
 a.ui.ui.ui.green.label:hover {
   background-color: #0da25d;
   border-color: #0da25d;
-  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0);
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1542,7 +1542,7 @@ a.ui.ui.ui.basic.green.label:hover {
   border-color: #47cd89;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #47cd89 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #47cd89 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1552,7 +1552,7 @@ a.ui.ui.ui.inverted.green.label:hover {
   border-color: #2ab76f;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #2ab76f calc((0.6 - l) * 1000) 0 0);
+  color: color(from #2ab76f srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1593,7 +1593,7 @@ a.ui.ui.ui.inverted.basic.green.label:hover {
 .ui.ui.ui.teal.label {
   background-color: #06aed4;
   border-color: #06aed4;
-  color: oklch(from #06aed4 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1601,7 +1601,7 @@ a.ui.ui.ui.inverted.basic.green.label:hover {
 a.ui.ui.ui.teal.label:hover {
   background-color: #009dc1;
   border-color: #009dc1;
-  color: oklch(from #06aed4 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1632,7 +1632,7 @@ a.ui.ui.ui.basic.teal.label:hover {
   border-color: #22ccee;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #22ccee calc((0.6 - l) * 1000) 0 0);
+  color: color(from #22ccee srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1642,7 +1642,7 @@ a.ui.ui.ui.inverted.teal.label:hover {
   border-color: #06b4d7;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #06b4d7 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #06b4d7 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1683,7 +1683,7 @@ a.ui.ui.ui.inverted.basic.teal.label:hover {
 .ui.ui.ui.blue.label {
   background-color: #2e90fa;
   border-color: #2e90fa;
-  color: oklch(from #2e90fa calc((0.6 - l) * 1000) 0 0);
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1691,7 +1691,7 @@ a.ui.ui.ui.inverted.basic.teal.label:hover {
 a.ui.ui.ui.blue.label:hover {
   background-color: #0f83ff;
   border-color: #0f83ff;
-  color: oklch(from #2e90fa calc((0.6 - l) * 1000) 0 0);
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1722,7 +1722,7 @@ a.ui.ui.ui.basic.blue.label:hover {
   border-color: #53b1fd;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #53b1fd calc((0.6 - l) * 1000) 0 0);
+  color: color(from #53b1fd srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1732,7 +1732,7 @@ a.ui.ui.ui.inverted.blue.label:hover {
   border-color: #1e9aff;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #1e9aff calc((0.6 - l) * 1000) 0 0);
+  color: color(from #1e9aff srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1773,7 +1773,7 @@ a.ui.ui.ui.inverted.basic.blue.label:hover {
 .ui.ui.ui.violet.label {
   background-color: #7a5af8;
   border-color: #7a5af8;
-  color: oklch(from #7a5af8 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1781,7 +1781,7 @@ a.ui.ui.ui.inverted.basic.blue.label:hover {
 a.ui.ui.ui.violet.label:hover {
   background-color: #6239ff;
   border-color: #6239ff;
-  color: oklch(from #7a5af8 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1812,7 +1812,7 @@ a.ui.ui.ui.basic.violet.label:hover {
   border-color: #9b8afb;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #9b8afb calc((0.6 - l) * 1000) 0 0);
+  color: color(from #9b8afb srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1822,7 +1822,7 @@ a.ui.ui.ui.inverted.violet.label:hover {
   border-color: #6d53ff;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #6d53ff calc((0.6 - l) * 1000) 0 0);
+  color: color(from #6d53ff srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1863,7 +1863,7 @@ a.ui.ui.ui.inverted.basic.violet.label:hover {
 .ui.ui.ui.purple.label {
   background-color: #9e4cc9;
   border-color: #9e4cc9;
-  color: oklch(from #9e4cc9 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1871,7 +1871,7 @@ a.ui.ui.ui.inverted.basic.violet.label:hover {
 a.ui.ui.ui.purple.label:hover {
   background-color: #9534c8;
   border-color: #9534c8;
-  color: oklch(from #9e4cc9 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1902,7 +1902,7 @@ a.ui.ui.ui.basic.purple.label:hover {
   border-color: #c084e8;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #c084e8 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #c084e8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -1912,7 +1912,7 @@ a.ui.ui.ui.inverted.purple.label:hover {
   border-color: #ab52e7;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #ab52e7 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ab52e7 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -1953,7 +1953,7 @@ a.ui.ui.ui.inverted.basic.purple.label:hover {
 .ui.ui.ui.pink.label {
   background-color: #c11574;
   border-color: #c11574;
-  color: oklch(from #c11574 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -1961,7 +1961,7 @@ a.ui.ui.ui.inverted.basic.purple.label:hover {
 a.ui.ui.ui.pink.label:hover {
   background-color: #b20b67;
   border-color: #b20b67;
-  color: oklch(from #c11574 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -1992,7 +1992,7 @@ a.ui.ui.ui.basic.pink.label:hover {
   border-color: #ee46bc;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #ee46bc calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ee46bc srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -2002,7 +2002,7 @@ a.ui.ui.ui.inverted.pink.label:hover {
   border-color: #f40daf;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #f40daf calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f40daf srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -2043,7 +2043,7 @@ a.ui.ui.ui.inverted.basic.pink.label:hover {
 .ui.ui.ui.brown.label {
   background-color: #6e4a2e;
   border-color: #6e4a2e;
-  color: oklch(from #6e4a2e calc((0.6 - l) * 1000) 0 0);
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -2051,7 +2051,7 @@ a.ui.ui.ui.inverted.basic.pink.label:hover {
 a.ui.ui.ui.brown.label:hover {
   background-color: #5f3e24;
   border-color: #5f3e24;
-  color: oklch(from #6e4a2e calc((0.6 - l) * 1000) 0 0);
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -2082,7 +2082,7 @@ a.ui.ui.ui.basic.brown.label:hover {
   border-color: #b08463;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #b08463 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #b08463 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -2092,7 +2092,7 @@ a.ui.ui.ui.inverted.brown.label:hover {
   border-color: #986a48;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #986a48 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #986a48 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -2133,7 +2133,7 @@ a.ui.ui.ui.inverted.basic.brown.label:hover {
 .ui.ui.ui.grey.label {
   background-color: #687181;
   border-color: #687181;
-  color: oklch(from #687181 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -2141,7 +2141,7 @@ a.ui.ui.ui.inverted.basic.brown.label:hover {
 a.ui.ui.ui.grey.label:hover {
   background-color: #5d6573;
   border-color: #5d6573;
-  color: oklch(from #687181 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -2172,7 +2172,7 @@ a.ui.ui.ui.basic.grey.label:hover {
   border-color: #99a1af;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #99a1af calc((0.6 - l) * 1000) 0 0);
+  color: color(from #99a1af srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -2182,7 +2182,7 @@ a.ui.ui.ui.inverted.grey.label:hover {
   border-color: #7b869a;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #7b869a calc((0.6 - l) * 1000) 0 0);
+  color: color(from #7b869a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -2222,7 +2222,7 @@ a.ui.ui.ui.inverted.basic.grey.label:hover {
 .ui.ui.ui.black.label {
   background-color: light-dark(#1f2430, #535c6e);
   border-color: light-dark(#1f2430, #535c6e);
-  color: oklch(from #1f2430 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #1f2430 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Link */
@@ -2230,7 +2230,7 @@ a.ui.ui.ui.inverted.basic.grey.label:hover {
 a.ui.ui.ui.black.label:hover {
   background-color: light-dark(#2b3140, #5f6879);
   border-color: light-dark(#2b3140, #5f6879);
-  color: oklch(from #1f2430 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #1f2430 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Ribbon */
@@ -2261,7 +2261,7 @@ a.ui.ui.ui.basic.black.label:hover {
   border-color: #4b5363;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #4b5363 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #4b5363 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
@@ -2271,7 +2271,7 @@ a.ui.ui.ui.inverted.black.label:hover {
   border-color: #000000;
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: oklch(from #000000 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #000000 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
@@ -2561,6 +2561,65 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
 *******************************/
 
 
+
+/*******************************
+      Core: Label Overrides
+*******************************/
+
+
+/* Circular grande (iniciales): siempre redonda; con el relleno de Fomantic dos letras la ovalaban */
+.ui.large.circular.label:not(.empty),
+.ui.big.circular.label:not(.empty),
+.ui.huge.circular.label:not(.empty),
+.ui.massive.circular.label:not(.empty) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 2.4em;
+  min-height: 2.4em;
+  padding: 0 !important;
+  line-height: 1;
+}
+
+/* Basic circular: redonda también con su borde de 1px. En flex y no en grid: con un punto de estado
+   (`i.circle.icon`) y texto, la rejilla los apilaba (el punto salía encima del texto). */
+.ui.basic.circular.label:not(.empty) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Etiquetas de alto distinto en una fila: centradas, con el texto a la misma altura */
+.ui.labels > .label {
+  vertical-align: middle;
+}
+
+/* Cápsula (contador o estado): nunca parte la línea. En una celda estrecha partía el texto y dejaba
+   el punto de estado solo arriba. */
+.ui.circular.labels .label:not(.empty),
+.ui.circular.label:not(.empty) {
+  white-space: nowrap;
+}
+
+/* Punto de estado: `i.circle.icon` dentro de una etiqueta basic es un punto de 6px del color del texto
+   (el glifo no se usa), a 6px del texto */
+.ui.basic.label > i.circle.icon {
+  width: 6px;
+  height: 6px;
+  margin: 0 6px 0 0;
+  border-radius: 50%;
+  background-color: currentColor;
+  vertical-align: middle;
+  opacity: 1;
+}
+.ui.basic.label > i.circle.icon::before {
+  content: none;
+}
+
 /* -------------------
   Contador y estado
 -------------------- */
@@ -2589,21 +2648,6 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
 .ui.ui.empty.circular.labels .label,
 .ui.ui.empty.circular.label {
   padding: 0.5em !important;
-}
-
-/* Punto del estado: `i.circle.icon` dentro de una etiqueta basic se dibuja como un punto de
-   6px en el color sólido (el glifo no se usa), a 6px del texto */
-.ui.basic.label > i.circle.icon {
-  width: 6px;
-  height: 6px;
-  margin: 0 6px 0 0;
-  border-radius: 50%;
-  background-color: currentColor;
-  vertical-align: middle;
-  opacity: 1;
-}
-.ui.basic.label > i.circle.icon::before {
-  content: none;
 }
 
 /* -------------------

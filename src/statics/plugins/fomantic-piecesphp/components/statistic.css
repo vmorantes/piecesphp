@@ -743,3 +743,10 @@
   line-height: 1.25;
   letter-spacing: -0.02em;
 }
+
+/* Marked (Medium card): cifra y etiqueta del mismo ancho, alineadas a la izquierda como en la
+   definición. Con el ancho de su contenido, sus bordes derechos quedaban a 1–6px (5,7px en
+   Tareas programadas): ni alineados ni claramente distintos */
+.ui.marked.statistic {
+  align-items: stretch;
+}

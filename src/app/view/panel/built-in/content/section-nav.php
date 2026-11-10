@@ -46,6 +46,16 @@ $option = fn (array $item): string => $urlOf($item) === null ? '' : '<option val
         <?php $children = $childrenOf($item); ?>
         <?php if ($children === []): ?>
         <?= $link($item, 'item'); ?>
+        <?php elseif ($activeOf($item) && $urlOf($item) !== null): ?>
+        <?php //El actual, como un elemento activo del tema (el tema no resalta un «header» activo); sus hijos, en el siguiente. ?>
+        <?= $link($item, 'item'); ?>
+        <div class="item">
+            <div class="menu">
+                <?php foreach ($children as $child): ?>
+                <?= $link($child, 'item'); ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
         <?php else: ?>
         <div class="item">
             <?php if ($urlOf($item) !== null): ?>

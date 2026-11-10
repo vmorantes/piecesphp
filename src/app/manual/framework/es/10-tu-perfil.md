@@ -18,7 +18,8 @@ Elige **«Cambiar contraseña»**. Para cambiarla, el sistema te pide primero la
 ## La seguridad de tu cuenta
 <!-- ve: my-space-admin-user-security -->
 
-Elige **«Opciones de seguridad»**: se abre en la pestaña de la verificación en dos pasos. En la pestaña
+En el menú de tu usuario, elige **«Seguridad»**: a su lado ves si tu verificación en dos pasos está **«Activa»** o
+**«Inactiva»**. Se abre la pantalla **«Seguridad»** en la pestaña de la verificación en dos pasos. En la pestaña
 **«Mis sesiones»** ves las sesiones abiertas con tu cuenta. En cada una puedes **«Cerrar»** la que no reconozcas o **«Extender»** la tuya, y **«Cerrar las demás sesiones»** las cierra todas menos la que estás usando.
 
 ![La seguridad de tu cuenta](img/my-space-admin-user-security.webp)

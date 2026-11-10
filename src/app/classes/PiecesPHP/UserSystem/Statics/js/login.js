@@ -209,7 +209,7 @@ function configLoginForm() {
 		let titleError = errorView.find('[title]')
 		let messageError = errorView.find('[message]')
 		let messageBottom = errorView.find('[bottom-message]')
-		messageBottom.html(_i18n('loginForm', 'Si continua con problemas para ingresar, por favor utilice la ayuda.'))
+		messageBottom.html(_i18n('loginForm', 'Si continúa con problemas para ingresar, por favor utilice la ayuda.'))
 
 		if ('INCORRECT_PASSWORD' == error) {
 
@@ -231,6 +231,11 @@ function configLoginForm() {
 		} else if ('INVALID_USER_TYPE' == error) {
 
 			titleError.html(_i18n('loginForm', 'Cuenta sin un tipo válido'))
+			messageError.html(data.message)
+
+		} else if ('MAINTENANCE_MODE' == error) {
+
+			titleError.html(_i18n('loginForm', 'Sitio en mantenimiento'))
 			messageError.html(data.message)
 
 		} else if ('MISSING_OR_UNEXPECTED_PARAMS' == error) {

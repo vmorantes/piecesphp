@@ -97,7 +97,9 @@ foreach ($cleanTargets as $target) {
                     </div>
                     <div class="ui stackable very relaxed flex">
                         <?php if ($row['value'] !== null): ?>
-                        <strong class="ui tabular text" data-system-maintenance-row="<?= $escape($row['value']['target']); ?>" data-unit="<?= $escape($row['value']['unit']); ?>" data-keys="<?= $escape(implode(',', $row['value']['keys'])); ?>"><?= $value($row['value']['unit'], $row['value']['keys'], $row['value']['status']); ?></strong>
+                        <?php //Una marca (un hash de 40 caracteres) va en una línea con puntos suspensivos y entera en title: partida dejaba un carácter solo. ?>
+                        <?php $isStamp = $row['value']['unit'] === CleanTarget::UNIT_STAMP; ?>
+                        <strong class="ui tabular<?= $isStamp ? ' truncated' : ''; ?> text"<?= $isStamp ? ' title="' . $escape((string) ($row['value']['status'][$row['value']['keys'][0]] ?? '')) . '"' : ''; ?> data-system-maintenance-row="<?= $escape($row['value']['target']); ?>" data-unit="<?= $escape($row['value']['unit']); ?>" data-keys="<?= $escape(implode(',', $row['value']['keys'])); ?>"><?= $value($row['value']['unit'], $row['value']['keys'], $row['value']['status']); ?></strong>
                         <?php endif; ?>
                         <?php if ($row['button'] !== null): ?>
                         <button type="button" class="ui basic button" title="<?= $escape($row['button']['title']); ?>" aria-describedby="<?= $escape($row['id']); ?>" data-system-maintenance-action="<?= $escape($row['button']['url']); ?>"<?php if ($row['button']['target'] !== null): ?> data-system-maintenance-target="<?= $escape($row['button']['target']); ?>"<?php endif; ?> data-confirm="<?= $escape($row['button']['confirm']); ?>"><?= $escape($row['button']['text']); ?></button>

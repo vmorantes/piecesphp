@@ -5,12 +5,17 @@ use MySpace\Controllers\MySpaceController;
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
+use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use SystemApprovals\SystemApprovalsRoutes;
 
 require __DIR__ . '/topbar-data.php';
 $fullName = $currentUser->firstname . ' ' . $currentUser->firstLastname;
 $themeMode = AdminPanelController::themeModeOf((int) $currentUser->id);
+//El mismo criterio que el acceso (activado y confirmado), del TOTPData que el usuario ya trae cargado: sin consulta nueva.
+$twoFactorData = $currentUser->TOTPData;
+$twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === OTPSecretsUsersMapper::TWOAF_STATUS_ENABLED && (int) $twoFactorData->twoAuthFactorQRViewed === 1;
 ?>
 <?php if ($withHelpCenter) : ?>
 <button class="ui tertiary icon button" type="button" help-center-toggle aria-haspopup="menu" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Ayuda')); ?>"><i class="question circle icon" aria-hidden="true"></i></button>
@@ -57,7 +62,8 @@ $themeMode = AdminPanelController::themeModeOf((int) $currentUser->id);
         <div class="divider"></div>
         <a class="item" href="#" edit-account><i class="user icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar Cuenta'); ?></a>
         <a class="item" href="#" change-password><i class="key icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar contraseña'); ?></a>
-        <a class="item" href="<?= MySpaceController::routeName('user-security'); ?>"><i class="shield alternate icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Opciones de seguridad'); ?></a>
+        <?php //El nombre del enlace con el estado AL FINAL: la descripción va antes en el DOM y se leería «Activa Seguridad…». ?>
+        <a class="item" href="<?= MySpaceController::routeName('user-security'); ?>" aria-label="<?= escape_html($twoFactorActive ? __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad. Verificación en dos pasos: activa') : __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad. Verificación en dos pasos: inactiva')); ?>"><span class="description"><?= $twoFactorActive ? StatusLabel::html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Activa'), StatusLabel::POSITIVE) : StatusLabel::neutral(__(AdminPanelController::ADMIN_LANG_GROUP, 'Inactiva')); ?></span><i class="shield alternate icon" aria-hidden="true"></i><span class="ui inline vertical left aligned fitted flex"><span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad'); ?></span><small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Verificación en dos pasos'); ?></small></span></a>
         <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::ENABLE): ?>
         <a class="item" href="<?= MyProfileController::routeName('my-profile', [], true); ?>"><i class="id card outline icon" aria-hidden="true"></i><?= __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'); ?></a>
         <?php endif; ?>

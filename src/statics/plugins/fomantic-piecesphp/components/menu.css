@@ -1531,7 +1531,7 @@ Floated Menu / Item
 .ui.ui.inverted.primary.menu a.item:hover,
 .ui.ui.inverted.primary.menu .active.item,
 .ui.ui.ui.inverted.menu .primary.active.item {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.primary.menu .active.item {
   background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
@@ -1539,7 +1539,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.primary.menu .active.item {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .accent-1.active.item,
 .ui.ui.inverted.accent-1.menu {
@@ -1558,7 +1558,7 @@ Floated Menu / Item
 .ui.ui.inverted.accent-1.menu a.item:hover,
 .ui.ui.inverted.accent-1.menu .active.item,
 .ui.ui.ui.inverted.menu .accent-1.active.item {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.accent-1.menu .active.item {
   background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
@@ -1566,7 +1566,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.accent-1.menu .active.item {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .accent-2.active.item,
 .ui.ui.inverted.accent-2.menu {
@@ -1585,7 +1585,7 @@ Floated Menu / Item
 .ui.ui.inverted.accent-2.menu a.item:hover,
 .ui.ui.inverted.accent-2.menu .active.item,
 .ui.ui.ui.inverted.menu .accent-2.active.item {
-  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.accent-2.menu .active.item {
   background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
@@ -1593,7 +1593,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.accent-2.menu .active.item {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .accent-3.active.item,
 .ui.ui.inverted.accent-3.menu {
@@ -1612,7 +1612,7 @@ Floated Menu / Item
 .ui.ui.inverted.accent-3.menu a.item:hover,
 .ui.ui.inverted.accent-3.menu .active.item,
 .ui.ui.ui.inverted.menu .accent-3.active.item {
-  color: oklch(from var(--accent-3, #c11574) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.accent-3.menu .active.item {
   background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
@@ -1620,7 +1620,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.accent-3.menu .active.item {
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 88%, black) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 88%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .red.active.item,
 .ui.ui.inverted.red.menu {
@@ -1639,7 +1639,7 @@ Floated Menu / Item
 .ui.ui.inverted.red.menu a.item:hover,
 .ui.ui.inverted.red.menu .active.item,
 .ui.ui.ui.inverted.menu .red.active.item {
-  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.red.menu .active.item {
   background-color: #f92516;
@@ -1647,7 +1647,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.red.menu .active.item {
-  color: oklch(from #f92516 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #f92516 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .orange.active.item,
 .ui.ui.inverted.orange.menu {
@@ -1666,7 +1666,7 @@ Floated Menu / Item
 .ui.ui.inverted.orange.menu a.item:hover,
 .ui.ui.inverted.orange.menu .active.item,
 .ui.ui.ui.inverted.menu .orange.active.item {
-  color: oklch(from #ef6820 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.orange.menu .active.item {
   background-color: #f05706;
@@ -1674,7 +1674,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.orange.menu .active.item {
-  color: oklch(from #f05706 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #f05706 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .yellow.active.item,
 .ui.ui.inverted.yellow.menu {
@@ -1693,7 +1693,7 @@ Floated Menu / Item
 .ui.ui.inverted.yellow.menu a.item:hover,
 .ui.ui.inverted.yellow.menu .active.item,
 .ui.ui.ui.inverted.menu .yellow.active.item {
-  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.yellow.menu .active.item {
   background-color: #e78300;
@@ -1701,7 +1701,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.yellow.menu .active.item {
-  color: oklch(from #e78300 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #e78300 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .olive.active.item,
 .ui.ui.inverted.olive.menu {
@@ -1720,7 +1720,7 @@ Floated Menu / Item
 .ui.ui.inverted.olive.menu a.item:hover,
 .ui.ui.inverted.olive.menu .active.item,
 .ui.ui.ui.inverted.menu .olive.active.item {
-  color: oklch(from #84a11b calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.olive.menu .active.item {
   background-color: #759112;
@@ -1728,7 +1728,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.olive.menu .active.item {
-  color: oklch(from #759112 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #759112 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .green.active.item,
 .ui.ui.inverted.green.menu {
@@ -1747,7 +1747,7 @@ Floated Menu / Item
 .ui.ui.inverted.green.menu a.item:hover,
 .ui.ui.inverted.green.menu .active.item,
 .ui.ui.ui.inverted.menu .green.active.item {
-  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.green.menu .active.item {
   background-color: #0da25d;
@@ -1755,7 +1755,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.green.menu .active.item {
-  color: oklch(from #0da25d calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #0da25d srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .teal.active.item,
 .ui.ui.inverted.teal.menu {
@@ -1774,7 +1774,7 @@ Floated Menu / Item
 .ui.ui.inverted.teal.menu a.item:hover,
 .ui.ui.inverted.teal.menu .active.item,
 .ui.ui.ui.inverted.menu .teal.active.item {
-  color: oklch(from #06aed4 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.teal.menu .active.item {
   background-color: #009dc1;
@@ -1782,7 +1782,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.teal.menu .active.item {
-  color: oklch(from #009dc1 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #009dc1 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .blue.active.item,
 .ui.ui.inverted.blue.menu {
@@ -1801,7 +1801,7 @@ Floated Menu / Item
 .ui.ui.inverted.blue.menu a.item:hover,
 .ui.ui.inverted.blue.menu .active.item,
 .ui.ui.ui.inverted.menu .blue.active.item {
-  color: oklch(from #2e90fa calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.blue.menu .active.item {
   background-color: #0f83ff;
@@ -1809,7 +1809,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.blue.menu .active.item {
-  color: oklch(from #0f83ff calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #0f83ff srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .violet.active.item,
 .ui.ui.inverted.violet.menu {
@@ -1828,7 +1828,7 @@ Floated Menu / Item
 .ui.ui.inverted.violet.menu a.item:hover,
 .ui.ui.inverted.violet.menu .active.item,
 .ui.ui.ui.inverted.menu .violet.active.item {
-  color: oklch(from #7a5af8 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.violet.menu .active.item {
   background-color: #6239ff;
@@ -1836,7 +1836,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.violet.menu .active.item {
-  color: oklch(from #6239ff calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #6239ff srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .purple.active.item,
 .ui.ui.inverted.purple.menu {
@@ -1855,7 +1855,7 @@ Floated Menu / Item
 .ui.ui.inverted.purple.menu a.item:hover,
 .ui.ui.inverted.purple.menu .active.item,
 .ui.ui.ui.inverted.menu .purple.active.item {
-  color: oklch(from #9e4cc9 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.purple.menu .active.item {
   background-color: #9534c8;
@@ -1863,7 +1863,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.purple.menu .active.item {
-  color: oklch(from #9534c8 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #9534c8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .pink.active.item,
 .ui.ui.inverted.pink.menu {
@@ -1882,7 +1882,7 @@ Floated Menu / Item
 .ui.ui.inverted.pink.menu a.item:hover,
 .ui.ui.inverted.pink.menu .active.item,
 .ui.ui.ui.inverted.menu .pink.active.item {
-  color: oklch(from #c11574 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.pink.menu .active.item {
   background-color: #b20b67;
@@ -1890,7 +1890,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.pink.menu .active.item {
-  color: oklch(from #b20b67 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #b20b67 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .brown.active.item,
 .ui.ui.inverted.brown.menu {
@@ -1909,7 +1909,7 @@ Floated Menu / Item
 .ui.ui.inverted.brown.menu a.item:hover,
 .ui.ui.inverted.brown.menu .active.item,
 .ui.ui.ui.inverted.menu .brown.active.item {
-  color: oklch(from #6e4a2e calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.brown.menu .active.item {
   background-color: #5f3e24;
@@ -1917,7 +1917,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.brown.menu .active.item {
-  color: oklch(from #5f3e24 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #5f3e24 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .grey.active.item,
 .ui.ui.inverted.grey.menu {
@@ -1936,7 +1936,7 @@ Floated Menu / Item
 .ui.ui.inverted.grey.menu a.item:hover,
 .ui.ui.inverted.grey.menu .active.item,
 .ui.ui.ui.inverted.menu .grey.active.item {
-  color: oklch(from #687181 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.grey.menu .active.item {
   background-color: #5d6573;
@@ -1944,7 +1944,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.grey.menu .active.item {
-  color: oklch(from #5d6573 calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from #5d6573 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.menu .black.active.item,
 .ui.ui.inverted.black.menu {
@@ -1963,7 +1963,7 @@ Floated Menu / Item
 .ui.ui.inverted.black.menu a.item:hover,
 .ui.ui.inverted.black.menu .active.item,
 .ui.ui.ui.inverted.menu .black.active.item {
-  color: oklch(from light-dark(#1f2430, #535c6e) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.inverted.pointing.black.menu .active.item {
   background-color: light-dark(#2b3140, #5f6879);
@@ -1971,7 +1971,7 @@ Floated Menu / Item
 
 /* Fork: el activo de pointing va sobre @h, no sobre @c (D36) */
 .ui.ui.ui.inverted.pointing.black.menu .active.item {
-  color: oklch(from light-dark(#2b3140, #5f6879) calc((0.6 - l) * 1000) 0 0) !important;
+  color: color(from light-dark(#2b3140, #5f6879) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))) !important;
 }
 .ui.ui.ui.inverted.pointing.menu .active.item::after {
   background-color: inherit;
@@ -2499,6 +2499,52 @@ Floated Menu / Item
 *******************************/
 
 
+
+/*******************************
+      Core: Menu Overrides
+*******************************/
+
+
+/* Encabezado de un text menu inverted: claro atenuado; el del modo claro no se leía sobre el fondo
+   oscuro */
+.ui.inverted.text.menu .header.item {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Barra superior en móvil: baja de línea en vez de cortar sus últimas opciones */
+@media only screen and (max-width: 767.98px) {
+  .ui.top.attached.menu:not(.tabular):not(.pointing),
+  .ui.top.attached.menu:not(.tabular):not(.pointing) > .ui.container {
+    flex-wrap: wrap;
+  }
+}
+
+/* Pestañas y menú subrayado en móvil: siguen en fila, bajando de línea si hace falta; apilados, el
+   indicador cruzaba toda la lista */
+@media only screen and (max-width: 767.98px) {
+  .ui.ui.stackable.tabular.menu,
+  .ui.ui.stackable.pointing.menu {
+    flex-direction: row;
+  }
+  .ui.ui.tabular.menu,
+  .ui.ui.secondary.pointing.menu {
+    flex-wrap: wrap;
+  }
+  .ui.ui.stackable.tabular.menu > .item,
+  .ui.ui.stackable.pointing.menu > .item {
+    width: auto !important;
+  }
+}
+
+/* Menú secundario apilado en móvil: sin el margen negativo de los lados, que con los ítems a todo el ancho
+   los sacaba 5px por cada lado del contenido */
+@media only screen and (max-width: 767.98px) {
+  .ui.stackable.secondary.menu:not(.pointing) {
+    margin-right: 0;
+    margin-left: 0;
+  }
+}
+
 /* Selectores de las cuatro formas del diseño. Cada una excluye las variaciones que la
    contradicen, para no romper `secondary menu`, `text menu`, `inverted`… */
 
@@ -2523,14 +2569,18 @@ Floated Menu / Item
   margin-bottom: 0;
 }
 
-/* Móvil: una sola fila que se desplaza en horizontal, sin barra (pp-tabs ≤767) */
+/* Móvil: una sola fila que se desplaza en horizontal, sin barra (pp-tabs ≤767). También las
+   inverted, que no tienen el aspecto del diseño pero sí el mismo problema: cuatro pestañas salían
+   52px de su segmento a 390px */
 @media only screen and (max-width: 767.98px) {
-  .ui.secondary.pointing.menu:not(.vertical):not(.inverted) {
+  .ui.secondary.pointing.menu:not(.vertical):not(.inverted),
+  .ui.inverted.secondary.pointing.menu:not(.vertical) {
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
   }
-  .ui.secondary.pointing.menu:not(.vertical):not(.inverted) > .item {
+  .ui.secondary.pointing.menu:not(.vertical):not(.inverted) > .item,
+  .ui.inverted.secondary.pointing.menu:not(.vertical) > .item {
     flex: none;
     white-space: nowrap;
   }
@@ -2824,12 +2874,16 @@ Floated Menu / Item
   padding-bottom: 0.71428571rem;
 }
 
-/* Encabezado de un text menu inverted: claro atenuado (el text-3 del modo claro no se leía) */
-.ui.inverted.text.menu .header.item {
-  color: rgba(255, 255, 255, 0.7);
-}
-
 /* Ítem con etiqueta flotante: hueco a la derecha para que la etiqueta no tape el final del texto */
 .ui.menu .item:has(> .floating.label) {
   padding-right: 1.71428571rem;
+}
+
+/* Secondary stackable en móvil: sin el margen negativo de 5px del secondary (que alinea el texto de
+   los ítems en fila); apilados, los ítems ocupan el ancho y su fondo salía 5px por cada lado */
+@media only screen and (max-width: 767.98px) {
+  .ui.secondary.stackable.menu {
+    margin-right: 0;
+    margin-left: 0;
+  }
 }

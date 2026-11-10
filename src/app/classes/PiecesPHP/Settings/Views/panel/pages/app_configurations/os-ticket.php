@@ -38,7 +38,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div class="field">
                     <label><?= __($langGroup, 'Key'); ?></label>
                     <?php //La clave no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
-                    <input autocomplete="off" type="text" name="key" value="" placeholder="<?= $hasKey ?__($langGroup, 'Hay una clave guardada: déjelo vacío para conservarla') : 'ABCD123456EFGH'; ?>">
+                    <input autocomplete="off" type="text" name="key" value="" placeholder="<?= $hasKey ?__($langGroup, 'Clave guardada: vacío la conserva') : 'ABCD123456EFGH'; ?>">
                 </div>
 
             </div>

@@ -247,6 +247,12 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
             $check($chuleta['open'] === true && str_contains($html, 'data-task-runs-cron'), 'e4 sin ejecuciones anotadas, la chuleta nace abierta');
             $haceUnRato = SystemStatusController::cronCheatsheet(['zz' => ['status' => 'executed', 'startedAt' => date('Y-m-d H:i:s', time() - 300), 'message' => null]], new \DateTime());
             $check($haceUnRato['open'] === false && $haceUnRato['lastRunAgo'] !== null, 'e5 con una ejecución de hace 5 min, nace plegada y lo dice', (string) $haceUnRato['lastRunAgo']);
+            //El aviso: «aún no hay» solo sin ninguna; con alguna pero ninguna en 24 h, el otro texto. La vista suelta, con su cron.
+            $avisoCon = fn (array $cron): string => (string) (new \PiecesPHP\AdminPanel\Controllers\HelperController())->setInstanceViewDir(basepath('app/classes/PiecesPHP/SystemStatus/Views/'))->render('task-runs', ['pieces' => new \PiecesPHP\AdminPanel\Controllers\HelperController(), 'langGroup' => SystemStatusController::LANG_GROUP, 'processTableLink' => '', 'tableExists' => true, 'updateFile' => '', 'tasks' => [], 'cron' => $cron], false);
+            $sinNinguna = $avisoCon(SystemStatusController::cronCheatsheet([], new \DateTime()));
+            $hace48h = $avisoCon(SystemStatusController::cronCheatsheet(['zz' => ['status' => 'executed', 'startedAt' => date('Y-m-d H:i:s', time() - 48 * 3600), 'message' => null]], new \DateTime()));
+            $check(str_contains($sinNinguna, __(SystemStatusController::LANG_GROUP, 'Aún no hay ejecuciones anotadas: revisa la pestaña «Instrucciones» para poner el cron.')), 'e5bis sin ninguna ejecución, el aviso dice que aún no hay');
+            $check(str_contains($hace48h, __(SystemStatusController::LANG_GROUP, 'Ninguna ejecución en las últimas 24 horas: revisa la pestaña «Instrucciones».')) && !str_contains($hace48h, __(SystemStatusController::LANG_GROUP, 'Aún no hay ejecuciones anotadas: revisa la pestaña «Instrucciones» para poner el cron.')), 'e5ter con una de hace 48 h, dice que ninguna en 24 h y no que no haya');
             $registradas = CronJobTask::getCronJobs();
             $registrada = $registradas !== [] ? $registradas[array_key_first($registradas)]->getName() : '';
             $ajena = 'zz-tarea-no-registrada-' . bin2hex(random_bytes(3));

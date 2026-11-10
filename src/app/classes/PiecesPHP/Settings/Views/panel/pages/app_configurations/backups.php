@@ -36,7 +36,7 @@ $numberField = function (string $name, string $label, string $help) use ($escape
         <label for="backup-<?= $escape($name); ?>"><?= $escape($label); ?></label>
         <input type="number" id="backup-<?= $escape($name); ?>" data-backup-field="<?= $escape($name); ?>"
             value="<?= $escape($policy[$name]); ?>" min="<?= $escape($min); ?>" max="<?= $escape($max); ?>" step="1" required>
-        <div class="description backup-help"><?= $escape($help); ?> <span class="ui muted text">(<?= $escape($min); ?>–<?= $escape($max); ?>)</span></div>
+        <div class="description backup-help"><?= $escape($help); ?> <span class="ui muted text">(<?= $escape($min); ?>&#8288;–&#8288;<?= $escape($max); ?>)</span></div>
     </div>
     <?php
         return (string) ob_get_clean();
@@ -102,6 +102,8 @@ $numberField = function (string $name, string $label, string $help) use ($escape
         </div>
 
     </section>
+
+    <div class="ui hidden divider"></div>
 
     <form class="ui form segment" action="<?= $escape($actionURL); ?>" method="POST" data-backups-form>
 

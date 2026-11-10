@@ -101,7 +101,7 @@ var PCSPHP_TRANSLATIONS_EN = {
 	loginForm: {
 		'Error': 'Error',
 		'Ha ocurrido un error inesperado, intente más tarde.': 'An unexpected error has occurred, try again later.',
-		'Si continua con problemas para ingresar, por favor utilice la ayuda.': 'If you continue to have problems entering, please use the help.',
+		'Si continúa con problemas para ingresar, por favor utilice la ayuda.': 'If you continue to have problems entering, please use the help.',
 		'Por favor, verifique los datos de ingreso y vuelva a intentar.': 'Please verify the login details and try again.',
 		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.': 'Please enter the following link to unlock your user.',
 		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'An error has occurred at the time of entry, please try again.',
@@ -110,6 +110,7 @@ var PCSPHP_TRANSLATIONS_EN = {
 		'ERROR_AL_INGRESAR': 'Login failed',
 		'Demasiados intentos': 'Too many attempts',
 		'Cuenta sin un tipo válido': 'Account without a valid type',
+		'Sitio en mantenimiento': 'Site under maintenance',
 	},
 	userProblems: {
 		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'It will be solved very soon, please check your mail in the next few hours. <br> The email may be in "Spam", please check the spam folder. The sender of the email is <strong>%r</strong>.',

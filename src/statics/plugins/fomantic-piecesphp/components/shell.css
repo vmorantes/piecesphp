@@ -960,8 +960,10 @@
 }
 
 /* Botones de ícono de la barra (.pp-tb-btn): 36px (40px en móvil) con el ícono de 16px. El padding
-   lleva !important porque el del `ui tertiary icon button` también (button.overrides) */
+   lleva !important porque el del `ui tertiary icon button` también (button.overrides). Sin
+   encogerse: a 390px la barra los estrechaba a 35,6×40 */
 .ui.shell > .main > .bar .ui.tertiary.icon.button {
+  flex: none;
   width: 2.57142857rem;
   height: 2.57142857rem;
   padding: 0 !important;

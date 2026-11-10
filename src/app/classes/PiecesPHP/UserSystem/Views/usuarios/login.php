@@ -53,7 +53,7 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
             </div>
 
             <div class="field" twofa-field>
-                <label for="login-two-factor"><?= __(USER_LOGIN_LANG_GROUP, 'Código de temporal de aplicación'); ?></label>
+                <label for="login-two-factor"><?= __(USER_LOGIN_LANG_GROUP, 'Código temporal de aplicación'); ?></label>
                 <input type="text" id="login-two-factor" name='twoFactor' autocomplete="one-time-code" placeholder="000000">
             </div>
 

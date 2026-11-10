@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "5e3fdbb",
+  "commit": "12f912d",
   "fuenteSinCambios": true,
-  "generado": "2026-11-06T19:26:13.511Z",
+  "generado": "2026-11-10T01:00:36.041Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -1732,16 +1732,16 @@
             "scrollbar-width": 13,
             "text-size-adjust": 13,
             "-webkit-font-smoothing": 13,
-            "border-block-end-color": 11,
-            "border-block-start-color": 11,
-            "border-bottom-color": 11,
-            "border-inline-end-color": 11,
-            "border-inline-start-color": 11
+            "padding-block-end": 1,
+            "padding-block-start": 1,
+            "padding-bottom": 1,
+            "padding-inline-end": 1,
+            "padding-inline-start": 1
           },
           "muestras": [
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "span.ui.swatch en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\"",
+            "span.ui.swatch en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\"",
+            "span.ui.swatch en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\""
           ]
         },
         "sueltoBaseUi": {
@@ -1749,44 +1749,24 @@
           "propiedades": {
             "font-size": 13,
             "line-height": 13,
-            "border-block-end-color": 11,
-            "border-block-start-color": 11,
-            "border-bottom-color": 11,
-            "border-inline-end-color": 11,
-            "border-inline-start-color": 11,
-            "border-left-color": 11,
-            "border-right-color": 11,
-            "border-top-color": 11,
-            "caret-color": 11,
-            "color": 11
+            "padding-block-end": 1,
+            "padding-block-start": 1,
+            "padding-bottom": 1,
+            "padding-inline-end": 1,
+            "padding-inline-start": 1,
+            "padding-left": 1,
+            "padding-right": 1,
+            "padding-top": 1
           },
           "muestras": [
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "span.ui.swatch en div.: font-size 13px → 14.8571px",
+            "span.ui.swatch en div.: font-size 13px → 14.8571px",
+            "span.ui.swatch en div.: font-size 13px → 14.8571px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 11,
-          "propiedades": {
-            "border-block-end-color": 11,
-            "border-block-start-color": 11,
-            "border-bottom-color": 11,
-            "border-inline-end-color": 11,
-            "border-inline-start-color": 11,
-            "border-left-color": 11,
-            "border-right-color": 11,
-            "border-top-color": 11,
-            "caret-color": 11,
-            "color": 11,
-            "column-rule-color": 11,
-            "outline-color": 11
-          },
-          "muestras": [
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.swatch en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -3560,7 +3540,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "163 piezas cambian sin él",
+          "icon": "161 piezas cambian sin él",
           "transition": "459 piezas cambian sin él",
           "button": "46 piezas cambian sin él",
           "flag": "25 piezas cambian sin él",
@@ -3633,8 +3613,8 @@
           },
           "muestras": [
             "div.ui.clearable.inline.dropdown en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.dropdown.icon en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.remove.icon en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.text en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.dropdown.icon en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
           ]
         },
         "jsConTodo": "sin errores",
@@ -4612,7 +4592,7 @@
             "inline-size": 143,
             "width": 143,
             "scrollbar-width": 124,
-            "block-size": 121
+            "block-size": 120
           },
           "muestras": [
             "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: box-sizing border-box → content-box",

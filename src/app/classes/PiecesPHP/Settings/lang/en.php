@@ -97,7 +97,7 @@ return [
     "Modelo Mistral" => "Mistral Model",
     "API Key OpenAI" => "OpenAI API Key",
     "API Key Mistral" => "Mistral API Key",
-    "Hay una clave guardada: déjelo vacío para conservarla" => "A key is saved: leave it empty to keep it",
+    "Clave guardada: vacío la conserva" => "Key saved: empty keeps it",
     "Hay una contraseña guardada: déjelo vacío para conservarla" => "A password is saved: leave it empty to keep it",
     "IA para traducciones" => "AI for translations",
     "Seguridad" => "Security",

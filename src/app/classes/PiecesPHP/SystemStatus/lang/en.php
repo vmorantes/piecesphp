@@ -236,5 +236,6 @@ return [
     'Instrucciones' => 'Instructions',
     'Próxima franja · %s' => 'Next slot · %s',
     'Sin franja programada' => 'No scheduled slot',
-    'Aún no hay ejecuciones anotadas: mire la pestaña Instrucciones para poner el cron.' => 'No runs recorded yet: see the Instructions tab to set up the cron.',
+    'Aún no hay ejecuciones anotadas: revisa la pestaña «Instrucciones» para poner el cron.' => 'No runs recorded yet: check the «Instructions» tab to set up the cron.',
+    'Ninguna ejecución en las últimas 24 horas: revisa la pestaña «Instrucciones».' => 'No runs in the last 24 hours: check the «Instructions» tab.',
 ];

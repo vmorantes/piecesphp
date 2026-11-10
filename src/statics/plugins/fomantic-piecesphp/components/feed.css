@@ -421,7 +421,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.primary.connected.feed > .event::before,
 .ui.connected.feed > .primary.event::before {
@@ -440,7 +440,7 @@
 .ui.feed > .event > .inverted.primary.label::before,
 .ui.inverted.primary.feed > .event > .label::before {
   background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.primary.basic.label::before,
 .ui.inverted.primary.basic.feed > .event > .label::before {
@@ -452,7 +452,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.secondary.connected.feed > .event::before,
 .ui.connected.feed > .secondary.event::before {
@@ -471,7 +471,7 @@
 .ui.feed > .event > .inverted.secondary.label::before,
 .ui.inverted.secondary.feed > .event > .label::before {
   background: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.secondary.basic.label::before,
 .ui.inverted.secondary.basic.feed > .event > .label::before {
@@ -483,7 +483,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-1.connected.feed > .event::before,
 .ui.connected.feed > .accent-1.event::before {
@@ -502,7 +502,7 @@
 .ui.feed > .event > .inverted.accent-1.label::before,
 .ui.inverted.accent-1.feed > .event > .label::before {
   background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.accent-1.basic.label::before,
 .ui.inverted.accent-1.basic.feed > .event > .label::before {
@@ -514,7 +514,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from var(--accent-2, #7a5af8) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-2.connected.feed > .event::before,
 .ui.connected.feed > .accent-2.event::before {
@@ -533,7 +533,7 @@
 .ui.feed > .event > .inverted.accent-2.label::before,
 .ui.inverted.accent-2.feed > .event > .label::before {
   background: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.accent-2.basic.label::before,
 .ui.inverted.accent-2.basic.feed > .event > .label::before {
@@ -545,7 +545,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from var(--accent-3, #c11574) calc((0.6 - l) * 1000) 0 0);
+  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-3.connected.feed > .event::before,
 .ui.connected.feed > .accent-3.event::before {
@@ -564,7 +564,7 @@
 .ui.feed > .event > .inverted.accent-3.label::before,
 .ui.inverted.accent-3.feed > .event > .label::before {
   background: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) calc((0.6 - l) * 1000) 0 0);
+  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.accent-3.basic.label::before,
 .ui.inverted.accent-3.basic.feed > .event > .label::before {
@@ -576,7 +576,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #f04438 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.red.connected.feed > .event::before,
 .ui.connected.feed > .red.event::before {
@@ -595,7 +595,7 @@
 .ui.feed > .event > .inverted.red.label::before,
 .ui.inverted.red.feed > .event > .label::before {
   background: #f97066;
-  color: oklch(from #f97066 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f97066 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.red.basic.label::before,
 .ui.inverted.red.basic.feed > .event > .label::before {
@@ -607,7 +607,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #ef6820 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.orange.connected.feed > .event::before,
 .ui.connected.feed > .orange.event::before {
@@ -626,7 +626,7 @@
 .ui.feed > .event > .inverted.orange.label::before,
 .ui.inverted.orange.feed > .event > .label::before {
   background: #f38744;
-  color: oklch(from #f38744 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f38744 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.orange.basic.label::before,
 .ui.inverted.orange.basic.feed > .event > .label::before {
@@ -638,7 +638,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #f79009 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.yellow.connected.feed > .event::before,
 .ui.connected.feed > .yellow.event::before {
@@ -657,7 +657,7 @@
 .ui.feed > .event > .inverted.yellow.label::before,
 .ui.inverted.yellow.feed > .event > .label::before {
   background: #fdb022;
-  color: oklch(from #fdb022 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #fdb022 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.yellow.basic.label::before,
 .ui.inverted.yellow.basic.feed > .event > .label::before {
@@ -669,7 +669,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #84a11b calc((0.6 - l) * 1000) 0 0);
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.olive.connected.feed > .event::before,
 .ui.connected.feed > .olive.event::before {
@@ -688,7 +688,7 @@
 .ui.feed > .event > .inverted.olive.label::before,
 .ui.inverted.olive.feed > .event > .label::before {
   background: #a6c43a;
-  color: oklch(from #a6c43a calc((0.6 - l) * 1000) 0 0);
+  color: color(from #a6c43a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.olive.basic.label::before,
 .ui.inverted.olive.basic.feed > .event > .label::before {
@@ -700,7 +700,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #17b26a calc((0.6 - l) * 1000) 0 0);
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.green.connected.feed > .event::before,
 .ui.connected.feed > .green.event::before {
@@ -719,7 +719,7 @@
 .ui.feed > .event > .inverted.green.label::before,
 .ui.inverted.green.feed > .event > .label::before {
   background: #47cd89;
-  color: oklch(from #47cd89 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #47cd89 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.green.basic.label::before,
 .ui.inverted.green.basic.feed > .event > .label::before {
@@ -731,7 +731,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #06aed4 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.teal.connected.feed > .event::before,
 .ui.connected.feed > .teal.event::before {
@@ -750,7 +750,7 @@
 .ui.feed > .event > .inverted.teal.label::before,
 .ui.inverted.teal.feed > .event > .label::before {
   background: #22ccee;
-  color: oklch(from #22ccee calc((0.6 - l) * 1000) 0 0);
+  color: color(from #22ccee srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.teal.basic.label::before,
 .ui.inverted.teal.basic.feed > .event > .label::before {
@@ -762,7 +762,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #2e90fa calc((0.6 - l) * 1000) 0 0);
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.blue.connected.feed > .event::before,
 .ui.connected.feed > .blue.event::before {
@@ -781,7 +781,7 @@
 .ui.feed > .event > .inverted.blue.label::before,
 .ui.inverted.blue.feed > .event > .label::before {
   background: #53b1fd;
-  color: oklch(from #53b1fd calc((0.6 - l) * 1000) 0 0);
+  color: color(from #53b1fd srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.blue.basic.label::before,
 .ui.inverted.blue.basic.feed > .event > .label::before {
@@ -793,7 +793,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #7a5af8 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.violet.connected.feed > .event::before,
 .ui.connected.feed > .violet.event::before {
@@ -812,7 +812,7 @@
 .ui.feed > .event > .inverted.violet.label::before,
 .ui.inverted.violet.feed > .event > .label::before {
   background: #9b8afb;
-  color: oklch(from #9b8afb calc((0.6 - l) * 1000) 0 0);
+  color: color(from #9b8afb srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.violet.basic.label::before,
 .ui.inverted.violet.basic.feed > .event > .label::before {
@@ -824,7 +824,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #9e4cc9 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.purple.connected.feed > .event::before,
 .ui.connected.feed > .purple.event::before {
@@ -843,7 +843,7 @@
 .ui.feed > .event > .inverted.purple.label::before,
 .ui.inverted.purple.feed > .event > .label::before {
   background: #c084e8;
-  color: oklch(from #c084e8 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #c084e8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.purple.basic.label::before,
 .ui.inverted.purple.basic.feed > .event > .label::before {
@@ -855,7 +855,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #c11574 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.pink.connected.feed > .event::before,
 .ui.connected.feed > .pink.event::before {
@@ -874,7 +874,7 @@
 .ui.feed > .event > .inverted.pink.label::before,
 .ui.inverted.pink.feed > .event > .label::before {
   background: #ee46bc;
-  color: oklch(from #ee46bc calc((0.6 - l) * 1000) 0 0);
+  color: color(from #ee46bc srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.pink.basic.label::before,
 .ui.inverted.pink.basic.feed > .event > .label::before {
@@ -886,7 +886,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #6e4a2e calc((0.6 - l) * 1000) 0 0);
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.brown.connected.feed > .event::before,
 .ui.connected.feed > .brown.event::before {
@@ -905,7 +905,7 @@
 .ui.feed > .event > .inverted.brown.label::before,
 .ui.inverted.brown.feed > .event > .label::before {
   background: #b08463;
-  color: oklch(from #b08463 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #b08463 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.brown.basic.label::before,
 .ui.inverted.brown.basic.feed > .event > .label::before {
@@ -917,7 +917,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from #687181 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.grey.connected.feed > .event::before,
 .ui.connected.feed > .grey.event::before {
@@ -936,7 +936,7 @@
 .ui.feed > .event > .inverted.grey.label::before,
 .ui.inverted.grey.feed > .event > .label::before {
   background: #99a1af;
-  color: oklch(from #99a1af calc((0.6 - l) * 1000) 0 0);
+  color: color(from #99a1af srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.grey.basic.label::before,
 .ui.inverted.grey.basic.feed > .event > .label::before {
@@ -948,7 +948,7 @@
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: oklch(from light-dark(#1f2430, #535c6e) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.black.connected.feed > .event::before,
 .ui.connected.feed > .black.event::before {
@@ -967,7 +967,7 @@
 .ui.feed > .event > .inverted.black.label::before,
 .ui.inverted.black.feed > .event > .label::before {
   background: #4b5363;
-  color: oklch(from #4b5363 calc((0.6 - l) * 1000) 0 0);
+  color: color(from #4b5363 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.black.basic.label::before,
 .ui.inverted.black.basic.feed > .event > .label::before {

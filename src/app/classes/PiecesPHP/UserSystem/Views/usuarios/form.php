@@ -91,7 +91,7 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
         <form action="<?= UsersController::routeName('revoke-sessions-request'); ?>" method="POST" class="ui form" revoke-user-sessions data-confirmation-title="<?= __($langGroup, 'Cerrar sesiones'); ?>" data-confirmation-message="<?= htmlspecialchars(strReplaceTemplate(__($langGroup, 'Se cerrarán todas las sesiones de %s.'), ['%s' => $edit_user->username])); ?>">
             <input type="hidden" name="id" value="<?= $edit_user->id; ?>">
-            <button type="submit" class="ui negative button"><?= __($langGroup, 'Cerrar todas sus sesiones'); ?></button>
+            <button type="submit" class="ui basic negative button"><?= __($langGroup, 'Cerrar todas sus sesiones'); ?></button>
         </form>
 
     </div>

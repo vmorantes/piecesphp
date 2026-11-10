@@ -19,11 +19,11 @@ de publicaciones destacadas de la portada.
 | :-- | :-- | :-- |
 | Controlador | `src/app/classes/PiecesPHP/Components/Controllers/ComponentProvider.php` | Tiene la ruta `provide`: valida el grupo pedido, ejecuta su plantilla y escribe el resultado |
 | Registro de rutas | `src/app/classes/PiecesPHP/Components/ComponentProviderRoutes.php` | Engancha el controlador al grupo de rutas `/components-provider` y lo activa o apaga (`ENABLE`) |
-| Grupos de componentes | Una carpeta por grupo dentro de `src/app/classes/PiecesPHP/Components/Views/`, con su `components.php` | Una plantilla por **grupo**. Cada carpeta con un `components.php` es un grupo servible |
+| Grupos de componentes | Los del framework: una carpeta por grupo dentro de `src/app/classes/PiecesPHP/Components/Views/`, con su `components.php`. Los de tu proyecto: registrados con `ComponentProvider::registerGroup()` desde tu propio módulo | Una plantilla por **grupo** |
 | Lector en JS (opcional) | `src/app/classes/PiecesPHP/Components/Statics/js/ComponentsProvider.js` | Pide un grupo y lo deja en un `Map`. **Hoy nadie lo usa** |
 
-Las rutas se registran en `src/app/config/routes.php`: el grupo `{idioma}/components-provider` se crea en la línea 99 y
-`ComponentProviderRoutes::routes($componentsProvider, $componentsProvider)` lo engancha en la 139. Si pones
+Las rutas se registran en `src/app/config/routes.php`: el grupo `{idioma}/components-provider` se crea en la línea 65 y
+`ComponentProviderRoutes::routes($componentsProvider, $componentsProvider)` lo engancha en la 105. Si pones
 `ComponentProviderRoutes::ENABLE` en `false`, no se registra la ruta ni se inyectan sus traducciones.
 
 ## El formato de un grupo
@@ -60,27 +60,52 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
   misma pieza (`listing.js:74-75`).
 - La plantilla es PHP normal: se ejecuta con el `render()` de `BaseController`, así que ve las variables globales del
   controlador y la petición (`$_GET`). **No recibe datos propios del controlador**: `provide()` la llama con
-  `$data = []` (`ComponentProvider.php:66`).
+  `$data = []` (`ComponentProvider.php:94`). Un grupo registrado no recibe nada: su función pinta lo que necesite.
 
 ## Cómo se registra un grupo nuevo
 
-No hay una API de registro: **el grupo existe porque existe el archivo**. Para añadir uno:
+**Desde tu proyecto, con `ComponentProvider::registerGroup()`** (desde la `10.10.0`). No crees carpetas dentro de
+`src/app/classes/PiecesPHP/Components/Views/`: es una carpeta del framework, y una actualización puede borrar o pisar lo
+que pongas ahí sin aviso; la página seguiría respondiendo, pero sin tus componentes.
 
-1. Crea una carpeta con el nombre del grupo dentro de `src/app/classes/PiecesPHP/Components/Views/` y, en ella, un
-   `components.php` con el formato de arriba. El nombre solo puede llevar letras, números, guion y guion bajo
-   (`^[A-Za-z0-9_-]+$`; `ComponentProvider.php:61-64`).
-2. No hay nada más que enganchar: `availableGroups()` (`ComponentProvider.php:77`) lista los directorios de `Views/`
-   que tengan `components.php`, y esa lista es la que valida cada petición.
-3. Si tu componente es de otro módulo, haz como Publications: el archivo del grupo es una línea que delega en una vista
-   del módulo (`src/app/classes/PiecesPHP/Components/Views/publications/components.php:5`):
+```php
+use PiecesPHP\Components\Controllers\ComponentProvider;
 
-   ```php
-   <?php PublicationsPublicController::view('public/util/components'); ?>
-   ```
+// En el routes() de tu módulo, que el framework llama al arrancar (src/app/config/routes.php),
+// junto a lo que ya registre ahí (por ejemplo, Sitemap::registerProvider()):
+ComponentProvider::registerGroup('miproyecto-convocatorias', function () {
+    ConvocatoriasPublicController::view('public/util/components');
+});
+```
 
-   Así el HTML vive con su módulo, no en `Components/`.
-4. **Actualiza la prueba**: `UnitTest-ComponentProviderGroup.php` espera que los grupos servibles sean exactamente
-   `publications` y `sample`. Al añadir uno, esa lista hay que ampliarla, o la suite falla.
+Así lo hace el mapa del sitio en Publications: `src/app/classes/Publications/PublicationsRoutes.php:56`, dentro de su
+`routes()`, que llama `src/app/config/routes.php:175`.
+
+| Regla | Qué pasa | Fuente |
+| :-- | :-- | :-- |
+| Firma | `registerGroup(string $group, callable $render): void`. `$render` pinta el HTML del grupo con `echo` (o con la vista de tu módulo) y no recibe argumentos | `ComponentProvider.php:132` |
+| El nombre | Solo letras, números, guion y guion bajo (`^[A-Za-z0-9_-]+$`); otro lanza `InvalidArgumentException` | `:134-136` |
+| Un nombre que ya existe | Uno del framework (`publications`, `sample`) o uno ya registrado lanza `LogicException` **y tumba el arranque**, también `bin/cli`: nunca se sustituye un grupo en silencio. Usa un prefijo de tu proyecto | `:137-139` |
+| Dónde llamarlo | En el `routes()` de tu módulo, sin condiciones de sesión. En un `init()` que solo corra con sesión, un anónimo recibiría 404 | docblock de `:132` |
+| Si `$render` lanza | Se descarta lo pintado a medias y la excepción sale de `provide()`: no se vuelve un 200 | `:77-92` |
+
+**La ruta es pública** (ver «Quién puede pedirlo»): lo que pinte tu grupo lo ve cualquiera. Lo que exija sesión no va en
+un grupo: va en una ruta de tu módulo con `require_login`. Y no bastaría con mirar si hay usuario dentro de `$render`:
+esta ruta no aplica los recortes de sesión del arranque, así que un usuario pendiente o bloqueado vería lo mismo.
+
+Los grupos del framework siguen siendo carpetas de `Views/` (`availableGroups()` devuelve las dos fuentes,
+`ComponentProvider.php:107`). Si el grupo es de otro módulo del framework, se hace como Publications: el archivo del grupo
+es una línea que delega en una vista del módulo
+(`src/app/classes/PiecesPHP/Components/Views/publications/components.php:5`).
+
+!!! warning "Si vienes de la versión 6 o anterior"
+    El módulo vivía en `src/app/classes/Components/`, y los proyectos dejaban allí sus grupos. Desde la `8.0.0` vive en
+    `src/app/classes/PiecesPHP/Components/` y esos grupos **desaparecen sin ningún error**: la sección que los pedía
+    deja de pintar. Busca las carpetas que tenías en `src/app/classes/Components/Views/` y regístralas con
+    `registerGroup()`.
+
+**La prueba** (`UnitTest-ComponentProviderGroup.php`) compara los grupos de `Views/` con `publications` y `sample` y descuenta
+los registrados: tus registros no la tumban.
 
 ## Cómo se pide
 
@@ -88,10 +113,10 @@ No hay una API de registro: **el grupo existe porque existe el archivo**. Para a
 
 | Dato | Valor | Fuente |
 | :-- | :-- | :-- |
-| Nombre | `components-provider-provide` | `ComponentProvider.php:40` y `:127` |
-| Método | `GET` | `ComponentProvider.php:128` |
-| Patrón | `{idioma}/components-provider/provide/{group}[/]` | `src/app/config/routes.php:99` y `ComponentProvider.php:125` |
-| Parámetro | `group`: el nombre de la carpeta de `Views/` | `ComponentProvider.php:61` |
+| Nombre | `components-provider-provide` | `ComponentProvider.php:40` y `:195-202` |
+| Método | `GET` | `ComponentProvider.php:199` |
+| Patrón | `{idioma}/components-provider/provide/{group}[/]` | `src/app/config/routes.php:65` y `ComponentProvider.php:196` |
+| Parámetro | `group`: el nombre de la carpeta de `Views/` o el de un grupo registrado | `ComponentProvider.php:73` |
 
 Desde PHP, la URL se obtiene con el nombre de la ruta, nunca a mano:
 
@@ -143,9 +168,9 @@ getRequest(url).then(function (response) {
 ## Qué devuelve
 
 - **200** con el HTML de la plantilla del grupo, tal cual, y `Content-Type: text/html; charset=utf-8`
-  (`ComponentProvider.php:66-69`).
+  (`ComponentProvider.php:77-97`).
 - **404** (`NotFoundException`) si `group` no es una cadena con forma de nombre o no es uno de los grupos de
-  `availableGroups()` (`ComponentProvider.php:61-64`). La comprobación va **antes** del `require` y es la defensa contra
+  `availableGroups()` (`ComponentProvider.php:73`). La comprobación va **antes** del `require` y es la defensa contra
   recorrer directorios con `..`. La cubre `UnitTest-ComponentProviderGroup.php` con diez entradas hostiles
   (`..`, `../x`, `a/b`, `SAMPLE`, `sample.php`, vacío…); el nombre distingue mayúsculas.
 - Si la propia plantilla lanza una excepción (cualquiera, también un `NotFoundException`), `render()` la captura, la
@@ -156,7 +181,7 @@ getRequest(url).then(function (response) {
 ## Quién puede pedirlo
 
 **Cualquiera, con o sin sesión.** La ruta se declara con `requireLogin = false` (quinto argumento de `Route`,
-`ComponentProvider.php:124-131`) y la lista de roles que lleva (todos los de `UsersModel::TYPES_USERS`, `:115-118`) **no
+`ComponentProvider.php:195-202`) y la lista de roles que lleva (todos los de `UsersModel::TYPES_USERS`, `:186`) **no
 restringe**: un `rolesAllowed` sin `require_login` no actúa. El inventario lo confirma:
 `files/dev/permissions-declared.json:502-512` anota `"requireLogin": false` con los roles 0, 1, 2, 3, 4 y 12.
 
@@ -172,7 +197,7 @@ Consecuencias para quien escribe un grupo:
 - `/components-provider/` está en el `Disallow` del `robots.txt` que genera el panel
   (`src/app/classes/PiecesPHP/Settings/Controllers/SiteFilesController.php:69`).
 - La regla de negocio que oculte la ruta a quien los roles sí permiten iría en `_allowedRoute()`
-  (`ComponentProvider.php:156`); hoy devuelve siempre `true`.
+  (`ComponentProvider.php:227-229`); hoy devuelve siempre `true`.
 
 > [!NOTE]
 > La fila de la matriz de permisos que hay en `files/dev/permissions-matrix.json:1130-1170` es la de las **estáticas** del
@@ -247,7 +272,7 @@ provider.on('load', function (e, components) {
 ```
 
 (`ComponentsProvider.js:7-111`). Su ruta pública sale de `ComponentProvider::pathJSModule()`
-(`ComponentProvider.php:92`), pero **ningún módulo la llama** y `listing.js` no lo usa: parsea el HTML a mano.
+(`ComponentProvider.php:163`), pero **ningún módulo la llama** y `listing.js` no lo usa: parsea el HTML a mano.
 Si lo vas a usar, ten en cuenta sus límites: guarda solo el primer elemento raíz de cada pieza, y dos `<components>`
 con el mismo nombre se pisan. Que se sirva sin error: **sin verificar** (la matriz da 404 para la URL del
 directorio de estáticas).

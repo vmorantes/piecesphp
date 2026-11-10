@@ -54,7 +54,7 @@ $engineLang = ImportRunner::LANG_GROUP;
                         <?php endforeach; ?>
                     </select>
                     <button type="button" class="ui basic button" data-transfer-preset-save><i class="save icon"></i><?= __($engineLang, 'Guardar estos filtros'); ?></button>
-                    <button type="button" class="ui basic red button" data-transfer-preset-delete><i class="trash alternate icon"></i><?= __($engineLang, 'Borrar'); ?></button>
+                    <button type="button" class="ui basic negative button" data-transfer-preset-delete><i class="trash alternate icon"></i><?= __($engineLang, 'Borrar'); ?></button>
                 </div>
                 <?php endif; ?>
 

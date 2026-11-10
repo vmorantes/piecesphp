@@ -1103,7 +1103,7 @@ var BaseFormSchema = /** @class */ (function () {
                 if (removible_1) {
                     var removeButton = document.createElement('button');
                     removeButton.setAttribute('remove-button', '');
-                    removeButton.setAttribute('class', 'ui mini button red');
+                    removeButton.setAttribute('class', 'ui mini basic negative button');
                     removeButton.innerHTML = "<i class=\"trash icon\"></i>Eliminar";
                     if (hasLabel) {
                         var label = wrapper.querySelector('label');
@@ -1457,7 +1457,7 @@ var BaseFormSchema = /** @class */ (function () {
         else {
             var removeButton = document.createElement('button');
             removeButton.setAttribute('remove-button', '');
-            removeButton.setAttribute('class', 'ui mini button red');
+            removeButton.setAttribute('class', 'ui mini basic negative button');
             removeButton.innerHTML = "<i class=\"trash icon\"></i>Eliminar";
             var hasLabel = newElement.querySelector('label') != null;
             if (hasLabel) {

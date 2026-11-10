@@ -197,10 +197,10 @@ body.dimmable > .dimmer {
   background: rgba(0, 0, 0, 0.65);
 }
 .light.light.light.light.light.dimmer {
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.3);
 }
 .very.very.very.very.light.dimmer {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.15);
 }
 
 /* --------------
@@ -375,6 +375,27 @@ body.dimmable > .dimmer {
 *******************************/
 
 
+
+/*******************************
+     Core: Dimmer Overrides
+*******************************/
+
+
+/* Velos claros (light, very light): lo de detrás se ve, así que el texto va en el del modo y no en el
+   blanco fijo de Fomantic. Los inverted claros son blancos en los dos modos: conservan su texto oscuro. */
+.ui.light.dimmer:not(.inverted),
+.ui.light.dimmer:not(.inverted) > .content,
+.ui[class*="very light"].dimmer:not(.inverted),
+.ui[class*="very light"].dimmer:not(.inverted) > .content {
+  color: var(--theme-text);
+}
+
+/* Dimmer inverted: claro en los dos modos, así que el texto del loader va oscuro fijo; el texto del
+   modo (@textColor de loader) no se leía sobre él en oscuro. Un tema puede afinar el gris. */
+.ui.inverted.dimmer > .ui.loader {
+  color: rgba(0, 0, 0, 0.75);
+}
+
 /* Velo de los modales (tokens.md §5 y §7): rgba(17, 21, 30, 0.55) con desenfoque de 2px,
    24px de margen alrededor del modal y z-index 300, por debajo de los toasts (9999, los de Fomantic). Solo el
    velo de modales: @zIndex de dimmer.variables afecta a todos los dimmers (de segmento,
@@ -387,13 +408,4 @@ body.dimmable > .dimmer {
 .ui.dimmer.modals.page {
   z-index: 300;
   padding: 1.71428571rem;
-}
-
-/* Velos claros (light, very light, también inverted): lo de detrás se ve, así que el texto va en el
-   del modo y no en el blanco o negro fijo de Fomantic */
-.ui.light.dimmer,
-.ui.light.dimmer > .content,
-.ui[class*="very light"].dimmer,
-.ui[class*="very light"].dimmer > .content {
-  color: var(--theme-text);
 }

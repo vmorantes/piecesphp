@@ -45,7 +45,6 @@ $lang = [
     'Cambiar contraseña' => 'Change password',
     'Noticias' => 'News',
     'Configuración del sistema' => 'System settings',
-    "Opciones de seguridad" => "Security options",
     "Idiomas" => "Languages",
     "Cambio de usuario" => "User change",
     "Cambiar idioma" => "Change language",
@@ -357,6 +356,11 @@ $lang = [
     'Segunda sección' => 'Second section',
     'En escritorio, el menú se queda fijo al desplazar; por debajo, un desplegable lleva a cada sección.' => 'On desktop, the menu stays fixed while scrolling; below that, a dropdown leads to each section.',
     'La que se ve se marca en el menú al desplazar.' => 'The one in view is marked in the menu while scrolling.',
+    'Verificación en dos pasos' => 'Two-step verification',
+    'Activa' => 'Active',
+    'Inactiva' => 'Inactive',
+    'Seguridad. Verificación en dos pasos: activa' => 'Security. Two-step verification: active',
+    'Seguridad. Verificación en dos pasos: inactiva' => 'Security. Two-step verification: inactive',
 ];
 
 return $lang;

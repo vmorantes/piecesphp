@@ -63,7 +63,6 @@ window.addEventListener('load', function () {
 							confirmAction({
 								title: _i18n(langGroup, 'Confirmar'),
 								message: _i18n(langGroup, '¿Está seguro?'),
-								confirmClass: 'red',
 							}).then(function (confirmed) {
 								if (confirmed) {
 									const loader2 = 'qr'

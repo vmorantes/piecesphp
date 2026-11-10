@@ -12,7 +12,8 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
  * MaintenanceMode. El modo mantenimiento del sitio.
  *
  * Encendido, toda petición responde **503** con la vista `pages/503`, salvo los roles configurados
- * y las rutas de `ALWAYS_ALLOWED`.
+ * y las rutas de `ALWAYS_ALLOWED`. Sin sesión, una pantalla con `require_login` va al acceso
+ * (`sendsToLogin()`), como iría con el modo apagado.
  *
  * POR QUÉ 503 Y NO 200: un 200 le dice a un buscador que esa pantalla es la página definitiva del
  * sitio, y la indexa. El 503 con `Retry-After` dice «vuelve luego», que es lo que pasa.
@@ -58,8 +59,11 @@ class MaintenanceMode
      * - `users-form-login` y `users-login-request`: sin ellas, un root que no tenga ya la sesión
      *   abierta NO PUEDE ENTRAR A APAGARLO, y el sitio queda muerto hasta que alguien edite la
      *   configuración en el servidor. Es el requisito, no una mejora.
-     * - `users-verify-login-request`: el segundo paso del acceso cuando el usuario tiene el segundo
-     *   factor activo. Sin ella, un root con 2FA se queda a mitad de camino, que es el mismo muro.
+     * - `users-verify-login-request`: `verifySession()`, que repone o borra la cookie de la sesión que trae el navegador.
+     *   NO es el segundo factor: su código viaja con `users-login-request`.
+     * - `user-system-features-two-factor-auth-status`: el formulario pregunta antes si el usuario tiene 2FA; con el 503,
+     *   envía sin el código y el acceso lo rechaza, así que nadie con 2FA, root incluido, entra. Ya es pública.
+     * - `user-system-features-generate-otp`: el botón «Contraseña de un uso», la otra forma de entrar. Ya es pública.
      * - `statics-files` y `admin-global-variables-css`: los estáticos y el CSS de variables que
      *   pide la propia vista 503. Sin ellos la pantalla sale sin estilos y sin su imagen.
      * - `system-status-site-maintenance` y `system-status-site-maintenance-save`: la pantalla del
@@ -75,6 +79,8 @@ class MaintenanceMode
         'users-form-login',
         'users-login-request',
         'users-verify-login-request',
+        'user-system-features-two-factor-auth-status',
+        'user-system-features-generate-otp',
         'statics-files',
         'admin-global-variables-css',
         'system-status-site-maintenance',
@@ -276,8 +282,74 @@ class MaintenanceMode
             return false;
         }
 
+        return self::stopsRole($roleCode);
+    }
+
+    /**
+     * Si el modo, encendido, detiene a ese rol en cualquier ruta que no sea de `ALWAYS_ALLOWED`.
+     *
+     * La usa también el acceso (`UsersController::login()`) para NO DAR SESIÓN a un tipo detenido: el acceso pasa siempre,
+     * y sin esta comprobación entraría, recibiría su cookie y se quedaría en la 503 sin forma de cerrarla. `blocks()` la
+     * reutiliza para que las dos puertas no puedan decir cosas distintas.
+     *
+     * @param int|null $roleCode El código del rol, o `null` si no hay sesión.
+     * @return bool
+     */
+    public static function stopsRole(?int $roleCode): bool
+    {
+        if (!self::isEnabled()) {
+            return false;
+        }
+
+        if ($roleCode === UsersModel::TYPE_USER_ROOT) {
+            return false;
+        }
+
         //Sin rol no hay excepción que mirar: sin sesión, el modo se aplica.
         return $roleCode === null || !in_array($roleCode, self::allowedRoles(), true);
+    }
+
+    /**
+     * El rol que mira el modo en esta petición. Pura: decide con lo que recibe.
+     *
+     * SUPLANTANDO CUENTA ROOT: solo root inicia una suplantación, así que quien está delante es root aunque `$userRole`
+     * sea el del suplantado; sin esto, suplantar a un tipo detenido le deja en la 503 sin forma de volver (el fin es un POST del
+     * panel). SIN SESIÓN VIVA no hay rol, suplante o no.
+     *
+     * @param int|null $userRole El tipo del usuario resuelto (el suplantado, si lo hay).
+     * @param bool $liveSession Si la sesión sobrevivió a todas las comprobaciones.
+     * @param bool $impersonating Si root está actuando como otro en esta petición.
+     * @return int|null
+     */
+    public static function roleThatCounts(?int $userRole, bool $liveSession, bool $impersonating): ?int
+    {
+        if (!$liveSession) {
+            return null;
+        }
+
+        return $impersonating ? UsersModel::TYPE_USER_ROOT : $userRole;
+    }
+
+    /**
+     * Si una petición que el modo detiene se manda al acceso en vez de servir la 503. Pura: decide con lo que recibe.
+     *
+     * SOLO SIN SESIÓN: con una sesión viva de un tipo detenido no hay acceso al que mandarle (ya ha entrado), y mandarle
+     * sería un bucle; ve la 503. SOLO CON `require_login`: una ruta pública detenida no se arregla entrando, y mandar al
+     * acceso a todo visitante de la portada haría del mantenimiento un muro de contraseña. Ni a quien pide datos ni al
+     * terminal: no siguen redirecciones de una pantalla. Y solo con el control de acceso por login activo, que es lo que
+     * hace que §8 de `src/index.php` redirija: sin él, §8 no lo haría y aquí tampoco.
+     *
+     * @param bool $blocked Lo que dijo `blocks()` para esa petición.
+     * @param int|null $roleCode El código del rol con sesión viva, o `null` sin ella.
+     * @param bool $controlAccessLogin La configuración `control_access_login`.
+     * @param bool $requireLogin Si la ruta declara `require_login`.
+     * @param bool $wantsData Si la petición pide datos (XHR o `Accept: application/json`).
+     * @param bool $isTerminal Si la petición viene del terminal.
+     * @return bool
+     */
+    public static function sendsToLogin(bool $blocked, ?int $roleCode, bool $controlAccessLogin, bool $requireLogin, bool $wantsData, bool $isTerminal): bool
+    {
+        return $blocked && $roleCode === null && $controlAccessLogin && $requireLogin && !$wantsData && !$isTerminal;
     }
 
 }

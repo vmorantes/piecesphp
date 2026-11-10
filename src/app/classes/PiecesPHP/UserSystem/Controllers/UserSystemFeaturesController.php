@@ -97,7 +97,7 @@ class UserSystemFeaturesController extends AdminPanelController
         try {
             OTPHandler::generateOTP($this, $username);
             $resultOperation->setSuccessOnSingleOperation(true);
-            $resultOperation->setMessage($uniformResponse ? OTPRateLimiter::uniformOTPMessage() : __(self::LANG_GROUP, 'Revise su correo electrónico para obtener el cógido de un uso.'));
+            $resultOperation->setMessage($uniformResponse ? OTPRateLimiter::uniformOTPMessage() : __(self::LANG_GROUP, 'Revise su correo electrónico para obtener el código de un uso.'));
             OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, true, '');
         } catch (SafeException $exception) {
             if ($exception->getCode() == SafeException::USER_NOT_EXISTS) {

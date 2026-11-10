@@ -607,6 +607,47 @@ table.dataTable > tbody > tr.child span.dtr-title {
 *******************************/
 
 
+
+/*******************************
+   Core: DataTables Overrides
+*******************************/
+
+
+/* En un contenedor sin relleno (tarjeta sin `.content`, `fitted segment`), lo ponen los controles y la
+   tabla, para que todo arranque en el mismo borde */
+.ui.card > .dt-container > .dt-layout-row:not(.dt-layout-table),
+.ui.fitted.segment > .dt-container > .dt-layout-row:not(.dt-layout-table) {
+  margin: 0;
+  padding: 0.85714286rem 1.14285714rem;
+}
+.ui.card > .dt-container .ui.very.basic.table > * > tr > :first-child,
+.ui.fitted.segment > .dt-container .ui.very.basic.table > * > tr > :first-child {
+  padding-left: 1.14285714rem;
+}
+.ui.card > .dt-container .ui.very.basic.table > * > tr > :last-child,
+.ui.fitted.segment > .dt-container .ui.very.basic.table > * > tr > :last-child {
+  padding-right: 1.14285714rem;
+}
+
+/* Paginación: baja de línea en vez de salirse de la tarjeta */
+.dt-container .dt-paging .ui.pagination.menu {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+/* En móvil, un solo eje: todo a la izquierda, y la paginación más compacta para caber en una línea */
+@media only screen and (max-width: 767.98px) {
+  .dt-container .dt-layout-row:not(.dt-layout-table) > .dt-layout-cell {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .dt-container .dt-paging .ui.pagination.menu .item {
+    min-width: 0;
+    padding-right: 0.57142857rem;
+    padding-left: 0.57142857rem;
+  }
+}
+
 /* stylelint-disable selector-class-pattern -- las clases son las de DataTables (dataTable, dataTables_empty) */
 
 /* -------------------

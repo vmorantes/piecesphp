@@ -11,7 +11,7 @@
  * @param {String} [options.confirmText] Por omisión, «Sí»
  * @param {String|null} [options.cancelText] Por omisión, «No»; con null hay un solo botón (avisar, no preguntar)
  * @param {String} [options.confirmClass] La clase de Fomantic del botón de confirmar; por omisión, «blue», que es
- * `primary`, y `red`, `negative`
+ * `primary`, y `red`, `basic negative` (el patrón del tema para lo destructivo)
  * @returns {Promise<Boolean>} true si se confirma; false si se cancela o no se puede preguntar
  */
 function confirmAction(options = {}) {
@@ -23,7 +23,7 @@ function confirmAction(options = {}) {
 	const confirmText = typeof options.confirmText == 'string' ? options.confirmText : text('Sí')
 	const cancelText = options.cancelText === null ? null : (typeof options.cancelText == 'string' ? options.cancelText : text('No'))
 	const confirmClass = typeof options.confirmClass == 'string' ? options.confirmClass : 'blue'
-	const buttonClass = { blue: 'primary', red: 'negative' }[confirmClass] || confirmClass
+	const buttonClass = { blue: 'primary', red: 'basic negative' }[confirmClass] || confirmClass
 
 	return new Promise((resolve) => {
 

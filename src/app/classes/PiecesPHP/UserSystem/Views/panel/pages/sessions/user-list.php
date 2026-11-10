@@ -47,7 +47,7 @@ use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
     </table>
     <?php endif; ?>
     <?php if ($mine && count($rows) > 1): ?>
-    <button type="button" class="ui button red" data-session-close-others="<?= escape_html($closeOthersURL); ?>" data-confirmation-message="<?= escape_html(__($langGroup, 'Se cerrarán todas tus sesiones menos ésta.')); ?>"><i class="sign out alternate icon"></i><?= __($langGroup, 'Cerrar las demás sesiones'); ?></button>
+    <button type="button" class="ui basic negative button" data-session-close-others="<?= escape_html($closeOthersURL); ?>" data-confirmation-message="<?= escape_html(__($langGroup, 'Se cerrarán todas tus sesiones menos ésta.')); ?>"><i class="sign out alternate icon"></i><?= __($langGroup, 'Cerrar las demás sesiones'); ?></button>
     <?php endif; ?>
     <?php require __DIR__ . '/extend-modal.php'; ?>
 </div>

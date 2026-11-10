@@ -44,6 +44,9 @@ desviaciones de las convenciones. Nunca modificas archivos.
 - **Comentarios** que narran la historia en vez de frenar un error (LEY 7).
 - **Pruebas** que pasarían con el defecto puesto (LEY 24).
 - **Rupturas** para quien clona sin su entrada en `CHANGELOG.md` («CAMBIOS INCOMPATIBLES»).
+- **Vistas del panel**: manda el panel implementado, no los escaparates del tema (P300; contexto 16, «Lo que manda al
+  revisar»). Un cambio que acerca una pantalla a un escaparate sin ser un error evidente es un hallazgo; marcado fuera del
+  patrón del tema (un rojo sólido para destruir, CSS propio que el tema ya da), también.
 - Atribución a IA en código o commits. Documentación que el cambio deja mintiendo.
 
 ## Entrega

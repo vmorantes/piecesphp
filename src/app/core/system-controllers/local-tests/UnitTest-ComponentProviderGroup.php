@@ -19,7 +19,7 @@ use Slim\Psr7\Headers;
 
 CliActions::make('unit-tests:core/component-provider-group', function ($args) {
 
-    echoTerminal("\e[33m[TEST:ComponentProviderGroup] Solo se sirve un grupo que exista en Views/, y lo demás da 404 sin llegar al require; el bloque de publicaciones escapa y tiene tope\e[39m");
+    echoTerminal("\e[33m[TEST:ComponentProviderGroup] Solo se sirve un grupo que exista en Views/ o registrado, y lo demás da 404 sin llegar al require; el bloque de publicaciones escapa y tiene tope\e[39m");
     echoTerminal('');
 
     $passed = 0;
@@ -52,9 +52,11 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
     };
 
     echoTerminal('[canario] El universo de la puerta');
-    $grupos = (new ComponentProvider())->availableGroups();
+    //Sin los registrados: un clon que registre los suyos al arrancar no tumba el canario.
+    $registradosAlEmpezar = array_keys((new \ReflectionProperty(ComponentProvider::class, 'registeredGroups'))->getValue());
+    $grupos = array_values(array_diff((new ComponentProvider())->availableGroups(), $registradosAlEmpezar));
     sort($grupos);
-    $check($grupos === ['publications', 'sample'], 'c1 los grupos servibles son los directorios de Views/ con components.php', implode(', ', $grupos) ?: 'ninguno');
+    $check($grupos === ['publications', 'sample'], 'c1 los grupos de Views/ servibles son los directorios con components.php', implode(', ', $grupos) ?: 'ninguno');
     echoTerminal(' ');
 
     echoTerminal('[1] Un grupo que existe sigue sirviendo su plantilla');
@@ -134,6 +136,67 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
         $quedan->execute([(int) $idPublicacion]);
         $check($idPublicacion !== null && (int) $quedan->fetchColumn() === 0, 'z1 no queda la publicación de la prueba');
     }
+    echoTerminal(' ');
+
+    echoTerminal('[5] Un grupo registrado por el proyecto (H222): se sirve, se lista, y no pisa a nadie');
+    //El registro vive en el proceso y gates corre las suites en el mismo: se vacía al terminar, pase lo que pase.
+    $registro = new \ReflectionProperty(ComponentProvider::class, 'registeredGroups');
+    $registroPrevio = $registro->getValue();
+    $gruposPrevios = (new ComponentProvider())->availableGroups();
+    try {
+        $registro->setValue(null, []);
+        ComponentProvider::registerGroup('zz-prueba-grupo', function (): void {
+            echo '<components name="zz-prueba-grupo"><b>zz-ok</b></components>';
+        });
+        $check(in_array('zz-prueba-grupo', (new ComponentProvider())->availableGroups(), true), '5a el registrado aparece en availableGroups()');
+        $tipo = '';
+        $cuerpo = $pedir('zz-prueba-grupo', null, $tipo);
+        $check($cuerpo === '<components name="zz-prueba-grupo"><b>zz-ok</b></components>', '5b provide() sirve su HTML', mb_substr($cuerpo, 0, 80));
+        $check($tipo === 'text/html; charset=utf-8', '5c con el mismo Content-Type que un grupo de Views/', $tipo);
+        //DISCRIMINANTE: un repetido que pisara al anterior cambiaría en silencio lo que se sirve.
+        $lanza = function (callable $accion): string {
+            try {
+                $accion();
+                return 'no lanzó';
+            } catch (\Throwable $e) {
+                return get_class($e) . ': ' . $e->getMessage();
+            }
+        };
+        $nada = function (): void {
+        };
+        $conVistas = $lanza(fn () => ComponentProvider::registerGroup('sample', $nada));
+        $check(str_starts_with($conVistas, 'LogicException') && str_contains($conVistas, '«sample»'), '5d un nombre de Views/ lanza, nombrando el grupo', $conVistas);
+        $check(str_contains($pedir('sample'), '<components name='), '5d y «sample» sigue sirviendo su vista');
+        $repetido = $lanza(fn () => ComponentProvider::registerGroup('zz-prueba-grupo', $nada));
+        $check(str_starts_with($repetido, 'LogicException') && str_contains($repetido, '«zz-prueba-grupo»'), '5e un nombre ya registrado lanza', $repetido);
+        $check($pedir('zz-prueba-grupo') === '<components name="zz-prueba-grupo"><b>zz-ok</b></components>', '5e y el primero sigue siendo el que se sirve');
+        foreach (['../x', 'a b', '', 'zz/grupo'] as $nombre) {
+            $invalido = $lanza(fn () => ComponentProvider::registerGroup($nombre, $nada));
+            $check(str_starts_with($invalido, 'InvalidArgumentException'), "5f el nombre «{$nombre}» lanza", $invalido);
+        }
+        $check($pedir('zz-no-registrado') === 'NOT_FOUND', '5g un grupo no registrado sigue dando 404');
+        ComponentProvider::registerGroup('zz-prueba-falla', function (): void {
+            echo 'zz-a-medias';
+            throw new \RuntimeException('zz-falla');
+        });
+        $nivel = ob_get_level();
+        ob_start();
+        $fallo = $pedir('zz-prueba-falla');
+        $escapado = (string) ob_get_clean();
+        $check(str_contains($fallo, 'RuntimeException') && str_contains($fallo, 'zz-falla'), '5h lo que lanza un registrado sale de provide(), no se vuelve un 200', $fallo);
+        $check(ob_get_level() === $nivel, '5h y no deja búferes abiertos');
+        //DISCRIMINANTE: con ob_end_flush() en vez de ob_end_clean(), lo pintado a medias saldría a la respuesta.
+        $check(!str_contains($escapado, 'zz-a-medias'), '5h y lo pintado a medias se descarta', $escapado);
+        ComponentProvider::registerGroup('zz-prueba-bufer', function (): void {
+            echo 'zz-fuera-';
+            ob_start();
+            echo 'zz-dentro';
+        });
+        $check($pedir('zz-prueba-bufer') === 'zz-fuera-zz-dentro', '5i un búfer que $render deja abierto se recoge entero, no solo el interno');
+    } finally {
+        $registro->setValue(null, $registroPrevio);
+    }
+    $check((new ComponentProvider())->availableGroups() === $gruposPrevios, 'z2 al terminar, los grupos son los de antes de la prueba', implode(', ', (new ComponentProvider())->availableGroups()));
     echoTerminal(' ');
 
     $total = $passed + $failed;

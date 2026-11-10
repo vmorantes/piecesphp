@@ -231,6 +231,109 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
         set_config(MaintenanceMode::ENABLED_CONFIG, $modoPrevio);
         set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, $rolesPrevios);
 
+        //─── k · A qué rol detiene, la pregunta que comparten blocks() y el acceso (P299) ──────────────
+        echoTerminal(' ');
+        echoTerminal('[k] stopsRole(): a quién detiene el modo, y blocks() dice lo mismo fuera de ALWAYS_ALLOWED');
+        set_config(MaintenanceMode::ENABLED_CONFIG, false);
+        $check(MaintenanceMode::stopsRole(UsersModel::TYPE_USER_GENERAL) === false && MaintenanceMode::stopsRole(null) === false, 'k1 apagado no detiene a nadie, ni sin rol');
+        set_config(MaintenanceMode::ENABLED_CONFIG, true);
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]);
+        $check(MaintenanceMode::stopsRole(UsersModel::TYPE_USER_ROOT) === false, 'k2 root no se detiene');
+        $check(MaintenanceMode::stopsRole(UsersModel::TYPE_USER_ADMIN_GRAL) === false, 'k3 un tipo permitido no se detiene');
+        $check(MaintenanceMode::stopsRole(UsersModel::TYPE_USER_GENERAL) === true, 'k4 un tipo no permitido se detiene');
+        $check(MaintenanceMode::stopsRole(null) === true, 'k5 sin rol se detiene');
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, []);
+        $check(MaintenanceMode::stopsRole(UsersModel::TYPE_USER_ROOT) === false, 'k6 con la lista vacía root sigue sin detenerse');
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]);
+        //blocks() reutiliza stopsRole(): si dejaran de coincidir, el acceso y la puerta dirían cosas distintas.
+        foreach ([true, false] as $encendido) {
+            set_config(MaintenanceMode::ENABLED_CONFIG, $encendido);
+            foreach ([null, UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL, UsersModel::TYPE_USER_GENERAL] as $rol) {
+                $check(MaintenanceMode::blocks('admin', $rol) === MaintenanceMode::stopsRole($rol), 'k7 blocks() de una ruta normal = stopsRole(), encendido ' . var_export($encendido, true) . ', rol ' . var_export($rol, true));
+                $check(MaintenanceMode::blocks('users-login-request', $rol) === false, 'k8 y el acceso pasa igual, encendido ' . var_export($encendido, true) . ', rol ' . var_export($rol, true));
+            }
+        }
+
+        //─── l · Sin sesión, la pantalla que pide login va al acceso (P299) ──────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[l] sendsToLogin(): solo sin sesión, solo con require_login, solo a una pantalla');
+        $infoPanel = get_route_info('admin');
+        $check(is_array($infoPanel) && !empty($infoPanel['require_login']), 'l0 canario: «admin» pide login (si no, l2 no mira una ruta real)');
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]);
+        //La misma composición que src/index.php §7bis: primero blocks(), y solo si detiene, sendsToLogin().
+        $alAcceso = fn (?int $rol, bool $controlAcceso = true, bool $pideLogin = true, bool $pideDatos = false, bool $terminal = false): bool => MaintenanceMode::sendsToLogin(MaintenanceMode::blocks('admin', $rol), $rol, $controlAcceso, $pideLogin, $pideDatos, $terminal);
+        set_config(MaintenanceMode::ENABLED_CONFIG, false);
+        $check($alAcceso(null) === false, 'l1 apagado no se manda al acceso desde aquí (lo hace §8, como siempre)');
+        set_config(MaintenanceMode::ENABLED_CONFIG, true);
+        $check($alAcceso(null) === true, 'l2 encendido, sin sesión, pantalla con require_login: al acceso');
+        $check($alAcceso(UsersModel::TYPE_USER_ROOT) === false, 'l3 root no se detiene: ni 503 ni acceso');
+        $check($alAcceso(UsersModel::TYPE_USER_ADMIN_GRAL) === false, 'l4 un tipo permitido tampoco');
+        $check(MaintenanceMode::blocks('admin', UsersModel::TYPE_USER_GENERAL) === true && $alAcceso(UsersModel::TYPE_USER_GENERAL) === false, 'l5 con sesión de un tipo detenido: 503, no acceso (ya ha entrado)');
+        $check($alAcceso(null, true, false) === false, 'l6 una ruta sin require_login (la zona pública): 503, no acceso');
+        $check($alAcceso(null, true, true, true) === false, 'l7 quien pide datos (XHR, JSON): su JSON 503, no una redirección');
+        $check($alAcceso(null, true, true, false, true) === false, 'l8 el terminal: su texto, no una redirección');
+        $check($alAcceso(null, false) === false, 'l9 sin control de acceso por login, §8 no redirige y aquí tampoco');
+        $check(MaintenanceMode::sendsToLogin(false, null, true, true, false, false) === false, 'l10 lo que blocks() no detiene no se manda a ningún sitio');
+
+        //─── m · Los tres puntos donde se usa, en su sitio ──────────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[m] El acceso no da sesión a un tipo detenido, §7bis redirige y la 503 enlaza al acceso');
+        $fuenteUsuarios = (string) @file_get_contents(basepath('app/classes/PiecesPHP/UserSystem/Controllers/UsersController.php'));
+        $inicioLogin = mb_strpos($fuenteUsuarios, 'public function login(');
+        $finLogin = $inicioLogin !== false ? mb_strpos($fuenteUsuarios, 'public function verifySession(', $inicioLogin) : false;
+        $login = $inicioLogin !== false && $finLogin !== false ? mb_substr($fuenteUsuarios, $inicioLogin, $finLogin - $inicioLogin) : '';
+        $check($login !== '', 'm1 se lee el cuerpo de login()');
+        $posContrasena = mb_strpos($login, 'password_verify($password');
+        $posFactor = mb_strpos($login, 'checkValidityTOTP(');
+        $posRechazo = mb_strpos($login, 'MaintenanceMode::stopsRole(');
+        $posGasto = mb_strpos($login, 'OTPHandler::toExpireOTP(');
+        $posSesion = mb_strpos($login, 'UserSessions::issueToken(');
+        //DISCRIMINANTE: el rechazo antes de la contraseña delataría el tipo de una cuenta; después de la sesión, no frenaría nada.
+        $check($posRechazo !== false && $posContrasena !== false && $posFactor !== false && $posRechazo > $posContrasena && $posRechazo > $posFactor, 'm2 login() rechaza al tipo detenido DESPUÉS de la contraseña y del segundo factor');
+        $check($posRechazo !== false && $posGasto !== false && $posSesion !== false && $posRechazo < $posGasto && $posRechazo < $posSesion, 'm3 y ANTES de gastar el código de un uso y de crear la sesión');
+        //Con un `if` en vez del `elseif`, el rechazo se anotaría y la sesión se daría igual en la rama siguiente.
+        $check(str_contains($login, '} elseif (!$require2FA || $twoFactorIsValid) {'), 'm3bis el rechazo y la sesión son ramas excluyentes (elseif)');
+        $check(mb_substr_count($login, 'UserSessions::issueToken(') === 1 && mb_substr_count($fuenteUsuarios, 'UserSessions::issueToken(') === 1, 'm4 canario: login() es el único sitio del controlador que crea una sesión');
+        $fuenteIndice = (string) @file_get_contents(basepath('index.php'));
+        $posPuerta = mb_strpos($fuenteIndice, 'MaintenanceMode::blocks(');
+        $posAlAcceso = $posPuerta !== false ? mb_strpos($fuenteIndice, 'MaintenanceMode::sendsToLogin(', $posPuerta) : false;
+        $posVista = $posPuerta !== false ? mb_strpos($fuenteIndice, 'render(MaintenanceMode::VIEW)', $posPuerta) : false;
+        $check($posAlAcceso !== false && $posVista !== false && $posAlAcceso < $posVista, 'm5 §7bis pregunta sendsToLogin() antes de servir la 503');
+        $check(mb_substr_count($fuenteIndice, '($redirectToLogin)()') === 2, 'm6 §7bis y §8 redirigen con la misma closure');
+        $vista503 = (string) @file_get_contents(basepath('app/view/' . MaintenanceMode::VIEW . '.php'));
+        $check(str_contains($vista503, "routeName('form-login')") && str_contains($vista503, "get_config('current_user') instanceof \\stdClass"), 'm7 la 503 enlaza al acceso, condicionado a no tener sesión');
+
+        //─── n · Entrar con 2FA o con el código de un uso (P299) ───────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[n] Lo que el formulario de acceso pide antes de entrar pasa con el modo encendido, y ya era público');
+        set_config(MaintenanceMode::ENABLED_CONFIG, true);
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, [UsersModel::TYPE_USER_ROOT]);
+        foreach ([
+            'user-system-features-two-factor-auth-status' => 'n1 el estado del 2FA: sin él, nadie con 2FA entra',
+            'user-system-features-generate-otp' => 'n2 el código de un uso: la otra forma de entrar',
+        ] as $nombre => $motivo) {
+            $info = get_route_info($nombre);
+            $check(is_array($info), "{$motivo} — canario: la ruta existe con ese nombre");
+            //SI PIDIERA SESIÓN, la usaría con la suya un tipo que el modo detiene (blocks() mira la lista antes que el rol).
+            $check(is_array($info) && empty($info['require_login']), "{$motivo} — y no pide sesión");
+            $check(in_array($nombre, MaintenanceMode::ALWAYS_ALLOWED, true) && MaintenanceMode::blocks($nombre, null) === false, "{$motivo} — pasa sin sesión");
+        }
+
+        //─── o · Root que suplanta pasa el modo (H215) ──────────────────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[o] roleThatCounts(): suplantando cuenta root; sin sesión viva, nadie');
+        $general = UsersModel::TYPE_USER_GENERAL;
+        $check(MaintenanceMode::roleThatCounts($general, true, false) === $general, 'o1 sin suplantar, el tipo del usuario');
+        $check(MaintenanceMode::roleThatCounts($general, true, true) === UsersModel::TYPE_USER_ROOT, 'o2 suplantando a un tipo detenido, cuenta root');
+        $check(MaintenanceMode::roleThatCounts($general, false, true) === null && MaintenanceMode::roleThatCounts($general, false, false) === null, 'o3 sin sesión viva no hay rol, suplante o no');
+        $check(MaintenanceMode::roleThatCounts(null, false, false) === null, 'o4 sin usuario, nada');
+        set_config(MaintenanceMode::ENABLED_CONFIG, true);
+        set_config(MaintenanceMode::ALLOWED_ROLES_CONFIG, [UsersModel::TYPE_USER_ROOT]);
+        $check(MaintenanceMode::blocks('admin', MaintenanceMode::roleThatCounts($general, true, true)) === false, 'o5 y así el panel no le detiene');
+        $check(MaintenanceMode::blocks('admin', MaintenanceMode::roleThatCounts($general, true, false)) === true, 'o6 pero el propio tipo detenido, con su sesión, sigue detenido');
+        $fuenteIndice = (string) @file_get_contents(basepath('index.php'));
+        $check(str_contains($fuenteIndice, '$maintenanceRole = MaintenanceMode::roleThatCounts(') && str_contains($fuenteIndice, 'Impersonation::isImpersonating());'), 'o7 §7bis saca el rol de roleThatCounts() con la suplantación de la petición');
+
     } finally {
         //El modo NUNCA se queda encendido por una suite, ni aunque algo lance.
         set_config(MaintenanceMode::ENABLED_CONFIG, $modoPrevio);

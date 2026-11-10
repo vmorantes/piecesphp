@@ -1071,12 +1071,12 @@ select.ui.dropdown {
 
 /* Item Hover */
 .ui.dropdown.error > .menu > .item:hover {
-  background-color: #fbe7e7;
+  background-color: light-dark(#fbe7e7, #3a1a1d);
 }
 
 /* Item Active */
 .ui.dropdown.error > .menu .active.item {
-  background-color: #fdcfcf;
+  background-color: light-dark(#fdcfcf, #4a2226);
 }
 .ui.dropdown.info,
 .ui.dropdown.info > .text,
@@ -1103,12 +1103,12 @@ select.ui.dropdown {
 
 /* Item Hover */
 .ui.dropdown.info > .menu > .item:hover {
-  background-color: #e9f2fb;
+  background-color: light-dark(#e9f2fb, #12303d);
 }
 
 /* Item Active */
 .ui.dropdown.info > .menu .active.item {
-  background-color: #cef1fd;
+  background-color: light-dark(#cef1fd, #173a47);
 }
 .ui.dropdown.success,
 .ui.dropdown.success > .text,
@@ -1135,12 +1135,12 @@ select.ui.dropdown {
 
 /* Item Hover */
 .ui.dropdown.success > .menu > .item:hover {
-  background-color: #e9fbe9;
+  background-color: light-dark(#e9fbe9, #16301c);
 }
 
 /* Item Active */
 .ui.dropdown.success > .menu .active.item {
-  background-color: #dafdce;
+  background-color: light-dark(#dafdce, #1d3d24);
 }
 .ui.dropdown.warning,
 .ui.dropdown.warning > .text,
@@ -1167,12 +1167,12 @@ select.ui.dropdown {
 
 /* Item Hover */
 .ui.dropdown.warning > .menu > .item:hover {
-  background-color: #fbfbe9;
+  background-color: light-dark(#fbfbe9, #302712);
 }
 
 /* Item Active */
 .ui.dropdown.warning > .menu .active.item {
-  background-color: #fdfdce;
+  background-color: light-dark(#fdfdce, #3d3216);
 }
 
 /* --------------------
@@ -2096,6 +2096,61 @@ select.ui.dropdown {
 /*******************************
    PiecesPHP: Dropdown Overrides
 *******************************/
+
+
+
+/*******************************
+    Core: Dropdown Overrides
+*******************************/
+
+/* Selección: en una línea, con puntos suspensivos; partida crecía en alto frente a los demás campos
+   de su fila */
+.ui.selection.dropdown > .text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Búsqueda múltiple: el texto de ayuda no llega a la flecha */
+.ui.multiple.search.dropdown > .default.text {
+  overflow: hidden;
+  max-width: calc(100% - 2.57142857em);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Búsqueda múltiple sin selección: el texto de ayuda va en absoluto y no le da ancho */
+.ui.multiple.search.dropdown:not(.fluid) {
+  min-width: 13em;
+}
+
+/* Y su flecha, a la derecha: en el flujo caía encima de ese texto */
+.ui.multiple.search.dropdown:not(.selection) > .dropdown.icon {
+  position: absolute;
+  top: 50%;
+  right: 0.28571429em;
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+/* Desplegable y botón que bajan de línea en móvil: separados */
+@media only screen and (max-width: 767.98px) {
+  .ui.selection.dropdown + .ui.button {
+    margin-top: 0.57142857em;
+  }
+}
+
+/* Opciones largas sin espacios (un nombre de clase con espacio de nombres): parten la línea en vez de
+   ensanchar el menú fuera del campo y de la ventana */
+.ui.selection.dropdown .menu > .item,
+.ui.search.dropdown .menu > .item {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.ui.selection.dropdown > .menu {
+  max-width: calc(100vw - 2rem);
+}
 
 /* Ítems con radio 6px dentro del padding de 4px del menú */
 .ui.dropdown .menu > .item {

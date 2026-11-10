@@ -299,7 +299,7 @@ $impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pull
         <br>
     </div>
     <div class="left basic actions">
-        <button class="ui button red" data-url="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('delete-account-request'); ?>" delete data-expected-word="<?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?>"><?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?></button>
-        <button class="ui button grey" cancel><?= __(GLOBAL_LANG_GROUP, 'Cancelar'); ?></button>
+        <button class="ui basic negative button" data-url="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('delete-account-request'); ?>" delete data-expected-word="<?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?>"><?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?></button>
+        <button class="ui basic button" cancel><?= __(GLOBAL_LANG_GROUP, 'Cancelar'); ?></button>
     </div>
 </div>

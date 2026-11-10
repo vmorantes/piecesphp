@@ -204,6 +204,8 @@ $lang = [
         '503 - En mantenimiento'                                   => '503 - In maintenance',
         'Mantenimiento'                                            => 'Maintenance',
         'en curso, no es posible usar la plataforma en un tiempo.' => 'in progress, it is not possible to use the platform for some time.',
+        'Ir al acceso'                                             => 'Go to sign in',
+        'El sitio está en mantenimiento y tu tipo de usuario no puede entrar ahora.' => 'The site is under maintenance and your user type cannot sign in right now.',
     ],
     'genericTokenModule' => [
         'Comentarios'                                                           => 'Comments',
@@ -295,6 +297,7 @@ $lang = [
         'Ocultar contraseña' => 'Hide password',
         'Plataforma y aliados' => 'Platform and partners',
         'Patrocinador' => 'Sponsor',
+        'Código temporal de aplicación' => 'Temporary app code',
         'Intentar nuevamente'           => 'Try again',
         '¿Problemas para ingresar?'     => 'Problems to log in?',
         'Digita tu nombre de usuario'   => 'Enter your username',

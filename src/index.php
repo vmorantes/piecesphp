@@ -610,7 +610,18 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     // mantenimiento no salta el control de acceso, que sigue corriendo después para lo que pasa.
     // El rol solo cuenta con sesión VIVA: si la revocación o el estado del usuario la tumbaron,
     // `$isActiveSession` es false y aquí no hay excepción que aplicar.
-    $maintenanceRole = $isActiveSession && $user !== null ? (int) $user->type : null;
+    //Suplantando, cuenta root (solo root suplanta): si no, suplantar a un tipo detenido le deja en la 503 sin volver.
+    $maintenanceRole = MaintenanceMode::roleThatCounts($user !== null ? (int) $user->type : null, $isActiveSession && $user !== null, Impersonation::isImpersonating());
+
+    //La redirección al acceso con la página pedida: la usan §7bis y §8, que tienen que mandar al MISMO sitio.
+    $redirectToLogin = function () use ($emptyResponse): ResponseRoute {
+        set_flash_message('requested_uri', get_current_url());
+        //La URL pedida viaja también en la redirección (P145): el aviso es de un solo uso y una recarga lo pierde.
+        //UsersController::safeNextURL() la valida como del mismo sitio antes de usarla.
+        $loginURL = \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login');
+        $loginURL .= (str_contains($loginURL, '?') ? '&' : '?') . 'next=' . rawurlencode(get_current_url());
+        return $emptyResponse->withRedirect($loginURL);
+    };
 
     if (MaintenanceMode::blocks($name_route, $maintenanceRole)) {
 
@@ -621,6 +632,14 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         //El MISMO criterio que ya usa este archivo para no mandar HTML a quien pide datos (§8) y que
         //usa el manejador del 404: XHR o `Accept: application/json` reciben JSON, el terminal texto.
         $maintenanceWantsData = $request->isXhr() || mb_strtolower($request->getHeaderLine('Accept')) === 'application/json';
+
+        //Sin sesión, la pantalla que pide login va al acceso como con el modo apagado (P299): si no, tras «Salir» hasta
+        //root acaba en la 503 y tiene que escribir la dirección del acceso a mano. El acceso pasa siempre (ALWAYS_ALLOWED).
+        $maintenanceRouteInfo = $name_route !== null ? get_route_info($name_route) : null;
+        $maintenanceRequiresLogin = is_array($maintenanceRouteInfo) && !empty($maintenanceRouteInfo['require_login']);
+        if (MaintenanceMode::sendsToLogin(true, $maintenanceRole, (bool) $control_access_login, $maintenanceRequiresLogin, $maintenanceWantsData, TerminalData::getInstance()->isTerminal() === true)) {
+            return ($redirectToLogin)();
+        }
 
         if ($maintenanceWantsData) {
             return $maintenanceResponse->withJson([
@@ -670,12 +689,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                     } else {
 
                         if (!TerminalData::getInstance()->isTerminal()) {
-                            set_flash_message('requested_uri', get_current_url());
-                            //La URL pedida viaja también en la redirección (P145): el aviso es de un solo uso y una recarga lo pierde.
-                            //UsersController::safeNextURL() la valida como del mismo sitio antes de usarla.
-                            $loginURL = \PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login');
-                            $loginURL .= (str_contains($loginURL, '?') ? '&' : '?') . 'next=' . rawurlencode(get_current_url());
-                            return $emptyResponse->withRedirect($loginURL);
+                            return ($redirectToLogin)();
                         } else {
                             return $emptyResponse->write("Esta ruta necesita autenticación \r\n");
                         }

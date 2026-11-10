@@ -22,7 +22,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         //Root no se ofrece: siempre puede (APIController::translationUserTypes()).
         $translationUserTypesOptions = array_diff_key(\PiecesPHP\UserSystem\ORM\UsersModel::getTypesUser(), [\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ROOT => true]);
         $translationUserTypesSelected = \API\Controllers\APIController::translationUserTypes(get_config(\API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG));
-        $keyPlaceholder = fn(string $option): string => mb_strlen((string) get_config($option)) > 0 ? __($langGroup, 'Hay una clave guardada: déjelo vacío para conservarla') : __($langGroup, 'Pega aquí la API key del proveedor');
+        $keyPlaceholder = fn(string $option): string => mb_strlen((string) get_config($option)) > 0 ? __($langGroup, 'Clave guardada: vacío la conserva') : __($langGroup, 'Pega aquí la API key del proveedor');
         $tokensLimitElement = new \PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper(\PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
         $tokensLimitName = $tokensLimitElement->userSetContentName();
         $tokensLimitAction = \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::allowedRoute('actions-edit') ? (string) \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('actions-edit') : '';

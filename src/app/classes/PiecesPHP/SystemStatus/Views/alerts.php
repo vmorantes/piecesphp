@@ -11,6 +11,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
+use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 //Pintada fuera del controlador (las suites la incluyen con sus propias variables): la cabecera, con lo que haya.
@@ -57,9 +58,9 @@ $severities = [
                 <?php foreach ($rows as $row): ?>
                 <?php [$color, $severityLabel] = $severities[$row['severity']] ?? ['teal', $row['severity']]; ?>
                 <tr data-system-alert-row="<?= $escape($row['key']); ?>">
-                    <td class="collapsing"><span class="ui <?= $escape($color); ?> basic circular label"><?= $escape($severityLabel); ?></span></td>
+                    <td class="collapsing"><?= StatusLabel::html($severityLabel, $color); ?></td>
                     <td><?= $escape($row['message']); ?></td>
-                    <td class="collapsing"><span class="<?= $row['hidden'] ? 'ui label' : 'ui green basic circular label'; ?>" data-system-alert-state><?= $row['hidden'] ? __($langGroup, 'Oculto') : __($langGroup, 'Activo'); ?></span></td>
+                    <td class="collapsing"><span data-system-alert-state><?= $row['hidden'] ? StatusLabel::neutral(__($langGroup, 'Oculto')) : StatusLabel::html(__($langGroup, 'Activo'), StatusLabel::POSITIVE); ?></span></td>
                     <td class="collapsing">
                         <?php if ($row['fixURL'] !== ''): ?>
                         <a class="ui basic button" href="<?= $escape($row['fixURL']); ?>"><?= $escape($row['fixLabel']); ?></a>

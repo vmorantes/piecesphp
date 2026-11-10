@@ -41,14 +41,16 @@ Hay tres mandos, en un solo formulario y con un botón:
 
 ## Lo que pasa siempre, aunque el modo esté encendido
 
-Ocho rutas **nunca** se bloquean, y viven enumeradas con su motivo en
+Diez rutas **nunca** se bloquean, y viven enumeradas con su motivo en
 `MaintenanceMode::ALWAYS_ALLOWED`:
 
 | Ruta | Por qué |
 | :-- | :-- |
 | `users-form-login` | El formulario de acceso |
 | `users-login-request` | Su envío |
-| `users-verify-login-request` | El segundo paso, si el usuario tiene 2FA |
+| `users-verify-login-request` | La comprobación de la sesión que ya trae el navegador: la repone o la borra (`UsersController::verifySession()`; no es el 2FA, cuyo código viaja con el envío del acceso) |
+| `user-system-features-two-factor-auth-status` | El formulario pregunta antes si el usuario tiene 2FA: sin ella envía sin el código y nadie con 2FA, root incluido, entra. Ya era pública |
+| `user-system-features-generate-otp` | El botón «Contraseña de un uso», la otra forma de entrar. Ya era pública |
 | `statics-files` | Sin estáticos, la pantalla de mantenimiento sale sin estilos ni imagen |
 | `admin-global-variables-css` | El CSS de variables que pide la propia vista `503` |
 | `system-status-site-maintenance` | La pantalla desde la que se apaga |
@@ -69,11 +71,40 @@ mano. La lista es el camino de vuelta.
     dentro de la pantalla: sigue haciendo falta sesión y rol. Saltarse el mantenimiento no salta los
     permisos. Lo mismo con `user-sessions-logout`: sigue pidiendo sesión.
 
-!!! warning "Al cerrar sesión con el modo encendido, la página recarga en la pantalla de mantenimiento"
-    El cierre funciona para todos, pero la recarga pide la misma página ya sin sesión y el modo
-    responde con la pantalla `503`, que no enlaza al acceso: para volver a entrar hay que abrir
-    `users/login/` a mano. Si el servidor no consigue cerrar la sesión (red caída, error), el panel
-    lo avisa y no borra nada del navegador, porque la sesión sigue abierta.
+## Volver a entrar con el modo encendido
+
+Con el modo encendido, el sitio distingue tres casos (`src/index.php` §7bis y `MaintenanceMode::sendsToLogin()`):
+
+| Quién | Qué ve |
+| :-- | :-- |
+| Sin sesión, en una pantalla que pide login (el panel) | El formulario de acceso, con la página pedida en `next`, igual que con el modo apagado |
+| Sin sesión, en una pantalla pública | La pantalla `503`, con el botón «Ir al acceso» |
+| Con sesión de un tipo que el modo no deja pasar | La pantalla `503`, sin botón |
+
+Las peticiones que piden datos (XHR o `Accept: application/json`) y el terminal siguen recibiendo el `503` en JSON o en
+texto: no se las redirige.
+
+**Al cerrar sesión**, la recarga pide la misma página ya sin sesión y llega al formulario de acceso; root y los tipos
+permitidos vuelven a entrar desde ahí. Si el servidor no consigue cerrar la sesión (red caída, error), el panel lo avisa
+y no borra nada del navegador, porque la sesión sigue abierta.
+
+**Un tipo que el modo no deja pasar no recibe sesión.** Con la contraseña (y el código de 2FA, si lo tiene) correctos,
+el acceso responde con el error `MAINTENANCE_MODE` («El sitio está en mantenimiento y tu tipo de usuario no puede
+entrar ahora.»), sin cookie ni sesión. Con la contraseña mala, la respuesta de siempre: el mensaje no delata el tipo de
+nadie.
+
+**Root que suplanta pasa el modo.** Solo root puede suplantar a otro usuario, así que mientras dura una suplantación
+el modo trata la petición como de root (`MaintenanceMode::roleThatCounts()`): puede usar el panel como el usuario
+suplantado y volver a su cuenta con el botón de siempre. Los permisos siguen siendo los del suplantado: solo cambia la
+puerta del mantenimiento.
+
+!!! warning "Suplantando, root escribe como el usuario suplantado"
+    Si usas el modo para congelar las escrituras mientras migras o restauras, ten en cuenta que una suplantación las deja
+    pasar: lo que root haga suplantando se guarda como hecho por ese usuario.
+
+!!! note "Quien ya tenía la sesión abierta"
+    Un usuario de un tipo que el modo no deja pasar y que tenía una pestaña abierta antes de encenderlo ve la `503`
+    sin botón y conserva su sesión mientras el modo esté encendido, salvo que caduque por su tope de vida: todas las pantallas del panel le responden con la `503`, así que no puede cerrarla desde ahí, y esas peticiones cuentan como actividad.
 
 ## El usuario principal nunca queda fuera
 

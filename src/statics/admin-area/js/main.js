@@ -63,10 +63,21 @@ function contentSectionNav() {
 		const links = Array.from(sticky.querySelectorAll('[data-section-nav-anchor]'))
 		const targets = links.map((link) => document.getElementById(link.getAttribute('data-section-nav-anchor'))).filter((target) => target !== null)
 		const jump = sticky.querySelector('[data-section-nav-jump]')
+		//El desplegable del tema y no el nativo; elegir con las flechas no salta hasta Intro, como el nativo de abajo.
+		const themedJump = jump !== null && typeof $ !== 'undefined' && typeof $.fn.dropdown === 'function'
+		if (themedJump) {
+			$(jump).dropdown({ selectOnKeydown: false })
+			//El envoltorio del tema recibe el foco y no copia el nombre del select: sin esto, un lector no sabe qué es.
+			const wrapper = jump.closest('.ui.dropdown')
+			if (wrapper !== null && jump.hasAttribute('aria-label')) {
+				wrapper.setAttribute('aria-label', jump.getAttribute('aria-label'))
+			}
+		}
 		const desktop = window.matchMedia('(min-width: 992px)')
+		//Hasta el borde INFERIOR de la barra, no su alto: suplantando, la franja la baja y la barra (sticky, encima) taparía el menú.
 		const barHeight = function () {
 			const bar = document.querySelector('header.bar')
-			return bar !== null ? bar.getBoundingClientRect().height : 0
+			return bar !== null ? Math.max(0, bar.getBoundingClientRect().bottom) : 0
 		}
 		//Lo que tapa el borde de arriba: la barra superior del panel y, por debajo de escritorio, la propia navegación fija.
 		const topOffset = function () {
@@ -79,6 +90,8 @@ function contentSectionNav() {
 		let stickyOn = false
 		const layoutChanged = function () {
 			document.documentElement.style.setProperty('--section-nav-bar-height', barHeight() + 'px')
+			//El mismo desplazamiento que el sticky de abajo: con él, el CSS limita el alto del menú a lo que cabe.
+			document.documentElement.style.setProperty('--section-nav-offset', (barHeight() + 16) + 'px')
 			//Al llegar por su ancla (también con el hash de la dirección), la sección no queda bajo lo fijo.
 			targets.forEach((target) => target.style.setProperty('scroll-margin-top', topOffset() + 'px'))
 			if (layout === null || typeof $ === 'undefined' || typeof $.fn.sticky !== 'function') {
@@ -192,7 +205,12 @@ function contentSectionNav() {
 				}
 			})
 			if (jump !== null && jump.querySelector('option[value="#' + CSS.escape(current.id) + '"]') !== null && jump.value !== '#' + current.id) {
-				jump.value = '#' + current.id
+				if (themedJump) {
+					//Sin disparar el cambio: si no, al desplazar se saltaría a la sección que ya se ve.
+					$(jump).dropdown('set selected', '#' + current.id, null, true)
+				} else {
+					jump.value = '#' + current.id
+				}
 			}
 		}
 		let pending = false

@@ -17,6 +17,7 @@ use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\MaintenanceMode;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -158,6 +159,8 @@ class UsersController extends AdminPanelController
     const INVALID_TWO_FACTOR_CODE = 'INVALID_TWO_FACTOR_CODE';
     /** El tipo del usuario ya no es un rol: no entra, y no se le borra (P290, fase 1). */
     const INVALID_USER_TYPE = 'INVALID_USER_TYPE';
+    /** El modo mantenimiento detiene a su tipo: no recibe sesión (P299). El mismo código que el JSON de la 503. */
+    const MAINTENANCE_MODE = 'MAINTENANCE_MODE';
 
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
@@ -1132,7 +1135,20 @@ class UsersController extends AdminPanelController
                             $twoFactorCodeValue = is_string($twoFactorCodeValue) ? $twoFactorCodeValue : '';
                             $twoFactorIsValid = OTPHandler::checkValidityTOTP($twoFactorCodeValue, $username);
 
-                            if (!$require2FA || $twoFactorIsValid) {
+                            if ((!$require2FA || $twoFactorIsValid) && MaintenanceMode::stopsRole((int) $user->type)) {
+
+                                //Tras contraseña y segundo factor (antes delataría el tipo); antes del código de un uso y de la sesión.
+                                $resultOperation->setValue('error', self::MAINTENANCE_MODE);
+                                $resultOperation->setValue('message', __('page503', 'El sitio está en mantenimiento y tu tipo de usuario no puede entrar ahora.'));
+                                LoginAttemptsModel::addLogin(
+                                    (int) $user->id,
+                                    $user->username,
+                                    false,
+                                    $resultOperation->getValue('message'),
+                                    $extraDataLog
+                                );
+
+                            } elseif (!$require2FA || $twoFactorIsValid) {
 
                                 OTPHandler::toExpireOTP($username);
                                 if ($otpIsValid && !$passwordIsValid) {

@@ -922,6 +922,13 @@
   margin-top: 0.21428571rem;
 }
 
+/* Con la × (inferido: el mensaje del diseño no se cierra): el texto deja sitio a la × (12px del
+   borde + 14px del glifo + 10px de aire). Con los 16px del padding, a 390px el título largo
+   pasaba por debajo de la × */
+.ui.message:has(> .close.icon) {
+  padding-right: 2.57142857em;
+}
+
 /* Inverted: sin el contorno de 1px del borde del modo (claro sobre el mensaje oscuro) */
 .ui.inverted.message {
   box-shadow: none;

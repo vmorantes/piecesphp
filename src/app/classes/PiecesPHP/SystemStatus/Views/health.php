@@ -52,7 +52,12 @@ $states = [
                 <tr data-system-health-row>
                     <td><?= escape_html($row['label']); ?></td>
                     <td><?= StatusLabel::html($stateText, $color); ?></td>
+                    <?php //Un hash de commit (40 caracteres) se parte dejando un carácter solo: va en una línea con puntos y entero en title. ?>
+                    <?php if (preg_match('/^[0-9a-f]{40}$/', $row['value']) === 1): ?>
+                    <td class="truncated" title="<?= escape_html($row['value']); ?>"><?= escape_html($row['value']); ?></td>
+                    <?php else: ?>
                     <td><?= escape_html($row['value']); ?></td>
+                    <?php endif; ?>
                     <td class="right aligned"><span class="ui muted text" data-system-health-origin><?= escape_html($row['origin']); ?></span></td>
                 </tr>
                 <?php endforeach; ?>

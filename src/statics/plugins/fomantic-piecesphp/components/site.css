@@ -312,6 +312,14 @@ select optgroup {
   color: var(--theme-text);
 }
 
+/* Enlaces sueltos dentro de un bloque inverted (segment, item, feed…): el acento aclarado; con la
+   tinta del modo claro quedaban en 1,8:1 sobre el fondo oscuro. L 0,86 y no la 0,78 de la tinta
+   oscura: el inverted de algunos temas es un gris medio (el cristal de glass-ios, 3,5:1 con 0,78). */
+.ui.inverted a:not(.ui):not(.item):not(.header),
+.ui.inverted .content a:not(.ui):not(.item) {
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
+}
+
 /* Tokens del diseño publicados como variables CSS (tokens.md §1, §2, §5, §10). En html y no en
    :root, como los acentos de la capa común: si el host entrega los tonos precalculados en
    :root { --accent-25: … }, ganan los suyos (README del diseño, contrato de entrada).
@@ -319,7 +327,7 @@ select optgroup {
    superficie oscura (inferido). */
 html {
   --accent-solid: var(--accent-1);
-  --accent-contrast: var(--accent-1-text, oklch(from var(--accent-1, var(--accent, #356dca)) calc((0.6 - l) * 1000) 0 0));
+  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
   --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
   --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
   --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));
@@ -370,13 +378,6 @@ body {
   }
 }
 
-/* Enlaces sueltos dentro de un bloque inverted (segment, item, feed…): la tinta clara del acento
-   (la rama oscura de la capa común); con la de claro quedaban en 1,8:1 sobre el fondo oscuro. */
-.ui.inverted a:not(.ui):not(.item):not(.header),
-.ui.inverted .content a:not(.ui):not(.item) {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h);
-}
-
 /* Encabezados sueltos (sin `ui header`): el interlineado de cada estilo de la escala (Título,
    Lead, Cuerpo, Etiqueta, Pequeño) en vez del único @headerLineHeight */
 h1 {
@@ -417,18 +418,29 @@ small {
   line-height: 1.33333333;
 }
 
+/* Un small dentro de otro no vuelve a encoger: salía a 10,3px (la medida de una imagen bajo su
+   nombre, en login y ayuda) */
+small small {
+  font-size: 1em;
+}
+
 /* `code`: chip monoespaciado de 12px (code de las vistas de referencia tipografia e iconos: g-50,
    línea, radio 5px, 1px 6px, text-2). En la etiqueta de un campo (og:title…), solo el texto
-   atenuado y en peso normal (.ui.form label code) */
+   atenuado y en peso normal (.ui.form label code). Nunca por debajo de 12px: dentro de un texto
+   Pequeño o tiny quedaba en 10,3px. Un chip largo baja de línea y repite su borde
+   en cada trozo: con nowrap, el de la API del shell salía 572px del mensaje a 390px y el de la
+   hoja de íconos SVG, 48px de la ventana */
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.85714286em;
+  font-size: max(0.85714286em, 0.85714286rem);
   padding: 1px 6px;
   border: 1px solid var(--theme-border);
   border-radius: 5px;
   background: light-dark(#f5f7fa, #20242d);
   color: light-dark(#4b5363, #cfd5de);
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  -webkit-box-decoration-break: clone;
+          box-decoration-break: clone;
 }
 
 /* Dentro de un bloque `pre` no es un chip: conserva los saltos de línea del bloque y toma su

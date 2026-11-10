@@ -532,7 +532,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.error .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.error .ui.label:not(.corner) {
-  color: oklch(from light-dark(#fef3f2, #351513) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#fef3f2, #351513) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.error .field .corner.label,
 .ui.form .field.error .corner.label {
@@ -540,7 +540,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: oklch(from light-dark(#b42318, #fda29b) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#b42318, #fda29b) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.error .field textarea,
 .ui.form .fields.error .field select,
@@ -706,19 +706,19 @@
 /* Hover */
 .ui.form .fields.error .field .ui.dropdown .menu .item:hover,
 .ui.form .field.error .ui.dropdown .menu .item:hover {
-  background-color: #fbe7e7;
+  background-color: light-dark(#fbe7e7, #3a1a1d);
 }
 
 /* Selected */
 .ui.form .fields.error .field .ui.dropdown .menu .selected.item,
 .ui.form .field.error .ui.dropdown .menu .selected.item {
-  background-color: #fbe7e7;
+  background-color: light-dark(#fbe7e7, #3a1a1d);
 }
 
 /* Active */
 .ui.form .fields.error .field .ui.dropdown .menu .active.item,
 .ui.form .field.error .ui.dropdown .menu .active.item {
-  background-color: #fdcfcf !important;
+  background-color: light-dark(#fdcfcf, #4a2226) !important;
 }
 
 /*--------------------
@@ -808,7 +808,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.info .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.info .ui.label:not(.corner) {
-  color: oklch(from light-dark(#ecfdff, #0a2a33) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#ecfdff, #0a2a33) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.info .field .corner.label,
 .ui.form .field.info .corner.label {
@@ -816,7 +816,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: oklch(from light-dark(#0e7090, #67e3f9) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#0e7090, #67e3f9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.info .field textarea,
 .ui.form .fields.info .field select,
@@ -974,19 +974,19 @@
 /* Hover */
 .ui.form .fields.info .field .ui.dropdown .menu .item:hover,
 .ui.form .field.info .ui.dropdown .menu .item:hover {
-  background-color: #e9f2fb;
+  background-color: light-dark(#e9f2fb, #12303d);
 }
 
 /* Selected */
 .ui.form .fields.info .field .ui.dropdown .menu .selected.item,
 .ui.form .field.info .ui.dropdown .menu .selected.item {
-  background-color: #e9f2fb;
+  background-color: light-dark(#e9f2fb, #12303d);
 }
 
 /* Active */
 .ui.form .fields.info .field .ui.dropdown .menu .active.item,
 .ui.form .field.info .ui.dropdown .menu .active.item {
-  background-color: #cef1fd !important;
+  background-color: light-dark(#cef1fd, #173a47) !important;
 }
 
 /*--------------------
@@ -1076,7 +1076,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.success .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.success .ui.label:not(.corner) {
-  color: oklch(from light-dark(#ecfdf3, #0c2a1c) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#ecfdf3, #0c2a1c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.success .field .corner.label,
 .ui.form .field.success .corner.label {
@@ -1084,7 +1084,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: oklch(from light-dark(#067647, #75e0a7) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#067647, #75e0a7) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.success .field textarea,
 .ui.form .fields.success .field select,
@@ -1242,19 +1242,19 @@
 /* Hover */
 .ui.form .fields.success .field .ui.dropdown .menu .item:hover,
 .ui.form .field.success .ui.dropdown .menu .item:hover {
-  background-color: #e9fbe9;
+  background-color: light-dark(#e9fbe9, #16301c);
 }
 
 /* Selected */
 .ui.form .fields.success .field .ui.dropdown .menu .selected.item,
 .ui.form .field.success .ui.dropdown .menu .selected.item {
-  background-color: #e9fbe9;
+  background-color: light-dark(#e9fbe9, #16301c);
 }
 
 /* Active */
 .ui.form .fields.success .field .ui.dropdown .menu .active.item,
 .ui.form .field.success .ui.dropdown .menu .active.item {
-  background-color: #dafdce !important;
+  background-color: light-dark(#dafdce, #1d3d24) !important;
 }
 
 /*--------------------
@@ -1344,7 +1344,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.warning .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.warning .ui.label:not(.corner) {
-  color: oklch(from light-dark(#fffaeb, #2e2108) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#fffaeb, #2e2108) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.warning .field .corner.label,
 .ui.form .field.warning .corner.label {
@@ -1352,7 +1352,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: oklch(from light-dark(#b54708, #fdb022) calc((0.6 - l) * 1000) 0 0);
+  color: color(from light-dark(#b54708, #fdb022) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.warning .field textarea,
 .ui.form .fields.warning .field select,
@@ -1510,19 +1510,19 @@
 /* Hover */
 .ui.form .fields.warning .field .ui.dropdown .menu .item:hover,
 .ui.form .field.warning .ui.dropdown .menu .item:hover {
-  background-color: #fbfbe9;
+  background-color: light-dark(#fbfbe9, #302712);
 }
 
 /* Selected */
 .ui.form .fields.warning .field .ui.dropdown .menu .selected.item,
 .ui.form .field.warning .ui.dropdown .menu .selected.item {
-  background-color: #fbfbe9;
+  background-color: light-dark(#fbfbe9, #302712);
 }
 
 /* Active */
 .ui.form .fields.warning .field .ui.dropdown .menu .active.item,
 .ui.form .field.warning .ui.dropdown .menu .active.item {
-  background-color: #fdfdce !important;
+  background-color: light-dark(#fdfdce, #3d3216) !important;
 }
 
 /*--------------------
@@ -2176,4 +2176,17 @@
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.85);
+}
+
+/* Barra pegada al pie (pp-form-actions-bar) en móvil: el contenedor baja a 16px de padding
+   (segment.overrides) y la barra seguía saliendo 20px a cada lado; sobresalía 4px del borde. El
+   original tiene el mismo desfase; aquí la barra llega justo al borde, con 16px dentro. */
+@media only screen and (max-width: 767.98px) {
+  .ui.form.segment > .attached.actions,
+  .ui.segment > .ui.form > .attached.actions {
+    margin-right: -1.14285714rem;
+    margin-left: -1.14285714rem;
+    padding-right: 1.14285714rem;
+    padding-left: 1.14285714rem;
+  }
 }

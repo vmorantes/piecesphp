@@ -68,19 +68,7 @@ $-stackedCellLabelColor: rgba(0, 0, 0, 0.6);
 }
 
 //-------- La tarjeta de imagen y su editor (design.md §3.18 y §3.19)
-//Pulsar la vista previa abre el editor (P276 a): un botón real sin caja, con el foco visible sobre el damero.
-.content-image-card-edit {
-    display: block;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: pointer;
-
-    &:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 2px;
-    }
-}
+//La vista previa pulsable (un button hijo de .checkered.image, sin caja y con foco visible) la pinta el tema (card.css).
 
 //Apilada, `ui stackable cards` le da su ancho contando márgenes que la caja no compensa: salía corrida a la derecha.
 @media screen and (max-width: 767px) {

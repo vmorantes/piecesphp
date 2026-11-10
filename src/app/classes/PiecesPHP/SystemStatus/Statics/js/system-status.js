@@ -41,8 +41,17 @@ window.addEventListener('load', function () {
 						}
 						const state = button.closest('tr').querySelector('[data-system-alert-state]')
 						if (state !== null) {
-							state.textContent = hidden ? _i18n('system-status', 'Oculto') : _i18n('system-status', 'Activo')
-							state.className = hidden ? 'ui label' : 'ui green basic circular label'
+							//El mismo marcado que StatusLabel: neutral para «Oculto»; verde y con su punto para «Activo».
+							const label = document.createElement('span')
+							label.className = hidden ? 'ui label' : 'ui green basic circular label'
+							if (!hidden) {
+								const dot = document.createElement('i')
+								dot.className = 'circle icon'
+								dot.setAttribute('aria-hidden', 'true')
+								label.appendChild(dot)
+							}
+							label.appendChild(document.createTextNode(hidden ? _i18n('system-status', 'Oculto') : _i18n('system-status', 'Activo')))
+							state.replaceChildren(label)
 						}
 					})
 					.catch(function (error) {
@@ -89,6 +98,12 @@ window.addEventListener('load', function () {
 					nodo.textContent = tamano(status[claves[0]])
 				} else if (unidad === 'number' && claves.length > 1) {
 					nodo.textContent = _i18n('system-status', '%s de %s').replace('%s', String(status[claves[0]])).replace('%s', String(status[claves[1]]))
+				} else if (unidad === 'stamp') {
+					//El mismo marcado que la vista (maintenance.php): la marca en <code> y entera en title.
+					const code = document.createElement('code')
+					code.textContent = String(status[claves[0]])
+					nodo.replaceChildren(code)
+					nodo.title = String(status[claves[0]])
 				} else {
 					nodo.textContent = String(status[claves[0]])
 				}

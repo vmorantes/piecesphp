@@ -175,9 +175,9 @@ var PCSPHP_TRANSLATIONS_ES = {
 		'Aceptar': 'Aceptar',
 	},
 	loginForm: {
-		'Error': 'Erreur',
+		'Error': 'Error',
 		'Ha ocurrido un error inesperado, intente más tarde.': 'Ha ocurrido un error inesperado, intente más tarde.',
-		'Si continua con problemas para ingresar, por favor utilice la ayuda.': 'Si continua con problemas para ingresar, por favor utilice la ayuda.',
+		'Si continúa con problemas para ingresar, por favor utilice la ayuda.': 'Si continúa con problemas para ingresar, por favor utilice la ayuda.',
 		'Por favor, verifique los datos de ingreso y vuelva a intentar.': 'Por favor, verifique los datos de ingreso y vuelva a intentar.',
 		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.': 'Por favor, ingrese al siguiente enlace para desbloquear su usuario.',
 		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.',
@@ -186,6 +186,7 @@ var PCSPHP_TRANSLATIONS_ES = {
 		'ERROR_AL_INGRESAR': 'Error al ingresar',
 		'Demasiados intentos': 'Demasiados intentos',
 		'Cuenta sin un tipo válido': 'Cuenta sin un tipo válido',
+		'Sitio en mantenimiento': 'Sitio en mantenimiento',
 	},
 	userProblems: {
 		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.',
