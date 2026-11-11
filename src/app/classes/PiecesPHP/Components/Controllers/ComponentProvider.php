@@ -45,6 +45,9 @@ class ComponentProvider extends AdminPanelController
     /** La forma de un nombre de grupo: el de Views/ acaba en un require, y uno registrado comparte el mismo espacio. */
     const GROUP_NAME_PATTERN = '/^[A-Za-z0-9_-]+$/';
 
+    /** La única fuente de la carpeta de grupos: registrar y servir miran la misma, o un nombre que choca se colaría. */
+    const VIEWS_DIR = __DIR__ . '/../Views/';
+
     /**
      * Los grupos que registra el código del proyecto (registerGroup()): nombre => lo que pinta su HTML. Viven lo que dura la
      * petición o la orden de bin/cli: el arranque los vuelve a registrar en cada una.
@@ -56,7 +59,7 @@ class ComponentProvider extends AdminPanelController
     public function __construct()
     {
         parent::__construct();
-        $this->setInstanceViewDir(__DIR__ . '/../Views/');
+        $this->setInstanceViewDir(self::VIEWS_DIR);
     }
 
     /**
@@ -90,6 +93,10 @@ class ComponentProvider extends AdminPanelController
                     ob_end_clean();
                 }
             }
+            //La marca de caché que render() pone a los estáticos de un grupo de Views/, y con la misma opción.
+            if (get_config('cache_stamp_render_files') === true) {
+                $output = self::addStaticVersions($output);
+            }
         } else {
             $output = $this->render("{$requestedGroup}/components", [], false);
         }
@@ -106,7 +113,7 @@ class ComponentProvider extends AdminPanelController
      */
     public function availableGroups(): array
     {
-        return array_merge(self::viewGroups($this->getInstanceViewDir()), array_keys(self::$registeredGroups));
+        return array_merge(self::viewGroups(self::VIEWS_DIR), array_keys(self::$registeredGroups));
     }
 
     /**
@@ -134,7 +141,7 @@ class ComponentProvider extends AdminPanelController
         if (preg_match(self::GROUP_NAME_PATTERN, $group) !== 1) {
             throw new \InvalidArgumentException("El nombre del grupo de componentes «{$group}» no es válido: solo letras, números, guion y guion bajo.");
         }
-        if (isset(self::$registeredGroups[$group]) || in_array($group, self::viewGroups(__DIR__ . '/../Views/'), true)) {
+        if (isset(self::$registeredGroups[$group]) || in_array($group, self::viewGroups(self::VIEWS_DIR), true)) {
             throw new \LogicException("El grupo de componentes «{$group}» ya existe: elige otro nombre, un grupo no puede sustituir a otro.");
         }
         self::$registeredGroups[$group] = $render;
