@@ -76,7 +76,7 @@ use PiecesPHP\Core\Email\MailDelivery;
                             'inputName' => 'password',
                             'value' => '',
                             'label' => __($langGroup, 'Contraseña'),
-                            'placeholder' => mb_strlen((string) $element->password()) > 0 ? __($langGroup, 'Guardada: vacío la conserva') : '',
+                            'placeholder' => mb_strlen((string) $element->password()) > 0 ? __($langGroup, 'Hay una contraseña guardada: déjelo vacío para conservarla') : '',
                             'autocomplete' => 'new-password',
                             'fieldExtra' => $toggle('auth', __($langGroup, 'Autenticar'), (bool) $element->auth()),
                         ]);

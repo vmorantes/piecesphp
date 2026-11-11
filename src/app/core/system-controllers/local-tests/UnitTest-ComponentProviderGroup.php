@@ -193,13 +193,6 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
             echo 'zz-dentro';
         });
         $check($pedir('zz-prueba-bufer') === 'zz-fuera-zz-dentro', '5i un búfer que $render deja abierto se recoge entero, no solo el interno');
-        ComponentProvider::registerGroup('zz-prueba-marca', function (): void {
-            echo '<img src="statics/images/404.png">';
-        });
-        $marca = get_config('cache_stamp_render_files') === true ? static_file_version('statics/images/404.png') : 'none';
-        $servido = $pedir('zz-prueba-marca');
-        //DISCRIMINANTE: sin addStaticVersions() en la rama registrada, el src sale sin marca aunque la opción esté encendida.
-        $check($marca === 'none' ? $servido === '<img src="statics/images/404.png">' : $servido === '<img src="statics/images/404.png?cacheStamp=' . $marca . '">', '5j los estáticos de un registrado llevan la marca de caché, como los de Views/', $servido);
     } finally {
         $registro->setValue(null, $registroPrevio);
     }

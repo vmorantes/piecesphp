@@ -46,8 +46,8 @@ $option = fn (array $item): string => $urlOf($item) === null ? '' : '<option val
         <?php $children = $childrenOf($item); ?>
         <?php if ($children === []): ?>
         <?= $link($item, 'item'); ?>
-        <?php elseif ($anchorOf($item) !== null || ($activeOf($item) && $urlOf($item) !== null)): ?>
-        <?php //El actual, o un ancla (el JS le pone active), como un elemento del tema: no resalta un «header» activo. Sus hijos, en el siguiente. ?>
+        <?php elseif ($activeOf($item) && $urlOf($item) !== null): ?>
+        <?php //El actual, como un elemento activo del tema (el tema no resalta un «header» activo); sus hijos, en el siguiente. ?>
         <?= $link($item, 'item'); ?>
         <div class="item">
             <div class="menu">

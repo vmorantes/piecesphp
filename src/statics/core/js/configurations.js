@@ -1402,7 +1402,6 @@ function handleGlobalChangeLangModal() {
 	if (trigger.length > 0) {
 		const modal = $('[change-system-lang-modal]').modal()
 		const dropdown = modal.find('.ui.dropdown').dropdown()
-		copyDropdownAccessibleName(modal.find('select'))
 		const changeButton = modal.find('button[type="submit"]')
 		const langCookieName = modal.data('lang-cookie')
 		trigger.off('click')
