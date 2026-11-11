@@ -842,10 +842,10 @@
   color: rgba(255, 255, 255, 0.9);
 }
 .ui.inverted.circular.steps .step.active .title {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.circular.steps.ordered .step.active::before {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.circular.steps:not(.vertical) .step:not(.completed) {
   background: color-mix(in srgb, rgba(255, 255, 255, 0.9) 40%, transparent);
@@ -899,15 +899,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.primary.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.primary.active .content .title {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.primary.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.primary.active .content .title {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.primary.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.primary.active::before {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.primary .content::before {
   border-color: var(--accent-1, var(--accent, #356dca));
@@ -954,15 +954,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.secondary.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.secondary.active .content .title {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.secondary.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.secondary.active .content .title {
-  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) c h);
+  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.secondary.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.secondary.active::before {
-  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) c h);
+  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.secondary .content::before {
   border-color: var(--accent-2, #7a5af8);
@@ -1009,15 +1009,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.accent-1.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.accent-1.active .content .title {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.accent-1.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.accent-1.active .content .title {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.accent-1.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.accent-1.active::before {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.accent-1 .content::before {
   border-color: var(--accent-1, var(--accent, #356dca));
@@ -1064,15 +1064,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.accent-2.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.accent-2.active .content .title {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.accent-2.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.accent-2.active .content .title {
-  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) c h);
+  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.accent-2.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.accent-2.active::before {
-  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) c h);
+  color: oklch(from var(--accent-2, #7a5af8) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.accent-2 .content::before {
   border-color: var(--accent-2, #7a5af8);
@@ -1119,15 +1119,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.accent-3.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.accent-3.active .content .title {
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.accent-3.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.accent-3.active .content .title {
-  color: oklch(from var(--accent-3, #c11574) max(l, 0.8) c h);
+  color: oklch(from var(--accent-3, #c11574) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.accent-3.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.accent-3.active::before {
-  color: oklch(from var(--accent-3, #c11574) max(l, 0.8) c h);
+  color: oklch(from var(--accent-3, #c11574) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.accent-3 .content::before {
   border-color: var(--accent-3, #c11574);
@@ -1178,11 +1178,11 @@
 }
 .ui.ui.inverted.red.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.red.active .content .title {
-  color: oklch(from #f04438 max(l, 0.8) c h);
+  color: oklch(from #f04438 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.red.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.red.active::before {
-  color: oklch(from #f04438 max(l, 0.8) c h);
+  color: oklch(from #f04438 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.red .content::before {
   border-color: #f04438;
@@ -1233,11 +1233,11 @@
 }
 .ui.ui.inverted.orange.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.orange.active .content .title {
-  color: oklch(from #ef6820 max(l, 0.8) c h);
+  color: oklch(from #ef6820 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.orange.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.orange.active::before {
-  color: oklch(from #ef6820 max(l, 0.8) c h);
+  color: oklch(from #ef6820 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.orange .content::before {
   border-color: #ef6820;
@@ -1288,11 +1288,11 @@
 }
 .ui.ui.inverted.yellow.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.yellow.active .content .title {
-  color: oklch(from #f79009 max(l, 0.8) c h);
+  color: oklch(from #f79009 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.yellow.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.yellow.active::before {
-  color: oklch(from #f79009 max(l, 0.8) c h);
+  color: oklch(from #f79009 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.yellow .content::before {
   border-color: #f79009;
@@ -1339,15 +1339,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.olive.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.olive.active .content .title {
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.olive.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.olive.active .content .title {
-  color: oklch(from #84a11b max(l, 0.8) c h);
+  color: oklch(from #84a11b max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.olive.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.olive.active::before {
-  color: oklch(from #84a11b max(l, 0.8) c h);
+  color: oklch(from #84a11b max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.olive .content::before {
   border-color: #84a11b;
@@ -1394,15 +1394,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.green.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.green.active .content .title {
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.green.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.green.active .content .title {
-  color: oklch(from #17b26a max(l, 0.8) c h);
+  color: oklch(from #17b26a max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.green.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.green.active::before {
-  color: oklch(from #17b26a max(l, 0.8) c h);
+  color: oklch(from #17b26a max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.green .content::before {
   border-color: #17b26a;
@@ -1449,15 +1449,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.teal.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.teal.active .content .title {
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.teal.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.teal.active .content .title {
-  color: oklch(from #06aed4 max(l, 0.8) c h);
+  color: oklch(from #06aed4 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.teal.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.teal.active::before {
-  color: oklch(from #06aed4 max(l, 0.8) c h);
+  color: oklch(from #06aed4 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.teal .content::before {
   border-color: #06aed4;
@@ -1504,15 +1504,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.blue.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.blue.active .content .title {
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.blue.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.blue.active .content .title {
-  color: oklch(from #2e90fa max(l, 0.8) c h);
+  color: oklch(from #2e90fa max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.blue.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.blue.active::before {
-  color: oklch(from #2e90fa max(l, 0.8) c h);
+  color: oklch(from #2e90fa max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.blue .content::before {
   border-color: #2e90fa;
@@ -1559,15 +1559,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.violet.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.violet.active .content .title {
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.violet.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.violet.active .content .title {
-  color: oklch(from #7a5af8 max(l, 0.8) c h);
+  color: oklch(from #7a5af8 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.violet.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.violet.active::before {
-  color: oklch(from #7a5af8 max(l, 0.8) c h);
+  color: oklch(from #7a5af8 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.violet .content::before {
   border-color: #7a5af8;
@@ -1614,15 +1614,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.purple.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.purple.active .content .title {
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.purple.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.purple.active .content .title {
-  color: oklch(from #9e4cc9 max(l, 0.8) c h);
+  color: oklch(from #9e4cc9 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.purple.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.purple.active::before {
-  color: oklch(from #9e4cc9 max(l, 0.8) c h);
+  color: oklch(from #9e4cc9 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.purple .content::before {
   border-color: #9e4cc9;
@@ -1669,15 +1669,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.pink.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.pink.active .content .title {
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.pink.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.pink.active .content .title {
-  color: oklch(from #c11574 max(l, 0.8) c h);
+  color: oklch(from #c11574 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.pink.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.pink.active::before {
-  color: oklch(from #c11574 max(l, 0.8) c h);
+  color: oklch(from #c11574 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.pink .content::before {
   border-color: #c11574;
@@ -1724,15 +1724,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.brown.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.brown.active .content .title {
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.brown.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.brown.active .content .title {
-  color: oklch(from #6e4a2e max(l, 0.8) c h);
+  color: oklch(from #6e4a2e max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.brown.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.brown.active::before {
-  color: oklch(from #6e4a2e max(l, 0.8) c h);
+  color: oklch(from #6e4a2e max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.brown .content::before {
   border-color: #6e4a2e;
@@ -1779,15 +1779,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.grey.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.grey.active .content .title {
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.grey.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.grey.active .content .title {
-  color: oklch(from #687181 max(l, 0.8) c h);
+  color: oklch(from #687181 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.grey.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.grey.active::before {
-  color: oklch(from #687181 max(l, 0.8) c h);
+  color: oklch(from #687181 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.grey .content::before {
   border-color: #687181;
@@ -1834,15 +1834,15 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.black.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.black.active .content .title {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.inverted.black.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.black.active .content .title {
-  color: oklch(from light-dark(#1f2430, #535c6e) max(l, 0.8) c h);
+  color: oklch(from light-dark(#1f2430, #535c6e) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.black.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.black.active::before {
-  color: oklch(from light-dark(#1f2430, #535c6e) max(l, 0.8) c h);
+  color: oklch(from light-dark(#1f2430, #535c6e) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.black .content::before {
   border-color: light-dark(#1f2430, #535c6e);

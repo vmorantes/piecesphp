@@ -11,7 +11,10 @@ return [
     'Datos adicionales' => 'Extra data',
     'Traza' => 'Trace',
     'La traza de este error ya se purgó.' => 'The trace of this error has already been purged.',
-    'Copiar la referencia' => 'Copy the reference',
+    'Copiar referencia' => 'Copy reference',
+    'Copiado' => 'Copied',
+    'Detalle' => 'Detail',
+    'No hay errores anotados.' => 'No errors recorded.',
     'Mensaje completo y ruta' => 'Full message and path',
     'Referencia' => 'Reference',
     'Texto (mensaje o archivo)' => 'Text (message or file)',
@@ -53,4 +56,5 @@ return [
     'Ver los errores' => 'See the errors',
     'avisos del sistema activos' => 'active system notices',
     'Los errores nuevos desde tu última visita y los avisos del sistema activos. Nace plegada para que no se vea en una demostración.' => 'New errors since your last visit and the active system notices. It starts collapsed so it does not show in a demo.',
+    'Los errores que anotó esta instalación, agrupados por día, el más reciente primero.' => 'The errors this installation recorded, grouped by day, newest first.',
 ];

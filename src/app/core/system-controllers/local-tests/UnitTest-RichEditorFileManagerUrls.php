@@ -64,7 +64,7 @@ CliActions::make('unit-tests:core/rich-editor-file-manager-urls', function ($arg
         return $balance();
     }
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $camino = function (string $url) use ($prefijoBase): string {
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;

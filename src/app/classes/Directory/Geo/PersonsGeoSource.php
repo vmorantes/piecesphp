@@ -139,7 +139,7 @@ class PersonsGeoSource implements GeoSource
     {
         $model = UserProfileMapper::model();
         $model->select(UserProfileMapper::fieldsToSelect());
-        self::applyFilters($model, $query);
+        static::applyFilters($model, $query);
         [$total, $rows] = GeoSourceSql::countAndFetch($model, 'belongsTo ASC', $query->limit());
 
         $points = [];
@@ -158,7 +158,7 @@ class PersonsGeoSource implements GeoSource
      */
     public function pointDetail(int $id): ?array
     {
-        $row = self::visibleRow($id);
+        $row = static::visibleRow($id);
         if ($row === null) {
             return null;
         }
@@ -193,7 +193,7 @@ class PersonsGeoSource implements GeoSource
      */
     public function thumbnailSource(int $id): ?string
     {
-        return self::visibleRow($id) !== null && AvatarModel::hasUserAvatar($id) ? AvatarModel::getUserAvatarName($id) : null;
+        return static::visibleRow($id) !== null && AvatarModel::hasUserAvatar($id) ? AvatarModel::getUserAvatarName($id) : null;
     }
 
     /**
@@ -211,7 +211,7 @@ class PersonsGeoSource implements GeoSource
         $model = UserProfileMapper::model();
         $model->select(UserProfileMapper::fieldsToSelect());
         $model->where($where);
-        $model->having(self::visibleHaving());
+        $model->having(static::visibleHaving());
         $model->execute(false, 1, 1);
         $row = ($model->result() ?? [])[0] ?? null;
         return $row instanceof \stdClass && GeoQuery::isValidCoordinate($row->longitude, $row->latitude) ? $row : null;
@@ -231,7 +231,7 @@ class PersonsGeoSource implements GeoSource
         $search = GeoSourceSql::textFilter($query, self::FILTER_SEARCH);
         $organizations = GeoSourceSql::idsFilter($query, self::FILTER_ORGANIZATIONS);
 
-        $having = self::visibleHaving();
+        $having = static::visibleHaving();
         if ($search !== null) {
             GeoSourceSql::addSearch($having, ['fullname', 'fullLocation'], $search);
         }

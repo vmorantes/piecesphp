@@ -345,7 +345,8 @@ class UserTokensController extends AdminPanelController
             'key',
             self::$baseRouteName . '-datatables',
             fn(Request $request, string $tabURL): string => self::tokensTab($request, $tabURL),
-            50
+            50,
+            __(self::LANG_GROUP, 'Los códigos, enlaces y secretos de acceso que siguen vigentes, y la historia de lo que pasó con ellos.')
         ));
     }
 
@@ -444,9 +445,10 @@ class UserTokensController extends AdminPanelController
         $textShow = __(self::LANG_GROUP, 'Mostrar');
         $textInvalidate = __(self::LANG_GROUP, 'Invalidar ahora');
         //Siempre las tres y en el mismo orden (design.md §3.28): la que no aplica va inactiva.
-        $reset = RowActions::inactive($textReset, 'undo');
+        //Restablecer e invalidar son destructivas: en rojo cuando aplican (vistas-referencia.md §3.28).
+        $reset = RowActions::inactive($textReset, 'user shield');
         if ($kind === TokenEvents::KIND_TWO_FACTOR && $userID !== null && $userID !== (int) $actor->id) {
-            $reset = RowActions::action($textReset, '#', 'undo', [
+            $reset = RowActions::negative($textReset, '#', 'user shield', [
                 'data-token-action' => self::routeName('reset-two-factor', ['id' => $id]),
                 'data-confirmation-message' => __(self::LANG_GROUP, 'El usuario entrará solo con su contraseña hasta que active de nuevo el doble factor. ¿Restablecerlo?'),
             ]);
@@ -460,7 +462,7 @@ class UserTokensController extends AdminPanelController
         }
         $invalidate = RowActions::inactive($textInvalidate, 'ban');
         if ($kind !== TokenEvents::KIND_TWO_FACTOR) {
-            $invalidate = RowActions::action($textInvalidate, '#', 'ban', [
+            $invalidate = RowActions::negative($textInvalidate, '#', 'ban', [
                 'data-token-action' => self::routeName('invalidate', $params),
                 'data-confirmation-message' => __(self::LANG_GROUP, 'El código dejará de servir ahora mismo. ¿Invalidarlo?'),
             ]);

@@ -89,7 +89,7 @@ CliActions::make('unit-tests:core/reports-by-country', function ($args) {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => 60,
-            CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ': ' . UserSessions::issueToken($idRoot)],
+            CURLOPT_HTTPHEADER => [SessionToken::headerName() . ': ' . UserSessions::issueToken($idRoot)],
         ]);
         $cuerpo = (string) curl_exec($handle);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.

@@ -76,7 +76,7 @@ CliActions::make('unit-tests:core/form-uploads', function ($args) {
         $url = '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
         return $prefijoBase !== '' && str_starts_with($url, $prefijoBase) ? substr($url, strlen($prefijoBase)) : $url;
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $guardar = function (string $ruta, string $jwt, array $campos) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($handle, [

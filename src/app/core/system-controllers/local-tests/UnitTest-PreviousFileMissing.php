@@ -1,7 +1,7 @@
 <?php
 
 //Sustituir una imagen cuyo anterior ya no está guarda sin error (G7-22), y el texto sobre el patrocinador (P258) sale
-//escapado en el pie y, vacío, no sale. Por HTTP; repone las opciones en crudo y borra el .jpg que crea.
+//escapado en el pie y, vacío, no sale. Por HTTP; repone las opciones en crudo y retira el .jpg que crea en las subidas.
 //@areas src/app/classes/PiecesPHP/Settings/
 
 use Organizations\Mappers\OrganizationMapper;
@@ -72,8 +72,14 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
         return $valor === false ? null : (string) $valor;
     };
     $crudoTextoAntes = $crudoTexto();
-    //El logo de los correos versionado es .png: el .jpg que crea la prueba es suyo, y no puede existir antes.
-    $creado = basepath('statics/images/mailing-logo.jpg');
+    //Lo que crea la prueba va a las subidas de Configuración (H230); el .png versionado no se toca.
+    $creado = '';
+    $crudoFondosAntes = (function () use ($database, $tabla): ?string {
+        $consulta = $database->prepare("SELECT value FROM `{$tabla}` WHERE BINARY name = ?");
+        $consulta->execute(['backgrounds']);
+        $valor = $consulta->fetchColumn();
+        return $valor === false ? null : (string) $valor;
+    })();
     $versionado = basepath('statics/images/mailing-logo.png');
     $huellaVersionado = is_file($versionado) ? sha1_file($versionado) : null;
     $prefijo = 'zz-prueba-anterior-' . bin2hex(random_bytes(3));
@@ -81,9 +87,6 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
     $imagen = tempnam(sys_get_temp_dir(), 'zz-img-');
 
     try {
-        if (!$check(!is_file($creado), 'banco: statics/images/mailing-logo.jpg no existe antes')) {
-            return $balance();
-        }
         $u = new UsersModel();
         $u->username = "{$prefijo}-root";
         $u->email = "{$prefijo}-root@example.invalid";
@@ -117,14 +120,15 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
             CURLOPT_TIMEOUT => 60,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => [$opcion => new \CURLFile((string) $imagen, 'image/jpeg', 'zz-logo.jpg')],
-            CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
+            CURLOPT_HTTPHEADER => [SessionToken::headerName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
         ]);
         $cuerpo = curl_exec($h);
         $estado = (int) curl_getinfo($h, CURLINFO_RESPONSE_CODE);
         $datos = is_string($cuerpo) ? json_decode($cuerpo, true) : null;
         $check($estado === 200 && ($datos['success'] ?? null) === true, 'p1 guarda sin error aunque el anterior no esté', "HTTP {$estado}, " . mb_substr(is_string($cuerpo) ? $cuerpo : '', 0, 200));
         clearstatcache();
-        $check(is_file($creado) && $crudo() !== null && str_contains((string) $crudo(), 'mailing-logo.jpg'), 'p2 y la opción apunta al nuevo', var_export($crudo(), true));
+        $creado = (string) $crudo();
+        $check(preg_match('#^' . preg_quote(SettingsController::SETTINGS_UPLOADS_FOLDER, '#') . '/brand/mailing-logo-[0-9a-f]{10}\.jpg$#', $creado) === 1 && is_file(basepath($creado)), 'p2 y la opción apunta al nuevo, en las subidas', var_export($crudo(), true));
 
         //──── [t] El texto sobre el patrocinador ─────────────────────────────────────────────
         $peticion = function (string $camino, ?array $campos) use ($base, $jwt): array {
@@ -136,7 +140,7 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_FOLLOWLOCATION => false,
                 CURLOPT_TIMEOUT => 60,
-                CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
+                CURLOPT_HTTPHEADER => [SessionToken::headerName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
             ] + ($campos !== null ? [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $campos] : []));
             $cuerpo = curl_exec($h);
             return ['status' => (int) curl_getinfo($h, CURLINFO_RESPONSE_CODE), 'body' => is_string($cuerpo) ? $cuerpo : ''];
@@ -170,9 +174,37 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
             //RETORNO-IGNORADO: el temporal es propio; lo que importa es lo de abajo.
             unlink($imagen);
         }
-        if (is_file($creado)) {
-            //RETORNO-IGNORADO: lo comprueba z1.
-            unlink($creado);
+        //Solo lo de DENTRO de las subidas. En una carpeta de Apache el terminal no borra: se retira con Eliminar de
+        //Fondos, que borra lo de dentro de las subidas; la opción de fondos se repone después.
+        if (SettingsController::isSettingsUploadPath($creado) && is_file(basepath($creado)) && isset($jwt)) {
+            if (is_writable(dirname(basepath($creado)))) {
+                //RETORNO-IGNORADO: lo comprueba z1.
+                unlink(basepath($creado));
+            } else {
+                $fondos = json_encode([$creado, SettingsController::LOGIN_BACKGROUNDS_FOLDER . '/bg1.jpg']);
+                $database->prepare($crudoFondosAntes === null ? "INSERT INTO `{$tabla}` (value, name) VALUES (?, ?)" : "UPDATE `{$tabla}` SET value = ? WHERE BINARY name = ?")->execute([$fondos, 'backgrounds']);
+                $rutaBorrar = (string) parse_url(SettingsController::routeName('appearance-backgrounds-delete', [], true), \PHP_URL_PATH);
+                $rutaBorrar = $prefijoBase !== '' && str_starts_with($rutaBorrar, $prefijoBase) ? substr($rutaBorrar, strlen($prefijoBase)) : $rutaBorrar;
+                $h = \Terminal\TestRun::curlInit();
+                \Terminal\TestRun::curlSetoptArray($h, [
+                    CURLOPT_URL => $base . '/' . ltrim($rutaBorrar, '/'),
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                    CURLOPT_TIMEOUT => 60,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => http_build_query(['background' => $creado]),
+                    CURLOPT_HTTPHEADER => [SessionToken::headerName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
+                ]);
+                //RETORNO-IGNORADO: lo comprueba z1.
+                curl_exec($h);
+                clearstatcache();
+            }
+        }
+        if ($crudoFondosAntes === null) {
+            $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute(['backgrounds']);
+        } else {
+            $database->prepare("UPDATE `{$tabla}` SET value = ? WHERE BINARY name = ?")->execute([$crudoFondosAntes, 'backgrounds']);
         }
         if ($crudoTextoAntes === null) {
             $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute([$opcionTexto]);
@@ -193,7 +225,7 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
             $database->prepare('DELETE FROM `' . UsersModel::TABLE . '` WHERE id = ?')->execute([$id]);
         }
         clearstatcache();
-        $check(!is_file($creado) && $crudo() === $crudoAntes && ($huellaVersionado === null || sha1_file($versionado) === $huellaVersionado), 'z1 no queda el .jpg, la opción vuelve a su valor y el .png versionado está intacto');
+        $check(($creado === '' || !is_file(basepath($creado))) && $crudo() === $crudoAntes && ($huellaVersionado === null || sha1_file($versionado) === $huellaVersionado), 'z1 no queda el .jpg, la opción vuelve a su valor y el .png versionado está intacto');
         $check($crudoTexto() === $crudoTextoAntes, 'z2 el texto sobre el patrocinador vuelve a su valor', var_export($crudoTexto(), true));
     }
 

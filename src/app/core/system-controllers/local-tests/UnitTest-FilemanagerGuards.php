@@ -56,7 +56,7 @@ CliActions::make('unit-tests:core/filemanager-guards', function ($args) {
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
 
     //Un cliente del conector: su sesión PHP y su token CSRF, que el conector pide para subir y borrar.
     $cliente = function (string $conector, string $jwt) use ($base, $cabeceraToken): array {

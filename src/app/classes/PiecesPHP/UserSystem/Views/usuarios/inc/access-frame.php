@@ -20,6 +20,10 @@ if ($accessDeveloperName !== '' && $accessDeveloperURL !== '') {
 $accessTitle = (string) get_config('title_app');
 $accessDescription = (string) get_config('description');
 $accessWelcome = trim(strip_tags(str_replace('</h1>', ' ', (string) __($accessLang, 'WELCOME_MSG'))));
+$accessPartners = trim((string) get_config('partners'));
+//El propietario de Identidad y SEO, en el idioma de la página (get_config() ya lo resuelve); vacío, el nombre de la aplicación.
+$accessOwner = trim((string) get_config('owner'));
+$accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
 ?>
 <div class="ui very relaxed internally celled stackable stretched equal width fullscreen grid">
 
@@ -42,7 +46,9 @@ $accessWelcome = trim(strip_tags(str_replace('</h1>', ' ', (string) __($accessLa
                 <?php if ($accessPartnersText !== ''): ?>
                 <small class="ui muted text"><strong><?= escape_html($accessPartnersText); ?></strong></small>
                 <?php endif; ?>
-                <img class="ui small image" src="<?= escape_html((string) get_config('partners')); ?>" alt="">
+                <?php if ($accessPartners !== ''): ?>
+                <img class="ui small image" src="<?= escape_html($accessPartners); ?>" alt="">
+                <?php endif; ?>
                 <?php if ($accessDeveloperName !== ''): ?>
                 <small class="ui muted text tight nowrap centered flex developer-credit">
                     <?php if ($accessDeveloperLogo !== ''): ?>
@@ -75,10 +81,21 @@ $accessWelcome = trim(strip_tags(str_replace('</h1>', ' ', (string) __($accessLa
                         <?= $accessContent; ?>
                     </div>
                 </div>
+                <?php if ($accessPartners !== ''): ?>
+                <?php //En móvil y tableta la marca se oculta: el patrocinador baja aquí, bajo el formulario. ?>
+                <div class="mobile tablet only row" data-access-mobile-partners>
+                    <div class="center aligned column" role="group" aria-label="<?= escape_html(__($accessLang, 'Patrocinador')); ?>">
+                        <?php if ($accessPartnersText !== ''): ?>
+                        <p><small class="ui muted text"><strong><?= escape_html($accessPartnersText); ?></strong></small></p>
+                        <?php endif; ?>
+                        <img class="ui small centered image" src="<?= escape_html($accessPartners); ?>" alt="">
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
 
             <footer class="ui center aligned basic segment">
-                <small class="ui muted text">© <?= date('Y'); ?> · <?= __(USER_LOGIN_LANG_GROUP, 'Todos los derechos reservados'); ?> · <?= escape_html((string) get_config('title_app')); ?></small>
+                <small class="ui muted text" data-access-footer><?= escape_html(strReplaceTemplate(__($accessLang, '© ${year} · Todos los derechos reservados a ${owner}'), ['${year}' => date('Y'), '${owner}' => $accessOwner])); ?></small>
             </footer>
 
         </div>

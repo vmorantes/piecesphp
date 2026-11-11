@@ -12,6 +12,16 @@
  * @var array<int,array{text:string,url:string,icon?:string}> $errorActions La primera es la principal.
  */
 $errorActions = isset($errorActions) && is_array($errorActions) ? $errorActions : [];
+//El pie, como el del acceso: el propietario (vacío, el nombre de la aplicación) y el crédito del menú lateral.
+$errorOwner = trim((string) get_config('owner'));
+$errorOwner = $errorOwner !== '' ? $errorOwner : (string) get_config('title_app');
+$errorDeveloper = trim((string) get_config('developer'));
+$errorDeveloperLogo = trim((string) get_config('developer_logo'));
+$errorDeveloperURL = trim((string) get_config('developer_url'));
+$errorDeveloperName = $errorDeveloper === '' ? '' : '<strong>' . escape_html($errorDeveloper) . '</strong>';
+if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
+    $errorDeveloperName = '<a href="' . escape_html($errorDeveloperURL) . '" target="_blank" rel="noopener">' . $errorDeveloperName . '</a>';
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>" class="no-js">
@@ -67,7 +77,17 @@ $errorActions = isset($errorActions) && is_array($errorActions) ? $errorActions 
         </main>
 
         <footer class="ui basic center aligned segment">
-            <small class="ui muted text">© <?= date('Y'); ?> · <?= __(USER_LOGIN_LANG_GROUP, 'Todos los derechos reservados'); ?> · <?= escape_html((string) get_config('title_app')); ?></small>
+            <div class="ui vertical centered tight flex">
+                <small class="ui muted text" data-error-footer><?= escape_html(strReplaceTemplate(__(USER_LOGIN_LANG_GROUP, '© ${year} · Todos los derechos reservados a ${owner}'), ['${year}' => date('Y'), '${owner}' => $errorOwner])); ?></small>
+                <?php if ($errorDeveloperName !== ''): ?>
+                <small class="ui muted text tight nowrap centered flex developer-credit" data-error-developer>
+                    <?php if ($errorDeveloperLogo !== ''): ?>
+                    <img class="ui mini image" src="<?= escape_html($errorDeveloperLogo); ?>" alt="">
+                    <?php endif; ?>
+                    <span><?= __('general', 'Desarrollado por'); ?> <?= $errorDeveloperName; ?></span>
+                </small>
+                <?php endif; ?>
+            </div>
         </footer>
 
     </div>

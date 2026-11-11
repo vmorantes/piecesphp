@@ -99,7 +99,7 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
     }
     echoTerminal(' ');
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = []) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
         $url = str_contains($path, '://') ? $path : $base . '/' . ltrim($path, '/');
@@ -353,6 +353,59 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
         $dosD = $cabecera($pedir('GET', $urlDe($publicaciones['dos'], 'es'))['body']);
         $check(str_contains((string) $uno($dosD, 'og:title'), $tituloRaro) && $uno($dosD, 'og:description') === "Descripción es de {$prefijo}-dos.", 'd6 la publicación conserva su título y su descripción', (string) $uno($dosD, 'og:title'));
         $check($uno($portadaES, 'og:title') !== null && str_contains((string) $uno($portadaES, 'og:title'), ' - '), 'd7 antes de fijarlo, la portada compartía «Inicio - …»', (string) $uno($portadaES, 'og:title'));
+
+        //─── E · La pantalla de «Identidad y SEO» (JGE): lo que se emite a la vista y las casillas del sitio ─────
+        echoTerminal(' ');
+        echoTerminal('[E] La pantalla: lo que la portada emite, de solo lectura, las etiquetas técnicas y «Usar el … del sitio»');
+        $pantalla = function () use ($pedir, $rutas, $root): \DOMXPath {
+            $documento = new \DOMDocument();
+            @$documento->loadHTML('<?xml encoding="UTF-8">' . $pedir('GET', $rutas['seo'], $root)['body']);
+            return new \DOMXPath($documento);
+        };
+        $campo = function (\DOMXPath $x, string $lang, string $atributo): ?\DOMElement {
+            $n = $x->query("//form[@lang='{$lang}']//*[@{$atributo}]")?->item(0);
+            return $n instanceof \DOMElement ? $n : null;
+        };
+        $valorDe = fn(?\DOMElement $n): ?string => $n === null ? null : ($n->tagName === 'textarea' ? $n->textContent : $n->getAttribute('value'));
+        $x = $pantalla();
+        $soloLectura = true;
+        $detalle = [];
+        foreach (['es' => $portadaES, 'en' => $portadaEN] as $lang => $portadaLang) {
+            $esperado = [
+                'data-seo-site-name' => $valorDe($campo($x, $lang, 'data-seo-title')),
+                'data-seo-og-url' => $uno($portadaLang, 'og:url'),
+                'data-seo-canonical' => $portadaLang['canonical'][0] ?? null,
+                'data-seo-og-locale' => $uno($portadaLang, 'og:locale'),
+                'data-seo-author' => $valorDe($campo($x, $lang, 'data-seo-owner')),
+            ];
+            foreach ($esperado as $atributo => $valor) {
+                $n = $campo($x, $lang, $atributo);
+                if ($n === null || !$n->hasAttribute('readonly') || $n->hasAttribute('name') || $valor === null || $n->getAttribute('value') !== $valor) {
+                    $soloLectura = false;
+                    $detalle[] = "{$lang} {$atributo}: " . ($n?->getAttribute('value') ?? 'falta') . ' ≠ ' . var_export($valor, true);
+                }
+            }
+        }
+        $check($soloLectura, 'e1 DISCRIMINANTE: og:site_name, og:url, la canónica, og:locale y meta author, de solo lectura, sin name y con lo que la portada EMITE en cada idioma', implode(' | ', $detalle));
+        $etiquetas = [];
+        foreach ($x->query("//form[@lang='es']//*[@data-seo-tag]") ?: [] as $n) {
+            if ($n instanceof \DOMElement) {
+                $etiquetas[] = $n->getAttribute('data-seo-tag');
+            }
+        }
+        $faltan = array_diff(['<title>', 'meta description', 'meta author', 'og:title', 'og:description', 'og:image', 'meta keywords', 'og:site_name', 'og:url', 'og:locale'], $etiquetas);
+        $etiquetaOg = $x->query("//form[@lang='es']//*[@data-seo-tag='og:title']")?->item(0);
+        $check($faltan === [] && $etiquetaOg instanceof \DOMElement && str_contains($etiquetaOg->getAttribute('class'), 'ui muted text'), 'e2 DISCRIMINANTE: la etiqueta técnica de cada campo, atenuada', implode(', ', $faltan));
+        $casilla = fn(\DOMXPath $x, string $tipo): ?\DOMElement => ($n = $x->query("//form[@lang='es']//input[@data-seo-use-site='{$tipo}']")?->item(0)) instanceof \DOMElement ? $n : null;
+        $titulo = $campo($x, 'es', 'data-seo-share-title');
+        $check($casilla($x, 'title') !== null && !$casilla($x, 'title')->hasAttribute('checked') && $titulo !== null && !$titulo->hasAttribute('disabled') && $titulo->getAttribute('value') === "{$prefijo} tarjeta", 'e3 con un título para compartir guardado: la casilla, desmarcada y el campo, editable con su texto');
+        $vacia = $pedir('POST', $rutas['seo'], $root, $formulario + ['shareTitle' => '', 'shareDescription' => '', 'xAccount' => '@zz_prueba']);
+        $x = $pantalla();
+        $titulo = $campo($x, 'es', 'data-seo-share-title');
+        $descripcion = $campo($x, 'es', 'data-seo-share-description');
+        $check(($vacia['json']['success'] ?? null) === true && $actual(SettingsController::SEO_OPTION_SHARE_TITLE) === '' && $casilla($x, 'title')?->hasAttribute('checked') === true && $titulo?->hasAttribute('disabled') === true && $titulo->getAttribute('value') === $valorDe($campo($x, 'es', 'data-seo-title')) && $casilla($x, 'description')?->hasAttribute('checked') === true && $descripcion?->hasAttribute('disabled') === true && $valorDe($descripcion) === $valorDe($campo($x, 'es', 'data-seo-description')), 'e4 DISCRIMINANTE: guardado VACÍO: las dos casillas, marcadas, y los campos, desactivados con el valor del sitio');
+        $portadaE = $cabecera($pedir('GET', '/?i18n=es')['body']);
+        $check($uno($portadaE, 'og:title') === $uno($portadaES, 'og:title') && $uno($portadaE, 'og:description') === $uno($portadaES, 'og:description'), 'e5 y vacío, la portada vuelve a compartir lo del sitio (lo de antes de fijarlo)', (string) $uno($portadaE, 'og:title'));
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));

@@ -322,8 +322,8 @@ CliActions::make('unit-tests:core/app-key-crypto', function ($args) {
             //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
             return (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
         };
-        $html = $base !== '' ? $pedir([SessionToken::tokenName() . ": {$viejo}"]) : 0;
-        $xhr = $base !== '' ? $pedir([SessionToken::tokenName() . ": {$viejo}", 'X-Requested-With: XMLHttpRequest']) : 0;
+        $html = $base !== '' ? $pedir([SessionToken::headerName() . ": {$viejo}"]) : 0;
+        $xhr = $base !== '' ? $pedir([SessionToken::headerName() . ": {$viejo}", 'X-Requested-With: XMLHttpRequest']) : 0;
         $check($html === 302 && $xhr === 401, 'i2 por HTTP, ese token lleva a iniciar sesión (302) o da 401 al XHR; nunca un 500', "HTML {$html}, XHR {$xhr}");
 
         $protegida = $directorio . '/protegida';

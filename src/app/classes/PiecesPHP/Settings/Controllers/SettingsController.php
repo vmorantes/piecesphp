@@ -25,6 +25,7 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+use PiecesPHP\Core\Statics\ProtectedUploads;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
@@ -64,8 +65,8 @@ class SettingsController extends AdminPanelController
 
     use ControllerRoutingTrait;
     /**
-     * El sha1 de las imágenes de marca que trae el framework (statics/images/). Una imagen propia en PNG se guarda en el
-     * MISMO archivo, así que se distingue por el contenido y no por la ruta.
+     * El sha1 de las imágenes de marca que trae el framework (statics/images/). Se distingue por el contenido y no por la
+     * ruta: una instalación anterior a H230 guardó su imagen propia en el MISMO archivo de fábrica.
      */
     const FACTORY_BRAND_IMAGES = [
         'logo' => '9cf27f1fbb82e550d03fbaca632f9c6563eec81a',
@@ -84,6 +85,43 @@ class SettingsController extends AdminPanelController
     ];
 
     const LANG_GROUP = 'appConfig';
+
+    /**
+     * Los valores que entiende `SMTPSecure` de PHPMailer: 'tls' es STARTTLS, 'ssl' es SMTPS y '' es sin cifrado
+     * explícito (con Auto TLS, PHPMailer sube a STARTTLS si el servidor lo ofrece). Otro valor lo ignora en silencio.
+     *
+     * @var string[]
+     */
+    const MAIL_PROTOCOLS = ['tls', 'ssl', ''];
+
+    /**
+     * Los nombres habituales de cada protocolo, sin mayúsculas ni espacios a los lados: lo que normalizeMailProtocol()
+     * acepta al guardar, al pintar la vista y al enviar.
+     *
+     * @var array<string,string>
+     */
+    const MAIL_PROTOCOL_ALIASES = [
+        'tls' => 'tls',
+        'starttls' => 'tls',
+        'ssl' => 'ssl',
+        'ssl/tls' => 'ssl',
+        'smtps' => 'ssl',
+        '' => '',
+        'ninguno' => '',
+        'none' => '',
+    ];
+
+    /**
+     * Los fondos del inicio de sesión: de uno a cinco, cada uno con su nombre de archivo `bg<n>` en la carpeta.
+     */
+    const LOGIN_BACKGROUNDS_MAX = 5;
+    const LOGIN_BACKGROUNDS_FOLDER = 'statics/login-and-recovery/images/login';
+
+    /**
+     * Toda imagen subida desde Configuración, por tipo (login-backgrounds, brand, open-graph). Las carpetas de fábrica
+     * están versionadas: la aplicación no las escribe ni borra; una opción vieja que apunte allí se lee tal cual.
+     */
+    const SETTINGS_UPLOADS_FOLDER = 'statics/uploads/settings';
 
     const ROLES_BACKGROUND = [
         UsersModel::TYPE_USER_ROOT,
@@ -354,10 +392,13 @@ class SettingsController extends AdminPanelController
             ], 'js');
 
             $actionURL = self::routeName('appearance-backgrounds');
+            $backgrounds = get_config('backgrounds');
 
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
+                'deleteURL' => self::routeName('appearance-backgrounds-delete'),
+                'loginCards' => self::loginBackgroundCards(is_array($backgrounds) ? $backgrounds : (is_object($backgrounds) ? (array) $backgrounds : [])),
             ] + $this->sectionHeader(__(self::LANG_GROUP, 'Fondos del inicio de sesión'), __(self::LANG_GROUP, 'Estas imágenes llenan el panel izquierdo del inicio de sesión; la plataforma muestra una al azar en cada visita.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
@@ -378,9 +419,6 @@ class SettingsController extends AdminPanelController
 
             $nameCurrentAllowedImage = '';
             $nameImage = '';
-            $extension = '';
-            $folder = 'statics/login-and-recovery/images/login';
-            $relativePath = "{$folder}/";
             $validParamenters = false;
 
             foreach ($allowedImages as $imageName => $name) {
@@ -388,28 +426,18 @@ class SettingsController extends AdminPanelController
                 if ($validParamenters) {
                     $nameCurrentAllowedImage = $imageName;
                     $nameImage = $name;
-                    $extension = mb_strtolower(pathinfo($_FILES[$imageName]['name'], \PATHINFO_EXTENSION));
-                    $extension = $extension == 'jpeg' ? 'jpg' : $extension;
-                    $relativePath = "{$folder}/{$name}.{$extension}";
                     break;
                 }
             }
 
+            $isLoginBackground = str_starts_with($nameImage, 'bg');
             $currentBackgroundConfigMapper = new SettingsModel('backgrounds');
-            $oldImage = '';
             //El valor efectivo y no el de la fila: sin fila, partir de vacío borraría los fondos de fábrica.
             $currentBackgroundConfigValues = get_config('backgrounds');
             $currentBackgroundConfigValues = is_array($currentBackgroundConfigValues) ? $currentBackgroundConfigValues : (is_object($currentBackgroundConfigValues) ? (array) $currentBackgroundConfigValues : []);
 
-            foreach ($currentBackgroundConfigValues as $v) {
-                if (mb_strlen($nameImage) > 0 && is_string($v) && str_contains($v, $nameImage)) {
-                    $oldImage = $v != $relativePath ? $v : '';
-                    break;
-                }
-            }
-
-            //El fondo de los problemas de inicio se pisa por nombre: no está en la opción.
-            $newBackgroundConfigValues = str_starts_with($nameImage, 'bg') ? self::backgroundsWithImage($currentBackgroundConfigValues, $nameImage, $relativePath) : $currentBackgroundConfigValues;
+            //Cuántos quedarían, antes de guardar nada: la ruta nueva aún no existe y basta un valor que no esté en la lista.
+            $countAfterUpload = $isLoginBackground ? count(self::backgroundsWithImage($currentBackgroundConfigValues, $nameImage, "\0")) : 0;
 
             $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
             $result->setSingleOperation(true);
@@ -418,41 +446,43 @@ class SettingsController extends AdminPanelController
             $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
             $unexpectedOrMissedParamMessage = __(self::LANG_GROUP, 'Información faltante o inesperada.');
 
-            if ($validParamenters) {
+            if ($validParamenters && $countAfterUpload > self::LOGIN_BACKGROUNDS_MAX) {
+
+                $result->setMessage(strReplaceTemplate(__(self::LANG_GROUP, 'Ya hay ${max} fondos: cambie o elimine uno.'), ['${max}' => self::LOGIN_BACKGROUNDS_MAX]));
+
+            } elseif ($validParamenters) {
 
                 $fileHandler = new FileUpload($nameCurrentAllowedImage, [FileValidator::TYPE_JPG, FileValidator::TYPE_JPEG, FileValidator::TYPE_WEBP], 5);
 
                 if ($fileHandler->validate()) {
 
-                    $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
+                    $relativePath = self::storeSettingsUpload($fileHandler, $nameCurrentAllowedImage, 'login-backgrounds', $nameImage);
 
-                    if ($extension == 'webp') {
-                        $img = imagecreatefromwebp(basepath($relativePath));
-                        if ($img !== false) {
-                            imagewebp($img, basepath($relativePath), 70);
-                        }
-                    } elseif ($extension == 'jpg' || $extension == 'jpeg') {
-                        $img = imagecreatefromjpeg(basepath($relativePath));
-                        if ($img !== false) {
-                            imagejpeg($img, basepath($relativePath), 70);
-                        }
-                    }
+                    if ($relativePath !== null) {
 
-                    if (!empty($route)) {
-
-                        //Con el mismo valor no hay nada que escribir: reemplazar un fondo pisa su archivo y deja la opción igual.
-                        $updated = $newBackgroundConfigValues === $currentBackgroundConfigValues;
-                        if (!$updated) {
-                            $currentBackgroundConfigMapper->value = $newBackgroundConfigValues;
-                            $updated = $currentBackgroundConfigMapper->id !== null ? $currentBackgroundConfigMapper->update() : SettingsModel::setConfigValue('backgrounds', $newBackgroundConfigValues);
-                        }
-
-                        if ($updated && is_string($oldImage) && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
-                            //El anterior puede no estar ya; si no se puede borrar, se registra y el guardado sigue.
-                            $oldFile = basepath($oldImage);
-                            if (is_file($oldFile) && (!is_writable(dirname($oldFile)) || !unlink($oldFile))) {
-                                log_exception(new \RuntimeException('No se pudo borrar el archivo anterior: ' . $oldFile));
+                        $oldImage = '';
+                        if ($isLoginBackground) {
+                            foreach ($currentBackgroundConfigValues as $v) {
+                                if (is_string($v) && str_contains($v, $nameImage)) {
+                                    $oldImage = $v;
+                                    break;
+                                }
                             }
+                            $newBackgroundConfigValues = self::backgroundsWithImage($currentBackgroundConfigValues, $nameImage, $relativePath);
+                            //La misma imagen otra vez da la misma ruta: no hay nada que escribir.
+                            $updated = $newBackgroundConfigValues === $currentBackgroundConfigValues;
+                            if (!$updated) {
+                                $currentBackgroundConfigMapper->value = $newBackgroundConfigValues;
+                                $updated = $currentBackgroundConfigMapper->id !== null ? $currentBackgroundConfigMapper->update() : SettingsModel::setConfigValue('backgrounds', $newBackgroundConfigValues);
+                            }
+                        } else {
+                            $oldImage = (string) get_config('backgoundProblems');
+                            $updated = $oldImage === $relativePath || SettingsModel::setConfigValue('backgoundProblems', $relativePath);
+                        }
+
+                        //Solo se borra una subida anterior: un fondo de fábrica no está en la carpeta de subidas.
+                        if ($updated && $oldImage !== '' && $oldImage !== $relativePath) {
+                            self::deleteSettingsImage($oldImage);
                         }
 
                         $result
@@ -492,6 +522,32 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * El protocolo del correo con el valor que entiende PHPMailer ('tls', 'ssl' o ''), o null si no es ninguno de sus
+     * nombres (MAIL_PROTOCOL_ALIASES). Lo usan el guardado, la vista de Correo y el Mailer.
+     *
+     * @param mixed $value Lo que devuelva MailConfig::protocol() o llegue del formulario; si no es texto, null.
+     * @return string|null
+     */
+    public static function normalizeMailProtocol(mixed $value): ?string
+    {
+        return is_string($value) ? (self::MAIL_PROTOCOL_ALIASES[mb_strtolower(trim($value))] ?? null) : null;
+    }
+
+    /**
+     * Los protocolos de la lista de Correo, en su orden y con su texto: la única fuente de la vista.
+     *
+     * @return array<string,string>
+     */
+    public static function mailProtocolOptions(): array
+    {
+        return [
+            'tls' => __(self::LANG_GROUP, 'STARTTLS'),
+            'ssl' => __(self::LANG_GROUP, 'SSL/TLS'),
+            '' => __(self::LANG_GROUP, 'Ninguno'),
+        ];
+    }
+
+    /**
      * La lista de fondos con una imagen puesta: sustituye la que lleva ese nombre (bg3 puede ser .jpg o .webp) y, si no
      * está, la añade. Un fondo vacío de la pantalla no tiene valor en la lista.
      *
@@ -511,6 +567,244 @@ class SettingsController extends AdminPanelController
         }
         $backgrounds[] = $relativePath;
         return $backgrounds;
+    }
+
+    /**
+     * Las cinco tarjetas de Fondos del inicio de sesión: las imágenes primero, en el orden de la lista, y después las
+     * vacías, cada una con el primer nombre `bg<n>` libre. Cada tarjeta envía su archivo con el campo de su nombre, así
+     * que cambiar la imagen de una pisa la suya y subir en una vacía no pisa ninguna de la lista.
+     *
+     * @param array<int|string,mixed> $current La opción `backgrounds`.
+     * @return array<int,array{field:string,name:string,image:string}>
+     */
+    public static function loginBackgroundCards(array $current): array
+    {
+        $names = [];
+        for ($number = 1; $number <= self::LOGIN_BACKGROUNDS_MAX; $number++) {
+            $names[] = "bg{$number}";
+        }
+        $nameOf = function (string $background) use ($names): ?string {
+            $file = pathinfo($background, \PATHINFO_FILENAME);
+            return in_array($file, $names, true) ? $file : null;
+        };
+        $images = array_slice(array_values(array_filter($current, fn($background) => is_string($background) && $background !== '')), 0, self::LOGIN_BACKGROUNDS_MAX);
+        $used = array_values(array_filter(array_map($nameOf, $images)));
+        $free = array_values(array_diff($names, $used));
+        $cards = [];
+        foreach ($images as $image) {
+            //Una ruta que no es `bg<n>` (puesta a mano en la opción) se cambia con un nombre libre.
+            $name = $nameOf($image) ?? (string) array_shift($free);
+            $cards[] = ['field' => 'background-' . substr($name, 2), 'name' => $name, 'image' => $image];
+        }
+        foreach ($free as $name) {
+            if (count($cards) >= self::LOGIN_BACKGROUNDS_MAX) {
+                break;
+            }
+            $cards[] = ['field' => 'background-' . substr($name, 2), 'name' => $name, 'image' => ''];
+        }
+        return $cards;
+    }
+
+    /**
+     * La lista de fondos sin uno: siempre una lista compacta de cadenas, para que en JSON sea un arreglo y no un objeto
+     * (login.js usa `.length`). Null si no está o si quitarlo la dejaría vacía.
+     *
+     * @param array<int|string,mixed> $current
+     * @param string $background El valor exacto de la lista.
+     * @return array<int,string>|null
+     */
+    public static function backgroundsWithout(array $current, string $background): ?array
+    {
+        $backgrounds = array_values(array_filter($current, fn($value) => is_string($value) && $value !== ''));
+        $index = array_search($background, $backgrounds, true);
+        if ($background === '' || $index === false) {
+            return null;
+        }
+        array_splice($backgrounds, (int) $index, 1);
+        return count($backgrounds) > 0 ? $backgrounds : null;
+    }
+
+    /**
+     * Guarda una imagen subida (ya validada) en SETTINGS_UPLOADS_FOLDER/<tipo>/, recomprimida y con el nombre de
+     * settleSettingsImage(). La extensión sale del contenido, no del nombre que mandó el cliente.
+     *
+     * @param FileUpload $fileHandler
+     * @param string $field El campo de $_FILES
+     * @param string $type login-backgrounds, brand u open-graph
+     * @param string $name El de la opción: dos opciones con la misma imagen no comparten archivo, y borrar una no rompe la otra
+     * @return string|null La ruta relativa, o null si no se guardó
+     */
+    public static function storeSettingsUpload(FileUpload $fileHandler, string $field, string $type, string $name): ?string
+    {
+        $temporary = is_string($_FILES[$field]['tmp_name'] ?? null) ? $_FILES[$field]['tmp_name'] : '';
+        $clientName = is_string($_FILES[$field]['name'] ?? null) ? $_FILES[$field]['name'] : '';
+        $extension = ProtectedUploads::safeExtension($temporary, pathinfo($clientName, \PATHINFO_EXTENSION));
+        $extension = $extension === 'jpeg' ? 'jpg' : $extension;
+        $moved = $fileHandler->moveTo(basepath(self::SETTINGS_UPLOADS_FOLDER . "/{$type}"), "{$name}-upload-" . bin2hex(random_bytes(6)), $extension);
+        $file = is_string($moved[0] ?? null) ? $moved[0] : '';
+        if ($file === '' || !is_file($file)) {
+            return null;
+        }
+        if ($extension === 'webp') {
+            $img = imagecreatefromwebp($file);
+            if ($img !== false) {
+                imagewebp($img, $file, 70);
+            }
+        } elseif ($extension === 'jpg') {
+            $img = imagecreatefromjpeg($file);
+            if ($img !== false) {
+                imagejpeg($img, $file, 70);
+            }
+        } elseif ($extension === 'png') {
+            $img = imagecreatefrompng($file);
+            if ($img !== false) {
+                imagealphablending($img, false);
+                imagesavealpha($img, true);
+                imagepng($img, $file, 9);
+            }
+        }
+        return self::settleSettingsImage($file, $type, $name);
+    }
+
+    /**
+     * Copia un archivo existente a SETTINGS_UPLOADS_FOLDER/<tipo>/ con el nombre de settleSettingsImage().
+     *
+     * @param string $source Ruta absoluta
+     * @param string $type
+     * @param string $name
+     * @return string|null La ruta relativa, o null si no se copió
+     */
+    public static function copyIntoSettingsUploads(string $source, string $type, string $name): ?string
+    {
+        $folder = basepath(self::SETTINGS_UPLOADS_FOLDER . "/{$type}");
+        if (!is_file($source) || (!is_dir($folder) && !mkdir($folder, 0755, true))) {
+            return null;
+        }
+        $temporary = "{$folder}/{$name}-upload-" . bin2hex(random_bytes(6)) . '.' . mb_strtolower(pathinfo($source, \PATHINFO_EXTENSION));
+        return copy($source, $temporary) ? self::settleSettingsImage($temporary, $type, $name) : null;
+    }
+
+    /**
+     * LA regla del nombre de toda imagen de Configuración: <nombre>-<huella>.<ext>, con la huella del contenido final.
+     * Una imagen nueva es una URL nueva, y la caché del navegador no depende de la marca de tiempo. El archivo ya está
+     * en la carpeta de su tipo; si ya hay uno con la misma huella es el mismo contenido, y se queda ese.
+     *
+     * @param string $file Ruta absoluta, dentro de SETTINGS_UPLOADS_FOLDER/<tipo>/
+     * @param string $type
+     * @param string $name
+     * @return string|null La ruta relativa, o null si no se pudo
+     */
+    public static function settleSettingsImage(string $file, string $type, string $name): ?string
+    {
+        $hash = is_file($file) ? sha1_file($file) : false;
+        if ($hash === false) {
+            return null;
+        }
+        $relativePath = self::SETTINGS_UPLOADS_FOLDER . "/{$type}/{$name}-" . substr($hash, 0, 10) . '.' . mb_strtolower(pathinfo($file, \PATHINFO_EXTENSION));
+        $final = basepath($relativePath);
+        if ($final === $file) {
+            return $relativePath;
+        }
+        if (is_file($final)) {
+            //RETORNO-IGNORADO: es el temporal «-upload-», que nada lee; el guardado vale igual.
+            unlink($file);
+            return $relativePath;
+        }
+        if (!rename($file, $final)) {
+            //RETORNO-IGNORADO: es el temporal «-upload-», que nada lee; el fallo ya lo dice el null.
+            unlink($file);
+            return null;
+        }
+        return $relativePath;
+    }
+
+    /**
+     * Si una ruta relativa cae DENTRO de SETTINGS_UPLOADS_FOLDER (por realpath de su carpeta: un «..» no la saca). El
+     * archivo puede no existir todavía.
+     *
+     * @param string $relativePath
+     * @return bool
+     */
+    public static function isSettingsUploadPath(string $relativePath): bool
+    {
+        $root = realpath(basepath(self::SETTINGS_UPLOADS_FOLDER));
+        $folder = $relativePath !== '' ? realpath(dirname(basepath($relativePath))) : false;
+        $basename = basename($relativePath);
+        return $root !== false && $folder !== false && $basename !== '' && $basename !== '..'
+            && ($folder === $root || str_starts_with($folder, $root . \DIRECTORY_SEPARATOR));
+    }
+
+    /**
+     * Borra una imagen de Configuración solo si está dentro de SETTINGS_UPLOADS_FOLDER: un archivo de fábrica (versionado)
+     * u otro cualquiera no se toca nunca. Lo que no se pueda borrar se registra; el guardado sigue.
+     *
+     * @param string $relativePath
+     * @return bool Si borró
+     */
+    public static function deleteSettingsImage(string $relativePath): bool
+    {
+        if (!self::isSettingsUploadPath($relativePath) || !is_file(basepath($relativePath))) {
+            return false;
+        }
+        $deleted = unlink(basepath($relativePath));
+        if (!$deleted) {
+            log_exception(new \RuntimeException('No se pudo borrar la imagen anterior: ' . $relativePath));
+        }
+        return $deleted;
+    }
+
+    /**
+     * Quita un fondo del inicio de sesión de la opción `backgrounds` y borra su archivo solo si es una subida
+     * (deleteSettingsImage()): un fondo de fábrica, versionado, sale de la lista y se queda en disco. Siempre queda al
+     * menos uno.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function backgroundsDelete(Request $req, Response $res)
+    {
+        $background = $req->getParsedBodyParam('background', null);
+        $background = is_string($background) ? $background : '';
+
+        $current = get_config('backgrounds');
+        $current = is_array($current) ? $current : (is_object($current) ? (array) $current : []);
+        $isListed = in_array($background, $current, true) && $background !== '';
+        $remaining = self::backgroundsWithout($current, $background);
+
+        $result = new ResultOperations([], __(self::LANG_GROUP, 'Eliminar fondo'));
+        $result->setSingleOperation(true);
+        $result->setSuccessOnSingleOperation(false);
+
+        if (!$isListed) {
+            $result->setMessage(__(self::LANG_GROUP, 'Ese fondo no está entre los fondos del inicio de sesión.'));
+        } elseif ($remaining === null) {
+            $result->setMessage(__(self::LANG_GROUP, 'Debe quedar al menos un fondo.'));
+        } else {
+            $mapper = new SettingsModel('backgrounds');
+            $saved = false;
+            try {
+                if ($mapper->id !== null) {
+                    $mapper->value = $remaining;
+                    $saved = $mapper->update();
+                } else {
+                    $saved = SettingsModel::setConfigValue('backgrounds', $remaining);
+                }
+            } catch (\Exception $e) {
+                $reference = log_exception($e);
+                $result->setMessage(CustomSlimErrorHandler::genericMessage($reference));
+                return $res->withJson($result);
+            }
+            if ($saved) {
+                set_config('backgrounds', $remaining);
+                self::deleteSettingsImage($background);
+            }
+            $result
+                ->setMessage($saved ? __(self::LANG_GROUP, 'Fondo eliminado.') : __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'))
+                ->setSuccessOnSingleOperation($saved);
+        }
+
+        return $res->withJson($result);
     }
 
     /**
@@ -542,7 +836,7 @@ class SettingsController extends AdminPanelController
                 'logo' => get_config('logo'),
                 'partners' => get_config('partners'),
                 'partnersVertical' => get_config('partnersVertical'),
-                'mailingLogo' => get_config('mailing_logo'),
+                'mailingLogo' => mailing_logo(),
                 'partnersText' => self::partnersText(),
                 'invertOnDark' => array_map(fn(string $option) => self::brandImageInvertsOnDark((string) array_search($option, self::BRAND_IMAGES_INVERT_ON_DARK, true)), self::BRAND_IMAGES_INVERT_ON_DARK),
                 'partnersTextMaxLength' => self::PARTNERS_TEXT_MAX_LENGTH,
@@ -593,9 +887,6 @@ class SettingsController extends AdminPanelController
 
             $nameCurrentAllowedImage = '';
             $nameImage = '';
-            $extension = '';
-            $folder = 'statics/images';
-            $relativePath = "{$folder}/";
             $validParamenters = false;
 
             foreach ($allowedImages as $imageName => $name) {
@@ -603,16 +894,12 @@ class SettingsController extends AdminPanelController
                 if ($validParamenters) {
                     $nameCurrentAllowedImage = $imageName;
                     $nameImage = $name;
-                    $extension = mb_strtolower(pathinfo($_FILES[$imageName]['name'], \PATHINFO_EXTENSION));
-                    $extension = $extension == 'jpeg' ? 'jpg' : $extension;
-                    $relativePath = "{$folder}/{$name}.{$extension}";
                     break;
                 }
             }
 
             $logosAndFaviconsMapper = new SettingsModel($nameCurrentAllowedImage);
             $oldImage = $logosAndFaviconsMapper->value;
-            $logosAndFaviconsMapper->value = $relativePath;
 
             $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
             $result->setSingleOperation(true);
@@ -627,32 +914,16 @@ class SettingsController extends AdminPanelController
 
                 if ($fileHandler->validate()) {
 
-                    $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
+                    $relativePath = self::storeSettingsUpload($fileHandler, $nameCurrentAllowedImage, 'brand', $nameImage);
 
-                    if ($extension == 'png') {
-                        $img = imagecreatefrompng(basepath($relativePath));
-                        if ($img !== false) {
-                            imagealphablending($img, false);
-                            imagesavealpha($img, true);
-                            imagepng($img, basepath($relativePath), 9);
-                        }
-                    } elseif ($extension == 'jpg' || $extension == 'jpeg') {
-                        $img = imagecreatefromjpeg(basepath($relativePath));
-                        if ($img !== false) {
-                            imagejpeg($img, basepath($relativePath), 70);
-                        }
-                    }
+                    if ($relativePath !== null) {
 
-                    if (!empty($route)) {
-
+                        $logosAndFaviconsMapper->value = $relativePath;
                         $updated = $logosAndFaviconsMapper->id !== null ? $logosAndFaviconsMapper->update() : SettingsModel::setConfigValue($nameCurrentAllowedImage, $relativePath);
 
-                        if ($updated && is_string($oldImage) && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
-                            //El anterior puede no estar ya; si no se puede borrar, se registra y el guardado sigue.
-                            $oldFile = basepath($oldImage);
-                            if (is_file($oldFile) && (!is_writable(dirname($oldFile)) || !unlink($oldFile))) {
-                                log_exception(new \RuntimeException('No se pudo borrar el archivo anterior: ' . $oldFile));
-                            }
+                        //Solo se borra una subida anterior: la imagen de fábrica no está en la carpeta de subidas.
+                        if ($updated && is_string($oldImage) && $oldImage !== '' && $oldImage !== $relativePath) {
+                            self::deleteSettingsImage($oldImage);
                         }
 
                         $result
@@ -736,10 +1007,23 @@ class SettingsController extends AdminPanelController
 
             }
 
+            //Lo que la portada emite y no se edita aquí, por idioma: la canónica (también og:url) con el mismo cálculo que
+            //MetaTags, y og:locale de og_locales (config.php), como MetaTags::ogLocale().
+            $home = \App\Controller\PublicAreaController::routeName('index', [], true);
+            $ogLocales = get_config('og_locales');
+            $shareFacts = [];
+            foreach (array_keys($SEOValues) as $lang) {
+                $shareFacts[$lang] = [
+                    'url' => \PiecesPHP\Core\Utilities\Helpers\MetaTags::canonicalFor($home, (string) $lang),
+                    'locale' => is_array($ogLocales) && is_string($ogLocales[$lang] ?? null) ? $ogLocales[$lang] : (string) $lang,
+                ];
+            }
+
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
                 'SEOValues' => $SEOValues,
+                'shareFacts' => $shareFacts,
                 'xAccount' => SettingsModel::getConfigValue(self::SEO_OPTION_X_ACCOUNT),
             ] + $this->sectionHeader(__(self::LANG_GROUP, 'Identidad y SEO'), __(self::LANG_GROUP, 'Datos del sitio para buscadores y para la vista previa cuando se comparte un enlace en redes sociales y aplicaciones de mensajería.'));
 
@@ -945,35 +1229,30 @@ class SettingsController extends AdminPanelController
 
                         if ($fileHandler->validate()) {
 
-                            $nameOptionOG = 'open_graph_image';
-
-                            $folder = 'statics/images';
-                            $nameImage = 'open_graph';
-
-                            $nameImage = self::seoOptionName($nameImage, $lang);
-                            $nameOptionOG = self::seoOptionName($nameOptionOG, $lang);
-
-                            $extension = 'jpg';
-                            $relativePath = "{$folder}/{$nameImage}.{$extension}";
-
+                            $nameOptionOG = self::seoOptionName('open_graph_image', $lang);
                             $openGraphMapper = new SettingsModel($nameOptionOG);
-                            $openGraphMapper->value = $relativePath;
+                            $oldImage = is_string($openGraphMapper->value) ? $openGraphMapper->value : '';
 
-                            $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
-                            $img = imagecreatefromjpeg(basepath($relativePath));
-                            if ($img !== false) {
-                                imagejpeg($img, basepath($relativePath), 70);
-                            }
+                            $relativePath = self::storeSettingsUpload($fileHandler, $nameImageUploaded, 'open-graph', self::seoOptionName('open_graph', $lang));
 
-                            if (!empty($route)) {
+                            if ($relativePath !== null) {
 
+                                $openGraphMapper->value = $relativePath;
                                 if ($openGraphMapper->id !== null) {
-                                    $success = $success && $openGraphMapper->update();
+                                    $saved = $openGraphMapper->update();
                                 } else {
                                     $openGraphMapper->name = $nameOptionOG;
-                                    $success = $success && $openGraphMapper->save();
+                                    $saved = $openGraphMapper->save();
+                                }
+                                $success = $success && $saved;
+
+                                //Solo se borra una subida anterior: la imagen de fábrica no está en la carpeta de subidas.
+                                if ($saved && $oldImage !== '' && $oldImage !== $relativePath) {
+                                    self::deleteSettingsImage($oldImage);
                                 }
 
+                            } else {
+                                $success = false;
                             }
 
                         } else {
@@ -1082,6 +1361,8 @@ class SettingsController extends AdminPanelController
                 'testSendURL' => self::routeName('integrations-mail-test-send'),
                 'currentEmail' => (string) (getLoggedFrameworkUser()->email ?? ''),
                 'element' => $element,
+                'mailProtocols' => self::mailProtocolOptions(),
+                'mailProtocolSaved' => is_string($element->protocol()) ? $element->protocol() : '',
             ] + $this->sectionHeader(__(self::LANG_GROUP, 'Correo'), __(self::LANG_GROUP, 'Desde dónde y cómo sale el correo de la plataforma.'));
 
             $baseViewDir = 'panel/pages/app_configurations';
@@ -1128,15 +1409,17 @@ class SettingsController extends AdminPanelController
                         return clean_string($value);
                     }
                 ),
+                //«Ninguno» viaja vacío, y Parameter toma '' por ausente: por eso es opcional con '' por omisión, y la
+                //presencia y la lista (MAIL_PROTOCOLS) se miran abajo, con un mensaje propio.
                 new Parameter(
                     'protocol',
-                    null,
+                    '',
                     function ($value) {
-                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                        return is_string($value);
                     },
-                    false,
+                    true,
                     function ($value) {
-                        return clean_string($value);
+                        return trim((string) $value);
                     }
                 ),
                 new Parameter(
@@ -1240,6 +1523,15 @@ class SettingsController extends AdminPanelController
                 //Intenta validar, si todo sale bien el código continúa
                 $expectedParameters->validate();
 
+                /** @var string $protocolSent */
+                $protocolSent = $expectedParameters->getValue('protocol');
+                $protocol = self::normalizeMailProtocol($protocolSent);
+                //Un rechazo de quien rellena el formulario, no un fallo: se contesta sin pasar por el registro de errores.
+                if (!is_array($inputData) || !array_key_exists('protocol', $inputData) || $protocol === null || !in_array($protocol, self::MAIL_PROTOCOLS, true)) {
+                    $resultOperation->setMessage(__(self::LANG_GROUP, 'El protocolo debe ser STARTTLS, SSL/TLS o Ninguno.'));
+                    return $res->withJson($resultOperation);
+                }
+
                 //Información del formulario
                 /**
                  * @var bool $autoTLS
@@ -1254,7 +1546,6 @@ class SettingsController extends AdminPanelController
                 $autoTLS = $expectedParameters->getValue('auto_tls');
                 $auth = $expectedParameters->getValue('auth');
                 $host = $expectedParameters->getValue('host');
-                $protocol = $expectedParameters->getValue('protocol');
                 $port = $expectedParameters->getValue('port');
                 $user = $expectedParameters->getValue('user');
                 $password = $expectedParameters->getValue('password');
@@ -1606,8 +1897,8 @@ class SettingsController extends AdminPanelController
             'actionURL' => self::routeName('integrations-scripts-save'),
             'entries' => ExtraScripts::entries(),
             'zones' => [
-                ExtraScripts::ZONE_PANEL => __($langGroup, 'Panel'),
                 ExtraScripts::ZONE_PUBLIC => __($langGroup, 'Sitio público'),
+                ExtraScripts::ZONE_PANEL => __($langGroup, 'Panel'),
                 ExtraScripts::ZONE_BOTH => __($langGroup, 'Los dos'),
             ],
             'positions' => [
@@ -2692,22 +2983,21 @@ class SettingsController extends AdminPanelController
 
                         if ($nameOnConfig == self::SEO_OPTION_OPEN_GRAPH_IMAGE) {
 
-                            $folder = 'statics/images';
-                            $nameImage = 'open_graph';
-                            $extension = 'jpg';
-                            $relativePath = "{$folder}/{$nameImage}_{$lang}.{$extension}";
-                            $newConfig->value = $relativePath;
+                            //La copia del idioma va a las subidas: en statics/images pisaría una versionada (open_graph_en.jpg).
+                            $newConfig->value = $defaultValue;
+                            if (is_string($defaultValue) && file_exists(basepath($defaultValue))) {
 
-                            if (file_exists(basepath($defaultValue))) {
+                                $relativePath = self::copyIntoSettingsUploads(basepath($defaultValue), 'open-graph', self::seoOptionName('open_graph', $lang));
 
-                                if (@copy(basepath($defaultValue), basepath($relativePath))) {
+                                if ($relativePath !== null) {
+                                    $newConfig->value = $relativePath;
                                     $newConfig->save();
                                 } else {
                                     //Un fallo mudo AQUÍ es el peor: sin fila, el siguiente render
                                     //reintenta la copia para siempre y nadie se entera nunca.
                                     log_exception(new \Exception(
                                         'Activación de idiomas: no se pudo copiar la imagen Open Graph de '
-                                            . basepath($defaultValue) . ' a ' . basepath($relativePath)
+                                            . basepath($defaultValue) . ' a ' . self::SETTINGS_UPLOADS_FOLDER
                                             . '. La configuración de ese idioma queda sin materializar.'
                                     ), false);
                                 }
@@ -2725,11 +3015,12 @@ class SettingsController extends AdminPanelController
 
                     if ($nameOnConfig == self::SEO_OPTION_OPEN_GRAPH_IMAGE) {
 
-                        if (file_exists(basepath($defaultValue)) && !file_exists(basepath($valueLang))) {
-                            if (!@copy(basepath($defaultValue), basepath($valueLang))) {
+                        if (is_string($defaultValue) && is_string($valueLang) && file_exists(basepath($defaultValue)) && !file_exists(basepath($valueLang))) {
+                            //Solo se repone dentro de las subidas; fuera (una ruta vieja o de fábrica) no se escribe.
+                            if (!self::isSettingsUploadPath($valueLang) || !@copy(basepath($defaultValue), basepath($valueLang))) {
                                 log_exception(new \Exception(
                                     'Activación de idiomas: no se pudo reponer la imagen Open Graph en '
-                                        . basepath($valueLang) . '. La fila apunta a un archivo que no existe.'
+                                        . $valueLang . '. La fila apunta a un archivo que no existe.'
                                 ), false);
                             }
                         }
@@ -3057,6 +3348,15 @@ class SettingsController extends AdminPanelController
                 $classname . ':backgrounds',
                 self::$baseRouteName . '-' . 'appearance-backgrounds',
                 'GET|POST',
+                true,
+                null,
+                self::ROLES_BACKGROUND
+            ),
+            new Route(
+                "{$startRoute}/appearance/backgrounds/delete[/]",
+                $classname . ':backgroundsDelete',
+                self::$baseRouteName . '-' . 'appearance-backgrounds-delete',
+                'POST',
                 true,
                 null,
                 self::ROLES_BACKGROUND

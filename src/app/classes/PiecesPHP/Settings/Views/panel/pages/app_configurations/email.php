@@ -13,6 +13,8 @@ use PiecesPHP\Core\Email\MailDelivery;
  * @var string $probeURL
  * @var string $testSendURL
  * @var string $currentEmail Por omisión, el correo de prueba va al del usuario.
+ * @var array<string,string> $mailProtocols SettingsController::mailProtocolOptions(): valor => texto, en su orden.
+ * @var string $mailProtocolSaved El protocolo guardado, tal cual.
  * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 ?>
@@ -56,7 +58,23 @@ use PiecesPHP\Core\Email\MailDelivery;
                     </div>
                     <div class="required field">
                         <label for="email-protocol"><?= __($langGroup, 'Protocolo'); ?></label>
-                        <input type="text" id="email-protocol" name="protocol" value="<?= escape_html((string) $element->protocol()); ?>" required>
+                        <?php
+                            //Los valores y los textos, del controlador. «Ninguno» va el último: un primer option vacío sería el
+                            //marcador del select y `required` lo rechazaría. Un alias guardado («STARTTLS») sale como el suyo.
+                            $normalizedProtocol = \PiecesPHP\Settings\Controllers\SettingsController::normalizeMailProtocol($mailProtocolSaved);
+                            $knownProtocol = $normalizedProtocol !== null;
+                            $currentProtocol = $mailProtocolSaved;
+                            $protocols = $mailProtocols;
+                        ?>
+                        <select class="ui fluid selection dropdown" id="email-protocol" name="protocol" required data-no-placeholder>
+                            <?php foreach ($protocols as $protocolValue => $protocolText): ?>
+                            <option value="<?= $protocolValue; ?>" <?= $knownProtocol && $normalizedProtocol === (string) $protocolValue ? 'selected' : ''; ?>><?= $protocolText; ?></option>
+                            <?php endforeach; ?>
+                            <?php if (!$knownProtocol): ?>
+                            <?php //Un texto libre de antes: se enseña tal cual y no se acepta al guardar, para que se elija uno bueno. ?>
+                            <option value="<?= escape_html($currentProtocol); ?>" selected><?= escape_html($currentProtocol); ?> <?= __($langGroup, '(valor actual, no válido)'); ?></option>
+                            <?php endif; ?>
+                        </select>
                         <?= $toggle('auto_tls', __($langGroup, 'Auto TLS'), (bool) $element->autoTls()); ?>
                     </div>
                     <div class="required field">

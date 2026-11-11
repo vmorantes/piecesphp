@@ -1325,30 +1325,30 @@
 .ui.basic.primary.button {
   background: transparent;
   box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.primary.buttons .button:hover,
 .ui.basic.primary.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.primary.buttons .button:focus,
 .ui.basic.primary.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.primary.buttons .active.button,
 .ui.basic.primary.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.primary.buttons .button:active,
 .ui.basic.primary.button:active {
   box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -1356,7 +1356,7 @@
 .ui.inverted.primary.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -1412,25 +1412,25 @@
 .ui.inverted.primary.buttons .basic.button:hover,
 .ui.inverted.primary.basic.button:hover {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.primary.basic.buttons .button:focus,
 .ui.inverted.primary.basic.buttons .button:focus,
 .ui.inverted.primary.basic.button:focus {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.primary.basic.buttons .active.button,
 .ui.inverted.primary.buttons .basic.active.button,
 .ui.inverted.primary.basic.active.button {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.primary.basic.buttons .button:active,
 .ui.inverted.primary.buttons .basic.button:active,
 .ui.inverted.primary.basic.button:active {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -1439,13 +1439,13 @@
 .ui.tertiary.primary.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.primary.buttons .button:hover,
 .ui.tertiary.primary.buttons button:hover,
 .ui.tertiary.primary.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -1454,7 +1454,7 @@
 .ui.tertiary.primary.buttons .tertiary.button:focus,
 .ui.tertiary.primary.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -1466,7 +1466,7 @@
 .ui.tertiary.primary.buttons .tertiary.button:active,
 .ui.tertiary.primary.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -1515,30 +1515,30 @@
 .ui.basic.secondary.button {
   background: transparent;
   box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.secondary.buttons .button:hover,
 .ui.basic.secondary.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.secondary.buttons .button:focus,
 .ui.basic.secondary.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.secondary.buttons .active.button,
 .ui.basic.secondary.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.secondary.buttons .button:active,
 .ui.basic.secondary.button:active {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -1546,7 +1546,7 @@
 .ui.inverted.secondary.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -1602,25 +1602,25 @@
 .ui.inverted.secondary.buttons .basic.button:hover,
 .ui.inverted.secondary.basic.button:hover {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.secondary.basic.buttons .button:focus,
 .ui.inverted.secondary.basic.buttons .button:focus,
 .ui.inverted.secondary.basic.button:focus {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.secondary.basic.buttons .active.button,
 .ui.inverted.secondary.buttons .basic.active.button,
 .ui.inverted.secondary.basic.active.button {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.secondary.basic.buttons .button:active,
 .ui.inverted.secondary.buttons .basic.button:active,
 .ui.inverted.secondary.basic.button:active {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -1629,13 +1629,13 @@
 .ui.tertiary.secondary.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.secondary.buttons .button:hover,
 .ui.tertiary.secondary.buttons button:hover,
 .ui.tertiary.secondary.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -1644,7 +1644,7 @@
 .ui.tertiary.secondary.buttons .tertiary.button:focus,
 .ui.tertiary.secondary.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -1656,7 +1656,7 @@
 .ui.tertiary.secondary.buttons .tertiary.button:active,
 .ui.tertiary.secondary.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -1705,30 +1705,30 @@
 .ui.basic.accent-1.button {
   background: transparent;
   box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-1.buttons .button:hover,
 .ui.basic.accent-1.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-1.buttons .button:focus,
 .ui.basic.accent-1.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-1.buttons .active.button,
 .ui.basic.accent-1.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-1.buttons .button:active,
 .ui.basic.accent-1.button:active {
   box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -1736,7 +1736,7 @@
 .ui.inverted.accent-1.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -1792,25 +1792,25 @@
 .ui.inverted.accent-1.buttons .basic.button:hover,
 .ui.inverted.accent-1.basic.button:hover {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-1.basic.buttons .button:focus,
 .ui.inverted.accent-1.basic.buttons .button:focus,
 .ui.inverted.accent-1.basic.button:focus {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-1.basic.buttons .active.button,
 .ui.inverted.accent-1.buttons .basic.active.button,
 .ui.inverted.accent-1.basic.active.button {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-1.basic.buttons .button:active,
 .ui.inverted.accent-1.buttons .basic.button:active,
 .ui.inverted.accent-1.basic.button:active {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -1819,13 +1819,13 @@
 .ui.tertiary.accent-1.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.accent-1.buttons .button:hover,
 .ui.tertiary.accent-1.buttons button:hover,
 .ui.tertiary.accent-1.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -1834,7 +1834,7 @@
 .ui.tertiary.accent-1.buttons .tertiary.button:focus,
 .ui.tertiary.accent-1.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -1846,7 +1846,7 @@
 .ui.tertiary.accent-1.buttons .tertiary.button:active,
 .ui.tertiary.accent-1.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -1895,30 +1895,30 @@
 .ui.basic.accent-2.button {
   background: transparent;
   box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-2.buttons .button:hover,
 .ui.basic.accent-2.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-2.buttons .button:focus,
 .ui.basic.accent-2.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-2.buttons .active.button,
 .ui.basic.accent-2.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-2.buttons .button:active,
 .ui.basic.accent-2.button:active {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -1926,7 +1926,7 @@
 .ui.inverted.accent-2.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -1982,25 +1982,25 @@
 .ui.inverted.accent-2.buttons .basic.button:hover,
 .ui.inverted.accent-2.basic.button:hover {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-2.basic.buttons .button:focus,
 .ui.inverted.accent-2.basic.buttons .button:focus,
 .ui.inverted.accent-2.basic.button:focus {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-2.basic.buttons .active.button,
 .ui.inverted.accent-2.buttons .basic.active.button,
 .ui.inverted.accent-2.basic.active.button {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-2.basic.buttons .button:active,
 .ui.inverted.accent-2.buttons .basic.button:active,
 .ui.inverted.accent-2.basic.button:active {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2009,13 +2009,13 @@
 .ui.tertiary.accent-2.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.accent-2.buttons .button:hover,
 .ui.tertiary.accent-2.buttons button:hover,
 .ui.tertiary.accent-2.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -2024,7 +2024,7 @@
 .ui.tertiary.accent-2.buttons .tertiary.button:focus,
 .ui.tertiary.accent-2.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -2036,7 +2036,7 @@
 .ui.tertiary.accent-2.buttons .tertiary.button:active,
 .ui.tertiary.accent-2.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -2085,30 +2085,30 @@
 .ui.basic.accent-3.button {
   background: transparent;
   box-shadow: 0 0 0 1px var(--accent-3, #c11574) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-3.buttons .button:hover,
 .ui.basic.accent-3.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-3.buttons .button:focus,
 .ui.basic.accent-3.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-3.buttons .active.button,
 .ui.basic.accent-3.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.accent-3.buttons .button:active,
 .ui.basic.accent-3.button:active {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 78%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -2116,7 +2116,7 @@
 .ui.inverted.accent-3.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -2172,25 +2172,25 @@
 .ui.inverted.accent-3.buttons .basic.button:hover,
 .ui.inverted.accent-3.basic.button:hover {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-3.basic.buttons .button:focus,
 .ui.inverted.accent-3.basic.buttons .button:focus,
 .ui.inverted.accent-3.basic.button:focus {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-3.basic.buttons .active.button,
 .ui.inverted.accent-3.buttons .basic.active.button,
 .ui.inverted.accent-3.basic.active.button {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 84%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-3.basic.buttons .button:active,
 .ui.inverted.accent-3.buttons .basic.button:active,
 .ui.inverted.accent-3.basic.button:active {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2199,13 +2199,13 @@
 .ui.tertiary.accent-3.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.accent-3.buttons .button:hover,
 .ui.tertiary.accent-3.buttons button:hover,
 .ui.tertiary.accent-3.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -2214,7 +2214,7 @@
 .ui.tertiary.accent-3.buttons .tertiary.button:focus,
 .ui.tertiary.accent-3.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -2226,7 +2226,7 @@
 .ui.tertiary.accent-3.buttons .tertiary.button:active,
 .ui.tertiary.accent-3.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -2306,7 +2306,7 @@
 .ui.inverted.red.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #f97066 inset;
-  color: oklch(from #f97066 max(l, 0.8) c h);
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -2362,25 +2362,25 @@
 .ui.inverted.red.buttons .basic.button:hover,
 .ui.inverted.red.basic.button:hover {
   box-shadow: 0 0 0 2px #ff3b2d inset;
-  color: oklch(from #f97066 max(l, 0.8) c h);
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.red.basic.buttons .button:focus,
 .ui.inverted.red.basic.buttons .button:focus,
 .ui.inverted.red.basic.button:focus {
   box-shadow: 0 0 0 2px #ff4537 inset;
-  color: oklch(from #f97066 max(l, 0.8) c h);
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.red.basic.buttons .active.button,
 .ui.inverted.red.buttons .basic.active.button,
 .ui.inverted.red.basic.active.button {
   box-shadow: 0 0 0 2px #ff5346 inset;
-  color: oklch(from #f97066 max(l, 0.8) c h);
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.red.basic.buttons .button:active,
 .ui.inverted.red.buttons .basic.button:active,
 .ui.inverted.red.basic.button:active {
   box-shadow: 0 0 0 2px #f74235 inset;
-  color: oklch(from #f97066 max(l, 0.8) c h);
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2496,7 +2496,7 @@
 .ui.inverted.orange.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #f38744 inset;
-  color: oklch(from #f38744 max(l, 0.8) c h);
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -2552,25 +2552,25 @@
 .ui.inverted.orange.buttons .basic.button:hover,
 .ui.inverted.orange.basic.button:hover {
   box-shadow: 0 0 0 2px #fb6609 inset;
-  color: oklch(from #f38744 max(l, 0.8) c h);
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.orange.basic.buttons .button:focus,
 .ui.inverted.orange.basic.buttons .button:focus,
 .ui.inverted.orange.basic.button:focus {
   box-shadow: 0 0 0 2px #ff6b0f inset;
-  color: oklch(from #f38744 max(l, 0.8) c h);
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.orange.basic.buttons .active.button,
 .ui.inverted.orange.buttons .basic.active.button,
 .ui.inverted.orange.basic.active.button {
   box-shadow: 0 0 0 2px #ff741e inset;
-  color: oklch(from #f38744 max(l, 0.8) c h);
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.orange.basic.buttons .button:active,
 .ui.inverted.orange.buttons .basic.button:active,
 .ui.inverted.orange.basic.button:active {
   box-shadow: 0 0 0 2px #f06814 inset;
-  color: oklch(from #f38744 max(l, 0.8) c h);
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2686,7 +2686,7 @@
 .ui.inverted.yellow.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #fdb022 inset;
-  color: oklch(from #fdb022 max(l, 0.8) c h);
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -2742,25 +2742,25 @@
 .ui.inverted.yellow.buttons .basic.button:hover,
 .ui.inverted.yellow.basic.button:hover {
   box-shadow: 0 0 0 2px #ec9900 inset;
-  color: oklch(from #fdb022 max(l, 0.8) c h);
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.yellow.basic.buttons .button:focus,
 .ui.inverted.yellow.basic.buttons .button:focus,
 .ui.inverted.yellow.basic.button:focus {
   box-shadow: 0 0 0 2px #f6a000 inset;
-  color: oklch(from #fdb022 max(l, 0.8) c h);
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.yellow.basic.buttons .active.button,
 .ui.inverted.yellow.buttons .basic.active.button,
 .ui.inverted.yellow.basic.active.button {
   box-shadow: 0 0 0 2px #ffa806 inset;
-  color: oklch(from #fdb022 max(l, 0.8) c h);
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.yellow.basic.buttons .button:active,
 .ui.inverted.yellow.buttons .basic.button:active,
 .ui.inverted.yellow.basic.button:active {
   box-shadow: 0 0 0 2px #ea9802 inset;
-  color: oklch(from #fdb022 max(l, 0.8) c h);
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2845,30 +2845,30 @@
 .ui.basic.olive.button {
   background: transparent;
   box-shadow: 0 0 0 1px #84a11b inset;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.olive.buttons .button:hover,
 .ui.basic.olive.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #759112 inset;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.olive.buttons .button:focus,
 .ui.basic.olive.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #6d890b inset;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.olive.buttons .active.button,
 .ui.basic.olive.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #6f8717 inset;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.olive.buttons .button:active,
 .ui.basic.olive.button:active {
   box-shadow: 0 0 0 1px #607514 inset;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -2876,7 +2876,7 @@
 .ui.inverted.olive.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #a6c43a inset;
-  color: oklch(from #a6c43a max(l, 0.8) c h);
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -2932,25 +2932,25 @@
 .ui.inverted.olive.buttons .basic.button:hover,
 .ui.inverted.olive.basic.button:hover {
   box-shadow: 0 0 0 2px #88a229 inset;
-  color: oklch(from #a6c43a max(l, 0.8) c h);
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.olive.basic.buttons .button:focus,
 .ui.inverted.olive.basic.buttons .button:focus,
 .ui.inverted.olive.basic.button:focus {
   box-shadow: 0 0 0 2px #92b025 inset;
-  color: oklch(from #a6c43a max(l, 0.8) c h);
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.olive.basic.buttons .active.button,
 .ui.inverted.olive.buttons .basic.active.button,
 .ui.inverted.olive.basic.active.button {
   box-shadow: 0 0 0 2px #9bba2b inset;
-  color: oklch(from #a6c43a max(l, 0.8) c h);
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.olive.basic.buttons .button:active,
 .ui.inverted.olive.buttons .basic.button:active,
 .ui.inverted.olive.basic.button:active {
   box-shadow: 0 0 0 2px #859d2e inset;
-  color: oklch(from #a6c43a max(l, 0.8) c h);
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2959,13 +2959,13 @@
 .ui.tertiary.olive.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.olive.buttons .button:hover,
 .ui.tertiary.olive.buttons button:hover,
 .ui.tertiary.olive.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -2974,7 +2974,7 @@
 .ui.tertiary.olive.buttons .tertiary.button:focus,
 .ui.tertiary.olive.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -2986,7 +2986,7 @@
 .ui.tertiary.olive.buttons .tertiary.button:active,
 .ui.tertiary.olive.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -3035,30 +3035,30 @@
 .ui.basic.green.button {
   background: transparent;
   box-shadow: 0 0 0 1px #17b26a inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.green.buttons .button:hover,
 .ui.basic.green.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #0da25d inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.green.buttons .button:focus,
 .ui.basic.green.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #069a55 inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.green.buttons .active.button,
 .ui.basic.green.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #13975a inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.green.buttons .button:active,
 .ui.basic.green.button:active {
   box-shadow: 0 0 0 1px #11854f inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -3066,7 +3066,7 @@
 .ui.inverted.green.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #47cd89 inset;
-  color: oklch(from #47cd89 max(l, 0.8) c h);
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -3122,25 +3122,25 @@
 .ui.inverted.green.buttons .basic.button:hover,
 .ui.inverted.green.basic.button:hover {
   box-shadow: 0 0 0 2px #2ab76f inset;
-  color: oklch(from #47cd89 max(l, 0.8) c h);
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.green.basic.buttons .button:focus,
 .ui.inverted.green.basic.buttons .button:focus,
 .ui.inverted.green.basic.button:focus {
   box-shadow: 0 0 0 2px #25c674 inset;
-  color: oklch(from #47cd89 max(l, 0.8) c h);
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.green.basic.buttons .active.button,
 .ui.inverted.green.buttons .basic.active.button,
 .ui.inverted.green.basic.active.button {
   box-shadow: 0 0 0 2px #2bd07c inset;
-  color: oklch(from #47cd89 max(l, 0.8) c h);
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.green.basic.buttons .button:active,
 .ui.inverted.green.buttons .basic.button:active,
 .ui.inverted.green.basic.button:active {
   box-shadow: 0 0 0 2px #30b170 inset;
-  color: oklch(from #47cd89 max(l, 0.8) c h);
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -3149,13 +3149,13 @@
 .ui.tertiary.green.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.green.buttons .button:hover,
 .ui.tertiary.green.buttons button:hover,
 .ui.tertiary.green.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -3164,7 +3164,7 @@
 .ui.tertiary.green.buttons .tertiary.button:focus,
 .ui.tertiary.green.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -3176,7 +3176,7 @@
 .ui.tertiary.green.buttons .tertiary.button:active,
 .ui.tertiary.green.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -3225,30 +3225,30 @@
 .ui.basic.teal.button {
   background: transparent;
   box-shadow: 0 0 0 1px #06aed4 inset;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.teal.buttons .button:hover,
 .ui.basic.teal.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #009dc1 inset;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.teal.buttons .button:focus,
 .ui.basic.teal.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #0091b1 inset;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.teal.buttons .active.button,
 .ui.basic.teal.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #0596b6 inset;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.teal.buttons .button:active,
 .ui.basic.teal.button:active {
   box-shadow: 0 0 0 1px #0585a2 inset;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -3256,7 +3256,7 @@
 .ui.inverted.teal.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #22ccee inset;
-  color: oklch(from #22ccee max(l, 0.8) c h);
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -3312,25 +3312,25 @@
 .ui.inverted.teal.buttons .basic.button:hover,
 .ui.inverted.teal.basic.button:hover {
   box-shadow: 0 0 0 2px #06b4d7 inset;
-  color: oklch(from #22ccee max(l, 0.8) c h);
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.teal.basic.buttons .button:focus,
 .ui.inverted.teal.basic.buttons .button:focus,
 .ui.inverted.teal.basic.button:focus {
   box-shadow: 0 0 0 2px #00c1e7 inset;
-  color: oklch(from #22ccee max(l, 0.8) c h);
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.teal.basic.buttons .active.button,
 .ui.inverted.teal.buttons .basic.active.button,
 .ui.inverted.teal.basic.active.button {
   box-shadow: 0 0 0 2px #02ccf5 inset;
-  color: oklch(from #22ccee max(l, 0.8) c h);
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.teal.basic.buttons .button:active,
 .ui.inverted.teal.buttons .basic.button:active,
 .ui.inverted.teal.basic.button:active {
   box-shadow: 0 0 0 2px #10aecd inset;
-  color: oklch(from #22ccee max(l, 0.8) c h);
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -3339,13 +3339,13 @@
 .ui.tertiary.teal.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.teal.buttons .button:hover,
 .ui.tertiary.teal.buttons button:hover,
 .ui.tertiary.teal.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -3354,7 +3354,7 @@
 .ui.tertiary.teal.buttons .tertiary.button:focus,
 .ui.tertiary.teal.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -3366,7 +3366,7 @@
 .ui.tertiary.teal.buttons .tertiary.button:active,
 .ui.tertiary.teal.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -3415,30 +3415,30 @@
 .ui.basic.blue.button {
   background: transparent;
   box-shadow: 0 0 0 1px #2e90fa inset;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.blue.buttons .button:hover,
 .ui.basic.blue.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #0f83ff inset;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.blue.buttons .button:focus,
 .ui.basic.blue.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #007bff inset;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.blue.buttons .active.button,
 .ui.basic.blue.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #1080f9 inset;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.blue.buttons .button:active,
 .ui.basic.blue.button:active {
   box-shadow: 0 0 0 1px #0676ef inset;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -3446,7 +3446,7 @@
 .ui.inverted.blue.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #53b1fd inset;
-  color: oklch(from #53b1fd max(l, 0.8) c h);
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -3502,25 +3502,25 @@
 .ui.inverted.blue.buttons .basic.button:hover,
 .ui.inverted.blue.basic.button:hover {
   box-shadow: 0 0 0 2px #1e9aff inset;
-  color: oklch(from #53b1fd max(l, 0.8) c h);
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.blue.basic.buttons .button:focus,
 .ui.inverted.blue.basic.buttons .button:focus,
 .ui.inverted.blue.basic.button:focus {
   box-shadow: 0 0 0 2px #289fff inset;
-  color: oklch(from #53b1fd max(l, 0.8) c h);
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.blue.basic.buttons .active.button,
 .ui.inverted.blue.buttons .basic.active.button,
 .ui.inverted.blue.basic.active.button {
   box-shadow: 0 0 0 2px #37a6ff inset;
-  color: oklch(from #53b1fd max(l, 0.8) c h);
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.blue.basic.buttons .button:active,
 .ui.inverted.blue.buttons .basic.button:active,
 .ui.inverted.blue.basic.button:active {
   box-shadow: 0 0 0 2px #219afc inset;
-  color: oklch(from #53b1fd max(l, 0.8) c h);
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -3529,13 +3529,13 @@
 .ui.tertiary.blue.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.blue.buttons .button:hover,
 .ui.tertiary.blue.buttons button:hover,
 .ui.tertiary.blue.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -3544,7 +3544,7 @@
 .ui.tertiary.blue.buttons .tertiary.button:focus,
 .ui.tertiary.blue.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -3556,7 +3556,7 @@
 .ui.tertiary.blue.buttons .tertiary.button:active,
 .ui.tertiary.blue.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -3605,30 +3605,30 @@
 .ui.basic.violet.button {
   background: transparent;
   box-shadow: 0 0 0 1px #7a5af8 inset;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.violet.buttons .button:hover,
 .ui.basic.violet.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #6239ff inset;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.violet.buttons .button:focus,
 .ui.basic.violet.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #552aff inset;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.violet.buttons .active.button,
 .ui.basic.violet.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #623df7 inset;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.violet.buttons .button:active,
 .ui.basic.violet.button:active {
   box-shadow: 0 0 0 1px #5329f6 inset;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -3636,7 +3636,7 @@
 .ui.inverted.violet.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #9b8afb inset;
-  color: oklch(from #9b8afb max(l, 0.8) c h);
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -3692,25 +3692,25 @@
 .ui.inverted.violet.buttons .basic.button:hover,
 .ui.inverted.violet.basic.button:hover {
   box-shadow: 0 0 0 2px #6d53ff inset;
-  color: oklch(from #9b8afb max(l, 0.8) c h);
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.violet.basic.buttons .button:focus,
 .ui.inverted.violet.basic.buttons .button:focus,
 .ui.inverted.violet.basic.button:focus {
   box-shadow: 0 0 0 2px #765dff inset;
-  color: oklch(from #9b8afb max(l, 0.8) c h);
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.violet.basic.buttons .active.button,
 .ui.inverted.violet.buttons .basic.active.button,
 .ui.inverted.violet.basic.active.button {
   box-shadow: 0 0 0 2px #836cff inset;
-  color: oklch(from #9b8afb max(l, 0.8) c h);
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.violet.basic.buttons .button:active,
 .ui.inverted.violet.buttons .basic.button:active,
 .ui.inverted.violet.basic.button:active {
   box-shadow: 0 0 0 2px #7159f9 inset;
-  color: oklch(from #9b8afb max(l, 0.8) c h);
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -3719,13 +3719,13 @@
 .ui.tertiary.violet.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.violet.buttons .button:hover,
 .ui.tertiary.violet.buttons button:hover,
 .ui.tertiary.violet.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -3734,7 +3734,7 @@
 .ui.tertiary.violet.buttons .tertiary.button:focus,
 .ui.tertiary.violet.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -3746,7 +3746,7 @@
 .ui.tertiary.violet.buttons .tertiary.button:active,
 .ui.tertiary.violet.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -3795,30 +3795,30 @@
 .ui.basic.purple.button {
   background: transparent;
   box-shadow: 0 0 0 1px #9e4cc9 inset;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.purple.buttons .button:hover,
 .ui.basic.purple.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #9534c8 inset;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.purple.buttons .button:focus,
 .ui.basic.purple.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #8e2ac2 inset;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.purple.buttons .active.button,
 .ui.basic.purple.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #9039bd inset;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.purple.buttons .button:active,
 .ui.basic.purple.button:active {
   box-shadow: 0 0 0 1px #8434ae inset;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -3826,7 +3826,7 @@
 .ui.inverted.purple.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #c084e8 inset;
-  color: oklch(from #c084e8 max(l, 0.8) c h);
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -3882,25 +3882,25 @@
 .ui.inverted.purple.buttons .basic.button:hover,
 .ui.inverted.purple.basic.button:hover {
   box-shadow: 0 0 0 2px #ab52e7 inset;
-  color: oklch(from #c084e8 max(l, 0.8) c h);
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.purple.basic.buttons .button:focus,
 .ui.inverted.purple.basic.buttons .button:focus,
 .ui.inverted.purple.basic.button:focus {
   box-shadow: 0 0 0 2px #b155ee inset;
-  color: oklch(from #c084e8 max(l, 0.8) c h);
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.purple.basic.buttons .active.button,
 .ui.inverted.purple.buttons .basic.active.button,
 .ui.inverted.purple.basic.active.button {
   box-shadow: 0 0 0 2px #b766ed inset;
-  color: oklch(from #c084e8 max(l, 0.8) c h);
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.purple.basic.buttons .button:active,
 .ui.inverted.purple.buttons .basic.button:active,
 .ui.inverted.purple.basic.button:active {
   box-shadow: 0 0 0 2px #aa59e0 inset;
-  color: oklch(from #c084e8 max(l, 0.8) c h);
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -3909,13 +3909,13 @@
 .ui.tertiary.purple.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.purple.buttons .button:hover,
 .ui.tertiary.purple.buttons button:hover,
 .ui.tertiary.purple.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -3924,7 +3924,7 @@
 .ui.tertiary.purple.buttons .tertiary.button:focus,
 .ui.tertiary.purple.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -3936,7 +3936,7 @@
 .ui.tertiary.purple.buttons .tertiary.button:active,
 .ui.tertiary.purple.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -3985,30 +3985,30 @@
 .ui.basic.pink.button {
   background: transparent;
   box-shadow: 0 0 0 1px #c11574 inset;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.pink.buttons .button:hover,
 .ui.basic.pink.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #b20b67 inset;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.pink.buttons .button:focus,
 .ui.basic.pink.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #aa035f inset;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.pink.buttons .active.button,
 .ui.basic.pink.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #a51263 inset;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.pink.buttons .button:active,
 .ui.basic.pink.button:active {
   box-shadow: 0 0 0 1px #931058 inset;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -4016,7 +4016,7 @@
 .ui.inverted.pink.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #ee46bc inset;
-  color: oklch(from #ee46bc max(l, 0.8) c h);
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -4072,25 +4072,25 @@
 .ui.inverted.pink.buttons .basic.button:hover,
 .ui.inverted.pink.basic.button:hover {
   box-shadow: 0 0 0 2px #f40daf inset;
-  color: oklch(from #ee46bc max(l, 0.8) c h);
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.pink.basic.buttons .button:focus,
 .ui.inverted.pink.basic.buttons .button:focus,
 .ui.inverted.pink.basic.button:focus {
   box-shadow: 0 0 0 2px #ff0cb7 inset;
-  color: oklch(from #ee46bc max(l, 0.8) c h);
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.pink.basic.buttons .active.button,
 .ui.inverted.pink.buttons .basic.active.button,
 .ui.inverted.pink.basic.active.button {
   box-shadow: 0 0 0 2px #fa20b9 inset;
-  color: oklch(from #ee46bc max(l, 0.8) c h);
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.pink.basic.buttons .button:active,
 .ui.inverted.pink.buttons .basic.button:active,
 .ui.inverted.pink.basic.button:active {
   box-shadow: 0 0 0 2px #ea17ab inset;
-  color: oklch(from #ee46bc max(l, 0.8) c h);
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -4099,13 +4099,13 @@
 .ui.tertiary.pink.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.pink.buttons .button:hover,
 .ui.tertiary.pink.buttons button:hover,
 .ui.tertiary.pink.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -4114,7 +4114,7 @@
 .ui.tertiary.pink.buttons .tertiary.button:focus,
 .ui.tertiary.pink.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -4126,7 +4126,7 @@
 .ui.tertiary.pink.buttons .tertiary.button:active,
 .ui.tertiary.pink.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -4175,30 +4175,30 @@
 .ui.basic.brown.button {
   background: transparent;
   box-shadow: 0 0 0 1px #6e4a2e inset;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.brown.buttons .button:hover,
 .ui.basic.brown.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #5f3e24 inset;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.brown.buttons .button:focus,
 .ui.basic.brown.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #56361d inset;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.brown.buttons .active.button,
 .ui.basic.brown.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #583b25 inset;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.brown.buttons .button:active,
 .ui.basic.brown.button:active {
   box-shadow: 0 0 0 1px #4a321f inset;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -4206,7 +4206,7 @@
 .ui.inverted.brown.button {
   background-color: transparent;
   box-shadow: 0 0 0 2px #b08463 inset;
-  color: oklch(from #b08463 max(l, 0.8) c h);
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -4262,25 +4262,25 @@
 .ui.inverted.brown.buttons .basic.button:hover,
 .ui.inverted.brown.basic.button:hover {
   box-shadow: 0 0 0 2px #986a48 inset;
-  color: oklch(from #b08463 max(l, 0.8) c h);
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.brown.basic.buttons .button:focus,
 .ui.inverted.brown.basic.buttons .button:focus,
 .ui.inverted.brown.basic.button:focus {
   box-shadow: 0 0 0 2px #a36f47 inset;
-  color: oklch(from #b08463 max(l, 0.8) c h);
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.brown.basic.buttons .active.button,
 .ui.inverted.brown.buttons .basic.active.button,
 .ui.inverted.brown.basic.active.button {
   box-shadow: 0 0 0 2px #ac764e inset;
-  color: oklch(from #b08463 max(l, 0.8) c h);
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.brown.basic.buttons .button:active,
 .ui.inverted.brown.buttons .basic.button:active,
 .ui.inverted.brown.basic.button:active {
   box-shadow: 0 0 0 2px #956b4b inset;
-  color: oklch(from #b08463 max(l, 0.8) c h);
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -4289,13 +4289,13 @@
 .ui.tertiary.brown.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.brown.buttons .button:hover,
 .ui.tertiary.brown.buttons button:hover,
 .ui.tertiary.brown.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -4304,7 +4304,7 @@
 .ui.tertiary.brown.buttons .tertiary.button:focus,
 .ui.tertiary.brown.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -4316,7 +4316,7 @@
 .ui.tertiary.brown.buttons .tertiary.button:active,
 .ui.tertiary.brown.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -4365,30 +4365,30 @@
 .ui.basic.grey.button {
   background: transparent;
   box-shadow: 0 0 0 1px #687181 inset;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.grey.buttons .button:hover,
 .ui.basic.grey.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #5d6573 inset;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.grey.buttons .button:focus,
 .ui.basic.grey.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #565d6a inset;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.grey.buttons .active.button,
 .ui.basic.grey.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #5a6270 inset;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.grey.buttons .button:active,
 .ui.basic.grey.button:active {
   box-shadow: 0 0 0 1px #515865 inset;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -4456,7 +4456,7 @@
 .ui.inverted.grey.basic.buttons .button:focus,
 .ui.inverted.grey.basic.button:focus {
   box-shadow: 0 0 0 2px #7f8ba0 inset;
-  color: oklch(from #99a1af max(l, 0.8) c h);
+  color: oklch(from #99a1af max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.grey.basic.buttons .active.button,
 .ui.inverted.grey.buttons .basic.active.button,
@@ -4477,13 +4477,13 @@
 .ui.tertiary.grey.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.grey.buttons .button:hover,
 .ui.tertiary.grey.buttons button:hover,
 .ui.tertiary.grey.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -4492,7 +4492,7 @@
 .ui.tertiary.grey.buttons .tertiary.button:focus,
 .ui.tertiary.grey.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -4504,7 +4504,7 @@
 .ui.tertiary.grey.buttons .tertiary.button:active,
 .ui.tertiary.grey.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -4553,30 +4553,30 @@
 .ui.basic.black.button {
   background: transparent;
   box-shadow: 0 0 0 1px light-dark(#1f2430, #535c6e) inset;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.black.buttons .button:hover,
 .ui.basic.black.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px light-dark(#2b3140, #5f6879) inset;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.black.buttons .button:focus,
 .ui.basic.black.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px light-dark(#2b3140, #5f6879) inset;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.black.buttons .active.button,
 .ui.basic.black.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px light-dark(#141821, #4b5363) inset;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.black.buttons .button:active,
 .ui.basic.black.button:active {
   box-shadow: 0 0 0 1px light-dark(#141821, #4b5363) inset;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Inverted */
@@ -4644,7 +4644,7 @@
 .ui.inverted.black.basic.buttons .button:focus,
 .ui.inverted.black.basic.button:focus {
   box-shadow: 0 0 0 2px #000000 inset;
-  color: oklch(from #4b5363 max(l, 0.8) c h);
+  color: oklch(from #4b5363 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.black.basic.buttons .active.button,
 .ui.inverted.black.buttons .basic.active.button,
@@ -4665,13 +4665,13 @@
 .ui.tertiary.black.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.black.buttons .button:hover,
 .ui.tertiary.black.buttons button:hover,
 .ui.tertiary.black.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -4680,7 +4680,7 @@
 .ui.tertiary.black.buttons .tertiary.button:focus,
 .ui.tertiary.black.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -4692,7 +4692,7 @@
 .ui.tertiary.black.buttons .tertiary.button:active,
 .ui.tertiary.black.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -4743,30 +4743,30 @@
 .ui.basic.positive.button {
   background: transparent;
   box-shadow: 0 0 0 1px #17b26a inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.positive.buttons .button:hover,
 .ui.basic.positive.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #0da25d inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.positive.buttons .button:focus,
 .ui.basic.positive.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #069a55 inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.positive.buttons .active.button,
 .ui.basic.positive.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #0aa65d inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.positive.buttons .button:active,
 .ui.basic.positive.button:active {
   box-shadow: 0 0 0 1px #11854f inset;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.buttons:not(.vertical) > .basic.positive.button:not(:first-child) {
   margin-left: -1px;
@@ -4780,20 +4780,20 @@
   background: transparent;
   text-shadow: none;
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.positive.buttons .button:hover,
 .ui.tertiary.positive.buttons .tertiary.button:hover,
 .ui.tertiary.positive.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
   background: light-dark(#eef1f5, #262b36);
 }
 .ui.tertiary.positive.buttons .button:focus,
 .ui.tertiary.positive.buttons .tertiary.button:focus,
 .ui.tertiary.positive.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
   background: light-dark(#eef1f5, #262b36);
 }
 .ui.tertiary.positive.buttons .active.button,
@@ -4803,7 +4803,7 @@
 .ui.tertiary.positive.buttons .tertiary.button:active,
 .ui.tertiary.positive.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
   background: light-dark(#eef1f5, #262b36);
 }
 
@@ -4852,30 +4852,30 @@
 .ui.basic.negative.button {
   background: transparent;
   box-shadow: 0 0 0 1px #f04438 inset;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.negative.buttons .button:hover,
 .ui.basic.negative.button:hover {
   background: transparent;
   box-shadow: 0 0 0 1px #f92516 inset;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.negative.buttons .button:focus,
 .ui.basic.negative.button:focus {
   background: transparent;
   box-shadow: 0 0 0 1px #ff1100 inset;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.negative.buttons .active.button,
 .ui.basic.negative.active.button {
   background: transparent;
   box-shadow: 0 0 0 1px #fe2011 inset;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.negative.buttons .button:active,
 .ui.basic.negative.button:active {
   box-shadow: 0 0 0 1px #e41f11 inset;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.buttons:not(.vertical) > .basic.negative.button:not(:first-child) {
   margin-left: -1px;
@@ -4889,20 +4889,20 @@
   background: transparent;
   text-shadow: none;
   box-shadow: none;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.tertiary.negative.buttons .button:hover,
 .ui.tertiary.negative.buttons .tertiary.button:hover,
 .ui.tertiary.negative.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
   background: light-dark(#eef1f5, #262b36);
 }
 .ui.tertiary.negative.buttons .button:focus,
 .ui.tertiary.negative.buttons .tertiary.button:focus,
 .ui.tertiary.negative.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
   background: light-dark(#eef1f5, #262b36);
 }
 .ui.tertiary.negative.buttons .active.button,
@@ -4912,7 +4912,7 @@
 .ui.tertiary.negative.buttons .tertiary.button:active,
 .ui.tertiary.negative.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
   background: light-dark(#eef1f5, #262b36);
 }
 
@@ -5135,6 +5135,7 @@ label.ui.ui.icon.button > i.icon {
 @media only screen and (max-width: 767.98px) {
   .ui.ui.right.floated.stackable.buttons:not(.ui.flex > .buttons) {
     flex-direction: row;
+    flex-wrap: wrap;
     width: auto;
   }
 }
@@ -5288,8 +5289,9 @@ label.ui.ui.icon.button > i.icon {
 
 /* Sin borde (pp-ghost) = `ui tertiary icon button`: cuadrado de 40px como los demás Solo ícono,
    radio md y fondo g-100 al pasar o enfocar (colores en variables). Fomantic fuerza el padding
-   y el margen del tertiary de texto. */
-.ui.tertiary.icon.button:not(.labeled) {
+   y el margen del tertiary de texto; con `:not(.fluid)`, la misma especificidad que la regla de core
+   del terciario cuadrado, que si no la gana. */
+.ui.tertiary.icon.button:not(.labeled):not(.fluid) {
   margin: 0 0 0 0 !important;
   padding: 0.71428571em calc((2.85714286em - 1.25em) / 2) !important;
 }
@@ -5350,7 +5352,7 @@ label.ui.ui.icon.button > i.icon {
   color: var(--theme-text-muted);
 }
 .ui.basic.labeled.icon.button:not(.negative):not(.red):hover > .icon {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Fluid: el contenido centrado sigue ocupando todo el ancho */

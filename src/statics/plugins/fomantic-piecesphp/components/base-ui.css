@@ -276,12 +276,12 @@
 }
 
 :where(.ui, .dt-container) a, a:where(.ui, .dt-container) {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   text-decoration: none;
 }
 
 :where(.ui, .dt-container) a:hover, a:hover:where(.ui, .dt-container) {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   text-decoration: none;
 }
 
@@ -379,6 +379,10 @@
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
   color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
+}
+
+:where(.ui, .dt-container) small, small:where(.ui, .dt-container) {
+  font-size: 0.85714286rem;
 }
 
 :where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {

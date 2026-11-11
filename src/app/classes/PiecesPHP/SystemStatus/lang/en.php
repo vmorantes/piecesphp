@@ -98,7 +98,6 @@ return [
     'No hay llave de MapBox para este entorno: los mapas del panel no cargan. Configúrela en Configuración › Sistema › Llaves de Mapas.' => 'There is no MapBox key for this environment: the panel maps do not load. Set it in Settings › System › MapBox keys.',
     'No hay un respaldo reciente de la base de datos: el último es más viejo que dos veces el intervalo configurado, o no hay ninguno. Revise que las tareas programadas del sistema se estén ejecutando.' => 'There is no recent database backup: the latest one is older than twice the configured interval, or there is none. Check that the system cronjobs are running.',
     'Registro de correos' => 'Mail log',
-    'Cada correo que esta instalación intentó mandar, y si llegó. El cuerpo se guarda cifrado; los adjuntos, no.' => 'Every email this installation tried to send, and whether it arrived. The body is stored encrypted; attachments are not.',
     'Falta la tabla del registro, así que no se está anotando ningún envío: ni los que fallan. Aplique «%s» en la base de datos de esta instalación.' => 'The log table is missing, so no send is being recorded: not even the ones that fail. Apply «%s» to the database of this installation.',
     'Falta la tabla del registro de correos, así que NO se está anotando ningún envío: ni los que fallan. Aplique «%s» en la base de datos de esta instalación.' => 'The mail log table is missing, so NO send is being recorded: not even the ones that fail. Apply «%s» to the database of this installation.',
     '%d correo(s) NO llegaron a ningún sitio en las últimas %d horas. El último falló por: %s. Mire el registro de correos para ver cuáles, y compruebe el servidor de correo con «bin/cli mail-doctor».' => '%d email(s) did NOT reach anywhere in the last %d hours. The last one failed because: %s. Check the mail log to see which ones, and test the mail server with «bin/cli mail-doctor».',
@@ -238,4 +237,7 @@ return [
     'Sin franja programada' => 'No scheduled slot',
     'Aún no hay ejecuciones anotadas: revisa la pestaña «Instrucciones» para poner el cron.' => 'No runs recorded yet: check the «Instructions» tab to set up the cron.',
     'Ninguna ejecución en las últimas 24 horas: revisa la pestaña «Instrucciones».' => 'No runs in the last 24 hours: check the «Instructions» tab.',
+    'Cada correo que esta instalación intentó enviar y si llegó. El cuerpo se guarda cifrado; los adjuntos no se guardan.' => 'Every email this installation tried to send and whether it arrived. The body is stored encrypted; attachments are not stored.',
+    'Cuándo corre cada tarea, cómo le fue y cómo se configura.' => 'When each task runs, how it went and how it is set up.',
+    'El formulario de soporte envía a una dirección de ejemplo: nadie recibe esas solicitudes. Pon la dirección de tu mesa de ayuda en $config[\'support_form_recipients\'] (src/app/config/config.php), o déjala vacía para quitar el botón de soporte.' => 'The support form sends to an example address: nobody receives those requests. Put your help desk address in $config[\'support_form_recipients\'] (src/app/config/config.php), or leave it empty to remove the support button.',
 ];

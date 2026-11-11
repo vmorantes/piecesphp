@@ -90,7 +90,7 @@ CliActions::make('unit-tests:core/site-files', function ($args) {
     }
     echoTerminal(' ');
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = [], bool $xhr = false) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
         if ($xhr) {

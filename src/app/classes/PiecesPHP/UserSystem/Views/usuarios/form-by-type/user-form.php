@@ -68,7 +68,7 @@ $textField = function (string $inputName, string $property, string $label, bool 
                 <label><?= __($langGroup, 'Organización base'); ?></label>
                 <?php endif; ?>
                 <select class="ui fluid dropdown" required name="organization" <?= ORGANIZATIONS_MODULE ? '' : 'hidden'; ?>>
-                    <option value=""><?= __($langGroup, 'Organización'); ?></option>
+                    <option value="" disabled><?= __($langGroup, 'Selecciona una organización'); ?></option>
                     <?php foreach ($organizations as $organization): ?>
                     <?php $selected = $isCreate ? $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL : $organization->id == $edit_user->organization; ?>
                     <option value="<?= $organization->id; ?>"<?= $selected ? ' selected' : ''; ?>><?= escape_html($organization->name); ?></option>
@@ -119,12 +119,15 @@ $textField = function (string $inputName, string $property, string $label, bool 
                     'inputName' => 'password',
                     'label' => __($langGroup, $isCreate ? 'password' : 'password_restored'),
                     'autocomplete' => 'new-password',
+                    //Al crear es obligatoria (el servidor ya la exige); al editar, vacía no la cambia.
+                    'required' => $isCreate,
                 ]);
                 $this->helpController->_render('panel/built-in/content/password-field.php', [
                     'id' => $idOf('password2'),
                     'inputName' => 'password2',
                     'label' => __($langGroup, 'confirm-password'),
                     'autocomplete' => 'new-password',
+                    'required' => $isCreate,
                 ]);
             ?>
         </div>

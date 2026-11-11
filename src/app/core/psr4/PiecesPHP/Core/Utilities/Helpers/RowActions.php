@@ -32,6 +32,7 @@ final class RowActions
     const VARIANT_PRIMARY = 'primary';
     const VARIANT_INACTIVE = 'inactive';
     const VARIANT_TEXT = 'text';
+    const VARIANT_NEGATIVE = 'negative';
 
     /**
      * Una acción del menú o la directa.
@@ -76,6 +77,21 @@ final class RowActions
     public static function primary(string $text, string $url, string $icon, array $attributes = []): array
     {
         return ['variant' => self::VARIANT_PRIMARY] + self::action($text, $url, $icon, $attributes);
+    }
+
+    /**
+     * Una acción destructiva que no es borrar (expulsar, revocar): en rojo como eliminar (`ui negative basic icon button`),
+     * pero con su enlace y sus atributos, sin la confirmación genérica de borrado; la confirma quien la maneja.
+     *
+     * @param string $text Texto ya traducido.
+     * @param string $url
+     * @param string $icon Nombre del icono de Fomantic.
+     * @param array<string,string> $attributes Atributos extra del enlace, con el mismo filtro que los de action().
+     * @return array{text:string,url:string,icon:string,confirm:string|null,attributes:array<string,string>,variant?:string}
+     */
+    public static function negative(string $text, string $url, string $icon, array $attributes = []): array
+    {
+        return ['variant' => self::VARIANT_NEGATIVE] + self::action($text, $url, $icon, $attributes);
     }
 
     /**
@@ -177,7 +193,7 @@ final class RowActions
             return "<a class=\"ui basic button\" href=\"{$url}\"{$extra}>{$text}</a>";
         }
         //Eliminar sale en rojo, color de estado de Fomantic: borrar no se pinta como una acción más (PO, 2026-10-10).
-        $class = $action['confirm'] !== null ? 'ui negative basic icon button' : ($variant === self::VARIANT_PRIMARY ? 'ui primary icon button' : 'ui icon button');
+        $class = $action['confirm'] !== null || $variant === self::VARIANT_NEGATIVE ? 'ui negative basic icon button' : ($variant === self::VARIANT_PRIMARY ? 'ui primary icon button' : 'ui icon button');
         $target = $action['confirm'] !== null
             ? 'href="#" data-url="' . $url . '" data-confirm="' . escape_html($action['confirm']) . '"'
             : 'href="' . $url . '"';

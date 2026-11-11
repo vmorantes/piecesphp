@@ -70,7 +70,7 @@ CliActions::make('unit-tests:core/mail-catalog', function ($args) {
     };
     $pantalla = $ruta('mail-catalog-list');
     $enviarPrueba = $ruta('mail-catalog-send-test');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt, ?array $post = null) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         $opciones = [

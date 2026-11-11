@@ -78,7 +78,7 @@ CliActions::make('unit-tests:core/system-user', function ($args) {
         }
         return '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt, ?array $post = null, array $query = []) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         $cabeceras = ['X-Requested-With: XMLHttpRequest'];

@@ -4,7 +4,7 @@ $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_G
 $header_image = isset($header_image) && is_string($header_image) ? $header_image : (
     is_local() ?
     "https://placehold.co/500x172.png?text=" . urlencode(get_config('title_app')) :
-    base_url(get_config('mailing_logo'))
+    base_url(mailing_logo())
 );
 $text = isset($text) && is_string($text) ? $text : '';
 $hasCode = isset($code) && is_string($code);

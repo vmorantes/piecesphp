@@ -146,7 +146,7 @@ CliActions::make('unit-tests:core/upload-safe-extension', function ($args) {
             $url = trim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
             return $prefijoBase !== '' && str_starts_with($url, $prefijoBase) ? trim(substr($url, strlen($prefijoBase)), '/') : $url;
         };
-        $cabeceraToken = SessionToken::tokenName();
+        $cabeceraToken = SessionToken::headerName();
         $peticion = function (string $ruta, string $jwt, ?array $campos = null) use ($base, $cabeceraToken): array {
             $handle = \Terminal\TestRun::curlInit();
             \Terminal\TestRun::curlSetoptArray($handle, [
@@ -243,23 +243,44 @@ CliActions::make('unit-tests:core/upload-safe-extension', function ($args) {
         $check($servido['status'] === 200 && $servido['csp'] === ['sandbox'], 'c2 y Apache lo sirve en sandbox', "HTTP {$servido['status']} · " . json_encode($servido['csp']));
 
         echoTerminal('');
-        echoTerminal('[d] moveTo() con la extensión FIJADA por el llamador (Settings, imagen Open Graph): se respeta');
+        echoTerminal('[d] moveTo() con la extensión FIJADA por el llamador (Settings, imagen Open Graph, que fija la del contenido): se respeta');
         $otros = array_values(array_filter(Config::get_allowed_langs(), fn ($l) => $l !== $lang));
         $idioma = $otros[0] ?? null;
         if ($check(is_string($idioma) && function_exists('imagewebp'), 'd0 CANARIO: hay un idioma que no es el predeterminado y GD escribe WEBP')) {
-            //Escribe open_graph_<idioma>.jpg (VERSIONADO) y sus opciones con sufijo: se copian y se reponen.
-            foreach ([SettingsController::SEO_OPTION_TITLE_APP, SettingsController::SEO_OPTION_OWNER, SettingsController::SEO_OPTION_DESCRIPTION, SettingsController::SEO_OPTION_KEYWORDS, SettingsController::SEO_OPTION_SHARE_TITLE, SettingsController::SEO_OPTION_SHARE_DESCRIPTION, SettingsController::SEO_OPTION_OPEN_GRAPH_IMAGE] as $opcion) {
+            //Escribe en las subidas de Configuración y las opciones con sufijo, que se copian y se reponen; open_graph_<idioma>.jpg
+            //es VERSIONADO y no puede cambiar (H230). La opción de fondos también se repone: con ella se retira el archivo.
+            $opcionesAntes['backgrounds'] = null;
+            foreach (['backgrounds', SettingsController::SEO_OPTION_TITLE_APP, SettingsController::SEO_OPTION_OWNER, SettingsController::SEO_OPTION_DESCRIPTION, SettingsController::SEO_OPTION_KEYWORDS, SettingsController::SEO_OPTION_SHARE_TITLE, SettingsController::SEO_OPTION_SHARE_DESCRIPTION, SettingsController::SEO_OPTION_OPEN_GRAPH_IMAGE] as $opcion) {
                 $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
-                $consulta->execute(["{$opcion}_{$idioma}"]);
+                $nombreOpcion = $opcion === 'backgrounds' ? $opcion : "{$opcion}_{$idioma}";
+                $consulta->execute([$nombreOpcion]);
                 $valor = $consulta->fetchColumn();
-                $opcionesAntes["{$opcion}_{$idioma}"] = $valor === false ? null : (string) $valor;
+                $opcionesAntes[$nombreOpcion] = $valor === false ? null : (string) $valor;
             }
             $ogArchivo = basepath("statics/images/open_graph_{$idioma}.jpg");
             $ogAntes = is_file($ogArchivo) ? file_get_contents($ogArchivo) : null;
             $r = $peticion($relativa(SettingsController::routeName('appearance-seo', [], true)), $jwt, ['lang' => $idioma, 'titleApp' => "{$prefijo}-titulo", 'owner' => "{$prefijo}-propietario", 'description' => "{$prefijo}-descripcion", 'open-graph' => new \CURLFile($webp, 'image/jpeg', 'zz-disfraz.jpg')]);
             clearstatcache();
             echoTerminal("      - Settings responde HTTP {$r['status']} · success " . var_export($r['json']['success'] ?? null, true) . ' · ' . mb_substr((string) ($r['json']['message'] ?? ''), 0, 120));
-            $check(is_file($ogArchivo) && sha1_file($ogArchivo) === sha1_file($webp) && !is_file(basepath("statics/images/open_graph_{$idioma}.webp")), 'd1 un WEBP subido como .jpg se queda .jpg: la extensión que fija Settings no cambia', is_file($ogArchivo) ? 'sha1 ' . sha1_file($ogArchivo) : 'no existe');
+            $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
+            $consulta->execute([SettingsController::SEO_OPTION_OPEN_GRAPH_IMAGE . "_{$idioma}"]);
+            $ogNuevo = (string) $consulta->fetchColumn();
+            $versionadoIgual = is_string($ogAntes) ? (string) file_get_contents($ogArchivo) === $ogAntes : !is_file($ogArchivo);
+            $check(preg_match('#^' . preg_quote(SettingsController::SETTINGS_UPLOADS_FOLDER, '#') . "/open-graph/open_graph_{$idioma}-[0-9a-f]{10}\\.webp$#", $ogNuevo) === 1 && is_file(basepath($ogNuevo)) && $versionadoIgual, 'd1 un WEBP subido como .jpg se guarda .webp, en las subidas: Settings fija la extensión del contenido y moveTo la respeta; el .jpg versionado no cambia', $ogNuevo);
+            //Solo lo de DENTRO de las subidas (si falló, la opción sigue en el de fábrica). En una carpeta de Apache el
+            //terminal no borra: se retira con Eliminar de Fondos, que borra lo de dentro de las subidas.
+            if (SettingsController::isSettingsUploadPath($ogNuevo) && is_file(basepath($ogNuevo))) {
+                if (is_writable(dirname(basepath($ogNuevo)))) {
+                    //RETORNO-IGNORADO: lo comprueba d2.
+                    unlink(basepath($ogNuevo));
+                } else {
+                    $fondos = (string) json_encode([$ogNuevo, SettingsController::LOGIN_BACKGROUNDS_FOLDER . '/bg1.jpg']);
+                    $database->prepare($opcionesAntes['backgrounds'] === null ? "INSERT INTO `{$tablaOpciones}` (value, name) VALUES (?, ?)" : "UPDATE `{$tablaOpciones}` SET value = ? WHERE BINARY name = ?")->execute([$fondos, 'backgrounds']);
+                    $peticion($relativa(SettingsController::routeName('appearance-backgrounds-delete', [], true)), $jwt, ['background' => $ogNuevo]);
+                }
+            }
+            clearstatcache();
+            $check($ogNuevo === '' || !is_file(basepath($ogNuevo)), 'd2 y se retira');
         }
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
@@ -274,12 +295,13 @@ CliActions::make('unit-tests:core/upload-safe-extension', function ($args) {
                     $database->prepare("UPDATE `{$tablaOpciones}` SET value = ? WHERE BINARY name = ?")->execute([$valor, $nombre]);
                 }
             }
-            //Lo reescribe Apache, con su dueño y sin escritura para el terminal: se borra y se repone, no se sobrescribe.
-            if (is_string($ogArchivo) && is_file($ogArchivo)) {
+            //Solo si una regresión lo reescribió (lo cuenta z3): se borra y se repone, no se sobrescribe, porque sería de Apache.
+            $reescrito = is_string($ogArchivo) && is_string($ogAntes) && is_file($ogArchivo) && (string) file_get_contents($ogArchivo) !== $ogAntes;
+            if ($reescrito) {
                 //RETORNO-IGNORADO: lo comprueba z3.
                 unlink($ogArchivo);
             }
-            if (is_string($ogArchivo) && is_string($ogAntes)) {
+            if ($reescrito) {
                 //RETORNO-IGNORADO: lo comprueba z3.
                 file_put_contents($ogArchivo, $ogAntes);
             }

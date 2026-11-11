@@ -62,7 +62,7 @@ CliActions::make('unit-tests:core/profile-visibility', function ($args) {
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($handle, [

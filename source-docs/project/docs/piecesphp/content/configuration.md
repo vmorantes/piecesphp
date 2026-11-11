@@ -41,6 +41,19 @@ Consecuencias que muerden:
   `ORGANIZATIONS_MODULE`: `critical-definitions.php` es el único archivo que corre antes que todos.
 - **Las funciones de `functions.php` tampoco.** Y en `database.php` todavía no hay nada de `AppHelpers.php`:
   `get_config()` y `getKeyFromSecureKeys()` aparecen después.
+- **Para cambiar un valor que pone el framework, usa una extensión de tu proyecto.** Los archivos de
+  `src/app/config/extensions/` se cargan en el paso 11, después de las del núcleo (`final-configurations.php:47`), así
+  que un `set_config()` ahí sustituye lo que dejó `lang.php` o `config.php` en su sección del framework, sin tocarla. Por
+  ejemplo, el formato de fecha de un idioma:
+
+  ```php
+  // src/app/config/extensions/mi-proyecto.php
+  $formats = get_config('format_date_lang');
+  $formats['fr'] = 'd/m/Y';
+  set_config('format_date_lang', $formats);
+  ```
+
+  `set_configs_if_empty()` no sirve para esto: solo escribe lo que todavía no tiene valor.
 
 ### Los archivos que devuelven un array y los que rellenan `$config`
 
@@ -182,7 +195,7 @@ freno de una IP los frena a todos; el framework no lee `X-Forwarded-For`.
 | :-- | :-- | :-- | :-- |
 | `contact_form_recipients` | `string[]` | `[]` | Destinatarios del formulario de contacto. |
 | `other_problems_recipients` | `string[]` | `[]` | Destinatarios del correo de «otros problemas» (si osTicket falta o falla). |
-| `support_form_recipients` | `string[]` | `[]` | Destinatarios del formulario de soporte del panel (Ayuda › Contactar a soporte). Vacío, el botón no sale. La respuesta va a quien escribe, tomado de su sesión. |
+| `support_form_recipients` | `string[]` | `['help@example.org']` | Destinatarios del formulario de soporte del panel (Ayuda › Contactar a soporte). De fábrica, una dirección de **ejemplo** (dominio reservado: nadie la recibe), para que el botón se vea; mientras siga ahí, root ve un aviso que pide cambiarla. Vacío a propósito, el botón no sale. La respuesta va a quien escribe, tomado de su sesión. |
 | `osTicketAPI`, `osTicketAPIKey` | `string` | `""` | URL y llave de osTicket. Vacías, no se usa. Desde la `10.1.2` solo la usa «otros problemas»; sale del framework en la `11.0.0`. |
 | `CronJobKey` | `string` | no está en `config.php` | La pone **solo** la llave segura `cronjob` de `secure-keys/` (`core/extensions/api-keys.php`). Sin ella, la ruta del cron rechaza toda llave. |
 | `mailjet` | `array` | `email`, `name`, `apiKey`, `secretKey` de relleno | Valores de relleno: la configuración real de Mailjet se guarda **cifrada** en la opción `mailjet` (ver [La clave de la aplicación](../new-features/clave-de-la-aplicacion.md)). |
@@ -845,6 +858,6 @@ QueueTask::addQueueHandlers([
 
 ## La ayuda, el crédito y el alta pública
 
-- **El centro de ayuda de la barra** (el icono de interrogación) sale si tiene algo que enseñar: «Contactar a soporte» con `support_form_recipients` (arriba) y permiso sobre `admin-tickets-create`, y «Preguntas frecuentes» si tu proyecto pone su enlace en **`$config['help_faq_url']`**, que viene vacío.
+- **El centro de ayuda de la barra** (el icono de interrogación) sale si tiene algo que enseñar: «Contactar a soporte» con `support_form_recipients` no vacío (de fábrica, la dirección de ejemplo, con su aviso: arriba) y permiso sobre `admin-tickets-create`, y «Preguntas frecuentes» si tu proyecto pone su enlace en **`$config['help_faq_url']`**, que viene vacío.
 - **`$config['developer']`, `$config['developer_logo']` y `$config['developer_url']`**: el crédito del pie del menú. El framework trae marcadores: cámbialos en tu clon.
 - **`API_PUBLIC_SIGNUP`** (`src/app/config/constants.php`): el alta de usuarios sin sesión por la API. De fábrica, `false`: la ruta responde 404.

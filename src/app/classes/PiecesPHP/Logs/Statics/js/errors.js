@@ -1,5 +1,5 @@
 window.addEventListener('load', function () {
-	$('[data-logs-errors].ui.accordion').accordion({ exclusive: false })
+	$('[data-logs-error-detail].ui.accordion').accordion()
 	$('[data-logs-errors-filters] select.ui.dropdown').dropdown({ fullTextSearch: true })
 
 	//Los marcos de Slim y vendor/ plegados: el enlace despliega el grupo que tiene justo debajo.
@@ -21,15 +21,26 @@ window.addEventListener('load', function () {
 		}
 	})
 
-	//La referencia, al portapapeles; el clic no abre ni cierra la entrada.
+	//La referencia, al portapapeles: el tooltip dice «Copiado» 1,5 s y vuelve al suyo; el aviso de siempre se queda.
 	document.addEventListener('click', function (event) {
-		const label = event.target.closest('[data-logs-copy]')
-		if (label === null || navigator.clipboard === undefined) {
+		const button = event.target.closest('[data-logs-copy]')
+		if (button === null || navigator.clipboard === undefined) {
 			return
 		}
-		event.stopPropagation()
-		navigator.clipboard.writeText(label.getAttribute('data-logs-copy')).then(function () {
-			successMessage(label.getAttribute('data-logs-copy'))
+		event.preventDefault()
+		const reference = button.getAttribute('data-logs-copy')
+		navigator.clipboard.writeText(reference).then(function () {
+			const tooltip = button.getAttribute('data-tooltip')
+			const copied = button.getAttribute('data-copied-tooltip')
+			if (copied !== null && copied !== '' && !button.hasAttribute('data-logs-copied')) {
+				button.setAttribute('data-logs-copied', '')
+				button.setAttribute('data-tooltip', copied)
+				setTimeout(function () {
+					button.setAttribute('data-tooltip', tooltip)
+					button.removeAttribute('data-logs-copied')
+				}, 1500)
+			}
+			successMessage(reference)
 		})
-	}, true)
+	})
 })

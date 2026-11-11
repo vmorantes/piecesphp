@@ -395,7 +395,10 @@
                                     height: '',
                                 });
                             }
-                            if (Math.abs($container.outerHeight() - module.cache.context.height) > settings.jitter) {
+                            // Fork: solo si el contenedor es más bajo que el contexto. Con Math.abs, un contenedor más
+                            // alto (el shell, cuyo contexto es solo una parte de la página) se encogía a la altura del
+                            // contexto y lo que quedaba debajo se cortaba (escaparate template-admin, todos los temas).
+                            if (module.cache.context.height - $container.outerHeight() > settings.jitter) {
                                 module.debug('Context has padding, specifying exact height for container', module.cache.context.height);
                                 $container.css({
                                     height: module.cache.context.height,

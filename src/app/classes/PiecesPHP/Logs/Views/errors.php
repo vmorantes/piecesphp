@@ -116,13 +116,21 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
                 'userID' => __($langGroup, 'Usuario (id)'),
             ];
         ?>
-    <div class="<?= $open ? 'active ' : ''; ?>title logs-error-title" data-error-reference="<?= escape_html($text($entry['reference'])); ?>" data-error-level="<?= escape_html($level); ?>">
-        <i class="dropdown icon"></i>
+    <?php
+        $reference = $text($entry['reference']);
+            $time = mb_substr($text($entry['time']), 0, 8);
+            $at = \DateTime::createFromFormat('!d-m-Y H:i:s', $text($item['day']) . ' ' . $time);
+        ?>
+    <?php //Una fila de la lista por error (vistas-referencia.md §3.24); el detalle, en su propio acordeón, debajo. ?>
+    <div class="item logs-error" data-error-reference="<?= escape_html($reference); ?>" data-error-level="<?= escape_html($level); ?>">
         <div class="logs-error-summary">
             <div class="logs-error-head">
-                <span class="logs-error-time"><?= escape_html(mb_substr($text($entry['time']), 0, 8)); ?></span>
+                <time class="ui muted text logs-error-time"<?= $at !== false ? ' datetime="' . escape_html($at->format('Y-m-d\TH:i:s')) . '"' : ''; ?>><?= escape_html($time); ?></time>
                 <span data-error-level-label><?= \PiecesPHP\Core\Utilities\Helpers\StatusLabel::html($levelLabels[$level] ?? $level, $level === 'soft' ? \PiecesPHP\Core\Utilities\Helpers\StatusLabel::WARNING : \PiecesPHP\Core\Utilities\Helpers\StatusLabel::NEGATIVE); ?></span>
-                <span class="ui small basic label" data-logs-copy="<?= escape_html($text($entry['reference'])); ?>" title="<?= escape_html(__($langGroup, 'Copiar la referencia')); ?>"><i class="copy outline icon"></i><?= escape_html($text($entry['reference'])); ?></span>
+                <span class="logs-error-reference">
+                    <?= \PiecesPHP\Core\Utilities\Helpers\StatusLabel::neutral($reference); ?>
+                    <button type="button" class="ui tertiary icon button" data-logs-copy="<?= escape_html($reference); ?>" aria-label="<?= escape_html(__($langGroup, 'Copiar referencia')); ?>" data-tooltip="<?= escape_html(__($langGroup, 'Copiar referencia')); ?>" data-copied-tooltip="<?= escape_html(__($langGroup, 'Copiado')); ?>" data-position="top center" data-inverted=""><i class="copy icon" aria-hidden="true"></i></button>
+                </span>
                 <strong title="<?= escape_html($type); ?>"><?= escape_html($shortClass($type)); ?></strong>
                 <?php if ($level === 'soft' && $count > 1 && $lastAt > 0): ?>
                 <span class="ui muted text logs-error-place" data-error-count="<?= $count; ?>"><?= sprintf(__($langGroup, '%d veces, la última a las %s'), $count, date('H:i', $lastAt)); ?></span>
@@ -131,7 +139,9 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
             <div class="logs-error-message" data-error-message><?= escape_html($shortMessage); ?></div>
             <div class="ui muted text logs-error-place"><?= escape_html($relative($text($entry['file'])) . ':' . $text($entry['line'])); ?></div>
         </div>
-    </div>
+        <?php //«Detalle» y no «Traza»: lleva el código, la petición, los datos, la traza, las previas y el mensaje entero. ?>
+        <div class="ui styled fluid accordion logs-error-accordion" data-logs-error-detail>
+            <div class="<?= $open ? 'active ' : ''; ?>title"><i class="dropdown icon" aria-hidden="true"></i><?= __($langGroup, 'Detalle'); ?></div>
     <div class="<?= $open ? 'active ' : ''; ?>content logs-error-detail">
         <?php if ($code !== '' && $code !== '0' && $code !== '-'): ?>
         <p><strong><?= __($langGroup, 'Código'); ?>:</strong> <?= escape_html($code); ?></p>
@@ -179,6 +189,8 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
         <?php endif; ?>
         <p><strong><?= __($langGroup, 'Mensaje completo y ruta'); ?>:</strong></p>
         <pre class="logs-pre"><?= escape_html($message . "\n\n" . $text($entry['file']) . ':' . $text($entry['line'])); ?></pre>
+    </div>
+        </div>
     </div>
     <?php
         };
@@ -251,14 +263,18 @@ $renderTrace = function (array $trace) use ($langGroup, $text, $relative, $short
 <?php if ($found === null): ?>
 <div class="ui warning message" data-logs-reference-missing><?= __($langGroup, 'No hay ningún error con esa referencia'); ?></div>
 <?php else: ?>
-<div class="ui styled fluid accordion" data-logs-errors>
-    <?php $renderEntry($found, true); ?>
+<div class="ui segment">
+    <div class="ui divided relaxed list" data-logs-errors>
+        <?php $renderEntry($found, true); ?>
+    </div>
 </div>
 <?php endif; ?>
 
 <?php elseif ($result !== null): ?>
 
-<?php if ($result['entries'] === []): ?>
+<?php if ($result['entries'] === [] && array_filter($filters, fn($value) => $value !== '') === [] && $result['page'] === 1): ?>
+<?php $pieces->_render('panel/built-in/content/empty-state.php', ['text' => __($langGroup, 'No hay errores anotados.'), 'icon' => 'check circle']); ?>
+<?php elseif ($result['entries'] === []): ?>
 <div class="ui message"><?= __($langGroup, 'No hay errores que mostrar con estos filtros.'); ?></div>
 <?php else: ?>
 <?php
@@ -268,11 +284,13 @@ foreach ($result['entries'] as $item) {
 }
 ?>
 <?php foreach ($byDay as $day => $items): ?>
-<h4 class="ui header"><?= escape_html($text($day)); ?></h4>
-<div class="ui styled fluid accordion" data-logs-errors>
-    <?php foreach ($items as $item): ?>
-    <?php $renderEntry($item, false); ?>
-    <?php endforeach; ?>
+<h2 class="ui small header" data-logs-errors-day><?= escape_html($text($day)); ?></h2>
+<div class="ui segment">
+    <div class="ui divided relaxed list" data-logs-errors>
+        <?php foreach ($items as $item): ?>
+        <?php $renderEntry($item, false); ?>
+        <?php endforeach; ?>
+    </div>
 </div>
 <?php endforeach; ?>
 <?php endif; ?>

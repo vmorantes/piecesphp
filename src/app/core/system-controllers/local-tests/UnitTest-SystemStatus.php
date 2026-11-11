@@ -111,6 +111,41 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
         $check(!$falta(['keyLocal' => '', 'keyDomain' => 'x'], false), 'b10 dominio, keyDomain con valor → no falta');
         $mapbox = SystemAlertRegistry::get('mapbox-key-missing');
         $check($mapbox !== null && $mapbox->severity() === SystemAlert::SEVERITY_WARNING && $mapbox->audience() === [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL] && $mapbox->isDismissible() && $mapbox->showAsNag() && $mapbox->fixRoute() === 'helpers-system-generic-content-admin-forms-mapbox-keys', 'b11 mapbox-key-missing registrado: warning, root y admin general, ocultable, flotante y con su ruta de arreglo');
+        //El soporte de fábrica (P305): una dirección de ejemplo hace salir el botón y un aviso pide cambiarla.
+        $ejemplo = fn($lista): bool => SystemStatusRoutes::supportRecipientsArePlaceholders($lista);
+        $check($ejemplo(['help@example.org']) && $ejemplo(['HELP@EXAMPLE.ORG']) && $ejemplo(['soporte@zz-real.test', 'zz@example.net']) && $ejemplo([' zz@example.com ']), 'b12 DISCRIMINANTE: el predicado ve una dirección de ejemplo (.org, .com, .net; sin mayúsculas; también en una lista mixta)');
+        $check(!$ejemplo(['soporte@zz-real.test']) && !$ejemplo([]) && !$ejemplo(null) && !$ejemplo(['zz@example.org.co']), 'b13 DISCRIMINANTE: no con una real, ni con [] ni sin lista, ni con un dominio que solo empieza igual');
+        $soporte = SystemAlertRegistry::get('support-recipients-placeholder');
+        $check($soporte !== null && $soporte->severity() === SystemAlert::SEVERITY_WARNING && $soporte->audience() === [UsersModel::TYPE_USER_ROOT] && $soporte->isDismissible() && $soporte->showAsNag() && $soporte->fixRoute() === null, 'b14 DISCRIMINANTE: support-recipients-placeholder registrado: warning, SOLO root (el arreglo es config.php), ocultable, flotante y sin ruta de arreglo');
+        $deFabrica = get_config('support_form_recipients');
+        $check($deFabrica === ['help@example.org'] && $soporte !== null && $soporte->evaluateActive(), 'b15 DISCRIMINANTE: de fábrica, support_form_recipients es [help@example.org] y el aviso está activo', (string) json_encode($deFabrica));
+        //El botón de la barra (topbar-data.php), pintado en proceso como un root de la base.
+        $unRoot = UsersModel::model();
+        $unRoot->resetAll();
+        $unRoot->select(['id'])->where(new \PiecesPHP\Core\Database\ORM\Statements\WhereSegment([\PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem::isEqual('type', UsersModel::TYPE_USER_ROOT), \PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem::isEqual('status', UsersModel::STATUS_USER_ACTIVE)]))->execute(false, 1, 1);
+        $idRoot = (int) (((array) (((array) $unRoot->result())[0] ?? []))['id'] ?? 0);
+        $usuarioAntes = [get_config('current_user'), get_config('pcsphp_current_user_stored')];
+        $boton = function (array $destinatarios) use ($idRoot): bool {
+            set_config('support_form_recipients', $destinatarios);
+            set_config('current_user', (object) ['id' => $idRoot]);
+            set_config('pcsphp_current_user_stored', null);
+            //Lo que topbar-data.php deja definido, leído sin suponerlo: el include lo asigna.
+            $definidas = (static function (): array {
+                include basepath('app/view/panel/layout/topbar-data.php');
+                return get_defined_vars();
+            })();
+            return ($definidas['canContactSupport'] ?? null) === true;
+        };
+        try {
+            $conEjemplo = $idRoot > 0 && $boton(['help@example.org']);
+            $sinNada = $idRoot > 0 && $boton([]);
+        } finally {
+            set_config('support_form_recipients', $deFabrica);
+            set_config('current_user', $usuarioAntes[0]);
+            set_config('pcsphp_current_user_stored', $usuarioAntes[1]);
+        }
+        $check($conEjemplo && !$sinNada, 'b16 DISCRIMINANTE: el botón de soporte sale con la de ejemplo y no con []', "root {$idRoot}");
+        $check($soporte !== null && str_contains($soporte->message(), "\$config['support_form_recipients']") && str_contains($soporte->message(), 'src/app/config/config.php'), 'b17 el mensaje dice dónde se cambia');
         echoTerminal(' ');
 
         //─── c · Enlaces rotos ──────────────────────────────────────────────────────────────────────────

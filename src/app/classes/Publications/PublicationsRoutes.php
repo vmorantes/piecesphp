@@ -55,6 +55,8 @@ class PublicationsRoutes
             $groupPublic = PublicationsPublicController::routes($groupPublic);
             Sitemap::registerProvider('publications', [PublicationsPublicController::class, 'sitemapItems']);
             self::registerCleanTarget();
+            //El inicio de comunicaciones (aprobado) es su listado de publicaciones; un proyecto lo cambia con replace().
+            \PiecesPHP\AdminPanel\HomeDestinationRegistry::register(\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_COMUNICACIONES, fn(Request $request, Response $response): Response => (new PublicationsController())->listView($request, $response));
 
             self::staticResolver($groupAdministration);
 

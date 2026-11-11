@@ -67,7 +67,7 @@ CliActions::make('unit-tests:core/impersonation', function ($args) {
         return '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
     };
     $cookieName = CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME;
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     /**
      * @return array{status:int,body:string,location:string,json:mixed,setCookies:list<string>}
      */

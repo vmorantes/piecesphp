@@ -97,7 +97,7 @@ $impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pull
                     <?php if ($hasAvatar) : ?>
                     <img class="ui tiny circular image" src="<?= $avatar; ?>" alt="Avatar">
                     <?php else : ?>
-                    <i class="user icon"></i>
+                    <?= ($avatarLabel)('massive'); ?>
                     <?php endif; ?>
                 </div>
 

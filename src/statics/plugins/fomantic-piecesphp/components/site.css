@@ -114,11 +114,11 @@ p:last-child {
         Links
 -------------------- */
 a {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   text-decoration: none;
 }
 a:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
   text-decoration: none;
 }
 
@@ -318,6 +318,11 @@ select optgroup {
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
   color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
+}
+
+/* `small` en rem: anidado o dentro de un texto pequeño bajaba hasta 9–10px */
+small {
+  font-size: 0.85714286rem;
 }
 
 /* Tokens del diseño publicados como variables CSS (tokens.md §1, §2, §5, §10). En html y no en

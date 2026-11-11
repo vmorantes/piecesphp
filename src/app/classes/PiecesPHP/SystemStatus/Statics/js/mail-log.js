@@ -51,18 +51,28 @@ window.addEventListener('load', function () {
 	const isolation = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src data: cid:; style-src \'unsafe-inline\'">'
 		+ '<meta name="referrer" content="no-referrer">'
 	const message = viewer.querySelector('[data-mail-log-body-message]')
+	const closeButton = viewer.querySelector('[data-mail-log-body-close]')
+	//Esc y el fondo la cierran (closable, de Fomantic); al cerrarse por donde sea, el cuerpo sale del iframe.
+	const modal = $(viewer).modal({
+		closable: true,
+		autofocus: false,
+		onVisible: function () {
+			closeButton.focus()
+		},
+		onHidden: function () {
+			frame.srcdoc = ''
+		},
+	})
 
 	const show = function (text) {
 		//Como TEXTO, no como marcado: el mensaje también viene del servidor.
 		message.textContent = text
 		message.hidden = text === ''
-		viewer.hidden = false
-		viewer.scrollIntoView({ behavior: 'smooth', block: 'start' })
+		modal.modal('show')
 	}
 
-	viewer.querySelector('[data-mail-log-body-close]').addEventListener('click', function () {
-		frame.srcdoc = ''
-		viewer.hidden = true
+	closeButton.addEventListener('click', function () {
+		modal.modal('hide')
 	})
 
 	//Delegado: DataTables vuelve a pintar las filas en cada página.

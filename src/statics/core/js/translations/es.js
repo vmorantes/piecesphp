@@ -103,7 +103,7 @@ var PCSPHP_TRANSLATIONS_ES = {
 		lang: {
 			"decimal": "",
 			"emptyTable": "No hay información disponible",
-			"info": "Viendo desde _START_ hasta  _END_ de _TOTAL_ elementos",
+			"info": "Viendo desde _START_ hasta _END_ de _TOTAL_ elementos",
 			"infoEmpty": "Viendo desde 0 hasta 0 de 0 elementos",
 			"infoFiltered": "(filtrado desde _MAX_ elementos)",
 			"infoPostFix": "",

@@ -6,9 +6,9 @@
 
 namespace PiecesPHP\AdminPanel\Controllers;
 
-use MySpace\Controllers\MyProfileController;
 use News\Controllers\NewsController;
 use PiecesPHP\AdminPanel\DashboardCardRegistry;
+use PiecesPHP\AdminPanel\HomeDestinationRegistry;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\InstalledPackages;
@@ -29,9 +29,6 @@ use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Controllers\PublicationsController;
-use Publications\PublicationsRoutes;
-use SystemApprovals\SystemApprovalsRoutes;
-use SystemApprovals\Util\SystemApprovalManager;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -115,14 +112,10 @@ class AdminPanelController extends BaseController
         $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserType = (int) $currentUser->type;
 
-        //Los repartos de siempre, delante: comunicaciones va a su listado y quien debe tener perfil, a completarlo.
-        if (SystemApprovalManager::getInstance()->isApproved(UsersModel::class, $currentUser->id)) {
-            if ($currentUserType === UsersModel::TYPE_USER_COMUNICACIONES && PublicationsRoutes::ENABLE) {
-                return (new PublicationsController())->listView($req, $res);
-            }
-            if (in_array($currentUserType, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE) && SystemApprovalsRoutes::ENABLE) {
-                return $res->withRedirect(MyProfileController::routeName('my-profile'));
-            }
+        //Adónde entra este tipo de usuario, si algún módulo lo registró (HomeDestinationRegistry); si no, las tarjetas.
+        $destination = HomeDestinationRegistry::resolve($currentUser, $req, $res);
+        if ($destination !== null) {
+            return $destination;
         }
 
         //El inicio: las tarjetas que cada módulo registró y que este usuario puede ver (DashboardCardRegistry).
@@ -187,6 +180,20 @@ class AdminPanelController extends BaseController
         $allowed = is_string($mode) && in_array($mode, self::THEME_MODES, true);
         $saved = $allowed && UsersModel::setMetaValue((int) $user->id, self::THEME_MODE_META, $mode);
         return $res->withJson(['success' => $saved, 'mode' => $saved ? $mode : null], $saved ? 200 : 400);
+    }
+
+    /**
+     * Las iniciales del avatar sin foto (el «MR» del marco del tema): la primera letra del nombre y la del primer
+     * apellido, en mayúscula; con uno solo, una letra; sin ninguno, vacío (y el marco pinta el icono).
+     *
+     * @param string $firstName
+     * @param string $firstLastName
+     * @return string
+     */
+    public static function avatarInitials(string $firstName, string $firstLastName): string
+    {
+        $initial = fn(string $name): string => mb_strtoupper(mb_substr(trim($name), 0, 1));
+        return $initial($firstName) . $initial($firstLastName);
     }
 
     /**

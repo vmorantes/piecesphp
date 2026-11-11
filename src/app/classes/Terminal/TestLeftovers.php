@@ -61,6 +61,13 @@ class TestLeftovers
     const SENSITIVE_PATTERN = '/pass|token|key|secret|hash|salt|clave/i';
 
     /**
+     * Los tipos de columna que se barren: los de texto. Lo comparte quien retira restos con la misma regla.
+     *
+     * @var string[]
+     */
+    const TEXT_DATA_TYPES = ['char', 'varchar', 'text', 'mediumtext', 'longtext', 'tinytext'];
+
+    /**
      * @var array<string,int>|null
      */
     protected static $lastSweep = null;
@@ -98,7 +105,7 @@ class TestLeftovers
                 'SELECT `table_name` AS `t`, `column_name` AS `c`'
                     . ' FROM `information_schema`.`columns`'
                     . ' WHERE `table_schema` = DATABASE()'
-                    . " AND `data_type` IN ('char','varchar','text','mediumtext','longtext','tinytext')"
+                    . " AND `data_type` IN ('" . implode("','", self::TEXT_DATA_TYPES) . "')"
                     . ' ORDER BY `table_name`, `column_name`'
             );
             if ($columnas === false) {

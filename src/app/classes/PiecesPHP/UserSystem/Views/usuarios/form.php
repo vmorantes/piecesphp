@@ -24,18 +24,23 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
 <div class="user-form-component">
 
-    <?php //«Cuenta» y su icono son los mismos en usuarios y en organizaciones; dos pestañas nunca con el mismo icono. ?>
+    <?php
+        //Con una sola pestaña (crear) no hay barra (vistas-referencia.md §3.44). Los iconos, los del prototipo (§3.46).
+        $tabsCount = (!$onlyImage ? 1 : 0) + (!$create && !$onlyProfile ? 1 : 0) + ($canRevokeSessions ? 1 : 0);
+    ?>
+    <?php if ($tabsCount > 1): ?>
     <div class="ui pointing secondary menu">
         <?php if (!$onlyImage): ?>
-        <a class="item active" data-tab="form-container"><i class="user circle icon"></i><?= __($langGroup, 'Cuenta'); ?></a>
+        <a class="item active" data-tab="form-container"><i class="user icon" aria-hidden="true"></i><?= __($langGroup, 'Cuenta'); ?></a>
         <?php endif;?>
         <?php if (!$create && !$onlyProfile): ?>
-        <a class="item<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container"><i class="image outline icon"></i><?= __($langGroup, 'Foto de perfil'); ?></a>
+        <a class="item<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container"><i class="image icon" aria-hidden="true"></i><?= __($langGroup, 'Foto de perfil'); ?></a>
         <?php endif;?>
         <?php if ($canRevokeSessions): ?>
-        <a class="item" data-tab="sessions-container"><i class="clock outline icon"></i><?= __($langGroup, 'Sesiones'); ?></a>
+        <a class="item" data-tab="sessions-container"><i class="desktop icon" aria-hidden="true"></i><?= __($langGroup, 'Sesiones'); ?></a>
         <?php endif;?>
     </div>
+    <?php endif; ?>
 
     <?php if (!$onlyImage): ?>
     <div class="ui tab active" data-tab="form-container">
@@ -68,6 +73,7 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
                         'width' => 400,
                         'height' => 400,
                         'format' => 'image/png',
+                        'emptyText' => __($langGroup, 'Sin foto'),
                     ]);
                 ?>
             </div>
@@ -83,16 +89,23 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
     <div class="ui tab" data-tab="sessions-container">
 
-        <?= UserSessionsController::userSessionsHTML((int) $edit_user->id, false); ?>
+        <?php //Primero cerrar todas, luego la tabla (vistas-referencia.md §3.46). ?>
+        <section class="ui segment" aria-labelledby="user-sessions-title">
+            <div class="ui stackable middle aligned wide flex" data-user-sessions-close-all>
+                <div class="fluid ui vertical tight flex">
+                    <h2 class="ui small header" id="user-sessions-title"><?= __($langGroup, 'Cerrar todas sus sesiones'); ?></h2>
+                    <p class="ui muted text"><?= __($langGroup, 'Expulsa a este usuario de todos los dispositivos de una sola vez, en lugar de cerrarlas una a una. Tendrá que volver a iniciar sesión en cada uno.'); ?></p>
+                </div>
+                <form action="<?= UsersController::routeName('revoke-sessions-request'); ?>" method="POST" class="ui form" revoke-user-sessions data-confirmation-title="<?= __($langGroup, 'Cerrar sesiones'); ?>" data-confirmation-message="<?= htmlspecialchars(strReplaceTemplate(__($langGroup, 'Se cerrarán todas las sesiones de %s.'), ['%s' => $edit_user->username])); ?>">
+                    <input type="hidden" name="id" value="<?= $edit_user->id; ?>">
+                    <button type="submit" class="mobile stretched ui negative basic labeled icon button"><i class="sign out alternate icon" aria-hidden="true"></i><?= __($langGroup, 'Cerrar todas sus sesiones'); ?></button>
+                </form>
+            </div>
 
-        <div class="ui divider"></div>
+            <div class="ui section divider"></div>
 
-        <p><?= __($langGroup, 'Cierra la sesión del usuario en todos sus dispositivos. Tendrá que volver a ingresar con su contraseña.'); ?></p>
-
-        <form action="<?= UsersController::routeName('revoke-sessions-request'); ?>" method="POST" class="ui form" revoke-user-sessions data-confirmation-title="<?= __($langGroup, 'Cerrar sesiones'); ?>" data-confirmation-message="<?= htmlspecialchars(strReplaceTemplate(__($langGroup, 'Se cerrarán todas las sesiones de %s.'), ['%s' => $edit_user->username])); ?>">
-            <input type="hidden" name="id" value="<?= $edit_user->id; ?>">
-            <button type="submit" class="ui basic negative button"><?= __($langGroup, 'Cerrar todas sus sesiones'); ?></button>
-        </form>
+            <?= UserSessionsController::userSessionsTableHTML((int) $edit_user->id); ?>
+        </section>
 
     </div>
 

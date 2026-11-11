@@ -134,9 +134,10 @@ Reglas, por orden:
 1. si la celda trae un código válido, el usuario va a esa organización;
 2. si la celda está vacía y **quien importa** tiene organización, hereda la suya;
 3. si la celda está vacía y quien importa tampoco tiene organización, **esa fila falla** y el informe lo dice:
-   «Organización: la fila N no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.»;
+   «Organización: no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.» (la tabla
+   del resultado ya dice en qué fila);
 4. si la celda trae algo que no existe, **la fila falla**; no se sustituye por la de quien importa:
-   «Organización: la fila N trae «X», que no es el código ni el id de ninguna organización.»
+   «Organización: «X» no es el código ni el id de ninguna organización.»
 
 La celda admite también el identificador interno de la organización, para que las plantillas repartidas antes de la
 v8 sigan funcionando. Lo que se recomienda, y lo que escribe la exportación, es el código.

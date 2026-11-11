@@ -165,7 +165,7 @@ CliActions::make('unit-tests:core/dashboard-cards', function ($args) {
         $jwt = UserSessions::issueToken($root);
         $pedir = function () use ($base, $inicio, $jwt): array {
             $h = \Terminal\TestRun::curlInit();
-            \Terminal\TestRun::curlSetoptArray($h, [CURLOPT_URL => $base . '/' . ltrim($inicio, '/'), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_FOLLOWLOCATION => false, CURLOPT_TIMEOUT => 60, CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ": {$jwt}"]]);
+            \Terminal\TestRun::curlSetoptArray($h, [CURLOPT_URL => $base . '/' . ltrim($inicio, '/'), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_FOLLOWLOCATION => false, CURLOPT_TIMEOUT => 60, CURLOPT_HTTPHEADER => [SessionToken::headerName() . ": {$jwt}"]]);
             $body = curl_exec($h);
             //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
             return ['status' => (int) curl_getinfo($h, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];

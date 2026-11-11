@@ -72,7 +72,7 @@ CliActions::make('unit-tests:core/user-sessions', function ($args) {
     $panel = $ruta('admin');
     $check($panel !== '' && $ruta('user-sessions-logout') !== '' && $ruta('user-sessions-datatables') !== '', 'c2 existen el panel, el logout y el listado');
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt, ?array $post = null) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         $opciones = [

@@ -5,7 +5,7 @@ $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_G
 $header_image = isset($header_image) && is_string($header_image) ? $header_image : (
     is_local() ?
     "https://placehold.co/500x172.png?text=" . urlencode(get_config('title_app')) :
-    base_url(get_config('mailing_logo'))
+    base_url(mailing_logo())
 );
 $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())], true);
 Config::set_lang('es');

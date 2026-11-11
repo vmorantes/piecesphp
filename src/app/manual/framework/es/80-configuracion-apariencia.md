@@ -41,8 +41,12 @@ plataforma muestra una al azar en cada visita.
 
 ![Fondos del inicio de sesión](img/configurations-appearance-backgrounds.webp)
 
-Hay cinco fondos (**Fondo 1** a **Fondo 5**) y un **Fondo problemas de inicio**. Para editar uno, púlsalo; además
-tiene **«Cambiar imagen»** y un icono para descargarlo o verlo.
+Puede haber de **uno a cinco** fondos (**Fondo 1** a **Fondo 5**); las imágenes ocupan las primeras tarjetas y el resto
+quedan vacías. En una tarjeta con imagen, púlsala o usa **«Cambiar imagen»** para editarla, el icono para descargarla o
+verla y **«Eliminar»** para quitarla (te pide confirmación). Una tarjeta vacía solo tiene **«Cambiar imagen»**: así
+agregas un fondo. Siempre queda al menos uno: con un solo fondo, «Eliminar» está desactivado.
+
+Aparte está el **Fondo problemas de inicio**, que se cambia igual y no se puede eliminar.
 
 ## Colores
 <!-- ve: configurations-appearance-colors -->
@@ -86,6 +90,15 @@ con **«Cambiar imagen»**. Al final, **«Cancelar»** o **«Guardar»**.
 | Descripción para compartir | No | Descripción de la tarjeta al compartir. Vacía: la descripción del sitio (hasta 200 caracteres). |
 | Cuenta de X | No | La cuenta de tu organización en X. |
 | Palabras clave | No | Palabras clave del sitio. |
+
+Junto a cada campo, en pequeño, la etiqueta que genera en la página (`<title>`, `og:title`, `meta keywords`…), por si
+necesitas buscarla en el código de la página.
+
+- **«Usar el título del sitio»** y **«Usar la descripción del sitio»**: marcadas, el título o la descripción para
+  compartir son los del sitio y el campo se apaga mostrándolos; desmarcadas, escribes uno propio.
+- **Lo que no se edita aquí, pero se ve**: el **nombre del sitio** (`og:site_name`, el Título), la **dirección** y la
+  **URL canónica** de la portada, el **idioma para compartir** (`og:locale`, que se cambia en `config.php`), el **tipo**
+  (website en la portada, article en las publicaciones) y el **autor** (`meta author`, el Propietario).
 
 ## Archivos para buscadores
 <!-- ve: configurations-appearance-site-files -->

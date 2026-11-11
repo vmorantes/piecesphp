@@ -60,7 +60,7 @@ CliActions::make('unit-tests:core/organization-upload-types', function ($args) {
     $accion = MyOrganizationProfileController::routeName('actions-save-profile', [], true);
     $accion = '/' . ltrim(str_contains($accion, '://') ? (string) parse_url($accion, \PHP_URL_PATH) : $accion, '/');
     $accion = $prefijoBase !== '' && str_starts_with($accion, $prefijoBase) ? substr($accion, strlen($prefijoBase)) : $accion;
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $guardar = function (string $jwt, array $campos) use ($base, $accion, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($handle, [

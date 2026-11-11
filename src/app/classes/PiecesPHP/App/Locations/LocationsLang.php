@@ -23,6 +23,9 @@ class LocationsLang extends LangInjector
     const LANG_GROUP_NAMES = LOCATIONS_LANG_GROUP . '-names';
 
     /**
+     * Los del módulo y después los nombres del proyecto (projectNamesFolder()): lo que el proyecto traduce pisa al módulo,
+     * y lo que no, lo deja. Sin la carpeta del proyecto no cambia nada.
+     *
      * @return void
      */
     public static function injectLang()
@@ -33,6 +36,19 @@ class LocationsLang extends LangInjector
         $injector->injectGroup(self::LANG_GROUP);
         $injector = new LangInjector(__DIR__ . '/lang/names', $langs);
         $injector->injectGroup(self::LANG_GROUP_NAMES);
+        $injector = new LangInjector(self::projectNamesFolder(), $langs);
+        $injector->injectGroup(self::LANG_GROUP_NAMES);
+    }
+
+    /**
+     * Donde un proyecto traduce los nombres de países, regiones, departamentos y ciudades: <idioma>.php, que devuelve
+     * ['Nombre guardado' => 'Traducción'].
+     *
+     * @return string
+     */
+    public static function projectNamesFolder(): string
+    {
+        return basepath('app/lang/locationBackend/names');
     }
 
 }

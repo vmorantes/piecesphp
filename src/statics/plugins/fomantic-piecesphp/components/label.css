@@ -676,7 +676,7 @@ a.ui.basic.label:hover {
   background: #1f2430;
 }
 .ui.inverted.basic.label:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Fork: avatar de iniciales (D52). Color por defecto antes de los colores con nombre, para que
@@ -716,7 +716,7 @@ a.ui.ui.ui.primary.label:hover {
   border-color: var(--accent-1, var(--accent, #356dca));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.primary.label:hover,
 a.ui.ui.ui.basic.primary.label:hover {
@@ -757,13 +757,13 @@ a.ui.ui.ui.inverted.primary.label:hover {
   border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.primary.label:hover,
 a.ui.ui.ui.inverted.basic.primary.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -806,7 +806,7 @@ a.ui.ui.ui.secondary.label:hover {
   border-color: var(--accent-2, #7a5af8);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.secondary.label:hover,
 a.ui.ui.ui.basic.secondary.label:hover {
@@ -847,13 +847,13 @@ a.ui.ui.ui.inverted.secondary.label:hover {
   border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.secondary.label:hover,
 a.ui.ui.ui.inverted.basic.secondary.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -896,7 +896,7 @@ a.ui.ui.ui.accent-1.label:hover {
   border-color: var(--accent-1, var(--accent, #356dca));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-1.label:hover,
 a.ui.ui.ui.basic.accent-1.label:hover {
@@ -937,13 +937,13 @@ a.ui.ui.ui.inverted.accent-1.label:hover {
   border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.accent-1.label:hover,
 a.ui.ui.ui.inverted.basic.accent-1.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -986,7 +986,7 @@ a.ui.ui.ui.accent-2.label:hover {
   border-color: var(--accent-2, #7a5af8);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-2.label:hover,
 a.ui.ui.ui.basic.accent-2.label:hover {
@@ -1027,13 +1027,13 @@ a.ui.ui.ui.inverted.accent-2.label:hover {
   border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.accent-2.label:hover,
 a.ui.ui.ui.inverted.basic.accent-2.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1076,7 +1076,7 @@ a.ui.ui.ui.accent-3.label:hover {
   border-color: var(--accent-3, #c11574);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-3.label:hover,
 a.ui.ui.ui.basic.accent-3.label:hover {
@@ -1117,13 +1117,13 @@ a.ui.ui.ui.inverted.accent-3.label:hover {
   border-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.accent-3.label:hover,
 a.ui.ui.ui.inverted.basic.accent-3.label:hover {
   border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1207,13 +1207,13 @@ a.ui.ui.ui.inverted.red.label:hover {
   border-color: #f97066;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #f97066 max(l, 0.8) c h);
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.red.label:hover,
 a.ui.ui.ui.inverted.basic.red.label:hover {
   border-color: #ff3b2d;
   background-color: #1f2430;
-  color: oklch(from #ff3b2d max(l, 0.8) c h);
+  color: oklch(from #ff3b2d max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1297,13 +1297,13 @@ a.ui.ui.ui.inverted.orange.label:hover {
   border-color: #f38744;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #f38744 max(l, 0.8) c h);
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.orange.label:hover,
 a.ui.ui.ui.inverted.basic.orange.label:hover {
   border-color: #fb6609;
   background-color: #1f2430;
-  color: oklch(from #fb6609 max(l, 0.8) c h);
+  color: oklch(from #fb6609 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1387,13 +1387,13 @@ a.ui.ui.ui.inverted.yellow.label:hover {
   border-color: #fdb022;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #fdb022 max(l, 0.8) c h);
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.yellow.label:hover,
 a.ui.ui.ui.inverted.basic.yellow.label:hover {
   border-color: #ec9900;
   background-color: #1f2430;
-  color: oklch(from #ec9900 max(l, 0.8) c h);
+  color: oklch(from #ec9900 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1436,7 +1436,7 @@ a.ui.ui.ui.olive.label:hover {
   border-color: #84a11b;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.olive.label:hover,
 a.ui.ui.ui.basic.olive.label:hover {
@@ -1477,13 +1477,13 @@ a.ui.ui.ui.inverted.olive.label:hover {
   border-color: #a6c43a;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #a6c43a max(l, 0.8) c h);
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.olive.label:hover,
 a.ui.ui.ui.inverted.basic.olive.label:hover {
   border-color: #88a229;
   background-color: #1f2430;
-  color: oklch(from #88a229 max(l, 0.8) c h);
+  color: oklch(from #88a229 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1526,7 +1526,7 @@ a.ui.ui.ui.green.label:hover {
   border-color: #17b26a;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.green.label:hover,
 a.ui.ui.ui.basic.green.label:hover {
@@ -1567,13 +1567,13 @@ a.ui.ui.ui.inverted.green.label:hover {
   border-color: #47cd89;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #47cd89 max(l, 0.8) c h);
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.green.label:hover,
 a.ui.ui.ui.inverted.basic.green.label:hover {
   border-color: #2ab76f;
   background-color: #1f2430;
-  color: oklch(from #2ab76f max(l, 0.8) c h);
+  color: oklch(from #2ab76f max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1616,7 +1616,7 @@ a.ui.ui.ui.teal.label:hover {
   border-color: #06aed4;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.teal.label:hover,
 a.ui.ui.ui.basic.teal.label:hover {
@@ -1657,13 +1657,13 @@ a.ui.ui.ui.inverted.teal.label:hover {
   border-color: #22ccee;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #22ccee max(l, 0.8) c h);
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.teal.label:hover,
 a.ui.ui.ui.inverted.basic.teal.label:hover {
   border-color: #06b4d7;
   background-color: #1f2430;
-  color: oklch(from #06b4d7 max(l, 0.8) c h);
+  color: oklch(from #06b4d7 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1706,7 +1706,7 @@ a.ui.ui.ui.blue.label:hover {
   border-color: #2e90fa;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.blue.label:hover,
 a.ui.ui.ui.basic.blue.label:hover {
@@ -1747,13 +1747,13 @@ a.ui.ui.ui.inverted.blue.label:hover {
   border-color: #53b1fd;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #53b1fd max(l, 0.8) c h);
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.blue.label:hover,
 a.ui.ui.ui.inverted.basic.blue.label:hover {
   border-color: #1e9aff;
   background-color: #1f2430;
-  color: oklch(from #1e9aff max(l, 0.8) c h);
+  color: oklch(from #1e9aff max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1796,7 +1796,7 @@ a.ui.ui.ui.violet.label:hover {
   border-color: #7a5af8;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.violet.label:hover,
 a.ui.ui.ui.basic.violet.label:hover {
@@ -1837,13 +1837,13 @@ a.ui.ui.ui.inverted.violet.label:hover {
   border-color: #9b8afb;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #9b8afb max(l, 0.8) c h);
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.violet.label:hover,
 a.ui.ui.ui.inverted.basic.violet.label:hover {
   border-color: #6d53ff;
   background-color: #1f2430;
-  color: oklch(from #6d53ff max(l, 0.8) c h);
+  color: oklch(from #6d53ff max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1886,7 +1886,7 @@ a.ui.ui.ui.purple.label:hover {
   border-color: #9e4cc9;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.purple.label:hover,
 a.ui.ui.ui.basic.purple.label:hover {
@@ -1927,13 +1927,13 @@ a.ui.ui.ui.inverted.purple.label:hover {
   border-color: #c084e8;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #c084e8 max(l, 0.8) c h);
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.purple.label:hover,
 a.ui.ui.ui.inverted.basic.purple.label:hover {
   border-color: #ab52e7;
   background-color: #1f2430;
-  color: oklch(from #ab52e7 max(l, 0.8) c h);
+  color: oklch(from #ab52e7 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -1976,7 +1976,7 @@ a.ui.ui.ui.pink.label:hover {
   border-color: #c11574;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.pink.label:hover,
 a.ui.ui.ui.basic.pink.label:hover {
@@ -2017,13 +2017,13 @@ a.ui.ui.ui.inverted.pink.label:hover {
   border-color: #ee46bc;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #ee46bc max(l, 0.8) c h);
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.pink.label:hover,
 a.ui.ui.ui.inverted.basic.pink.label:hover {
   border-color: #f40daf;
   background-color: #1f2430;
-  color: oklch(from #f40daf max(l, 0.8) c h);
+  color: oklch(from #f40daf max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -2066,7 +2066,7 @@ a.ui.ui.ui.brown.label:hover {
   border-color: #6e4a2e;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.brown.label:hover,
 a.ui.ui.ui.basic.brown.label:hover {
@@ -2107,13 +2107,13 @@ a.ui.ui.ui.inverted.brown.label:hover {
   border-color: #b08463;
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #b08463 max(l, 0.8) c h);
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.brown.label:hover,
 a.ui.ui.ui.inverted.basic.brown.label:hover {
   border-color: #986a48;
   background-color: #1f2430;
-  color: oklch(from #986a48 max(l, 0.8) c h);
+  color: oklch(from #986a48 max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
@@ -2156,7 +2156,7 @@ a.ui.ui.ui.grey.label:hover {
   border-color: #687181;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.grey.label:hover,
 a.ui.ui.ui.basic.grey.label:hover {
@@ -2245,7 +2245,7 @@ a.ui.ui.ui.black.label:hover {
   border-color: light-dark(#1f2430, #535c6e);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.black.label:hover,
 a.ui.ui.ui.basic.black.label:hover {
@@ -2620,6 +2620,11 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
   content: none;
 }
 
+/* Etiquetas tras un control: no pegadas a él */
+.ui.labels:not(:first-child) {
+  margin-top: 0.57142857em;
+}
+
 /* -------------------
   Contador y estado
 -------------------- */
@@ -2661,13 +2666,13 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
 .ui.ui.ui.basic.primary.label {
   background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 8%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.primary.label:hover,
 a.ui.ui.ui.basic.primary.label:hover {
   background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 14%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.primary.label > i.circle.icon {
   background-color: var(--accent-1, var(--accent, #356dca));
@@ -2676,13 +2681,13 @@ a.ui.ui.ui.basic.primary.label:hover {
 .ui.ui.ui.basic.secondary.label {
   background: color-mix(in srgb, var(--accent-2, #7a5af8) 8%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.secondary.label:hover,
 a.ui.ui.ui.basic.secondary.label:hover {
   background: color-mix(in srgb, var(--accent-2, #7a5af8) 14%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.secondary.label > i.circle.icon {
   background-color: var(--accent-2, #7a5af8);
@@ -2691,13 +2696,13 @@ a.ui.ui.ui.basic.secondary.label:hover {
 .ui.ui.ui.basic.accent-1.label {
   background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 8%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-1.label:hover,
 a.ui.ui.ui.basic.accent-1.label:hover {
   background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 14%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.accent-1.label > i.circle.icon {
   background-color: var(--accent-1, var(--accent, #356dca));
@@ -2706,13 +2711,13 @@ a.ui.ui.ui.basic.accent-1.label:hover {
 .ui.ui.ui.basic.accent-2.label {
   background: color-mix(in srgb, var(--accent-2, #7a5af8) 8%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-2.label:hover,
 a.ui.ui.ui.basic.accent-2.label:hover {
   background: color-mix(in srgb, var(--accent-2, #7a5af8) 14%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.accent-2.label > i.circle.icon {
   background-color: var(--accent-2, #7a5af8);
@@ -2721,13 +2726,13 @@ a.ui.ui.ui.basic.accent-2.label:hover {
 .ui.ui.ui.basic.accent-3.label {
   background: color-mix(in srgb, var(--accent-3, #c11574) 8%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-3, #c11574) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-3.label:hover,
 a.ui.ui.ui.basic.accent-3.label:hover {
   background: color-mix(in srgb, var(--accent-3, #c11574) 14%, var(--theme-surface));
   border-color: color-mix(in srgb, var(--accent-3, #c11574) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.accent-3.label > i.circle.icon {
   background-color: var(--accent-3, #c11574);
@@ -2781,13 +2786,13 @@ a.ui.ui.ui.basic.yellow.label:hover {
 .ui.ui.ui.basic.olive.label {
   background: color-mix(in srgb, #84a11b 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #84a11b 35%, var(--theme-surface));
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.olive.label:hover,
 a.ui.ui.ui.basic.olive.label:hover {
   background: color-mix(in srgb, #84a11b 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #84a11b 55%, var(--theme-surface));
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.olive.label > i.circle.icon {
   background-color: #84a11b;
@@ -2796,13 +2801,13 @@ a.ui.ui.ui.basic.olive.label:hover {
 .ui.ui.ui.basic.green.label {
   background: color-mix(in srgb, #17b26a 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #17b26a 35%, var(--theme-surface));
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.green.label:hover,
 a.ui.ui.ui.basic.green.label:hover {
   background: color-mix(in srgb, #17b26a 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #17b26a 55%, var(--theme-surface));
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.green.label > i.circle.icon {
   background-color: #17b26a;
@@ -2811,13 +2816,13 @@ a.ui.ui.ui.basic.green.label:hover {
 .ui.ui.ui.basic.teal.label {
   background: color-mix(in srgb, #06aed4 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #06aed4 35%, var(--theme-surface));
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.teal.label:hover,
 a.ui.ui.ui.basic.teal.label:hover {
   background: color-mix(in srgb, #06aed4 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #06aed4 55%, var(--theme-surface));
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.teal.label > i.circle.icon {
   background-color: #06aed4;
@@ -2826,13 +2831,13 @@ a.ui.ui.ui.basic.teal.label:hover {
 .ui.ui.ui.basic.blue.label {
   background: color-mix(in srgb, #2e90fa 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #2e90fa 35%, var(--theme-surface));
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.blue.label:hover,
 a.ui.ui.ui.basic.blue.label:hover {
   background: color-mix(in srgb, #2e90fa 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #2e90fa 55%, var(--theme-surface));
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.blue.label > i.circle.icon {
   background-color: #2e90fa;
@@ -2841,13 +2846,13 @@ a.ui.ui.ui.basic.blue.label:hover {
 .ui.ui.ui.basic.violet.label {
   background: color-mix(in srgb, #7a5af8 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #7a5af8 35%, var(--theme-surface));
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.violet.label:hover,
 a.ui.ui.ui.basic.violet.label:hover {
   background: color-mix(in srgb, #7a5af8 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #7a5af8 55%, var(--theme-surface));
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.violet.label > i.circle.icon {
   background-color: #7a5af8;
@@ -2856,13 +2861,13 @@ a.ui.ui.ui.basic.violet.label:hover {
 .ui.ui.ui.basic.purple.label {
   background: color-mix(in srgb, #9e4cc9 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #9e4cc9 35%, var(--theme-surface));
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.purple.label:hover,
 a.ui.ui.ui.basic.purple.label:hover {
   background: color-mix(in srgb, #9e4cc9 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #9e4cc9 55%, var(--theme-surface));
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.purple.label > i.circle.icon {
   background-color: #9e4cc9;
@@ -2871,13 +2876,13 @@ a.ui.ui.ui.basic.purple.label:hover {
 .ui.ui.ui.basic.pink.label {
   background: color-mix(in srgb, #c11574 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #c11574 35%, var(--theme-surface));
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.pink.label:hover,
 a.ui.ui.ui.basic.pink.label:hover {
   background: color-mix(in srgb, #c11574 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #c11574 55%, var(--theme-surface));
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.pink.label > i.circle.icon {
   background-color: #c11574;
@@ -2886,13 +2891,13 @@ a.ui.ui.ui.basic.pink.label:hover {
 .ui.ui.ui.basic.brown.label {
   background: color-mix(in srgb, #6e4a2e 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #6e4a2e 35%, var(--theme-surface));
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.brown.label:hover,
 a.ui.ui.ui.basic.brown.label:hover {
   background: color-mix(in srgb, #6e4a2e 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #6e4a2e 55%, var(--theme-surface));
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.brown.label > i.circle.icon {
   background-color: #6e4a2e;
@@ -2901,13 +2906,13 @@ a.ui.ui.ui.basic.brown.label:hover {
 .ui.ui.ui.basic.grey.label {
   background: color-mix(in srgb, #687181 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #687181 35%, var(--theme-surface));
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.grey.label:hover,
 a.ui.ui.ui.basic.grey.label:hover {
   background: color-mix(in srgb, #687181 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #687181 55%, var(--theme-surface));
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.grey.label > i.circle.icon {
   background-color: #687181;
@@ -2916,13 +2921,13 @@ a.ui.ui.ui.basic.grey.label:hover {
 .ui.ui.ui.basic.black.label {
   background: color-mix(in srgb, light-dark(#1f2430, #535c6e) 8%, var(--theme-surface));
   border-color: color-mix(in srgb, light-dark(#1f2430, #535c6e) 35%, var(--theme-surface));
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.basic.labels a.black.label:hover,
 a.ui.ui.ui.basic.black.label:hover {
   background: color-mix(in srgb, light-dark(#1f2430, #535c6e) 14%, var(--theme-surface));
   border-color: color-mix(in srgb, light-dark(#1f2430, #535c6e) 55%, var(--theme-surface));
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.black.label > i.circle.icon {
   background-color: light-dark(#1f2430, #535c6e);

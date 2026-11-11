@@ -378,7 +378,7 @@
 /* Fork: también el indicating, cuya regla de estado (.ui.ui.indicating) ganaba */
 .ui.inverted.progress.success > .label,
 .ui.ui.inverted.indicating.progress.success > .label {
-  color: oklch(from #17b26a max(l, 0.8) c h);
+  color: oklch(from #17b26a max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -386,7 +386,7 @@
 /* Fork: también el indicating, cuya regla de estado (.ui.ui.indicating) ganaba */
 .ui.inverted.progress.warning > .label,
 .ui.ui.inverted.indicating.progress.warning > .label {
-  color: oklch(from #f79009 max(l, 0.8) c h);
+  color: oklch(from #f79009 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -394,7 +394,7 @@
 /* Fork: también el indicating, cuya regla de estado (.ui.ui.indicating) ganaba */
 .ui.inverted.progress.error > .label,
 .ui.ui.inverted.indicating.progress.error > .label {
-  color: oklch(from #f04438 max(l, 0.8) c h);
+  color: oklch(from #f04438 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }

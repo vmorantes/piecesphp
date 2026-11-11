@@ -52,6 +52,9 @@ class ScanMissingLangTask extends TerminalTaskAbstract
             "\tParámetros:\r\n",
             "\t  --exclude-lang Cadena separada por comas de idiomas a ignorar, i.e.: --exclude-lang=es,en\r\n",
             "\t  --exclude-group Cadena separada por comas de grupos a ignorar, i.e.: --exclude-group=general,public\r\n",
+            "\t  --exclude-dir Carpetas que no se analizan, separadas por comas y relativas a app/ (además de vendor y node_modules), i.e.: --exclude-dir=config/secure,lang\r\n",
+            "\t  --lang Los idiomas que se revisan, separados por comas, por encima de `no_scan_langs`, i.e.: --lang=fr\r\n",
+            "\tReescribe a propósito logs/missing-lang-messages.json, que está versionado: el diff enseña lo que falta.\r\n",
         ]);
         $this->route = "{$startRoute}/scan-missing-lang[/]";
         $this->controller = self::class . '::main';
@@ -70,15 +73,17 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         //Parámetros
         $arguments = TerminalData::getInstance()->arguments();
 
-        $excludeLangName = '--exclude-lang';
-        $excludeLang = isset($arguments[$excludeLangName]) && is_string($arguments[$excludeLangName]) ? explode(',', $arguments[$excludeLangName]) : [];
-
         $ignoreGroupName = '--exclude-group';
         $ignoreGroup = isset($arguments[$ignoreGroupName]) && is_string($arguments[$ignoreGroupName]) ? explode(',', $arguments[$ignoreGroupName]) : [];
 
         $noScanLangs = get_config('no_scan_langs');
         $noScanLangs = is_array($noScanLangs) ? $noScanLangs : [];
-        $excludeLang = array_merge($excludeLang, $noScanLangs);
+        $additionalLangsToScan = get_config('additional_langs_to_scan');
+        $additionalLangsToScan = is_array($additionalLangsToScan) ? $additionalLangsToScan : [];
+        $options = self::options(is_array($arguments) ? $arguments : [], array_unique(array_merge(Config::get_allowed_langs(), $additionalLangsToScan)), $noScanLangs, app_basepath());
+        $excludeLang = $options['excludeLang'];
+        //Un idioma forzado se anota también al llamar a __(): Config::i18n no registra los de no_scan_langs.
+        set_config('no_scan_langs', $options['noScanLangs']);
 
         //Mensaje de respuesta
         $titleTask = "Examinando mensajes de traducción faltantes";
@@ -92,11 +97,8 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         try {
 
             //Ejecutar llamadas a __ para verificar faltantes en cada lenguaje activo
-            $allowedLangs = Config::get_allowed_langs();
-            $additionalLangsToScan = get_config('additional_langs_to_scan');
-            $additionalLangsToScan = is_array($additionalLangsToScan) ? $additionalLangsToScan : [];
-            $allowedLangs = array_unique(array_merge($allowedLangs, $additionalLangsToScan));
-            $langsMessagesCalls = self::searchFunctionUsesWithParser('__', app_basepath());
+            $allowedLangs = $options['langs'];
+            $langsMessagesCalls = self::searchFunctionUsesWithParser('__', app_basepath(), ['excludeDirs' => $options['excludeDirs']]);
             $paramGroupNames = [];
             foreach ($langsMessagesCalls as $calls) {
                 foreach ($calls as $call) {
@@ -148,10 +150,40 @@ class ScanMissingLangTask extends TerminalTaskAbstract
 
         }
 
+        set_config('no_scan_langs', $noScanLangs);
         $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
         if (count($message) > 1) {
             echoTerminal(implode("\r\n", $message));
         }
+    }
+
+    /**
+     * Los argumentos de la tarea, ya resueltos: los idiomas que se revisan (--lang manda sobre no_scan_langs), los que se
+     * ignoran, la no_scan_langs que rige mientras corre y las carpetas que no se analizan (--exclude-dir, relativas a app/,
+     * además de vendor y node_modules).
+     *
+     * @param array<string,mixed> $arguments
+     * @param string[] $langs Los de allowed_langs y additional_langs_to_scan
+     * @param string[] $noScanLangs
+     * @param string $appDirectory
+     * @return array{langs:string[],excludeLang:string[],noScanLangs:string[],excludeDirs:string[]}
+     */
+    public static function options(array $arguments, array $langs, array $noScanLangs, string $appDirectory): array
+    {
+        $list = fn(string $name): array => isset($arguments[$name]) && is_string($arguments[$name]) ? array_values(array_filter(array_map('trim', explode(',', $arguments[$name])), fn(string $item): bool => $item !== '')) : [];
+        $forced = $list('--lang');
+        $excludeLang = array_merge($list('--exclude-lang'), $noScanLangs);
+        if ($forced !== []) {
+            $langs = $forced;
+            $excludeLang = array_values(array_diff($excludeLang, $forced));
+            $noScanLangs = array_values(array_diff($noScanLangs, $forced));
+        }
+        $appDirectory = rtrim($appDirectory, '/');
+        $excludeDirs = [$appDirectory . '/vendor', $appDirectory . '/node_modules'];
+        foreach ($list('--exclude-dir') as $dir) {
+            $excludeDirs[] = str_starts_with($dir, '/') ? rtrim($dir, '/') : $appDirectory . '/' . trim($dir, '/');
+        }
+        return ['langs' => array_values(array_unique($langs)), 'excludeLang' => array_values(array_unique($excludeLang)), 'noScanLangs' => $noScanLangs, 'excludeDirs' => $excludeDirs];
     }
 
     /**
@@ -199,7 +231,7 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         // Función para verificar si un archivo debe ser excluido
         $shouldExclude = function ($path) use ($options) {
             foreach ($options['excludeDirs'] as $excludeDir) {
-                if (str_starts_with($path, $excludeDir)) {
+                if ($path === $excludeDir || str_starts_with($path, rtrim($excludeDir, '/') . '/')) {
                     return true;
                 }
             }

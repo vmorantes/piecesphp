@@ -26,15 +26,47 @@ final class GeoSourceRegistry
     /**
      * @param GeoSource $source
      * @return void
-     * @throws \InvalidArgumentException si la key ya está registrada o si su tarjeta no es un archivo legible
+     * @throws \InvalidArgumentException si la key ya está registrada
      */
     public static function register(GeoSource $source): void
     {
         if (array_key_exists($source->key(), self::$sources)) {
             throw new \InvalidArgumentException("Ya hay una fuente del geovisor con la key «{$source->key()}».");
         }
-        self::assertCardView($source);
+        //Sin tarjeta legible se anota y se registra igual: la vista la omite (hasCardView()) y la página no se cae.
+        if (!self::hasCardView($source)) {
+            log_exception(new \InvalidArgumentException("La fuente del geovisor «{$source->key()}» no tiene una tarjeta legible en «{$source->cardView()}»: se registra sin tarjeta."));
+        }
         self::$sources[$source->key()] = $source;
+    }
+
+    /**
+     * Si la tarjeta de una fuente es un archivo legible: la vista solo incluye las que lo son.
+     *
+     * @param GeoSource $source
+     * @return bool
+     */
+    public static function hasCardView(GeoSource $source): bool
+    {
+        $cardView = $source->cardView();
+        return is_file($cardView) && is_readable($cardView);
+    }
+
+    /**
+     * El color que declara una fuente (GeoSourceColor), si tiene forma de color CSS; si no, null y manda su variable.
+     * Va a un atributo style y al JS: nada que pueda cerrar la declaración.
+     *
+     * @param GeoSource $source
+     * @return string|null
+     */
+    public static function colorValue(GeoSource $source): ?string
+    {
+        if (!$source instanceof GeoSourceColor) {
+            return null;
+        }
+        $color = trim($source->colorValue());
+        $forma = '/^(#[0-9a-fA-F]{3,8}|var\(--[A-Za-z0-9_-]+\)|(rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color|color-mix)\([^;{}<>"\'\\\\]*\)|[a-zA-Z]+)$/';
+        return preg_match($forma, $color) === 1 ? $color : null;
     }
 
     /**
@@ -106,7 +138,7 @@ final class GeoSourceRegistry
     private static function assertCardView(GeoSource $source): void
     {
         $cardView = $source->cardView();
-        if (!is_file($cardView) || !is_readable($cardView)) {
+        if (!self::hasCardView($source)) {
             throw new \InvalidArgumentException("La fuente del geovisor «{$source->key()}» no tiene una tarjeta legible en «{$cardView}».");
         }
     }

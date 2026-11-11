@@ -19,50 +19,50 @@ span.ui.text {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.primary.text {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.primary.text {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.secondary.text {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.secondary.text {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.accent-1.text {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.accent-1.text {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.accent-2.text {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.accent-2.text {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.accent-3.text {
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.accent-3.text {
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) c h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -72,7 +72,7 @@ span.ui.red.text {
   color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
 }
 span.ui.inverted.red.text {
-  color: oklch(from #f97066 max(l, 0.8) c h);
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -82,7 +82,7 @@ span.ui.orange.text {
   color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
 }
 span.ui.inverted.orange.text {
-  color: oklch(from #f38744 max(l, 0.8) c h);
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -92,129 +92,129 @@ span.ui.yellow.text {
   color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
 }
 span.ui.inverted.yellow.text {
-  color: oklch(from #fdb022 max(l, 0.8) c h);
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.olive.text {
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.olive.text {
-  color: oklch(from #a6c43a max(l, 0.8) c h);
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.green.text {
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.green.text {
-  color: oklch(from #47cd89 max(l, 0.8) c h);
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.teal.text {
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.teal.text {
-  color: oklch(from #22ccee max(l, 0.8) c h);
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.blue.text {
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.blue.text {
-  color: oklch(from #53b1fd max(l, 0.8) c h);
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.violet.text {
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.violet.text {
-  color: oklch(from #9b8afb max(l, 0.8) c h);
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.purple.text {
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.purple.text {
-  color: oklch(from #c084e8 max(l, 0.8) c h);
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.pink.text {
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.pink.text {
-  color: oklch(from #ee46bc max(l, 0.8) c h);
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.brown.text {
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.brown.text {
-  color: oklch(from #b08463 max(l, 0.8) c h);
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.grey.text {
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.grey.text {
-  color: oklch(from #99a1af max(l, 0.8) c h);
+  color: oklch(from #99a1af max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.black.text {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.inverted.black.text {
-  color: oklch(from #4b5363 max(l, 0.8) c h);
+  color: oklch(from #4b5363 max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 span.ui.error.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.info.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.75) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.success.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.warning.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #f79009 min(l, 0.42) c h), oklch(from #f79009 max(l, 0.75) c h));
+  color: light-dark(oklch(from #f79009 min(l, 0.42) c h), oklch(from #f79009 max(l, 0.78) min(c, 0.14) h));
 }
 span.ui.disabled.text {
   opacity: 0.45;
@@ -259,7 +259,9 @@ span.ui.disabled.text {
 .ui.regular.text {
   font-weight: 400;
 }
-.ui.vertical.text {
+
+/* Fork: no un `ui vertical text menu`, que también casa con `.ui.vertical.text` y salía girado */
+.ui.vertical.text:not(.menu) {
   -ms-writing-mode: tb-rl;
       writing-mode: vertical-rl;
   transform: rotate(180deg);

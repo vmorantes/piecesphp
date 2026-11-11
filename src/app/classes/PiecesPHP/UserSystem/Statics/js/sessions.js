@@ -27,6 +27,13 @@ window.addEventListener('load', function () {
 		})
 	}
 
+	//La tabla de la ficha de un usuario (Editar usuario › Sesiones): la misma de Registros, filtrada por su id en la URL y
+	//sin la columna de usuario, que es siempre el mismo.
+	const userTable = $('table[data-user-sessions-table]')
+	if (userTable.length > 0) {
+		dataTable = dataTableServerProccesing(userTable, userTable.attr('url'), 10, { responsive: false, columnDefs: [{ targets: 0, visible: false }] }).DataTable()
+	}
+
 	//Tras una acción: la tabla se recarga; una lista pintada en el servidor, la página.
 	const refresh = function () {
 		if (dataTable !== null) {

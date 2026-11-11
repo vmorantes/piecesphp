@@ -25,7 +25,7 @@ $text = <<<EOF
 
 $footerTemplate = "<span class='owner'>{TITLE}</span> <p>{TEXT}</p>";
 $this->helpController->render('mailing/template_base', [
-    'header_image' => base_url(get_config('mailing_logo')),
+    'header_image' => base_url(mailing_logo()),
     'text' => $text,
     'code' => generate_code(6, true),
     'note' => "Mensaje informativo del correo electrónico.",
@@ -46,7 +46,7 @@ $this->helpController->render('mailing/template_base', [
 <?php
 $footerTemplate = "<strong>{TITLE} - {TEXT}</strong>";
 $this->helpController->render('mailing/template_base_no_style', [
-    'header_image' => base_url(get_config('mailing_logo')),
+    'header_image' => base_url(mailing_logo()),
     'text' => $text,
     'code' => generate_code(6, true),
     'url' => $refererURL !== null ? $refererURL : '#',

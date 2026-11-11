@@ -109,7 +109,7 @@ CliActions::make('unit-tests:core/data-transfer-examples', function ($args) {
         $check($usernameRoot !== '' && $informe->isDryRun() && $informe->invalidRows() === 0 && $informe->validRows() === 1 && ZzCountingUserNamesImport::$persistCalls === 0 && !$informe->persisted(), 'b2 simulacro con un usuario real: 0 errores y sin persist', (string) json_encode($informe, JSON_UNESCAPED_UNICODE));
         $informe = $importar([["{$marca}-nadie", 'A', '', 'B', ''], [$usernameRoot, 'A', '', 'B', ''], [mb_strtoupper($usernameRoot), 'A', '', 'B', '']], true);
         $errores = array_map(fn($r) => $r->errors(), $informe->rowResults());
-        $check(count($errores) === 3 && str_contains(implode(' ', $errores[0]), 'no existe') && $errores[1] === [] && str_contains(implode(' ', $errores[2]), 'se repite en la fila 2'), 'b3 usuario inexistente y usuario repetido → errores de fila', (string) json_encode($errores, JSON_UNESCAPED_UNICODE));
+        $check(count($errores) === 3 && str_contains(implode(' ', $errores[0]), 'no existe') && $errores[1] === [] && str_contains(implode(' ', $errores[2]), 'se repite en la fila 3'), 'b3 usuario inexistente y usuario repetido → errores de fila (la fila del archivo: la 1 son los títulos)', (string) json_encode($errores, JSON_UNESCAPED_UNICODE));
 
         //De verdad, sin transacción de la prueba: persist() tiene la suya.
         $crear = function (string $sufijo) use ($marca): string {

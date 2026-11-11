@@ -23,7 +23,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-    'headerText' => 'Usuario bloqueado',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Usuario bloqueado'),
     'classesCSS' => "one",
     'active' => false,
 ]); ?>
@@ -31,7 +31,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-    'headerText' => 'Usuario bloqueado',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Usuario bloqueado'),
     'classesCSS' => "two",
     'active' => false,
 ]); ?>
@@ -39,7 +39,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-    'headerText' => 'Usuario bloqueado',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Usuario bloqueado'),
     'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Código incorrecto'),
     'classesCSS' => "four",
     'active' => true,
@@ -48,7 +48,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-block.svg'),
-    'headerText' => 'Usuario desbloqueado',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Usuario desbloqueado'),
     'classesCSS' => "five",
     'active' => false,
 ]); ?>
@@ -62,7 +62,7 @@
                 <form class="ui form initial">
 
                     <div class="horizontal-section-form">
-                        <div class="ui small primary header number-step">PASO 1</div>
+                        <div class="ui small primary header number-step"><?= mb_strtoupper(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Paso')); ?> 1</div>
                         <div class="field">
                             <label><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingrese su correo electrónico')?></label>
                             <input required type="email" name="username" placeholder="<?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'name@domain.com')?>">
@@ -89,7 +89,7 @@
                 <form class="ui form initial">
 
                 <div class="horizontal-section-form">
-                    <div class="ui small primary header number-step">PASO 2</div>
+                    <div class="ui small primary header number-step"><?= mb_strtoupper(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Paso')); ?> 2</div>
                     <div class="field">
                         <input required type="text" name="code" placeholder="Ingrese el código">
                     </div>

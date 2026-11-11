@@ -76,7 +76,7 @@ CliActions::make('unit-tests:core/logs-hierarchy', function ($args) {
         return $balance();
     }
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($handle, [

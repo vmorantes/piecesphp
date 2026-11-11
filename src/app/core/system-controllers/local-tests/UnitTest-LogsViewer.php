@@ -78,7 +78,7 @@ CliActions::make('unit-tests:core/logs-viewer', function ($args) {
         return $balance();
     }
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, ?string $jwt = null) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($handle, [
@@ -182,6 +182,30 @@ CliActions::make('unit-tests:core/logs-viewer', function ($args) {
         echoTerminal('[b] Pedir una pestaña que no es suya da 403');
         $errorComoRoot = $pedir("{$pagina}?tab={$erroresAbiertos}", $root);
         $check($errorComoRoot['status'] === 200 && str_contains($errorComoRoot['body'], 'data-logs-errors-filters'), 'b1 CANARIO: el principal abre la pestaña de errores', "HTTP {$errorComoRoot['status']}");
+        //Cada pestaña, su título (h2) y su bajada al principio, con lo que declara su LogTab.
+        $sinTitulo = [];
+        foreach ([$erroresAbiertos, $correos, $accesos, $sesiones, $tokens, $tareas] as $clave) {
+            $pestana = LogTabRegistry::get($clave);
+            $html = $clave === $erroresAbiertos ? $errorComoRoot['body'] : $pedir("{$pagina}?tab={$clave}", $root)['body'];
+            $documento = new \DOMDocument();
+            @$documento->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+            $x = new \DOMXPath($documento);
+            $h2 = $x->query('//*[@data-logs-tab-content]/h2[@id="logs-tab-title"][1]')?->item(0);
+            $bajada = $x->query('//*[@data-logs-tab-content]/h2[@id="logs-tab-title"]/*[contains(@class,"sub header")]')?->item(0);
+            $textoBajada = $bajada instanceof \DOMElement ? trim($bajada->textContent) : '';
+            $titulo = $h2 instanceof \DOMElement ? trim(str_replace($textoBajada, '', $h2->textContent)) : '';
+            if ($pestana === null || $pestana->description() === '' || $titulo !== $pestana->title() || $textoBajada !== $pestana->description()) {
+                $sinTitulo[] = $clave . ' («' . $titulo . '»)';
+            }
+        }
+        $check($sinTitulo === [], 'b1b DISCRIMINANTE: las seis pestañas abren con su título y su bajada', implode(', ', $sinTitulo));
+        $documento = new \DOMDocument();
+        @$documento->loadHTML('<?xml encoding="utf-8" ?>' . $pedir("{$pagina}?tab={$tokens}", $root)['body']);
+        $titulosDentro = [];
+        foreach ((new \DOMXPath($documento))->query('//*[contains(@class,"container-standard-table")]/*[contains(@class,"content")]/h2') ?: [] as $h2) {
+            $titulosDentro[] = $h2 instanceof \DOMElement ? trim($h2->textContent) : '';
+        }
+        $check($titulosDentro === [__(UserTokensController::LANG_GROUP, 'Vigentes'), __(UserTokensController::LANG_GROUP, 'Historia')], 'b1c DISCRIMINANTE: en Tokens, «Vigentes» e «Historia» van DENTRO de su bloque, arriba', implode(', ', $titulosDentro));
         $errorComoOrg = $pedir("{$pagina}?tab={$erroresAbiertos}", $org);
         $check($errorComoOrg['status'] === 403, 'b2 el administrador de organización recibe 403 con ?tab=errors', "HTTP {$errorComoOrg['status']}");
         $check(!str_contains($errorComoOrg['body'], $marca) && !str_contains($errorComoOrg['body'], 'data-logs-errors-filters'), 'b3 y su respuesta no trae nada de la pestaña');
@@ -281,6 +305,7 @@ CliActions::make('unit-tests:core/logs-viewer', function ($args) {
                 $malFormada = true;
             }
             $check($malFormada, 'e3 una key que no va en una URL tal cual también lanza');
+            $check((new LogTab('zz-sin', 'Zz', 'bug', 'logs-admin-errors', $vacia))->description() === '' && (new LogTab('zz-con', 'Zz', 'bug', 'logs-admin-errors', $vacia, 100, 'Zz bajada'))->description() === 'Zz bajada', 'e5 la bajada es opcional: vacía por omisión y la que se declare');
         } finally {
             LogTabRegistry::swapForTesting($previas);
         }

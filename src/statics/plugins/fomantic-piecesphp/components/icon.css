@@ -295,7 +295,7 @@ i.inverted.icon {
 i.primary.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.primary.icon.icon.icon.icon.icon.icon {
   color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
@@ -313,7 +313,7 @@ i.inverted.circular.primary.icons {
 i.secondary.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.secondary.icon.icon.icon.icon.icon.icon {
   color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
@@ -331,7 +331,7 @@ i.inverted.circular.secondary.icons {
 i.accent-1.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.accent-1.icon.icon.icon.icon.icon.icon {
   color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
@@ -349,7 +349,7 @@ i.inverted.circular.accent-1.icons {
 i.accent-2.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.accent-2.icon.icon.icon.icon.icon.icon {
   color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
@@ -367,7 +367,7 @@ i.inverted.circular.accent-2.icons {
 i.accent-3.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.accent-3.icon.icon.icon.icon.icon.icon {
   color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
@@ -439,7 +439,7 @@ i.inverted.circular.yellow.icons {
 i.olive.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.olive.icon.icon.icon.icon.icon.icon {
   color: #a6c43a;
@@ -457,7 +457,7 @@ i.inverted.circular.olive.icons {
 i.green.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.green.icon.icon.icon.icon.icon.icon {
   color: #47cd89;
@@ -475,7 +475,7 @@ i.inverted.circular.green.icons {
 i.teal.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.teal.icon.icon.icon.icon.icon.icon {
   color: #22ccee;
@@ -493,7 +493,7 @@ i.inverted.circular.teal.icons {
 i.blue.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.blue.icon.icon.icon.icon.icon.icon {
   color: #53b1fd;
@@ -511,7 +511,7 @@ i.inverted.circular.blue.icons {
 i.violet.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.violet.icon.icon.icon.icon.icon.icon {
   color: #9b8afb;
@@ -529,7 +529,7 @@ i.inverted.circular.violet.icons {
 i.purple.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.purple.icon.icon.icon.icon.icon.icon {
   color: #c084e8;
@@ -547,7 +547,7 @@ i.inverted.circular.purple.icons {
 i.pink.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.pink.icon.icon.icon.icon.icon.icon {
   color: #ee46bc;
@@ -565,7 +565,7 @@ i.inverted.circular.pink.icons {
 i.brown.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.brown.icon.icon.icon.icon.icon.icon {
   color: #b08463;
@@ -583,7 +583,7 @@ i.inverted.circular.brown.icons {
 i.grey.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.grey.icon.icon.icon.icon.icon.icon {
   color: #99a1af;
@@ -601,7 +601,7 @@ i.inverted.circular.grey.icons {
 i.black.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 i.inverted.black.icon.icon.icon.icon.icon.icon {
   color: #4b5363;

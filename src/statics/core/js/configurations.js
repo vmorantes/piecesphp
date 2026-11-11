@@ -118,28 +118,16 @@ pcsphpGlobals.messagesProxySetHandler = function (target, property, value) {
 	target[property] = value
 	return true
 }
-pcsphpGlobals.messages = {
-	es: new Proxy(PCSPHP_TRANSLATIONS_ES, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	en: new Proxy(PCSPHP_TRANSLATIONS_EN, {
-		set: pcsphpGlobals.messagesProxySetHandler,
-	}),
-	//IDIOMA COMENTADO: la receta completa está en `app/config/lang.php`. Cada entrada de
-	//aquí necesita su `translations/<código>.js`, porque la constante se lee al cargar y
-	//una que no exista revienta el archivo entero, no solo su idioma.
-	//fr: new Proxy(PCSPHP_TRANSLATIONS_FR, {
-	//	set: pcsphpGlobals.messagesProxySetHandler,
-	//}),
-	//de: new Proxy(PCSPHP_TRANSLATIONS_DE, {
-	//	set: pcsphpGlobals.messagesProxySetHandler,
-	//}),
-	//it: new Proxy(PCSPHP_TRANSLATIONS_IT, {
-	//	set: pcsphpGlobals.messagesProxySetHandler,
-	//}),
-	//pt: new Proxy(PCSPHP_TRANSLATIONS_PT, {
-	//	set: pcsphpGlobals.messagesProxySetHandler,
-	//}),
+//Cada idioma cuyo objeto PCSPHP_TRANSLATIONS_<CÓDIGO> exista (translations/<código>.js, que gulp js-vendor empaqueta
+//todo): un proyecto añade el suyo sin tocar este archivo.
+pcsphpGlobals.messages = {}
+for (const name of Object.keys(globalThis)) {
+	const match = /^PCSPHP_TRANSLATIONS_([A-Z]{2})$/.exec(name)
+	if (match !== null && typeof globalThis[name] === 'object' && globalThis[name] !== null) {
+		pcsphpGlobals.messages[match[1].toLowerCase()] = new Proxy(globalThis[name], {
+			set: pcsphpGlobals.messagesProxySetHandler,
+		})
+	}
 }
 
 if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined') {

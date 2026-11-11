@@ -235,7 +235,7 @@ $container_configurations = [
     'cors' => function (RequestRoute $request, ResponseRoute $response) {
         $origin = $request->getHeaderLine('Origin');
         $requestedHeaders = $request->getHeaderLine('Access-Control-Request-Headers');
-        $allowedHeaders = $requestedHeaders ?: 'Content-Type, Authorization, isWebApp, isExternalLogin, ' . \PiecesPHP\Core\SessionToken::tokenName();
+        $allowedHeaders = $requestedHeaders ?: 'Content-Type, Authorization, isWebApp, isExternalLogin, ' . \PiecesPHP\Core\SessionToken::tokenName() . ', ' . \PiecesPHP\Core\SessionToken::headerName();
         //CREDENCIALES SOLO PARA EL PROPIO ORIGEN Y LOS DECLARADOS: a cualquier otro, el navegador no le manda las cookies
         //ni le deja leer la respuesta de una petición con ellas. El token por la cabecera sigue valiendo para todos.
         $declared = get_config('cors_credentials_origins');

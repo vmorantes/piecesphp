@@ -42,6 +42,20 @@ organizaciones, las regiones necesitan países.
   usan el dominio reservado `.invalid`, que no se entrega nunca.
 - **Solo la lanza el usuario principal.** La ruta `terminal-seed` exige sesión y solo la alcanza ese tipo de usuario.
 
+## Los restos de prueba de los registros
+
+Un envío de prueba (el formulario de soporte, un correo) deja en `pcsphp_mail_log` y en el registro de soporte filas con
+`zz-` que no son de la siembra, y `bin/cli gates` las cuenta como restos. Para retirarlas en tu instalación local:
+
+```bash
+bin/cli prune-test-logs              # simula: dice tabla, id y columnas, nunca el contenido
+bin/cli prune-test-logs escribir=yes # las borra, en una transacción
+```
+
+Solo mira esas dos tablas y las filas con alguna columna de texto que empiece por `zz-` o `zz_`; fuera de la instalación
+local se niega. **Ojo con la base sembrada**: la siembra también deja correos `zz-` en el registro; `prune-test-logs`
+los cuenta y los borraría. Pásala después de `seed module=all limpiar=yes`.
+
 ## Qué siembra hoy el framework
 
 Veinticuatro tablas, con estas cantidades por defecto. Son **173 filas** (contadas con `bin/cli seed module=all`, que

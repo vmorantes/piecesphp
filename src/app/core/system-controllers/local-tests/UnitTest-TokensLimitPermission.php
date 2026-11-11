@@ -66,7 +66,7 @@ CliActions::make('unit-tests:core/tokens-limit-permission', function ($args) {
             CURLOPT_TIMEOUT => 60,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => http_build_query(['configName' => GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT, GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT => $suelto ? $valor : [Config::get_default_lang() => $valor]]),
-            CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
+            CURLOPT_HTTPHEADER => [SessionToken::headerName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
         ]);
         curl_exec($h);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.

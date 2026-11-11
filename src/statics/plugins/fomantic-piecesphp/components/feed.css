@@ -435,7 +435,7 @@
 .ui.primary.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.primary.label::before,
 .ui.inverted.primary.feed > .event > .label::before {
@@ -466,7 +466,7 @@
 .ui.secondary.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.secondary.label::before,
 .ui.inverted.secondary.feed > .event > .label::before {
@@ -497,7 +497,7 @@
 .ui.accent-1.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.accent-1.label::before,
 .ui.inverted.accent-1.feed > .event > .label::before {
@@ -528,7 +528,7 @@
 .ui.accent-2.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.accent-2.label::before,
 .ui.inverted.accent-2.feed > .event > .label::before {
@@ -559,7 +559,7 @@
 .ui.accent-3.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.accent-3.label::before,
 .ui.inverted.accent-3.feed > .event > .label::before {
@@ -683,7 +683,7 @@
 .ui.olive.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) c h));
+  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.olive.label::before,
 .ui.inverted.olive.feed > .event > .label::before {
@@ -714,7 +714,7 @@
 .ui.green.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.green.label::before,
 .ui.inverted.green.feed > .event > .label::before {
@@ -745,7 +745,7 @@
 .ui.teal.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) c h));
+  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.teal.label::before,
 .ui.inverted.teal.feed > .event > .label::before {
@@ -776,7 +776,7 @@
 .ui.blue.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) c h));
+  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.blue.label::before,
 .ui.inverted.blue.feed > .event > .label::before {
@@ -807,7 +807,7 @@
 .ui.violet.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) c h));
+  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.violet.label::before,
 .ui.inverted.violet.feed > .event > .label::before {
@@ -838,7 +838,7 @@
 .ui.purple.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) c h));
+  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.purple.label::before,
 .ui.inverted.purple.feed > .event > .label::before {
@@ -869,7 +869,7 @@
 .ui.pink.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.pink.label::before,
 .ui.inverted.pink.feed > .event > .label::before {
@@ -900,7 +900,7 @@
 .ui.brown.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) c h));
+  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.brown.label::before,
 .ui.inverted.brown.feed > .event > .label::before {
@@ -931,7 +931,7 @@
 .ui.grey.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) c h));
+  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.grey.label::before,
 .ui.inverted.grey.feed > .event > .label::before {
@@ -962,7 +962,7 @@
 .ui.black.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) c h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.black.label::before,
 .ui.inverted.black.feed > .event > .label::before {

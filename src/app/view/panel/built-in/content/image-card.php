@@ -25,6 +25,10 @@
  * genericFormHandler saca el nombre y donde pinta el error. Al aplicar una imagen deja de serlo.
  * @var bool $invertOnDarkSaved Ya tiene opción guardada: sin ella, una imagen propia recién subida la desmarca (brandImageInvertsOnDark()).
  * @var bool|null $invertOnDark Con valor, pinta la casilla «Invertir colores en modo oscuro» con ese estado (logos-favicons.js la guarda).
+ * @var string|null $deleteValue Con valor, pinta «Eliminar» con él en `data-value` (oculto mientras no haya imagen); quien
+ * la usa escucha `[data-image-card-delete]`. Sin él, la tarjeta no se puede vaciar.
+ * @var string $deleteDisabledReason No vacío, «Eliminar» va deshabilitado y el tooltip de su envoltorio lo explica.
+ * @var string $emptyText Opcional. Sin imagen, este texto sobre el damero (p. ej. «Sin foto»); el editor lo quita al aplicar.
  */
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 
@@ -48,18 +52,24 @@ $fillColor = isset($fillColor) && is_string($fillColor) ? $fillColor : 'transpar
 $scope = isset($scope) && is_string($scope) ? $scope : '';
 $required = isset($required) && $required === true;
 $invertOnDark = isset($invertOnDark) && is_bool($invertOnDark) ? $invertOnDark : null;
+$deleteValue = isset($deleteValue) && is_string($deleteValue) ? $deleteValue : null;
+$deleteDisabledReason = isset($deleteDisabledReason) && is_string($deleteDisabledReason) ? $deleteDisabledReason : '';
+$emptyText = isset($emptyText) && is_string($emptyText) ? $emptyText : '';
 
 $hasImage = $image !== '';
 $imageURL = $hasImage ? add_cache_stamp_to_url($image) : '';
 $fileId = "{$id}-file";
 $titleId = "{$id}-title";
 $downloadText = __($langGroup, 'Descargar / ver');
+$deleteText = __($langGroup, 'Eliminar');
 $editText = strReplaceTemplate(__($langGroup, 'Editar imagen: ${title}'), ['${title}' => escape_html($title)]);
 ?>
 <article class="card" id="<?= escape_html($id); ?>" aria-labelledby="<?= escape_html($titleId); ?>" data-image-card="<?= escape_html($scope); ?>" data-width="<?= $width; ?>" data-height="<?= $height; ?>" data-field="<?= escape_html($field); ?>" data-action="<?= escape_html($action); ?>" data-format="<?= $format; ?>" data-quality="<?= $quality; ?>" data-fill-color="<?= escape_html($fillColor); ?>" data-title="<?= escape_html($title); ?>" data-accept="<?= escape_html($accept); ?>" data-edit-label="<?= $editText; ?>">
     <div class="<?= $dark || $invertOnDark === true ? 'inverted ' : ''; ?><?= $invertOnDark === true ? 'content-image-card-inverted ' : ''; ?>checkered image">
         <?php if ($hasImage): ?>
         <button class="content-image-card-edit" type="button" aria-label="<?= $editText; ?>" data-image-card-edit><img class="ui small image" src="<?= escape_html($imageURL); ?>" alt="<?= escape_html($imageAlt); ?>"></button>
+        <?php elseif ($emptyText !== ''): ?>
+        <div class="fluid ui centered flex" data-image-card-empty><span class="ui muted text"><?= escape_html($emptyText); ?></span></div>
         <?php endif; ?>
     </div>
     <div class="ui vertical relaxed flex content">
@@ -85,6 +95,12 @@ $editText = strReplaceTemplate(__($langGroup, 'Editar imagen: ${title}'), ['${ti
             <template data-image-card-download-template>
                 <a class="ui icon button" href="#" download aria-label="<?= $downloadText; ?>" data-image-card-download data-tooltip="<?= $downloadText; ?>" data-position="top center" data-inverted=""><i class="download icon" aria-hidden="true"></i></a>
             </template>
+            <?php endif; ?>
+            <?php if ($deleteValue !== null): ?>
+            <?php //El envoltorio lleva el tooltip: un botón deshabilitado no recibe el puntero. Un div: el tema subraya span[data-tooltip]. ?>
+            <div data-image-card-delete-holder data-tooltip="<?= $deleteDisabledReason !== '' ? escape_html($deleteDisabledReason) : $deleteText; ?>" data-position="top center" data-inverted=""<?= $hasImage ? '' : ' hidden'; ?>>
+                <button class="ui basic negative icon button" type="button" aria-label="<?= $deleteText; ?>" data-image-card-delete data-value="<?= escape_html($deleteValue); ?>"<?= $deleteDisabledReason !== '' ? ' disabled' : ''; ?>><i class="trash alternate icon" aria-hidden="true"></i></button>
+            </div>
             <?php endif; ?>
         </div>
         <?php if ($invertOnDark !== null): ?>

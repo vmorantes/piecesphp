@@ -65,7 +65,7 @@ CliActions::make('unit-tests:core/auto-approval-status', function ($args) {
     $check(\SystemApprovals\Util\SystemApprovalManager::getInstance()->isApproved(OrganizationMapper::class, $global), 'p2 la organización global está aprobada: es el caso que reactivaba');
 
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $prefijo = 'zz-prueba-autoaprobacion-' . bin2hex(random_bytes(3));
     $tablaUsuarios = UsersModel::TABLE;
     $usuarios = [];

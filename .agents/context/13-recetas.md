@@ -495,7 +495,7 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   bien»). Pero lo sembrado lleva `zz-`, `gates` lo cuenta como resto (ADR 0047) y `unit-tests:core/seed-round-trip` exige
   que no haya nada sembrado antes de empezar (`UnitTest-SeedRoundTrip.php:80-81`, su caso c3). Así que toda ronda, en este
   orden: **al empezar**, `seed module=all limpiar=yes`; `db-backup`; la siembra y las mediciones que la ronda pida; **antes
-  de verificar**, `seed module=all limpiar=yes` otra vez, **`geo-load-fixture limpiar=yes`** (la carga del geovisor no
+  de verificar**, `seed module=all limpiar=yes` otra vez, **`geo-load-fixture limpiar=yes`**, **`prune-test-logs escribir=yes`** (los restos `zz-` de los registros de correos y de soporte que deja un envío de prueba; desde JGI, 2026-11-10) (la carga del geovisor no
   la quita `seed`, y sin esto `gates` sale SUCIO en `core/geo-viewer` e0, `#1849`) y el borrado de `login_attempts` de
   arriba; `bin/verify`; y **al final, después de verificar y antes del commit del estado**, `seed module=all
   escribir=yes` y `geo-load-fixture cantidad=50 escribir=yes`, que es lo que el PO encuentra. El reporte dice qué quedó sembrado (módulos e ids). Mientras corre una ronda, la base puede estar vacía.

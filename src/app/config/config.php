@@ -66,10 +66,12 @@ $config['theme_radius'] = 8;
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
 //Destinatarios del formulario de contacto, del correo de «otros problemas» (si osTicket falta o falla) y del formulario
-//de soporte del panel. Vacíos: no se envía. Nunca una dirección en el código: todo clon la heredaría.
+//de soporte del panel. Vacíos: no se envía. Nunca una dirección real en el código: todo clon la heredaría.
 $config['contact_form_recipients'] = [];
 $config['other_problems_recipients'] = [];
-$config['support_form_recipients'] = [];
+//La de soporte es de EJEMPLO (dominio reservado, RFC 2606: nadie la recibe) para que el botón se vea; un aviso pide
+//cambiarla (support-recipients-placeholder). Vacía, el botón de soporte no sale.
+$config['support_form_recipients'] = ['help@example.org'];
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
 //La llave del cron (CronJobKey) no va aquí: la pone secure-keys/cronjob (core/extensions/api-keys.php). Sin ella, la ruta

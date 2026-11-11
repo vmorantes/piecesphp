@@ -105,19 +105,13 @@ $-notificationCardBorder: rgba(128, 128, 128, 0.568);
         gap: 1.25rem;
         align-items: center;
 
+        //Sin fondo propio: la foto o el avatar de iniciales del tema (ui avatar label) ya son el círculo.
         > .image {
             flex: none;
             width: 80px;
             height: 80px;
-            border-radius: 100%;
-            background-color: var(--accent);
             display: grid;
             place-content: center;
-
-            > i {
-                margin: 0;
-                color: var(--theme-surface);
-            }
         }
 
         > .info {
@@ -151,7 +145,8 @@ $-notificationCardBorder: rgba(128, 128, 128, 0.568);
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1001;
+    //Sobre el contenido y la barra (20), bajo los flyouts (60) y el dimmer de los modales (300): ninguno queda tapado.
+    z-index: 50;
     display: flex;
     flex-direction: column;
 
@@ -160,9 +155,10 @@ $-notificationCardBorder: rgba(128, 128, 128, 0.568);
     }
 }
 
-//La navegación del shell deja libre abajo lo que ocupan esos avisos: sin esto tapaban su pie. El alto lo mide
-//pcsAdminShell() (configurations.js) y cambia al cerrar uno.
-.ui.shell.admin-shell > .navigation {
+//La navegación y el contenido del shell dejan libre abajo lo que ocupan esos avisos: sin esto tapaban su pie y el final
+//de la página. El alto lo mide pcsAdminShell() (configurations.js) y vuelve a 0 al cerrarlos.
+.ui.shell.admin-shell > .navigation,
+.ui.shell.admin-shell > .main {
     padding-bottom: var(--pcs-bottom-nags, 0px);
 }
 

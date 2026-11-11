@@ -123,7 +123,7 @@
 }
 .ui.search > .results .result .price {
   float: right;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.75) c h));
+  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
   
 /* Fork: tinta legible en ambos modos (D36) */
 }

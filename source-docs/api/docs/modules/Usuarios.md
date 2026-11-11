@@ -151,13 +151,14 @@ xhr.send(data);
 - Autorización: No
 - Descripción: Ruta para registrar usuario
 - Parámetros:
-	- username: text (requerido) Nombre de usuario
+	- username: text Se ignora: el usuario se crea con su correo (`email`) como nombre de usuario
 	- email: text (requerido) Correo electrónico
 	- password: text (requerido) Contraseña
 	- password2: text (requerido) Contraseña confirmación
+	- También se aceptan los nombres en camelCase, que se traducen: `firstName` (= `firstname`), `secondName`, `firstLastName` (= `first_lastname`), `secondLastName` y `passwordConfirm` (= `password2`)
 	- firstname: text (requerido) Nombre
 	- first_lastname: text (requerido) Apellido
-	- type: text (opcional) Tipo de usuario. Solo se aceptan «usuario general» y «administrador de organización»; cualquier otro valor cae a «usuario general»
+	- userType: text (opcional) Tipo de usuario, **cifrado con `BaseHashEncryption`** como `organizationID` (en el cuerpo se llama `userType`). Solo se aceptan «usuario general» y «administrador de organización»; cualquier otro valor, o uno que no se descifra, cae a «usuario general». **El alta pública no usa la firma del tipo** que usa el panel desde la `10.0.0` (`signedType()`): cambiarla rompería a quien ya integra esta ruta, y se hará en la `11.0.0`
 	- organizationID: text (opcional) Organización a la que se une. Cifrado con `BaseHashEncryption`. El valor literal `NONE` pide crear una organización nueva
 	- organizationName: text (obligatorio si `organizationID` es `NONE`) Nombre de la organización que se va a crear
 	- phoneCode / phoneNumber: text (opcional) Se guardan en el perfil. **Desde la `9.0.0`, `phoneCode` tiene que ser el prefijo de un país activo** (Ubicaciones › Países); si no lo es, el alta sigue, el perfil queda sin prefijo y el `message` de la respuesta añade «El prefijo telefónico no es de ningún país activo.»

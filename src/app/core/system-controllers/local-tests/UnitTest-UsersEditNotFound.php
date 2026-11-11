@@ -55,7 +55,7 @@ CliActions::make('unit-tests:core/users-edit-not-found', function ($args) {
         $url = get_route('users-form-edit', ['id' => $id], true);
         return is_string($url) && $url !== '' ? '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/') : '';
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt) use ($base, $cabeceraToken): int {
         $handle = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($handle, [

@@ -59,7 +59,7 @@ CliActions::make('unit-tests:core/approval-forms', function ($args) {
     }
 
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $formulario = function (int $id) use ($prefijoBase): string {
         $url = SystemApprovalsController::routeName('forms-approval', ['id' => $id], true);
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;

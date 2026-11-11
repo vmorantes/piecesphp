@@ -118,7 +118,7 @@ CliActions::make('unit-tests:core/theme-tokens', function ($args) {
     }
 
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $camino = function (string $url) use ($prefijoBase): string {
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
@@ -267,6 +267,14 @@ CliActions::make('unit-tests:core/theme-tokens', function ($args) {
         $check($hoja['status'] === 200 && str_contains($hoja['body'], '--accent: #0E7A5A;') && str_contains($hoja['body'], '--font-size-base: 16px;') && str_contains($hoja['body'], '--r-md: 12px;') && str_contains($hoja['body'], "'Poppins'"), 'h1 acento, tamaño, radio y fuente', "HTTP {$hoja['status']}");
         $pantalla = $pedir($camino(SettingsController::routeName('appearance-colors', [], true)), $jwtRoot);
         $check($pantalla['status'] === 200 && str_contains($pantalla['body'], 'value="#0e7a5a"') && str_contains($pantalla['body'], 'value="poppins" data-font-stack="') && substr_count($pantalla['body'], ' selected') >= 3, 'h2 la pantalla pinta lo guardado', "HTTP {$pantalla['status']}");
+        $tonos = [
+            '--accent-100' => '14 % sobre el fondo',
+            '--accent-300' => '45 % sobre el fondo',
+            '--accent-600' => '88 % sobre negro; 70 % sobre blanco en oscuro',
+            '--accent-50' => 'Fondos activos · 8 % sobre el fondo',
+        ];
+        $sinTitulo = array_keys(array_filter($tonos, fn (string $titulo, string $tono): bool => !str_contains($pantalla['body'], 'title="' . escape_html(__(SettingsController::LANG_GROUP, $titulo)) . '" data-colors-tone="' . $tono . '"'), \ARRAY_FILTER_USE_BOTH));
+        $check($sinTitulo === [], 'h3 cada tono derivado dice cómo sale (title)', implode(', ', $sinTitulo));
 
         echoTerminal(' ');
         echoTerminal('[i] Quién puede');

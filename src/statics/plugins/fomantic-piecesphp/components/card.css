@@ -329,7 +329,7 @@
 }
 .ui.cards > .card > .content > a.header:hover,
 .ui.card > .content > a.header:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Meta */
@@ -2892,7 +2892,7 @@ a.ui.basic.inverted.black.card:hover,
 }
 .ui.inverted.cards > .card > .content > a.header:hover,
 .ui.inverted.card > .content > a.header:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 
 /* Description */
@@ -3030,6 +3030,28 @@ a.inverted.ui.card:hover,
    PiecesPHP: Card Overrides
 *******************************/
 
+
+
+/*******************************
+      Core: Card Overrides
+*******************************/
+
+
+/* Baldosa encima del título: pegada a él no se distinguían */
+.ui.cards > .card > .content > i.bordered.icon,
+.ui.card > .content > i.bordered.icon {
+  margin-bottom: 0.85714286em;
+}
+
+/* Ícono grande encima del título: en bloque y alineado con él; montaba sobre la primera letra */
+.ui.cards > .card > .content > i.big.icon:first-child,
+.ui.card > .content > i.big.icon:first-child {
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0 0 0.57142857em;
+  text-align: left;
+}
 
 /* Descripción en Pequeño 12/16 (sin variable de tamaño) y meta con su interlineado */
 .ui.cards > .card > .content > .description,

@@ -91,7 +91,7 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
     }
     echoTerminal(' ');
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, ?string $jwt = null) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
         $handle = \Terminal\TestRun::curlInit();
@@ -190,6 +190,13 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
         $check(str_contains($datos['body'], "Asunto de {$marca}"), 'b5 con su asunto');
         $check(str_contains($datos['body'], 'UnitTest-MailLogScreen'), 'b6 con su origen');
         $check(str_contains($datos['body'], "motivo de {$marca}"), 'b7 y con el MOTIVO pegado al resultado, que es lo que dice qué arreglar');
+        //Sin orden pedido: del más reciente al más viejo, y la fecha como el resto del panel (d-m-Y H:i).
+        $fechas = array_map(fn($fila) => strip_tags((string) ($fila[0] ?? '')), is_array($datos['json']['data'] ?? null) ? $datos['json']['data'] : []);
+        $instantes = array_map(fn($f) => ($d = \DateTime::createFromFormat('!d-m-Y H:i', $f)) !== false && $d->format('d-m-Y H:i') === $f ? $d->getTimestamp() : null, $fechas);
+        $ordenadas = $instantes;
+        rsort($ordenadas);
+        $check($fechas !== [] && !in_array(null, $instantes, true), 'b8 DISCRIMINANTE: la fecha, en d-m-Y H:i', (string) ($fechas[0] ?? ''));
+        $check($fechas !== [] && $instantes === $ordenadas, 'b9 DISCRIMINANTE: sin orden pedido, del más reciente al más viejo', implode(' / ', array_slice($fechas, 0, 4)));
 
         //─── c · Lo que se pinta va escapado ────────────────────────────────────────────────────
         echoTerminal(' ');
@@ -340,6 +347,12 @@ CliActions::make('unit-tests:core/mail-log-screen', function ($args) {
             $check($fuente !== '' && !str_contains($fuente, 'innerHTML') && !str_contains($fuente, '.html('), "e3 {$relativo} no usa innerHTML ni .html(");
         }
         $check(!str_contains($pantalla['body'], "ZZ CUERPO DE LA PANTALLA"), 'e4 y la pantalla servida no lleva ningún cuerpo dentro');
+        //El visor, en una ventana modal de Fomantic (vistas-referencia.md §3.26): el mismo iframe, dentro, y Cerrar en sus acciones.
+        $documento = new \DOMDocument();
+        @$documento->loadHTML('<?xml encoding="utf-8" ?>' . $pantalla['body']);
+        $xv = new \DOMXPath($documento);
+        $check($xv->query('//*[@data-mail-log-body-viewer][contains(@class,"ui large modal")]//*[contains(@class,"content")]//iframe[@data-mail-log-body-frame]')?->length === 1 && $xv->query('//*[@data-mail-log-body-viewer]/*[contains(@class,"actions")]/button[@data-mail-log-body-close]')?->length === 1 && $xv->query('//*[@data-mail-log-body-viewer][@hidden]')?->length === 0,
+            'e4b DISCRIMINANTE: el cuerpo se abre en una ventana modal con el iframe dentro y «Cerrar» en sus acciones');
         //Sin red dentro del visor: una imagen remota del cuerpo avisaría al remitente de que root lo abrió.
         $js = (string) @file_get_contents($raizSrc . 'Statics/js/mail-log.js');
         $politica = "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src \\'none\\'; img-src data: cid:; style-src \\'unsafe-inline\\'\">";

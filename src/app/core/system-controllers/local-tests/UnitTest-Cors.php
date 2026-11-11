@@ -107,7 +107,7 @@ CliActions::make('unit-tests:core/cors', function ($args) {
     $check(!array_key_exists('access-control-allow-credentials', $prefijo['h']), '2d el propio host como prefijo de otro: sin credenciales');
     $sinOrigen = $pedir('GET', '');
     $check(($sinOrigen['h']['access-control-allow-origin'] ?? null) === '*' && !array_key_exists('access-control-allow-credentials', $sinOrigen['h']), '2e sin Origin: «*» y sin credenciales');
-    $cabeceraToken = mb_strtolower(SessionToken::tokenName());
+    $cabeceraToken = mb_strtolower(SessionToken::headerName());
     $preflight = $pedir('OPTIONS', 'https://ajeno.test', ['Access-Control-Request-Method: GET', "Access-Control-Request-Headers: {$cabeceraToken}"]);
     $check($preflight['status'] === 204, '2f preflight de un origen ajeno pidiendo la cabecera del token: 204', 'HTTP ' . $preflight['status']);
     $check(!array_key_exists('access-control-allow-credentials', $preflight['h']) && str_contains(mb_strtolower($preflight['h']['access-control-allow-headers'] ?? ''), $cabeceraToken), '2g sin credenciales y con esa cabecera permitida', (string) json_encode($preflight['h']));

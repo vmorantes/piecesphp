@@ -22,11 +22,24 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <div class="header">Todo o nada</div>
 <p>Si una fila tiene errores, no se guarda ninguna.</p>
 </div>
+<p>Arriba, un aviso: <strong>mantén los títulos de la plantilla</strong>. Las columnas se reconocen por su título (o por los otros
+nombres de la tabla de abajo), así que el orden no importa; si cambias un título, esa columna no se leerá.</p>
 <p>Son dos pasos:</p>
 <ol>
-<li><strong>Descarga la plantilla</strong>: pulsa <strong>«Descargar plantilla»</strong> y llénala sin cambiar sus columnas.</li>
-<li><strong>Sube la plantilla diligenciada</strong>: elige el <strong>Archivo</strong> (obligatorio) y pulsa <strong>«Importar»</strong>.</li>
+<li><strong>Descarga la plantilla</strong>: el archivo <code>plantilla-users.xlsx</code>. Pulsa <strong>«Descargar plantilla»</strong> y llénala sin cambiar sus
+   títulos.</li>
+<li><strong>Sube la plantilla diligenciada</strong>: en <strong>«Archivo de la plantilla»</strong> (obligatorio) pulsa <strong>«Examinar»</strong>, elige el
+   archivo y pulsa <strong>«Importar»</strong>. Si pulsas «Importar» sin archivo, el campo te lo pide.</li>
 </ol>
+<p>Al terminar aparece el <strong>Resultado de la importación</strong>:</p>
+<ul>
+<li>el archivo y cuántas filas se leyeron;</li>
+<li>un mensaje: <strong>«Se importaron las N filas»</strong> si todas eran válidas, o <strong>«No se importó ninguna fila»</strong> con cuántas tienen
+  errores; si el archivo no tiene filas con datos o no se pudo leer (por ejemplo, falta una columna obligatoria), te lo
+  dice;</li>
+<li>las filas <strong>válidas</strong> y, si las hay, las filas <strong>con errores</strong>, en dos etiquetas;</li>
+<li>si hay errores, una tabla <strong>Fila · Error</strong>. La fila es la del archivo: la 1 es la de los títulos.</li>
+</ul>
 <p>Las columnas de la plantilla:</p>
 <table class="ui celled table">
 <thead>

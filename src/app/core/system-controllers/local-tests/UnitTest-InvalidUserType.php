@@ -63,7 +63,7 @@ CliActions::make('unit-tests:core/invalid-user-type', function ($args) {
 
     $panelURL = get_route('admin', [], true);
     $panel = '/' . ltrim(is_string($panelURL) && str_contains($panelURL, '://') ? (string) parse_url($panelURL, \PHP_URL_PATH) : (string) $panelURL, '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     //Por XHR, una sesión rechazada es 401 y no una redirección al acceso.
     $pedir = function (string $path, string $jwt, bool $xhr = false) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();

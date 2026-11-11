@@ -51,8 +51,11 @@ todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos
 <p>Entra por <strong>«Fondos del inicio de sesión»</strong>. Estas imágenes llenan el panel izquierdo del inicio de sesión; la
 plataforma muestra una al azar en cada visita.</p>
 <p><img class="ui image" alt="Fondos del inicio de sesión" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-backgrounds.webp')); ?>"></p>
-<p>Hay cinco fondos (<strong>Fondo 1</strong> a <strong>Fondo 5</strong>) y un <strong>Fondo problemas de inicio</strong>. Para editar uno, púlsalo; además
-tiene <strong>«Cambiar imagen»</strong> y un icono para descargarlo o verlo.</p>
+<p>Puede haber de <strong>uno a cinco</strong> fondos (<strong>Fondo 1</strong> a <strong>Fondo 5</strong>); las imágenes ocupan las primeras tarjetas y el resto
+quedan vacías. En una tarjeta con imagen, púlsala o usa <strong>«Cambiar imagen»</strong> para editarla, el icono para descargarla o
+verla y <strong>«Eliminar»</strong> para quitarla (te pide confirmación). Una tarjeta vacía solo tiene <strong>«Cambiar imagen»</strong>: así
+agregas un fondo. Siempre queda al menos uno: con un solo fondo, «Eliminar» está desactivado.</p>
+<p>Aparte está el <strong>Fondo problemas de inicio</strong>, que se cambia igual y no se puede eliminar.</p>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-colors'])): ?>
@@ -170,6 +173,15 @@ con <strong>«Cambiar imagen»</strong>. Al final, <strong>«Cancelar»</strong>
 </tr>
 </tbody>
 </table>
+<p>Junto a cada campo, en pequeño, la etiqueta que genera en la página (<code>&lt;title&gt;</code>, <code>og:title</code>, <code>meta keywords</code>…), por si
+necesitas buscarla en el código de la página.</p>
+<ul>
+<li><strong>«Usar el título del sitio»</strong> y <strong>«Usar la descripción del sitio»</strong>: marcadas, el título o la descripción para
+  compartir son los del sitio y el campo se apaga mostrándolos; desmarcadas, escribes uno propio.</li>
+<li><strong>Lo que no se edita aquí, pero se ve</strong>: el <strong>nombre del sitio</strong> (<code>og:site_name</code>, el Título), la <strong>dirección</strong> y la
+  <strong>URL canónica</strong> de la portada, el <strong>idioma para compartir</strong> (<code>og:locale</code>, que se cambia en <code>config.php</code>), el <strong>tipo</strong>
+  (website en la portada, article en las publicaciones) y el <strong>autor</strong> (<code>meta author</code>, el Propietario).</li>
+</ul>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-site-files'])): ?>

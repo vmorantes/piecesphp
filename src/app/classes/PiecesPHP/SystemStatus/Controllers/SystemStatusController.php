@@ -698,18 +698,20 @@ class SystemStatusController extends AdminPanelController
         LogTabRegistry::register(new LogTab(
             self::MAIL_LOG_TAB,
             __(self::LANG_GROUP, 'Correos enviados'),
-            'envelope open outline',
+            'envelope open',
             self::$baseRouteName . '-mail-log-datatables',
             fn(Request $request, string $tabURL): string => self::mailLogTab($request, $tabURL),
-            20
+            20,
+            __(self::LANG_GROUP, 'Cada correo que esta instalación intentó enviar y si llegó. El cuerpo se guarda cifrado; los adjuntos no se guardan.')
         ));
         LogTabRegistry::register(new LogTab(
             self::TASK_RUNS_TAB,
             __(self::LANG_GROUP, 'Tareas programadas'),
-            'clock outline',
+            'clock',
             self::$baseRouteName . '-task-runs-datatables',
             fn(Request $request, string $tabURL): string => self::taskRunsTab($request, $tabURL),
-            60
+            60,
+            __(self::LANG_GROUP, 'Cuándo corre cada tarea, cómo le fue y cómo se configura.')
         ));
     }
 
@@ -1003,7 +1005,9 @@ class SystemStatusController extends AdminPanelController
                 'delivery',
                 'result',
             ],
+            //Por fecha y no por id: un registro sembrado o importado no entra en orden de envío; el id desempata.
             'custom_order' => [
+                'sentAt' => 'DESC',
                 'id' => 'DESC',
             ],
             'mapper' => new MailLogMapper(),
@@ -1014,7 +1018,8 @@ class SystemStatusController extends AdminPanelController
                 $motivo = isset($e->reason) && is_string($e->reason) ? $e->reason : '';
 
                 $columnas = [];
-                $columnas[] = $escapar($e->sentAt ?? '');
+                $enviado = is_string($e->sentAt ?? null) ? strtotime($e->sentAt) : false;
+                $columnas[] = $enviado !== false ? $escapar(date('d-m-Y H:i', $enviado)) : '';
                 $columnas[] = $escapar($e->recipients ?? '');
                 $columnas[] = $escapar($e->subject ?? '');
                 $columnas[] = $escapar($e->origin ?? '');

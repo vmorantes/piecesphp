@@ -110,7 +110,7 @@ CliActions::make('unit-tests:core/profiles-ensure', function ($args) {
                 'status' => (string) UsersModel::STATUS_USER_ACTIVE,
                 'organization' => (string) OrganizationMapper::INITIAL_ID_GLOBAL,
             ],
-            CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
+            CURLOPT_HTTPHEADER => [SessionToken::headerName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
         ]);
         $cuerpo = curl_exec($h);
         $estado = (int) curl_getinfo($h, CURLINFO_RESPONSE_CODE);

@@ -17,6 +17,15 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  */
 $escape = fn(string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
+//El formato de la plantilla sale de las extensiones aceptadas: xlsx si está (y el enlace sin format, que es el que
+//importTemplate() sirve por omisión); si no, csv con format=csv. El nombre es el mismo con que la sirve.
+$lowerExtensions = array_map(fn($e) => mb_strtolower((string) $e), $extensions);
+$templateFormat = in_array('xlsx', $lowerExtensions, true) || !in_array('csv', $lowerExtensions, true) ? 'xlsx' : 'csv';
+$templateFilename = 'plantilla-' . $definition->key() . '.' . $templateFormat;
+$templateURL = $templateFormat === 'xlsx' ? $template : $template . (str_contains($template, '?') ? '&' : '?') . 'format=csv';
+$templateFormatName = $templateFormat === 'xlsx' ? __($langGroup, 'Excel') : __($langGroup, 'CSV');
+$limits = sprintf(__($langGroup, 'Archivos %s de hasta %d MB y %d filas. Si una fila tiene errores, no se guarda ninguna.'), implode(', ', $extensions), $maxSizeMB, $maxRows);
+$description = trim($definition->description());
 ?>
 <section class="module-view-container">
 
@@ -26,9 +35,18 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
             $helpController->_render('panel/built-in/content/page-header.php', [
                 'breadcrumbs' => $breadcrumbs,
                 'title' => $title,
-                'description' => sprintf(__($langGroup, 'Archivos %s de hasta %d MB y %d filas. Si una fila tiene errores, no se guarda ninguna.'), implode(', ', $extensions), $maxSizeMB, $maxRows),
+                'description' => $description !== '' ? $description : $limits,
             ]);
         ?>
+
+        <?php //Las columnas se casan por título, key o alias, normalizados; lo no declarado se ignora (ImportRunner::run()). ?>
+        <div class="ui warning icon message">
+            <i class="exclamation triangle icon" aria-hidden="true"></i>
+            <div class="content">
+                <div class="header"><?= __($langGroup, 'Mantén los títulos de la plantilla'); ?></div>
+                <p><?= __($langGroup, 'Las columnas se reconocen por su título, o por los otros nombres de la tabla de abajo; el orden no importa. Si cambias un título, esa columna no se leerá.'); ?></p>
+            </div>
+        </div>
 
         <form method="POST" action="<?= $escape($action); ?>" class="ui form initial segment data-transfer-import" data-transfer-import data-content-form>
 
@@ -38,10 +56,10 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
                     <div class="ui relaxed flex">
                         <i class="green bordered file excel icon" aria-hidden="true"></i>
                         <div class="ui vertical fitted flex">
-                            <strong class="ui breaking text"><?= $escape($title); ?></strong>
-                            <small class="ui muted text"><?= __($langGroup, 'Llénala sin cambiar sus columnas'); ?></small>
+                            <strong class="ui breaking text"><?= $escape($templateFilename); ?></strong>
+                            <small class="ui muted text"><?= $escape(sprintf(__($langGroup, '%s · Llénala sin cambiar sus títulos'), $templateFormatName)); ?></small>
                         </div>
-                        <a class="right floated mobile stretched ui basic labeled icon button" href="<?= $escape($template); ?>"><i class="download icon" aria-hidden="true"></i><?= __($langGroup, 'Descargar plantilla'); ?></a>
+                        <a class="right floated mobile stretched ui basic labeled icon button" href="<?= $escape($templateURL); ?>" download="<?= $escape($templateFilename); ?>"><i class="download icon" aria-hidden="true"></i><?= __($langGroup, 'Descargar plantilla'); ?></a>
                     </div>
                 </div></div>
             </section>
@@ -51,9 +69,15 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
             <section aria-labelledby="import-step-file">
                 <h2 class="ui header" id="import-step-file"><span class="ui flex"><span class="ui active circular label" aria-hidden="true">2</span><?= __($langGroup, 'Sube la plantilla diligenciada'); ?></span></h2>
                 <div class="fields">
-                    <div class="eight wide required field">
-                        <label for="data-transfer-import-file"><?= __($langGroup, 'Archivo'); ?></label>
-                        <input type="file" id="data-transfer-import-file" name="file" accept="<?= $escape($accept); ?>" required>
+                    <?php //El input real va oculto y SIN required: oculto y obligatorio, el navegador frena el envío sin decir nada. Lo valida import.js. ?>
+                    <div class="eight wide required field" data-transfer-file-field>
+                        <label for="data-transfer-import-file-name"><?= __($langGroup, 'Archivo de la plantilla'); ?></label>
+                        <div class="ui action input">
+                            <input type="text" id="data-transfer-import-file-name" readonly aria-required="true" aria-describedby="data-transfer-import-file-help" placeholder="<?= $escape(__($langGroup, 'Ningún archivo elegido')); ?>" data-transfer-file-name>
+                            <button type="button" class="ui basic labeled icon button" data-transfer-file-browse><i class="upload icon" aria-hidden="true"></i><?= __($langGroup, 'Examinar'); ?></button>
+                        </div>
+                        <input type="file" id="data-transfer-import-file" name="file" accept="<?= $escape($accept); ?>" hidden tabindex="-1" data-transfer-file>
+                        <div class="description" id="data-transfer-import-file-help"><?= $escape($limits); ?></div>
                     </div>
                 </div>
                 <?php if (isset($partial) && $partial !== null): ?>
@@ -104,7 +128,7 @@ $accept = implode(',', array_map(fn($e) => '.' . $e, $extensions));
             </div>
         </section>
 
-        <div class="data-transfer-report" data-transfer-report></div>
+        <div class="data-transfer-report" data-transfer-report aria-live="polite"></div>
 
     </div>
 

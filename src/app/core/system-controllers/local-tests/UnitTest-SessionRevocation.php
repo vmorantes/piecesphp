@@ -101,7 +101,7 @@ $sessionRevocation = function (bool $revokeAllReal) {
     }
     echoTerminal(' ');
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
 
     /**
      * @return array{status:int,body:string,location:string,cookies:list<string>,json:mixed}

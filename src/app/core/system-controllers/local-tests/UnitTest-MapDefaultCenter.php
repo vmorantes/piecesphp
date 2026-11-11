@@ -68,7 +68,7 @@ CliActions::make('unit-tests:core/map-default-center', function ($args) {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => 60,
-            CURLOPT_HTTPHEADER => [SessionToken::tokenName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
+            CURLOPT_HTTPHEADER => [SessionToken::headerName() . ": {$jwt}", 'X-Requested-With: XMLHttpRequest'],
         ];
         if ($cuerpo !== null) {
             $opciones[CURLOPT_POST] = true;

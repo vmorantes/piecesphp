@@ -1,56 +1,59 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 /**
- * Registro de ingresos: cifras con las piezas de estadísticas y la tabla. Gráfica y tabla, en access-reports.js.
+ * Registro de ingreso (registros-accesos.html del prototipo): el periodo, tres cifras y la tabla de quienes ingresaron
+ * en el periodo. La tabla, en access-reports.js.
  *
+ * @var int $days
+ * @var array<int,array{days:int,url:string,active:bool}> $periods
+ * @var \DateTimeImmutable $from
+ * @var \DateTimeImmutable $until
  * @var int $totalUsers
- * @var int $loggedUsers
+ * @var int $loggedUsers Con al menos un ingreso correcto en el periodo
  * @var int $notLoggedUsers
- * @var float|int|string $allTimeOnPlatform
+ * @var int $deletedLoggedUsers Eliminados que entraron en el periodo: en la tabla, no en las cifras
+ * @var float|int|string $allTimeOnPlatform Desde que hay registro: no admite periodo
  * @var string $exportUrl
+ * @var string $tableURL
  * @var \PiecesPHP\UserSystem\Controllers\HelperController $pieces Pinta las piezas del panel
  */
 $langGroup = LOGIN_REPORT_LANG_GROUP;
 $percent = $totalUsers > 0 ? intval(($loggedUsers * 100) / $totalUsers) : 0;
 ?>
-<div class="login-reports-view">
+<div class="login-reports-view" data-access-logged>
 
-    <?php ob_start(); ?>
-    <div class="three-columns-grid">
+    <?php require __DIR__ . '/period-toolbar.php'; ?>
+
+    <div class="ui hidden divider"></div>
+
+    <section class="ui three stackable cards" aria-label="<?= escape_html(__($langGroup, 'Resumen de ingresos')); ?>">
         <?php
-            $pieces->_render('panel/built-in/statistics/chart-card.php', [
-                'title' => __($langGroup, 'Usuarios totales'),
-                'titleModifiers' => ['big'],
-                'chartAttributes' => ['data-access-chart' => ''],
-                'chartModifiers' => ['tall'],
-                'legend' => [
-                    ['name' => __($langGroup, 'Con ingreso'), 'dataType' => 'loggedUsers', 'level' => 'primary', 'color' => '#21BA45', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $loggedUsers],
-                    ['name' => __($langGroup, 'Sin ingreso'), 'dataType' => 'notLoggedUsers', 'level' => 'secondary', 'color' => '#7A7A7A', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $notLoggedUsers],
-                ],
-                'footer' => ['caption' => sprintf(__($langGroup, '%d%% de %d usuarios ha entrado'), $percent, $totalUsers)],
+            $pieces->_render('panel/built-in/statistics/statistic-card.php', [
+                'title' => __($langGroup, 'Con ingreso'),
+                'help' => __($langGroup, 'Usuarios con al menos un ingreso en el periodo'),
+                'figure' => ['value' => (string) $loggedUsers, 'dataType' => 'loggedUsers', 'description' => sprintf(__($langGroup, '%d %% del total de usuarios'), $percent)],
             ]);
             $pieces->_render('panel/built-in/statistics/statistic-card.php', [
-                'number' => ['dataType' => 'allTimeOnPlatform', 'initial' => (string) $allTimeOnPlatform],
-                'footer' => ['caption' => __($langGroup, 'Horas totales de uso de la plataforma')],
+                'title' => __($langGroup, 'Sin ingreso'),
+                'help' => __($langGroup, 'Usuarios sin ningún ingreso en el periodo'),
+                'figure' => ['value' => (string) $notLoggedUsers, 'dataType' => 'notLoggedUsers', 'description' => sprintf(__($langGroup, '%d %% del total de usuarios'), $totalUsers > 0 ? 100 - $percent : 0)],
             ]);
-            $pieces->_render('panel/built-in/statistics/action-card.php', [
-                'modifiers' => ['horizontal-center'],
-                'url' => $exportUrl,
-                'icon' => 'file export',
-                'title' => __($langGroup, 'Exportar datos'),
+            $pieces->_render('panel/built-in/statistics/statistic-card.php', [
+                'title' => __($langGroup, 'Horas totales'),
+                'help' => __($langGroup, 'Desde que hay registro: el tiempo en la plataforma no se guarda por día'),
+                'figure' => ['value' => (string) $allTimeOnPlatform, 'dataType' => 'allTimeOnPlatform', 'description' => __($langGroup, 'Horas totales de uso de la plataforma')],
             ]);
         ?>
-    </div>
-    <?php
-        $pieces->_render('panel/built-in/statistics/statistics-section.php', [
-            'modifiers' => ['one-column'],
-            'content' => (string) ob_get_clean(),
-        ]);
-    ?>
+    </section>
+    <?php if ($deletedLoggedUsers > 0): ?>
+    <p class="ui muted text" data-access-deleted><?= escape_html(sprintf(__($langGroup, 'La tabla incluye %d cuentas eliminadas que entraron en este periodo; no cuentan en las cifras.'), $deletedLoggedUsers)); ?></p>
+    <?php endif; ?>
+
+    <div class="ui hidden divider"></div>
 
     <div class="ui fluid card container-standard-table">
 
-        <table data-access-table="<?= escape_html(\PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax', ['type' => 'logged'])); ?>" class="ui selectable very basic table content-table">
+        <table data-access-table="<?= escape_html($tableURL); ?>" class="ui selectable very basic table content-table">
             <thead>
                 <tr>
                     <th class="collapsing"><?= __($langGroup, 'ID'); ?></th>

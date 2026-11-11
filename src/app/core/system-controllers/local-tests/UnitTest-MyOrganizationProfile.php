@@ -63,7 +63,7 @@ CliActions::make('unit-tests:core/my-organization-profile', function ($args) {
         return '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
     };
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, ?string $jwt, ?array $post = null) use ($base, $prefijoBase, $cabeceraToken): array {
         $path = $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
         $handle = \Terminal\TestRun::curlInit();

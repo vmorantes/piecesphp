@@ -16,7 +16,9 @@ window.addEventListener('load', () => {
 	})
 
 	form.find('.ui.checkbox').checkbox()
-	form.find('select.ui.dropdown').dropdown()
+	//Sin marcador automático: con él, el option vacío («Ninguno» del protocolo) sería texto de ayuda y no se podría elegir.
+	form.find('select.ui.dropdown[data-no-placeholder]').dropdown({ placeholder: false })
+	form.find('select.ui.dropdown:not([data-no-placeholder])').dropdown()
 	$('.email-view .tabs-controls .item').tab()
 
 	removeGenericLoader('email')

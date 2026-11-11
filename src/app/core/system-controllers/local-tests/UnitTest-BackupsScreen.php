@@ -78,7 +78,7 @@ CliActions::make('unit-tests:core/backups-screen', function ($args) {
     }
     echoTerminal(' ');
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = []) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
         $handle = \Terminal\TestRun::curlInit();

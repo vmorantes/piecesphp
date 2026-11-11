@@ -69,7 +69,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
     }
 
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $camino = function (string $url) use ($prefijoBase): string {
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
@@ -372,7 +372,8 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             'auto_tls' => $correo->autoTls() ? 1 : 0,
             'auth' => $correo->auth() ? 1 : 0,
             'host' => $texto($correo->host()),
-            'protocol' => $texto($correo->protocol()),
+            //Uno de la lista: un texto libre de antes (la base local guarda «STARTTLS») se rechaza al guardar.
+            'protocol' => in_array(mb_strtolower(trim($texto($correo->protocol()))), \PiecesPHP\Settings\Controllers\SettingsController::MAIL_PROTOCOLS, true) ? mb_strtolower(trim($texto($correo->protocol()))) : 'tls',
             'port' => $entero($correo->port()),
             'user' => $texto($correo->user()),
             'name' => $texto($correo->name()),
@@ -381,7 +382,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             'test_port' => $entero($correo->testPort()),
         ];
         $guardar = $pedir($rutaCorreo, $jwtRoot, $camposCorreo + ['password' => '']);
-        $check($texto($correoEnBase()->password()) === $contrasena, 'f3 guardar el correo con la contraseña vacía la conserva', "HTTP {$guardar['status']}");
+        $check((json_decode($guardar['body'], true)['success'] ?? null) === true && $texto($correoEnBase()->password()) === $contrasena, 'f3 guardar el correo con la contraseña vacía la conserva', "HTTP {$guardar['status']}");
         $falsaSmtp = 'zz-contrasena-falsa-' . bin2hex(random_bytes(6));
         $guardar = $pedir($rutaCorreo, $jwtRoot, $camposCorreo + ['password' => $falsaSmtp]);
         $check($texto($correoEnBase()->password()) === $falsaSmtp, 'f4 CANARIO: guardar otra contraseña la cambia', "HTTP {$guardar['status']}, mensaje " . mb_substr((string) (json_decode($guardar['body'], true)['message'] ?? ''), 0, 160));

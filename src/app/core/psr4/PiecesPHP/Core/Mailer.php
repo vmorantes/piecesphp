@@ -56,7 +56,7 @@ class Mailer extends PHPMailer
             'Host' => $mailConfig->host(),
             'Port' => $mailConfig->port(),
             'SMTPAutoTLS' => $mailConfig->autoTls(),
-            'SMTPSecure' => $mailConfig->protocol(),
+            'SMTPSecure' => \PiecesPHP\Settings\Controllers\SettingsController::normalizeMailProtocol($mailConfig->protocol()) ?? $mailConfig->protocol(),
             'SMTPOptions' => $mailConfig->smtpOptions(),
             'SMTPAuth' => $mailConfig->auth(),
             'Username' => $mailConfig->user(),

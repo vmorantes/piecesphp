@@ -227,9 +227,10 @@ class UsersController extends AdminPanelController
         $this->render('panel/pages/list-usuarios', [
             'langGroup' => $langGroup,
             'title' => $title,
-            'description' => __($langGroup, 'Quién entra al panel, con qué tipo y en qué estado.'),
+            'description' => __($langGroup, 'Las personas que pueden entrar a la plataforma, su tipo, su estado y la organización a la que pertenecen.'),
             'addLink' => $addLink,
             'process_table' => self::routeName('datatables'),
+            'countsByStatus' => $this->visibleUsersCountByStatus(),
         ]);
         $this->helpController->render('panel/layout/footer');
 
@@ -246,28 +247,8 @@ class UsersController extends AdminPanelController
 
         $filterStatus = $request->getQueryParam('with-status', null);
         $filterStatus = Validator::isInteger($filterStatus) ? (int) $filterStatus : null;
-        $currentUser = new UsersModel($this->user->id);
-        $disallowedTypes = $currentUser->getHigherPriorityTypes();
-        $canModify = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
 
-        //POR MARCADOR, con `where_segment`. El `AND` del último criterio lo descarta
-        //`WhereSegment::toString()`, que usa `toString(false)` para el que cierra. Ver T157.
-        $whereItems = [
-            new WhereItem('id', WhereItem::NOT_EQUAL_OPERATOR, $this->user->id, WhereItem::AND_OPERATOR),
-            //No mostrar usuarios marcados eliminados
-            new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR),
-            UsersModel::excludeSystemUserWhereItem(),
-        ];
-
-        if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
-            foreach ($disallowedTypes as $disallowedType) {
-                $whereItems[] = new WhereItem('type', WhereItem::NOT_EQUAL_OPERATOR, $disallowedType, WhereItem::AND_OPERATOR);
-            }
-        }
-
-        if (!$canModify) {
-            $whereItems[] = new WhereItem('organization', WhereItem::EQUAL_OPERATOR, $currentUser->organization, WhereItem::AND_OPERATOR);
-        }
+        $whereItems = $this->visibleUsersWhereItems();
 
         if ($filterStatus !== null) {
             $whereItems[] = new WhereItem('status', WhereItem::EQUAL_OPERATOR, $filterStatus, WhereItem::AND_OPERATOR);
@@ -276,10 +257,14 @@ class UsersController extends AdminPanelController
         $whereSegment = new WhereSegment($whereItems);
 
         $selectFields = UsersModel::fieldsToSelect();
+        //Para buscar por la organización (su nombre en el idioma por omisión) sin tocar el listado común de campos.
+        $organizations = OrganizationMapper::TABLE;
+        $selectFields[] = "(SELECT {$organizations}.name FROM {$organizations} WHERE {$organizations}.id = " . UsersModel::TABLE . '.organization) AS organizationName';
 
         $columnsOrder = [
             UsersModel::TABLE . '.id',
-            'names',
+            //La búsqueda recorre los tres: «Nombre, usuario, email u organización», también el nombre completo.
+            ['names', 'fullname', 'organizationName'],
             'lastNames',
             'email',
             'username',
@@ -354,6 +339,59 @@ class UsersController extends AdminPanelController
         $result->setValue('rawData', $rawData);
 
         return $response->withJson($result->getValues());
+    }
+
+    /**
+     * Los usuarios que quien mira puede ver en el listado: ni él mismo, ni los eliminados, ni el de sistema, ni los de
+     * tipos de más rango y, si no puede con todas las organizaciones, solo los de la suya. Lo usan el listado y sus
+     * contadores: los dos ven lo mismo.
+     *
+     * @return WhereItem[]
+     */
+    protected function visibleUsersWhereItems(): array
+    {
+        $currentUser = new UsersModel($this->user->id);
+        $disallowedTypes = $currentUser->getHigherPriorityTypes();
+        $canModify = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+
+        //POR MARCADOR, con `where_segment`. El `AND` del último criterio lo descarta
+        //`WhereSegment::toString()`, que usa `toString(false)` para el que cierra. Ver T157.
+        $whereItems = [
+            new WhereItem(UsersModel::TABLE . '.id', WhereItem::NOT_EQUAL_OPERATOR, $this->user->id, WhereItem::AND_OPERATOR),
+            //No mostrar usuarios marcados eliminados
+            new WhereItem(UsersModel::TABLE . '.status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR),
+            UsersModel::excludeSystemUserWhereItem(UsersModel::TABLE . '.id', WhereItem::AND_OPERATOR),
+        ];
+
+        if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
+            foreach ($disallowedTypes as $disallowedType) {
+                $whereItems[] = new WhereItem(UsersModel::TABLE . '.type', WhereItem::NOT_EQUAL_OPERATOR, $disallowedType, WhereItem::AND_OPERATOR);
+            }
+        }
+
+        if (!$canModify) {
+            $whereItems[] = new WhereItem(UsersModel::TABLE . '.organization', WhereItem::EQUAL_OPERATOR, $currentUser->organization, WhereItem::AND_OPERATOR);
+        }
+
+        return $whereItems;
+    }
+
+    /**
+     * Cuántos usuarios ve quien mira, por estado (con la visibilidad del listado), y en `all` la suma.
+     *
+     * @return array<int|string,int>
+     */
+    protected function visibleUsersCountByStatus(): array
+    {
+        $model = UsersModel::model();
+        $model->resetAll();
+        $model->select([UsersModel::TABLE . '.status', 'COUNT(' . UsersModel::TABLE . '.id) AS total'])->where(new WhereSegment($this->visibleUsersWhereItems()))->groupBy(UsersModel::TABLE . '.status')->execute();
+        $counts = ['all' => 0];
+        foreach ((array) $model->result() as $row) {
+            $counts[(int) $row->status] = (int) $row->total;
+            $counts['all'] += (int) $row->total;
+        }
+        return $counts;
     }
 
     /**
@@ -595,7 +633,6 @@ class UsersController extends AdminPanelController
         $this->helpController->render('panel/layout/header');
         $this->render('usuarios/select-type-user', [
             'types' => $types,
-            'breadcrumbs' => $this->usersBreadcrumbs($title),
             'title' => $title,
             'description' => __(self::LANG_GROUP, 'Elige qué tipo de usuario vas a crear.'),
         ]);
@@ -686,7 +723,15 @@ class UsersController extends AdminPanelController
             $data['create'] = true;
             $data['pageTitle'] = __(self::LANG_GROUP, 'Agregar usuario');
             $data['pageDescription'] = $data['typeName'];
-            $data['breadcrumbs'] = $this->usersBreadcrumbs($data['pageTitle']);
+            //Subvista de la elección de tipo: Inicio › Tipo de usuario › Agregar usuario (vistas-referencia.md §3.44).
+            $selectionLink = self::routeName('selection-create');
+            $data['breadcrumbs'] = [
+                __(self::LANG_GROUP, 'Inicio') => ['url' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('')],
+            ];
+            if ($selectionLink !== '') {
+                $data['breadcrumbs'][__(self::LANG_GROUP, 'Tipo de usuario')] = ['url' => $selectionLink];
+            }
+            $data['breadcrumbs'][] = $data['pageTitle'];
 
             $this->helpController->render('panel/layout/header');
             $this->render('usuarios/form', $data);

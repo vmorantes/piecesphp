@@ -72,7 +72,7 @@ CliActions::make('unit-tests:core/deleted-user-gone', function ($args) {
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt, ?array $post = null, array $query = []) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         $opciones = [

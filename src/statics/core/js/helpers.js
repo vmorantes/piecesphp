@@ -830,6 +830,10 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
  * @param {String} customClassesCards.containerCardsClass
  * @param {String} customClassesCards.containerCardsSelector
  * @param {String} customClassesCards.cardsSelector
+ * @param {String} [customClassesCards.lengthPaginationSelector] Dónde se elige cuántos por página, dentro de los controles.
+ * Por omisión, `[type="number"][length-pagination]`; un `select[length-pagination]` sirve igual.
+ * @param {Boolean} [customClassesCards.withInfo] Con true, la línea «Viendo desde X hasta Y de N elementos» junto a la
+ * paginación. Por omisión, no.
  * @param {Function} options.initComplete
  * @param {function($):void} options.initCompleteEnd
  * @param {Function} options.preDrawCallback
@@ -852,6 +856,10 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 	if (typeof customClassesCards.cardsSelector != 'string') {
 		customClassesCards.cardsSelector = '.card'
 	}
+	if (typeof customClassesCards.lengthPaginationSelector != 'string') {
+		customClassesCards.lengthPaginationSelector = '[type="number"][length-pagination]'
+	}
+	const withInfo = customClassesCards.withInfo === true
 
 	let container = containerSelector !== null ? $(containerSelector) : null
 
@@ -874,7 +882,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 		let drawCallbackEnd = typeof options.drawCallbackEnd == 'function' ? options.drawCallbackEnd : () => { }
 
 		let optionsDataTables = {
-			dom: `<"component-wrapper"t<"component-pagination"p>>`,
+			dom: withInfo ? `<"component-wrapper"t<"component-pagination"ip>>` : `<"component-wrapper"t<"component-pagination"p>>`,
 			initComplete: function (settings, json) {
 
 				initComplete(settings, json)
@@ -908,7 +916,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 				let selectionOrder = controls.find('select[options-order]')
 				let selectionOrderType = controls.find('.ui.dropdown[options-order-type]')
 				let search = controls.find(`[type="search"]`)
-				let lengthPagination = controls.find(`[type="number"][length-pagination]`)
+				let lengthPagination = controls.find(customClassesCards.lengthPaginationSelector)
 
 				//Ordenamiento				
 				columns.map((e, i) => {

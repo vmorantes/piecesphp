@@ -181,6 +181,11 @@ function ContentImageEditor(scope = '') {
 	const updateCard = function (file, url) {
 		const holder = card.querySelector('.checkered.image')
 		let image = holder.querySelector('img')
+		//El texto de la tarjeta vacía («Sin foto»), si lo lleva: la imagen ocupa su sitio.
+		const empty = holder.querySelector('[data-image-card-empty]')
+		if (empty !== null) {
+			empty.remove()
+		}
 		if (image === null) {
 			const edit = document.createElement('button')
 			edit.type = 'button'
@@ -214,12 +219,14 @@ function ContentImageEditor(scope = '') {
 	const send = function (file, url) {
 		const formData = new FormData()
 		formData.set(card.dataset.field, file)
+		//Antes de pintarla: una tarjeta vacía que se llena es «agregada», no «reemplazada».
+		const added = card.querySelector('.checkered.image img') === null
 		postRequest(card.dataset.action, formData).done((response) => {
 			finishApply()
 			if (response.success) {
 				updateCard(file, url)
 				$editor.modal('hide')
-				successMessage(text('replaced'), text('replaced-detail'))
+				successMessage(text(added ? 'added' : 'replaced'), text(added ? 'added-detail' : 'replaced-detail'))
 			} else {
 				errorMessage(text('error'), response.message)
 			}

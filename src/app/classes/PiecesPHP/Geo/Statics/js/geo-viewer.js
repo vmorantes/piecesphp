@@ -33,7 +33,7 @@ class GeoViewer {
 	constructor(root) {
 		this.root = root
 		this.config = JSON.parse(root.dataset.geoViewer || '{}')
-		/** @type {Object<string,{key:string,title:string,marker:string,colorVariable:string}>} */
+		/** @type {Object<string,{key:string,title:string,marker:string,colorVariable:string,color:string|null}>} */
 		this.sources = {}
 		for (const source of this.config.sources || []) {
 			this.sources[source.key] = source
@@ -369,8 +369,10 @@ class GeoViewer {
 			onColor: read('--geo-on-color', 'currentColor'),
 		}
 		for (const key in this.sources) {
+			//Sin la variable definida, el color que declara la fuente (GeoSourceRegistry::colorValue()) y, si no, el del texto.
 			const variable = this.sources[key].colorVariable
-			this.colors[key] = /^--[A-Za-z0-9_-]+$/.test(variable) ? read(variable, this.colors.text) : this.colors.text
+			const fallback = typeof this.sources[key].color == 'string' ? this.sources[key].color : this.colors.text
+			this.colors[key] = /^--[A-Za-z0-9_-]+$/.test(variable) ? read(variable, fallback) : this.colors.text
 		}
 		probe.remove()
 	}
@@ -681,7 +683,8 @@ class GeoViewer {
 		const element = template.content.firstElementChild.cloneNode(true)
 		const variable = this.sources[key].colorVariable
 		if (/^--[A-Za-z0-9_-]+$/.test(variable)) {
-			element.style.setProperty('--geo-marker-color', `var(${variable})`)
+			const color = this.sources[key].color
+			element.style.setProperty('--geo-marker-color', typeof color == 'string' ? `var(${variable}, ${color})` : `var(${variable})`)
 		}
 		const title = typeof feature.properties.title == 'string' ? feature.properties.title : ''
 		const thumbnail = feature.properties.thumbnail

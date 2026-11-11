@@ -7,7 +7,7 @@ use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
  * solo lo que quien mira puede ver.
  *
  * @var string $langGroup
- * @var array<int,array{browser:string,ip:string,createdAt:string,lastActivityAt:string,expiresAt:string,current:bool,actions:string}> $rows
+ * @var array<int,array{browser:string,ip:string,createdAt:string,lastActivityAt:string,expiresAt:string,current:bool,actions:string}> $rows Las tres fechas, ya en `<time>` y escapadas
  * @var bool $mine
  * @var string $closeOthersURL
  */
@@ -33,13 +33,13 @@ use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
                 <td data-label="<?= escape_html(__($langGroup, 'Navegador')); ?>">
                     <?= escape_html($row['browser']); ?>
                     <?php if ($row['current']): ?>
-                    <?= StatusLabel::html(__($langGroup, 'Esta sesión'), StatusLabel::POSITIVE); ?>
+                    <?= StatusLabel::html(__($langGroup, 'Actual'), StatusLabel::POSITIVE); ?>
                     <?php endif; ?>
                 </td>
                 <td data-label="<?= escape_html(__($langGroup, 'IP')); ?>"><?= escape_html($row['ip']); ?></td>
-                <td data-label="<?= escape_html(__($langGroup, 'Inicio')); ?>"><?= escape_html($row['createdAt']); ?></td>
-                <td data-label="<?= escape_html(__($langGroup, 'Última actividad')); ?>"><?= escape_html($row['lastActivityAt']); ?></td>
-                <td data-label="<?= escape_html(__($langGroup, 'Caduca')); ?>"><?= escape_html($row['expiresAt']); ?></td>
+                <td data-label="<?= escape_html(__($langGroup, 'Inicio')); ?>"><?= $row['createdAt']; ?></td>
+                <td data-label="<?= escape_html(__($langGroup, 'Última actividad')); ?>"><?= $row['lastActivityAt']; ?></td>
+                <td data-label="<?= escape_html(__($langGroup, 'Caduca')); ?>"><?= $row['expiresAt']; ?></td>
                 <td><?= $mine && $row['current'] ? '' : $row['actions']; ?></td>
             </tr>
             <?php endforeach; ?>

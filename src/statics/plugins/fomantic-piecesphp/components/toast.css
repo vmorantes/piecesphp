@@ -113,7 +113,9 @@
   margin-bottom: 0.71428571rem;
   border-radius: var(--r-md, 8px);
   cursor: default;
-  will-change: transform, opacity;
+  
+/* Fork: sin `will-change` permanente: crea una capa que anula el `backdrop-filter` del toast
+           (los temas de cristal se veían nítidos por detrás) */
 }
 .ui.toast-container .toast-box:hover {
   opacity: 1;
@@ -839,6 +841,19 @@
     PiecesPHP: Toast Overrides
 *******************************/
 
+
+
+/*******************************
+      Core: Toast Overrides
+*******************************/
+
+
+/* Botón basic sin color en las acciones de un toast: toma el texto del toast. Con la tinta del acento,
+   sobre un toast de estado relleno (el info azul de material3) quedaba en 2:1. */
+.ui.toast .actions .ui.basic.button:not(.primary):not(.secondary):not([class*="accent-"]):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black):not(.positive):not(.negative) {
+  box-shadow: 0 0 0 1px currentColor inset;
+  color: inherit;
+}
 
 /* Capa: la de Fomantic (9999), por encima de todo. tokens.md §7 pide 400 «por encima del dimmer»
    para que un toast se vea con un modal abierto, pero los dimmers de página de Fomantic

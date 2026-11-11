@@ -106,6 +106,21 @@ CliActions::make('unit-tests:core/image-card', function ($args) {
     $check($control instanceof \DOMElement && $control->getAttribute('type') === 'button' && $control->getElementsByTagName('img')->length === 1, 'v8 no envía un formulario: type=button');
     $check(!str_contains($vacia, 'data-image-card-edit'), 'v9 la tarjeta vacía no lo lleva');
     $check(str_contains($vacia, 'data-edit-label='), 'v10 pero lleva el texto para cuando se llene');
+    $check(!str_contains($vacia, 'data-image-card-empty'), 'v15 DISCRIMINANTE: sin emptyText, la vacía no lleva texto (el valor por omisión no cambia)');
+    $conTexto = $pintar(['id' => 'zz-sin', 'title' => 'x', 'emptyText' => "Sin foto {$marca}", 'width' => 1, 'height' => 1]);
+    $check(str_contains($conTexto, 'data-image-card-empty') && str_contains($conTexto, '&lt;script&gt;'), 'v16 con emptyText, el texto sobre el damero, escapado');
+    $check(!str_contains($pintar(['id' => 'zz-con', 'title' => 'x', 'image' => 'statics/zz.jpg', 'emptyText' => 'Sin foto', 'width' => 1, 'height' => 1]), 'data-image-card-empty'), 'v17 y con imagen no sale');
+    $check(!str_contains($html, 'data-image-card-delete'), 'v11 DISCRIMINANTE: sin deleteValue no hay Eliminar');
+    $borrable = new \DOMDocument();
+    @$borrable->loadHTML('<?xml encoding="utf-8" ?>' . $pintar(['id' => 'zz-b', 'title' => 'x', 'image' => 'statics/zz.jpg', 'deleteValue' => "statics/zz.jpg{$comillas}", 'width' => 1, 'height' => 1]));
+    $botonBorrar = (new \DOMXPath($borrable))->query('//button[@data-image-card-delete]')?->item(0);
+    $check($botonBorrar instanceof \DOMElement && $botonBorrar->getAttribute('data-value') === "statics/zz.jpg{$comillas}" && !$botonBorrar->hasAttribute('disabled') && $botonBorrar->getAttribute('type') === 'button', 'v12 con deleteValue, Eliminar con su valor entero en data-value, habilitado');
+    $sinImagenBorrable = $pintar(['id' => 'zz-bv', 'title' => 'x', 'deleteValue' => '', 'width' => 1, 'height' => 1]);
+    $check(preg_match('/<div data-image-card-delete-holder[^>]* hidden>/', $sinImagenBorrable) === 1, 'v13 sin imagen, Eliminar está pero oculto');
+    $soloUna = new \DOMDocument();
+    @$soloUna->loadHTML('<?xml encoding="utf-8" ?>' . $pintar(['id' => 'zz-bd', 'title' => 'x', 'image' => 'statics/zz.jpg', 'deleteValue' => 'statics/zz.jpg', 'deleteDisabledReason' => "Motivo {$comillas}", 'width' => 1, 'height' => 1]));
+    $holder = (new \DOMXPath($soloUna))->query('//div[@data-image-card-delete-holder]')?->item(0);
+    $check($holder instanceof \DOMElement && $holder->getAttribute('data-tooltip') === "Motivo {$comillas}" && $holder->getElementsByTagName('button')->item(0)?->hasAttribute('disabled') === true, 'v14 con motivo, deshabilitado y el envoltorio lo explica en su tooltip');
     echoTerminal(' ');
 
     echoTerminal('[3/4] El editor');
@@ -123,7 +138,7 @@ CliActions::make('unit-tests:core/image-card', function ($args) {
     $check($xpath->query('//input[@type="file"][@required]')?->length === 1 && $xpath->query('//div[contains(@class,"required")][contains(@class,"field")]/label[@hidden]')?->length === 1, 'e9 obligatoria: input con required, y un .field con label oculta para el nombre y el error');
     $opcional = (string) (new BaseController())->render('panel/built-in/content/image-field', ['card' => ['id' => 'zz-o', 'title' => 'x', 'field' => 'f']], false);
     $check(!str_contains($opcional, ' required'), 'e10 DISCRIMINANTE: sin required, ni el input ni el .field la piden');
-    foreach (['replaced', 'replaced-detail', 'error', 'error-detail', 'unreadable', 'unreadable-detail', 'export'] as $texto) {
+    foreach (['replaced', 'replaced-detail', 'added', 'added-detail', 'error', 'error-detail', 'unreadable', 'unreadable-detail', 'export'] as $texto) {
         $check(preg_match('/data-text-' . $texto . '="[^"]+"/', $editor) === 1, "e2 trae el texto {$texto}");
     }
     $check(str_contains($editor, '${size}'), 'e3 el texto de la exportación deja hueco a la medida');
@@ -134,6 +149,7 @@ CliActions::make('unit-tests:core/image-card', function ($args) {
     $sinComentarios = (string) preg_replace('/\/\*.*?\*\/|^\s*\/\/.*$/ms', '', $js);
     $check(preg_match('/[áéíóúñÁÉÍÓÚÑ]/u', $sinComentarios) !== 1, 'e5 el JavaScript no lleva textos en español');
     $check(str_contains($js, ".required = false"), 'e11 al aplicar la imagen, el input deja de ser obligatorio');
+    $check(str_contains($js, "querySelector('[data-image-card-empty]')"), 'e12 al aplicar la imagen, el texto de la vacía se quita');
     $check(str_contains($js, 'cropBoxMovable: false') && str_contains($js, 'cropBoxResizable: false'), 'e6 el recuadro es fijo');
     echoTerminal(' ');
 

@@ -173,9 +173,9 @@ CliActions::make('unit-tests:core/users-import', function ($args) {
         $check(($errores[1] ?? '') === '' && ($errores[7] ?? '') === '', 'p4 las filas 1 y 7 (tipo por nombre) son válidas');
         $check(str_contains($errores[2] ?? '', 'no es un correo válido'), 'p4 fila 2: correo mal formado');
         $check(str_contains($errores[3] ?? '', 'ya existe'), 'p4 fila 3: usuario duplicado en la base');
-        $check(str_contains($errores[4] ?? '', 'se repite en la fila 1'), 'p4 fila 4: correo duplicado dentro del archivo');
+        $check(str_contains($errores[4] ?? '', 'se repite en la fila 2'), 'p4 fila 4: correo duplicado dentro del archivo, citando la fila del ARCHIVO (la 1 son los títulos)');
         $check(str_contains($errores[5] ?? '', 'no se puede importar'), 'p4 fila 5: tipo administrador, fuera de IMPORTABLE_TYPES');
-        $check(str_contains($errores[6] ?? '', 'la fila 6 trae «987654321»') && str_contains($errores[6] ?? '', 'no es el código ni el id de ninguna organización'), 'p4/b2 fila 6: la organización no existe, y el mensaje nombra la fila y el código', $errores[6] ?? '');
+        $check(str_contains($errores[6] ?? '', 'Organización: «987654321» no es el código ni el id de ninguna organización') && !str_contains($errores[6] ?? '', 'la fila'), 'p4/b2 fila 6: la organización no existe; el mensaje nombra el código y no la fila (la dice la tabla)', $errores[6] ?? '');
 
         //Quien importa es un usuario general: el tipo general tiene su misma prioridad.
         $general = $porUsuario["{$prefijo}-b"] ?? null;
@@ -229,8 +229,8 @@ CliActions::make('unit-tests:core/users-import', function ($args) {
         $errorSinOrganizacion = implode(' | ', ($informe->rowResults()[0] ?? null)?->errors() ?? []);
         $check(!$informe->persisted() && count($usuariosDelPrefijo("{$prefijo}-vh2")) === 0, 'b4 sin organización y sin herencia: no se importa nada');
         $check(
-            str_contains($errorSinOrganizacion, 'la fila 1 no trae ninguna') && str_contains($errorSinOrganizacion, 'hay que poner su código'),
-            'b4 y el mensaje dice qué fila y qué hacer',
+            str_contains($errorSinOrganizacion, 'Organización: no trae ninguna') && str_contains($errorSinOrganizacion, 'hay que poner su código') && !str_contains($errorSinOrganizacion, 'la fila'),
+            'b4 y el mensaje dice qué hacer, sin la fila (la dice la tabla)',
             $errorSinOrganizacion
         );
         $como($idRoot);

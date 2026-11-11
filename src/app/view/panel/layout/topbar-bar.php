@@ -35,7 +35,7 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
         <?php if ($hasAvatar) : ?>
         <img class="ui avatar image" src="<?= $avatar; ?>" alt="">
         <?php else : ?>
-        <span class="ui avatar label" aria-hidden="true"><i class="user outline icon"></i></span>
+        <?= ($avatarLabel)(); ?>
         <?php endif; ?>
         <span class="mobile hidden fluid ui vertical fitted flex">
             <strong class="ui small truncated text" title="<?= escape_html($fullName); ?>"><?= escape_html($fullName); ?></strong>
@@ -49,7 +49,7 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
                 <?php if ($hasAvatar) : ?>
                 <img class="ui tiny circular image" src="<?= $avatar; ?>" alt="">
                 <?php else : ?>
-                <span class="ui massive avatar label" aria-hidden="true"><i class="user outline icon"></i></span>
+                <?= ($avatarLabel)('massive'); ?>
                 <?php endif; ?>
                 <div class="fluid ui vertical left aligned tight flex">
                     <strong><?= escape_html($currentUser->firstname . ' ' . $currentUser->secondname); ?></strong>

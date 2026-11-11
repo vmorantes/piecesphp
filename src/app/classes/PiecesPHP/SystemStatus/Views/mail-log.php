@@ -20,8 +20,6 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
 ?>
 <div class="mail-log-view">
 
-    <p><?= __($langGroup, 'Cada correo que esta instalación intentó mandar, y si llegó. El cuerpo se guarda cifrado; los adjuntos, no.'); ?></p>
-
     <?php if (!$tableExists): ?>
 
     <div class="ui red message">
@@ -116,10 +114,16 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
     <?php if ($canSeeBody): ?>
     <?php //El cuerpo se pinta AISLADO: `sandbox` VACÍO —sin scripts, sin mismo origen, sin formularios—
     //y por `srcdoc`. Puede traer texto de quien llenó un formulario: pintarlo en el panel sería un XSS contra root. ?>
-    <div class="ui segment" data-mail-log-body-viewer data-error-text="<?= $escape(__($langGroup, 'No se pudo pedir el cuerpo del correo.')); ?>" hidden>
-        <button type="button" class="ui mini button" data-mail-log-body-close><?= __($langGroup, 'Cerrar'); ?></button>
-        <p data-mail-log-body-message hidden></p>
-        <iframe data-mail-log-body-frame sandbox="" title="<?= $escape(__($langGroup, 'Cuerpo del correo')); ?>" style="width: 100%; min-height: 480px; border: 0;"></iframe>
+    <?php //En una ventana modal de Fomantic: Cerrar y Esc la cierran (mail-log.js), y al cerrarla se vacía el iframe. ?>
+    <div class="ui large modal" data-mail-log-body-viewer data-error-text="<?= $escape(__($langGroup, 'No se pudo pedir el cuerpo del correo.')); ?>">
+        <div class="header"><?= __($langGroup, 'Cuerpo del correo'); ?></div>
+        <div class="scrolling content">
+            <p data-mail-log-body-message hidden></p>
+            <iframe data-mail-log-body-frame sandbox="" title="<?= $escape(__($langGroup, 'Cuerpo del correo')); ?>" style="width: 100%; min-height: 480px; border: 0;"></iframe>
+        </div>
+        <div class="actions">
+            <button type="button" class="ui basic button" data-mail-log-body-close><?= __($langGroup, 'Cerrar'); ?></button>
+        </div>
     </div>
     <?php endif; ?>
 

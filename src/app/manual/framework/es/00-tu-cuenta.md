@@ -11,8 +11,16 @@ nombra el manual no te aparece, tu tipo de usuario no la tiene.
 
 ## Entrar y salir
 
-1. Escribe tu usuario y tu contraseña en la pantalla de acceso y pulsa **«Ingresar»**.
-2. Para salir, abre el menú de tu nombre, arriba a la derecha, y elige **«Cerrar sesión»**.
+1. En la pantalla de acceso, elige cómo entrar:
+    - **«Contraseña»**: escribe tu usuario o tu correo y tu contraseña, y pulsa **«Ingresar»**.
+    - **«Código de acceso»**: escribe tu usuario o tu correo y pulsa **«Enviar código»**. Te llega un código de seis
+      cifras al correo; escríbelo (o pégalo entero) en las seis casillas y pulsa **«Verificar e ingresar»**. El código
+      vence a los pocos minutos (la pantalla dice cuántos); si no te llegó, espera a que se active
+      **«Reenviar código»**.
+2. Si tu cuenta tiene la verificación en dos pasos, después te pide el código de tu aplicación.
+3. Si algo falla, el aviso sale dentro del formulario y el campo con el problema queda marcado: corrígelo y vuelve
+   a intentarlo.
+4. Para salir, abre el menú de tu nombre, arriba a la derecha, y elige **«Cerrar sesión»**.
 
 ![Entrar y salir](img/users-form-login.webp)
 

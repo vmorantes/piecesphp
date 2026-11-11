@@ -7,7 +7,7 @@ use PiecesPHP\Geo\GeoSource;
 
 /**
  * @var string $langGroup
- * @var array<string,GeoSource> $sources Las visibles para el rol, en orden de registro.
+ * @var array<string,\PiecesPHP\Geo\GeoSource> $sources Las visibles para el rol, en orden de registro.
  * @var array<string,GeoFilter> $filters Uno por clave.
  * @var array<string,mixed> $client Lo que lee geo-viewer.js: las URL de las dos rutas y las fuentes.
  */
@@ -87,7 +87,8 @@ $withSources = count($sources) > 0;
                 <button type="button" class="ui icon basic button" data-geo-close="legend" title="<?= __($langGroup, 'Cerrar'); ?>"><i class="close icon"></i></button>
             </div>
             <?php foreach ($sources as $key => $source): ?>
-            <div class="geo-legend-row" style="--geo-legend-color: var(<?= escape_html($source->colorVariable()); ?>);">
+            <?php $sourceColor = \PiecesPHP\Geo\GeoSourceRegistry::colorValue($source); ?>
+            <div class="geo-legend-row" style="--geo-legend-color: var(<?= escape_html($source->colorVariable()); ?><?= $sourceColor !== null ? ', ' . escape_html($sourceColor) : ''; ?>);">
                 <span class="geo-legend-sample" data-geo-legend-sample="<?= escape_html($source->marker()); ?>"></span>
                 <label for="<?= escape_html('geo-source-' . $key); ?>"><?= escape_html($source->title()); ?></label>
                 <div class="ui toggle checkbox">
@@ -120,7 +121,9 @@ $withSources = count($sources) > 0;
     </div>
 
     <?php foreach ($sources as $key => $source): ?>
+    <?php if (\PiecesPHP\Geo\GeoSourceRegistry::hasCardView($source)): ?>
     <template data-geo-card="<?= escape_html($key); ?>"><?php include $source->cardView(); ?></template>
+    <?php endif; ?>
     <?php endforeach; ?>
 
     <template data-geo-marker="dot"><span class="geo-marker geo-marker-dot"></span></template>

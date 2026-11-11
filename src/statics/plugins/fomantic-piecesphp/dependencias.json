@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "12f912d",
+  "commit": "610f39d3",
   "fuenteSinCambios": true,
-  "generado": "2026-11-10T01:00:36.041Z",
+  "generado": "2026-11-10T21:50:21.030Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -2225,8 +2225,7 @@
       "css": [],
       "js": [],
       "opcional": {
-        "icon": "CSS: solo si el marcado lleva esa pieza (9 de 80 ejemplos): i.clock.icon ← i.icon",
-        "text": "CSS: solo si el marcado lleva esa pieza (1 de 80 ejemplos): div.ui.vertical.text.menu ← .ui.vertical.text"
+        "icon": "CSS: solo si el marcado lleva esa pieza (9 de 80 ejemplos): i.clock.icon ← i.icon"
       },
       "contenido": [
         "button",
@@ -2244,16 +2243,14 @@
         "ejemplos": 80,
         "piezas": 366,
         "muestras": {
-          "icon": "i.clock.icon ← i.icon",
-          "text": "div.ui.vertical.text.menu ← .ui.vertical.text"
+          "icon": "i.clock.icon ← i.icon"
         },
         "conDependencias": {
           "piezas": 0,
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "39 piezas cambian sin él",
-          "text": "10 piezas cambian sin él"
+          "icon": "31 piezas cambian sin él"
         },
         "suelto": {
           "piezas": 366,
@@ -2264,12 +2261,12 @@
             "scrollbar-color": 737,
             "text-size-adjust": 737,
             "-webkit-font-smoothing": 701,
-            "perspective-origin": 531,
-            "transform-origin": 531,
-            "block-size": 506,
-            "height": 506,
-            "inline-size": 406,
-            "width": 406
+            "perspective-origin": 532,
+            "transform-origin": 532,
+            "block-size": 505,
+            "height": 505,
+            "inline-size": 407,
+            "width": 407
           },
           "muestras": [
             "div.ui.menu en div.: block-size 52px → 56.8281px",
@@ -2282,14 +2279,14 @@
           "propiedades": {
             "font-size": 737,
             "line-height": 569,
-            "perspective-origin": 529,
-            "transform-origin": 529,
+            "perspective-origin": 530,
+            "transform-origin": 530,
             "block-size": 506,
             "height": 506,
-            "inline-size": 364,
-            "width": 364,
-            "padding-inline-end": 240,
-            "padding-inline-start": 240,
+            "inline-size": 365,
+            "width": 365,
+            "padding-inline-end": 234,
+            "padding-inline-start": 234,
             "padding-left": 234,
             "padding-right": 234
           },

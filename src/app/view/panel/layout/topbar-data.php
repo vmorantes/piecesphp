@@ -143,5 +143,9 @@ $hasAvatar = $currentUser->hasAvatar;
  * @var string
  */
 $avatar = $currentUser->avatar;
+//El avatar sin foto, el mismo en la barra, el menú de usuario y el perfil: las iniciales; sin nombre, el icono.
+$avatarInitials = AdminPanelController::avatarInitials((string) $currentUser->firstname, (string) $currentUser->firstLastname);
+$avatarLabel = fn(string $size = ''): string => '<span class="ui ' . ($size !== '' ? "{$size} " : '') . 'avatar label" aria-hidden="true">'
+    . ($avatarInitials !== '' ? escape_html($avatarInitials) : '<i class="user outline icon"></i>') . '</span>';
 //Los avisos flotantes salen del registro de avisos del sistema (PiecesPHP\SystemStatus).
 $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $currentUserType);

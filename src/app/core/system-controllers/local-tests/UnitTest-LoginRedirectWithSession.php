@@ -63,7 +63,7 @@ CliActions::make('unit-tests:core/login-redirect-with-session', function ($args)
     $panel = $ruta('admin');
     $listado = $ruta('users-list');
     $basePath = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     //La redirección del acceso: su estado y adónde manda.
     $ir = function (?string $next, string $jwt) use ($base, $acceso, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();

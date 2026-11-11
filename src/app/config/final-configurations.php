@@ -31,6 +31,7 @@ $langInjectors = [
     AdminPanelController::ADMIN_LANG_GROUP => new LangInjector(basepath('app/lang/adminZone'), $langsOptions),
     MAILING_GENERAL_LANG_GROUP => new LangInjector(basepath('app/lang/mailingGeneral'), $langsOptions),
     UserDataPackage::LANG_GROUP => new LangInjector(basepath('app/lang/usersModule'), $langsOptions),
+    //El sitio del proyecto para Ubicaciones; los nombres de lugares, en su subcarpeta names/ (LocationsLang).
     LOCATIONS_LANG_GROUP => new LangInjector(basepath('app/lang/locationBackend'), $langsOptions),
     FileValidator::LANG_GROUP => new LangInjector(basepath('app/lang/FileValidator'), $langsOptions),
     ImportRunner::LANG_GROUP => new LangInjector(basepath('app/lang/DataTransfer'), $langsOptions),

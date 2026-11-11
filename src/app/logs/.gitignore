@@ -7,5 +7,6 @@ error.unique.message.log
 error.log.jsonl
 error-traces/
 error-soft/
+mail-outbox/
 !.gitignore
 !missing-lang-messages.json

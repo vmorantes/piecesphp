@@ -116,7 +116,7 @@ class UsersImportDefinition extends ImportDefinition
                 if ($value === null) {
                     return null;
                 }
-                return self::organizationID($value) !== null ? null : sprintf(__(self::LANG_GROUP, 'Organización: la fila %d trae «%s», que no es el código ni el id de ninguna organización.'), $row->position(), $value);
+                return self::organizationID($value) !== null ? null : sprintf(__(self::LANG_GROUP, 'Organización: «%s» no es el código ni el id de ninguna organización.'), $value);
             }),
         ];
     }
@@ -136,6 +136,8 @@ class UsersImportDefinition extends ImportDefinition
         $importerOrganization = $importer !== null ? $importer->organization : null;
         foreach ($rows as $row) {
             $position = $row->position();
+            //La fila que se CITA es la del archivo (la 1 son los títulos); position cuenta las de datos.
+            $fileRow = $position + 1;
 
             //P62: ya no se cae en la organización global. La fila la trae, la hereda de quien importa, o falla.
             $type = $this->resolveType($row->get('type')) ?? UsersModel::TYPE_USER_GENERAL;
@@ -144,7 +146,7 @@ class UsersImportDefinition extends ImportDefinition
                     && $row->get('organization') === null
                     && $importerOrganization === null
             ) {
-                $errors[$position][] = sprintf(__(self::LANG_GROUP, 'Organización: la fila %d no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.'), $position);
+                $errors[$position][] = __(self::LANG_GROUP, 'Organización: no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.');
             }
             $username = (string) $row->get('username');
             $email = mb_strtolower((string) $row->get('email'));
@@ -159,12 +161,12 @@ class UsersImportDefinition extends ImportDefinition
             if ($username !== '' && isset($seenUsernames[$usernameKey])) {
                 $errors[$position][] = sprintf(__(self::LANG_GROUP, 'Usuario: «%s» se repite en la fila %d.'), $username, $seenUsernames[$usernameKey]);
             } else {
-                $seenUsernames[$usernameKey] = $position;
+                $seenUsernames[$usernameKey] = $fileRow;
             }
             if ($email !== '' && isset($seenEmails[$email])) {
                 $errors[$position][] = sprintf(__(self::LANG_GROUP, 'Correo: «%s» se repite en la fila %d.'), $email, $seenEmails[$email]);
             } else {
-                $seenEmails[$email] = $position;
+                $seenEmails[$email] = $fileRow;
             }
         }
         return $errors;

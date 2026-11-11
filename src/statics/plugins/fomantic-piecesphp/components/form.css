@@ -749,15 +749,15 @@
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
 .ui.inverted.form .fields.error .field label,
 .ui.inverted.form .error.field label {
-  color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) c h);
+  color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) c h);
+  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.error) > label {
-    color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) c h);
+    color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1017,15 +1017,15 @@
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
 .ui.inverted.form .fields.info .field label,
 .ui.inverted.form .info.field label {
-  color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) c h);
+  color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) c h);
+  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.info) > label {
-    color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) c h);
+    color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1285,15 +1285,15 @@
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
 .ui.inverted.form .fields.success .field label,
 .ui.inverted.form .success.field label {
-  color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) c h);
+  color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) c h);
+  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.success) > label {
-    color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) c h);
+    color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1553,15 +1553,15 @@
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
 .ui.inverted.form .fields.warning .field label,
 .ui.inverted.form .warning.field label {
-  color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) c h);
+  color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) c h);
+  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.warning) > label {
-    color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) c h);
+    color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) min(c, 0.14) h);
   }
 }
 

@@ -17,6 +17,11 @@ $statusColors = [
     UsersModel::STATUS_USER_APPROVED_PENDING => StatusLabel::WARNING,
 ];
 $statusText = UsersModel::statuses()[$mapper->status];
+//Bloqueado, corto en la tarjeta; la descripción larga, en el title de la etiqueta.
+$statusTitle = $statusText;
+if ((int) $mapper->status === UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+    $statusText = __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Bloqueado');
+}
 $userTypeText = UsersModel::getTypeUserName($mapper->type) ?? __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Tipo desconocido');
 $isBaseOrganization = $organizationMapper !== null && $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
 if ($mapper->type == UsersModel::TYPE_USER_GENERAL) {
@@ -43,7 +48,7 @@ $organizationName = $canModifyAll && $organizationMapper !== null && ORGANIZATIO
             <?php endif; ?>
         </div>
         <div class="fluid ui double top aligned flex">
-            <?= StatusLabel::html($statusText, $statusColors[$mapper->status] ?? StatusLabel::NEGATIVE); ?>
+            <span title="<?= escape_html($statusTitle); ?>" data-user-status><?= StatusLabel::html($statusText, $statusColors[$mapper->status] ?? StatusLabel::NEGATIVE); ?></span>
             <span class="ui label" title="<?= escape_html($userTypeText); ?>"><?= escape_html($userTypeText); ?></span>
         </div>
         <div class="ui fitted divider"></div>

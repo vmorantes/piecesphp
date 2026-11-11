@@ -47,7 +47,7 @@ PiecesPHP sigue una organización modular y profesional para separar la lógica 
         - `view/`: Vistas de sistema y layouts base (`view/panel/layout/`: el esqueleto del panel).
         - `cache/` y `logs/`: generados en ejecución; necesitan permiso de escritura.
 
-    - `statics/`: Recursos estáticos públicos (JS, CSS, Imágenes, Plugins; `uploads/` para lo subido).
+    - `statics/`: Recursos estáticos públicos (JS, CSS, Imágenes, Plugins; `uploads/` para lo subido: las imágenes de Configuración, en `uploads/settings/<tipo>/`, nunca encima de las de fábrica).
     - `dumps/`: Volcados de `bin/cli db-backup`.
     - `tmp/`: Temporales de ejecución.
     - `vendor/`, `composer.json`, `composer.lock`: dependencias de Composer. `vendor/` no se edita.
@@ -212,9 +212,12 @@ BaseEventDispatcher::listen('NombreEvento', function($data) {
 
 !!! note "Hay un `mailing.php`, pero es del framework y hace otra cosa"
 
-    `src/app/core/extensions/mailing.php` existe y **prepara el logo de los correos**: redimensiona
-    el logo del sitio y lo deja en `statics/images/mailing-logo.png`. Está marcado
-    `@pcsphp-config framework`, es decir, **no conviene editarlo**. No tiene nada que ver con el
+    `src/app/core/extensions/mailing.php` existe y **da el logo de los correos**: `mailing_logo()`
+    devuelve el que se subió en Configuración › Imágenes de marca si existe; si no, el de fábrica
+    (`statics/images/mailing-logo.png`); si falta, lo genera desde el logo del sitio en
+    `statics/uploads/settings/brand/`. `get_config('mailing_logo')` sigue dando la ruta de fábrica: si tu
+    proyecto tiene sus propias plantillas de correo y quiere el logo subido, que usen `mailing_logo()`. Está
+    marcado `@pcsphp-config framework`, es decir, **no conviene editarlo**. No tiene nada que ver con el
     SMTP.
 
 - **`cli-actions.php`**: Acciones de terminal propias del proyecto (`CliActions::make()`; ver [Terminal](./terminal.md)).

@@ -70,7 +70,7 @@ CliActions::make('unit-tests:core/mail-settings-tests', function ($args) {
         $path = str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url;
         return $prefijoBase !== '' && str_starts_with($path, $prefijoBase) ? substr($path, strlen($prefijoBase)) : $path;
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, ?string $jwt, array $post) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         $cabeceras = ['X-Requested-With: XMLHttpRequest'];

@@ -131,7 +131,7 @@ set_config('format_date_lang', [
     //'en' => 'l, Y/F/d', // Saturday, 2021/May/08
     'es' => 'd/m/Y', // 08/05/2021
     'en' => 'm/d/Y',
-    'fr' => 'm/d/Y',
+    'fr' => 'd/m/Y',
     'de' => 'm/d/Y',
     'it' => 'm/d/Y',
     'pt' => 'd/m/Y',
@@ -139,7 +139,7 @@ set_config('format_date_lang', [
 set_config('format_date_lang_sql', [
     'es' => '%d/%m/%Y', // 08/05/2021
     'en' => '%Y/%m/%d',
-    'fr' => '%Y/%m/%d',
+    'fr' => '%d/%m/%Y',
     'de' => '%Y/%m/%d',
     'it' => '%Y/%m/%d',
     'pt' => '%d/%m/%Y',

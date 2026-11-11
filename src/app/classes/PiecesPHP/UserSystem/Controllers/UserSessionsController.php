@@ -250,6 +250,11 @@ class UserSessionsController extends AdminPanelController
         if ($fromDate !== false && $fromDate->format('d-m-Y') === trim((string) $from)) {
             $where[] = new WhereItem("{$table}.createdAt", WhereItem::GREATER_OR_EQUAL_OPERATOR, $fromDate->format('Y-m-d 00:00:00'), WhereItem::AND_OPERATOR);
         }
+        //Las de un solo usuario, exacto (la ficha de Editar usuario): el filtro `user` es por parecido del nombre.
+        $userID = $request->getQueryParam('userID', null);
+        if (Validator::isInteger($userID)) {
+            $where[] = new WhereItem("{$table}.userID", WhereItem::EQUAL_OPERATOR, (int) $userID, WhereItem::AND_OPERATOR);
+        }
         $whereSegment = new WhereSegment();
         $whereSegment->addGroup(new WhereItemGroup($where));
 
@@ -263,8 +268,11 @@ class UserSessionsController extends AdminPanelController
         }
         $user = $request->getQueryParam('user', '');
         if (is_string($user) && trim($user) !== '') {
+            //Usuario O correo; el operador del último cierra el grupo con el siguiente.
+            $pattern = '%' . mb_substr(trim($user), 0, 100) . '%';
             $havingSegment->addGroup(new HavingItemGroup([
-                new HavingItem('username', HavingItem::LIKE_OPERATOR, '%' . mb_substr(trim($user), 0, 100) . '%', HavingItem::AND_OPERATOR),
+                new HavingItem('username', HavingItem::LIKE_OPERATOR, $pattern, HavingItem::OR_OPERATOR),
+                new HavingItem('email', HavingItem::LIKE_OPERATOR, $pattern, HavingItem::AND_OPERATOR),
             ]));
             $hasHaving = true;
         }
@@ -278,7 +286,8 @@ class UserSessionsController extends AdminPanelController
             'having_segment' => $hasHaving ? $havingSegment : null,
             'select_fields' => $selectFields,
             'columns_order' => ['username', 'userAgent', 'ip', 'createdAt', 'lastActivityAt', 'expiresAt', "{$table}.id"],
-            'custom_order' => ['lastActivityAt' => 'DESC'],
+            //La más reciente primero: la tabla arranca sin orden en el cliente (configDataTables.order = []).
+            'custom_order' => ['createdAt' => 'DESC'],
             'mapper' => new UserSessionsModel(),
             'request' => $request,
             'on_set_data' => function ($e) use ($actor, $currentHash): array {
@@ -286,17 +295,17 @@ class UserSessionsController extends AdminPanelController
                 $own = (int) $row['userID'] === (int) $actor->id;
                 $marks = '';
                 if ((string) $row['sessionHash'] === $currentHash) {
-                    $marks = ' ' . StatusLabel::html(__(self::LANG_GROUP, 'Esta sesión'), StatusLabel::POSITIVE);
+                    $marks = ' ' . StatusLabel::html(__(self::LANG_GROUP, 'Actual'), StatusLabel::POSITIVE);
                 } elseif ($own) {
-                    $marks = ' ' . StatusLabel::neutral(__(self::LANG_GROUP, 'Tuya'));
+                    $marks = ' ' . StatusLabel::neutral(__(self::LANG_GROUP, 'Otras sesiones'));
                 }
                 return [
                     '<div class="ui tight flex">' . escape_html((string) ($row['username'] ?? '')) . $marks . '</div><small class="ui muted text">' . escape_html((string) ($row['email'] ?? '')) . '</small>',
                     escape_html(UserSessions::describeUserAgent(isset($row['userAgent']) ? (string) $row['userAgent'] : null)),
                     escape_html((string) ($row['ip'] ?? '')),
-                    escape_html(self::date((string) $row['createdAt'])),
-                    escape_html(self::date((string) $row['lastActivityAt'])),
-                    escape_html(self::date((string) $row['expiresAt'])),
+                    self::timeHTML((string) $row['createdAt']),
+                    self::timeHTML((string) $row['lastActivityAt']),
+                    self::timeHTML((string) $row['expiresAt']),
                     self::actionsCell($actor, $row),
                 ];
             },
@@ -348,14 +357,34 @@ class UserSessionsController extends AdminPanelController
             'rows' => array_map(fn(array $row): array => [
                 'browser' => UserSessions::describeUserAgent(isset($row['userAgent']) ? (string) $row['userAgent'] : null),
                 'ip' => (string) ($row['ip'] ?? ''),
-                'createdAt' => self::date((string) $row['createdAt']),
-                'lastActivityAt' => self::date((string) $row['lastActivityAt']),
-                'expiresAt' => self::date((string) $row['expiresAt']),
+                'createdAt' => self::timeHTML((string) $row['createdAt']),
+                'lastActivityAt' => self::timeHTML((string) $row['lastActivityAt']),
+                'expiresAt' => self::timeHTML((string) $row['expiresAt']),
                 'current' => (string) $row['sessionHash'] === UserSessions::currentHash(),
                 'actions' => self::actionsCell($actor, $row),
             ], $rows),
             'mine' => $mine,
             'closeOthersURL' => $mine ? self::routeName('close-others') : '',
+        ], false);
+    }
+
+    /**
+     * La tabla de las sesiones abiertas de un usuario en su ficha: la de Registros › Sesiones abiertas, filtrada por su id,
+     * con la misma visibilidad y las mismas acciones.
+     *
+     * @param int $userID
+     * @return string
+     */
+    public static function userSessionsTableHTML(int $userID): string
+    {
+        $url = self::routeName('datatables');
+        if ($url === '') {
+            return '';
+        }
+        add_global_asset(UserSystemFeaturesRoutes::staticRoute('js/sessions.js'), 'js');
+        return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('panel/pages/sessions/user-table', [
+            'langGroup' => self::LANG_GROUP,
+            'processTableLink' => $url . (str_contains($url, '?') ? '&' : '?') . 'userID=' . $userID,
         ], false);
     }
 
@@ -395,7 +424,8 @@ class UserSessionsController extends AdminPanelController
             'desktop',
             self::$baseRouteName . '-datatables',
             fn(Request $request, string $tabURL): string => self::sessionsTab($request, $tabURL),
-            40
+            40,
+            __(self::LANG_GROUP, 'Las sesiones que siguen abiertas: dónde, desde cuándo y cuándo caducan.')
         ));
     }
 
@@ -409,13 +439,16 @@ class UserSessionsController extends AdminPanelController
     protected static function actionsCell(UserDataPackage $actor, array $row): string
     {
         $id = (int) $row['id'];
-        $close = RowActions::action(__(self::LANG_GROUP, 'Cerrar'), '#', 'sign out alternate', [
+        //En rojo como lo destructivo (vistas-referencia.md §3.46); lo confirma sessions.js. La propia se CIERRA (puede ser
+        //la de esta pestaña y te saca); la ajena se EXPULSA (H3 de #2544).
+        $closeText = (int) $row['userID'] === (int) $actor->id ? __(self::LANG_GROUP, 'Cerrar sesión') : __(self::LANG_GROUP, 'Expulsar');
+        $close = RowActions::negative($closeText, '#', 'sign out alternate', [
             'data-session-close' => self::routeName('close', ['id' => $id]),
             'data-confirmation-message' => __(self::LANG_GROUP, '¿Cerrar esta sesión?'),
         ]);
         $menu = [];
         if (self::canExtend($actor, $row)) {
-            $menu[] = RowActions::action(__(self::LANG_GROUP, 'Extender'), '#', 'clock outline', [
+            $menu[] = RowActions::action(__(self::LANG_GROUP, 'Extender'), '#', 'calendar plus', [
                 'data-session-extend' => self::routeName('extend', ['id' => $id]),
                 'data-session-ceiling' => date('d-m-Y H:i', UserSessions::ceiling($row)),
             ]);
@@ -583,6 +616,21 @@ class UserSessionsController extends AdminPanelController
     {
         $time = strtotime($date);
         return $time !== false ? date('d-m-Y H:i', $time) : '';
+    }
+
+    /**
+     * La fecha en `<time>`, con el texto de date() y la máquina en `datetime`. Ya escapada: se pinta tal cual.
+     *
+     * @param string $date
+     * @return string
+     */
+    private static function timeHTML(string $date): string
+    {
+        $time = strtotime($date);
+        if ($time === false) {
+            return '';
+        }
+        return '<time datetime="' . escape_html(date('Y-m-d\TH:i', $time)) . '">' . escape_html(self::date($date)) . '</time>';
     }
 
     /**

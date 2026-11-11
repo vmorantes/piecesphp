@@ -65,7 +65,7 @@ CliActions::make('unit-tests:core/theme-mode', function ($args) {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => 60,
-            CURLOPT_HTTPHEADER => array_merge(['X-Requested-With: XMLHttpRequest'], $jwt !== null ? [SessionToken::tokenName() . ": {$jwt}"] : []),
+            CURLOPT_HTTPHEADER => array_merge(['X-Requested-With: XMLHttpRequest'], $jwt !== null ? [SessionToken::headerName() . ": {$jwt}"] : []),
         ] + ($campos !== null ? [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $campos] : []));
         $cuerpo = curl_exec($h);
         //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.

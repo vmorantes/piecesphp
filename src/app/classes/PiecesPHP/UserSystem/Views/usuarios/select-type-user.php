@@ -4,7 +4,6 @@ use PiecesPHP\UserSystem\Controllers\UsersController;
 $langGroup = UsersController::LANG_GROUP;
 /**
  * @var array<int,array{link:string,text:string,description:string}> $types Los tipos sobre los que el usuario actual tiene autoridad
- * @var array<string|int,string|array{url:string}> $breadcrumbs
  * @var string $title
  * @var string $description
  */
@@ -14,14 +13,14 @@ $langGroup = UsersController::LANG_GROUP;
     <div class="limiter-content">
 
         <?php
+            //Vista principal: sin migas (design.md §2.3).
             $this->helpController->_render('panel/built-in/content/page-header.php', [
-                'breadcrumbs' => $breadcrumbs,
                 'title' => $title,
                 'description' => $description,
             ]);
         ?>
 
-        <section class="ui four doubling stackable cards" aria-label="<?= escape_html(__($langGroup, 'Tipos de usuario')); ?>">
+        <section class="ui three doubling stackable cards" aria-label="<?= escape_html(__($langGroup, 'Tipos de usuario')); ?>">
             <?php foreach ($types as $type) : ?>
             <a class="link statistic card" href="<?= escape_html($type['link']); ?>" aria-label="<?= escape_html($type['text'] . ': ' . $type['description']); ?>">
                 <div class="content">

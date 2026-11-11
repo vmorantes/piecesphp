@@ -34,7 +34,8 @@ como respuesta 400, nunca como excepción sin tratar.
 `help(string)`, `example(string)`; lectura `key()`, `label()`, `required()`, `aliases()`, `helpText()`,
 `exampleValue()`. El validador recibe `(?string $value, ParsedRow $row)` y devuelve el mensaje o `null`.
 
-**`ParsedRow`**: `get(string $key): ?string`, `position(): int` (el número de fila del archivo).
+**`ParsedRow`**: `get(string $key): ?string`, `position(): int` (el número de fila de DATOS, desde 1; la fila del archivo es `position() + 1`, porque la 1 es la de
+los títulos; las filas vacías también cuentan aunque se salten).
 
 **`ImportRunner`**: `run(ImportDefinition $d, RowSource $s, bool $dryRun = false): ImportReport`. Con `$dryRun` valida
 todo y nunca llama a `persist()`.

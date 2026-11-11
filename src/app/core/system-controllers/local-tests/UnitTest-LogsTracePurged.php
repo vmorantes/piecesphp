@@ -90,6 +90,46 @@ CliActions::make('unit-tests:core/logs-trace-purged', function ($args) {
         $htmlViva = $pintar($viva);
         $check(!str_contains($htmlViva, 'data-error-trace-purged') && str_contains($htmlViva, 'zzFuncion'), 'b2 la viva pinta su traza y ningún aviso');
         $check(!str_contains($pintar($sinHuella), 'data-error-trace-purged'), 'b3 sin huella, ni bloque ni aviso');
+        echoTerminal(' ');
+
+        echoTerminal('[c] La vista del prototipo (vistas-referencia.md §3.24): una fila por error y su «Detalle» en un acordeón');
+        $pintarLista = function (array $filtros, ?array $resultado) use ($lector): string {
+            return (string) (new HelperController())->setInstanceViewDir(basepath('app/classes/PiecesPHP/Logs/Views/'))->render('errors', [
+                'langGroup' => LogsController::LANG_GROUP, 'tabKey' => 'errors', 'tabURL' => 'https://zz.test/?tab=errors',
+                'filters' => $filtros + ['text' => '', 'type' => '', 'day' => '', 'level' => ''], 'reference' => '', 'file' => null,
+                'plainFiles' => array_keys(ErrorLogReader::PLAIN_FILES), 'plainLines' => ErrorLogReader::PLAIN_LINES, 'types' => [],
+                'levels' => ErrorLogReader::LEVELS, 'pageSize' => ErrorLogReader::PAGE_SIZE, 'result' => $resultado ?? $lector->page($filtros, 1),
+            ], false);
+        };
+        $dom = function (string $html): \DOMXPath {
+            $documento = new \DOMDocument();
+            @$documento->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+            return new \DOMXPath($documento);
+        };
+        $grupo = LogsController::LANG_GROUP;
+        $x = $dom($htmlViva);
+        $fila = '//*[@data-logs-errors][contains(@class,"ui divided relaxed list")]/*[contains(concat(" ",@class," ")," item ")][@data-error-reference="ERR-20261023-AAAAAA"]';
+        $check($x->query($fila)?->length === 1, 'c1 DISCRIMINANTE: el error es una fila (item) de una lista, no el título de un acordeón');
+        $titulo = $x->query("{$fila}//*[@data-logs-error-detail][contains(@class,\"ui styled fluid accordion\")]/*[contains(@class,\"title\")]")?->item(0);
+        $contenido = $x->query("{$fila}//*[@data-logs-error-detail]/*[contains(@class,\"content\")]")?->item(0);
+        $check($titulo instanceof \DOMElement && trim($titulo->textContent) === __($grupo, 'Detalle') && str_contains($titulo->getAttribute('class'), 'active') && $contenido instanceof \DOMElement && str_contains($contenido->getAttribute('class'), 'active') && str_contains($contenido->textContent, 'zzFuncion') && str_contains($contenido->textContent, __($grupo, 'Mensaje completo y ruta')), 'c2 DISCRIMINANTE: debajo, el acordeón «Detalle», abierto al buscar por referencia y con todo lo de antes (traza y mensaje completo)');
+        $hora = $x->query("{$fila}//time[@datetime]")?->item(0);
+        $esperada = \DateTime::createFromFormat('!d-m-Y H:i:s', $dia . ' 10:00:00');
+        $check($hora instanceof \DOMElement && $esperada !== false && $hora->getAttribute('datetime') === $esperada->format('Y-m-d\TH:i:s') && trim($hora->textContent) === '10:00:00', 'c3 la hora, en <time datetime>');
+        $copiar = $x->query("{$fila}//button[@data-logs-copy=\"ERR-20261023-AAAAAA\"]")?->item(0);
+        $check($copiar instanceof \DOMElement && str_contains($copiar->getAttribute('class'), 'ui tertiary icon button') && $copiar->getAttribute('aria-label') === __($grupo, 'Copiar referencia') && $copiar->getAttribute('data-tooltip') === __($grupo, 'Copiar referencia') && $copiar->getAttribute('data-copied-tooltip') === __($grupo, 'Copiado') && $x->query("{$fila}//button[@data-logs-copy]/i[contains(concat(\" \",@class,\" \"),\" copy \")]")?->length === 1, 'c4 DISCRIMINANTE: copiar, botón solo icono sin borde (tertiary), con aria-label, tooltip y «Copiado»');
+        $check(!str_contains($htmlViva, 'outline icon'), 'c5 ningún icono outline en la entrada');
+        $htmlLista = $pintarLista([], null);
+        $xl = $dom($htmlLista);
+        $dias = $xl->query('//h2[@data-logs-errors-day]');
+        $primerDia = $dias?->item(0);
+        $check($dias?->length === 1 && $primerDia instanceof \DOMElement && trim($primerDia->textContent) === $dia && $xl->query('//*[@data-logs-error-detail]/*[contains(@class,"title")][contains(@class,"active")]')?->length === 0 && $xl->query('//*[@data-logs-errors]/*[@data-error-reference]')?->length === 3, 'c6 en la lista, el día como h2 y los «Detalle» cerrados (3 filas)');
+        $vacio = ['entries' => [], 'page' => 1, 'hasMore' => false];
+        $sinFiltros = $dom($pintarLista([], $vacio));
+        $estado = $sinFiltros->query('//*[contains(@class,"ui placeholder segment")]//*[contains(@class,"icon header")]')?->item(0);
+        $check($estado instanceof \DOMElement && str_contains($estado->textContent, __($grupo, 'No hay errores anotados.')) && $sinFiltros->query('//*[contains(@class,"ui placeholder segment")]//i[contains(@class,"check circle icon")]')?->length === 1, 'c7 DISCRIMINANTE: sin filtros y sin errores, el estado vacío «No hay errores anotados.» con check circle');
+        $conFiltros = $pintarLista(['text' => 'zz-nada'], $vacio);
+        $check(!str_contains($conFiltros, 'ui placeholder segment') && str_contains($conFiltros, escape_html(__($grupo, 'No hay errores que mostrar con estos filtros.'))), 'c8 con filtros y sin resultados, el mensaje de siempre');
     } catch (\Throwable $e) {
         $check(false, 'e* el recorrido corre entero', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

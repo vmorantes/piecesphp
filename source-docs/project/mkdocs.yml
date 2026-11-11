@@ -39,6 +39,7 @@ nav:
         - Permisos: piecesphp/content/permissions.md
         - Estructura: piecesphp/content/structure.md
         - Los archivos de configuración: piecesphp/content/configuration.md
+        - Idiomas y traducciones: piecesphp/content/idiomas.md
         - Rutas: piecesphp/content/routing.md
         - Mappers: piecesphp/content/mappers.md
         - Gulp: piecesphp/content/gulp.md

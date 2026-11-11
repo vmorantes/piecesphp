@@ -772,7 +772,13 @@ function adminZoneSupportForm() {
 	let buttonSupport = $(buttonSupportSelector)
 
 	if (buttonSupport.length > 0) {
-		genericFormHandler(formSupportSelector)
+		//Tras un envío correcto se cierra (el aviso de éxito lo pone genericFormHandler); con error se queda abierta.
+		genericFormHandler(formSupportSelector, {
+			onSuccess: function (form) {
+				modalSupport.modal('hide')
+				form.get(0).reset()
+			},
+		})
 
 		buttonSupport.on('click', (e) => {
 			e.preventDefault()

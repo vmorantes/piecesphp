@@ -417,6 +417,38 @@ class SystemStatusRoutes
             'helpers-system-generic-content-admin-forms-mapbox-keys',
             __(SystemStatusController::LANG_GROUP, 'Llaves de Mapas')
         ));
+
+        //De fábrica, el soporte envía a una dirección de ejemplo (P305): el botón se ve, pero nadie recibe nada.
+        SystemAlertRegistry::register(new SystemAlert(
+            'support-recipients-placeholder',
+            SystemAlert::SEVERITY_WARNING,
+            fn() => __(SystemStatusController::LANG_GROUP, 'El formulario de soporte envía a una dirección de ejemplo: nadie recibe esas solicitudes. Pon la dirección de tu mesa de ayuda en $config[\'support_form_recipients\'] (src/app/config/config.php), o déjala vacía para quitar el botón de soporte.'),
+            fn() => self::supportRecipientsArePlaceholders(get_config('support_form_recipients')),
+            true,
+            //Solo root: el arreglo es config.php, que el administrador general no puede tocar.
+            [UsersModel::TYPE_USER_ROOT],
+            true
+        ));
+    }
+
+    /**
+     * Si alguna dirección de soporte es de un dominio de ejemplo (RFC 2606: example.org, .com o .net, sin mayúsculas).
+     * Puro, para probarlo sin base.
+     *
+     * @param mixed $recipients Lo configurado en support_form_recipients
+     * @return bool
+     */
+    public static function supportRecipientsArePlaceholders(mixed $recipients): bool
+    {
+        if (!is_array($recipients)) {
+            return false;
+        }
+        foreach ($recipients as $recipient) {
+            if (is_string($recipient) && preg_match('/@example\.(org|com|net)$/i', trim($recipient)) === 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

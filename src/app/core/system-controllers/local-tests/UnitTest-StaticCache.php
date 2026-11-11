@@ -95,7 +95,7 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTPHEADER => $jwt !== null ? [SessionToken::tokenName() . ": {$jwt}"] : [],
+            CURLOPT_HTTPHEADER => $jwt !== null ? [SessionToken::headerName() . ": {$jwt}"] : [],
             CURLOPT_HEADERFUNCTION => function (\CurlHandle $h, string $linea) use (&$lineas): int {
                 $partes = explode(':', $linea, 2);
                 if (count($partes) === 2) {

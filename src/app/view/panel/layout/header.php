@@ -102,6 +102,8 @@ if (isset($bodyClasses) && is_array($bodyClasses)) {
 
             <header class="bar">
                 <button class="ui tertiary icon button drawer toggle" type="button"><i class="bars icon" aria-hidden="true"></i></button>
+                <?php //En móvil la marca no se ve (el menú es un cajón): el logo va en la barra, como el del menú. ?>
+                <span class="mobile only logo" aria-hidden="true"><img class="<?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') ? 'invert-on-dark' : ''; ?>" src="<?= escape_html((string) get_config('logo')); ?>" alt=""></span>
                 <?php if(!isset($noTopBar) || $noTopBar === false): ?>
                 <?php $this->render('panel/layout/topbar-search'); ?>
                 <div class="right">

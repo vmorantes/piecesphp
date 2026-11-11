@@ -23,7 +23,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi usuario',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi usuario'),
     'classesCSS' => "one",
     'active' => false,
 ]); ?>
@@ -31,7 +31,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi usuario',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi usuario'),
     'classesCSS' => "two",
     'active' => false,
 ]); ?>
@@ -39,7 +39,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi usuario',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi usuario'),
     'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Código incorrecto'),
     'classesCSS' => "four",
     'active' => true,
@@ -48,7 +48,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi usuario',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi usuario'),
     'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Usuario recuperado'),
     'classesCSS' => "five",
     'active' => false,
@@ -63,7 +63,7 @@
                 <form class="ui form initial">
 
                     <div class="horizontal-section-form">
-                        <div class="ui small primary header number-step">PASO 1</div>
+                        <div class="ui small primary header number-step"><?= mb_strtoupper(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Paso')); ?> 1</div>
                         <div class="field">
                             <label><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingrese su correo electrónico')?></label>
                             <input required type="email" name="username" placeholder="<?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'name@domain.com')?>">
@@ -91,9 +91,9 @@
                 <form class="ui form initial">
 
                     <div class="horizontal-section-form">
-                        <div class="ui small primary header number-step">PASO 2</div>
+                        <div class="ui small primary header number-step"><?= mb_strtoupper(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Paso')); ?> 2</div>
                         <div class="field">
-                            <input required type="text" name="code" placeholder="Ingrese el codigó">
+                            <input required type="text" name="code" placeholder="<?= escape_html(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingrese el código')); ?>">
                         </div>
                     </div>
 

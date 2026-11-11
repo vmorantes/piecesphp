@@ -150,7 +150,7 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
                 header('Access-Control-Allow-Credentials: true');
             }
             header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization, isWebApp, isExternalLogin, ' . \PiecesPHP\Core\SessionToken::tokenName());
+            header('Access-Control-Allow-Headers: Content-Type, Authorization, isWebApp, isExternalLogin, ' . \PiecesPHP\Core\SessionToken::tokenName() . ', ' . \PiecesPHP\Core\SessionToken::headerName());
             header('Vary: Origin');
         }
         //No vuelvas a die($string): sale con código 0 y toda puerta de bin/cli daría por buena una muerte.
@@ -212,11 +212,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v10.10.1');
+    define('APP_VERSION', 'v10.11.0');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', (new \DateTime('2026-11-09'))->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-11-10'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];

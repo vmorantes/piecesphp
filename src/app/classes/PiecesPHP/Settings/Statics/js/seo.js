@@ -65,6 +65,53 @@ window.addEventListener('load', () => {
 		return { place, $form }
 	}
 
+	/**
+	 * «Usar el título/la descripción del sitio»: marcada, el campo de compartir se desactiva y enseña el del sitio, en
+	 * vivo; al guardar va VACÍO, que en MetaTags es «el del sitio». Desmarcada, se edita desde el valor del sitio.
+	 * Y los de solo lectura que reflejan otro campo: og:site_name (el Título) y meta author (el Propietario).
+	 * @param {HTMLFormElement} form
+	 * @returns {{emptyNames: function(): string[]}}
+	 */
+	const siteValuesOf = function (form) {
+		const $form = $(form)
+		const pairs = {
+			title: { source: $form.find('[data-seo-title]'), target: $form.find('[data-seo-share-title]') },
+			description: { source: $form.find('[data-seo-description]'), target: $form.find('[data-seo-share-description]') },
+		}
+		const boxes = $form.find('[data-seo-use-site]')
+		const sync = function () {
+			boxes.each((_, box) => {
+				const pair = pairs[box.getAttribute('data-seo-use-site')]
+				if (pair !== undefined && box.checked) {
+					pair.target.val(pair.source.val())
+				}
+			})
+			$form.find('[data-seo-site-name]').val($form.find('[data-seo-title]').val())
+			$form.find('[data-seo-author]').val($form.find('[data-seo-owner]').val())
+		}
+		boxes.each((_, box) => {
+			const pair = pairs[box.getAttribute('data-seo-use-site')]
+			$(box).closest('.ui.checkbox').checkbox({
+				onChange: function () {
+					if (pair !== undefined) {
+						pair.target.prop('disabled', box.checked)
+						//Al desmarcar, el valor del sitio queda como punto de partida.
+						pair.target.val(pair.source.val())
+						pair.target.trigger('input')
+					}
+				},
+			})
+		})
+		$form.on('input', '[data-seo-title], [data-seo-description], [data-seo-owner]', sync)
+		sync()
+		return {
+			emptyNames: () => boxes.toArray().filter((box) => box.checked).map((box) => {
+				const pair = pairs[box.getAttribute('data-seo-use-site')]
+				return pair !== undefined ? String(pair.target.attr('name') || '') : ''
+			}).filter((name) => name !== ''),
+		}
+	}
+
 	const previews = {}
 
 	$('form.seo[lang]').toArray().forEach((element) => {
@@ -72,9 +119,14 @@ window.addEventListener('load', () => {
 		const lang = element.getAttribute('lang')
 		/** @type {File|null} */
 		let openGraphFile = null
+		const siteValues = siteValuesOf(element)
 
 		const form = genericFormHandler($(element), {
 			onSetFormData: (formData) => {
+				//Un campo desactivado no viaja: el de compartir con su casilla marcada se manda, y vacío.
+				for (const name of siteValues.emptyNames()) {
+					formData.set(name, '')
+				}
 				//Sin archivo aplicado no se manda nada: el servidor conserva la imagen actual.
 				if (openGraphFile !== null) {
 					formData.set(`open-graph`, openGraphFile)

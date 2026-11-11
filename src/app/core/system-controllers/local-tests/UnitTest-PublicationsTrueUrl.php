@@ -63,7 +63,7 @@ CliActions::make('unit-tests:core/publications-true-url', function ($args) {
         $url = is_string($url) ? $url : '';
         return '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, ?string $jwt = null) use ($base, $cabeceraToken): array {
         $location = null;
         $handle = \Terminal\TestRun::curlInit();

@@ -23,7 +23,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi contraseña',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi contraseña'),
     'classesCSS' => "one",
     'active' => false,
 ]); ?>
@@ -31,7 +31,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi contraseña',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi contraseña'),
     'classesCSS' => "two",
     'active' => false,
 ]); ?>
@@ -39,7 +39,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi contraseña',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi contraseña'),
     'classesCSS' => "two-two",
     'active' => false,
 ]); ?>
@@ -47,7 +47,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi contraseña',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi contraseña'),
     'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Código incorrecto'),
     'classesCSS' => "four",
     'active' => true,
@@ -56,7 +56,7 @@
         <?= $this->render('usuarios/problems/inc/topbar', [
     'defaultImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
     'altImage' => \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('images/problems/forms/u-error-user.svg'),
-    'headerText' => 'No recuerdo mi contraseña',
+    'headerText' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'No recuerdo mi contraseña'),
     'text' => __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Su contraseña ha sido cambiada'),
     'classesCSS' => "five",
     'active' => true,
@@ -71,7 +71,7 @@
                 <form class="ui form initial">
 
                 <div class="horizontal-section-form">
-                    <div class="ui small primary header number-step">PASO 1</div>
+                    <div class="ui small primary header number-step"><?= mb_strtoupper(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Paso')); ?> 1</div>
                     <div class="field">
                         <label><?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingrese su correo electrónico')?></label>
                         <input required type="email" name="username" placeholder="<?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'name@domain.com')?>">
@@ -99,7 +99,7 @@
                 <form class="ui form initial">
 
                 <div class="horizontal-section-form">
-                    <div class="ui small primary header number-step">PASO 2</div>
+                    <div class="ui small primary header number-step"><?= mb_strtoupper(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Paso')); ?> 2</div>
                     <div class="field"><input required type="email" name="username" placeholder="<?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'name@domain.com')?>"></div>
                     <div class="field">
                         <input required type="text" name="code" placeholder="Ingrese el código">

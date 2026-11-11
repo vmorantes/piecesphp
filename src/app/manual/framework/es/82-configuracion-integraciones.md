@@ -43,7 +43,7 @@ Entra por **«Correo»**. Define desde dónde y cómo sale el correo de la plata
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Host | Sí | El servidor de correo. |
-| Protocolo | Sí | El protocolo de conexión. |
+| Protocolo | Sí | El cifrado de la conexión, elegido en una lista: **STARTTLS** (lo habitual con el puerto 587), **SSL/TLS** (puerto 465) o **Ninguno**. Si ves «(valor actual, no válido)», elige uno de los tres antes de guardar. |
 | Auto TLS | No | Casilla para activar el cifrado automático. |
 | Puerto | Sí | El puerto del servidor. |
 | Correo electrónico | No | La cuenta con la que se envía. |

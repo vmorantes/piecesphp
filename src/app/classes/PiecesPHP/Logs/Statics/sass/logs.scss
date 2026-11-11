@@ -1,10 +1,5 @@
-//La pestaña «Errores» de Registros: cada entrada, en tres líneas legibles (hora, referencia y tipo; mensaje; lugar).
-.logs-error-title {
-    display: flex !important;
-    align-items: flex-start;
-    gap: 6px;
-}
-
+//La pestaña «Errores» de Registros: cada entrada, en tres líneas legibles (hora, referencia y tipo; mensaje; lugar), y
+//su acordeón «Detalle» debajo.
 .logs-error-summary {
     display: flex;
     flex-direction: column;
@@ -21,6 +16,15 @@
     [data-logs-copy] {
         cursor: copy;
     }
+}
+
+.logs-error-reference {
+    display: inline-flex;
+    align-items: center;
+}
+
+.logs-error-accordion {
+    margin-top: 10px;
 }
 
 .logs-error-time {

@@ -13,6 +13,7 @@ use PiecesPHP\Geo\GeoFilter;
 use PiecesPHP\Geo\GeoPointsResult;
 use PiecesPHP\Geo\GeoQuery;
 use PiecesPHP\Geo\GeoSource;
+use PiecesPHP\Geo\GeoSourceColor;
 use PiecesPHP\Geo\GeoSourceRegistry;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -146,25 +147,23 @@ CliActions::make('unit-tests:core/geo-viewer', function ($args) {
         $check(str_contains($ninguna, 'No tiene acceso a ningún dato del mapa.') && !str_contains($html, 'No tiene acceso a ningún dato del mapa.'), 'b9 sin fuentes visibles, la frase; con fuentes, no');
         echoTerminal(' ');
 
-        //──── [c] La tarjeta, exigida al registrar ─────────────────────────────────────────────
-        echoTerminal('[c] register() exige una tarjeta legible');
+        //──── [c] La tarjeta: register() avisa y no tumba la página ─────────────────────────────
+        echoTerminal('[c] register() sin tarjeta legible: lo anota, registra la fuente y la vista la omite');
         GeoSourceRegistry::swapForTesting([]);
         $rota = $fuente('zz-geo-rota', 'admin', [], basepath('app/classes/PiecesPHP/Geo/Views/zz-no-existe.php'));
-        $rechaza = false;
+        $lanzo = null;
         try {
             GeoSourceRegistry::register($rota);
-        } catch (\InvalidArgumentException $e) {
-            $rechaza = str_contains($e->getMessage(), 'zz-geo-rota') && str_contains($e->getMessage(), 'zz-no-existe.php');
+        } catch (\Throwable $e) {
+            $lanzo = $e->getMessage();
         }
-        $check($rechaza && GeoSourceRegistry::get('zz-geo-rota') === null, 'c1 una tarjeta que no existe: lanza con la clave y la ruta, y no la registra');
+        $check($lanzo === null && GeoSourceRegistry::get('zz-geo-rota') === $rota, 'c1 DISCRIMINANTE: una tarjeta que no existe no lanza: la fuente queda registrada', (string) $lanzo);
+        $sinTarjeta = $pinta(['zz-geo-rota' => $rota]);
+        $check(str_contains($sinTarjeta, 'data-geo-source-toggle="zz-geo-rota"') && !str_contains($sinTarjeta, '<template data-geo-card="zz-geo-rota">'), 'c2 DISCRIMINANTE: la página se pinta, con su fila de la leyenda y sin su plantilla de tarjeta');
         $carpeta = $fuente('zz-geo-carpeta', 'admin', [], basepath('app/classes/PiecesPHP/Geo/Views'));
-        $rechazaCarpeta = false;
-        try {
-            GeoSourceRegistry::register($carpeta);
-        } catch (\InvalidArgumentException $e) {
-            $rechazaCarpeta = true;
-        }
-        $check($rechazaCarpeta, 'c2 una carpeta no es una tarjeta');
+        GeoSourceRegistry::register($carpeta);
+        $check(!GeoSourceRegistry::hasCardView($carpeta) && GeoSourceRegistry::get('zz-geo-carpeta') === $carpeta, 'c2b una carpeta no es una tarjeta, y tampoco tumba nada');
+        GeoSourceRegistry::swapForTesting([]);
         GeoSourceRegistry::register($a);
         $check(GeoSourceRegistry::get('zz-geo-a') === $a, 'c3 CANARIO: con una tarjeta que existe, registra');
         $sustitutaRota = $fuente('zz-geo-a', 'admin', [], basepath('app/classes/PiecesPHP/Geo/Views/zz-no-existe.php'));
@@ -175,6 +174,52 @@ CliActions::make('unit-tests:core/geo-viewer', function ($args) {
             $rechazaSustituta = str_contains($e->getMessage(), 'zz-no-existe.php');
         }
         $check($rechazaSustituta && GeoSourceRegistry::get('zz-geo-a') === $a, 'c4 replace() también exige la tarjeta: lanza y deja la que había');
+        echoTerminal(' ');
+
+        //──── [k] El color de una fuente y una que hereda ─────────────────────────────────────
+        echoTerminal('[k] Una fuente declara su color (GeoSourceColor) y otra hereda de PersonsGeoSource cambiando un criterio');
+        $conColor = function (string $key, string $color): GeoSource {
+            return new class($key, $color) extends PersonsGeoSource implements GeoSourceColor {
+                public function __construct(private string $clave, private string $color)
+                {
+                }
+                public function key(): string
+                {
+                    return $this->clave;
+                }
+                public function colorVariable(): string
+                {
+                    return '--zz-geo-color';
+                }
+                public function colorValue(): string
+                {
+                    return $this->color;
+                }
+            };
+        };
+        $verde = $conColor('zz-geo-verde', '#0E7A5A');
+        $check(GeoSourceRegistry::colorValue($verde) === '#0E7A5A', 'k1 el color declarado, si tiene forma de color');
+        $leyenda = $pinta(['zz-geo-verde' => $verde]);
+        $check(str_contains($leyenda, 'style="--geo-legend-color: var(--zz-geo-color, #0E7A5A);"'), 'k2 DISCRIMINANTE: la leyenda usa su variable y, sin ella, el color declarado');
+        $config = GeoController::viewData(['zz-geo-verde' => $verde])['client']['sources'][0] ?? [];
+        $check(($config['color'] ?? null) === '#0E7A5A', 'k3 DISCRIMINANTE: el JS lo recibe para los puntos', (string) json_encode($config));
+        $malo = $conColor('zz-geo-malo', 'red; background: url(x)');
+        $check(GeoSourceRegistry::colorValue($malo) === null && str_contains($pinta(['zz-geo-malo' => $malo]), 'style="--geo-legend-color: var(--zz-geo-color);"'), 'k4 DISCRIMINANTE: lo que no tiene forma de color se ignora');
+        $check(GeoSourceRegistry::colorValue($a) === null, 'k5 una fuente sin GeoSourceColor, como hoy');
+        $heredera = new class extends PersonsGeoSource {
+            protected static function visibleHaving(): \PiecesPHP\Core\Database\ORM\Statements\HavingSegment
+            {
+                self::usada(true);
+                return parent::visibleHaving();
+            }
+            public static function usada(bool $sumar = false): int
+            {
+                static $veces = 0;
+                return $sumar ? ++$veces : $veces;
+            }
+        };
+        $heredera->thumbnailSource(0);
+        $check($heredera::usada() === 1, 'k6 DISCRIMINANTE: los ayudantes van por static::: sobrescribir visibleHaving() basta', (string) $heredera::usada());
         echoTerminal(' ');
 
         //──── [d] El escapado de las opciones ─────────────────────────────────────────────────

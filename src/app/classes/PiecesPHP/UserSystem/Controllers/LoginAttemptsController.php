@@ -11,6 +11,8 @@ use PiecesPHP\AdminPanel\DashboardCard;
 use PiecesPHP\AdminPanel\DashboardCardBody;
 use PiecesPHP\AdminPanel\DashboardCardRegistry;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -156,33 +158,58 @@ class LoginAttemptsController extends AdminPanelController
 
         $titles = [
             'attempts' => [__(LOGIN_REPORT_LANG_GROUP, 'Intentos de Ingresos'), 'sign in alternate'],
-            'logged' => [__(LOGIN_REPORT_LANG_GROUP, 'Registro de ingreso'), 'chart bar outline'],
+            'logged' => [__(LOGIN_REPORT_LANG_GROUP, 'Registro de ingreso'), 'chart bar'],
             'not-logged' => [__(LOGIN_REPORT_LANG_GROUP, 'Usuarios sin Ingreso'), 'user times'],
         ];
 
         //Las cifras salen aquí, con la misma jerarquía que el listado (P133); el JavaScript solo dibuja.
-        $data = [];
+        //El periodo va en la URL (`days`) de cada sub-vista: cambiarlo recarga, como los filtros de Errores.
+        [$days, $from, $to] = LoginAttemptsModel::periodFromRequest($request);
+        $periods = [];
+        foreach (LoginAttemptsModel::PERIODS as $period) {
+            $periods[] = [
+                'days' => $period,
+                'url' => $tabURL . '&' . http_build_query(['view' => $view, 'days' => $period]),
+                'active' => $period === $days,
+            ];
+        }
+        $data = [
+            'days' => $days,
+            'periods' => $periods,
+            'from' => $from,
+            'until' => $to->modify('-1 day'),
+        ];
         if ($view === 'attempts') {
-            $counts = LoginAttemptsModel::countsBySuccess();
-            $data = [
-                'totalAttempts' => $counts['total'],
-                'successAttempts' => $counts['success'],
-                'errorAttempts' => $counts['error'],
+            $stats = LoginAttemptsModel::periodStats($from, $to);
+            //El anterior, de la misma longitud y pegado a este.
+            $previous = LoginAttemptsModel::countsBySuccess(null, $from->modify('-' . $days . ' days'), $from);
+            $oldest = LoginAttemptsModel::oldestDate();
+            $data += [
+                'stats' => $stats,
+                'previousTotal' => $previous['total'],
+                'oldest' => LoginAttemptsModel::trimmedSince($oldest, $from, LoginAttemptsModel::storedCount(), LoginAttemptsModel::maxRows()),
+                'maxRows' => LoginAttemptsModel::maxRows(),
+                'tableURL' => self::routeName('reports-ajax', ['type' => 'attempts']) . '?' . http_build_query(['days' => $days]),
             ];
         } else {
-            $users = self::visibleUsers();
-            $withLogin = self::usersWithSuccessfulLogin();
-            $loggedUsers = count(array_filter($users, fn($e) => isset($withLogin[(int) $e->id])));
-            $data = [
-                'totalUsers' => count($users),
+            //Las cifras, sobre las cuentas VIVAS visibles: con ingreso = al menos uno correcto dentro del periodo; sin
+            //ingreso, el resto. Los Eliminados que entraron salen en la tabla de ingreso (es actividad), no aquí.
+            $withLogin = self::usersWithSuccessfulLogin($from);
+            $alive = array_values(array_filter(self::visibleUsers(), fn($e) => !self::isDeleted($e)));
+            $loggedUsers = count(array_filter($alive, fn($e) => isset($withLogin[(int) $e->id])));
+            $data += [
+                'totalUsers' => count($alive),
                 'loggedUsers' => $loggedUsers,
-                'notLoggedUsers' => count($users) - $loggedUsers,
+                'notLoggedUsers' => count($alive) - $loggedUsers,
+                'deletedLoggedUsers' => count(array_filter(self::visibleUsers(), fn($e) => self::isDeleted($e) && isset($withLogin[(int) $e->id]))),
+                'tableURL' => self::routeName('reports-ajax', ['type' => $view]) . '?' . http_build_query(['days' => $days]),
             ];
             if ($view === 'logged') {
-                $data['allTimeOnPlatform'] = TimeOnPlatformModel::getAllHoursOnPlatform();
+                //El tiempo en la plataforma se guarda acumulado, sin fecha: no admite periodo.
+                $data['allTimeOnPlatform'] = self::formatDecimal((float) str_replace(',', '', (string) TimeOnPlatformModel::getAllHoursOnPlatform()));
             }
         }
-        $data['exportUrl'] = self::exportURLFor($view);
+        $data['exportUrl'] = self::exportURLFor($view) . '?' . http_build_query(['days' => $days]);
 
         $renderer = (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/');
         //Sin carpeta propia: pinta las piezas del panel (view/panel/built-in/statistics/).
@@ -252,7 +279,8 @@ class LoginAttemptsController extends AdminPanelController
             'sign in alternate',
             self::$baseRouteName . '-reports-ajax',
             fn(Request $request, string $tabURL): string => self::accessTab($request, $tabURL),
-            30
+            30,
+            __(UserSystemFeaturesLang::LANG_GROUP, 'Ingresos e intentos de acceso de los usuarios.')
         ));
     }
 
@@ -263,8 +291,21 @@ class LoginAttemptsController extends AdminPanelController
     public function attemptsExport(Request $request, Response $response)
     {
 
-        //all() filtra con la misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar.
-        $result = LoginAttemptsModel::all();
+        //all() filtra con la misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar. El periodo y el
+        //resultado, los de la pestaña (`days`, `result`).
+        [, $from, $to] = LoginAttemptsModel::periodFromRequest($request);
+        $resultFilter = $request->getQueryParam('result', '');
+        $result = array_values(array_filter(LoginAttemptsModel::all(), function ($row) use ($from, $to, $resultFilter): bool {
+            $time = is_string($row->date ?? null) ? strtotime($row->date) : false;
+            if ($time === false || $time < $from->getTimestamp() || $time >= $to->getTimestamp()) {
+                return false;
+            }
+            return match ($resultFilter) {
+                'success' => $row->success == LoginAttemptsModel::SUCCESS_ATTEMPT,
+                'error' => $row->success != LoginAttemptsModel::SUCCESS_ATTEMPT,
+                default => true,
+            };
+        }));
 
         $columns = [
             'Indicador' => [
@@ -297,9 +338,11 @@ class LoginAttemptsController extends AdminPanelController
     public function notLoggedExport(Request $request, Response $response)
     {
 
-        //La misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar.
-        $logged = self::usersWithSuccessfulLogin();
-        $result = array_values(array_filter(self::visibleUsers(), fn($e) => !isset($logged[(int) $e->id])));
+        //La misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar. Y el periodo (`days`).
+        [, $from] = LoginAttemptsModel::periodFromRequest($request);
+        $logged = self::usersWithSuccessfulLogin($from);
+        //Como su tabla: sin los Eliminados (no son cuentas sin ingreso).
+        $result = array_values(array_filter(self::visibleUsers(), fn($e) => !self::isDeleted($e) && !isset($logged[(int) $e->id])));
 
         $columns = [
             'ID' => [
@@ -323,8 +366,9 @@ class LoginAttemptsController extends AdminPanelController
     public function loggedExport(Request $request, Response $response)
     {
 
-        //La misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar.
-        $logged = self::usersWithSuccessfulLogin();
+        //La misma jerarquía que el listado (P133): exportar no puede enseñar más que mirar. Y el periodo (`days`).
+        [, $from] = LoginAttemptsModel::periodFromRequest($request);
+        $logged = self::usersWithSuccessfulLogin($from);
         $result = array_values(array_filter(self::visibleUsers(), fn($e) => isset($logged[(int) $e->id])));
 
         $columns = [
@@ -333,7 +377,8 @@ class LoginAttemptsController extends AdminPanelController
             ],
             'Nombre' => [
                 'format' => function ($e) {
-                    return trim("$e->firstname $e->secondname $e->firstLastname $e->secondLastname");
+                    //Los Eliminados que entraron siguen aquí (es actividad), marcados.
+                    return trim("$e->firstname $e->secondname $e->firstLastname $e->secondLastname") . (self::isDeleted($e) ? ' (' . __(LOGIN_REPORT_LANG_GROUP, 'Eliminado') . ')' : '');
                 },
             ],
             'Último acceso' => [
@@ -355,6 +400,27 @@ class LoginAttemptsController extends AdminPanelController
     }
 
     /**
+     * @param object $user Una fila de visibleUsers()
+     * @return bool
+     */
+    private static function isDeleted(object $user): bool
+    {
+        return (int) ($user->status ?? 0) === UsersModel::STATUS_USER_DELETED;
+    }
+
+    /**
+     * Un número con un decimal y los separadores del idioma: la traducción de «,» es el decimal y la de «.», el de miles
+     * (en español, 1.203,5; en inglés, 1,203.5).
+     *
+     * @param float $value
+     * @return string
+     */
+    public static function formatDecimal(float $value): string
+    {
+        return number_format($value, 1, __(LOGIN_REPORT_LANG_GROUP, ','), __(LOGIN_REPORT_LANG_GROUP, '.'));
+    }
+
+    /**
      * Los usuarios que quien mira puede ver (P133): lo suyo y lo de rangos menores.
      *
      * @return array<int,\stdClass>
@@ -371,16 +437,19 @@ class LoginAttemptsController extends AdminPanelController
     }
 
     /**
-     * Los usuarios con al menos un ingreso exitoso, como claves.
+     * Los usuarios con al menos un ingreso exitoso (desde `$from`, si se da), como claves.
      *
+     * @param \DateTimeInterface|null $from
      * @return array<int,true>
      */
-    private static function usersWithSuccessfulLogin(): array
+    private static function usersWithSuccessfulLogin(?\DateTimeInterface $from = null): array
     {
         $model = LoginAttemptsModel::model();
-        $model->select('userID')->where([
-            'success' => LoginAttemptsModel::SUCCESS_ATTEMPT,
-        ])->groupBy('userID');
+        $items = [new WhereItem('success', WhereItem::EQUAL_OPERATOR, LoginAttemptsModel::SUCCESS_ATTEMPT, WhereItem::AND_OPERATOR)];
+        if ($from !== null) {
+            $items[] = new WhereItem('date', WhereItem::GREATER_OR_EQUAL_OPERATOR, $from->format('Y-m-d H:i:s'), WhereItem::AND_OPERATOR);
+        }
+        $model->select('userID')->where(new WhereSegment($items))->groupBy('userID');
         $model->execute();
         $logged = [];
         foreach ((array) $model->result() as $row) {

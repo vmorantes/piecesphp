@@ -31,10 +31,24 @@ El sistema acepta archivos xlsx o csv de hasta 5 MB y 5000 filas.
 !!! warning "Todo o nada"
     Si una fila tiene errores, no se guarda ninguna.
 
+Arriba, un aviso: **mantén los títulos de la plantilla**. Las columnas se reconocen por su título (o por los otros
+nombres de la tabla de abajo), así que el orden no importa; si cambias un título, esa columna no se leerá.
+
 Son dos pasos:
 
-1. **Descarga la plantilla**: pulsa **«Descargar plantilla»** y llénala sin cambiar sus columnas.
-2. **Sube la plantilla diligenciada**: elige el **Archivo** (obligatorio) y pulsa **«Importar»**.
+1. **Descarga la plantilla**: el archivo `plantilla-users.xlsx`. Pulsa **«Descargar plantilla»** y llénala sin cambiar sus
+   títulos.
+2. **Sube la plantilla diligenciada**: en **«Archivo de la plantilla»** (obligatorio) pulsa **«Examinar»**, elige el
+   archivo y pulsa **«Importar»**. Si pulsas «Importar» sin archivo, el campo te lo pide.
+
+Al terminar aparece el **Resultado de la importación**:
+
+- el archivo y cuántas filas se leyeron;
+- un mensaje: **«Se importaron las N filas»** si todas eran válidas, o **«No se importó ninguna fila»** con cuántas tienen
+  errores; si el archivo no tiene filas con datos o no se pudo leer (por ejemplo, falta una columna obligatoria), te lo
+  dice;
+- las filas **válidas** y, si las hay, las filas **con errores**, en dos etiquetas;
+- si hay errores, una tabla **Fila · Error**. La fila es la del archivo: la 1 es la de los títulos.
 
 Las columnas de la plantilla:
 

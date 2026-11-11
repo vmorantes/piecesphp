@@ -9,9 +9,10 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\Enums\CodeStringExceptionsEnum;
 use PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItem;
-use PiecesPHP\Core\Database\ORM\Statements\Critery\HavingItemGroup;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItemGroup;
 use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
@@ -39,6 +40,16 @@ use \PiecesPHP\Core\Routing\RequestRoute as Request;
 class LoginAttemptsModel extends BaseEntityMapper
 {
     const SUCCESS_ATTEMPT = 1;
+
+    /**
+     * Los periodos de Accesos › Intentos, en días que acaban hoy (incluido); cualquier otro valor es DEFAULT_PERIOD.
+     */
+    const PERIODS = [7, 14, 30, 90];
+
+    /**
+     * @var int
+     */
+    const DEFAULT_PERIOD = 14;
     const FAIL_ATTEMPT = 0;
 
     const TABLE = 'login_attempts';
@@ -228,6 +239,19 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $where = [];
 
+        //El periodo y el resultado de la pestaña (`days`, `result`), por marcador.
+        [, $from, $to] = self::periodFromRequest($request);
+        $whereItems = [
+            new WhereItem('date', WhereItem::GREATER_OR_EQUAL_OPERATOR, $from->format('Y-m-d H:i:s'), WhereItem::AND_OPERATOR),
+            new WhereItem('date', WhereItem::LESS_THAN_OPERATOR, $to->format('Y-m-d H:i:s'), WhereItem::AND_OPERATOR),
+        ];
+        $resultFilter = $request->getQueryParam('result', '');
+        if ($resultFilter === 'success' || $resultFilter === 'error') {
+            $whereItems[] = new WhereItem('success', WhereItem::EQUAL_OPERATOR, $resultFilter === 'success' ? self::SUCCESS_ATTEMPT : 0, WhereItem::AND_OPERATOR);
+        }
+        $whereSegment = new WhereSegment();
+        $whereSegment->addGroup(new WhereItemGroup($whereItems));
+
         //P133: lo propio y lo de rangos menores; un intento con un usuario que no existe lo ven los administradores.
         $visibility = UserHierarchy::visibilityGroup($currentUser, 'visibleUserID', 'visibleRank', 'organizationID', true);
         if ($visibility !== null) {
@@ -251,7 +275,7 @@ class LoginAttemptsModel extends BaseEntityMapper
             'message',
             'extraData',
             'ip',
-            'dateFormat',
+            'date',
         ];
 
         $customOrder = [
@@ -264,6 +288,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $result = DataTablesHelper::process([
             'where_string' => $whereString,
+            'where_segment' => $whereSegment,
             'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
@@ -272,15 +297,19 @@ class LoginAttemptsModel extends BaseEntityMapper
             'request' => $request,
             'on_set_data' => function ($e) use ($success) {
                 $columns = [];
-                $columns[] = $e->success == $success
+                $isSuccess = $e->success == $success;
+                //El marcador del resultado lo lee access-reports.js para teñir la fila de un fallido.
+                $columns[] = '<span data-attempt-result="' . ($isSuccess ? 'success' : 'error') . '">' . ($isSuccess
                     ? \PiecesPHP\Core\Utilities\Helpers\StatusLabel::html(__(LOGIN_REPORT_LANG_GROUP, 'Exitoso'), \PiecesPHP\Core\Utilities\Helpers\StatusLabel::POSITIVE)
-                    : \PiecesPHP\Core\Utilities\Helpers\StatusLabel::html(__(LOGIN_REPORT_LANG_GROUP, 'Fallido'), \PiecesPHP\Core\Utilities\Helpers\StatusLabel::NEGATIVE);
+                    : \PiecesPHP\Core\Utilities\Helpers\StatusLabel::html(__(LOGIN_REPORT_LANG_GROUP, 'Fallido'), \PiecesPHP\Core\Utilities\Helpers\StatusLabel::NEGATIVE)) . '</span>';
                 //El usuario lo teclea cualquiera sin sesión en el login; el mensaje lo lleva dentro al bloquear.
                 $columns[] = escape_html($e->usernameAttempt);
-                $columns[] = escape_html($e->message);
+                //Un ingreso correcto se anota sin mensaje: se dice qué fue.
+                $message = (string) ($e->message ?? '');
+                $columns[] = escape_html($isSuccess && trim($message) === '' ? __(LOGIN_REPORT_LANG_GROUP, 'Ingreso exitoso') : $message);
                 $columns[] = escape_html(self::viaLabel($e->extraData ?? null));
                 $columns[] = escape_html($e->ip);
-                $columns[] = $e->dateFormat;
+                $columns[] = self::relativeDateHTML((string) $e->date, new \DateTime());
                 return $columns;
             },
 
@@ -329,48 +358,44 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $currentUser = getLoggedFrameworkUserOrFail();
 
-        $whereString = null;
-        $havingSegment = null;
         $table = self::TABLE;
         $tableUsers = UsersModel::TABLE;
         $tableTimeOnPlatform = TimeOnPlatformModel::TABLE;
         $successLogin = self::SUCCESS_ATTEMPT;
 
-        $where = [
-            UsersModel::excludeSystemUserSQL("{$tableUsers}.id"),
-        ];
-        $havingSegment = new HavingSegment();
-        $havingSegment->addGroup(new HavingItemGroup([
-            new HavingItem('wasLogged', HavingItem::EQUAL_OPERATOR, 1, HavingItem::AND_OPERATOR),
+        //Con ingreso EN EL PERIODO (`days`): su último ingreso correcto cae dentro; el periodo acaba hoy. Por marcador.
+        //Quien entró sigue aquí aunque después lo hayan Eliminado: es actividad (va con su etiqueta, sin contar en las cifras).
+        [, $from] = self::periodFromRequest($request);
+        $lastLogin = self::lastSuccessfulLoginSQL();
+        $whereSegment = new WhereSegment();
+        $whereSegment->addGroup(new WhereItemGroup([
+            new WhereItem("{$tableUsers}.id", WhereItem::NOT_EQUAL_OPERATOR, UsersModel::SYSTEM_USER_ID, WhereItem::AND_OPERATOR),
+            new WhereItem($lastLogin, WhereItem::GREATER_OR_EQUAL_OPERATOR, $from->format('Y-m-d H:i:s'), WhereItem::AND_OPERATOR),
         ]));
 
         //P133: lo propio y lo de rangos menores (el administrador de organización, de la suya).
+        $havingSegment = null;
         $visibility = UserHierarchy::visibilityGroup($currentUser, 'visibleUserID', 'visibleRank', 'visibleOrganization');
         if ($visibility !== null) {
+            $havingSegment = new HavingSegment();
             $havingSegment->addGroup($visibility);
         }
 
-        if (!empty($where)) {
-            $whereString = trim(implode(' ', $where));
-        }
-
-        $formatDate = '%d-%m-%Y %h:%i:%s %p';
         $selectFields = array_merge(UsersModel::fieldsToSelect(), self::visibilityFieldsForUsers());
-        $selectFields[] = "(SELECT COUNT({$table}.userID) > 0 FROM {$table} WHERE {$table}.userID IS NOT NULL AND {$table}.userID = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS wasLogged";
-        $selectFields[] = "(SELECT DATE_FORMAT(MAX({$table}.date), '{$formatDate}') FROM {$table} WHERE {$table}.userID IS NOT NULL AND {$table}.userID = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS lastLoginDate";
+        $selectFields[] = "{$lastLogin} AS lastLogin";
         $selectFields[] = "(SELECT SUM({$tableTimeOnPlatform}.minutes) FROM {$tableTimeOnPlatform} WHERE {$tableTimeOnPlatform}.userID = {$tableUsers}.id) AS timeOnPlatformMinutes";
 
+        //Sin tiempo registrado (NULL) ordena como el menor.
         $columnsOrder = [
             "{$tableUsers}.id",
             'username',
             'fullname',
-            'lastLoginDate',
+            'lastLogin',
             'timeOnPlatformMinutes',
         ];
 
         $customOrder = [
-            'username' => 'ASC',
-            'fullname' => 'ASC',
+            'lastLogin' => 'DESC',
             "{$tableUsers}.id" => 'DESC',
         ];
 
@@ -378,7 +403,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         DataTablesHelper::setTablePrefixOnSearch(false);
 
         $result = DataTablesHelper::process([
-            'where_string' => $whereString,
+            'where_segment' => $whereSegment,
             'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
@@ -388,12 +413,13 @@ class LoginAttemptsModel extends BaseEntityMapper
             'on_set_data' => function ($e) {
 
                 $timeOnPlatformMinutes = $e->timeOnPlatformMinutes;
+                $lastLogin = is_string($e->lastLogin ?? null) ? strtotime($e->lastLogin) : false;
 
                 $columns = [];
                 $columns[] = $e->idPadding;
                 $columns[] = escape_html($e->username);
-                $columns[] = escape_html($e->fullname);
-                $columns[] = $e->lastLoginDate;
+                $columns[] = escape_html($e->fullname) . ((int) ($e->status ?? 0) === UsersModel::STATUS_USER_DELETED ? ' ' . \PiecesPHP\Core\Utilities\Helpers\StatusLabel::neutral(__(LOGIN_REPORT_LANG_GROUP, 'Eliminado')) : '');
+                $columns[] = $lastLogin !== false ? escape_html(date('d-m-Y H:i', $lastLogin)) : '';
                 $columns[] = !is_null($timeOnPlatformMinutes) ? round($timeOnPlatformMinutes, 0) . ' ' . __(LOGIN_REPORT_LANG_GROUP, 'minuto(s)') : __(LOGIN_REPORT_LANG_GROUP, 'Sin registro');
                 return $columns;
             },
@@ -410,35 +436,31 @@ class LoginAttemptsModel extends BaseEntityMapper
     {
         $currentUser = getLoggedFrameworkUserOrFail();
 
-        $whereString = null;
-        $havingSegment = null;
-        $table = self::TABLE;
         $tableUsers = UsersModel::TABLE;
-        $successLogin = self::SUCCESS_ATTEMPT;
 
-        //Un usuario Eliminado deja de existir en la práctica: no es una cuenta sin ingreso. Quien sí ingresó sigue en el
-        //historial (getLoggedUsers), que es actividad.
-        $where = [
-            UsersModel::excludeSystemUserSQL("{$tableUsers}.id"),
-            " AND {$tableUsers}.status != " . UsersModel::STATUS_USER_DELETED,
-        ];
-        $havingSegment = new HavingSegment();
-        $havingSegment->addGroup(new HavingItemGroup([
-            new HavingItem('wasLogged', HavingItem::EQUAL_OPERATOR, 0, HavingItem::AND_OPERATOR),
+        //Sin ingreso EN EL PERIODO (`days`): nunca, o el último correcto antes de su principio. Por marcador. Un usuario
+        //Eliminado deja de existir en la práctica: no es una cuenta sin ingreso.
+        [, $from] = self::periodFromRequest($request);
+        $lastLogin = self::lastSuccessfulLoginSQL();
+        $whereSegment = new WhereSegment();
+        $whereSegment->addGroup(new WhereItemGroup([
+            new WhereItem("{$tableUsers}.id", WhereItem::NOT_EQUAL_OPERATOR, UsersModel::SYSTEM_USER_ID, WhereItem::AND_OPERATOR),
+            new WhereItem("{$tableUsers}.status", WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR),
+        ]));
+        $whereSegment->addGroup(new WhereItemGroup([
+            new WhereItem($lastLogin, WhereItem::IS_NULL_OPERATOR, '', WhereItem::OR_OPERATOR),
+            new WhereItem($lastLogin, WhereItem::LESS_THAN_OPERATOR, $from->format('Y-m-d H:i:s'), WhereItem::AND_OPERATOR),
         ]));
 
         //P133: lo propio y lo de rangos menores (el administrador de organización, de la suya).
+        $havingSegment = null;
         $visibility = UserHierarchy::visibilityGroup($currentUser, 'visibleUserID', 'visibleRank', 'visibleOrganization');
         if ($visibility !== null) {
+            $havingSegment = new HavingSegment();
             $havingSegment->addGroup($visibility);
         }
 
-        if (!empty($where)) {
-            $whereString = trim(implode(' ', $where));
-        }
-
         $selectFields = array_merge(UsersModel::fieldsToSelect(), self::visibilityFieldsForUsers());
-        $selectFields[] = "(SELECT COUNT({$table}.userID) > 0 FROM {$table} WHERE {$table}.userID IS NOT NULL AND {$table}.userID = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS wasLogged";
 
         $columnsOrder = [
             "{$tableUsers}.id",
@@ -448,7 +470,6 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $customOrder = [
             'username' => 'ASC',
-            'fullname' => 'ASC',
             "{$tableUsers}.id" => 'DESC',
         ];
 
@@ -456,7 +477,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         DataTablesHelper::setTablePrefixOnSearch(false);
 
         $result = DataTablesHelper::process([
-            'where_string' => $whereString,
+            'where_segment' => $whereSegment,
             'having_segment' => $havingSegment,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
@@ -473,6 +494,18 @@ class LoginAttemptsModel extends BaseEntityMapper
         ]);
 
         return $result;
+    }
+
+    /**
+     * El último ingreso correcto de cada usuario de la consulta sobre la tabla de usuarios (sin valores: solo nombres).
+     *
+     * @return string
+     */
+    protected static function lastSuccessfulLoginSQL(): string
+    {
+        $table = self::TABLE;
+        $tableUsers = UsersModel::TABLE;
+        return "(SELECT MAX({$table}.date) FROM {$table} WHERE {$table}.userID = {$tableUsers}.id AND {$table}.success = " . self::SUCCESS_ATTEMPT . ')';
     }
 
     /**
@@ -581,14 +614,214 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
+     * El periodo de la petición: `days` (uno de PERIODS; otro valor, DEFAULT_PERIOD) y su rango [desde, hasta), los días
+     * que acaban hoy, incluido.
+     *
+     * @param Request $request
+     * @return array{0:int,1:\DateTimeImmutable,2:\DateTimeImmutable}
+     */
+    public static function periodFromRequest(Request $request): array
+    {
+        $requested = $request->getQueryParam('days', null);
+        $days = is_string($requested) && ctype_digit($requested) && in_array((int) $requested, self::PERIODS, true) ? (int) $requested : self::DEFAULT_PERIOD;
+        [$from, $to] = self::periodRange($days, new \DateTimeImmutable());
+        return [$days, $from, $to];
+    }
+
+    /**
+     * [desde, hasta) de los `$days` días que acaban el día de `$now`, incluido.
+     *
+     * @param int $days
+     * @param \DateTimeImmutable $now
+     * @return array{0:\DateTimeImmutable,1:\DateTimeImmutable}
+     */
+    public static function periodRange(int $days, \DateTimeImmutable $now): array
+    {
+        $to = $now->setTime(0, 0)->modify('+1 day');
+        return [$to->modify('-' . $days . ' days'), $to];
+    }
+
+    /**
+     * Desde cuándo hay datos si el registro está RECORTADO para el periodo: lleno (`$stored` ≥ `$maxRows`) y con el más
+     * viejo posterior al principio del periodo; null si no. Puro, para probarlo sin llenar la tabla.
+     *
+     * @param \DateTimeImmutable|null $oldest
+     * @param \DateTimeImmutable $from
+     * @param int $stored
+     * @param int $maxRows
+     * @return \DateTimeImmutable|null
+     */
+    public static function trimmedSince(?\DateTimeImmutable $oldest, \DateTimeImmutable $from, int $stored, int $maxRows): ?\DateTimeImmutable
+    {
+        return $oldest !== null && $oldest > $from && $stored >= $maxRows ? $oldest : null;
+    }
+
+    /**
+     * Cuántos intentos guarda la tabla, de todos: el recorte (trim()) los cuenta así.
+     *
+     * @return int
+     */
+    public static function storedCount(): int
+    {
+        $model = self::model();
+        $model->select(['COUNT(*) AS stored']);
+        $model->execute();
+        $result = $model->result();
+        $row = is_array($result) && isset($result[0]) && is_object($result[0]) ? (array) $result[0] : [];
+        return is_numeric($row['stored'] ?? null) ? (int) $row['stored'] : 0;
+    }
+
+    /**
+     * La fecha del intento más viejo que se guarda (el recorte, trim(), es de toda la tabla); null sin intentos.
+     *
+     * @return \DateTimeImmutable|null
+     */
+    public static function oldestDate(): ?\DateTimeImmutable
+    {
+        $model = self::model();
+        $model->select(['MIN(date) AS oldest']);
+        $model->execute();
+        $result = $model->result();
+        $oldest = is_array($result) && isset($result[0]) && is_object($result[0]) ? ($result[0]->oldest ?? null) : null;
+        return is_string($oldest) && $oldest !== '' ? new \DateTimeImmutable($oldest) : null;
+    }
+
+    /**
+     * Las cifras de Accesos › Intentos en [desde, hasta): por resultado, los usuarios ESCRITOS distintos (sin distinguir
+     * mayúsculas) y la serie por día, con un punto también para los días sin intentos. Misma visibilidad que all() (P133).
+     *
+     * @param \DateTimeImmutable $from
+     * @param \DateTimeImmutable $to Exclusivo
+     * @param object|null $actor Quién mira; null, el usuario de la sesión
+     * @return array{total:int,success:int,error:int,uniqueUsers:int,days:array<string,array{success:int,error:int}>}
+     */
+    public static function periodStats(\DateTimeImmutable $from, \DateTimeImmutable $to, ?object $actor = null): array
+    {
+        $actor ??= getLoggedFrameworkUser();
+
+        $days = [];
+        for ($day = $from; $day < $to; $day = $day->modify('+1 day')) {
+            $days[$day->format('Y-m-d')] = ['success' => 0, 'error' => 0];
+        }
+        $stats = ['total' => 0, 'success' => 0, 'error' => 0, 'uniqueUsers' => 0, 'days' => $days];
+
+        $model = self::model();
+        $table = $model->getTable();
+        [$organizationID, $userType] = self::userSubqueries();
+        $model->select([
+            "{$table}.userID",
+            "({$organizationID}) AS organizationID",
+            "({$userType}) AS userType",
+            "{$table}.success",
+            "DATE({$table}.date) AS day",
+            "LOWER({$table}.usernameAttempt) AS typedUser",
+            'COUNT(*) AS amount',
+        ]);
+        $model->where(self::rangeSegment($from, $to));
+        $model->groupBy(["{$table}.userID", "{$table}.success", 'organizationID', 'userType', 'day', 'typedUser']);
+        $model->execute();
+
+        $groups = $model->result();
+        $typedUsers = [];
+        foreach (is_array($groups) ? $groups : [] as $group) {
+            if (!is_object($group) || !self::groupIsVisible($actor, $group)) {
+                continue;
+            }
+            $row = (array) $group;
+            $amount = is_numeric($row['amount'] ?? null) ? (int) $row['amount'] : 0;
+            $day = is_string($row['day'] ?? null) ? $row['day'] : '';
+            $successValue = is_numeric($row['success'] ?? null) ? (int) $row['success'] : null;
+            $key = $successValue === 1 ? 'success' : ($successValue === 0 ? 'error' : null);
+            $stats['total'] += $amount;
+            if ($key !== null) {
+                $stats[$key] += $amount;
+                if (isset($stats['days'][$day])) {
+                    $stats['days'][$day][$key] += $amount;
+                }
+            }
+            $typedUsers[is_scalar($row['typedUser'] ?? null) ? (string) $row['typedUser'] : ''] = true;
+        }
+        $stats['uniqueUsers'] = count($typedUsers);
+
+        return $stats;
+    }
+
+    /**
+     * [desde, hasta) sobre la fecha del intento, por marcador.
+     *
+     * @param \DateTimeInterface $from
+     * @param \DateTimeInterface $to
+     * @return WhereSegment
+     */
+    protected static function rangeSegment(\DateTimeInterface $from, \DateTimeInterface $to): WhereSegment
+    {
+        $table = self::TABLE;
+        $segment = new WhereSegment();
+        $segment->addGroup(new WhereItemGroup([
+            new WhereItem("{$table}.date", WhereItem::GREATER_OR_EQUAL_OPERATOR, $from->format('Y-m-d H:i:s'), WhereItem::AND_OPERATOR),
+            new WhereItem("{$table}.date", WhereItem::LESS_THAN_OPERATOR, $to->format('Y-m-d H:i:s'), WhereItem::AND_OPERATOR),
+        ]));
+        return $segment;
+    }
+
+    /**
+     * La misma regla que all() (P133) sobre un grupo con userID, userType y organizationID.
+     *
+     * @param object|null $actor
+     * @param object $group
+     * @return bool
+     */
+    protected static function groupIsVisible(?object $actor, object $group): bool
+    {
+        return UserHierarchy::canSee(
+            $actor,
+            is_numeric($group->userID ?? null) ? (int) $group->userID : null,
+            is_numeric($group->userType ?? null) ? (int) $group->userType : null,
+            is_numeric($group->organizationID ?? null) ? (int) $group->organizationID : null,
+            true
+        );
+    }
+
+    /**
+     * La fecha de un intento, relativa («hace 3 horas»), en `<time>` con la exacta en `datetime` y en `title`. Escapada.
+     *
+     * @param string $date Y-m-d H:i:s
+     * @param \DateTimeInterface $now
+     * @return string
+     */
+    public static function relativeDateHTML(string $date, \DateTimeInterface $now): string
+    {
+        $time = strtotime($date);
+        if ($time === false) {
+            return '';
+        }
+        $seconds = max(0, $now->getTimestamp() - $time);
+        $minutes = intdiv($seconds, 60);
+        $hours = intdiv($seconds, 3600);
+        $days = intdiv($seconds, 86400);
+        $text = match (true) {
+            $minutes < 1 => __(LOGIN_REPORT_LANG_GROUP, 'hace un momento'),
+            $minutes === 1 => __(LOGIN_REPORT_LANG_GROUP, 'hace 1 minuto'),
+            $minutes < 60 => sprintf(__(LOGIN_REPORT_LANG_GROUP, 'hace %d minutos'), $minutes),
+            $hours === 1 => __(LOGIN_REPORT_LANG_GROUP, 'hace 1 hora'),
+            $hours < 24 => sprintf(__(LOGIN_REPORT_LANG_GROUP, 'hace %d horas'), $hours),
+            $days === 1 => __(LOGIN_REPORT_LANG_GROUP, 'hace 1 día'),
+            default => sprintf(__(LOGIN_REPORT_LANG_GROUP, 'hace %d días'), $days),
+        };
+        return '<time datetime="' . escape_html(date('Y-m-d\TH:i:s', $time)) . '" title="' . escape_html(date('d-m-Y H:i', $time)) . '">' . escape_html($text) . '</time>';
+    }
+
+    /**
      * Las tres cifras del resumen de Accesos sin cargar los intentos: cuenta en SQL por usuario y resultado, y aplica a
      * cada grupo la misma regla que all() (P133). La regla solo mira usuario, tipo y organización, así que el resultado
      * es el mismo que contar sobre all().
      *
      * @param object|null $actor Quién mira; null, el usuario de la sesión
+     * @param \DateTimeInterface|null $from Con `$to`, solo los intentos de [desde, hasta); sin ellos, todos (como siempre)
+     * @param \DateTimeInterface|null $to Exclusivo
      * @return array{total:int,success:int,error:int}
      */
-    public static function countsBySuccess(?object $actor = null): array
+    public static function countsBySuccess(?object $actor = null, ?\DateTimeInterface $from = null, ?\DateTimeInterface $to = null): array
     {
         $actor ??= getLoggedFrameworkUser();
 
@@ -602,6 +835,9 @@ class LoginAttemptsModel extends BaseEntityMapper
             "{$table}.success",
             'COUNT(*) AS amount',
         ]);
+        if ($from !== null && $to !== null) {
+            $model->where(self::rangeSegment($from, $to));
+        }
         $model->groupBy(["{$table}.userID", "{$table}.success", 'organizationID', 'userType']);
         $model->execute();
 

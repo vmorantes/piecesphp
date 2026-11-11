@@ -8,6 +8,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var \PiecesPHP\Logs\Controllers\HelperController $helpController
  * @var string $scope El alcance cuando está recortado; vacío si ve todo
  * @var array<int,array{key:string,title:string,icon:string,url:string,active:bool}> $tabs
+ * @var string $activeTitle
+ * @var string $activeDescription Vacía si la pestaña no la declara
  * @var string $content El HTML de la pestaña activa, que lo escapa su módulo
  */
 ?>
@@ -39,6 +41,13 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         </div>
 
         <div class="logs-tab-content" data-logs-tab-content>
+            <?php
+                $helpController->_render('panel/built-in/content/section-header.php', [
+                    'id' => 'logs-tab-title',
+                    'title' => $activeTitle,
+                    'description' => $activeDescription,
+                ]);
+            ?>
             <?= $content; ?>
         </div>
 

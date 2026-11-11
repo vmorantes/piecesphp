@@ -122,7 +122,8 @@ class ExampleUserNamesImportDefinition extends ImportDefinition
             if (isset($seen[$username])) {
                 $errors[$row->position()][] = sprintf(__(self::LANG_GROUP, 'Usuario: «%s» se repite en la fila %d.'), $row->get('username'), $seen[$username]);
             } else {
-                $seen[$username] = $row->position();
+                //La fila que se cita es la del archivo (la 1 son los títulos), la misma que pinta la tabla del resultado.
+                $seen[$username] = $row->position() + 1;
             }
         }
         return $errors;

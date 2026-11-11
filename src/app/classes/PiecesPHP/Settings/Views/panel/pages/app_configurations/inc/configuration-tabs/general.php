@@ -68,8 +68,14 @@ $liveSeries = range(1, 5);
                         <div class="field">
                             <label><?= __($langGroup, 'Tonos derivados'); ?> <span class="ui muted text">· <?= __($langGroup, 'automáticos, solo lectura'); ?></span></label>
                             <div class="ui relaxed flex">
-                                <?php foreach (['--accent-100' => '100', '--accent-300' => '300', '--accent-600' => '600', '--accent-50' => __($langGroup, 'Tinte 8 %')] as $toneVariable => $toneLabel): ?>
-                                <div class="ui vertical centered tight flex"><svg width="36" height="36" aria-hidden="true"><rect x=".5" y=".5" width="35" height="35" rx="6" fill="var(<?= $toneVariable; ?>)" stroke="var(--theme-border)"/></svg><small class="ui muted text"><?= $toneLabel; ?></small></div>
+                                <?php //El title dice cómo sale cada tono (semantic.css: color-mix del acento sobre la superficie del tema). ?>
+                                <?php foreach ([
+                                        '--accent-100' => ['100', __($langGroup, '14 % sobre el fondo')],
+                                        '--accent-300' => ['300', __($langGroup, '45 % sobre el fondo')],
+                                        '--accent-600' => ['600', __($langGroup, '88 % sobre negro; 70 % sobre blanco en oscuro')],
+                                        '--accent-50' => [__($langGroup, 'Tinte 8 %'), __($langGroup, 'Fondos activos · 8 % sobre el fondo')],
+                                ] as $toneVariable => [$toneLabel, $toneTitle]): ?>
+                                <div class="ui vertical centered tight flex" title="<?= escape_html($toneTitle); ?>" data-colors-tone="<?= escape_html($toneVariable); ?>"><svg width="36" height="36" aria-hidden="true"><rect x=".5" y=".5" width="35" height="35" rx="6" fill="var(<?= $toneVariable; ?>)" stroke="var(--theme-border)"/></svg><small class="ui muted text"><?= $toneLabel; ?></small></div>
                                 <?php endforeach; ?>
                             </div>
                         </div>

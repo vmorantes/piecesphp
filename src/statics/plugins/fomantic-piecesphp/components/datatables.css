@@ -630,7 +630,7 @@ table.dataTable > tbody > tr.child span.dtr-title {
 }
 
 /* Paginación: baja de línea en vez de salirse de la tarjeta */
-.dt-container .dt-paging .ui.pagination.menu {
+.dt-paging .ui.pagination.menu {
   flex-wrap: wrap;
   max-width: 100%;
 }
@@ -641,7 +641,7 @@ table.dataTable > tbody > tr.child span.dtr-title {
     justify-content: flex-start;
     text-align: left;
   }
-  .dt-container .dt-paging .ui.pagination.menu .item {
+  .dt-paging .ui.pagination.menu .item {
     min-width: 0;
     padding-right: 0.57142857rem;
     padding-left: 0.57142857rem;

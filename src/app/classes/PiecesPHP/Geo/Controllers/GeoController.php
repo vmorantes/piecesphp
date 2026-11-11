@@ -330,6 +330,7 @@ class GeoController extends AdminPanelController
                 'title' => $source->title(),
                 'marker' => $source->marker(),
                 'colorVariable' => $source->colorVariable(),
+                'color' => GeoSourceRegistry::colorValue($source),
             ];
         }
         return [

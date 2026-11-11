@@ -4387,7 +4387,7 @@
 }
 .ui.sortable.table > thead > tr > th.sorted::after {
   opacity: 1;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 .ui.sortable.table > thead > tr > th.ascending::after {
   content: "\f0de";

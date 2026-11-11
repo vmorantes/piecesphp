@@ -99,6 +99,17 @@ class SessionToken
     }
 
     /**
+     * El nombre de la sesión como CABECERA: el de tokenName() con «_» cambiado por «-». Apache descarta las cabeceras con
+     * «_», y PHP pasa el «-» a «_» en $_SERVER, así que esta forma llega a lo que leen getJWTReceived() y receivedByHeader().
+     *
+     * @return string
+     */
+    public static function headerName(): string
+    {
+        return str_replace('_', '-', self::tokenName());
+    }
+
+    /**
      * La vida por omisión de un token que no pide la suya (el del terminal, `initSession()`). Ya no se configura: la sesión
      * de un usuario la gobiernan `inactivity()` y `ceiling()`, y la fila manda (ADR 0026).
      *

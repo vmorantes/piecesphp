@@ -52,6 +52,11 @@ final class LogTab
     private $position;
 
     /**
+     * @var string
+     */
+    private $description;
+
+    /**
      * @param string $key Va en ?tab=, así que solo minúsculas, cifras y guiones
      * @param string $title Ya traducido
      * @param string $icon Clases de un icono de Fomantic, sin «icon»
@@ -59,9 +64,10 @@ final class LogTab
      * @param callable(Request,string):string $content Devuelve el HTML de la pestaña; recibe la petición y la URL de la
      *      propia pestaña, para que sus enlaces (filtros, páginas, sub-vistas) no escriban la dirección a mano
      * @param int $position De menor a mayor; a igual posición, el orden de registro
+     * @param string $description Ya traducida: lo que muestra la pestaña, en una frase, bajo su título; vacía, solo el título
      * @throws \InvalidArgumentException si la key no tiene la forma de KEY_PATTERN
      */
-    public function __construct(string $key, string $title, string $icon, string $permissionRoute, callable $content, int $position = 100)
+    public function __construct(string $key, string $title, string $icon, string $permissionRoute, callable $content, int $position = 100, string $description = '')
     {
         if (preg_match(self::KEY_PATTERN, $key) !== 1) {
             throw new \InvalidArgumentException("La key de pestaña «{$key}» no es válida.");
@@ -72,6 +78,7 @@ final class LogTab
         $this->permissionRoute = $permissionRoute;
         $this->content = $content;
         $this->position = $position;
+        $this->description = $description;
     }
 
     /**
@@ -112,6 +119,14 @@ final class LogTab
     public function position(): int
     {
         return $this->position;
+    }
+
+    /**
+     * @return string
+     */
+    public function description(): string
+    {
+        return $this->description;
     }
 
     /**

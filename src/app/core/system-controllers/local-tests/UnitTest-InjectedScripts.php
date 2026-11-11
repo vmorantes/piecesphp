@@ -80,7 +80,7 @@ CliActions::make('unit-tests:core/injected-scripts', function ($args) {
     }
     echoTerminal(' ');
 
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $metodo, string $path, ?string $jwt = null, array $datos = []) use ($base, $cabeceraToken): array {
         $cabeceras = $jwt !== null ? ["{$cabeceraToken}: {$jwt}"] : [];
         $handle = \Terminal\TestRun::curlInit();
@@ -176,6 +176,10 @@ CliActions::make('unit-tests:core/injected-scripts', function ($args) {
         $cabeceraPortada = $entre($portada, '<head>', '</head>') ?? '';
         $check(str_contains($cabeceraPanel, 'zz-cf-both-head') && str_contains($cabeceraPortada, 'zz-cf-both-head'), 'a7 both·head en la cabecera del panel y en la de la portada');
         $check(!str_contains($acceso, 'zz-cf-'), 'a8 y NADA en la pantalla de acceso: ahí un script leería la contraseña');
+        $vista = $pedir('GET', $rutas['vista'], $root)['body'];
+        $selectZona = preg_match('#<select[^>]*id="script-zone-0"[^>]*>(.*?)</select>#s', $vista, $m) === 1 ? $m[1] : '';
+        $ordenZonas = preg_match_all('#<option value="([^"]+)"#', $selectZona, $opciones) > 0 ? $opciones[1] : [];
+        $check($ordenZonas === ['public', 'panel', 'both'], 'a9 «Dónde», en el orden del prototipo: Sitio público, Panel, Los dos', implode(', ', $ordenZonas));
         echoTerminal(' ');
 
         //─── B · Solo el principal ──────────────────────────────────────────────────────────────

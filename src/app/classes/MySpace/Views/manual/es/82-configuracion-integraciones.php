@@ -93,7 +93,7 @@ de pruebas.</p>
 <tr>
 <td>Protocolo</td>
 <td>Sí</td>
-<td>El protocolo de conexión.</td>
+<td>El cifrado de la conexión, elegido en una lista: <strong>STARTTLS</strong> (lo habitual con el puerto 587), <strong>SSL/TLS</strong> (puerto 465) o <strong>Ninguno</strong>. Si ves «(valor actual, no válido)», elige uno de los tres antes de guardar.</td>
 </tr>
 <tr>
 <td>Auto TLS</td>

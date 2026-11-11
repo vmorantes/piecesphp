@@ -117,6 +117,8 @@ class LogsController extends AdminPanelController
             'helpController' => $this->helpController,
             'scope' => self::scopeNotice($user),
             'tabs' => $tabs,
+            'activeTitle' => $active->title(),
+            'activeDescription' => $active->description(),
             'content' => $content,
         ]);
         $this->helpController->render('panel/layout/footer');
@@ -209,7 +211,8 @@ class LogsController extends AdminPanelController
             'bug',
             self::$baseRouteName . '-errors',
             fn(Request $request, string $tabURL): string => self::errorsTab($request, $tabURL),
-            10
+            10,
+            __(self::LANG_GROUP, 'Los errores que anotó esta instalación, agrupados por día, el más reciente primero.')
         ));
     }
 

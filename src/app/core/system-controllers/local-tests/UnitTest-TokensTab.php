@@ -76,7 +76,7 @@ CliActions::make('unit-tests:core/tokens-tab', function ($args) {
         }
         return '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/');
     };
-    $cabeceraToken = SessionToken::tokenName();
+    $cabeceraToken = SessionToken::headerName();
     $pedir = function (string $path, string $jwt, ?array $post = null, array $query = []) use ($base, $cabeceraToken): array {
         $handle = \Terminal\TestRun::curlInit();
         $cabeceras = ['X-Requested-With: XMLHttpRequest'];
@@ -215,6 +215,23 @@ CliActions::make('unit-tests:core/tokens-tab', function ($args) {
         $check(!str_contains($accionesGral, 'data-token-'), 'b4 y sin acciones: no son suyas');
         $check($pedir($ruta('user-tokens-datatables'), $jwtGenA, null, $tabla)['status'] !== 200, 'b5 un usuario general no ve la pestaña');
         $check(!str_contains($pedir($ruta('user-tokens-datatables'), $jwtRoot, null, $tabla)['body'], $codigo), 'b6 el listado no lleva ningún valor de código');
+        //Lo destructivo, en rojo cuando aplica; inactivo cuando no (vistas-referencia.md §3.28). El icono de restablecer, user shield.
+        $accionesDe = function (string $clave) use ($filas, $pedir, $ruta, $jwtRoot, $tabla): string {
+            foreach ($filas($pedir($ruta('user-tokens-datatables'), $jwtRoot, null, $tabla)) as $f) {
+                if (strip_tags((string) ($f[0] ?? '')) . '|' . strip_tags((string) ($f[1] ?? '')) === $clave) {
+                    return (string) ($f[4] ?? '');
+                }
+            }
+            return '';
+        };
+        //Las activas son enlaces y las inactivas botones (RowActions): las tres, en su orden.
+        $botones = fn(string $html): array => preg_match_all('/<(a|button)\b[^>]*>.*?<\/\1>/s', $html, $m) !== false ? $m[0] : [];
+        [$resetTOTP, , $invalidarTOTP] = $botones($accionesDe($dobleFactor)) + [null, null, null];
+        [$resetOTP, , $invalidarOTP] = $botones($accionesDe($otp)) + [null, null, null];
+        $check(is_string($resetTOTP) && str_contains($resetTOTP, 'ui negative basic icon button') && str_contains($resetTOTP, 'user shield icon') && is_string($invalidarTOTP) && str_contains($invalidarTOTP, 'disabled'),
+            'b7 DISCRIMINANTE: en el doble factor, «Restablecer doble factor» en rojo con user shield, e «Invalidar ahora» inactiva', mb_substr((string) $resetTOTP, 0, 160));
+        $check(is_string($invalidarOTP) && str_contains($invalidarOTP, 'ui negative basic icon button') && str_contains($invalidarOTP, 'ban icon') && is_string($resetOTP) && str_contains($resetOTP, 'disabled') && str_contains($resetOTP, 'user shield icon'),
+            'b8 DISCRIMINANTE: en un código, «Invalidar ahora» en rojo, y restablecer inactiva (también con user shield)', mb_substr((string) $invalidarOTP, 0, 160));
 
         //─── c · Solo root, nunca suplantando ─────────────────────────────────────────────────────
         echoTerminal(' ');

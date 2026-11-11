@@ -22,7 +22,8 @@
 # (`data-section-accordion`, que inicia la pieza section-nav), el primero abierto; con menos, títulos.
 #
 # Un capítulo de proyecto con el mismo nombre de archivo sustituye al del framework. El orden lo da el prefijo NN. Las
-# imágenes van en img/ junto a cada idioma y se copian a los estáticos de MySpace (Statics/manual/<idioma>/), que las sirve.
+# imágenes van en img/ junto a cada idioma y se copian a los estáticos de MySpace (Statics/manual/<idioma>/), que las sirve:
+# solo las que cita algún capítulo publicado (H237, 11).
 #
 # Genera src/app/classes/MySpace/Views/manual/<idioma>/<slug>.php (el cuerpo, con el marcado de Fomantic) e index.php
 # (slug, titulo, rutas, ve si la hay, secciones, idioma, origen y fecha de la fuente), dentro del módulo que los pinta. Que una ruta citada
@@ -284,6 +285,8 @@ indice = []
 #Una imagen citada que no se va a servir sale rota en el panel y nada más lo ve: se para, con todas las que falten. Vale
 #cualquier img/ del mismo idioma (framework o proyecto), porque las dos se sirven desde la misma carpeta.
 faltan = []
+#Las imágenes que cita algún capítulo PUBLICADO: solo esas se sirven (las de un capítulo oculto, no).
+publicadas = set()
 for idioma in sorted(capitulos):
     for slug in sorted(capitulos[idioma]):
         titulo, rutas, ve, origen, trozos, ruta = capitulos[idioma][slug]
@@ -367,6 +370,7 @@ for idioma in sorted(capitulos):
                 parte = '\n'.join(contenido)
                 partes.append(envuelve(parte, v) if v is not None and parte != '' else parte)
             html = '\n'.join(p for p in partes if p != '')
+        publicadas.update((idioma, img) for img in citadas)
         for img in citadas:
             if (idioma, img) not in imagenes:
                 faltan.append(f'{relativa(ruta)}: cita img/{img}, y no está en ninguna img/ de «{idioma}»')
@@ -401,7 +405,7 @@ for slug, titulo, rutas, ve, lista_secciones, idioma, origen, fecha in indice:
 lineas.append('];')
 salidas[os.path.join(VISTAS, 'index.php')] = '\n'.join(lineas) + '\n'
 
-copias = {os.path.join(IMAGENES, idioma, img): origen_img for (idioma, img), origen_img in imagenes.items()}
+copias = {os.path.join(IMAGENES, idioma, img): origen_img for (idioma, img), origen_img in imagenes.items() if (idioma, img) in publicadas}
 
 
 def existentes(carpeta):
