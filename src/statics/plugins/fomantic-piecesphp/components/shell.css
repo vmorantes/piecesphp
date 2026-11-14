@@ -454,6 +454,13 @@
   box-shadow: 0 0 0 2px var(--theme-surface);
 }
 
+/* Fork: contador rojo con el número en blanco en todos los modos (data-contrast="more" lo oscurece más en core) */
+.ui.shell > .main > .bar .ui.button > .ui.red.floating.label:not(.basic):not(.inverted) {
+  background-color: oklch(from #f04438 min(l, 0.56) c h);
+  border-color: oklch(from #f04438 min(l, 0.56) c h);
+  color: #fff;
+}
+
 /* Cuenta (ui dropdown en `.right`): el disparador cede ancho y recorta el nombre; su menú tiene
    un ancho fijo (con `left menu` se abre hacia la izquierda) */
 .ui.shell > .main > .bar > .right > .ui.dropdown {

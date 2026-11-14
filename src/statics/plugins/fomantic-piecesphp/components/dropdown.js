@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.0 - Dropdown
+ * # Fomantic-UI 0.14.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3716,7 +3716,8 @@
                 fixedMenu: {
                     place: function () {
                         var
-                            rect = element.getBoundingClientRect(),
+                            // $module y no element: iniciado sobre un <select>, element es el select oculto (0×0)
+                            rect = $module[0].getBoundingClientRect(),
                             viewport = document.documentElement.clientHeight || window.innerHeight,
                             below = viewport - rect.bottom,
                             above = rect.top,

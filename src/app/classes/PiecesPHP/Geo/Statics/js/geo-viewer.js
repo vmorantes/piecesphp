@@ -134,8 +134,10 @@ class GeoViewer {
 				this.textTimer = setTimeout(() => this.refresh(), GEO_TEXT_WAIT)
 			})
 		}
+		//El panel se desplaza por dentro y recortaba la lista: con la lista fija sale entera (H290).
 		for (const select of form.querySelectorAll('select[data-geo-filter-type="options"]')) {
 			$(select).dropdown({
+				menuPosition: 'fixed',
 				fullTextSearch: true,
 				clearable: true,
 				onChange: () => {
@@ -150,6 +152,7 @@ class GeoViewer {
 			const url = new URL(select.dataset.searchUrl)
 			url.searchParams.set('search', 'SEARCH_QUERY')
 			$(select).dropdown({
+				menuPosition: 'fixed',
 				clearable: true,
 				minCharacters: 1,
 				saveRemoteData: true,

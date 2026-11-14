@@ -1,3 +1,19 @@
+# 10.20.0 (13-11-2026)
+
+- **El número del contador de la campana, en blanco.** Antes salía negro sobre el rojo; ahora es blanco sobre un rojo algo
+  más oscuro, con contraste suficiente en modo claro, oscuro y contraste alto.
+- **La rueda del ratón sobre una tabla desplazable mueve la página** (Salud de la instalación, Avisos del sistema,
+  Importar): antes había que sacar el cursor de la tabla. Con Mayús, o con el desplazamiento horizontal del panel táctil,
+  se desplaza la tabla.
+- **Las tarjetas de cifras** (el Inicio, Ubicaciones, la hoja de diseño) usan la rejilla del tema: hasta cuatro columnas;
+  con la letra «Más grande», menos columnas y los títulos en una línea; una sola en el móvil. El interior de las tarjetas
+  no cambia.
+- **Geovisor**: la lista de un desplegable del panel de filtros sale entera, fuera del panel (antes el panel la cortaba).
+- **El tema del panel, 0.14.1** (antes 0.14.0; `bin/traer-tema`).
+- **Para quien desarrolla**: una `.statistics-section` sin `one-column` lleva `ui four column adaptive cards` en la vista
+  y su rejilla sale del tema. Las variables de Sass `$dashboardCardMinWidth`, `$dashboardCardMaxColumns` y
+  `$dashboardCardGap` quedan en desuso (ya no se usan; se retiran en la 11.0.0).
+
 # 10.19.0 (13-11-2026)
 
 - **Nuevo: `bin/cli db-update`**, para aplicar las actualizaciones de la base que trae `databases/actualizaciones/` (tablas
@@ -8,10 +24,10 @@
   `bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes`. Sin ella todo sigue funcionando: lo que no se pueda anotar
   queda en el registro de errores.
 - **Para quien desarrolla: el centro de mando de la IA, primera entrega.** Un módulo registra sus usos de la IA con
-  `AICapabilityRegistry::register(new AICapability(…))` y pide el proveedor a `AIGateway::chatHandler()`, que anota lo
+  `AICapabilityRegistry::register(new AICapability(…))`, pide el proveedor a `AIGateway::chatHandler()` y anota lo
   gastado con `AIGateway::recordUsage()`. La traducción con IA ya pasa por ahí, sin cambios visibles. Los controles por
   capacidad (encenderla, quién la usa, cuota) llegan en una entrega próxima. Guía «El centro de mando de la IA».
-- **El tema del panel, 0.14.0** (antes 0.13.0; `bin/traer-tema`): trae clases nuevas que todavía no usa ninguna pantalla;
+- **El tema del panel, 0.14.0** (antes 0.13.0; `bin/traer-tema`): trae clases y opciones nuevas que todavía no usa ninguna pantalla;
   nada cambia a la vista.
 - **Documentación**: «Las notificaciones», «CronJobs» y la guía de la IA dicen cómo aplicar su tabla con `db-update`.
 

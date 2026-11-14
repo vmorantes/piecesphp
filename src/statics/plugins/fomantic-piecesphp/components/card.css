@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.0 - Card
+ * # Fomantic-UI 0.14.1 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3048,7 +3048,23 @@ a.inverted.ui.card:hover,
            ese término queda negativo, así que no cuenta */
   grid-template-columns: repeat(auto-fill, minmax(min(100%, max(var(--adaptive-card-min-width, 16em), calc((100% - (var(--adaptive-card-max-columns, 1000) - 1) * 1em) / var(--adaptive-card-max-columns, 1000)))), 1fr));
   gap: 1em;
-  margin: 0;
+}
+
+/* El ::after de clearing de .ui.cards sería un hijo más de la rejilla: una fila vacía y un hueco de sobra */
+.ui.adaptive.cards::after,
+.ui.adaptive.cards::before {
+  content: none;
+}
+
+/* Sin los márgenes negativos de .ui.cards. Lo horizontal, por encima de `.ui.four.cards` y similares; lo vertical,
+       con especificidad 0,2,0 para que mande el margen de la clase de quien la usa (cargada después) */
+.ui.ui.adaptive.cards {
+  margin-left: 0;
+  margin-right: 0;
+}
+.adaptive.cards {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .ui.two.column.adaptive.cards {
   --adaptive-card-max-columns: 2;

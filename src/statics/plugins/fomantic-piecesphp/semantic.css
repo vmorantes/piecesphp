@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 0.14.0
+ * # Fomantic UI - 0.14.1
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 0.14.0 - Reset
+ * # Fomantic-UI 0.14.1 - Reset
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -426,7 +426,7 @@ template {
   display: none;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Site
+ * # Fomantic-UI 0.14.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3231,7 +3231,7 @@ strong {
   font-weight: 600;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Button
+ * # Fomantic-UI 0.14.1 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -4928,6 +4928,14 @@ strong {
   color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.primary.basic.buttons .active.button,
+.ui.ui.inverted.primary.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.primary.basic.buttons .button:active,
 .ui.inverted.primary.buttons .basic.button:active,
 .ui.inverted.primary.basic.button:active {
@@ -5148,6 +5156,14 @@ strong {
 .ui.inverted.secondary.basic.active.button {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
   color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.secondary.basic.buttons .active.button,
+.ui.ui.inverted.secondary.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.secondary.basic.buttons .button:active,
@@ -5372,6 +5388,14 @@ strong {
   color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.accent-1.basic.buttons .active.button,
+.ui.ui.inverted.accent-1.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.accent-1.basic.buttons .button:active,
 .ui.inverted.accent-1.buttons .basic.button:active,
 .ui.inverted.accent-1.basic.button:active {
@@ -5592,6 +5616,14 @@ strong {
 .ui.inverted.accent-2.basic.active.button {
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
   color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.accent-2.basic.buttons .active.button,
+.ui.ui.inverted.accent-2.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.accent-2.basic.buttons .button:active,
@@ -5816,6 +5848,14 @@ strong {
   color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.accent-3.basic.buttons .active.button,
+.ui.ui.inverted.accent-3.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.accent-3.basic.buttons .button:active,
 .ui.inverted.accent-3.buttons .basic.button:active,
 .ui.inverted.accent-3.basic.button:active {
@@ -6036,6 +6076,14 @@ strong {
 .ui.inverted.red.basic.active.button {
   box-shadow: 0 0 0 2px #ff5346 inset;
   color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.red.basic.buttons .active.button,
+.ui.ui.inverted.red.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.red.basic.buttons .button:active,
@@ -6260,6 +6308,14 @@ strong {
   color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.orange.basic.buttons .active.button,
+.ui.ui.inverted.orange.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.orange.basic.buttons .button:active,
 .ui.inverted.orange.buttons .basic.button:active,
 .ui.inverted.orange.basic.button:active {
@@ -6480,6 +6536,14 @@ strong {
 .ui.inverted.yellow.basic.active.button {
   box-shadow: 0 0 0 2px #ffa806 inset;
   color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.yellow.basic.buttons .active.button,
+.ui.ui.inverted.yellow.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.yellow.basic.buttons .button:active,
@@ -6704,6 +6768,14 @@ strong {
   color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.olive.basic.buttons .active.button,
+.ui.ui.inverted.olive.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.olive.basic.buttons .button:active,
 .ui.inverted.olive.buttons .basic.button:active,
 .ui.inverted.olive.basic.button:active {
@@ -6924,6 +6996,14 @@ strong {
 .ui.inverted.green.basic.active.button {
   box-shadow: 0 0 0 2px #2bd07c inset;
   color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.green.basic.buttons .active.button,
+.ui.ui.inverted.green.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.green.basic.buttons .button:active,
@@ -7148,6 +7228,14 @@ strong {
   color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.teal.basic.buttons .active.button,
+.ui.ui.inverted.teal.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.teal.basic.buttons .button:active,
 .ui.inverted.teal.buttons .basic.button:active,
 .ui.inverted.teal.basic.button:active {
@@ -7368,6 +7456,14 @@ strong {
 .ui.inverted.blue.basic.active.button {
   box-shadow: 0 0 0 2px #37a6ff inset;
   color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.blue.basic.buttons .active.button,
+.ui.ui.inverted.blue.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.blue.basic.buttons .button:active,
@@ -7592,6 +7688,14 @@ strong {
   color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.violet.basic.buttons .active.button,
+.ui.ui.inverted.violet.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.violet.basic.buttons .button:active,
 .ui.inverted.violet.buttons .basic.button:active,
 .ui.inverted.violet.basic.button:active {
@@ -7812,6 +7916,14 @@ strong {
 .ui.inverted.purple.basic.active.button {
   box-shadow: 0 0 0 2px #b766ed inset;
   color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.purple.basic.buttons .active.button,
+.ui.ui.inverted.purple.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.purple.basic.buttons .button:active,
@@ -8036,6 +8148,14 @@ strong {
   color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.pink.basic.buttons .active.button,
+.ui.ui.inverted.pink.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.pink.basic.buttons .button:active,
 .ui.inverted.pink.buttons .basic.button:active,
 .ui.inverted.pink.basic.button:active {
@@ -8258,6 +8378,14 @@ strong {
   color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.brown.basic.buttons .active.button,
+.ui.ui.inverted.brown.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.inverted.brown.basic.buttons .button:active,
 .ui.inverted.brown.buttons .basic.button:active,
 .ui.inverted.brown.basic.button:active {
@@ -8478,6 +8606,14 @@ strong {
 .ui.inverted.grey.basic.active.button {
   box-shadow: 0 0 0 2px #8993a6 inset;
   color: oklch(from #99a1af max(l, 0.8) min(c, 0.14) h);
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.grey.basic.buttons .active.button,
+.ui.ui.inverted.grey.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.grey.basic.buttons .button:active,
@@ -8703,6 +8839,14 @@ strong {
   box-shadow: 0 0 0 2px #000000 inset;
   box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
+}
+
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+
+.ui.ui.inverted.black.basic.buttons .active.button,
+.ui.ui.inverted.black.buttons .basic.active.button {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.inverted.black.basic.buttons .button:active,
@@ -10080,7 +10224,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
         Chart Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Container
+ * # Fomantic-UI 0.14.1 - Container
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10457,7 +10601,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Divider
+ * # Fomantic-UI 0.14.1 - Divider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10800,7 +10944,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.14.0 - Emoji
+ * # Fomantic-UI 0.14.1 - Emoji
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29920,7 +30064,7 @@ em[data-emoji="regional_indicator_a"]::before {
              Emojis
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Flag
+ * # Fomantic-UI 0.14.1 - Flag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -31555,7 +31699,7 @@ i.flag.united.nations::before {
          Flex Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Header
+ * # Fomantic-UI 0.14.1 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32789,7 +32933,7 @@ h1.ui.header:not(:last-child) {
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 /*!
- * # Fomantic-UI 0.14.0 - Icon
+ * # Fomantic-UI 0.14.1 - Icon
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -42135,7 +42279,7 @@ i.huge.bordered.primary.icon.icon.icon.icon.icon.icon:not(.inverted) {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.14.0 - Image
+ * # Fomantic-UI 0.14.1 - Image
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -42556,7 +42700,7 @@ svg.ui.avatar.image,
   box-shadow: 0 0 0 1px var(--theme-border);
 }
 /*!
- * # Fomantic-UI 0.14.0 - Input
+ * # Fomantic-UI 0.14.1 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -44888,7 +45032,7 @@ input[type="file"].ui.black.file.input::file-selector-button:hover,
   text-overflow: ellipsis;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Label
+ * # Fomantic-UI 0.14.1 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -48354,7 +48498,7 @@ a.ui.ui.ui.basic.teal.label:hover {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.14.0 - List
+ * # Fomantic-UI 0.14.1 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -49511,7 +49655,7 @@ ol.ui.suffixed.list li::before,
   padding: 0;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Loader
+ * # Fomantic-UI 0.14.1 - Loader
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -50850,7 +50994,7 @@ ol.ui.suffixed.list li::before,
   border-color: rgba(255, 255, 255, 0.15);
 }
 /*!
- * # Fomantic-UI 0.14.0 - Placeholder
+ * # Fomantic-UI 0.14.1 - Placeholder
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51156,7 +51300,7 @@ body {
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 /*!
- * # Fomantic-UI 0.14.0 - Rail
+ * # Fomantic-UI 0.14.1 - Rail
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51314,7 +51458,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Reveal
+ * # Fomantic-UI 0.14.1 - Reveal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51621,7 +51765,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Segment
+ * # Fomantic-UI 0.14.1 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -53171,6 +53315,10 @@ body {
   overflow-x: auto;
   overflow-y: visible;
   min-width: 0;
+  /* Fork: con overflow-x auto, el visible de Y se calcula como auto y la caja es contenedor de desplazamiento en
+           los dos ejes; el `none` de `scrolling` cortaba la rueda vertical sobre la tabla y la página no se movía. En Y
+           sigue el encadenamiento a la página; en X se queda el del tema. Pedido por PiecesPHP */
+  overscroll-behavior-y: auto;
 }
 
 /* La tabla de dentro mide lo que pide su contenido (como mínimo, el ancho de la caja): sin un
@@ -53365,7 +53513,7 @@ body {
   color-scheme: inherit;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Step
+ * # Fomantic-UI 0.14.1 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -56953,7 +57101,7 @@ body {
         Swatch Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Text
+ * # Fomantic-UI 0.14.1 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -57354,7 +57502,7 @@ span.ui.info.text {
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.14.0 - Breadcrumb
+ * # Fomantic-UI 0.14.1 - Breadcrumb
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -58529,7 +58677,7 @@ table.dataTable td.dt-type-date {
   }
 }
 /*!
- * # Fomantic-UI 0.14.0 - Form
+ * # Fomantic-UI 0.14.1 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -61155,7 +61303,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.14.0 - Grid
+ * # Fomantic-UI 0.14.1 - Grid
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -63530,7 +63678,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.14.0 - Menu
+ * # Fomantic-UI 0.14.1 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -66931,7 +67079,7 @@ Floated Menu / Item
   }
 }
 /*!
- * # Fomantic-UI 0.14.0 - Message
+ * # Fomantic-UI 0.14.1 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -68111,7 +68259,7 @@ Floated Menu / Item
   box-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Table
+ * # Fomantic-UI 0.14.1 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -73637,7 +73785,7 @@ Floated Menu / Item
   color: #4b5363;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Ad
+ * # Fomantic-UI 0.14.1 - Ad
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -73942,7 +74090,7 @@ Floated Menu / Item
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Card
+ * # Fomantic-UI 0.14.1 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -77344,7 +77492,26 @@ a.inverted.ui.card:hover,
            ese término queda negativo, así que no cuenta */
   grid-template-columns: repeat(auto-fill, minmax(min(100%, max(var(--adaptive-card-min-width, 16em), calc((100% - (var(--adaptive-card-max-columns, 1000) - 1) * 1em) / var(--adaptive-card-max-columns, 1000)))), 1fr));
   gap: 1em;
-  margin: 0;
+}
+
+/* El ::after de clearing de .ui.cards sería un hijo más de la rejilla: una fila vacía y un hueco de sobra */
+
+.ui.adaptive.cards::after,
+.ui.adaptive.cards::before {
+  content: none;
+}
+
+/* Sin los márgenes negativos de .ui.cards. Lo horizontal, por encima de `.ui.four.cards` y similares; lo vertical,
+       con especificidad 0,2,0 para que mande el margen de la clase de quien la usa (cargada después) */
+
+.ui.ui.adaptive.cards {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.adaptive.cards {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .ui.two.column.adaptive.cards {
@@ -77636,7 +77803,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   align-self: flex-start;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Comment
+ * # Fomantic-UI 0.14.1 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -77982,7 +78149,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   object-fit: cover;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Feed
+ * # Fomantic-UI 0.14.1 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79158,7 +79325,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Item
+ * # Fomantic-UI 0.14.1 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79781,7 +79948,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.5;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Statistic
+ * # Fomantic-UI 0.14.1 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -80633,7 +80800,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   letter-spacing: -0.02em;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Accordion
+ * # Fomantic-UI 0.14.1 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81378,7 +81545,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.14.0 - Calendar
+ * # Fomantic-UI 0.14.1 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81806,7 +81973,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 /*!
- * # Fomantic-UI 0.14.0 - Checkbox
+ * # Fomantic-UI 0.14.1 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83287,7 +83454,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Colorpicker Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Dimmer
+ * # Fomantic-UI 0.14.1 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83746,7 +83913,7 @@ body.dimmable > .dimmer {
   padding: 1.71428571rem;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Dropdown
+ * # Fomantic-UI 0.14.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -86524,7 +86691,7 @@ select.ui.dropdown:focus {
   margin-left: 0.28571429rem;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Embed
+ * # Fomantic-UI 0.14.1 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -86692,7 +86859,7 @@ select.ui.dropdown:focus {
   text-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Flyout
+ * # Fomantic-UI 0.14.1 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -87538,7 +87705,7 @@ body.pushable > .pusher {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 /*!
- * # Fomantic-UI 0.14.0 - Modal
+ * # Fomantic-UI 0.14.1 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88504,7 +88671,7 @@ body.pushable > .pusher {
   color: #fff;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Nag
+ * # Fomantic-UI 0.14.1 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -89227,7 +89394,7 @@ a.ui.nag {
 /* Variantes de estado: variación `states` del fork (nag.less) con los colores de estado del
    tema (globales). */
 /*!
- * # Fomantic-UI 0.14.0 - Popup
+ * # Fomantic-UI 0.14.1 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90840,7 +91007,7 @@ span[data-tooltip] {
   cursor: help;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Progress
+ * # Fomantic-UI 0.14.1 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92415,7 +92582,7 @@ span[data-tooltip] {
   text-shadow: 0 0 0.14285714rem rgba(0, 0, 0, 0.7), 0 0 0.28571429rem rgba(0, 0, 0, 0.5);
 }
 /*!
- * # Fomantic-UI 0.14.0 - Slider
+ * # Fomantic-UI 0.14.1 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -93757,7 +93924,7 @@ span[data-tooltip] {
   box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px light-dark(#1f2430, #535c6e) inset;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Rating
+ * # Fomantic-UI 0.14.1 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94315,7 +94482,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Search
+ * # Fomantic-UI 0.14.1 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -95050,7 +95217,7 @@ span[data-tooltip] {
   color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.14.0 - Shape
+ * # Fomantic-UI 0.14.1 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -95195,7 +95362,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Sidebar
+ * # Fomantic-UI 0.14.1 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -96336,6 +96503,14 @@ body.pushable > .pusher {
   margin: 0;
   transform: none;
   box-shadow: 0 0 0 2px var(--theme-surface);
+}
+
+/* Fork: contador rojo con el número en blanco en todos los modos (data-contrast="more" lo oscurece más en core) */
+
+.ui.shell > .main > .bar .ui.button > .ui.red.floating.label:not(.basic):not(.inverted) {
+  background-color: oklch(from #f04438 min(l, 0.56) c h);
+  border-color: oklch(from #f04438 min(l, 0.56) c h);
+  color: #fff;
 }
 
 /* Cuenta (ui dropdown en `.right`): el disparador cede ancho y recorta el nombre; su menú tiene
@@ -97701,7 +97876,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Sticky
+ * # Fomantic-UI 0.14.1 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97766,7 +97941,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.14.0 - Tab
+ * # Fomantic-UI 0.14.1 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97855,7 +98030,7 @@ body.pushable > .pusher {
   padding-top: 1.14285714rem;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Toast
+ * # Fomantic-UI 0.14.1 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -99036,7 +99211,7 @@ body.pushable > .pusher {
   background: transparent;
 }
 /*!
- * # Fomantic-UI 0.14.0 - Transition
+ * # Fomantic-UI 0.14.1 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

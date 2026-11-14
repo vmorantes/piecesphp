@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.0 - Segment
+ * # Fomantic-UI 0.14.1 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1336,6 +1336,11 @@
   overflow-x: auto;
   overflow-y: visible;
   min-width: 0;
+  
+/* Fork: con overflow-x auto, el visible de Y se calcula como auto y la caja es contenedor de desplazamiento en
+           los dos ejes; el `none` de `scrolling` cortaba la rueda vertical sobre la tabla y la página no se movía. En Y
+           sigue el encadenamiento a la página; en X se queda el del tema. Pedido por PiecesPHP */
+  overscroll-behavior-y: auto;
 }
 
 /* La tabla de dentro mide lo que pide su contenido (como mínimo, el ancho de la caja): sin un

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.0 - Popup
+ * # Fomantic-UI 0.14.1 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

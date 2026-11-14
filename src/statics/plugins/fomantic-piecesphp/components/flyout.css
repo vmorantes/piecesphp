@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.0 - Flyout
+ * # Fomantic-UI 0.14.1 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

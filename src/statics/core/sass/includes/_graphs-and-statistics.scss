@@ -24,8 +24,8 @@ $statisticsTooltipMutedColor: var(--statistics-tooltip-muted-color, #AFAFAF);
 //El color primario del panel, el acento del tema (el del ui primary button), para el pie y la flecha de las tarjetas.
 $statisticsPrimaryColor: var(--accent);
 $statisticsOnPrimaryColor: var(--accent-contrast);
-//Las tarjetas de una sección sin `one-column` (el inicio, Ubicaciones): hasta cuatro columnas iguales, de este ancho como
-//mínimo, separadas por este hueco.
+//EN DESUSO: sin uso en el framework desde la 10.20.0 (la rejilla de las tarjetas la da el tema). Siguen aquí porque un clon
+//puede cargarlas con este parcial; se retiran en la 11.0.0.
 $dashboardCardMinWidth: 240px;
 $dashboardCardMaxColumns: 4;
 $dashboardCardGap: pxToRem(16);
@@ -50,18 +50,11 @@ $dashboardCardGap: pxToRem(16);
 
     font-weight: $fwRegular;
 
-    //Un tablero: arranca en el borde del page-header y ocupa el ancho del contenido; en cada fila, todas las tarjetas del
-    //mismo ancho y del mismo alto (el de la más alta), sin alto fijo. Con `one-column`, las rejillas de dentro mandan.
-    //`auto-fill` con tope: la pista mínima es un cuarto del ancho (menos sus huecos), así que nunca hay más de cuatro, y con
-    //una o dos tarjetas las pistas vacías se quedan y no se estiran. Con `auto-fit` una sola ocupaba todo el ancho; con
-    //`auto-fill` a secas, a 1920 salían seis pistas estrechas.
+    //Un tablero: arranca en el borde del page-header y ocupa el ancho del contenido. Sin `one-column`, la rejilla la pone el
+    //tema (`ui four column adaptive cards`, en la vista); con `one-column`, la de abajo y las rejillas de dentro mandan.
     .statistics-section {
 
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, max(#{$dashboardCardMinWidth}, calc((100% - #{$dashboardCardMaxColumns - 1} * #{$dashboardCardGap}) / #{$dashboardCardMaxColumns}))), 1fr));
         align-items: stretch;
-        row-gap: $dashboardCardGap;
-        column-gap: $dashboardCardGap;
         width: 100%;
         margin: 0 0 pxToRem(16) 0;
 
@@ -78,6 +71,7 @@ $dashboardCardGap: pxToRem(16);
         }
 
         &.one-column {
+            display: grid;
             grid-template-columns: 100%;
             row-gap: $rowGap;
             column-gap: $columnGap;
