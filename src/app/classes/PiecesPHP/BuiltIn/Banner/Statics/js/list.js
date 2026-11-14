@@ -14,7 +14,7 @@ window.addEventListener('load', function () {
 				autoWidth: false,
 				drawCallback: function () {
 					window.dispatchEvent(new Event('canDeleteBuiltInBanner'))
-					$('[data-image-preview]').click(function (e) {
+					$('[data-image-preview]').on('click', function (e) {
 						e.preventDefault()
 						const currentTarget = $(e.currentTarget)
 						const src = currentTarget.attr('data-image-preview')

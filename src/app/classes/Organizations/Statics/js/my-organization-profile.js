@@ -88,7 +88,7 @@ window.addEventListener('load', function () {
 		//Comportamiento de otros botenes de guardado
 		const handleSave = function (event) {
 			event.preventDefault()
-			regularSaveButton.click()
+			regularSaveButton.trigger('click')
 		}
 		otherSaveButtons.on('click', handleSave)
 		externalSaveButtons.on('click', handleSave)

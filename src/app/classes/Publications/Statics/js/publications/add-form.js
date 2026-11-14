@@ -64,7 +64,7 @@ window.addEventListener('load', function () {
 	toTranslationButtonSubmit.on('click', function (event) {
 		event.preventDefault()
 		toFormEditForTranstation = true
-		regularSaveButton.click()
+		regularSaveButton.trigger('click')
 	})
 
 	//Tabs

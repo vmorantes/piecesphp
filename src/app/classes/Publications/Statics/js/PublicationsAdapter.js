@@ -121,7 +121,7 @@ function PublicationsAdapter(options) {
 
 			showGenericLoader(LOADER_NAME)
 			firstLoad = true
-			loadMoreTrigger.attr('disabled', true)
+			loadMoreTrigger.attr('disabled', 'disabled')
 
 			let request = getRequest(requestURL)
 

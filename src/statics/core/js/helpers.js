@@ -1644,8 +1644,8 @@ function toggleRequiredSemanticDropdown(dropdown, required = true, hideOnNoRequi
 	dropdown.dropdown('refresh', '')
 	dropdown.dropdown('set value', '')
 	if (required) {
-		mainSelect.attr('required', true)
-		simulatorSelect.attr('required', true)
+		mainSelect.attr('required', 'required')
+		simulatorSelect.attr('required', 'required')
 		if (!dropdown.closest('.field').is(':visible')) {
 			dropdown.closest('.field').show()
 		}
@@ -1674,7 +1674,7 @@ function toggleRequiredSemanticInput(input, required = true, hideOnNoRequire = f
 	let fieldContainer = input.closest('.field')
 
 	if (required) {
-		input.attr('required', true)
+		input.attr('required', 'required')
 		input.val(prevValue)
 		if (!fieldContainer.is(':visible')) {
 			fieldContainer.show()
@@ -1689,7 +1689,7 @@ function toggleRequiredSemanticInput(input, required = true, hideOnNoRequire = f
 		}
 		if (disableOnNoRequire) {
 			fieldContainer.addClass('disabled')
-			input.attr('disabled', true)
+			input.attr('disabled', 'disabled')
 		}
 	}
 }

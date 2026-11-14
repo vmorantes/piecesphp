@@ -789,7 +789,7 @@ var BaseFormSchema = /** @class */ (function () {
         form.form(formConfig);
         var dependFields = this.dependFields;
         var rules = this.rules;
-        form.change(function (e) {
+        form.on("change", function (e) {
             for (var fieldName in dependFields) {
                 var _dependsField = dependFields[fieldName];
                 if (_dependsField.length > 0) {
@@ -900,7 +900,7 @@ var BaseFormSchema = /** @class */ (function () {
                 }
             }
         });
-        form.change();
+        form.trigger("change");
     };
     BaseFormSchema.prototype.getValues = function () {
         var values = this._form.form('get values');
@@ -1109,7 +1109,7 @@ var BaseFormSchema = /** @class */ (function () {
                         var label = wrapper.querySelector('label');
                         label.innerHTML += ' ' + removeButton.outerHTML;
                         removeButton = label.querySelector('[remove-button]');
-                        $(label).click(function (e) {
+                        $(label).on("click", function (e) {
                             e.preventDefault();
                         });
                     }
@@ -1117,10 +1117,10 @@ var BaseFormSchema = /** @class */ (function () {
                         var firstElement = wrapper.childNodes[0];
                         wrapper.insertBefore(removeButton, firstElement);
                     }
-                    $(wrapper).click(function (e) {
+                    $(wrapper).on("click", function (e) {
                         e.preventDefault();
                     });
-                    $(removeButton).click(function (e) {
+                    $(removeButton).on("click", function (e) {
                         e.preventDefault();
                         if (e.clientX != 0 && e.clientY != 0) {
                             wrapper.remove();
@@ -1152,10 +1152,10 @@ var BaseFormSchema = /** @class */ (function () {
                     wrapper.appendChild(containerFields_1);
                     if (removible_1) {
                         var removeButton = containerFields_1.querySelector('[remove-button]');
-                        $(removeButton).parent().click(function (e) {
+                        $(removeButton).parent().on("click", function (e) {
                             e.preventDefault();
                         });
-                        $(removeButton).click(function (e) {
+                        $(removeButton).on("click", function (e) {
                             e.preventDefault();
                             var parent = $(this).parent();
                             if (parent.prop('tagName') == 'LABEL') {
@@ -1165,7 +1165,7 @@ var BaseFormSchema = /** @class */ (function () {
                         });
                     }
                     var elementBase_1 = containerFields_1.childNodes[0].cloneNode(true);
-                    $(duplicateButton).click(function (e) {
+                    $(duplicateButton).on("click", function (e) {
                         e.preventDefault();
                         instance.duplicateField(field, elementBase_1, containerFields_1, removible_1);
                     });
@@ -1442,10 +1442,10 @@ var BaseFormSchema = /** @class */ (function () {
         containerFields.appendChild(newElement);
         if (removible) {
             var removeButton = containerFields.querySelectorAll('[remove-button]');
-            $(removeButton).parent().click(function (e) {
+            $(removeButton).parent().on("click", function (e) {
                 e.preventDefault();
             });
-            $(removeButton).click(function (e) {
+            $(removeButton).on("click", function (e) {
                 e.preventDefault();
                 var parent = $(this).parent();
                 if (parent.prop('tagName') == 'LABEL') {
@@ -1464,7 +1464,7 @@ var BaseFormSchema = /** @class */ (function () {
                 var label = newElement.querySelector('label');
                 label.innerHTML += ' ' + removeButton.outerHTML;
                 removeButton = label.querySelector('[remove-button]');
-                $(label).click(function (e) {
+                $(label).on("click", function (e) {
                     e.preventDefault();
                 });
             }
@@ -1472,7 +1472,7 @@ var BaseFormSchema = /** @class */ (function () {
                 var firstElement = newElement.childNodes[0];
                 newElement.insertBefore(removeButton, firstElement);
             }
-            $(removeButton).click(function (e) {
+            $(removeButton).on("click", function (e) {
                 e.preventDefault();
                 newElement.remove();
             });

@@ -406,7 +406,7 @@ function configLoginForm() {
 		twoFactorInput.val('')
 		if (active) {
 			twoFactorContainer.show(500)
-			twoFactorInput.attr('required', true)
+			twoFactorInput.attr('required', 'required')
 		} else {
 			twoFactorContainer.hide()
 			twoFactorInput.removeAttr('required')

@@ -1,3 +1,19 @@
+# 10.22.0 (14-11-2026)
+
+- **jQuery 4.0.0** (antes 3.7.0), con **jQuery Migrate 4.0.2** detrás, que conserva lo que la 4 retiró o marcó en desuso.
+  Las pantallas del framework se ven y funcionan igual.
+- **Para quien desarrolla: jQuery 4 con Migrate, y Migrate sale en la 11.0.0.** Lo que tu proyecto use de lo retirado o
+  en desuso sigue funcionando, y la consola del navegador muestra un aviso «JQMIGRATE» la primera vez que se usa. Lo más común:
+  los atajos de eventos (`.click(fn)`, `.change(fn)`, `.submit()`… → `.on('click', fn)`, `.trigger('submit')`),
+  `.bind()`/`.unbind()`/`.delegate()`/`.hover()` (→ `.on()`/`.off()`), `jQuery.trim()` (→ `String.prototype.trim`),
+  `jQuery.isArray()` (→ `Array.isArray()`), `jQuery.parseJSON` (→ `JSON.parse`), `jQuery.now()` (→ `Date.now()`),
+  `jQuery.isFunction()`, `jQuery.type()`, `jQuery.proxy()`, `jQuery.expr[':']` (→ `jQuery.expr.pseudos`) y
+  `.attr('disabled', true)` y los demás atributos booleanos (→ `.attr('disabled', 'disabled')`). Para ver los de una
+  página: `jQuery.migrateMessages` en la consola, después de usarla. Antes de la
+  11.0.0, sustituye lo que señalen esos avisos; la lista completa está en las guías de actualización de jQuery 4 y de
+  Migrate. El código del framework ya no usa ninguno de ellos.
+- **Documentación**: la guía de la estructura de carpetas, al día con las extensiones del framework.
+
 # 10.21.0 (13-11-2026)
 
 - **Nuevo: Configuración › IA es el centro de mando de la inteligencia artificial.** Un interruptor general; los

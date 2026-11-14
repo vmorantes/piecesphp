@@ -371,7 +371,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	function submit(form) {
 
 		let formData = new FormData(form[0])
-		form.find('button[type="submit"]').attr('disabled', true)
+		form.find('button[type="submit"]').attr('disabled', 'disabled')
 
 		let action = form.attr('action')
 		let method = form.attr('method')

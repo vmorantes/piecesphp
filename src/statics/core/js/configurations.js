@@ -247,7 +247,7 @@ if (typeof $ !== 'undefined') {
 		let toggleDevCSSMode = $('[toggle-dev-css-mode]')
 		let toggleDevCSSModeIsActive = typeof toggleDevCSSMode.attr('active') == 'string'
 
-		toggleDevCSSMode.click(function (e) {
+		toggleDevCSSMode.on('click', function (e) {
 
 			let that = $(e.currentTarget)
 			let selector = that.attr('toggle-dev-css-mode')
@@ -262,7 +262,7 @@ if (typeof $ !== 'undefined') {
 					that.find(`[type="checkbox"]`).attr('checked', false)
 				} else {
 					element.addClass(classToAdd)
-					that.find(`[type="checkbox"]`).attr('checked', true)
+					that.find(`[type="checkbox"]`).attr('checked', 'checked')
 				}
 
 			}
@@ -270,7 +270,7 @@ if (typeof $ !== 'undefined') {
 		})
 
 		if (toggleDevCSSModeIsActive) {
-			toggleDevCSSMode.click()
+			toggleDevCSSMode.trigger('click')
 		}
 
 		//Poner etiqueta alt a imágenes que no la tengan

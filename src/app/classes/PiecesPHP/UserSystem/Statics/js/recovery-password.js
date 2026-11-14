@@ -266,7 +266,7 @@ $(document).ready(function (e) {
 			if (paramsURL.has('email')) {
 				codeForm.find("[name='username']").val(paramsURL.get('email').trim())
 			}
-			hasCode.click()
+			hasCode.trigger('click')
 		}
 	}
 })

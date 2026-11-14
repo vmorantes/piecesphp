@@ -174,41 +174,34 @@ BaseEventDispatcher::listen('NombreEvento', function($data) {
 });
 ```
 
-!!! danger "El SMTP NO se configura aquí, y hasta el 2026-10-03 esta página decía que sí"
+!!! note "El correo no se configura en esta carpeta"
 
-    Esta página describía un archivo `mailing.php` en esta carpeta con «parámetros de conexión
-    SMTP» y un ejemplo que guardaba host, usuario y **contraseña en claro** en una opción llamada
-    `mailing_settings`. **Las dos cosas eran falsas**: no existe ningún
-    `src/app/config/extensions/mailing.php`, y `mailing_settings` no se lee en ningún sitio del
-    framework. Quien siguiera esa receta creaba un archivo que sí se carga, dejaba ahí su
-    contraseña SMTP en texto plano y el correo seguía sin salir.
+    El servidor SMTP se configura desde el panel, en **Integraciones → Correo**. Se guarda en la
+    opción **`mail`**, como JSON comprimido y cifrado, y la lee `MailConfig::loadConfigutarion()`
+    (`src/app/core/psr4/PiecesPHP/Core/ConfigHelpers/MailConfig.php`). No hay ningún archivo de
+    configuración donde escribir las credenciales del SMTP, y es a propósito: así no acaban en
+    texto plano dentro del repositorio.
 
-    **Cómo se configura el correo de verdad:** desde el panel, en **Integraciones → Correo**. Se
-    guarda en la opción **`mail`**, como JSON **comprimido y cifrado**, y la lee
-    `MailConfig::loadConfigutarion()`
-    (`src/app/core/psr4/PiecesPHP/Core/ConfigHelpers/MailConfig.php:329`). **No hay ningún archivo
-    de configuración donde escribir las credenciales del SMTP, y es a propósito.**
-
-    **La entrega** (si el correo sale de verdad o se retiene) es una opción **aparte**,
+    **La entrega** (si el correo sale de verdad o se retiene) es una opción aparte,
     `mail_delivery`, para que la pantalla del SMTP no pueda machacarla al guardar. El diagnóstico
     completo se obtiene con `bin/cli mail-doctor`.
 
 !!! info "Los ocho archivos que un clon edita en `src/app/config/extensions/`"
 
     `api-keys.php`, `cli-actions.php`, `cronjobs.php`, `event-listeners.php`, `mail-log.php`,
-    `protected-files.php`, `queues.php` y `set-additional-configurations.php`. **No hay ningún otro**,
-    y en particular no hay `mailing.php`.
+    `protected-files.php`, `queues.php` y `set-additional-configurations.php`. **No hay ningún otro.**
 
-    **`mail-log.php`** (desde el 2026-10-05) decide qué se guarda del **cuerpo** de cada correo en el
+    **`mail-log.php`** decide qué se guarda del **cuerpo** de cada correo en el
     registro de correos. Por omisión se guarda entero y cifrado con la clave de la aplicación; el
     archivo trae, comentados, los dos ajustes habituales: no guardar ningún cuerpo, o tachar un dato
     antes de guardarlo. Los adjuntos no se guardan nunca, ni con este archivo.
 
     El framework tiene su propia carpeta, `src/app/core/extensions/`, que se carga **antes** y que
     **no se edita**: `add-dynamic-translations.php`, `api-keys.php`, `cli-actions.php`,
-    `cronjobs.php`, `mailing.php`, `protected-files.php`,
-    `queues.php` y `set-additional-configurations.php`. El orden de carga está en
-    `src/app/config/final-configurations.php:47`.
+    `config-options.php`, `cronjobs.php`, `mailing.php`, `mcp-dev.php`, `protected-files.php`,
+    `queues.php`, `set-additional-configurations.php`, `test-run-prune.php` y
+    `walk-login-attempts.php`. El orden de carga está en
+    `src/app/config/final-configurations.php:48`.
 
 !!! note "Hay un `mailing.php`, pero es del framework y hace otra cosa"
 

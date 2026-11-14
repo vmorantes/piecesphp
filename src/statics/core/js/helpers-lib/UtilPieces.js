@@ -245,7 +245,7 @@ var UtilPieces = /** @class */ (function () {
                         window['sliderNS'].last_nav = 0;
                     }
                 }, delay);
-                window['sliderNS'].nav_icons.click(function (e) {
+                window['sliderNS'].nav_icons.on('click', function (e) {
                     e.stopPropagation();
                     var id = $(_this).attr("data-id");
                     if (!$(_this).hasClass(activeClass)) {

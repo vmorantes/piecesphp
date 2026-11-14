@@ -34,14 +34,14 @@ window.addEventListener('load', function () {
 		e.preventDefault()
 		handleAction('blue', function () {
 			approvalStatus = 'APPROVED'
-			submitButton.click()
+			submitButton.trigger('click')
 		})
 	})
 	rejectButton.on('click', function (e) {
 		e.preventDefault()
 		handleAction('red', function () {
 			approvalStatus = 'REJECTED'
-			submitButton.click()
+			submitButton.trigger('click')
 		})
 	})
 	const handleAction = function (confirmClass, callback) {

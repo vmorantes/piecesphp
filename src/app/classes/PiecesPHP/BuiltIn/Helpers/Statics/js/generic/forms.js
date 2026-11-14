@@ -21,7 +21,7 @@ window.addEventListener('load', function () {
 			if (nextResultsDateNotAvailableCheck.length > 0) {
 				if (nextResultsDateNotAvailableCheck.is(':checked')) {
 					$('.field[calendar-js]').addClass('disabled')
-					$('.field[calendar-js] input').attr('disabled', true)
+					$('.field[calendar-js] input').attr('disabled', 'disabled')
 				} else {
 					$('.field[calendar-js]').removeClass('disabled')
 					$('.field[calendar-js] input').attr('disabled', false)

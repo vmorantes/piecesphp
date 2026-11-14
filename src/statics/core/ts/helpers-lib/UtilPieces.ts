@@ -257,7 +257,7 @@ class UtilPieces {
                 }
             }, delay)
 
-            window['sliderNS'].nav_icons.click((e) => {
+            window['sliderNS'].nav_icons.on('click', (e) => {
 
                 e.stopPropagation()
 

@@ -197,17 +197,22 @@ comprobación 41 de `verify-integrity`. Ayudantes para el clon: `set_configs_fro
 `set_configs_if_empty()` (`AppHelpers.php`).
 
 
+Los del clon, en `src/app/config/extensions/` (medido con `git ls-files` el 2026-11-14: ocho):
+
 | Archivo | Para qué |
 | :-- | :-- |
-| `add-dynamic-translations.php` | Inyecta traducciones dinámicas (desde BD) |
 | `api-keys.php` | Llaves de `secure-keys/` con `set_configs_from_secure_keys()` (las de IA —OpenAI, Mistral, Groq—, la del cron y las dos de reCAPTCHA v3, secreta y de sitio); **MapBox no**: va en la base, desde Integraciones › Llaves de MapBox, y sin ella salta el aviso `mapbox-key-missing` |
 | `cli-actions.php` | Acciones CLI personalizadas (`CliActions::make()`) |
 | `cronjobs.php` | Tareas programadas (`CronJobTask::make()`) |
 | `event-listeners.php` | `BaseEventDispatcher::listen()` |
-| `mailing.php` | SMTP y remitentes |
+| `mail-log.php` | Qué se guarda del cuerpo de cada correo en el registro (`MailLogMapper::setBodyTransformer()`) |
 | `protected-files.php` | `ProtectFileMiddleware::protect()` |
 | `queues.php` | Handlers de cola (`QueueTask::make()`) |
 | `set-additional-configurations.php` | Ajustes finales / parches de configuración |
+
+**No hay `mailing.php` del clon**: el SMTP se configura en el panel (opción `mail`, cifrada) y la guía pública lo dice
+(`structure.md`). El `mailing.php` que existe es del framework, en `src/app/core/extensions/` (el logo de los correos,
+`mailing_logo()`), junto a otros once que el clon no edita; la lista, en `structure.md`.
 
 **Estos son los puntos de extensión preferidos**: si necesitas añadir un cronjob,
 una cola, un listener o una acción CLI, va aquí, no en el núcleo.

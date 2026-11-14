@@ -301,11 +301,12 @@ $assets['locations']['plugins'] = [
 ];
 
 /**
- * JQuery v3.7.0
+ * jQuery v4.0.0 y jQuery Migrate v4.0.2 (Migrate sale en la 11.0.0)
  * https://jquery.com/
  */
 $assets['jquery']['js'] = [
     'statics/plugins/jquery/jquery.min.js',
+    'statics/plugins/jquery/jquery-migrate.min.js',
 ];
 $assets['jquery']['plugins'] = [];
 

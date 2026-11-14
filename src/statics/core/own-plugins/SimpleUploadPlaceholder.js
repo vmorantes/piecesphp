@@ -119,7 +119,7 @@ function SimpleUploadPlaceholder(configurations = {}) {
 			triggerButton.on('click', function (e) {
 
 				e.preventDefault()
-				fileInput.click()
+				fileInput.trigger('click')
 
 			})
 
@@ -170,7 +170,7 @@ function SimpleUploadPlaceholder(configurations = {}) {
 					instance.restoreOverlay()
 				}
 
-				triggerButton.blur()
+				triggerButton.trigger('blur')
 
 			})
 

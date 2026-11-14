@@ -748,7 +748,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		//Evento al aplicar el recorte
 		if (saveButton instanceof $) {
 
-			saveButton.click(function (e) {
+			saveButton.on('click', function (e) {
 
 				e.preventDefault()
 
@@ -806,7 +806,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		//Evento al revertir cualquier cambio hecho
 		if (cancelButton instanceof $) {
 
-			cancelButton.click(function (e) {
+			cancelButton.on('click', function (e) {
 
 				e.preventDefault()
 
@@ -870,7 +870,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		//Evento para lanzar la carga de imagen
 		if (loadImageButton instanceof $) {
 
-			loadImageButton.click(e => {
+			loadImageButton.on('click', e => {
 
 				e.preventDefault()
 				e.stopPropagation()
@@ -878,7 +878,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 				let that = e.currentTarget
 
 				if (!isDisable(that)) {
-					fileInput.click()
+					fileInput.trigger('click')
 				}
 
 			})
@@ -890,7 +890,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 			let option = options.find('.option[data-option]')
 
-			option.click(function (e) {
+			option.on('click', function (e) {
 
 				e.preventDefault()
 				e.stopPropagation()
@@ -909,7 +909,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		//Evento para volver a las opciones
 		if (backOptionsbutton instanceof $) {
 
-			backOptionsbutton.click(e => {
+			backOptionsbutton.on('click', e => {
 
 				e.preventDefault()
 				e.stopPropagation()
@@ -925,7 +925,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		}
 
 		//Eventos de acciones de Cropper
-		actionRotateLeft.click(e => {
+		actionRotateLeft.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -937,7 +937,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionRotateRight.click(e => {
+		actionRotateRight.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -949,7 +949,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionFlipHorizontal.click(e => {
+		actionFlipHorizontal.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -969,7 +969,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionFlipVertical.click(e => {
+		actionFlipVertical.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -989,7 +989,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionMoveUp.click(e => {
+		actionMoveUp.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -1001,7 +1001,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionMoveDown.click(e => {
+		actionMoveDown.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -1013,7 +1013,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionMoveLeft.click(e => {
+		actionMoveLeft.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -1025,7 +1025,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionMoveRight.click(e => {
+		actionMoveRight.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -1037,7 +1037,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionZoomOut.click(e => {
+		actionZoomOut.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -1049,7 +1049,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 		})
 
-		actionZoomIn.click(e => {
+		actionZoomIn.on('click', e => {
 
 			e.preventDefault()
 			e.stopPropagation()
@@ -1222,7 +1222,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 			if (startButton instanceof HTMLElement) {
 				startButton = $(startButton)
-				startButton.click(initialize)
+				startButton.on('click', initialize)
 			} else {
 				console.warn('No hay ningún botón de inicio.')
 			}

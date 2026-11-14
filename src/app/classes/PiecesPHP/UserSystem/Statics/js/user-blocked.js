@@ -187,7 +187,7 @@ $(document).ready(function (e) {
 		let code = paramsURL.get('code').trim()
 		if (code.length > 0) {
 			codeForm.find("[name='code']").val(code)
-			hasCode.click()
+			hasCode.trigger('click')
 		}
 	}
 
