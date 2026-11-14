@@ -253,6 +253,9 @@ class SystemStatusController extends AdminPanelController
     public function health(Request $request, Response $response)
     {
         set_custom_assets([
+            SystemStatusRoutes::staticRoute('js/system-health.js'),
+        ], 'js');
+        set_custom_assets([
             SystemStatusRoutes::staticRoute('css/system-status.css'),
         ], 'css');
 

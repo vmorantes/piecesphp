@@ -91,6 +91,7 @@ return [
     'No está actuando como otro usuario.' => 'You are not acting as another user.',
     'No se puede actuar como otro usuario desde esta sesión.' => 'You cannot act as another user from this session.',
     'caducó a los %d minutos.' => 'it expired after %d minutes.',
+    'se cerraron las sesiones de ese usuario.' => 'that user\'s sessions were closed.',
     'Conectado como %s' => 'Connected as %s',
     'Volver a mi cuenta' => 'Back to my account',
     'La suplantación terminó: %s' => 'Acting as another user ended: %s',

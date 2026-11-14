@@ -221,7 +221,14 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $guardar = $pedir($rutaIA, $jwtRoot, $resto + ['OpenAIApiKey' => '', 'MistralAIApiKey' => '']);
         $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b3 guardar con las claves vacías las conserva (selladas en la base)', "HTTP {$guardar['status']}");
         $guardar = $pedir($rutaIA, $jwtRoot, $resto + ['OpenAIApiKey' => "{$falsa}-nueva", 'MistralAIApiKey' => '']);
-        $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-nueva" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b4 CANARIO: guardar otra clave la cambia, sellada (y la vacía sigue igual)', "HTTP {$guardar['status']}");
+        //Con archivo de claves, la de OpenAI la define él (P318) y la pantalla no la cambia, y lo dice; sin él, cambia. Se mide
+        //lo que pase aquí: la respuesta trae el aviso o no.
+        $definidaPorArchivo = str_contains($guardar['body'], 'la define el archivo de claves');
+        if ($definidaPorArchivo) {
+            $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b4 CANARIO (con archivo de claves): guardar otra clave no cambia la fila, sellada, y la respuesta lo avisa', "HTTP {$guardar['status']}");
+        } else {
+            $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-nueva" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b4 CANARIO (sin archivo de claves): guardar otra clave la cambia, sellada (y la vacía sigue igual)', "HTTP {$guardar['status']}");
+        }
 
         //──── [c] El contenido de una publicación, en su aprobación y en su edición ──────────
         echoTerminal('');

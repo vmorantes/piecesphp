@@ -108,8 +108,44 @@ CliActions::make('unit-tests:core/config-options-warning', function ($args) {
         $check($estado === 200 && count($primera) === 1, 'a1 la primera petición deja UNA línea que la nombra', "HTTP {$estado}, líneas " . count($primera));
         $check(($primera[0]['context']['test'] ?? null) === $run, 'a2 y lleva la marca de esta corrida (se poda con ella)', var_export($primera[0]['context']['test'] ?? null, true));
         $check(count($primera) === 1 && !str_contains((string) json_encode($primera[0]), $valor), 'a3 y no lleva el valor de la fila');
-        $pedir();
-        $check(count($avisos($nombre)) === 1, 'a4 la segunda petición no deja otra', 'líneas ' . count($avisos($nombre)));
+        //Lo de una corrida de prueba vive en la memoria del proceso (H55): dentro de este, el segundo aviso no sale.
+        $enProceso = 'zz-config-options-aviso-' . bin2hex(random_bytes(3));
+        ConfigOptions::warnUndeclared([$enProceso]);
+        ConfigOptions::warnUndeclared([$enProceso]);
+        $check(count($avisos($enProceso)) === 1, 'a4 en el mismo proceso, dos avisos del mismo nombre dentro de una corrida dejan UNA línea', 'líneas ' . count($avisos($enProceso)));
+        ConfigOptions::forgetWarned($enProceso);
+        //Lo real sí se recuerda entre procesos: se siembra en el archivo y otra petición no lo vuelve a avisar.
+        $archivo = basepath(ConfigOptions::WARNED_FILE);
+        $original = is_file($archivo) ? (string) file_get_contents($archivo) : null;
+        $escribe = function (string $contenido) use ($archivo): bool {
+            //umask 0002 en app/cache (setgid): 0664 del grupo del servidor, que sigue pudiendo escribirlo.
+            $anterior = umask(0002);
+            try {
+                if (is_file($archivo) && !is_writable($archivo)) {
+                    //RETORNO-IGNORADO: si no se puede retirar, el file_put_contents de abajo falla y la prueba lo dice.
+                    @unlink($archivo);
+                }
+                return file_put_contents($archivo, $contenido) !== false;
+            } finally {
+                umask($anterior);
+            }
+        };
+        try {
+            $sembrado = json_decode($original ?? '{}', true);
+            $sembrado = is_array($sembrado) ? $sembrado : [];
+            $sembrado[$nombre] = null;
+            if ($check($escribe((string) json_encode((object) $sembrado, \JSON_UNESCAPED_UNICODE)), 'a4b0 se siembra en el archivo una entrada REAL con el nombre de la prueba')) {
+                $pedir();
+                $check(count($avisos($nombre)) === 1, 'a4b una entrada real del archivo no se vuelve a avisar en otro proceso', 'líneas ' . count($avisos($nombre)));
+            }
+        } finally {
+            if ($original !== null) {
+                $check($escribe($original) && sha1((string) file_get_contents($archivo)) === sha1($original), 'a4c el archivo de avisos vuelve a su contenido');
+            } elseif (is_file($archivo)) {
+                //RETORNO-IGNORADO: no existía antes de la prueba; si no se puede retirar, clean-cache lo hace.
+                @unlink($archivo);
+            }
+        }
         $check(count($avisos($declarada)) === $declaradaAntes, "a5 una opción declarada («{$declarada}») no deja ninguna", 'antes ' . $declaradaAntes . ', después ' . count($avisos($declarada)));
         echoTerminal(' ');
 
@@ -142,6 +178,61 @@ CliActions::make('unit-tests:core/config-options-warning', function ($args) {
         $huella = sha1(serialize(SettingsModel::getConfigurations()[$declarada] ?? null));
         $check(str_contains($sondaSalida, "SONDA {$declarada} LLEGA {$huella}"), "d2 CANARIO: «{$declarada}» llega con el valor de la base", mb_substr(trim($sondaSalida), -200));
         $check(!str_contains($sondaSalida, $valor), 'd3 y la sonda no imprime el valor');
+        echoTerminal(' ');
+
+        //─── e · El archivo de avisos (H52, H55): lo de prueba no entra, nace 0664 y descarta lo viejo de pruebas ─────
+        echoTerminal('[e] El archivo de avisos guarda solo lo real y nace con escritura de grupo');
+        $archivoE = basepath(ConfigOptions::WARNED_FILE);
+        $originalE = is_file($archivoE) ? (string) file_get_contents($archivoE) : null;
+        $leeE = fn(): array => is_array($d = json_decode(is_file($archivoE) ? (string) file_get_contents($archivoE) : '', true)) ? $d : [];
+        $escribeE = function (string $contenido) use ($archivoE): bool {
+            $anterior = umask(0002);
+            try {
+                if (is_file($archivoE) && !is_writable($archivoE)) {
+                    //RETORNO-IGNORADO: si no se puede retirar, el file_put_contents de abajo falla y la prueba lo dice.
+                    @unlink($archivoE);
+                }
+                return file_put_contents($archivoE, $contenido) !== false;
+            } finally {
+                umask($anterior);
+            }
+        };
+        $nombresE = [];
+        try {
+            $real = 'zz-config-options-aviso-' . bin2hex(random_bytes(3));
+            $viejo = 'zz-config-options-aviso-' . bin2hex(random_bytes(3));
+            $check($escribeE((string) json_encode([$real => null, $viejo => 'zz-corrida-vieja'])), 'e0 se siembra una entrada real y una vieja de otra corrida');
+            $nuevo = 'zz-config-options-aviso-' . bin2hex(random_bytes(3));
+            $nombresE = [$real, $viejo, $nuevo];
+            ConfigOptions::warnUndeclared([$nuevo]);
+            $tras = $leeE();
+            $check(!array_key_exists($nuevo, $tras), 'e1 lo avisado en una corrida de prueba no queda en el archivo', (string) json_encode($tras));
+            $check(array_key_exists($real, $tras) && $tras[$real] === null, 'e2 la entrada real se conserva');
+            $check(!array_key_exists($viejo, $tras), 'e3 la entrada vieja de otra corrida se descarta al guardar');
+            //Nace con el umask del servidor (0022), no con el de esta terminal: el 0664 tiene que ponerlo saveWarned().
+            //RETORNO-IGNORADO: se crea de nuevo justo abajo; si no se pudo retirar, e4 lo dice.
+            @unlink($archivoE);
+            $anterior = umask(0022);
+            try {
+                $otro = 'zz-config-options-aviso-' . bin2hex(random_bytes(3));
+                $nombresE[] = $otro;
+                ConfigOptions::warnUndeclared([$otro]);
+            } finally {
+                umask($anterior);
+            }
+            $modo = is_file($archivoE) ? (fileperms($archivoE) & 0777) : null;
+            $check($modo === 0664, 'e4 el archivo nuevo nace 0664 aunque el proceso tenga umask 0022', $modo === null ? 'no existe' : sprintf('%o', $modo));
+        } finally {
+            foreach ($nombresE as $nombreE) {
+                ConfigOptions::forgetWarned($nombreE);
+            }
+            if ($originalE !== null) {
+                $check($escribeE($originalE) && sha1((string) file_get_contents($archivoE)) === sha1($originalE), 'e5 el archivo de avisos vuelve a su contenido');
+            } elseif (is_file($archivoE)) {
+                //RETORNO-IGNORADO: no existía antes de la prueba; si no se puede retirar, clean-cache lo hace.
+                @unlink($archivoE);
+            }
+        }
     } catch (\Throwable $e) {
         $check(false, 'la prueba corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

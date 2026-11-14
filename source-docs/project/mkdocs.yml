@@ -40,6 +40,7 @@ nav:
         - Estructura: piecesphp/content/structure.md
         - Los archivos de configuración: piecesphp/content/configuration.md
         - Idiomas y traducciones: piecesphp/content/idiomas.md
+        - El arranque de una petición: piecesphp/content/arranque.md
         - La sesión del panel: piecesphp/content/sesion.md
         - Las imágenes de Configuración: piecesphp/content/imagenes-de-configuracion.md
         - El correo saliente: piecesphp/content/correo.md

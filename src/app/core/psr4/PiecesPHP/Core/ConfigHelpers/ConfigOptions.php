@@ -62,10 +62,29 @@ class ConfigOptions
     protected static array $unreadableWarnedInProcess = [];
 
     /**
-     * Los ya avisados (relativo a basepath(); clean-cache lo borra), con la corrida de prueba que avisó cada uno o null si
-     * fue real: una prueba no gasta el aviso de verdad, que se poda con ella (ADR 0063).
+     * Los ya avisados de verdad (relativo a basepath(); clean-cache lo borra), cada uno con null. Lo de una corrida de
+     * prueba no entra: queda en $warnedInTestRun y una prueba no gasta el aviso de verdad (ADR 0063, H55).
      */
     const WARNED_FILE = 'app/cache/config-options-warned.json';
+
+    /**
+     * Lo avisado en una corrida de prueba: solo en la memoria del proceso, nunca en WARNED_FILE (H55).
+     *
+     * @var array<string,string>
+     */
+    protected static array $warnedInTestRun = [];
+
+    /**
+     * Si ya se dijo en este proceso que WARNED_FILE no se puede escribir.
+     */
+    protected static bool $unwritableWarnedLogged = false;
+
+    /**
+     * Los nombres a los que el archivo de claves dio valor en este proceso (set_configs_from_secure_keys()): manda él.
+     *
+     * @var array<string,true>
+     */
+    protected static array $fixedByFile = [];
 
     /**
      * @var array<string,array{owner:string,shape:string|null}>
@@ -150,6 +169,13 @@ class ConfigOptions
         $skipped = [];
         foreach ($configurations as $name => $value) {
             $name = (string) $name;
+            if (self::isFixedByFile($name)) {
+                //Manda el archivo de claves (P318): la fila no se aplica, pero si es un secreto en claro se sella igual (P310 a).
+                if ((self::$options[$name]['shape'] ?? null) === self::SHAPE_SECRET && is_string($value) && $value !== '' && !Sealed::isSealed($value)) {
+                    self::sealLegacySecret($name, $value);
+                }
+                continue;
+            }
             if (self::isDeclared($name)) {
                 set_config($name, self::$options[$name]['shape'] === self::SHAPE_SECRET ? self::loadSecret($name, $value) : $value);
             } else {
@@ -157,6 +183,48 @@ class ConfigOptions
             }
         }
         return $skipped;
+    }
+
+    /**
+     * Apunta que el archivo de claves dio valor a esta configuración: applyDeclared() ya no la pisa con la fila.
+     *
+     * @param string $name
+     * @return void
+     */
+    public static function markFixedByFile(string $name): void
+    {
+        self::$fixedByFile[$name] = true;
+    }
+
+    /**
+     * @return string[] Los nombres a los que el archivo de claves dio valor en este proceso
+     */
+    public static function fixedByFile(): array
+    {
+        return array_keys(self::$fixedByFile);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function isFixedByFile(string $name): bool
+    {
+        return isset(self::$fixedByFile[$name]);
+    }
+
+    /**
+     * SOLO PARA PRUEBAS: cambia los nombres fijados por el archivo y devuelve los de antes, para reponerlos.
+     *
+     * @internal
+     * @param string[]|null $restore
+     * @return string[]
+     */
+    public static function swapFixedByFileForTesting(?array $restore = null): array
+    {
+        $previous = self::fixedByFile();
+        self::$fixedByFile = array_fill_keys($restore ?? [], true);
+        return $previous;
     }
 
     /**
@@ -329,23 +397,37 @@ class ConfigOptions
                 $result[$name] = $run;
             }
         }
-        return $result;
+        return array_merge($result, self::$warnedInTestRun);
     }
 
     /**
-     * Sin permiso de escritura no se apunta: se volverá a avisar, que es mejor que tumbar la petición.
+     * Al archivo, solo lo real (null); lo de una corrida de prueba queda en memoria. Sin permiso de escritura se dice una
+     * vez por proceso y se volverá a avisar, que es mejor que tumbar la petición.
      *
      * @param array<string,string|null> $warned
      * @return void
      */
     protected static function saveWarned(array $warned): void
     {
+        self::$warnedInTestRun = array_filter($warned, fn (?string $run): bool => $run !== null);
+        $real = array_filter($warned, fn (?string $run): bool => $run === null);
         $file = basepath(self::WARNED_FILE);
         $directory = dirname($file);
-        if ((is_file($file) && is_writable($file)) || (!is_file($file) && is_dir($directory) && is_writable($directory))) {
-            //Como objeto siempre, también vacío: un array vacío de JSON no distingue lista de mapa.
-            //RETORNO-IGNORADO: si no se apunta, se vuelve a avisar; eso es todo lo que puede pasar.
-            @file_put_contents($file, json_encode((object) $warned, \JSON_UNESCAPED_UNICODE));
+        $exists = is_file($file);
+        $written = false;
+        if (($exists && is_writable($file)) || (!$exists && is_dir($directory) && is_writable($directory))) {
+            //umask 0002 al crearlo: 0664 del grupo heredado de app/cache (setgid), para que la terminal también escriba.
+            $oldUmask = umask(0002);
+            try {
+                //Como objeto siempre, también vacío: un array vacío de JSON no distingue lista de mapa.
+                $written = @file_put_contents($file, json_encode((object) $real, \JSON_UNESCAPED_UNICODE)) !== false;
+            } finally {
+                umask($oldUmask);
+            }
+        }
+        if (!$written && !self::$unwritableWarnedLogged) {
+            self::$unwritableWarnedLogged = true;
+            log_exception(new \RuntimeException('No se puede escribir ' . self::WARNED_FILE . ': los avisos de las opciones se repetirán en cada proceso.'));
         }
     }
 }

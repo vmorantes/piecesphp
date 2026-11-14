@@ -117,11 +117,14 @@ En orden:
    `AppConfigModel::getConfigurations()`. → *Las configuraciones de BD ganan sobre
    `config.php`.*
    **Desde JAT (ADR 0055, segunda versión)** solo se aplica lo declarado: `ConfigOptions::applyDeclared()`
-   (`src/index.php:907`); lo no declarado se avisa una vez por nombre (`app/cache/config-options-warned.json`, que
-   guarda la corrida de prueba que avisó; `clean-cache` lo borra; lo crea el servidor como `www-data` 644 y la
-   terminal no puede apuntar en él, H271).
-   **Orden que muerde**: las extensiones (`final-configurations.php`, `src/index.php:831`, con las claves del archivo
-   seguro y su `override`) van ANTES de la tabla: una fila de la base, también vacía, pisa lo del archivo (P318).
+   (`src/index.php:907`); lo no declarado se avisa una vez por nombre (`app/cache/config-options-warned.json`: solo lo
+   real; lo de una corrida de prueba vive en memoria del proceso; nace 0664 del grupo y, si no se puede escribir, lo
+   dice una vez por proceso; JIV `f041430a`).
+   **El archivo de claves manda** (P318, JIX `cd31b50d`, `4498de00`): `set_configs_from_secure_keys()` marca con
+   `ConfigOptions::markFixedByFile()` cada nombre al que el archivo dio un valor no vacío, y `applyDeclared()` no aplica
+   su fila (si es un `SHAPE_SECRET` en claro, la sella igual). La pantalla de IA lo deshabilita. Trampa de pruebas: en
+   esta máquina el archivo define OpenAI y Mistral; una suite que mida por HTTP esas claves ve la rama «con archivo»
+   (`core/view-escapes` b4 mide lo que responde).
    **`SHAPE_SECRET`** (JIM, `55fc7e22`, P310 a): `applyDeclared()` abre la opción sellada con
    `Sealed::PURPOSE_CONFIG_SECRET`; si no abre, `''` y un aviso con el nombre y sin el valor; si está en claro (clon
    anterior), la aplica y la guarda sellada una vez (`sealLegacySecret()`, solo si lo leído es lo de la base). Para

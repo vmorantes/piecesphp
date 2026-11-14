@@ -1551,6 +1551,18 @@ class SettingsController extends AdminPanelController
                         return clean_string($value);
                     }
                 ),
+                //«Quitar la guardada» (P317): marcada, la contraseña se guarda vacía.
+                new Parameter(
+                    'clear_password',
+                    false,
+                    function ($value) {
+                        return Validator::isInteger($value) || is_bool($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value === 1 || $value == '1' || $value === true;
+                    }
+                ),
             ]);
 
             //Obtención de datos
@@ -1624,8 +1636,9 @@ class SettingsController extends AdminPanelController
                     $mailConfig->port($port);
                     $mailConfig->user($user);
                     //Vacía conserva la guardada: el formulario no la pinta. MailConfig ya la cargó descifrada.
-                    if ($password !== '') {
-                        $mailConfig->password($password);
+                    $passwordToSave = self::secretToSave($password, $expectedParameters->getValue('clear_password') === true);
+                    if ($passwordToSave !== null) {
+                        $mailConfig->password($passwordToSave);
                     }
                     $mailConfig->name($name);
                     $mailConfig->testHost($testHost);
@@ -2154,6 +2167,22 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * Qué se guarda de un secreto que el formulario no pinta (la contraseña del correo, una clave de IA): con «Quitar la
+     * guardada» marcada, vacío (P317); si llega vacío, null (se conserva lo guardado); si no, lo que llegó.
+     *
+     * @param string $sent
+     * @param bool $clear
+     * @return string|null
+     */
+    public static function secretToSave(string $sent, bool $clear): ?string
+    {
+        if ($clear) {
+            return '';
+        }
+        return $sent === '' ? null : $sent;
+    }
+
+    /**
      * Los nombres de las tablas de la base, para validar las que salen sin filas.
      *
      * @return string[] Vacío si no hay conexión: entonces no se puede validar ninguna.
@@ -2338,6 +2367,21 @@ class SettingsController extends AdminPanelController
                     }
                 ),
             ];
+            //«Quitar la guardada» (P317), una casilla por clave de IA que esta pantalla escribe.
+            foreach (array_intersect($keys, self::AI_SECRET_CONFIG_KEYS) as $secretKey) {
+                $definitions["clear_{$secretKey}"] = new Parameter(
+                    "clear_{$secretKey}",
+                    false,
+                    function ($value) {
+                        return Validator::isInteger($value) || is_bool($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value === 1 || $value == '1' || $value === true;
+                    }
+                );
+                $keys[] = "clear_{$secretKey}";
+            }
             $expectedParameters = new Parameters(array_values(array_intersect_key($definitions, array_flip($keys))));
 
             //Obtención de datos
@@ -2369,6 +2413,9 @@ class SettingsController extends AdminPanelController
 
                     $configurationsToSave = [];
                     foreach ($keys as $key) {
+                        if (str_starts_with($key, 'clear_')) {
+                            continue;
+                        }
                         $configurationsToSave[$key] = $expectedParameters->getValue($key);
                     }
                     $messagesOnSave = [
@@ -2393,15 +2440,33 @@ class SettingsController extends AdminPanelController
                         \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => __(self::LANG_GROUP, 'Quién puede traducir con IA actualizado'),
                     ];
 
+                    $messagesOnSaveLabels = [
+                        'OpenAIApiKey' => __(self::LANG_GROUP, 'API Key OpenAI'),
+                        'MistralAIApiKey' => __(self::LANG_GROUP, 'API Key Mistral'),
+                    ];
+
                     $success = true;
                     $successMessage = __(self::LANG_GROUP, 'No ha habido ninguna modificación.');
                     $changesMessages = [];
 
                     foreach ($configurationsToSave as $configName => $configValue) {
 
-                        //Las claves de API no se pintan en el formulario: llega vacía si no se cambia, y vacía la conserva.
-                        if ($configValue === '' && in_array($configName, self::AI_SECRET_CONFIG_KEYS, true)) {
+                        //La que define el archivo de claves manda (P318): lo que llegue no se guarda ni se borra, y se dice.
+                        if (ConfigOptions::isFixedByFile($configName)) {
+                            if ((is_string($configValue) && $configValue !== '') || $expectedParameters->getValue("clear_{$configName}") === true) {
+                                $changesMessages[] = strReplaceTemplate(__(self::LANG_GROUP, '"%s" la define el archivo de claves: no se cambió.'), [
+                                    '%s' => $messagesOnSaveLabels[$configName] ?? $configName,
+                                ]);
+                            }
                             continue;
+                        }
+
+                        //Las claves de API no se pintan en el formulario: llega vacía si no se cambia, y vacía la conserva.
+                        if (in_array($configName, self::AI_SECRET_CONFIG_KEYS, true)) {
+                            $configValue = self::secretToSave(is_string($configValue) ? $configValue : '', $expectedParameters->getValue("clear_{$configName}") === true);
+                            if ($configValue === null) {
+                                continue;
+                            }
                         }
 
                         if ($configValue !== null) {

@@ -1229,11 +1229,6 @@ class UsersController extends AdminPanelController
                                 //petición); lleva además el identificador de su sesión, cuya fila manda (ADR 0026).
                                 $token = UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth'));
                                 $resultOperation->setValue('token', $token);
-                                //La cookie, solo al JavaScript del propio sitio (X-Requested-With): un formulario de otro sitio
-                                //no puede mandarla, y sin esto metería su sesión en este navegador. El cuerpo, para la API.
-                                if ($request->isXhr()) {
-                                    SessionCookie::put($token);
-                                }
 
                                 //Valores de usuario devueltos, FILTRADOS POR LISTA BLANCA: se toma lo declarado,
                                 //no se quita lo que sobra. Así una columna nueva no viaja sola al navegador.
@@ -1265,6 +1260,12 @@ class UsersController extends AdminPanelController
                                     '',
                                     $extraDataLog
                                 );
+
+                                //La cookie, solo al JavaScript del propio sitio (X-Requested-With): un formulario de otro sitio
+                                //no puede mandarla, y sin esto metería su sesión en este navegador. El cuerpo, para la API.
+                                if ($request->isXhr()) {
+                                    SessionCookie::put($token);
+                                }
 
                             } else {
 

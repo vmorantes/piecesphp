@@ -14,6 +14,9 @@ la primera de **Configuración › Sistema** y **solo la ve root** (ruta `system
 
 ## Qué enseña
 
+**En pestañas**: la primera, **«Resumen»**, reúne solo lo que avisa o falta de todos los bloques (y dice «Todo en
+orden.» si no hay nada); después, una pestaña por bloque.
+
 | Bloque | Qué | De dónde sale |
 | :-- | :-- | :-- |
 | Framework | Versión, fecha, commit y su origen; de qué distribución salió; el entorno | `AppVersion`, la marca `.piecesphp-distribution`, `AppEnvironment` |
@@ -22,6 +25,7 @@ la primera de **Configuración › Sistema** y **solo la ve root** (ruta `system
 | Base de datos | Motor y versión, juego de caracteres, número de tablas y las tablas declaradas que faltan | La conexión, `information_schema` y los mappers |
 | Respaldos y tareas | El último respaldo y el siguiente; la última ejecución de cada tarea programada | La política de respaldos y el libro de tareas |
 | Carpetas | Si cada carpeta que debe escribirse se puede escribir | `src/app/config/writable-dirs.txt` y `secure-keys/` |
+| Seguridad | Si las carpetas de subidas niegan PHP (con Apache; con otro servidor, «depende del servidor»), la lista de dominios permitidos y el entorno | El `.htaccess` del subsistema (`ProtectedUploads`), `$config['allowed_hosts']`, `AppEnvironment` |
 
 ## Lo que todavía no enseña
 

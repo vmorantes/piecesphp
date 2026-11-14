@@ -452,7 +452,7 @@ panel implementado**, y el tema se compara contra él:
   `.dropdown()` sale nativo (el salto de «Correos del sitio» lo era); al iniciarlo, el envoltorio del tema no copia el
   `aria-label` del `select`: hay que copiarlo (H224).
 - **Cada `bin/traer-tema` lleva capturas antes y después, a 1440 Y a 390** (la de JFO fue solo a 1440 y dejó pasar una
-- **El repositorio del tema avanza solo**: antes de traer, el compilado se comprueba por su historial (`git log <etiqueta>..HEAD -- dist-temas/piecesphp` vacío) y su estado, no por el HEAD; `ORIGEN.json` registra el HEAD y `--check` avisa de que `VERSION.json` es de otro commit (esperado; JIS, `#2784`).
   regresión de móvil en la cabecera de página), de la hoja de diseño (etiquetas de estado, piezas) y de las
   pantallas que cambian: el punto de las etiquetas de estado partido en celdas estrechas entró con una traída y nadie lo
   vio. El tema compila en vivo: lo que se verifica es lo de `ORIGEN.json`, con `sin_commitear` 0.
+- **El repositorio del tema avanza solo**: antes de traer, el compilado se comprueba por su historial (`git log <etiqueta>..HEAD -- dist-temas/piecesphp` vacío) y su estado, no por el HEAD; `ORIGEN.json` registra el HEAD y `--check` avisa de que `VERSION.json` es de otro commit (esperado; JIS, `#2784`).

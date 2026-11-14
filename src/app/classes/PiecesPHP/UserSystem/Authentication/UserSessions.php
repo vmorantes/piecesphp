@@ -174,6 +174,30 @@ final class UserSessions
     }
 
     /**
+     * Si el usuario de un token puede abrir archivos protegidos con sesión: el token vale (jwtIsValid()) y además la regla
+     * de estado del panel (index.php): no inactivo, su organización con sesión y, salvo root, no restringido a lo suyo.
+     * Las listas viven en UsersModel e Impersonation: aquí solo se usan.
+     *
+     * @param string $jwt
+     * @return bool
+     */
+    public static function jwtOpensProtectedFiles(string $jwt): bool
+    {
+        if (!self::jwtIsValid($jwt)) {
+            return false;
+        }
+        $data = BaseToken::getData($jwt);
+        $user = $data instanceof \stdClass ? UsersModel::getBy((int) ($data->id ?? 0), 'id') : null;
+        if ($user === null || in_array($user->status, UsersModel::STATUSES_INACTIVE_EQUIVALENT)) {
+            return false;
+        }
+        if (!Impersonation::organizationAllowsSession($user->organization ?? null)) {
+            return false;
+        }
+        return (int) $user->type === UsersModel::TYPE_USER_ROOT || !UsersModel::isRestrictedToOwn((int) $user->id, (int) $user->status);
+    }
+
+    /**
      * Si el identificador de un token es de una sesión abierta de ese usuario (la renovación por lista blanca).
      *
      * @param mixed $identifier

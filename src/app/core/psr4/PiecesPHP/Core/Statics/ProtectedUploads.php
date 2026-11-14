@@ -42,6 +42,8 @@ class ProtectedUploads
     //Lo que el navegador EJECUTA al abrirlo: subido, se sirve con CSP sandbox, y lo que no es imagen, como descarga.
     const ACTIVE_CONTENT_EXTENSIONS = ['svg', 'svgz', 'html', 'htm', 'xhtml', 'xml', 'xsl', 'xslt'];
     const ACTIVE_CONTENT_INLINE_EXTENSIONS = ['svg', 'svgz'];
+    //Lo que el SERVIDOR ejecuta o enseña como código (P319): en uploads no se sirve; «php[0-9]?» cubre php3 a php9.
+    const SERVER_SCRIPT_EXTENSIONS = ['php[0-9]?', 'phtml', 'phar', 'phps'];
     //Por contenido (finfo): un MIME conocido decide la extensión; la primera de cada lista es la canónica.
     const CONTENT_EXTENSIONS = [
         'image/jpeg' => ['jpg', 'jpeg'],
@@ -282,6 +284,18 @@ class ProtectedUploads
     }
 
     /**
+     * El bloque del .htaccess de uploads que niega servir y ejecutar PHP: vale con mod_php y con PHP-FPM, porque la
+     * petición se niega antes de llegar al manejador.
+     *
+     * @return string
+     */
+    public static function denyServerScriptsBlock(): string
+    {
+        $scripts = implode('|', self::SERVER_SCRIPT_EXTENSIONS);
+        return "<FilesMatch \"(?i)\\.({$scripts})$\">\n    Require all denied\n</FilesMatch>\n";
+    }
+
+    /**
      * El .htaccess de uploads que niega pedir un archivo por su nombre de disco. Idempotente y atómico; un
      * .htaccess que no lleve la marca del subsistema no se pisa.
      *
@@ -298,7 +312,8 @@ class ProtectedUploads
             . "<IfModule mod_headers.c>\n"
             . "    <FilesMatch \"(?i)\\.({$active})$\">\n        Header set Content-Security-Policy \"sandbox\"\n    </FilesMatch>\n"
             . "    <FilesMatch \"(?i)\\.({$download})$\">\n        Header set Content-Disposition \"attachment\"\n    </FilesMatch>\n"
-            . "</IfModule>\n";
+            . "</IfModule>\n"
+            . self::denyServerScriptsBlock();
         $htaccess = rtrim($uploadsDirectory, '/\\') . \DIRECTORY_SEPARATOR . '.htaccess';
         if (is_file($htaccess)) {
             $current = file_get_contents($htaccess);

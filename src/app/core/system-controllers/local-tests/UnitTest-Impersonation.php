@@ -291,8 +291,9 @@ CliActions::make('unit-tests:core/impersonation', function ($args) {
 
         //─── e · La revocación del suplantado no echa a root ──────────────────────────────────────
         echoTerminal(' ');
-        echoTerminal('[e] La revocación del suplantado no echa a root');
-        $haciaGeneral = Impersonation::cookieValue($sidRoot, $root, $general);
+        echoTerminal('[e] La revocación del suplantado no echa a root, y termina la suplantación');
+        $inicio = time();
+        $haciaGeneral = Impersonation::cookieValue($sidRoot, $root, $general, $inicio);
         //Un general con el perfil sin completar va a su perfil (302): se sigue ese salto, y no el del acceso.
         $acceso = $ruta('users-form-login');
         $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
@@ -306,15 +307,30 @@ CliActions::make('unit-tests:core/impersonation', function ($args) {
             return $r;
         };
         $antesDeMarca = $comoGeneral();
-        //Solo la columna, como `$soloColumna` de session-revocation: cerrar sus filas no es lo que se mide.
-        $marcaPosterior = date('Y-m-d H:i:s', ((int) BaseToken::getCreated($jwtRoot)) + 2);
+        //Solo la columna, como `$soloColumna` de session-revocation: cerrar sus filas no es lo que se mide. Un segundo
+        //después del INICIO de la suplantación (P325 d), no del token de root: así no depende de lo que tarde la suite.
+        $marcaPosterior = date('Y-m-d H:i:s', $inicio + 1);
         $columna = UsersModel::model();
         $columna->resetAll();
         $columna->update(['sessionsValidFrom' => $marcaPosterior])->where(['id' => $general])->execute();
         $trasMarca = $comoGeneral();
         $check($antesDeMarca['status'] === 200 && $franja($antesDeMarca['body']) !== null, 'e0 CANARIO: root suplanta al general antes de moverle la marca', "HTTP {$antesDeMarca['status']}");
-        $check($trasMarca['status'] === 200 && $franja($trasMarca['body']) !== null && $cookieDe($trasMarca) === null,
-            'e1 con la marca del SUPLANTADO movida después del token de root, root sigue DENTRO y suplantando', "HTTP {$trasMarca['status']}" . ($trasMarca['location'] !== '' ? " → {$trasMarca['location']}" : '') . " · marca {$marcaPosterior}");
+        $textoFin = $aviso($trasMarca['body']);
+        $check($trasMarca['status'] === 200 && $franja($trasMarca['body']) === null && $borrada($trasMarca) && $textoFin !== null && str_contains($textoFin, 'se cerraron las sesiones de ese usuario.'),
+            'e1 con la marca del SUPLANTADO movida después del inicio, root sigue DENTRO, ya no suplanta y lo avisa', "HTTP {$trasMarca['status']}" . ($trasMarca['location'] !== '' ? " → {$trasMarca['location']}" : '') . ' · aviso ' . var_export($textoFin, true) . " · marca {$marcaPosterior}");
+
+        //─── f · «Cerrar sesiones» del suplantado tras empezar termina la suplantación (P325 d) ─────────────
+        echoTerminal(' ');
+        echoTerminal('[f] Cerrar las sesiones del suplantado después de empezar la termina');
+        $marca = time();
+        $columna->resetAll();
+        $columna->update(['sessionsValidFrom' => date('Y-m-d H:i:s', $marca)])->where(['id' => $general])->execute();
+        $check(Impersonation::endedBySessionRevoke($general, $marca - 60) === true, 'f1 la marca, después del inicio → termina');
+        $check(Impersonation::endedBySessionRevoke($general, $marca) === true, 'f2 la marca, en el mismo segundo del inicio → termina');
+        $check(Impersonation::endedBySessionRevoke($general, $marca + 60) === false, 'f3 la marca, antes del inicio → sigue');
+        $columna->resetAll();
+        $columna->update(['sessionsValidFrom' => null])->where(['id' => $general])->execute();
+        $check(Impersonation::endedBySessionRevoke($general, $marca - 60) === false, 'f4 sin marca → sigue');
 
     } catch (\Throwable $e) {
         $check(false, 'sin excepciones', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));

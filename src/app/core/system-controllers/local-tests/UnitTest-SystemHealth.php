@@ -4,10 +4,12 @@
 //deja ver una llave o una contraseña, la pantalla miente o filtra (P179).
 //@areas src/app/classes/PiecesPHP/SystemStatus/
 
+use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\SystemHealth;
+use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 
@@ -36,10 +38,37 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
         $withoutOrigin = array_filter($rows, fn(array $row): bool => trim($row['origin']) === '');
         $check(count($rows) > 0 && count($withoutOrigin) === 0, 'a1 toda fila tiene origen', count($rows) . ' fila(s), ' . count($withoutOrigin) . ' sin origen');
         $groupsWithRows = array_unique(array_column($rows, 'group'));
-        $check(count(array_diff($groups, $groupsWithRows)) === 0, 'a2 los seis bloques tienen filas', implode(', ', array_diff($groups, $groupsWithRows)));
+        $check(count(array_diff($groups, $groupsWithRows)) === 0, 'a2 todos los bloques tienen filas', implode(', ', array_diff($groups, $groupsWithRows)));
         $fake = SystemHealth::rows(['zz_extension_inexistente']);
         $fakeRow = array_values(array_filter($fake, fn(array $row): bool => $row['label'] === 'ext-zz_extension_inexistente'));
         $check(count($fakeRow) === 1 && $fakeRow[0]['state'] === SystemHealth::STATE_MISSING, 'd1 una extensión inexistente sale como «falta»');
+
+        //El grupo de seguridad (P319): PHP en las subidas, los dominios permitidos y el entorno.
+        $security = fn(array $all): array => array_values(array_filter($all, fn(array $row): bool => $row['group'] === SystemHealth::GROUP_SECURITY));
+        $rowsSecurity = $security($rows);
+        foreach ($rowsSecurity as $row) {
+            echoTerminal("      · {$row['label']}: {$row['state']} · {$row['value']}");
+        }
+        $phpRows = array_values(array_filter($rowsSecurity, fn(array $row): bool => $row['origin'] === 'ProtectedUploads::writeDenyHtaccess()'));
+        $check(count($phpRows) === 2 && count(array_filter($phpRows, fn(array $row): bool => $row['state'] === SystemHealth::STATE_INFO)) === 2, 's1 en la terminal (sin servidor), las dos carpetas de subidas salen como «depende del servidor»', (string) json_encode($phpRows, \JSON_UNESCAPED_UNICODE));
+        $previousSoftware = $_SERVER['SERVER_SOFTWARE'] ?? null;
+        try {
+            $_SERVER['SERVER_SOFTWARE'] = 'Apache/2.4';
+            $uploadsRow = array_values(array_filter($security(SystemHealth::rows()), fn(array $row): bool => str_ends_with($row['label'], 'statics/uploads')));
+            $check(count($uploadsRow) === 1 && $uploadsRow[0]['state'] === SystemHealth::STATE_OK, 's2 con Apache, statics/uploads: PHP apagado por su .htaccess', (string) json_encode($uploadsRow, \JSON_UNESCAPED_UNICODE));
+        } finally {
+            if ($previousSoftware === null) {
+                unset($_SERVER['SERVER_SOFTWARE']);
+            } else {
+                $_SERVER['SERVER_SOFTWARE'] = $previousSoftware;
+            }
+        }
+        $hostsRow = array_values(array_filter($rowsSecurity, fn(array $row): bool => $row['origin'] === "\$config['allowed_hosts']"));
+        $hostsEmpty = SystemStatusRoutes::allowedHostsMissing(get_config('allowed_hosts'), false);
+        $hostsExpected = !$hostsEmpty ? SystemHealth::STATE_OK : (is_local() ? SystemHealth::STATE_INFO : SystemHealth::STATE_WARNING);
+        $check(count($hostsRow) === 1 && $hostsRow[0]['state'] === $hostsExpected, 's3 «Dominios permitidos» con el estado que toca (vacía en local: información)', (string) json_encode($hostsRow, \JSON_UNESCAPED_UNICODE));
+        $environmentRow = array_values(array_filter($rowsSecurity, fn(array $row): bool => str_starts_with($row['origin'], 'AppEnvironment')));
+        $check(count($environmentRow) === 1 && $environmentRow[0]['state'] === (AppEnvironment::isConfigured() ? SystemHealth::STATE_INFO : SystemHealth::STATE_WARNING), 's4 «Entorno», información si hay environment.php', (string) json_encode($environmentRow, \JSON_UNESCAPED_UNICODE));
         echoTerminal(' ');
 
         echoTerminal('[2/3] El HTML no deja ver ningún secreto');
@@ -68,6 +97,19 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
         }
         echoTerminal('   secretos buscados: ' . count($present) . ' (' . implode(', ', $present) . ')');
         $check(str_contains($html, 'data-system-health-row'), 'b0 el HTML pinta las filas');
+        //El Resumen: lo que pide atención, o el mensaje de que todo está bien.
+        $render = function (array $rows) use ($langGroup, $title, $groupTitles): string {
+            ob_start();
+            include basepath('app/classes/PiecesPHP/SystemStatus/Views/health.php');
+            return (string) ob_get_clean();
+        };
+        $warning = ['group' => SystemHealth::GROUP_SECURITY, 'label' => 'zz-dato-en-aviso', 'value' => 'zz', 'state' => SystemHealth::STATE_WARNING, 'origin' => 'zz'];
+        $okRow = ['group' => SystemHealth::GROUP_SECURITY, 'label' => 'zz-dato-bien', 'value' => 'zz', 'state' => SystemHealth::STATE_OK, 'origin' => 'zz'];
+        $withWarning = $render([$okRow, $warning]);
+        $check(substr_count($withWarning, 'data-system-health-summary-row') === 1 && str_contains($withWarning, 'zz-dato-en-aviso') && !str_contains($withWarning, 'data-system-health-all-ok'), 'r1 con una fila en aviso, sale en el Resumen (y solo ella)');
+        $allOk = $render([$okRow]);
+        $check(str_contains($allOk, 'data-system-health-all-ok') && str_contains($allOk, __($langGroup, 'Todo en orden.')) && !str_contains($allOk, 'data-system-health-summary-row'), 'r2 sin ninguna, el mensaje «Todo en orden.»');
+        $check(substr_count($html, 'data-system-health-tabs') === 1 && substr_count($html, 'class="ui tab"') + substr_count($html, 'class="ui active tab"') === count($groupTitles) + 1, 'r3 una pestaña por grupo, más el Resumen');
         $check(count($leaked) === 0, 'b1 el HTML no contiene la app_key, ni la contraseña de la base, ni la del correo', count($present) . ' secreto(s) buscados (' . implode(', ', $present) . '); aparecen: ' . implode(', ', $leaked));
         echoTerminal(' ');
 

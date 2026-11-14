@@ -132,8 +132,51 @@ CliActions::make('unit-tests:core/config-secrets', function ($args) {
         $check(get_config($f) === 'zz-clave-que-no-se-sella', 'f2 y get_config() la da igual');
         echoTerminal(' ');
 
-        //──── [s] La fila de la base manda sobre secure-keys (P318, abierta) ─────────────────
-        echoTerminal('[s] La fila de la base pisa lo que puso secure-keys antes de la carga (como hoy; P318 del PO)');
+        //──── [q] «Quitar la guardada» (P317): qué se guarda de un secreto que el formulario no pinta ─────────
+        echoTerminal('[q] «Quitar la guardada»: marcada, vacío; sin marcar y vacío, se conserva');
+        $check(SettingsController::secretToSave('', true) === '', 'q1 con algo guardado y la casilla → se guarda vacío');
+        $check(SettingsController::secretToSave('zz-nueva', true) === '', 'q2 la casilla manda aunque llegue un valor');
+        $check(SettingsController::secretToSave('', false) === null, 'q3 sin la casilla y el campo vacío → se conserva (null)');
+        $check(SettingsController::secretToSave('zz-nueva', false) === 'zz-nueva', 'q4 sin la casilla y con valor → el valor');
+        //Lo que se guarda vacío se lee vacío: el camino de siempre (valueToStore) no sella una cadena vacía.
+        $q = $nombre('q');
+        SettingsModel::setConfigValue($q, ConfigOptions::valueToStore($q, (string) SettingsController::secretToSave('', true)));
+        $cargar($q);
+        $check($enBase($q) === '' && get_config($q) === '', 'q5 guardado por valueToStore(), en la base y al leerlo queda vacío');
+        echoTerminal(' ');
+
+        //──── [v] La casilla solo se pinta con algo guardado ──────────────────────────────────────────────
+        echoTerminal('[v] La casilla «Quitar la guardada» se pinta solo si hay algo guardado');
+        $pintar = function (string $vista, array $variables): string {
+            $variables += ['langGroup' => SettingsController::LANG_GROUP, 'title' => 'zz', 'description' => '', 'actionURL' => '', 'indexLink' => '', 'helpController' => new \PiecesPHP\AdminPanel\Controllers\HelperController()];
+            extract($variables);
+            ob_start();
+            include basepath("app/classes/PiecesPHP/Settings/Views/panel/pages/app_configurations/{$vista}.php");
+            return (string) ob_get_clean();
+        };
+        $correo = fn (string $guardada): string => $pintar('email', ['element' => (new \PiecesPHP\Core\ConfigHelpers\MailConfig())->password($guardada), 'probeURL' => '', 'testSendURL' => '', 'currentEmail' => '', 'mailProtocols' => [], 'mailProtocolSaved' => '']);
+        $check(str_contains($correo('zz-guardada'), 'name="clear_password"'), 'v1 correo con contraseña guardada: la casilla está');
+        $check(!str_contains($correo(''), 'name="clear_password"'), 'v2 correo sin contraseña guardada: no está');
+        $antes = ['OpenAIApiKey' => get_config('OpenAIApiKey'), 'MistralAIApiKey' => get_config('MistralAIApiKey')];
+        //Como una instalación sin archivo de claves: si esta lo tiene, sus claves salen deshabilitadas y sin casilla.
+        $fijadasV = ConfigOptions::swapFixedByFileForTesting([]);
+        try {
+            set_config('OpenAIApiKey', 'zz-guardada');
+            set_config('MistralAIApiKey', '');
+            $ia = $pintar('ai', []);
+            $check(str_contains($ia, 'name="clear_OpenAIApiKey"') && !str_contains($ia, 'name="clear_MistralAIApiKey"'), 'v3 IA: la casilla, solo junto a la clave guardada');
+        } finally {
+            foreach ($antes as $opcion => $valor) {
+                set_config($opcion, $valor);
+            }
+            ConfigOptions::swapFixedByFileForTesting($fijadasV);
+        }
+        echoTerminal(' ');
+
+        //──── [s] El archivo de claves y la fila de la base (P318) ─────────────────────────────
+        //Sin escribir el archivo real: el registro de proceso se simula con markFixedByFile() y se repone al terminar.
+        echoTerminal('[s] Sin el archivo, la fila manda (como antes); con lo que el archivo dio, manda el archivo');
+        $fijadasAntes = ConfigOptions::swapFixedByFileForTesting([]);
         $s = $nombre('s');
         set_config($s, 'zz-de-secure-keys');
         SettingsModel::setConfigValue($s, Sealed::seal('zz-de-la-base', Sealed::PURPOSE_CONFIG_SECRET));
@@ -143,6 +186,32 @@ CliActions::make('unit-tests:core/config-secrets', function ($args) {
         SettingsModel::setConfigValue($s, '');
         $cargar($s);
         $check(get_config($s) === '', 's2 con la fila vacía, también gana la fila (vacía)');
+        $f3 = $nombre('s-fijada');
+        ConfigOptions::markFixedByFile($f3);
+        set_config($f3, 'zz-del-archivo');
+        SettingsModel::setConfigValue($f3, Sealed::seal('zz-de-la-base', Sealed::PURPOSE_CONFIG_SECRET));
+        $cargar($f3);
+        $check(get_config($f3) === 'zz-del-archivo', 's3 si el archivo la definió, la fila no la pisa');
+        $check(ConfigOptions::applyDeclared([$f3 => 'zz-otra']) === [], 's4 y no cuenta como «sin declarar» (no se avisa)');
+        $f7 = $nombre('s-fijada-en-claro');
+        ConfigOptions::markFixedByFile($f7);
+        set_config($f7, 'zz-del-archivo');
+        SettingsModel::setConfigValue($f7, 'zz-en-claro-en-la-base');
+        $cargar($f7);
+        $check(get_config($f7) === 'zz-del-archivo' && $abrir($enBase($f7)) === 'zz-en-claro-en-la-base', 's7 fijada por el archivo con su fila en claro: no se aplica, y en la base queda sellada');
+        //La pantalla de IA: la que define el archivo, deshabilitada y con su aviso; sin la casilla de quitarla.
+        $antesIa = get_config('OpenAIApiKey');
+        try {
+            ConfigOptions::markFixedByFile('OpenAIApiKey');
+            set_config('OpenAIApiKey', 'zz-del-archivo');
+            $ia = $pintar('ai', []);
+            $check(str_contains($ia, 'data-fixed-by-file') && preg_match('/name="OpenAIApiKey"[^>]*\sdisabled/', $ia) === 1 && !str_contains($ia, 'name="clear_OpenAIApiKey"'), 's5 la pantalla de IA: el campo deshabilitado, «La define el archivo de claves.» y sin la casilla');
+            $check(preg_match('/name="MistralAIApiKey"[^>]*\sdisabled/', $ia) === 0, 's6 la que no define el archivo, editable');
+            $check(preg_match('/name="OpenAIApiKey"[^>]*placeholder="[^"]+"/', $ia) === 0, 's8 la fijada no promete «vacío la conserva» (sin placeholder)');
+        } finally {
+            set_config('OpenAIApiKey', $antesIa);
+            ConfigOptions::swapFixedByFileForTesting($fijadasAntes);
+        }
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

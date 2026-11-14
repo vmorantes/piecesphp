@@ -103,6 +103,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $descarga = implode('|', array_diff(ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS, ProtectedUploads::ACTIVE_CONTENT_INLINE_EXTENSIONS));
     $check(str_contains($contenido, '<IfModule mod_headers.c>') && str_contains($contenido, "<FilesMatch \"(?i)\\.({$activas})$\">\n        Header set Content-Security-Policy \"sandbox\""), 'las activas (SVG, HTML, XML) llevan CSP sandbox', $contenido);
     $check(str_contains($contenido, "<FilesMatch \"(?i)\\.({$descarga})$\">\n        Header set Content-Disposition \"attachment\"") && !str_contains($descarga, 'svg'), 'y las que no son imagen, descarga; el SVG no', $descarga);
+    $check(str_contains($contenido, "<FilesMatch \"(?i)\\.(php[0-9]?|phtml|phar|phps)$\">\n    Require all denied\n</FilesMatch>"), 'y niega servir y ejecutar PHP (php, php3-9, phtml, phar, phps; P319)', $contenido);
     $check(ProtectedUploads::writeDenyHtaccess($uploads, $sufijo) && (string) @file_get_contents("{$uploads}{$sep}.htaccess") === $contenido, 'otra vez: idempotente');
     $viejo = ProtectedUploads::DENY_HTACCESS_MARK . "\n<FilesMatch \"\\.protected$\">\n    Require all denied\n</FilesMatch>\n";
     $check($escribe("{$uploads}{$sep}.htaccess", $viejo) && ProtectedUploads::writeDenyHtaccess($uploads, $sufijo) && (string) @file_get_contents("{$uploads}{$sep}.htaccess") === $contenido, 'el de una instalación existente (con la marca, sin las cabeceras) se reescribe con el nuevo');

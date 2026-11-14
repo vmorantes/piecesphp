@@ -9,6 +9,7 @@ namespace PiecesPHP\UserSystem\Authentication;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
@@ -130,6 +131,21 @@ final class Impersonation
             return __(self::LANG_GROUP, 'La organización del usuario no está activa.');
         }
         return null;
+    }
+
+    /**
+     * Si «cerrar sesiones» del objetivo llegó después de empezar a actuar como él: su marca `sessionsValidFrom` no está
+     * vacía y la suplantación empezó antes o en el mismo segundo (la misma regla que la marca de root en index.php).
+     *
+     * @param int $targetID
+     * @param int $startedAt
+     * @return bool
+     */
+    public static function endedBySessionRevoke(int $targetID, int $startedAt): bool
+    {
+        $target = UsersModel::getBy($targetID, 'id');
+        $mark = $target !== null && is_string($target->sessionsValidFrom ?? null) ? trim($target->sessionsValidFrom) : '';
+        return $mark !== '' && !SessionToken::isCreatedAfterMarks($startedAt, $mark);
     }
 
     /**

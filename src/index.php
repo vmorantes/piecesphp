@@ -533,6 +533,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 } elseif ($impersonation !== null) {
                     //Lo que el objetivo es se relee en cada petición: si dejó de ser elegible, root sigue siendo root.
                     $impersonationEnded = Impersonation::refusalReason($impersonation['targetID']);
+                    //«Cerrar sesiones» del objetivo tras empezar corta también esta suplantación (P325 d).
+                    if ($impersonationEnded === null && Impersonation::endedBySessionRevoke($impersonation['targetID'], $impersonation['startedAt'])) {
+                        $impersonationEnded = __(UserSystemFeaturesLang::LANG_GROUP, 'se cerraron las sesiones de ese usuario.');
+                    }
                     if ($impersonationEnded === null) {
                         $userJWTData->id = $impersonation['targetID'];
                         $validationUserObject->setUser($userJWTData);

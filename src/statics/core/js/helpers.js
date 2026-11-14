@@ -789,7 +789,18 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 				extend: 'csvHtml5',
 				text: _i18n('datatables', 'exportListing'),
 				className: 'basic',
-				exportOptions: { columns: (index, data, node) => node.getAttribute('order') !== 'false' },
+				exportOptions: {
+					columns: (index, data, node) => node.getAttribute('order') !== 'false',
+					//Una celda con varios datos (el nombre y su tipo, en líneas) sale «Nombre · Tipo», no pegados (P321 a).
+					format: {
+						body: (data, row, column, node) => {
+							if (!(node instanceof HTMLElement)) {
+								return data
+							}
+							return node.innerText.split(/\r?\n/).map((part) => part.trim()).filter((part) => part !== '').join(' · ')
+						},
+					},
+				},
 			}]
 		}
 
@@ -1369,22 +1380,67 @@ function configMirrorScrollX(namespace = 'default', selector = null) {
 }
 
 /**
- * Pone en el desplegable del tema el nombre (aria-label) de su select: Fomantic no lo copia y, sin él, un lector anuncia
- * lo que recibe el foco sin decir qué es. El foco lo recibe el envoltorio o, en los de búsqueda, su input.search. Va
- * después de iniciar el desplegable; sobre un select sin iniciar no hace nada.
+ * Pone en el desplegable del tema el nombre de su select: Fomantic no lo copia y, sin él, un lector anuncia lo que recibe
+ * el foco sin decir qué es. Con aria-label, ese; si no, el <label for> del select, por aria-labelledby (P321 b). El foco lo
+ * recibe el envoltorio o, en los de búsqueda, su input.search. Va después de iniciar el desplegable; sobre un select sin
+ * iniciar no hace nada.
  * @param {HTMLSelectElement|JQuery} select
  * @returns {void}
  */
 function copyDropdownAccessibleName(select) {
 	$(select).each(function () {
-		const label = this.getAttribute('aria-label')
 		const wrapper = this.parentElement !== null ? this.parentElement.closest('.ui.dropdown') : null
-		if (label === null || label === '' || wrapper === null) {
+		if (wrapper === null) {
 			return
 		}
 		const focused = wrapper.querySelector(':scope > input.search') ?? wrapper
-		focused.setAttribute('aria-label', label)
+		const label = this.getAttribute('aria-label')
+		if (label !== null && label !== '') {
+			focused.setAttribute('aria-label', label)
+			return
+		}
+		const forLabel = this.id !== '' ? document.querySelector(`label[for="${CSS.escape(this.id)}"]`) : null
+		if (forLabel === null) {
+			return
+		}
+		if (forLabel.id === '') {
+			forLabel.id = `${this.id}-label`
+		}
+		focused.setAttribute('aria-labelledby', forLabel.id)
 	})
+}
+
+/**
+ * Envuelve $.fn.dropdown UNA vez para que cada desplegable que se inicie, en cualquier pantalla, lleve el nombre de su
+ * select (copyDropdownAccessibleName()). Solo la inicialización (sin argumentos o con un objeto); las de comportamiento
+ * ('get value', 'set selected'…) pasan tal cual. Conserva lo que Fomantic cuelga de la función ($.fn.dropdown.settings…).
+ * @returns {boolean} Si quedó envuelto (ahora o antes)
+ */
+function wrapDropdownAccessibleName() {
+	if (typeof $ === 'undefined' || typeof $.fn === 'undefined' || typeof $.fn.dropdown !== 'function') {
+		return false
+	}
+	if ($.fn.dropdown.pcsAccessibleNameWrapped === true) {
+		return true
+	}
+	const original = $.fn.dropdown
+	const wrapped = function (...args) {
+		const result = original.apply(this, args)
+		if (args.length === 0 || (typeof args[0] === 'object' && args[0] !== null)) {
+			this.each(function () {
+				copyDropdownAccessibleName(this instanceof HTMLSelectElement ? this : this.querySelector('select'))
+			})
+		}
+		return result
+	}
+	Object.assign(wrapped, original)
+	wrapped.pcsAccessibleNameWrapped = true
+	$.fn.dropdown = wrapped
+	return true
+}
+//Fomantic se carga antes que este archivo; si en alguna página no, se envuelve en cuanto el documento está listo.
+if (!wrapDropdownAccessibleName()) {
+	document.addEventListener('DOMContentLoaded', wrapDropdownAccessibleName)
 }
 
 /**

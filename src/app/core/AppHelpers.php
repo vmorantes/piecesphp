@@ -196,19 +196,11 @@ function requestIsSameDomain()
     // 2. Determinar el dominio actual (considerando proxies)
     $allowedHosts = get_config('allowed_hosts');
     $host = \PiecesPHP\Core\AllowedHosts::hostForSameDomain($_SERVER, is_array($allowedHosts) ? $allowedHosts : []);
-    $currentDomain = $protocol . $host;
     // 3. Obtener origen y referer
-    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $referer = $_SERVER['HTTP_REFERER'] ?? '';
-    // 4. Verificación
-    $isSameOrigin = !empty($origin) && strpos($origin, $currentDomain) === 0;
-    $isSameReferer = !empty($referer) && mb_strpos($referer, $currentDomain) === 0;
-
-    // 5. Permitir acceso directo en desarrollo (sin Referer ni Origin)
-    $isLocal = in_array($host, ['localhost', '127.0.0.1', '[::1]']) || (strpos($host, '192.168.') === 0);
-    $noEvidenceOfOtherDomain = empty($origin) && empty($referer);
-
-    return $isSameOrigin || $isSameReferer || ($isLocal && $noEvidenceOfOtherDomain);
+    $origin = is_string($_SERVER['HTTP_ORIGIN'] ?? null) ? $_SERVER['HTTP_ORIGIN'] : '';
+    $referer = is_string($_SERVER['HTTP_REFERER'] ?? null) ? $_SERVER['HTTP_REFERER'] : '';
+    //Origen EXACTO, no «empieza por»: https://sitio.com.otro.test empieza como https://sitio.com y no es el mismo dominio.
+    return same_domain_request(url_origin($protocol . $host), $origin, $referer, is_local());
 }
 
 /**
@@ -3422,6 +3414,29 @@ function url_origin(string $url): string
 }
 
 /**
+ * Si una petición viene del propio origen: por su `Origin`, por su `Referer` o, en local, sin pruebas de otro dominio.
+ *
+ * COMPARACIÓN EXACTA de esquema, host y puerto (url_origin()): nada de «empieza por». Sin origen propio solo vale el caso
+ * local sin pruebas.
+ *
+ * @param string $currentOrigin El origen de la instalación para esta petición (url_origin()).
+ * @param string $origin La cabecera `Origin`, o ''.
+ * @param string $referer La cabecera `Referer`, o ''.
+ * @param bool $isLocal is_local().
+ * @return bool
+ */
+function same_domain_request(string $currentOrigin, string $origin, string $referer, bool $isLocal): bool
+{
+    $noEvidenceOfOtherDomain = $isLocal && $origin === '' && $referer === '';
+    if ($currentOrigin === '') {
+        return $noEvidenceOfOtherDomain;
+    }
+    $isSameOrigin = $origin !== '' && url_origin($origin) === $currentOrigin;
+    $isSameReferer = $referer !== '' && url_origin($referer) === $currentOrigin;
+    return $isSameOrigin || $isSameReferer || $noEvidenceOfOtherDomain;
+}
+
+/**
  * Si una petición CORS desde `$origin` puede llevar credenciales: solo el propio origen y los declarados.
  *
  * COMPARACIÓN EXACTA de esquema, host y puerto: nada de «contiene», «empieza por» ni comodines. Un `Origin` que no
@@ -3556,7 +3571,12 @@ function set_configs_from_secure_keys(array $keys, string $directory = ''): void
         if (!is_null($configName) && !is_null($fileKeyName)) {
             $currentValue = get_config($configName);
             if ((!is_string($currentValue) || mb_strlen($currentValue) == 0) || $override) {
-                set_config($configName, getKeyFromSecureKeys($fileKeyName, $directory));
+                $fileValue = getKeyFromSecureKeys($fileKeyName, $directory);
+                set_config($configName, $fileValue);
+                //Con valor del archivo, manda él: la fila de la base no lo pisa al cargar las opciones (P318).
+                if ($fileValue !== '') {
+                    \PiecesPHP\Core\ConfigHelpers\ConfigOptions::markFixedByFile($configName);
+                }
             }
         }
     }

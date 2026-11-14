@@ -57,6 +57,10 @@ ProtectFileMiddleware::protectWithSession(
 Al guardar una subida, el módulo usa el nombre privado (`ProtectedUploads::privatePath()`). Al
 reemplazarla, busca la anterior con `ProtectedUploads::resolve()` para borrarla aunque sea privada.
 
+**«Con sesión» es la misma regla que el panel** (desde la 10.17.0): no basta con una sesión abierta. No se le sirve a un
+usuario inactivo, ni al de una organización que no admite sesiones, ni al pendiente o rechazado, que en el panel solo
+ve lo suyo; a root, siempre. Lo decide `UserSessions::jwtOpensProtectedFiles()`, con las mismas piezas que usa el panel.
+
 ### 2. Mixto: depende del registro al que pertenece el archivo (el arquetipo)
 
 **Publications** es la referencia. Sus archivos viven en `publications/<folder>/…` (los
@@ -127,7 +131,23 @@ bin/cli statics-protect-migrate --revert   # vuelta atrás
 - **Apache solo:** no hace falta nada más.
 - **nginx delante de Apache** (HestiaCP, Plesk y otros paneles): ver «Lo que puede ejecutar código», abajo.
 - **nginx sin Apache:** añade una regla que niegue `\.protected$` y que pase a PHP lo que no
-  existe, y la de «Lo que puede ejecutar código».
+  existe, la de «Las subidas no ejecutan PHP» y la de «Lo que puede ejecutar código».
+
+### Las subidas no ejecutan PHP
+
+El `.htaccess` que el subsistema escribe en `statics/uploads/` y en la carpeta del Gestor de archivos niega servir y
+ejecutar cualquier archivo PHP (`php`, `php3` a `php9`, `phtml`, `phar` y `phps`, sin distinguir mayúsculas;
+`ProtectedUploads::SERVER_SCRIPT_EXTENSIONS`). Con Apache no hay que hacer nada: el arranque lo pone al día.
+«Salud de la instalación» lo comprueba en su pestaña «Seguridad».
+
+**Con nginx**, que no lee `.htaccess`, pon la misma regla en el bloque del sitio, antes del que pasa a PHP (ajusta la
+ruta a donde esté `src/` en tu servidor):
+
+```nginx
+location ~* /statics/(uploads|filemanager)/.*\.(php[0-9]?|phtml|phar|phps)$ {
+    deny all;
+}
+```
 
 ### Lo que puede ejecutar código: SVG, HTML y XML subidos
 

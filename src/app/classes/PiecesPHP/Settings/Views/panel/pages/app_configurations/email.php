@@ -33,6 +33,11 @@ use PiecesPHP\Core\Email\MailDelivery;
             $helpController->_render('panel/built-in/content/toggle-field.php', ['inputName' => $inputName, 'label' => $label, 'checked' => $checked, 'id' => "email-{$inputName}"]);
             return (string) ob_get_clean();
         };
+        //«Quitar la guardada» (P317): solo si hay una guardada; marcada, se guarda vacía.
+        $passwordSaved = mb_strlen((string) $element->password()) > 0;
+        $clearPassword = $passwordSaved
+            ? '<div class="field"><div class="ui checkbox"><input type="checkbox" id="email-clear-password" name="clear_password" value="1" data-clear-saved><label for="email-clear-password">' . escape_html(__($langGroup, 'Quitar la guardada')) . '</label></div></div>'
+            : '';
     ?>
 
     <div class="ui secondary pointing menu tabs-controls content-tabs">
@@ -94,9 +99,9 @@ use PiecesPHP\Core\Email\MailDelivery;
                             'inputName' => 'password',
                             'value' => '',
                             'label' => __($langGroup, 'Contraseña'),
-                            'placeholder' => mb_strlen((string) $element->password()) > 0 ? __($langGroup, 'Guardada: vacío la conserva') : '',
+                            'placeholder' => $passwordSaved ? __($langGroup, 'Guardada: vacío la conserva') : '',
                             'autocomplete' => 'new-password',
-                            'fieldExtra' => $toggle('auth', __($langGroup, 'Autenticar'), (bool) $element->auth()),
+                            'fieldExtra' => $clearPassword . $toggle('auth', __($langGroup, 'Autenticar'), (bool) $element->auth()),
                         ]);
                     ?>
                 </div>

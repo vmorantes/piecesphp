@@ -22,7 +22,17 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         //Root no se ofrece: siempre puede (APIController::translationUserTypes()).
         $translationUserTypesOptions = array_diff_key(\PiecesPHP\UserSystem\ORM\UsersModel::getTypesUser(), [\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ROOT => true]);
         $translationUserTypesSelected = \API\Controllers\APIController::translationUserTypes(get_config(\API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG));
-        $keyPlaceholder = fn(string $option): string => mb_strlen((string) get_config($option)) > 0 ? __($langGroup, 'Clave guardada: vacío la conserva') : __($langGroup, 'Pega aquí la API key del proveedor');
+        //La que define el archivo de claves, sin placeholder: está deshabilitada y su texto lo dice (P318).
+        $keyPlaceholder = fn(string $option): string => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option) ? '' : (mb_strlen((string) get_config($option)) > 0 ? __($langGroup, 'Clave guardada: vacío la conserva') : __($langGroup, 'Pega aquí la API key del proveedor'));
+        //Una clave que da el archivo de claves manda (P318): el campo no se edita y lo dice.
+        $fixedByFile = fn(string $option): bool => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option);
+        $keyAttributes = fn(string $option): string => $fixedByFile($option) ? ' disabled aria-describedby="ai-fixed-' . escape_html($option) . '"' : '';
+        //«Quitar la guardada» (P317): solo si hay una guardada; marcada, se guarda vacía. La del archivo, en su lugar, el aviso.
+        $clearSaved = fn(string $option, string $id): string => $fixedByFile($option)
+            ? '<p class="ui muted text" id="ai-fixed-' . escape_html($option) . '" data-fixed-by-file>' . escape_html(__($langGroup, 'La define el archivo de claves.')) . '</p>'
+            : (mb_strlen((string) get_config($option)) > 0
+                ? '<div class="field"><div class="ui checkbox"><input type="checkbox" id="' . $id . '" name="clear_' . $option . '" value="1" data-clear-saved><label for="' . $id . '">' . escape_html(__($langGroup, 'Quitar la guardada')) . '</label></div></div>'
+                : '');
         $tokensLimitElement = new \PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper(\PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
         $tokensLimitName = $tokensLimitElement->userSetContentName();
         $tokensLimitAction = \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::allowedRoute('actions-edit') ? (string) \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('actions-edit') : '';
@@ -47,7 +57,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div class="field">
                     <label for="ai-key-openai"><?= __($langGroup, 'API Key OpenAI'); ?></label>
                     <?php //La clave no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
-                    <input type="text" id="ai-key-openai" name="OpenAIApiKey" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html($keyPlaceholder('OpenAIApiKey')); ?>">
+                    <input type="text" id="ai-key-openai" name="OpenAIApiKey" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html($keyPlaceholder('OpenAIApiKey')); ?>"<?= $keyAttributes('OpenAIApiKey'); ?>>
+                    <?= $clearSaved('OpenAIApiKey', 'ai-clear-openai'); ?>
                 </div>
             </div>
             <div class="two fields">
@@ -59,7 +70,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 </div>
                 <div class="field">
                     <label for="ai-key-mistral"><?= __($langGroup, 'API Key Mistral'); ?></label>
-                    <input type="text" id="ai-key-mistral" name="MistralAIApiKey" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html($keyPlaceholder('MistralAIApiKey')); ?>">
+                    <input type="text" id="ai-key-mistral" name="MistralAIApiKey" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html($keyPlaceholder('MistralAIApiKey')); ?>"<?= $keyAttributes('MistralAIApiKey'); ?>>
+                    <?= $clearSaved('MistralAIApiKey', 'ai-clear-mistral'); ?>
                 </div>
             </div>
         </section>

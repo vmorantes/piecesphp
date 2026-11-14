@@ -97,7 +97,8 @@ ConfigOptions::declare('mi_modulo_color', MiModuloController::class, ConfigOptio
 - **`SHAPE_SECRET` es para una clave que no puede quedar en claro en la base** (una API key, por ejemplo): se guarda
   sellada y se abre sola al cargar, así que `get_config()` la da en claro y quien la lee no cambia. Para guardarla, pasa
   el valor por `ConfigOptions::valueToStore('mi_opcion', $valor)`, que la sella si la opción está declarada así; vacía
-  se guarda vacía. Una clave que ya estaba en claro (de una versión anterior) se lee igual y se guarda sellada en la
+  se guarda vacía. En un formulario, un campo vacío conserva la guardada y una casilla «Quitar la guardada» la borra
+  (como hacen Configuración › Correo y › IA desde la 10.17.0). Una clave que ya estaba en claro (de una versión anterior) se lee igual y se guarda sellada en la
   primera carga. Si la `app_key` cambió sin rotar, no abre: se usa vacía y el registro de errores lo dice una vez, con
   el nombre y sin el valor. `SHAPE_SEALED`, en cambio, se guarda sellado y lo abre su dueño (como la configuración del
   correo).
@@ -113,9 +114,10 @@ ConfigOptions::declare('mi_modulo_color', MiModuloController::class, ConfigOptio
 Las llaves de OpenAI, Mistral, Groq, la del cron y las dos de reCAPTCHA v3 las lee `src/app/core/extensions/api-keys.php`
 de la carpeta `secure-keys/` (ignorada por git) con `set_configs_from_secure_keys()`. Con `'override' => true`, la
 llave segura **sustituye** lo que haya en `config.php`, **incluso cuando el archivo de la llave no existe: entonces el
-valor queda vacío** (`getKeyFromSecureKeys()` devuelve `''`). **Pero la tabla de opciones se aplica después**
-(`src/index.php`, tras `final-configurations.php`): si la clave de OpenAI o de Mistral se guardó alguna vez desde el panel,
-esa fila manda, también vacía, y la llave segura no se usa. Qué debe mandar está pendiente de decisión. Las de tus propios servicios van en
+valor queda vacío** (`getKeyFromSecureKeys()` devuelve `''`). **Si el archivo da un valor, manda el archivo** (desde la
+10.17.0): la tabla de opciones, que se aplica después, ya no pisa ese nombre (`ConfigOptions::fixedByFile()`), y la
+pantalla de IA dice «La define el archivo de claves.» y no deja cambiarla. Lo que hubiera guardado en la base para ese
+nombre no se usa, pero se sella igual si estaba en claro. Las de tus propios servicios van en
 `src/app/config/extensions/api-keys.php`. La `app_key` tiene su propio mecanismo:
 [La clave de la aplicación](../new-features/clave-de-la-aplicacion.md).
 

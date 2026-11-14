@@ -454,7 +454,7 @@ class DataTablesHelper
             //──── Ejecutar consultas ────────────────────────────────────────────────────────────────
 
             /**
-             * @var BaseModel Modelo base de la tabla
+             * @var \PiecesPHP\Core\Database\ActiveRecordModel Modelo base de la tabla
              */
             $model = $mapper->getModel();
 
@@ -470,7 +470,7 @@ class DataTablesHelper
              */
 
             /**
-             * @var BaseModel
+             * @var ActiveRecord
              * Clon del modelo para los resultados sobre los que se aplicarán los filtros
              */
             $limit = clone $model;
@@ -711,7 +711,7 @@ class DataTablesHelper
             //Realizar consulta para configurar los datos necesarios para la paginación
 
             /**
-             * @var BaseModel
+             * @var ActiveRecord
              * Clon del modelo para la paginación
              */
             $filterCount = clone $model;
@@ -760,7 +760,7 @@ class DataTablesHelper
             $result->setValue('recordsFiltered', $filterCountTotal);
 
             /**
-             * @var BaseModel
+             * @var ActiveRecord
              * Clon del modelo para el total: los filtros FIJOS, sin la búsqueda del usuario (P38).
              * VA EL ÚLTIMO: HavingSegment::toString() marca el último grupo sin operador, y compilar el
              * segmento fijo antes que el completo dejaría su grupo sin el AND que lo une a la búsqueda.

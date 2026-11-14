@@ -10,6 +10,7 @@ use API\Adapters\FfmpegAudioAdapter;
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\AppVersion;
 use PiecesPHP\Core\InstalledPackages;
+use PiecesPHP\Core\Statics\ProtectedUploads;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\Terminal\CronJobTask;
@@ -40,6 +41,7 @@ final class SystemHealth
     const GROUP_DATABASE = 'database';
     const GROUP_TASKS = 'tasks';
     const GROUP_FOLDERS = 'folders';
+    const GROUP_SECURITY = 'security';
 
     /**
      * La lista de carpetas escribibles, relativa a src/: la leen también los dos guiones de permisos.
@@ -65,7 +67,8 @@ final class SystemHealth
             self::phpRows($requiredExtensions),
             self::databaseRows(),
             self::taskRows(),
-            self::folderRows()
+            self::folderRows(),
+            self::securityRows()
         );
     }
 
@@ -81,6 +84,7 @@ final class SystemHealth
             self::GROUP_DATABASE => self::t('Base de datos'),
             self::GROUP_TASKS => self::t('Respaldos y tareas'),
             self::GROUP_FOLDERS => self::t('Carpetas'),
+            self::GROUP_SECURITY => self::t('Seguridad'),
         ];
     }
 
@@ -287,6 +291,60 @@ final class SystemHealth
                 'is_writable() · ' . self::WRITABLE_DIRS_FILE
             );
         }
+        return $rows;
+    }
+
+    /**
+     * PHP apagado en las carpetas de subidas (P319), la lista de dominios permitidos y el entorno.
+     *
+     * @return array<int,array{group:string,label:string,value:string,state:string,origin:string}>
+     */
+    private static function securityRows(): array
+    {
+        $rows = [];
+        //El .htaccess solo lo lee Apache; con otro servidor (o en la terminal, sin servidor) lo que manda es su configuración.
+        $software = $_SERVER['SERVER_SOFTWARE'] ?? null;
+        $isApache = is_string($software) && str_contains($software, 'Apache');
+        $uploads = get_config('upload_dir');
+        //Las dos que protege writeDenyHtaccess() (app/core/extensions/protected-files.php).
+        $directories = [is_string($uploads) ? $uploads : basepath('statics/uploads'), basepath('statics/filemanager')];
+        foreach ($directories as $directory) {
+            //Relativa a src/: nunca una ruta absoluta del servidor (P179).
+            $relative = ltrim(str_replace('\\', '/', mb_substr($directory, mb_strlen(rtrim(basepath(''), '/\\')))), '/');
+            $label = sprintf(self::t('PHP en %s'), $relative);
+            $origin = 'ProtectedUploads::writeDenyHtaccess()';
+            if (!$isApache) {
+                $rows[] = self::row(self::GROUP_SECURITY, $label, self::t('Depende del servidor: mira la guía de nginx'), self::STATE_INFO, $origin);
+                continue;
+            }
+            if (!is_dir($directory)) {
+                $rows[] = self::row(self::GROUP_SECURITY, $label, self::t('La carpeta no existe'), self::STATE_INFO, $origin);
+                continue;
+            }
+            $htaccess = rtrim($directory, '/\\') . \DIRECTORY_SEPARATOR . '.htaccess';
+            $content = is_file($htaccess) ? @file_get_contents($htaccess) : false;
+            $reason = match (true) {
+                !is_string($content) => self::t('Sin .htaccess'),
+                !str_starts_with($content, ProtectedUploads::DENY_HTACCESS_MARK) => self::t('El .htaccess no es del sistema'),
+                !str_contains($content, ProtectedUploads::denyServerScriptsBlock()) => self::t('Sin el bloque que niega PHP'),
+                default => null,
+            };
+            $rows[] = self::row(self::GROUP_SECURITY, $label, $reason ?? self::t('Apagado'), $reason === null ? self::STATE_OK : self::STATE_WARNING, $origin);
+        }
+
+        $allowed = get_config('allowed_hosts');
+        $origin = "\$config['allowed_hosts']";
+        if (!SystemStatusRoutes::allowedHostsMissing($allowed, false)) {
+            $hosts = array_filter(is_array($allowed) ? $allowed : [], fn($host): bool => is_string($host) && trim($host) !== '');
+            $rows[] = self::row(self::GROUP_SECURITY, self::t('Dominios permitidos'), implode(', ', $hosts), self::STATE_OK, $origin);
+        } else {
+            $rows[] = self::row(self::GROUP_SECURITY, self::t('Dominios permitidos'), self::t('Vacía: cualquier dominio'), is_local() ? self::STATE_INFO : self::STATE_WARNING, $origin);
+        }
+
+        $isLocal = AppEnvironment::get() === AppEnvironment::LOCAL;
+        $rows[] = AppEnvironment::isConfigured()
+            ? self::row(self::GROUP_SECURITY, self::t('Entorno'), $isLocal ? self::t('Local') : self::t('Producción'), self::STATE_INFO, 'AppEnvironment · ' . AppEnvironment::FILE_RELATIVE_PATH)
+            : self::row(self::GROUP_SECURITY, self::t('Entorno'), self::t('Producción (sin environment.php)'), self::STATE_WARNING, 'AppEnvironment · ' . AppEnvironment::FILE_RELATIVE_PATH);
         return $rows;
     }
 

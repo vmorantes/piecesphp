@@ -30,11 +30,12 @@ class HelperController extends BaseController
      */
     public function __construct($user = null, array $globalVariables = [])
     {
+        $previousLockAssets = get_config('lock_assets');
         set_config('lock_assets', true);
         parent::__construct(false);
         $this->user = $user instanceof \stdClass ? $user : null;
         $this->setVariables($globalVariables);
-        set_config('lock_assets', false);
+        set_config('lock_assets', $previousLockAssets);
     }
 
 }
