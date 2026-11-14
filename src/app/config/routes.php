@@ -35,6 +35,7 @@ use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
 use PiecesPHP\Logs\LogsRoutes as LogsViewerRoutes;
 use PiecesPHP\MailCatalog\MailCatalogRoutes;
+use PiecesPHP\Mcp\McpRoutes;
 use PiecesPHP\Notifications\NotificationsRoutes;
 use PiecesPHP\Settings\Controllers\SiteFilesController;
 use PiecesPHP\Settings\SettingsRoutes;
@@ -166,6 +167,9 @@ MailCatalogRoutes::routes($zona_administrativa);
 //Registros: una vista con las pestañas que aportan los módulos
 LogsViewerRoutes::routes($zona_administrativa);
 NotificationsRoutes::routes($zona_administrativa);
+
+//El servidor MCP del panel (ADR 0075): las herramientas, con la sesión y los permisos de quien pregunta
+McpRoutes::routes($zona_administrativa);
 
 //Datos geográficos: el geovisor y las fuentes que le registran los módulos
 GeoRoutes::routes($zona_administrativa);

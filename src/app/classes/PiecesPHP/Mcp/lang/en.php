@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'La herramienta no pudo responder. El error quedó en el registro de errores de la instalación.' => 'The tool could not answer. The error was written to the installation error log.',
+    'Buscar en el panel' => 'Search the panel',
+    'Busca pantallas del panel de administración por su nombre o su sección, igual que el buscador de la barra (Ctrl K). Úsala cuando haya que decir dónde se hace algo o dar el enlace a una pantalla. Devuelve, para cada coincidencia, el título, la sección (módulos, configuración o cuenta) y la dirección completa. Solo incluye las pantallas que el usuario que pregunta puede abrir.' => 'Searches the administration panel screens by name or section, like the search box in the top bar (Ctrl K). Use it to tell where something is done or to give the link to a screen. For each match it returns the title, the section (modules, settings or account) and the full address. It only includes the screens the user who asks can open.',
+    'El texto que buscar en el título o la sección; no distingue mayúsculas ni tildes.' => 'The text to look for in the title or the section; case and accents are ignored.',
+    'Cuántas coincidencias como mucho; por omisión, 20.' => 'The maximum number of matches; 20 by default.',
+    'El id de una petición JSON-RPC 2.0 tiene que ser texto, un entero o null.' => 'The id of a JSON-RPC 2.0 request must be a string, an integer or null.',
+    'Petición JSON-RPC 2.0 no válida.' => 'Invalid JSON-RPC 2.0 request.',
+    'Método desconocido: ${method}.' => 'Unknown method: ${method}.',
+    'La línea no es JSON válido.' => 'The line is not valid JSON.',
+    'El cuerpo no es JSON válido.' => 'The body is not valid JSON.',
+    'Este servidor no admite lotes: un mensaje por petición.' => 'This server does not accept batches: one message per request.',
+    'Herramienta desconocida: ${name}.' => 'Unknown tool: ${name}.',
+    '(sin nombre)' => '(no name)',
+    'Los argumentos tienen que ser un objeto.' => 'The arguments must be an object.',
+    'Argumento no admitido: «${name}».' => 'Argument not allowed: “${name}”.',
+    'Falta el argumento «${name}».' => 'The argument “${name}” is missing.',
+    '«${name}» tiene que ser de tipo ${type}.' => '“${name}” must be of type ${type}.',
+    '«${name}» tiene que ser uno de: ${values}.' => '“${name}” must be one of: ${values}.',
+    '«${name}» tiene que ser como mínimo ${n}.' => '“${name}” must be at least ${n}.',
+    '«${name}» tiene que ser como máximo ${n}.' => '“${name}” must be at most ${n}.',
+    '«${name}» admite como mucho ${n} caracteres.' => '“${name}” accepts at most ${n} characters.',
+    '«${name}» necesita al menos ${n} caracteres.' => '“${name}” needs at least ${n} characters.',
+];

@@ -208,6 +208,7 @@ petición, y `UsersImportDefinition.php:201-205` se lo pone a los tipos que la r
 | `PiecesPHP/BuiltIn/Banner/` | Banners de inicio (`HOME_IMAGE_BANNER`) |
 | `PiecesPHP/BuiltIn/Helpers/` | Contenidos genéricos (`GenericContentController`, `GenericContentPseudoMapper`) |
 | `PiecesPHP/RoutingUtils/` | `DefaultAccessControlModules` — middleware de control de acceso por módulo |
+| `PiecesPHP/Mcp/` | La ruta del servidor MCP del panel (`POST admin/mcp/`, `mcp-panel-server`; JJX, ADR 0075) y la herramienta `panel_find`. El protocolo, el registro y el servidor están en el núcleo, `src/app/core/psr4/PiecesPHP/Core/Mcp/`. **No está en `GatesTask::AREA_MODULES`**: tocarlo fuerza todas las suites |
 
 ## Módulos de sistema
 
@@ -231,3 +232,15 @@ módulo** (ejemplos: `APIRoutes.php:55-56`, `PublicAreaController.php:472-474`).
 pasa su controlador en `renderer`; la vista previa pinta con `MailDefinition::viewRenderer()` y no construye el controlador del envío
 (consumiría avisos flash o tocaría la sesión). Un envío sin definición hace caer la comprobación 63. La guía para proyectos:
 `source-docs/project/docs/piecesphp/new-features/banco-de-correos.md`.
+
+## Un módulo que ofrece herramientas al asistente (JJX, 2026-11-14)
+
+`McpToolRegistry::register(new McpTool(clave, título, descripción, esquema, rutaDePermiso, fn(UserDataPackage $user, array
+$args): array))` desde su `Routes`, dentro de su `ENABLE` y tras comprobar `McpToolRegistry::get()` (ejemplos:
+`McpRoutes::panelFindTool()`, `NotificationsRoutes::notificationsMineTool()`). **Trampas**: la función filtra por `$user`, nunca
+por un id que llegue en los argumentos; `default` del esquema no se aplica, lo pone la función; el esquema solo admite el
+subconjunto de `McpProtocol::SCHEMA_*` (lo demás lanza al registrar); una herramienta sin permiso responde igual que una
+inexistente; **la ruta de permiso solo repite el ROL**: las comprobaciones extra de su controlador se repiten en la función; **solo lectura** en esta versión (`readOnlyHint`); `PanelSearchSource` lee los menús del usuario de la SESIÓN (desde JJY lanza si se le pasa otro); la comprobación 66 de `verify-integrity` exige ruta existente y esquema válido. **En CLI no hay menú lateral**
+(`get_sidebar_menu()` falla): lo que lea el menú, como `PanelSearchSource`, necesita en una suite el `include` de `menu.php`
+que hace `index.php` (lo hace `UnitTest-McpPanelServer.php`). Sin sesión, la ruta responde 200 con el HTML del acceso (lo que
+hace `require_login` con un POST), no 401. Guía: `source-docs/project/docs/piecesphp/new-features/herramientas-del-asistente.md`.

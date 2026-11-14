@@ -1,3 +1,13 @@
+# 10.23.0 (14-11-2026)
+
+- **Para quien desarrolla: el servidor MCP del panel, base del asistente.** Un módulo ofrece herramientas de solo lectura
+  a un asistente de IA con `McpToolRegistry::register(new McpTool(…))` desde su `Routes`. Cada herramienta exige el
+  permiso de una ruta y solo responde lo que el usuario que pregunta podría ver en el panel. El servidor vive en
+  `admin/mcp/`, con la sesión del panel. Trae dos herramientas: buscar pantallas del panel (lo mismo que Ctrl K) y las
+  notificaciones propias. `bin/cli verify-integrity` comprueba que cada herramienta exige una ruta que existe. El
+  asistente de chat que las usará llega en una versión próxima. Guía «Ofrecer herramientas al asistente».
+- **`bin/mcp`**: sus respuestas a `tools/call` llevan además `structuredContent`, con el mismo dato que el texto.
+
 # 10.22.0 (14-11-2026)
 
 - **jQuery 4.0.0** (antes 3.7.0), con **jQuery Migrate 4.0.2** detrás, que conserva lo que la 4 retiró o marcó en desuso.
