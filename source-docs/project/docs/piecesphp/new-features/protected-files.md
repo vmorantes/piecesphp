@@ -136,7 +136,7 @@ bin/cli statics-protect-migrate --revert   # vuelta atrás
 ### Las subidas no ejecutan PHP
 
 El `.htaccess` que el subsistema escribe en `statics/uploads/` y en la carpeta del Gestor de archivos niega servir y
-ejecutar cualquier archivo PHP (`php`, `php3` a `php9`, `phtml`, `phar` y `phps`, sin distinguir mayúsculas;
+ejecutar cualquier archivo PHP (`php`, `php0` a `php9`, `phtml`, `phtm`, `pht`, `phar` y `phps`, sin distinguir mayúsculas;
 `ProtectedUploads::SERVER_SCRIPT_EXTENSIONS`). Con Apache no hay que hacer nada: el arranque lo pone al día.
 «Salud de la instalación» lo comprueba en su pestaña «Seguridad».
 
@@ -144,7 +144,7 @@ ejecutar cualquier archivo PHP (`php`, `php3` a `php9`, `phtml`, `phar` y `phps`
 ruta a donde esté `src/` en tu servidor):
 
 ```nginx
-location ~* /statics/(uploads|filemanager)/.*\.(php[0-9]?|phtml|phar|phps)$ {
+location ~* /statics/(uploads|filemanager)/.*\.(php[0-9]?|phtml|phtm|pht|phar|phps)$ {
     deny all;
 }
 ```

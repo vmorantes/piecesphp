@@ -58,8 +58,9 @@ class FileManagerController extends AdminPanelController
      * Extensiones que un servidor web puede EJECUTAR: el gestor las rechaza en cualquier posición del nombre.
      * Por nombre y no por tipo: un `shell.php` con cabecera de imagen pasa cualquier filtro de contenido.
      */
+    //Las de PHP, las mismas que niega el .htaccess de las subidas (ProtectedUploads::SERVER_SCRIPT_EXTENSIONS, H284).
     const NOT_ACCEPTED_EXTENSIONS = [
-        'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'phtm', 'phps', 'phar', 'pht',
+        'php', 'php0', 'php1', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'php9', 'phtml', 'phtm', 'phps', 'phar', 'pht',
         'cgi', 'fcgi', 'asp', 'aspx', 'jsp', 'jspx', 'shtml', 'shtm', 'htaccess', 'htpasswd',
     ];
 

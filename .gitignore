@@ -25,6 +25,11 @@ src/statics/core/own-plugins/css/*
 # cada clon. Los demás package-lock del árbol siguen fuera: los de bin/tools/phpstan-src
 # vienen del código de PHPStan y no son nuestros.
 !/package-lock.json
+# Y el del sitio de Starlight (ADR 0076): fija las versiones de Astro y Starlight de la documentación.
+!/source-docs/starlight/package-lock.json
+# Lo que Astro genera: su caché y la salida compilada.
+/source-docs/starlight/.astro/
+/source-docs/starlight/dist/
 **/pnpm-lock*
 **/.sass-cache
 docs/code/phpdoc-cache-*

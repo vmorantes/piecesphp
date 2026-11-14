@@ -4,6 +4,7 @@
 //@areas src/app/classes/API/
 
 use API\Controllers\APIController;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\TaskRunMapper;
@@ -140,6 +141,37 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $check($r8['status'] === CronJobTask::STATUS_EXECUTED && $corrupta->getState()['lastSuccessSlot'] === '2026-09-15 00:00', 'y la tarea corre y reescribe un estado válido');
     } catch (\Throwable $e) {
         $check(false, 'getState() → sin estado', 'EXCEPCIÓN: ' . $e->getMessage());
+    }
+    echoTerminal(' ');
+
+    //──── 4b. Lo que se anota en el registro ─────────────────────────────────────────────────────
+    echoTerminal('[4b/7] Sin estado previo no se anota nada; un estado ilegible, sí (H288)');
+
+    //Solo con la marca de la corrida: lo que se anote se poda con ella y el registro real queda como estaba.
+    $corrida = GenericHandler::testRun();
+    if ($check($corrida !== null, 'hay una corrida de prueba que marque lo que se anote (bin/con-marca o gates)')) {
+        $anotadas = function (string $tarea) use ($corrida): int {
+            $archivo = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/' . GenericHandler::FILE_ENTRIES;
+            $lineas = is_file($archivo) ? (array) file($archivo, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES) : [];
+            $cuantas = 0;
+            foreach ($lineas as $linea) {
+                $entrada = is_string($linea) && str_contains($linea, "zz-prueba cron {$tarea}") ? json_decode($linea, true) : null;
+                if (is_array($entrada) && ($entrada['context']['test'] ?? null) === $corrida) {
+                    $cuantas++;
+                }
+            }
+            return $cuantas;
+        };
+        $nueva = $tarea('sin estado ' . bin2hex(random_bytes(3)), $bien)->dailyAt('23:00');
+        $nombreNueva = substr($nueva->getName(), strlen('zz-prueba cron '));
+        $check(!is_file($nueva->getStatePath()), 'la tarea nueva no tiene estado previo');
+        $nueva->run($en('2026-09-15 08:00'));
+        $check($anotadas($nombreNueva) === 0, 'su primera pasada, sin estado previo: ninguna entrada en el registro', 'entradas ' . $anotadas($nombreNueva));
+        $rota = $tarea('ilegible ' . bin2hex(random_bytes(3)), $bien)->dailyAt('23:00');
+        $nombreRota = substr($rota->getName(), strlen('zz-prueba cron '));
+        $check(file_put_contents($rota->getStatePath(), '{esto no es json') !== false, 'el estado de otra queda roto a propósito');
+        $rota->run($en('2026-09-15 08:00'));
+        $check($anotadas($nombreRota) === 1, 'un estado ilegible sí deja su entrada, con la marca', 'entradas ' . $anotadas($nombreRota));
     }
     echoTerminal(' ');
 

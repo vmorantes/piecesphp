@@ -136,7 +136,10 @@ CliActions::make('unit-tests:core/geo-viewer', function ($args) {
         $html = $pinta(GeoSourceRegistry::visibleFor(UsersModel::TYPE_USER_ROOT));
         $check(substr_count($html, 'data-geo-filter="zz-comun"') === 1, 'b1 un solo campo para la clave que declaran las dos', substr_count($html, 'data-geo-filter="zz-comun"') . ' campos');
         $check(str_contains($html, 'zz-rotulo-primera') && !str_contains($html, 'zz-rotulo-segunda'), 'b2 con el rótulo de la primera en el orden de registro');
-        $check(str_contains($html, 'data-geo-filter="zz-opciones"') && str_contains($html, 'data-geo-filter="zz-fechas"') && substr_count($html, 'calendar-js') === 2, 'b3 los filtros de cada fuente: opciones de una y el rango de fechas, con sus dos calendarios, de la otra');
+        $check(str_contains($html, 'data-geo-filter="zz-opciones"') && str_contains($html, 'data-geo-filter="zz-fechas"') && substr_count($html, 'calendar-js') === 2 && substr_count($html, ' geo-calendar-js ') === 2, 'b3 los filtros de cada fuente: opciones de una y el rango de fechas, con sus dos calendarios, de la otra');
+        //H286: el panel corta lo que sobresale; las fechas, una debajo de otra, y el calendario se pinta en el body.
+        $geoViewerJS = (string) file_get_contents(basepath('app/classes/PiecesPHP/Geo/Statics/js/geo-viewer.js'));
+        $check(!str_contains($html, 'two fields') && str_contains($geoViewerJS, "configSinglesCalendar('geo-calendar-js', { context: 'body' })"), 'b3b las dos fechas apiladas y su calendario fuera del panel (context: body)');
         $check(substr_count($html, '<template data-geo-card=') === 2 && str_contains($html, '<template data-geo-card="zz-geo-a">') && str_contains($html, '<template data-geo-card="zz-geo-b">'), 'b4 una plantilla de tarjeta por fuente', substr_count($html, '<template data-geo-card=') . ' plantillas');
         $check(str_contains($html, 'data-geo-field="jobPosition"') && str_contains($html, 'data-geo-href="url"'), 'b5 la plantilla lleva la vista de su fuente, con sus data-geo-field y su enlace');
         $check(substr_count($html, 'data-geo-source-toggle=') === 2 && str_contains($html, 'Título zz-geo-a') && str_contains($html, 'Título zz-geo-b'), 'b6 la leyenda, con las dos');

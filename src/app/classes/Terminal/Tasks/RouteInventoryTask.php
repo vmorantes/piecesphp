@@ -73,10 +73,38 @@ class RouteInventoryTask extends TerminalTaskAbstract
         $output = TerminalData::instance()->getArgument('output', $repoRoot . '/files/dev/route-inventory.json');
         $output = is_string($output) ? $output : $repoRoot . '/files/dev/route-inventory.json';
 
-        $routes = get_routes();
-        if (!is_array($routes)) {
+        $inventory = self::inventory();
+        if ($inventory === null) {
             echoTerminal("\e[31mERROR:\e[39m el framework no devolvió ningún inventario.");
             exit(1);
+        }
+
+        $json = json_encode($inventory, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        file_put_contents($output, $json . "\n");
+
+        $withUrl = count(array_filter($inventory, fn (array $r) => $r['url'] !== ''));
+        $withParameters = count(array_filter($inventory, fn (array $r) => count($r['parameters']) > 0));
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($inventory) . " rutas registradas.");
+        echoTerminal("\e[94mINFO:\e[39m {$withUrl} con URL resoluble sin parámetros.");
+        echoTerminal("\e[94mINFO:\e[39m {$withParameters} exigen parámetros y NO se resuelven aquí.");
+        echoTerminal("\e[34mEscrito:\e[39m {$output}");
+        echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
+        exit(0);
+    }
+
+    /**
+     * El inventario de rutas del registro vivo (get_routes()), ordenado por nombre: lo vuelca main() a
+     * files/dev/route-inventory.json y lo lee bin/mcp (DevServer). Null si el framework no devolvió registro.
+     *
+     * @param bool $withUrls Si resuelve la dirección de las rutas sin parámetros (en la terminal, sobre localhost)
+     * @return array<int,array{name:string,method:string,pattern:string,requireLogin:bool,rolesAllowed:array<int,mixed>,parameters:array<int,mixed>,url:string}>|null
+     */
+    public static function inventory(bool $withUrls = true): ?array
+    {
+        $routes = get_routes();
+        if (!is_array($routes)) {
+            return null;
         }
 
         $inventory = [];
@@ -93,7 +121,7 @@ class RouteInventoryTask extends TerminalTaskAbstract
 
             //En modo silencioso: una ruta que no resuelva devuelve cadena vacía en vez de lanzar.
             $url = '';
-            if (count($parametersOfRoute) === 0) {
+            if ($withUrls && count($parametersOfRoute) === 0) {
                 $resolved = get_route($name, [], true);
                 $url = is_string($resolved) ? $resolved : '';
             }
@@ -110,19 +138,7 @@ class RouteInventoryTask extends TerminalTaskAbstract
         }
 
         usort($inventory, fn (array $a, array $b) => strcmp($a['name'], $b['name']));
-
-        $json = json_encode($inventory, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
-        file_put_contents($output, $json . "\n");
-
-        $withUrl = count(array_filter($inventory, fn (array $r) => $r['url'] !== ''));
-        $withParameters = count(array_filter($inventory, fn (array $r) => count($r['parameters']) > 0));
-
-        echoTerminal("\e[94mINFO:\e[39m " . count($inventory) . " rutas registradas.");
-        echoTerminal("\e[94mINFO:\e[39m {$withUrl} con URL resoluble sin parámetros.");
-        echoTerminal("\e[94mINFO:\e[39m {$withParameters} exigen parámetros y NO se resuelven aquí.");
-        echoTerminal("\e[34mEscrito:\e[39m {$output}");
-        echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
-        exit(0);
+        return $inventory;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

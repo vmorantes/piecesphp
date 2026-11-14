@@ -300,6 +300,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
     // --- 3. Ejecución desde Consola ---
     // Fuerzo un login de ROOT si se está ejecutando en CLI (Terminal) sin sesión.
+    $terminalSession = false;
     if (!$isActiveSession && get_config('terminalData')->isTerminal()) {
         $rootUser = new UsersModel(1);
         if ($rootUser->id !== null) {
@@ -307,8 +308,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             //sesión y marcado: solo vale en el terminal (UserSessions::tokenIsValid()).
             $JWT = UserSessions::terminalToken((int) $rootUser->id);
             $_SERVER["HTTP_" . mb_strtoupper(SessionToken::tokenName())] = $JWT;
-            // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
-            $isActiveSession = SessionToken::isActiveSession($JWT);
+            //La terminal no es una sesión de un navegador: las marcas de revocación no se le aplican (H289).
+            $terminalSession = true;
+            $isActiveSession = SessionToken::isActiveSession($JWT, null, true);
         }
     }
 
@@ -511,7 +513,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             $rootValidFrom = $user->sessionsValidFrom ?? null;
             $rootTokenCreated = BaseToken::getCreated($JWT);
             if (in_array($user->status, UsersModel::STATUSES_INACTIVE_EQUIVALENT)
-                || (is_string($rootValidFrom) && trim($rootValidFrom) !== '' && !SessionToken::isCreatedAfterMarks(is_int($rootTokenCreated) ? $rootTokenCreated : null, $rootValidFrom))) {
+                || (is_string($rootValidFrom) && trim($rootValidFrom) !== '' && !SessionToken::revocationAllows(is_int($rootTokenCreated) ? $rootTokenCreated : null, $rootValidFrom, $terminalSession))) {
                 $isActiveSession = false;
             }
         }
@@ -566,7 +568,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             if ($isActiveSession && $impersonatedID === null && is_string($sessionsValidFrom) && trim($sessionsValidFrom) !== '') {
                 $tokenCreated = BaseToken::getCreated($JWT);
                 //La regla vive en un solo sitio: sin una fecha entera, o si no nació DESPUÉS de las marcas, se niega.
-                if (!SessionToken::isCreatedAfterMarks(is_int($tokenCreated) ? $tokenCreated : null, $sessionsValidFrom)) {
+                if (!SessionToken::revocationAllows(is_int($tokenCreated) ? $tokenCreated : null, $sessionsValidFrom, $terminalSession)) {
                     $isActiveSession = false;
                 }
             }

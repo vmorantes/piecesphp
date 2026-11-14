@@ -164,6 +164,8 @@ class GeoViewer {
 				},
 			})
 		}
+		//El panel se desplaza por dentro y corta lo que sobresale: el calendario se pinta en el body (H286).
+		configSinglesCalendar('geo-calendar-js', { context: 'body' })
 		for (const input of form.querySelectorAll('[data-geo-filter-type="dateRange"] input')) {
 			input.addEventListener('change', () => this.refresh())
 		}

@@ -16,8 +16,12 @@
 
 //── Del framework: no lo edites ──
 //Errores
-define('LOG_ERRORS_PATH', app_basepath('logs'));
-define('LOG_ERRORS_BACKUP_PATH', app_basepath('logs/olds'));
+if (!defined('LOG_ERRORS_PATH')) { //GenericHandler puede haberla definido antes, con un aviso temprano.
+    define('LOG_ERRORS_PATH', app_basepath('logs'));
+}
+if (!defined('LOG_ERRORS_BACKUP_PATH')) {
+    define('LOG_ERRORS_BACKUP_PATH', app_basepath('logs/olds'));
+}
 
 //Configuraciones
 define('APP_CONFIGURATION_MODULE', true);

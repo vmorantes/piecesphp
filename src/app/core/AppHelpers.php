@@ -3519,6 +3519,10 @@ function getKeyFromSecureKeys(string $name, ?string $fullDirectory = null)
         } else {
             //Se validan en orden las alternativas disponibles
             foreach ($alternativesDirectories as $alternativeDirectory) {
+                //Fuera de open_basedir, realpath() avisa en cada petición: esa alternativa se salta sin tocar el disco.
+                if (!path_within_open_basedir($alternativeDirectory)) {
+                    continue;
+                }
                 try {
                     $alternativeDirectory = realpath($alternativeDirectory);
                     if (file_exists($alternativeDirectory)) {

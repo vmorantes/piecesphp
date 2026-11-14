@@ -675,10 +675,8 @@ class CronJobTask
             'lastError' => null,
         ];
         $path = $this->getStatePath();
+        //Sin estado previo es lo normal hasta su primera franja: anotarlo llenaba el registro en cada pasada (H288).
         if (!is_file($path)) {
-            if ($logProblems) {
-                self::logLine("cron «{$this->name}»: sin estado previo en {$path}; se empieza de cero.");
-            }
             return $empty;
         }
         $raw = file_get_contents($path);

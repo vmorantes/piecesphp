@@ -42,8 +42,9 @@ class ProtectedUploads
     //Lo que el navegador EJECUTA al abrirlo: subido, se sirve con CSP sandbox, y lo que no es imagen, como descarga.
     const ACTIVE_CONTENT_EXTENSIONS = ['svg', 'svgz', 'html', 'htm', 'xhtml', 'xml', 'xsl', 'xslt'];
     const ACTIVE_CONTENT_INLINE_EXTENSIONS = ['svg', 'svgz'];
-    //Lo que el SERVIDOR ejecuta o enseña como código (P319): en uploads no se sirve; «php[0-9]?» cubre php3 a php9.
-    const SERVER_SCRIPT_EXTENSIONS = ['php[0-9]?', 'phtml', 'phar', 'phps'];
+    //Lo que el SERVIDOR ejecuta o enseña como código (P319): en uploads no se sirve; «php[0-9]?» cubre php y php0 a php9.
+    //La lista de PHP es UNA: el Gestor de archivos rechaza las mismas (lo comprueba core/protected-uploads, H284).
+    const SERVER_SCRIPT_EXTENSIONS = ['php[0-9]?', 'phtml', 'phtm', 'pht', 'phar', 'phps'];
     //Por contenido (finfo): un MIME conocido decide la extensión; la primera de cada lista es la canónica.
     const CONTENT_EXTENSIONS = [
         'image/jpeg' => ['jpg', 'jpeg'],

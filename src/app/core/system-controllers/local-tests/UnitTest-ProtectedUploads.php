@@ -103,7 +103,20 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $descarga = implode('|', array_diff(ProtectedUploads::ACTIVE_CONTENT_EXTENSIONS, ProtectedUploads::ACTIVE_CONTENT_INLINE_EXTENSIONS));
     $check(str_contains($contenido, '<IfModule mod_headers.c>') && str_contains($contenido, "<FilesMatch \"(?i)\\.({$activas})$\">\n        Header set Content-Security-Policy \"sandbox\""), 'las activas (SVG, HTML, XML) llevan CSP sandbox', $contenido);
     $check(str_contains($contenido, "<FilesMatch \"(?i)\\.({$descarga})$\">\n        Header set Content-Disposition \"attachment\"") && !str_contains($descarga, 'svg'), 'y las que no son imagen, descarga; el SVG no', $descarga);
-    $check(str_contains($contenido, "<FilesMatch \"(?i)\\.(php[0-9]?|phtml|phar|phps)$\">\n    Require all denied\n</FilesMatch>"), 'y niega servir y ejecutar PHP (php, php3-9, phtml, phar, phps; P319)', $contenido);
+    $check(str_contains($contenido, "<FilesMatch \"(?i)\\.(php[0-9]?|phtml|phtm|pht|phar|phps)$\">\n    Require all denied\n</FilesMatch>"), 'y niega servir y ejecutar PHP (php, php0-9, phtml, phtm, pht, phar, phps; P319, H284)', $contenido);
+    //Lo que niega de verdad ese FilesMatch, con el patrón del propio .htaccess: .pht y .phtm también (H284).
+    $patronPhp = '/^(?:' . implode('|', ProtectedUploads::SERVER_SCRIPT_EXTENSIONS) . ')$/i';
+    $check(preg_match($patronPhp, 'pht') === 1 && preg_match($patronPhp, 'PHTM') === 1 && preg_match($patronPhp, 'php7') === 1 && preg_match($patronPhp, 'jpg') === 0, 'el bloque de PHP niega .pht, .phtm y .php7, y no .jpg');
+    //UNA lista de PHP (H284): toda extensión de PHP del Gestor la niega el .htaccess, y toda la que niega el .htaccess la
+    //rechaza el Gestor. «php[0-9]?» se despliega en php y php0 a php9.
+    $desplegadas = [];
+    foreach (ProtectedUploads::SERVER_SCRIPT_EXTENSIONS as $patron) {
+        $desplegadas = array_merge($desplegadas, str_ends_with($patron, '[0-9]?') ? array_merge([substr($patron, 0, -6)], array_map(fn (int $n): string => substr($patron, 0, -6) . $n, range(0, 9))) : [$patron]);
+    }
+    $gestorPhp = array_values(array_filter(\PiecesPHP\FileManager\Controllers\FileManagerController::NOT_ACCEPTED_EXTENSIONS, fn (string $e): bool => str_starts_with($e, 'ph')));
+    $sinNegar = array_values(array_filter($gestorPhp, fn (string $e): bool => preg_match($patronPhp, $e) !== 1));
+    $sinRechazar = array_values(array_diff($desplegadas, \PiecesPHP\FileManager\Controllers\FileManagerController::NOT_ACCEPTED_EXTENSIONS));
+    $check($sinNegar === [] && $sinRechazar === [], 'la lista de PHP del Gestor y la de las subidas son la misma', 'el .htaccess no niega: ' . implode(', ', $sinNegar) . ' · el Gestor no rechaza: ' . implode(', ', $sinRechazar));
     $check(ProtectedUploads::writeDenyHtaccess($uploads, $sufijo) && (string) @file_get_contents("{$uploads}{$sep}.htaccess") === $contenido, 'otra vez: idempotente');
     $viejo = ProtectedUploads::DENY_HTACCESS_MARK . "\n<FilesMatch \"\\.protected$\">\n    Require all denied\n</FilesMatch>\n";
     $check($escribe("{$uploads}{$sep}.htaccess", $viejo) && ProtectedUploads::writeDenyHtaccess($uploads, $sufijo) && (string) @file_get_contents("{$uploads}{$sep}.htaccess") === $contenido, 'el de una instalación existente (con la marca, sin las cabeceras) se reescribe con el nuevo');

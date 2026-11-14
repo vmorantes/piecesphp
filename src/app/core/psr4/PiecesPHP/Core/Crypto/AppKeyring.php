@@ -98,7 +98,8 @@ final class AppKeyring
     {
         $root = dirname(__DIR__, 7);
         foreach ([$root . '/secure-keys', $root . '/private/secure-keys'] as $candidate) {
-            if (is_dir($candidate)) {
+            //Fuera de open_basedir, is_dir() avisa en cada petición: ese candidato se salta sin tocar el disco.
+            if (path_within_open_basedir($candidate) && is_dir($candidate)) {
                 return $candidate;
             }
         }

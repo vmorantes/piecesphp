@@ -63,12 +63,12 @@ $withSources = count($sources) > 0;
                     </select>
                 </div>
                 <?php else: ?>
-                <div class="two fields" data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_DATE_RANGE; ?>">
-                    <div class="field" calendar-js calendar-type="date">
+                <div data-geo-filter="<?= escape_html($filter->key()); ?>" data-geo-filter-type="<?= GeoFilter::TYPE_DATE_RANGE; ?>">
+                    <div class="field" geo-calendar-js calendar-type="date">
                         <label><?= escape_html($filter->label()); ?> · <?= __($langGroup, 'desde'); ?></label>
                         <input type="text" data-geo-date="from">
                     </div>
-                    <div class="field" calendar-js calendar-type="date">
+                    <div class="field" geo-calendar-js calendar-type="date">
                         <label><?= escape_html($filter->label()); ?> · <?= __($langGroup, 'hasta'); ?></label>
                         <input type="text" data-geo-date="to">
                     </div>

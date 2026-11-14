@@ -1,0 +1,7 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+---
+
+<StarlightPage frontmatter={{ title: 'No encontrada', template: 'splash' }}>
+	<p>Esta página no existe. Vuelve al <a href={import.meta.env.BASE_URL}>inicio de la documentación</a> o usa el buscador.</p>
+</StarlightPage>

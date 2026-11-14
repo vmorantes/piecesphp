@@ -302,11 +302,26 @@ class SessionToken
     }
 
     /**
-     * @param string $token
-     * @param string $key
+     * isCreatedAfterMarks(), salvo para la sesión que la terminal fabrica para root, a la que no se le aplican las marcas:
+     * nace en el mismo segundo que una revocación recién lanzada desde la terminal y caería con ella (H289).
+     *
+     * @param int|null $tokenCreated El `iat` del token.
+     * @param string|null $userSessionsValidFrom La marca del usuario; nula o vacía es «sin revocaciones».
+     * @param bool $terminalSession Si el token lo fabricó la terminal en esta misma petición.
      * @return bool
      */
-    public static function isActiveSession(string $token, ?string $key = null)
+    public static function revocationAllows(?int $tokenCreated, ?string $userSessionsValidFrom, bool $terminalSession): bool
+    {
+        return $terminalSession || self::isCreatedAfterMarks($tokenCreated, $userSessionsValidFrom);
+    }
+
+    /**
+     * @param string $token
+     * @param string $key
+     * @param bool $ignoreMarks Sin la marca global: solo para la sesión que la terminal fabrica para root (H289).
+     * @return bool
+     */
+    public static function isActiveSession(string $token, ?string $key = null, bool $ignoreMarks = false)
     {
         $logged = BaseToken::check($token, $key);
 
@@ -332,6 +347,10 @@ class SessionToken
             //ACTUAL y el token pasaba por recién creado. Sin fecha no hay nada que comparar.
             if (!is_int($dateCreatedToken)) {
                 return false;
+            }
+
+            if ($ignoreMarks) {
+                return true;
             }
 
             $dateCreatedToken = new \DateTime(date('Y-m-d H:i:s', $dateCreatedToken));

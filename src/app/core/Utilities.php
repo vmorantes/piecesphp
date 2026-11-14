@@ -576,6 +576,47 @@ function safe_upload_name(string $name): string
 }
 
 /**
+ * Si open_basedir deja tocar esa ruta, sin tocar el disco: con open_basedir, un is_dir() o un realpath() de fuera da un
+ * E_WARNING en cada petición (HestiaCP solo deja public_html y private). La ruta y cada entrada se normalizan como
+ * texto («.», «..», barras repetidas); una entrada es una carpeta, no un prefijo: «/var/www/a» no deja «/var/www/ab».
+ *
+ * @param string $path
+ * @param string|null $openBasedir null: la de ini_get('open_basedir'); vacía: todo está permitido
+ * @return bool
+ */
+function path_within_open_basedir(string $path, ?string $openBasedir = null): bool
+{
+    $openBasedir = $openBasedir ?? (string) ini_get('open_basedir');
+    if (trim($openBasedir) === '') {
+        return true;
+    }
+    $normalize = function (string $value): string {
+        $value = str_replace('\\', '/', $value);
+        if (!str_starts_with($value, '/') && preg_match('#^[A-Za-z]:/#', $value) !== 1) {
+            $value = str_replace('\\', '/', (string) getcwd()) . '/' . $value;
+        }
+        $parts = [];
+        foreach (explode('/', $value) as $index => $part) {
+            if ($part === '..') {
+                if (count($parts) > 1) {
+                    array_pop($parts);
+                }
+            } elseif ($part !== '.' && ($part !== '' || $index === 0)) {
+                $parts[] = $part;
+            }
+        }
+        return rtrim(implode('/', $parts), '/') . '/';
+    };
+    $path = $normalize($path);
+    foreach (explode(\PATH_SEPARATOR, $openBasedir) as $entry) {
+        if (trim($entry) !== '' && str_starts_with($path, $normalize(trim($entry)))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Verifica si un conjunto de indices está en un array.
  *
  * @param array $keys Array cuyos valores sean los índices que se buscan.

@@ -55,6 +55,7 @@ nav:
         - Características Avanzadas:
             - Avisos del sistema y mantenimiento: piecesphp/new-features/system-status.md
             - Salud de la instalación: piecesphp/new-features/system-health.md
+            - Un MCP para desarrollar: piecesphp/new-features/mcp-para-desarrollar.md
             - Registros: piecesphp/new-features/registros.md
             - El geovisor: piecesphp/new-features/geovisor.md
             - Errores y excepciones: piecesphp/new-features/errores-y-excepciones.md

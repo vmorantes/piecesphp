@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# El servidor MCP de solo lectura para quien desarrolla (ADR 0075): JSON-RPC 2.0 por la entrada y la salida estándar.
+exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/cli" mcp-dev --local "$@"

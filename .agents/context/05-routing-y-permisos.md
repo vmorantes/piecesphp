@@ -464,6 +464,12 @@ Y el helper global `getLoggedFrameworkUser()` devuelve el usuario en sesión
   `ResponseRoute::fastCgiFinishRequestFlush()` para esto: emite las cabeceras del controlador y pierde las que los
   middlewares ponen después (CORS de `src/index.php:880-884`, `#2748`). Lo vigila `core/respond-first` (dA0-dC0: al
   llegar la respuesta, el correo aún no está).
+- **La terminal no cae en las marcas de revocación** (JJD `80888346`, H289, encontrado por ifcol): la sesión que la
+  terminal fabrica para root (`UserSessions::terminalToken()`, rama de `src/index.php` sin token) nace en el mismo segundo
+  en que una orden puede haber escrito la marca global (`sessions-revoke-all`) y caía en ella (`<=`). Solo en esa rama,
+  `SessionToken::isActiveSession($token, $key, true)` ignora las marcas (firma y datos se siguen comprobando) y
+  `SessionToken::revocationAllows()` deja pasar las del usuario. Lo vigila `core/terminal-revocation`. Núcleo: un
+  parámetro opcional; sin él, todo igual.
 
 ## Middleware de módulo
 

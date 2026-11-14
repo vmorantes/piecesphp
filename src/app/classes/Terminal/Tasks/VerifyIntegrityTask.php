@@ -193,6 +193,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         'bin/tools/phpfmt/LICENSE', 'bin/tools/phpfmt/fmt.stub.php',
         //El generador del manual de usuario viaja: cada proyecto escribe sus capítulos (ADR 0072).
         'bin/manual',
+        //El MCP para quien desarrolla viaja: sirve sobre el clon (ADR 0075, punto 5).
+        'bin/mcp',
     ];
 
     /** La carpeta de las claves viaja solo con su protección, y nada más: algo de más puede ser una clave versionada (ADR 0050). */
