@@ -131,11 +131,20 @@ CliActions::make('unit-tests:core/otp-send-limit', function ($args) {
         $datos = json_decode($r['body'], true);
         $check($r['status'] === 200 && is_array($datos) && ($datos['success'] ?? null) === true && ($datos['message'] ?? null) === OTPRateLimiter::uniformOTPMessage(),
             'u7a responde como un envío: 200, success y el mensaje uniforme', "HTTP {$r['status']}");
+        //En modo uniforme lo del usuario corre DESPUÉS de responder (RespondFirst): primero se espera, con tope, a su fila
+        //de login_attempts, que es lo último que escribe; solo entonces «no genera» y «no envía» significan algo.
+        $consulta = $database->prepare("SELECT success, message, extraData FROM `{$tablaIntentos}` WHERE id > ? AND usernameAttempt = ? ORDER BY id DESC LIMIT 1");
+        $limite = microtime(true) + 10;
+        do {
+            $consulta->execute([$marca, $usuario]);
+            $fila = $consulta->fetch(\PDO::FETCH_ASSOC);
+            if (is_array($fila)) {
+                break;
+            }
+            usleep(200000);
+        } while (microtime(true) < $limite);
         $check($huellaCodigos($id) === $huellaAntes, 'u7b DISCRIMINANTE: no genera el código (las filas del código de un uso no cambian)');
         $check($correosA($correo) === $correosAntes, 'u7c no envía (ningún correo nuevo a esa dirección en el registro de correos)', "antes {$correosAntes}, después " . $correosA($correo));
-        $consulta = $database->prepare("SELECT success, message, extraData FROM `{$tablaIntentos}` WHERE id > ? AND usernameAttempt = ? ORDER BY id DESC LIMIT 1");
-        $consulta->execute([$marca, $usuario]);
-        $fila = $consulta->fetch(\PDO::FETCH_ASSOC);
         $extra = is_array($fila) && is_string($fila['extraData'] ?? null) ? json_decode($fila['extraData'], true) : null;
         $check(is_array($fila) && (int) $fila['success'] === LoginAttemptsModel::FAIL_ATTEMPT && $fila['message'] === __(UserSystemFeaturesController::LANG_GROUP, 'Límite de envíos del código alcanzado.') && is_array($extra) && ($extra[OTPRateLimiter::EXTRA_DATA_VIA] ?? null) === OTPRateLimiter::VIA_GENERATE_OTP,
             'u7d deja una fila de fallo de generate-otp con ese mensaje', is_array($fila) ? 'success ' . $fila['success'] . ', «' . $fila['message'] . '»' : 'sin fila');
@@ -144,6 +153,15 @@ CliActions::make('unit-tests:core/otp-send-limit', function ($args) {
         //──── [n] Indistinguible de un usuario que no existe ───────────────────────────────
         echoTerminal('[n] La misma respuesta que la de un usuario que no existe');
         $n = $pedir($inexistente);
+        //Su fila de login_attempts también se escribe después de responder: se espera para que la limpieza la encuentre.
+        $limite = microtime(true) + 10;
+        do {
+            $consulta->execute([$marca, $inexistente]);
+            if (is_array($consulta->fetch(\PDO::FETCH_ASSOC))) {
+                break;
+            }
+            usleep(200000);
+        } while (microtime(true) < $limite);
         $limitado = $sinNombre($r['body'], $usuario);
         $noExiste = $sinNombre($n['body'], $inexistente);
         $check($n['status'] === $r['status'] && $limitado !== null && $limitado === $noExiste,

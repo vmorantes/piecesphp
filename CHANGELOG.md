@@ -1,3 +1,13 @@
+# 10.15.0 (12-11-2026)
+
+- **La campana ya no queda tapada por su número.** El contador de notificaciones sin leer queda arriba a la derecha del icono, con un aro del color de la barra, y a partir de 100 dice «99+» (quien usa un lector de pantalla sigue oyendo la cifra real). Si tu proyecto pinta su propio contador de notificaciones, `Notifications::badgeText()` da el texto con esa regla.
+- **El tema del panel, 0.12.0** (antes 0.11.0; `bin/traer-tema`): además del contador, las muestras de color (`swatch`) tienen un radio de 6 px y un borde fino, el icono de un campo invertido toma el tono de su texto de ayuda, un mensaje con botón de cerrar deja sitio a su texto, los pasos con icono van en columna en el móvil, y los indicadores de carga se ven sobre fondo oscuro.
+- **Seguridad**: las pantallas que envían un código por correo (la recuperación de la contraseña, el código de acceso de un uso y la ayuda para entrar) responden siempre igual y en el mismo tiempo, exista o no la cuenta y aunque el envío del correo falle; el correo sale justo después de responder (con PHP-FPM). Los estáticos de los módulos ya no sirven su código de estilos.
+- **Si tu proyecto prueba esas pantallas por HTTP**, el código y el correo llegan un instante después de la respuesta: espera a que estén antes de comprobarlos.
+- **Los avisos del panel pintan HTML**: si tu módulo devuelve en un error algo que escribió el usuario, escápalo (guía «El panel por dentro»).
+- **Arreglado**: una tarea de la terminal cuya salida se corta (por ejemplo, con `| head`) ya no anota un error grave.
+- **Para quien mantiene el framework**: la limpieza de los intentos de acceso de prueba alcanza también a los usuarios sembrados y a los nombres que no existen, y `bin/cli walk-login-attempts count=yes after-id=<n>` dice qué borraría sin borrar nada.
+
 # 10.14.1 (12-11-2026)
 
 - **Arreglado: el Gestor de archivos volvía a salir vacío, y el alta y la edición de documentos no cargaban su selector de archivo.** Ocurría desde la 10.12.0, por cómo la campana de notificaciones de la barra pintaba su lista: a mitad de la página dejaba que se borrara el JavaScript que la pantalla había pedido antes de la cabecera. La 10.11.0 no lo tiene. Una prueba nueva comprueba que esas pantallas traen sus scripts.

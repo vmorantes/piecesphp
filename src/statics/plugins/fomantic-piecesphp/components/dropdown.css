@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Dropdown
+ * # Fomantic-UI 0.12.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -545,27 +545,27 @@ select.ui.dropdown {
 /* Active */
 .ui.selection.simple.dropdown:hover,
 .ui.selection.active.dropdown {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .ui.selection.simple.dropdown:hover .menu,
 .ui.selection.active.dropdown .menu {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   box-shadow: var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 
 /* Focus */
 .ui.selection.dropdown:focus {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .ui.selection.dropdown:focus .menu {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   box-shadow: var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 @supports selector(:has(.f)) {
   .ui.ui.selection.dropdown:not(.inverted):has(> input:focus) {
-    border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+    border-color: var(--accent-1, var(--accent, #356dca));
     box-shadow: none;
   }
   .ui.ui.selection.dropdown:not(.inverted):has(> input:focus) > i.icon {
@@ -584,11 +584,11 @@ select.ui.dropdown {
 
 /* Visible Hover */
 .ui.selection.active.dropdown:hover {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .ui.selection.active.dropdown:hover .menu {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   box-shadow: var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 
@@ -1683,7 +1683,7 @@ select.ui.dropdown {
   }
 }
 .ui.selection.pointing.dropdown > .menu::after {
-  box-shadow: -1px -1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  box-shadow: -1px -1px 0 0 var(--accent-1, var(--accent, #356dca));
 }
 .ui.pointing.dropdown > .menu:not(.hidden)::after {
   top: -0.25em;
@@ -1830,7 +1830,7 @@ select.ui.dropdown {
   margin: -0.25em 0 0;
 }
 .ui.selection.pointing.upward.dropdown .menu::after {
-  box-shadow: 1px 1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  box-shadow: 1px 1px 0 0 var(--accent-1, var(--accent, #356dca));
 }
 
 /* Right Pointing Upward */
@@ -2285,7 +2285,7 @@ select.ui.dropdown {
    contorno de teclado va en el campo, no en el input interior */
 @supports selector(:has(.f)) {
   .ui.ui.selection.dropdown:not(.inverted):not(.error):has(> input:focus) {
-    border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+    border-color: var(--accent-1, var(--accent, #356dca));
     box-shadow: 0 0 0 3px var(--accent-ring);
   }
   .ui.search.dropdown:has(> input.search:focus-visible) {
@@ -2386,7 +2386,7 @@ select.ui.dropdown:hover {
   border-color: light-dark(#cfd5de, #3a4150);
 }
 select.ui.dropdown:focus {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   box-shadow: 0 0 0 3px var(--accent-ring);
   outline: none;
 }

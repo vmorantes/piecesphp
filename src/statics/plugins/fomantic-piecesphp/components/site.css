@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Site
+ * # Fomantic-UI 0.12.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -114,11 +114,11 @@ p:last-child {
         Links
 -------------------- */
 a {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 a:hover {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 
@@ -329,7 +329,7 @@ select[size]:not([size="1"]) optgroup {
    oscura: el inverted de algunos temas es un gris medio (el cristal de glass-ios, 3,5:1 con 0,78). */
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
-  color: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.86) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
 }
 
 /* `small` en rem: anidado o dentro de un texto pequeño bajaba hasta 9–10px */
@@ -377,7 +377,8 @@ mark {
   --ink-light-max: 0.34;
   --ink-dark-min: 0.86;
   
-/* Rellenos de marca (D95, decisión de PiecesPHP: leer manda sobre la fidelidad al color): el acento que elija el
+/* Rellenos de marca (D95, decisión de PiecesPHP: leer manda sobre la fidelidad al color). Solo para rellenos
+       (--accent-solid y las reglas por componente de abajo), no en @accentN: el acento sigue siendo indicador y texto. El acento que elija el
        sitio, con luminosidad OKLCH ≤ 0,42 y croma ≤ 0,13 (sin el tope de croma, un verde saturado cae fuera de sRGB y el recorte lo aclara a 6,5:1), da al menos 7:1 con texto blanco: medido de 7,35 (#00c2a8) a 8,99 (#ff0000) con acentos claros y saturados.
        Un acento ya más oscuro no cambia. Tono y croma se conservan */
   --accent-1-fill: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
@@ -398,7 +399,8 @@ mark {
     --ink-light-max: 0.34;
     --ink-dark-min: 0.86;
     
-/* Rellenos de marca (D95, decisión de PiecesPHP: leer manda sobre la fidelidad al color): el acento que elija el
+/* Rellenos de marca (D95, decisión de PiecesPHP: leer manda sobre la fidelidad al color). Solo para rellenos
+       (--accent-solid y las reglas por componente de abajo), no en @accentN: el acento sigue siendo indicador y texto. El acento que elija el
        sitio, con luminosidad OKLCH ≤ 0,42 y croma ≤ 0,13 (sin el tope de croma, un verde saturado cae fuera de sRGB y el recorte lo aclara a 6,5:1), da al menos 7:1 con texto blanco: medido de 7,35 (#00c2a8) a 8,99 (#ff0000) con acentos claros y saturados.
        Un acento ya más oscuro no cambia. Tono y croma se conservan */
     --accent-1-fill: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
@@ -482,6 +484,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.red,
 :root[data-contrast="more"] .ui.inverted.table tr > .red,
 :root[data-contrast="more"] .ui.inverted.table thead.red th,
+:root[data-contrast="more"] .ui.inverted.red.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .red.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.red.menu .active.item,
+:root[data-contrast="more"] .ui.red.popup:not(.inverted),
+:root[data-contrast="more"] .ui.red.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.red.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.red.toast,
+:root[data-contrast="more"] .ui.grid > .red.column,
+:root[data-contrast="more"] .ui.grid > .red.row,
+:root[data-contrast="more"] .ui.grid > .row > .red.column,
+:root[data-contrast="more"] .ui.red.nag,
 :root[data-contrast="more"] .ui.inverted.red.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.red.card,
 :root[data-contrast="more"] .ui.inverted.red.cards > .card {
@@ -502,6 +515,25 @@ mark {
   border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.red.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.red.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.red.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.red.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.red.popup,
+:root[data-contrast="more"] .ui.inverted.red.popup::before,
+:root[data-contrast="more"] .ui.basic.red.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.red.cards > .card:not(.inverted) {
+  background-color: oklch(from #f04438 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.red.label:not(.basic)::before {
+  background-color: oklch(from #f04438 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.red.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.red.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -509,6 +541,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.red.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.red.menu .item.item.item,
+:root[data-contrast="more"] .ui.red.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.red.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.red.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.red.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.red.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -525,6 +561,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.orange,
 :root[data-contrast="more"] .ui.inverted.table tr > .orange,
 :root[data-contrast="more"] .ui.inverted.table thead.orange th,
+:root[data-contrast="more"] .ui.inverted.orange.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .orange.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.orange.menu .active.item,
+:root[data-contrast="more"] .ui.orange.popup:not(.inverted),
+:root[data-contrast="more"] .ui.orange.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.orange.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.orange.toast,
+:root[data-contrast="more"] .ui.grid > .orange.column,
+:root[data-contrast="more"] .ui.grid > .orange.row,
+:root[data-contrast="more"] .ui.grid > .row > .orange.column,
+:root[data-contrast="more"] .ui.orange.nag,
 :root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.orange.card,
 :root[data-contrast="more"] .ui.inverted.orange.cards > .card {
@@ -545,6 +592,25 @@ mark {
   border-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.orange.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.orange.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.orange.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.orange.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.orange.popup,
+:root[data-contrast="more"] .ui.inverted.orange.popup::before,
+:root[data-contrast="more"] .ui.basic.orange.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.orange.cards > .card:not(.inverted) {
+  background-color: oklch(from #ef6820 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.orange.label:not(.basic)::before {
+  background-color: oklch(from #ef6820 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.orange.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.orange.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -552,6 +618,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.orange.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.orange.menu .item.item.item,
+:root[data-contrast="more"] .ui.orange.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.orange.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.orange.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.orange.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -568,6 +638,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.yellow,
 :root[data-contrast="more"] .ui.inverted.table tr > .yellow,
 :root[data-contrast="more"] .ui.inverted.table thead.yellow th,
+:root[data-contrast="more"] .ui.inverted.yellow.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .yellow.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.yellow.menu .active.item,
+:root[data-contrast="more"] .ui.yellow.popup:not(.inverted),
+:root[data-contrast="more"] .ui.yellow.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.yellow.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.yellow.toast,
+:root[data-contrast="more"] .ui.grid > .yellow.column,
+:root[data-contrast="more"] .ui.grid > .yellow.row,
+:root[data-contrast="more"] .ui.grid > .row > .yellow.column,
+:root[data-contrast="more"] .ui.yellow.nag,
 :root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.yellow.card,
 :root[data-contrast="more"] .ui.inverted.yellow.cards > .card {
@@ -588,6 +669,25 @@ mark {
   border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.yellow.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.yellow.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.yellow.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.yellow.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.yellow.popup,
+:root[data-contrast="more"] .ui.inverted.yellow.popup::before,
+:root[data-contrast="more"] .ui.basic.yellow.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.yellow.cards > .card:not(.inverted) {
+  background-color: oklch(from #f79009 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.yellow.label:not(.basic)::before {
+  background-color: oklch(from #f79009 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.yellow.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.yellow.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -595,6 +695,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.yellow.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.yellow.menu .item.item.item,
+:root[data-contrast="more"] .ui.yellow.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.yellow.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.yellow.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.yellow.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -611,6 +715,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.olive,
 :root[data-contrast="more"] .ui.inverted.table tr > .olive,
 :root[data-contrast="more"] .ui.inverted.table thead.olive th,
+:root[data-contrast="more"] .ui.inverted.olive.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .olive.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.olive.menu .active.item,
+:root[data-contrast="more"] .ui.olive.popup:not(.inverted),
+:root[data-contrast="more"] .ui.olive.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.olive.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.olive.toast,
+:root[data-contrast="more"] .ui.grid > .olive.column,
+:root[data-contrast="more"] .ui.grid > .olive.row,
+:root[data-contrast="more"] .ui.grid > .row > .olive.column,
+:root[data-contrast="more"] .ui.olive.nag,
 :root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.olive.card,
 :root[data-contrast="more"] .ui.inverted.olive.cards > .card {
@@ -631,6 +746,25 @@ mark {
   border-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.olive.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.olive.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.olive.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.olive.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.olive.popup,
+:root[data-contrast="more"] .ui.inverted.olive.popup::before,
+:root[data-contrast="more"] .ui.basic.olive.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.olive.cards > .card:not(.inverted) {
+  background-color: oklch(from #84a11b max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.olive.label:not(.basic)::before {
+  background-color: oklch(from #84a11b max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.olive.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.olive.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -638,6 +772,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.olive.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.olive.menu .item.item.item,
+:root[data-contrast="more"] .ui.olive.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.olive.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.olive.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.olive.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -654,6 +792,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.green,
 :root[data-contrast="more"] .ui.inverted.table tr > .green,
 :root[data-contrast="more"] .ui.inverted.table thead.green th,
+:root[data-contrast="more"] .ui.inverted.green.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .green.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.green.menu .active.item,
+:root[data-contrast="more"] .ui.green.popup:not(.inverted),
+:root[data-contrast="more"] .ui.green.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.green.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.green.toast,
+:root[data-contrast="more"] .ui.grid > .green.column,
+:root[data-contrast="more"] .ui.grid > .green.row,
+:root[data-contrast="more"] .ui.grid > .row > .green.column,
+:root[data-contrast="more"] .ui.green.nag,
 :root[data-contrast="more"] .ui.inverted.green.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.green.card,
 :root[data-contrast="more"] .ui.inverted.green.cards > .card {
@@ -674,6 +823,25 @@ mark {
   border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.green.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.green.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.green.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.green.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.green.popup,
+:root[data-contrast="more"] .ui.inverted.green.popup::before,
+:root[data-contrast="more"] .ui.basic.green.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.green.cards > .card:not(.inverted) {
+  background-color: oklch(from #17b26a max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.green.label:not(.basic)::before {
+  background-color: oklch(from #17b26a max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.green.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.green.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -681,6 +849,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.green.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.green.menu .item.item.item,
+:root[data-contrast="more"] .ui.green.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.green.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.green.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.green.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.green.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -697,6 +869,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.teal,
 :root[data-contrast="more"] .ui.inverted.table tr > .teal,
 :root[data-contrast="more"] .ui.inverted.table thead.teal th,
+:root[data-contrast="more"] .ui.inverted.teal.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .teal.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.teal.menu .active.item,
+:root[data-contrast="more"] .ui.teal.popup:not(.inverted),
+:root[data-contrast="more"] .ui.teal.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.teal.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.teal.toast,
+:root[data-contrast="more"] .ui.grid > .teal.column,
+:root[data-contrast="more"] .ui.grid > .teal.row,
+:root[data-contrast="more"] .ui.grid > .row > .teal.column,
+:root[data-contrast="more"] .ui.teal.nag,
 :root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.teal.card,
 :root[data-contrast="more"] .ui.inverted.teal.cards > .card {
@@ -717,6 +900,25 @@ mark {
   border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.teal.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.teal.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.teal.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.teal.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.teal.popup,
+:root[data-contrast="more"] .ui.inverted.teal.popup::before,
+:root[data-contrast="more"] .ui.basic.teal.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.teal.cards > .card:not(.inverted) {
+  background-color: oklch(from #06aed4 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.teal.label:not(.basic)::before {
+  background-color: oklch(from #06aed4 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.teal.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.teal.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -724,6 +926,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.teal.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.teal.menu .item.item.item,
+:root[data-contrast="more"] .ui.teal.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.teal.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.teal.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.teal.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -740,6 +946,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.blue,
 :root[data-contrast="more"] .ui.inverted.table tr > .blue,
 :root[data-contrast="more"] .ui.inverted.table thead.blue th,
+:root[data-contrast="more"] .ui.inverted.blue.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .blue.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.blue.menu .active.item,
+:root[data-contrast="more"] .ui.blue.popup:not(.inverted),
+:root[data-contrast="more"] .ui.blue.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.blue.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.blue.toast,
+:root[data-contrast="more"] .ui.grid > .blue.column,
+:root[data-contrast="more"] .ui.grid > .blue.row,
+:root[data-contrast="more"] .ui.grid > .row > .blue.column,
+:root[data-contrast="more"] .ui.blue.nag,
 :root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.blue.card,
 :root[data-contrast="more"] .ui.inverted.blue.cards > .card {
@@ -760,6 +977,25 @@ mark {
   border-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.blue.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.blue.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.blue.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.blue.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.blue.popup,
+:root[data-contrast="more"] .ui.inverted.blue.popup::before,
+:root[data-contrast="more"] .ui.basic.blue.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.blue.cards > .card:not(.inverted) {
+  background-color: oklch(from #2e90fa max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.blue.label:not(.basic)::before {
+  background-color: oklch(from #2e90fa max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.blue.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.blue.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -767,6 +1003,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.blue.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.blue.menu .item.item.item,
+:root[data-contrast="more"] .ui.blue.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.blue.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.blue.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.blue.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -783,6 +1023,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.violet,
 :root[data-contrast="more"] .ui.inverted.table tr > .violet,
 :root[data-contrast="more"] .ui.inverted.table thead.violet th,
+:root[data-contrast="more"] .ui.inverted.violet.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .violet.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.violet.menu .active.item,
+:root[data-contrast="more"] .ui.violet.popup:not(.inverted),
+:root[data-contrast="more"] .ui.violet.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.violet.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.violet.toast,
+:root[data-contrast="more"] .ui.grid > .violet.column,
+:root[data-contrast="more"] .ui.grid > .violet.row,
+:root[data-contrast="more"] .ui.grid > .row > .violet.column,
+:root[data-contrast="more"] .ui.violet.nag,
 :root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.violet.card,
 :root[data-contrast="more"] .ui.inverted.violet.cards > .card {
@@ -803,6 +1054,25 @@ mark {
   border-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.violet.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.violet.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.violet.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.violet.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.violet.popup,
+:root[data-contrast="more"] .ui.inverted.violet.popup::before,
+:root[data-contrast="more"] .ui.basic.violet.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.violet.cards > .card:not(.inverted) {
+  background-color: oklch(from #7a5af8 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.violet.label:not(.basic)::before {
+  background-color: oklch(from #7a5af8 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.violet.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.violet.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -810,6 +1080,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.violet.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.violet.menu .item.item.item,
+:root[data-contrast="more"] .ui.violet.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.violet.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.violet.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.violet.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -826,6 +1100,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.purple,
 :root[data-contrast="more"] .ui.inverted.table tr > .purple,
 :root[data-contrast="more"] .ui.inverted.table thead.purple th,
+:root[data-contrast="more"] .ui.inverted.purple.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .purple.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.purple.menu .active.item,
+:root[data-contrast="more"] .ui.purple.popup:not(.inverted),
+:root[data-contrast="more"] .ui.purple.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.purple.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.purple.toast,
+:root[data-contrast="more"] .ui.grid > .purple.column,
+:root[data-contrast="more"] .ui.grid > .purple.row,
+:root[data-contrast="more"] .ui.grid > .row > .purple.column,
+:root[data-contrast="more"] .ui.purple.nag,
 :root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.purple.card,
 :root[data-contrast="more"] .ui.inverted.purple.cards > .card {
@@ -846,6 +1131,25 @@ mark {
   border-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.purple.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.purple.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.purple.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.purple.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.purple.popup,
+:root[data-contrast="more"] .ui.inverted.purple.popup::before,
+:root[data-contrast="more"] .ui.basic.purple.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.purple.cards > .card:not(.inverted) {
+  background-color: oklch(from #9e4cc9 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.purple.label:not(.basic)::before {
+  background-color: oklch(from #9e4cc9 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.purple.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.purple.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -853,6 +1157,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.purple.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.purple.menu .item.item.item,
+:root[data-contrast="more"] .ui.purple.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.purple.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.purple.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.purple.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -869,6 +1177,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.pink,
 :root[data-contrast="more"] .ui.inverted.table tr > .pink,
 :root[data-contrast="more"] .ui.inverted.table thead.pink th,
+:root[data-contrast="more"] .ui.inverted.pink.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .pink.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.pink.menu .active.item,
+:root[data-contrast="more"] .ui.pink.popup:not(.inverted),
+:root[data-contrast="more"] .ui.pink.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.pink.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.pink.toast,
+:root[data-contrast="more"] .ui.grid > .pink.column,
+:root[data-contrast="more"] .ui.grid > .pink.row,
+:root[data-contrast="more"] .ui.grid > .row > .pink.column,
+:root[data-contrast="more"] .ui.pink.nag,
 :root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.pink.card,
 :root[data-contrast="more"] .ui.inverted.pink.cards > .card {
@@ -889,6 +1208,25 @@ mark {
   border-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.pink.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.pink.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.pink.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.pink.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.pink.popup,
+:root[data-contrast="more"] .ui.inverted.pink.popup::before,
+:root[data-contrast="more"] .ui.basic.pink.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.pink.cards > .card:not(.inverted) {
+  background-color: oklch(from #c11574 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.pink.label:not(.basic)::before {
+  background-color: oklch(from #c11574 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.pink.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.pink.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -896,6 +1234,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.pink.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.pink.menu .item.item.item,
+:root[data-contrast="more"] .ui.pink.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.pink.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.pink.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.pink.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -912,6 +1254,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.brown,
 :root[data-contrast="more"] .ui.inverted.table tr > .brown,
 :root[data-contrast="more"] .ui.inverted.table thead.brown th,
+:root[data-contrast="more"] .ui.inverted.brown.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .brown.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.brown.menu .active.item,
+:root[data-contrast="more"] .ui.brown.popup:not(.inverted),
+:root[data-contrast="more"] .ui.brown.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.brown.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.brown.toast,
+:root[data-contrast="more"] .ui.grid > .brown.column,
+:root[data-contrast="more"] .ui.grid > .brown.row,
+:root[data-contrast="more"] .ui.grid > .row > .brown.column,
+:root[data-contrast="more"] .ui.brown.nag,
 :root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.brown.card,
 :root[data-contrast="more"] .ui.inverted.brown.cards > .card {
@@ -932,6 +1285,25 @@ mark {
   border-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.brown.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.brown.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.brown.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.brown.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.brown.popup,
+:root[data-contrast="more"] .ui.inverted.brown.popup::before,
+:root[data-contrast="more"] .ui.basic.brown.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.brown.cards > .card:not(.inverted) {
+  background-color: oklch(from #6e4a2e max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.brown.label:not(.basic)::before {
+  background-color: oklch(from #6e4a2e max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.brown.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.brown.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -939,6 +1311,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.brown.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.brown.menu .item.item.item,
+:root[data-contrast="more"] .ui.brown.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.brown.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.brown.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.brown.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -955,6 +1331,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.grey,
 :root[data-contrast="more"] .ui.inverted.table tr > .grey,
 :root[data-contrast="more"] .ui.inverted.table thead.grey th,
+:root[data-contrast="more"] .ui.inverted.grey.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .grey.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.grey.menu .active.item,
+:root[data-contrast="more"] .ui.grey.popup:not(.inverted),
+:root[data-contrast="more"] .ui.grey.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.grey.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.grey.toast,
+:root[data-contrast="more"] .ui.grid > .grey.column,
+:root[data-contrast="more"] .ui.grid > .grey.row,
+:root[data-contrast="more"] .ui.grid > .row > .grey.column,
+:root[data-contrast="more"] .ui.grey.nag,
 :root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.grey.card,
 :root[data-contrast="more"] .ui.inverted.grey.cards > .card {
@@ -975,6 +1362,25 @@ mark {
   border-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.grey.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.grey.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.grey.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.grey.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.grey.popup,
+:root[data-contrast="more"] .ui.inverted.grey.popup::before,
+:root[data-contrast="more"] .ui.basic.grey.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.grey.cards > .card:not(.inverted) {
+  background-color: oklch(from #687181 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.grey.label:not(.basic)::before {
+  background-color: oklch(from #687181 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.grey.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.grey.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -982,6 +1388,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.grey.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.grey.menu .item.item.item,
+:root[data-contrast="more"] .ui.grey.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.grey.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.grey.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.grey.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -998,6 +1408,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.black,
 :root[data-contrast="more"] .ui.inverted.table tr > .black,
 :root[data-contrast="more"] .ui.inverted.table thead.black th,
+:root[data-contrast="more"] .ui.inverted.black.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .black.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.black.menu .active.item,
+:root[data-contrast="more"] .ui.black.popup:not(.inverted),
+:root[data-contrast="more"] .ui.black.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.black.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.black.toast,
+:root[data-contrast="more"] .ui.grid > .black.column,
+:root[data-contrast="more"] .ui.grid > .black.row,
+:root[data-contrast="more"] .ui.grid > .row > .black.column,
+:root[data-contrast="more"] .ui.black.nag,
 :root[data-contrast="more"] .ui.inverted.black.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.black.card,
 :root[data-contrast="more"] .ui.inverted.black.cards > .card {
@@ -1018,6 +1439,25 @@ mark {
   border-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.black.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.black.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.black.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.black.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.black.popup,
+:root[data-contrast="more"] .ui.inverted.black.popup::before,
+:root[data-contrast="more"] .ui.basic.black.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.black.cards > .card:not(.inverted) {
+  background-color: oklch(from #1f2430 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.black.label:not(.basic)::before {
+  background-color: oklch(from #1f2430 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.black.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.black.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -1025,6 +1465,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.black.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.black.menu .item.item.item,
+:root[data-contrast="more"] .ui.black.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.black.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.black.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.black.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.black.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -1043,6 +1487,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.positive,
 :root[data-contrast="more"] .ui.inverted.table tr > .positive,
 :root[data-contrast="more"] .ui.inverted.table thead.positive th,
+:root[data-contrast="more"] .ui.inverted.positive.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .positive.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.positive.menu .active.item,
+:root[data-contrast="more"] .ui.positive.popup:not(.inverted),
+:root[data-contrast="more"] .ui.positive.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.positive.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.positive.toast,
+:root[data-contrast="more"] .ui.grid > .positive.column,
+:root[data-contrast="more"] .ui.grid > .positive.row,
+:root[data-contrast="more"] .ui.grid > .row > .positive.column,
+:root[data-contrast="more"] .ui.positive.nag,
 :root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.positive.card,
 :root[data-contrast="more"] .ui.inverted.positive.cards > .card {
@@ -1063,6 +1518,25 @@ mark {
   border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.positive.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.positive.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.positive.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.positive.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.positive.popup,
+:root[data-contrast="more"] .ui.inverted.positive.popup::before,
+:root[data-contrast="more"] .ui.basic.positive.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.positive.cards > .card:not(.inverted) {
+  background-color: oklch(from #17b26a max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.positive.label:not(.basic)::before {
+  background-color: oklch(from #17b26a max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.positive.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.positive.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -1070,6 +1544,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.positive.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.positive.menu .item.item.item,
+:root[data-contrast="more"] .ui.positive.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.positive.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.positive.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.positive.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -1086,6 +1564,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.negative,
 :root[data-contrast="more"] .ui.inverted.table tr > .negative,
 :root[data-contrast="more"] .ui.inverted.table thead.negative th,
+:root[data-contrast="more"] .ui.inverted.negative.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .negative.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.negative.menu .active.item,
+:root[data-contrast="more"] .ui.negative.popup:not(.inverted),
+:root[data-contrast="more"] .ui.negative.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.negative.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.negative.toast,
+:root[data-contrast="more"] .ui.grid > .negative.column,
+:root[data-contrast="more"] .ui.grid > .negative.row,
+:root[data-contrast="more"] .ui.grid > .row > .negative.column,
+:root[data-contrast="more"] .ui.negative.nag,
 :root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.negative.card,
 :root[data-contrast="more"] .ui.inverted.negative.cards > .card {
@@ -1106,6 +1595,25 @@ mark {
   border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.negative.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.negative.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.negative.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.negative.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.negative.popup,
+:root[data-contrast="more"] .ui.inverted.negative.popup::before,
+:root[data-contrast="more"] .ui.basic.negative.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.negative.cards > .card:not(.inverted) {
+  background-color: oklch(from #f04438 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.negative.label:not(.basic)::before {
+  background-color: oklch(from #f04438 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.negative.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.negative.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -1113,6 +1621,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.negative.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.negative.menu .item.item.item,
+:root[data-contrast="more"] .ui.negative.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.negative.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.negative.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.negative.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -1129,6 +1641,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.success,
 :root[data-contrast="more"] .ui.inverted.table tr > .success,
 :root[data-contrast="more"] .ui.inverted.table thead.success th,
+:root[data-contrast="more"] .ui.inverted.success.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .success.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.success.menu .active.item,
+:root[data-contrast="more"] .ui.success.popup:not(.inverted),
+:root[data-contrast="more"] .ui.success.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.success.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.success.toast,
+:root[data-contrast="more"] .ui.grid > .success.column,
+:root[data-contrast="more"] .ui.grid > .success.row,
+:root[data-contrast="more"] .ui.grid > .row > .success.column,
+:root[data-contrast="more"] .ui.success.nag,
 :root[data-contrast="more"] .ui.inverted.success.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.success.card,
 :root[data-contrast="more"] .ui.inverted.success.cards > .card {
@@ -1149,6 +1672,25 @@ mark {
   border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.success.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.success.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.success.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.success.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.success.popup,
+:root[data-contrast="more"] .ui.inverted.success.popup::before,
+:root[data-contrast="more"] .ui.basic.success.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.success.cards > .card:not(.inverted) {
+  background-color: oklch(from #17b26a max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.success.label:not(.basic)::before {
+  background-color: oklch(from #17b26a max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.success.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.success.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -1156,6 +1698,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.success.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.success.menu .item.item.item,
+:root[data-contrast="more"] .ui.success.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.success.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.success.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.success.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.success.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -1172,6 +1718,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.error,
 :root[data-contrast="more"] .ui.inverted.table tr > .error,
 :root[data-contrast="more"] .ui.inverted.table thead.error th,
+:root[data-contrast="more"] .ui.inverted.error.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .error.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.error.menu .active.item,
+:root[data-contrast="more"] .ui.error.popup:not(.inverted),
+:root[data-contrast="more"] .ui.error.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.error.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.error.toast,
+:root[data-contrast="more"] .ui.grid > .error.column,
+:root[data-contrast="more"] .ui.grid > .error.row,
+:root[data-contrast="more"] .ui.grid > .row > .error.column,
+:root[data-contrast="more"] .ui.error.nag,
 :root[data-contrast="more"] .ui.inverted.error.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.error.card,
 :root[data-contrast="more"] .ui.inverted.error.cards > .card {
@@ -1192,6 +1749,25 @@ mark {
   border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.error.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.error.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.error.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.error.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.error.popup,
+:root[data-contrast="more"] .ui.inverted.error.popup::before,
+:root[data-contrast="more"] .ui.basic.error.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.error.cards > .card:not(.inverted) {
+  background-color: oklch(from #f04438 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.error.label:not(.basic)::before {
+  background-color: oklch(from #f04438 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.error.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.error.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -1199,6 +1775,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.error.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.error.menu .item.item.item,
+:root[data-contrast="more"] .ui.error.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.error.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.error.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.error.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.error.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -1215,6 +1795,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.warning,
 :root[data-contrast="more"] .ui.inverted.table tr > .warning,
 :root[data-contrast="more"] .ui.inverted.table thead.warning th,
+:root[data-contrast="more"] .ui.inverted.warning.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .warning.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.warning.menu .active.item,
+:root[data-contrast="more"] .ui.warning.popup:not(.inverted),
+:root[data-contrast="more"] .ui.warning.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.warning.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.warning.toast,
+:root[data-contrast="more"] .ui.grid > .warning.column,
+:root[data-contrast="more"] .ui.grid > .warning.row,
+:root[data-contrast="more"] .ui.grid > .row > .warning.column,
+:root[data-contrast="more"] .ui.warning.nag,
 :root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.warning.card,
 :root[data-contrast="more"] .ui.inverted.warning.cards > .card {
@@ -1235,6 +1826,25 @@ mark {
   border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.warning.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.warning.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.warning.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.warning.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.warning.popup,
+:root[data-contrast="more"] .ui.inverted.warning.popup::before,
+:root[data-contrast="more"] .ui.basic.warning.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.warning.cards > .card:not(.inverted) {
+  background-color: oklch(from #f79009 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.warning.label:not(.basic)::before {
+  background-color: oklch(from #f79009 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.warning.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.warning.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -1242,6 +1852,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.warning.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.warning.menu .item.item.item,
+:root[data-contrast="more"] .ui.warning.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.warning.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.warning.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.warning.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -1258,6 +1872,17 @@ mark {
 :root[data-contrast="more"] .ui.inverted.table tr.info,
 :root[data-contrast="more"] .ui.inverted.table tr > .info,
 :root[data-contrast="more"] .ui.inverted.table thead.info th,
+:root[data-contrast="more"] .ui.inverted.info.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .info.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.info.menu .active.item,
+:root[data-contrast="more"] .ui.info.popup:not(.inverted),
+:root[data-contrast="more"] .ui.info.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.info.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.info.toast,
+:root[data-contrast="more"] .ui.grid > .info.column,
+:root[data-contrast="more"] .ui.grid > .info.row,
+:root[data-contrast="more"] .ui.grid > .row > .info.column,
+:root[data-contrast="more"] .ui.info.nag,
 :root[data-contrast="more"] .ui.inverted.info.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.info.card,
 :root[data-contrast="more"] .ui.inverted.info.cards > .card {
@@ -1278,6 +1903,25 @@ mark {
   border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.info.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.info.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.info.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.info.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.info.popup,
+:root[data-contrast="more"] .ui.inverted.info.popup::before,
+:root[data-contrast="more"] .ui.basic.info.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.info.cards > .card:not(.inverted) {
+  background-color: oklch(from #06aed4 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.info.label:not(.basic)::before {
+  background-color: oklch(from #06aed4 max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.info.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.info.striped.table > tbody > tr:nth-child(2n) {
   background-color: color-mix(in oklab, oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
@@ -1285,6 +1929,10 @@ mark {
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
 :root[data-contrast="more"] .ui.inverted.info.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.info.menu .item.item.item,
+:root[data-contrast="more"] .ui.info.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.info.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.info.nag :is(.title, .close, a),
 :root[data-contrast="more"] .ui.inverted.info.segment:not(.basic) .ui.header,
 :root[data-contrast="more"] .ui.inverted.info.card :is(.header, .meta, .description) {
   color: #fff !important;
@@ -1294,6 +1942,406 @@ mark {
   background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
 }
 
+/* primary y secondary (alias de los acentos): su color sale de @<nombre>Color */
+:root[data-contrast="more"] .ui.primary.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.primary.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.primary.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.primary.table,
+:root[data-contrast="more"] .ui.inverted.table tr.primary,
+:root[data-contrast="more"] .ui.inverted.table tr > .primary,
+:root[data-contrast="more"] .ui.inverted.table thead.primary th,
+:root[data-contrast="more"] .ui.inverted.primary.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .primary.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.primary.menu .active.item,
+:root[data-contrast="more"] .ui.primary.popup:not(.inverted),
+:root[data-contrast="more"] .ui.primary.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.primary.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.primary.toast,
+:root[data-contrast="more"] .ui.grid > .primary.column,
+:root[data-contrast="more"] .ui.grid > .primary.row,
+:root[data-contrast="more"] .ui.grid > .row > .primary.column,
+:root[data-contrast="more"] .ui.primary.nag,
+:root[data-contrast="more"] .ui.inverted.primary.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.primary.card,
+:root[data-contrast="more"] .ui.inverted.primary.cards > .card {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.primary.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.primary.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.primary.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.primary.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.primary.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.primary.popup,
+:root[data-contrast="more"] .ui.inverted.primary.popup::before,
+:root[data-contrast="more"] .ui.basic.primary.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.primary.cards > .card:not(.inverted) {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.primary.label:not(.basic)::before {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.primary.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.primary.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.primary.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.primary.menu .item.item.item,
+:root[data-contrast="more"] .ui.primary.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.primary.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.primary.nag :is(.title, .close, a),
+:root[data-contrast="more"] .ui.inverted.primary.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.primary.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.primary.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.primary.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.secondary.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.secondary.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.secondary.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.secondary.table,
+:root[data-contrast="more"] .ui.inverted.table tr.secondary,
+:root[data-contrast="more"] .ui.inverted.table tr > .secondary,
+:root[data-contrast="more"] .ui.inverted.table thead.secondary th,
+:root[data-contrast="more"] .ui.inverted.secondary.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .secondary.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.secondary.menu .active.item,
+:root[data-contrast="more"] .ui.secondary.popup:not(.inverted),
+:root[data-contrast="more"] .ui.secondary.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.secondary.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.secondary.toast,
+:root[data-contrast="more"] .ui.grid > .secondary.column,
+:root[data-contrast="more"] .ui.grid > .secondary.row,
+:root[data-contrast="more"] .ui.grid > .row > .secondary.column,
+:root[data-contrast="more"] .ui.secondary.nag,
+:root[data-contrast="more"] .ui.inverted.secondary.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.secondary.card,
+:root[data-contrast="more"] .ui.inverted.secondary.cards > .card {
+  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.secondary.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.secondary.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.secondary.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.secondary.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.secondary.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.secondary.popup,
+:root[data-contrast="more"] .ui.inverted.secondary.popup::before,
+:root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.secondary.cards > .card:not(.inverted) {
+  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.secondary.label:not(.basic)::before {
+  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.secondary.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.secondary.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.secondary.menu .item.item.item,
+:root[data-contrast="more"] .ui.secondary.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.secondary.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.secondary.nag :is(.title, .close, a),
+:root[data-contrast="more"] .ui.inverted.secondary.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.secondary.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.secondary.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.secondary.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+/* Clases accent-1..3: su color sale de @accentN */
+:root[data-contrast="more"] .ui.accent-1.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.accent-1.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.accent-1.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.accent-1.table,
+:root[data-contrast="more"] .ui.inverted.table tr.accent-1,
+:root[data-contrast="more"] .ui.inverted.table tr > .accent-1,
+:root[data-contrast="more"] .ui.inverted.table thead.accent-1 th,
+:root[data-contrast="more"] .ui.inverted.accent-1.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .accent-1.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.accent-1.menu .active.item,
+:root[data-contrast="more"] .ui.accent-1.popup:not(.inverted),
+:root[data-contrast="more"] .ui.accent-1.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.accent-1.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.accent-1.toast,
+:root[data-contrast="more"] .ui.grid > .accent-1.column,
+:root[data-contrast="more"] .ui.grid > .accent-1.row,
+:root[data-contrast="more"] .ui.grid > .row > .accent-1.column,
+:root[data-contrast="more"] .ui.accent-1.nag,
+:root[data-contrast="more"] .ui.inverted.accent-1.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-1.card,
+:root[data-contrast="more"] .ui.inverted.accent-1.cards > .card {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.accent-1.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.accent-1.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-1.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-1.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.accent-1.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.accent-1.popup,
+:root[data-contrast="more"] .ui.inverted.accent-1.popup::before,
+:root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.accent-1.cards > .card:not(.inverted) {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.accent-1.label:not(.basic)::before {
+  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.accent-1.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.accent-1.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.accent-1.menu .item.item.item,
+:root[data-contrast="more"] .ui.accent-1.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.accent-1.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.accent-1.nag :is(.title, .close, a),
+:root[data-contrast="more"] .ui.inverted.accent-1.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.accent-1.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.accent-1.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.accent-1.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.accent-2.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.accent-2.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.accent-2.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.accent-2.table,
+:root[data-contrast="more"] .ui.inverted.table tr.accent-2,
+:root[data-contrast="more"] .ui.inverted.table tr > .accent-2,
+:root[data-contrast="more"] .ui.inverted.table thead.accent-2 th,
+:root[data-contrast="more"] .ui.inverted.accent-2.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .accent-2.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.accent-2.menu .active.item,
+:root[data-contrast="more"] .ui.accent-2.popup:not(.inverted),
+:root[data-contrast="more"] .ui.accent-2.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.accent-2.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.accent-2.toast,
+:root[data-contrast="more"] .ui.grid > .accent-2.column,
+:root[data-contrast="more"] .ui.grid > .accent-2.row,
+:root[data-contrast="more"] .ui.grid > .row > .accent-2.column,
+:root[data-contrast="more"] .ui.accent-2.nag,
+:root[data-contrast="more"] .ui.inverted.accent-2.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-2.card,
+:root[data-contrast="more"] .ui.inverted.accent-2.cards > .card {
+  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.accent-2.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.accent-2.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-2.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-2.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.accent-2.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.accent-2.popup,
+:root[data-contrast="more"] .ui.inverted.accent-2.popup::before,
+:root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.accent-2.cards > .card:not(.inverted) {
+  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.accent-2.label:not(.basic)::before {
+  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.accent-2.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.accent-2.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.accent-2.menu .item.item.item,
+:root[data-contrast="more"] .ui.accent-2.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.accent-2.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.accent-2.nag :is(.title, .close, a),
+:root[data-contrast="more"] .ui.inverted.accent-2.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.accent-2.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.accent-2.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.accent-2.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.accent-3.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.accent-3.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.accent-3.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.accent-3.table,
+:root[data-contrast="more"] .ui.inverted.table tr.accent-3,
+:root[data-contrast="more"] .ui.inverted.table tr > .accent-3,
+:root[data-contrast="more"] .ui.inverted.table thead.accent-3 th,
+:root[data-contrast="more"] .ui.inverted.accent-3.menu,
+:root[data-contrast="more"] .ui.ui.ui.inverted.menu .accent-3.active.item,
+:root[data-contrast="more"] .ui.ui.ui.inverted.pointing.accent-3.menu .active.item,
+:root[data-contrast="more"] .ui.accent-3.popup:not(.inverted),
+:root[data-contrast="more"] .ui.accent-3.popup:not(.inverted)::before,
+:root[data-contrast="more"] .ui.accent-3.progress:not(.inverted):not(.circular) > .bar,
+:root[data-contrast="more"] .ui.accent-3.toast,
+:root[data-contrast="more"] .ui.grid > .accent-3.column,
+:root[data-contrast="more"] .ui.grid > .accent-3.row,
+:root[data-contrast="more"] .ui.grid > .row > .accent-3.column,
+:root[data-contrast="more"] .ui.accent-3.nag,
+:root[data-contrast="more"] .ui.inverted.accent-3.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-3.card,
+:root[data-contrast="more"] .ui.inverted.accent-3.cards > .card {
+  background-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.accent-3.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
+:root[data-contrast="more"] .ui.inverted.accent-3.label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-3.labels .label:not(.basic),
+:root[data-contrast="more"] .ui.inverted.accent-3.button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.accent-3.buttons .button:not(.basic):not(.tertiary):is(.active, :active, :hover),
+:root[data-contrast="more"] .ui.inverted.accent-3.popup,
+:root[data-contrast="more"] .ui.inverted.accent-3.popup::before,
+:root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted),
+:root[data-contrast="more"] .ui.basic.accent-3.cards > .card:not(.inverted) {
+  background-color: oklch(from var(--accent-3, #c11574) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #000 !important;
+}
+:root[data-contrast="more"] .ui.inverted.accent-3.label:not(.basic)::before {
+  background-color: oklch(from var(--accent-3, #c11574) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted) :is(.header, .meta, .description) {
+  color: #000 !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.accent-3.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.accent-3.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.accent-3.menu .item.item.item,
+:root[data-contrast="more"] .ui.accent-3.progress:not(.inverted):not(.circular) > .bar > .progress,
+:root[data-contrast="more"] .ui.accent-3.toast :is(.header, .content, .message),
+:root[data-contrast="more"] .ui.accent-3.nag :is(.title, .close, a),
+:root[data-contrast="more"] .ui.inverted.accent-3.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.accent-3.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.accent-3.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.accent-3.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+/* Rellenos del acento sin clase de color (barra de progress por defecto, celda activa del calendario): el relleno
+   reforzado. Con :where() para que las barras de color de arriba sigan ganando */
+:root[data-contrast="more"] :where(.ui.progress:not(.circular):not(.inverted)) > .bar,
+:root[data-contrast="more"] .ui.calendar .ui.table :is(td, th).active:not(.disabled) {
+  background-color: var(--accent-solid) !important;
+  color: #fff !important;
+}
+:root[data-contrast="more"] :where(.ui.progress:not(.circular):not(.inverted)) > .bar > .progress {
+  color: #fff !important;
+}
+
 /* Tokens del diseño publicados como variables CSS (tokens.md §1, §2, §5, §10). En html y no en
    :root, como los acentos de la capa común: si el host entrega los tonos precalculados en
    :root { --accent-25: … }, ganan los suyos (README del diseño, contrato de entrada).
@@ -1301,7 +2349,7 @@ mark {
    superficie oscura (inferido). */
 html {
   --accent-solid: var(--accent-1);
-  --accent-contrast: var(--accent-1-text, color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
   --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
   --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));
@@ -1446,6 +2494,15 @@ pre > code {
 .ui.card > .checkered.image,
 .ui.cards > .card > .checkered.image {
   --theme-text-muted: light-dark(#646c7c, #a1a9b7);
+}
+
+/* Contraste reforzado (D95): el atenuado del panel de marca, desde el texto del modo como en core */
+:root[data-contrast="more"] .ui.tinted.segment,
+:root[data-contrast="more"] .ui.grid > .tinted.column,
+:root[data-contrast="more"] .ui.grid > .row > .tinted.column,
+:root[data-contrast="more"] .ui.card > .checkered.image,
+:root[data-contrast="more"] .ui.cards > .card > .checkered.image {
+  --theme-text-muted: color-mix(in srgb, var(--theme-text) 88%, transparent);
 }
 
 /* Negrita en el texto corrido: Semibold 600 (tipografia: solo 400, 600 y 700, y 700 reservado a

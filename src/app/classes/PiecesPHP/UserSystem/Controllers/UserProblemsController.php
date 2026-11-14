@@ -12,6 +12,7 @@ use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\MailCatalog\Definitions\OtherProblemsMail;
 use PiecesPHP\MailCatalog\Definitions\VerificationCodeMail;
+use PiecesPHP\UserSystem\Authentication\RespondFirst;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UserProblemsModel;
@@ -249,73 +250,13 @@ class UserProblemsController extends UsersController
             //Se verifica que el tipo esté implementado
             if (in_array(trim($type), [self::TYPE_USER_FORGET, self::TYPE_USER_BLOCKED])) {
 
-                $usuario = $this->userMapper->getWhere([
-                    'username' => [
-                        '=' => $username,
-                        'and_or' => 'OR',
-                    ],
-                    'email' => [
-                        '=' => $username,
-                    ],
-                ]);
-                //El usuario de sistema no pide códigos: para quien pide, no existe.
-                if ($usuario !== null && UsersModel::isSystemUser((int) $usuario->id)) {
-                    $usuario = null;
-                }
-
-                //A quien no está bloqueado no se le crea ni se le envía código, y la respuesta es la de un envío: no dice su
-                //estado. Antes recibía un código que, con los intentos al máximo, lo dejaba activo.
-                if ($usuario !== null && trim($type) === self::TYPE_USER_BLOCKED && (int) $usuario->status !== UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
-                    $json_response['send_mail'] = true;
-                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
-                    return $response->withJson($json_response);
-                }
-
-                //Con el límite alcanzado no se crea ni se envía nada, y la respuesta es la de un envío.
-                if ($usuario !== null && self::codeLimitReached((string) $usuario->email)) {
-                    $json_response['send_mail'] = true;
-                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
-                    return $response->withJson($json_response);
-                }
-
-                //Verificación de existencia
-                if ($usuario !== null) {
-
-                    //Datos de recuperación
-                    $problems = new UserProblemsModel();
-                    $problems->created = new \DateTime();
-                    //Sobre una copia: modify() cambia el objeto, y movía también la creación.
-                    $problems->expired = (clone $problems->created)->modify('+24 hour');
-                    $problems->email = $usuario->email;
-                    $problems->code = generate_code(6);
-                    $problems->type = $type;
-                    $problems->save();
-                    TokenEvents::log(LogsMapper::MSG_TOKEN_ISSUED, self::tokenKind((string) $type), (int) $usuario->id, (string) $usuario->username);
-
-                    //Envío de correo de recuperación
-                    $json_response['send_mail'] = $this->sendCode($problems->code, $usuario, $type);
-                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
-
-                    $logRequest = new TicketsLogModel();
-                    $logRequest->created = $problems->created;
-                    $logRequest->email = $problems->email;
-                    //El código NO se registra: el registro no puede servir para resolver el problema (como en recuperación).
-                    $logRequest->information = [
-                        'email_sended' => $json_response['send_mail'],
-                        'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
-                    ];
-                    if ($type == self::TYPE_USER_FORGET) {
-                        $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
-                    } elseif ($type == self::TYPE_USER_BLOCKED) {
-                        $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de desbloqueo de usuario.');
-                    }
-                    $logRequest->save();
-                } else {
-
-                    //Quien no existe recibe la respuesta de un envío, sin crear ni enviar nada: no se delata (P201).
-                    $json_response['send_mail'] = true;
-                    $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
-                }
+                //Se responde ya el envío y todo lo que depende del usuario corre después (RespondFirst): ni el cuerpo ni el
+                //tiempo dicen si existe, si está bloqueado o si su correo falló (eso queda en TicketsLogModel).
+                $json_response['send_mail'] = true;
+                $json_response['message'] = __(self::LANG_GROUP, 'Se ha enviado un mensaje al correo proporcionado.');
+                return RespondFirst::json($response, $json_response, function () use ($username, $type): void {
+                    $this->generateCodeAfterResponse($username, $type);
+                });
             } else {
                 $json_response['error'] = self::UNEXPECTED_ACTION;
                 $json_response['message'] = $this->getMessage($json_response['error']);
@@ -327,6 +268,76 @@ class UserProblemsController extends UsersController
         }
 
         return $response->withJson($json_response);
+    }
+
+    /**
+     * Lo de generateCode() que depende del usuario, ya respondida la petición: la búsqueda, el usuario de sistema, el no
+     * bloqueado, el límite de códigos, crear el código, enviarlo y anotar la petición con el resultado real del correo.
+     *
+     * @param mixed $username
+     * @param mixed $type
+     * @return void
+     */
+    private function generateCodeAfterResponse($username, $type): void
+    {
+        $usuario = $this->userMapper->getWhere([
+            'username' => [
+                '=' => $username,
+                'and_or' => 'OR',
+            ],
+            'email' => [
+                '=' => $username,
+            ],
+        ]);
+        //El usuario de sistema no pide códigos: para quien pide, no existe.
+        if ($usuario !== null && UsersModel::isSystemUser((int) $usuario->id)) {
+            $usuario = null;
+        }
+
+        //A quien no está bloqueado no se le crea ni se le envía código (la respuesta ya fue la de un envío: no dice su
+        //estado). Antes recibía un código que, con los intentos al máximo, lo dejaba activo.
+        if ($usuario !== null && trim($type) === self::TYPE_USER_BLOCKED && (int) $usuario->status !== UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+            return;
+        }
+
+        //Con el límite alcanzado no se crea ni se envía nada.
+        if ($usuario !== null && self::codeLimitReached((string) $usuario->email)) {
+            return;
+        }
+
+        //Verificación de existencia
+        if ($usuario !== null) {
+
+            //Datos de recuperación
+            $problems = new UserProblemsModel();
+            $problems->created = new \DateTime();
+            //Sobre una copia: modify() cambia el objeto, y movía también la creación.
+            $problems->expired = (clone $problems->created)->modify('+24 hour');
+            $problems->email = $usuario->email;
+            $problems->code = generate_code(6);
+            $problems->type = $type;
+            $problems->save();
+            TokenEvents::log(LogsMapper::MSG_TOKEN_ISSUED, self::tokenKind((string) $type), (int) $usuario->id, (string) $usuario->username);
+
+            //Envío de correo de recuperación
+            $sent = $this->sendCode($problems->code, $usuario, $type);
+
+            $logRequest = new TicketsLogModel();
+            $logRequest->created = $problems->created;
+            $logRequest->email = $problems->email;
+            //El código NO se registra: el registro no puede servir para resolver el problema (como en recuperación).
+            $logRequest->information = [
+                'email_sended' => $sent,
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+            ];
+            if ($type == self::TYPE_USER_FORGET) {
+                $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
+            } elseif ($type == self::TYPE_USER_BLOCKED) {
+                $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de desbloqueo de usuario.');
+            }
+            $logRequest->save();
+        }
+        //Quien no existe no crea ni envía nada; ya recibió la respuesta de un envío: no se delata (P201).
     }
 
     /**

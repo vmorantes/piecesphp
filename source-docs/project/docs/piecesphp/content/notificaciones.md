@@ -53,6 +53,8 @@ Una instalación que ya existe crea la tabla con `databases/actualizaciones/2026
 
 - La campana sale en la barra del panel siempre que hay sesión. Su número (las no leídas) llega con la página; la lista
   se pide al abrirla. No hay sondeo periódico.
+  El número dice la cifra hasta 99 y «99+» desde 100 (`Notifications::badgeText()`, y lo mismo en
+  `NotificationsList.badge()`); la etiqueta para lectores de pantalla lleva siempre la cifra real.
 - La lista mezcla las **fuentes** por fecha. El framework trae dos: `system` (la tabla de arriba) y `news` (las noticias
   internas, solo con `NEWS_MODULE`). Los filtros son `all`, `news` (si hay noticias), `unread` y `read`.
 - Rutas, todas con sesión y para todos los roles, y cada uno ve solo lo suyo:

@@ -193,8 +193,16 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         if (OTPRateLimiter::config()['uniformResponse']) {
             $check(($inexistente['data']['success'] ?? null) === ($existente['data']['success'] ?? null) && ($inexistente['data']['message'] ?? '') === ($existente['data']['message'] ?? ''), 'c5 y la respuesta es la misma con un usuario que no existe (P201)');
         }
-        $otp = OTPSecretsUsersMapper::getOTPData((int) $u->id, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE);
-        $codigo = $otp !== null ? (string) $otp->oneUseCode : '';
+        //Con la respuesta uniforme el código se genera DESPUÉS de responder (RespondFirst): se espera, con tope.
+        $limite = microtime(true) + 10;
+        do {
+            $otp = OTPSecretsUsersMapper::getOTPData((int) $u->id, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE);
+            $codigo = $otp !== null ? (string) $otp->oneUseCode : '';
+            if (preg_match('/^[0-9]{6}$/', $codigo) === 1) {
+                break;
+            }
+            usleep(200000);
+        } while (microtime(true) < $limite);
         $check(preg_match('/^[0-9]{6}$/', $codigo) === 1, 'c6 el código guardado son seis cifras');
         $mal = $pedir($rutaIngresar, null, ['username' => $correo, 'password' => '000000' === $codigo ? '111111' : '000000', 'twoFactor' => '']);
         $check(($mal['data']['auth'] ?? null) === false && ($mal['data']['error'] ?? '') === UsersController::INCORRECT_PASSWORD, 'c7 un código equivocado no entra (INCORRECT_PASSWORD, el error del código en la pantalla)', (string) ($mal['data']['error'] ?? ''));

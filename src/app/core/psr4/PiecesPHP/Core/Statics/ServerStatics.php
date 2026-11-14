@@ -371,7 +371,7 @@ class ServerStatics
     {
         //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
         $resource = $args['params'] ?? '';
-        if (self::pathHasTraversal($resource)) {
+        if (self::pathHasTraversal($resource) || self::isStyleSource($resource)) {
             return $response->withStatus(404)->write('<h1>404 El recurso no existe.</h1>');
         }
         //Verificar si se puede delegar al servidor web
@@ -393,7 +393,7 @@ class ServerStatics
     {
         //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
         $resource = $args['params'] ?? '';
-        if (self::pathHasTraversal($resource)) {
+        if (self::pathHasTraversal($resource) || self::isStyleSource($resource)) {
             return null;
         }
         $filePath = self::buildFilePath($resource, $path);
@@ -418,6 +418,20 @@ class ServerStatics
     public static function pathHasTraversal(string $resource): bool
     {
         return str_contains($resource, '..') || str_contains($resource, "\0");
+    }
+
+    /**
+     * Si el recurso es código de estilos (un .scss o .sass, o algo bajo una carpeta sass/): no se sirve, responde como lo
+     * que no existe (P310 b). Lo que se sirve es su CSS compilado.
+     *
+     * @param string $resource Recurso a verificar
+     * @return bool True si debe rechazarse
+     */
+    public static function isStyleSource(string $resource): bool
+    {
+        $segments = array_filter(explode('/', mb_strtolower(str_replace('\\', '/', $resource))), fn(string $s): bool => $s !== '');
+        $extension = mb_strtolower(pathinfo($resource, PATHINFO_EXTENSION));
+        return in_array($extension, ['scss', 'sass'], true) || in_array('sass', $segments, true);
     }
 
     /**

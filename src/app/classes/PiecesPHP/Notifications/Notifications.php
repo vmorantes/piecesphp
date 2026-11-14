@@ -44,6 +44,12 @@ final class Notifications
     const MAX_PER_PAGE = 50;
 
     /**
+     * Desde esta cifra, la insignia dice «99+»: un número de tres cifras no cabe en el contador. Igual en
+     * NotificationsList.badge() (notifications-list.js).
+     */
+    const BADGE_MAX = 99;
+
+    /**
      * @var array<string,NotificationSource>
      */
     private static $sources = [];
@@ -218,6 +224,17 @@ final class Notifications
             }
         }
         return self::$unreadMemo[$userID];
+    }
+
+    /**
+     * El texto de la insignia: la cifra hasta BADGE_MAX y «99+» por encima. La etiqueta accesible lleva la cifra real.
+     *
+     * @param int $unread
+     * @return string
+     */
+    public static function badgeText(int $unread): string
+    {
+        return $unread > self::BADGE_MAX ? self::BADGE_MAX . '+' : (string) $unread;
     }
 
     /**

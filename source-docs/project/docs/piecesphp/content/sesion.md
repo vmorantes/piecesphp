@@ -32,6 +32,10 @@ consume el framework sin el panel, en [Despliegue, «Consumir el framework sin e
    correo (`OTPRateLimiter::SEND_MIN_SECONDS_BETWEEN` y `SEND_MAX_PER_HOUR`, fijos; los 45 s son los del botón
    «Reenviar código» de `login.js`): pasado el límite responde igual que un envío, no envía, y lo anota como un fallo
    que cuenta para el freno.
+   **Responde antes de enviar**: el código se crea y el correo sale después de cerrar la conexión
+   (`PiecesPHP\UserSystem\Authentication\RespondFirst`, con PHP-FPM), para que el tiempo de respuesta no diga si la cuenta
+   existe. Igual la recuperación de la contraseña y el código de usuario olvidado o bloqueado. Una prueba que lea el código o
+   el correo justo después tiene que esperarlo unos instantes.
 5. Si el usuario tiene el segundo factor activo, exige `twoFactor` (el código de la aplicación o uno de seguridad).
 6. Rechaza al usuario cuyo tipo ya no es un rol, al que el modo mantenimiento deja fuera, al de una organización
    inactiva y al bloqueado, pendiente o inactivo.

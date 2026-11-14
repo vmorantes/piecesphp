@@ -278,6 +278,16 @@ CliActions::make('unit-tests:core/tokens-tab', function ($args) {
         echoTerminal('[e] Pedir un código lo anota');
         $antes = time();
         $pedido = $pedir($ruta('users-forget-request-code'), '', ['username' => "{$prefijo}-general-a", 'type' => UserProblemsController::TYPE_USER_FORGET]);
+        //El código se crea y se anota DESPUÉS de responder (RespondFirst): se espera, con tope, a su fila de tickets, lo último que escribe.
+        $limite = microtime(true) + 10;
+        $esperaTicket = $database->prepare("SELECT COUNT(*) FROM `{$tablaTickets}` WHERE email = ?");
+        do {
+            $esperaTicket->execute([$buzon]);
+            if ((int) $esperaTicket->fetchColumn() > 0) {
+                break;
+            }
+            usleep(200000);
+        } while (microtime(true) < $limite);
         $check(count($eventos(LogsMapper::MSG_TOKEN_ISSUED, $genA)) === 1, 'e1 pedir «usuario olvidado» deja el evento de emisión', $pedido['body']);
         $problema = $database->prepare("SELECT created, expired FROM `{$tablaProblemas}` WHERE email = ? ORDER BY id DESC LIMIT 1");
         //RETORNO-IGNORADO: lo que cuenta es la fila que sigue, y se comprueba.

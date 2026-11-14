@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Dropdown
+ * # Fomantic-UI 0.12.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

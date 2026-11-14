@@ -45,7 +45,7 @@ usa cada una, con un ejemplo que se puede copiar, en «Pantallas de contenido»;
 | Pestañas | `.tabs-controls` + `ui tab` con `[data-tab]` |
 | Un desplegable | `ui dropdown` (con `search` si filtra) |
 | Una fecha | el atributo `calendar-js` en el campo |
-| Avisar del resultado de una acción | `successMessage()`, `warningMessage()`, `infoMessage()`, `errorMessage()`: un *toast* arriba al centro |
+| Avisar del resultado de una acción | `successMessage()`, `warningMessage()`, `infoMessage()`, `errorMessage()`: un *toast* arriba al centro. **El mensaje se pinta como HTML** (se puede mandar marcado a propósito, también en el `message` de una respuesta que `genericFormHandler` enseña): si el mensaje lleva algo que escribió el usuario, escápalo antes en el servidor (`htmlspecialchars()`) |
 | Un modal | `div.ui.modal` y `$(selector).modal('show')` |
 | Subir y recortar una imagen | `modalImageUploaderForCropperAdminViews()` |
 | Traducir un texto fijo en HTML | el atributo `lang-group="<grupo>"` |

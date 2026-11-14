@@ -228,14 +228,15 @@ class NotificationsList {
 	}
 
 	/**
-	 * La insignia de la campana y su etiqueta: oculta con 0.
+	 * La insignia de la campana y su etiqueta: oculta con 0; «99+» desde 100, como Notifications::badgeText(). La
+	 * etiqueta lleva la cifra real.
 	 *
 	 * @param {number} unread
 	 * @returns {void}
 	 */
 	static badge(unread) {
 		document.querySelectorAll('[notifications-badge]').forEach((badge) => {
-			badge.textContent = String(unread)
+			badge.textContent = unread > 99 ? '99+' : String(unread)
 			badge.hidden = unread === 0
 		})
 		document.querySelectorAll('[notifications-toggle]').forEach((toggle) => {

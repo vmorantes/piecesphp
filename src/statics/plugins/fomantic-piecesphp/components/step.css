@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Step
+ * # Fomantic-UI 0.12.0 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -268,13 +268,13 @@
   width: 0.95em;
 }
 .ui.circular.steps .step.active::before {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
 }
 .ui.circular.steps .step.active::after {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
 }
 .ui.circular.steps .step.active .title {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, 0.42) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.78) c h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) c h));
   
 /* Fork: texto aparte del relleno del círculo */
 }
@@ -329,7 +329,7 @@
   background: transparent;
 }
 .ui.circular.ordered.steps .step.active::before {
-  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1, var(--accent, #356dca));
 }
 .ui.ordered.steps .step > * {
   display: block;
@@ -521,7 +521,7 @@
 }
 .ui.ordered.steps .step.active::before,
 .ui.steps .active.step i.icon {
-  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1, var(--accent, #356dca));
 }
 
 /* Active Arrow */
@@ -870,16 +870,16 @@
   color: rgba(255, 255, 255, 0.9);
 }
 .ui.inverted.circular.steps .step.active .title {
-  color: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.circular.steps .step.active::before {
-  border-color: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.72) min(c, 0.16) h);
+  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.72) min(c, 0.16) h);
 }
 .ui.inverted.circular.steps .step.active::after {
-  background: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.72) min(c, 0.16) h);
+  background: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.72) min(c, 0.16) h);
 }
 .ui.inverted.circular.steps.ordered .step.active::before {
-  color: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.circular.steps:not(.vertical) .step:not(.completed) {
   background: color-mix(in srgb, rgba(255, 255, 255, 0.9) 40%, transparent);
@@ -904,10 +904,10 @@
   border-color: color-mix(in srgb, rgba(255, 255, 255, 0.9) 40%, transparent);
 }
 .ui.ui.circular.steps .step.primary::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.primary::after {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.primary.circular.steps .step,
 .ui.ui.ui.circular.steps .step.primary {
@@ -916,40 +916,40 @@
 }
 .ui.ui.primary.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.primary.active::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.primary.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.primary.active::after {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.primary.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.primary.completed::before {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.primary.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.primary.completed::after {
-  color: color(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.primary.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.primary.completed {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.primary {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.primary.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.primary.active .content .title {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.primary.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.primary.active::before {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -957,49 +957,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.primary::before {
-  border-color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.primary::after {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.primary.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.primary.active::before {
-  border-color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.primary.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.primary.active::after {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.primary.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.primary.completed::before {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.primary.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.primary.completed::after {
-  color: color(from oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.primary.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.primary.completed {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.primary:not(.completed) {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.primary.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.primary.active .content .title {
-  color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.primary.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.primary.active::before {
-  color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.primary .content::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.primary.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.primary.completed .content::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.primary.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.primary::after {
@@ -1007,13 +1007,13 @@
 }
 .ui.ui.primary.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.primary.active::before {
-  color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.secondary::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.secondary::after {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.secondary.circular.steps .step,
 .ui.ui.ui.circular.steps .step.secondary {
@@ -1022,40 +1022,40 @@
 }
 .ui.ui.secondary.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.secondary.active::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.secondary.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.secondary.active::after {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.secondary.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.secondary.completed::before {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.secondary.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.secondary.completed::after {
-  color: color(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.secondary.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.secondary.completed {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.secondary {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.secondary.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.secondary.active .content .title {
-  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.secondary.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.secondary.active::before {
-  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1063,49 +1063,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.secondary::before {
-  border-color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.secondary::after {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.secondary.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.secondary.active::before {
-  border-color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.secondary.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.secondary.active::after {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.secondary.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.secondary.completed::before {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.secondary.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.secondary.completed::after {
-  color: color(from oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.secondary.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.secondary.completed {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.secondary:not(.completed) {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.secondary.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.secondary.active .content .title {
-  color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.secondary.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.secondary.active::before {
-  color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.secondary .content::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.secondary.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.secondary.completed .content::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.secondary.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.secondary::after {
@@ -1113,13 +1113,13 @@
 }
 .ui.ui.secondary.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.secondary.active::before {
-  color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.accent-1::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.accent-1::after {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.accent-1.circular.steps .step,
 .ui.ui.ui.circular.steps .step.accent-1 {
@@ -1128,40 +1128,40 @@
 }
 .ui.ui.accent-1.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.accent-1.active::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.accent-1.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.accent-1.active::after {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.accent-1.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.accent-1.completed::before {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.accent-1.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.accent-1.completed::after {
-  color: color(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.accent-1.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.accent-1.completed {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.accent-1 {
-  background: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  background: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.accent-1.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.accent-1.active .content .title {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.accent-1.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.accent-1.active::before {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1169,49 +1169,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.accent-1::before {
-  border-color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.accent-1::after {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-1.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-1.active::before {
-  border-color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-1.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-1.active::after {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-1.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-1.completed::before {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-1.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-1.completed::after {
-  color: color(from oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.accent-1.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.accent-1.completed {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.accent-1:not(.completed) {
-  background: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.accent-1.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.accent-1.active .content .title {
-  color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.accent-1.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.accent-1.active::before {
-  color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.accent-1 .content::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.accent-1.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.accent-1.completed .content::before {
-  border-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.accent-1.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.accent-1::after {
@@ -1219,13 +1219,13 @@
 }
 .ui.ui.accent-1.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.accent-1.active::before {
-  color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
+  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.accent-2::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.accent-2::after {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.accent-2.circular.steps .step,
 .ui.ui.ui.circular.steps .step.accent-2 {
@@ -1234,40 +1234,40 @@
 }
 .ui.ui.accent-2.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.accent-2.active::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.accent-2.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.accent-2.active::after {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.accent-2.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.accent-2.completed::before {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.accent-2.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.accent-2.completed::after {
-  color: color(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.accent-2.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.accent-2.completed {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.accent-2 {
-  background: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.accent-2.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.accent-2.active .content .title {
-  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.accent-2.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.accent-2.active::before {
-  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1275,49 +1275,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.accent-2::before {
-  border-color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.accent-2::after {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-2.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-2.active::before {
-  border-color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-2.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-2.active::after {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-2.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-2.completed::before {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-2.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-2.completed::after {
-  color: color(from oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.accent-2.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.accent-2.completed {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.accent-2:not(.completed) {
-  background: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.accent-2.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.accent-2.active .content .title {
-  color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.accent-2.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.accent-2.active::before {
-  color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.accent-2 .content::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.accent-2.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.accent-2.completed .content::before {
-  border-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.accent-2.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.accent-2::after {
@@ -1325,13 +1325,13 @@
 }
 .ui.ui.accent-2.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.accent-2.active::before {
-  color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
+  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.accent-3::before {
-  border-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.accent-3::after {
-  background: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.accent-3.circular.steps .step,
 .ui.ui.ui.circular.steps .step.accent-3 {
@@ -1340,40 +1340,40 @@
 }
 .ui.ui.accent-3.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.accent-3.active::before {
-  border-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.accent-3.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.accent-3.active::after {
-  background: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.accent-3.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.accent-3.completed::before {
-  background: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
-  border-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.accent-3.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.accent-3.completed::after {
-  color: color(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.accent-3.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.accent-3.completed {
-  background: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.accent-3 {
-  background: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  background: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.accent-3.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.accent-3.active .content .title {
-  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.accent-3.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.accent-3.active::before {
-  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1381,49 +1381,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.accent-3::before {
-  border-color: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.accent-3::after {
-  background: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-3.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-3.active::before {
-  border-color: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-3.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-3.active::after {
-  background: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-3.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-3.completed::before {
-  background: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.accent-3.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.accent-3.completed::after {
-  color: color(from oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.accent-3.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.accent-3.completed {
-  background: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.accent-3:not(.completed) {
-  background: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.accent-3.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.accent-3.active .content .title {
-  color: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.accent-3.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.accent-3.active::before {
-  color: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.accent-3 .content::before {
-  border-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.accent-3.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.accent-3.completed .content::before {
-  border-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  border-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.accent-3.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.accent-3::after {
@@ -1431,7 +1431,7 @@
 }
 .ui.ui.accent-3.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.accent-3.active::before {
-  color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
+  color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.red::before {
   border-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
@@ -2744,14 +2744,14 @@
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.black.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.black.active .content .title {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.black.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.black.active::before {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2835,14 +2835,14 @@
 *******************************/
 
 
-/* Descripción del paso activo: sobre el tinte del acento, text-3 no llega a 4,5:1 */
-.ui.steps:not(.inverted) .active.step .description,
-.ui.step.active:not(.inverted) .description {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
-}
+
+/*******************************
+      Core: Step Overrides
+*******************************/
+
 
 /* Pasos unstackable con ícono en móvil: el ícono encima del texto. En fila, tres pasos de 120px dejaban al texto unos 60px
-   y «Datos personales» se metía bajo la flecha (registro a 390) */
+   y «Datos personales» se cortaba o se metía bajo la flecha (registro a 390). Venía de piecesphp; sirve a todos */
 @media only screen and (max-width: 767.98px) {
   .ui.unstackable.steps:not(.vertical):not(.circular) > .step {
     flex-direction: column;
@@ -2851,4 +2851,10 @@
   .ui.unstackable.steps:not(.vertical):not(.circular) > .step > .icon {
     margin: 0 0 0.28571429rem;
   }
+}
+
+/* Descripción del paso activo: sobre el tinte del acento, text-3 no llega a 4,5:1 */
+.ui.steps:not(.inverted) .active.step .description,
+.ui.step.active:not(.inverted) .description {
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }

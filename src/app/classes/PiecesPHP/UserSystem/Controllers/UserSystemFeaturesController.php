@@ -19,6 +19,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Authentication\RespondFirst;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
@@ -66,7 +67,8 @@ class UserSystemFeaturesController extends AdminPanelController
      *
      * Límite de intentos (`otp_security`, OTPRateLimiter): con el usuario o la IP bloqueados responde 429 con Retry-After,
      * antes de comprobar nada del usuario. Con `uniformResponse` responde lo mismo exista o no el usuario, y solo genera
-     * y envía el código si existe; sin él, un inexistente da USER_NO_EXISTS. Cada intento queda en login_attempts con su vía.
+     * y envía el código si existe, DESPUÉS de responder (RespondFirst); sin él, un inexistente da USER_NO_EXISTS. Cada
+     * intento queda en login_attempts con su vía.
      *
      * @param Request $request
      * @param Response $response
@@ -94,8 +96,18 @@ class UserSystemFeaturesController extends AdminPanelController
         $resultOperation->setValue('user', $username);
         $resultOperation->setSuccessOnSingleOperation(false);
 
+        //UNIFORME: se responde ya el envío y lo que depende del usuario corre después (RespondFirst): ni el cuerpo ni el
+        //tiempo dicen si existe. Un fallo del correo tampoco cambia la respuesta: queda en login_attempts.
+        if ($uniformResponse) {
+            $resultOperation->setSuccessOnSingleOperation(true);
+            $resultOperation->setMessage(OTPRateLimiter::uniformOTPMessage());
+            return RespondFirst::json($response, $resultOperation, function () use ($username): void {
+                $this->sendOTPAfterResponse($username);
+            });
+        }
+
         //La espera mínima y el tope por hora de los envíos, por usuario: su nombre y su correo cuentan juntos. Con el
-        //límite no se genera ni se envía, y se responde como un envío (en los dos modos): no dice nada nuevo.
+        //límite no se genera ni se envía, y se responde como un envío: no dice nada nuevo.
         $sendTarget = OTPHandler::getUserDataByUsername($username);
         if ($sendTarget !== null && OTPRateLimiter::sendLimitReached([(string) $sendTarget->username, (string) $sendTarget->email])) {
             $resultOperation->setSuccessOnSingleOperation(true);
@@ -107,20 +119,14 @@ class UserSystemFeaturesController extends AdminPanelController
         try {
             OTPHandler::generateOTP($this, $username);
             $resultOperation->setSuccessOnSingleOperation(true);
-            $resultOperation->setMessage($uniformResponse ? OTPRateLimiter::uniformOTPMessage() : __(self::LANG_GROUP, 'Revise su correo electrónico para obtener el código de un uso.'));
+            $resultOperation->setMessage(__(self::LANG_GROUP, 'Revise su correo electrónico para obtener el código de un uso.'));
             OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, true, '');
         } catch (SafeException $exception) {
             if ($exception->getCode() == SafeException::USER_NOT_EXISTS) {
                 $usersController = new UsersController();
                 $notExistsMessage = vsprintf($usersController->getMessage(UsersController::USER_NO_EXISTS), [$username]);
-                if ($uniformResponse) {
-                    //UNIFORME: el mismo estado y el mismo cuerpo que con un usuario que existe; no dice si existe.
-                    $resultOperation->setSuccessOnSingleOperation(true);
-                    $resultOperation->setMessage(OTPRateLimiter::uniformOTPMessage());
-                } else {
-                    $resultOperation->setValue('error', UsersController::USER_NO_EXISTS);
-                    $resultOperation->setValue('message', $notExistsMessage);
-                }
+                $resultOperation->setValue('error', UsersController::USER_NO_EXISTS);
+                $resultOperation->setValue('message', $notExistsMessage);
                 OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, $notExistsMessage);
             } else {
                 $resultOperation->setMessage($exception->getMessage());
@@ -129,6 +135,31 @@ class UserSystemFeaturesController extends AdminPanelController
         }
 
         return $response->withJson($resultOperation);
+    }
+
+    /**
+     * Lo de generateOTP() con `uniformResponse` que depende del usuario, ya respondida la petición: el tope de envíos,
+     * generar y enviar el código, y anotar el intento con su motivo. Los mismos record() que el modo no uniforme.
+     *
+     * @param string $username
+     * @return void
+     */
+    private function sendOTPAfterResponse(string $username): void
+    {
+        $sendTarget = OTPHandler::getUserDataByUsername($username);
+        if ($sendTarget !== null && OTPRateLimiter::sendLimitReached([(string) $sendTarget->username, (string) $sendTarget->email])) {
+            OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, __(self::LANG_GROUP, 'Límite de envíos del código alcanzado.'));
+            return;
+        }
+        try {
+            OTPHandler::generateOTP($this, $username);
+            OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, true, '');
+        } catch (SafeException $exception) {
+            $message = $exception->getCode() == SafeException::USER_NOT_EXISTS
+                ? vsprintf((new UsersController())->getMessage(UsersController::USER_NO_EXISTS), [$username])
+                : $exception->getMessage();
+            OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, $message);
+        }
     }
 
     /**

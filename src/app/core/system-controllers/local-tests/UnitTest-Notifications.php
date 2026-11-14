@@ -565,6 +565,38 @@ CliActions::make('unit-tests:core/notifications', function ($args) {
         $check($mismaConexion && $con5 === $con50, 'n15 DISCRIMINANTE: las mismas consultas con 5 que con 50 noticias de más',
             $mismaConexion ? "{$con5} / {$con50}" : 'conexiones distintas: Questions no ve las consultas de unread()');
 
+        //─── n16 · «99+» desde 100 ─────────────────────────────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[n16] La insignia dice «99+» desde 100; la etiqueta accesible, la cifra real');
+        $check(Notifications::badgeText(0) === '0' && Notifications::badgeText(99) === '99' && Notifications::badgeText(100) === '99+' && Notifications::badgeText(1500) === '99+',
+            'n16 badgeText(): 0 → «0», 99 → «99», 100 y 1500 → «99+»', Notifications::badgeText(99) . ' / ' . Notifications::badgeText(100));
+        $leerInsignia = function () use ($pedir, $ruta, $jwtB): array {
+            $pagina = $pedir('GET', $ruta('view'), $jwtB, [], false);
+            $dom = new \DOMDocument();
+            @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $pagina['body']);
+            $xpath = new \DOMXPath($dom);
+            $insignia = $xpath->query('//*[@notifications-toggle]//*[@notifications-badge]')?->item(0);
+            $campana = $xpath->query('//*[@notifications-toggle]')?->item(0);
+            return [
+                'texto' => $insignia instanceof \DOMElement ? trim($insignia->textContent) : null,
+                'oculta' => $insignia instanceof \DOMElement && $insignia->hasAttribute('hidden'),
+                'aria' => $campana instanceof \DOMElement ? $campana->getAttribute('aria-label') : '',
+            ];
+        };
+        $pedir('POST', $ruta('mark-all-read'), $jwtB);
+        $cero = $leerInsignia();
+        $check(Notifications::counts($b)[Notifications::FILTER_UNREAD] === 0 && $cero['oculta'], 'n16 con 0 la insignia de la página está oculta', (string) json_encode($cero));
+        $insertarSinLeer = $bd->prepare('INSERT INTO `' . NotificationMapper::TABLE . '` (`user`, kind, level, langGroup, titleKey, createdAt, readAt) VALUES (?, ?, ?, ?, ?, ?, NULL)');
+        for ($i = 0; $i < 99; $i++) {
+            $insertarSinLeer->execute([$b, 'zz-n16', 'info', NotificationsLang::LANG_GROUP, 'Notificaciones', date('Y-m-d H:i:s')]);
+        }
+        $noventaYNueve = $leerInsignia();
+        $check(Notifications::counts($b)[Notifications::FILTER_UNREAD] === 99 && $noventaYNueve['texto'] === '99' && !$noventaYNueve['oculta'], 'n16 con 99 la página dice «99»', (string) json_encode($noventaYNueve));
+        $insertarSinLeer->execute([$b, 'zz-n16', 'info', NotificationsLang::LANG_GROUP, 'Notificaciones', date('Y-m-d H:i:s')]);
+        $cien = $leerInsignia();
+        $check(Notifications::counts($b)[Notifications::FILTER_UNREAD] === 100 && $cien['texto'] === '99+', 'n16 DISCRIMINANTE: con 100 la página dice «99+»', (string) json_encode($cien));
+        $check(str_contains($cien['aria'], '100') && !str_contains($cien['aria'], '99+'), 'n16 y con 100 el aria-label dice 100, la cifra real', $cien['aria']);
+
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());
     } finally {

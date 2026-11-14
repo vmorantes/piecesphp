@@ -91,13 +91,41 @@ CliActions::make('unit-tests:core/traer-tema-check', function ($args) {
         $check($r['codigo'] === 0 && str_contains($r['texto'], 'la carpeta es la que registra ORIGEN.json') && !str_contains($r['texto'], 'el origen está en'),
             't1 CANARIO: la copia intacta pasa, también sin el repositorio del tema', $r['texto']);
 
-        $vivo = trim((string) shell_exec('git -C /var/www/html/vicsen/Fomantic-UI --no-optional-locks rev-parse --short HEAD 2>/dev/null'));
+        $repoTema = '/var/www/html/vicsen/Fomantic-UI';
+        $vivo = trim((string) shell_exec('git -C ' . escapeshellarg($repoTema) . ' --no-optional-locks rev-parse --short HEAD 2>/dev/null'));
+        //El mismo criterio que bin/traer-tema para avisar del origen: archivos distintos por sha1, más lo que sobra o falta.
+        //Un HEAD distinto que no recompiló dist-temas no trae nada distinto, y entonces no hay aviso.
+        $distintos = function (string $copia) use ($repoTema): int {
+            $origen = "{$repoTema}/dist-temas/piecesphp";
+            $mapa = [];
+            if (is_dir($origen)) {
+                foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($origen, \FilesystemIterator::SKIP_DOTS)) as $archivo) {
+                    $mapa[substr((string) $archivo->getPathname(), strlen($origen) + 1)] = (string) $archivo->getPathname();
+                }
+            }
+            $mapa['LICENSE.md'] = "{$repoTema}/LICENSE.md";
+            $hay = [];
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($copia, \FilesystemIterator::SKIP_DOTS)) as $archivo) {
+                $relativa = substr((string) $archivo->getPathname(), strlen($copia) + 1);
+                if ($relativa !== 'ORIGEN.json') {
+                    $hay[$relativa] = true;
+                }
+            }
+            $cuenta = 0;
+            foreach ($mapa as $relativa => $absoluta) {
+                if (!isset($hay[$relativa]) || !is_file($absoluta) || sha1_file($absoluta) !== sha1_file("{$copia}/{$relativa}")) {
+                    $cuenta++;
+                }
+            }
+            return $cuenta + count(array_diff_key($hay, $mapa));
+        };
         $r = $correr(['PCSPHP_TEMA_DESTINO' => $temporal]);
-        if ($vivo !== '' && $copiado !== '' && !str_starts_with($vivo, $copiado) && !str_starts_with($copiado, $vivo)) {
-            $check($r['codigo'] === 0 && str_contains($r['texto'], "el origen está en {$vivo}") && str_contains($r['texto'], "lo copiado es {$copiado}"),
-                't2 DISCRIMINANTE: con el origen en otro commit, solo avisa y pasa', $r['texto']);
+        $diferencias = is_dir($repoTema) ? $distintos($temporal) : 0;
+        $avisoOrigen = str_contains($r['texto'], "el origen está en {$vivo}") && str_contains($r['texto'], "lo copiado es {$copiado}");
+        if ($diferencias > 0) {
+            $check($r['codigo'] === 0 && $avisoOrigen, "t2 DISCRIMINANTE: con {$diferencias} archivo(s) distintos en el origen, solo avisa del origen y pasa", $r['texto']);
         } else {
-            $check($r['codigo'] === 0, 't2 con el origen en el commit copiado (o sin él), pasa (el aviso no aplica hoy)', $r['texto']);
+            $check($r['codigo'] === 0 && !str_contains($r['texto'], 'el origen está en'), 't2 DISCRIMINANTE: sin archivos distintos en el origen (aunque su HEAD sea otro), pasa sin avisar del origen', $r['texto']);
         }
 
         $tocado = "{$temporal}/semantic.min.css";

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Visibility
+ * # Fomantic-UI 0.12.0 - Visibility
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

@@ -454,6 +454,16 @@ Y el helper global `getLoggedFrameworkUser()` devuelve el usuario en sesión
   bloqueo de IL: bloquea y calla, IO `1bb15803`), y un usuario
   inexistente paga `password_verify()` contra `UsersController::TIMING_DUMMY_HASH`. Un mensaje nuevo que dependa del
   usuario, antes de la contraseña, reabre la enumeración: lo vigila `core/login-uniform-errors`.
+- **Responder antes de enviar el código** (JIJ, `e86681a8`, P314 a): `generate-otp` (con `uniformResponse`), la
+  recuperación y el código de usuario olvidado o bloqueado responden YA y hacen lo del usuario (buscarlo, el tope, crear
+  el código, el correo, los registros) en `RespondFirst::json()`, que con PHP-FPM lo deja en una función de cierre tras
+  `fastcgi_finish_request()`; sin FPM (CLI) corre antes, como siempre. Trampas: (1) lo que corre después no puede cambiar
+  la respuesta, así que la respuesta es la misma pase lo que pase (también si falla el correo); (2) **una suite por HTTP
+  que lea el código, la fila de `login_attempts`, el ticket o el correo justo tras la respuesta entra en carrera**:
+  espera con sondeo (como `core/otp-send-limit`, `core/access-screens`, `core/tokens-tab`); (3) no uses
+  `ResponseRoute::fastCgiFinishRequestFlush()` para esto: emite las cabeceras del controlador y pierde las que los
+  middlewares ponen después (CORS de `src/index.php:880-884`, `#2748`). Lo vigila `core/respond-first` (dA0-dC0: al
+  llegar la respuesta, el correo aún no está).
 
 ## Middleware de módulo
 

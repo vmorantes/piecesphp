@@ -11,6 +11,7 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Authentication\RespondFirst;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
@@ -402,13 +403,15 @@ class RecoveryPasswordController extends UsersController
             ]);
         }
 
-        $this->requestRecoveryCode(trim((string) $params['username']));
-
-        return $response->withJson([
+        //Se responde ya y el código se crea y se envía después (RespondFirst): el tiempo no dice si el usuario existe.
+        $username = trim((string) $params['username']);
+        return RespondFirst::json($response, [
             'send_mail' => true,
             'error' => self::NO_ERROR,
             'message' => OTPRateLimiter::uniformOTPMessage(),
-        ]);
+        ], function () use ($username): void {
+            $this->requestRecoveryCode($username);
+        });
     }
 
     /**

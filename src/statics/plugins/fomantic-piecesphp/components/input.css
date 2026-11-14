@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Input
+ * # Fomantic-UI 0.12.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -158,12 +158,20 @@
   box-shadow: 0 0 0 1px transparent;
 }
 
+/* Fork: en un inverted input (campo oscuro) la pista y el arco claros: los del modo claro no se veían */
+.ui.ui.inverted.loading.input:not(.transparent) > i.icon::before {
+  border-color: color-mix(in srgb, #fff 20%, transparent);
+}
+.ui.ui.inverted.loading.input:not(.transparent) > i.icon::after {
+  border-color: #fff transparent transparent;
+}
+
 /* --------------------
         Focus
 --------------------- */
 .ui.input.focus > input,
 .ui.input > input:focus {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   background: var(--theme-surface);
   color: var(--theme-text);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -490,7 +498,7 @@
   border-left-color: transparent;
 }
 .ui.labeled.input:not([class*="corner labeled"]) .label:first-child + input:focus {
-  border-left-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-left-color: var(--accent-1, var(--accent, #356dca));
 }
 
 /* Regular Label on Right */
@@ -504,7 +512,7 @@
   border-bottom-left-radius: 0;
 }
 .ui[class*="right labeled"].input > input:focus {
-  border-right-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) !important;
+  border-right-color: var(--accent-1, var(--accent, #356dca)) !important;
 }
 
 /* Corner Label */
@@ -824,11 +832,11 @@
 /* Input Focus */
 .ui.action.input:not([class*="left action"]) > input:focus,
 .ui.action.input:not([class*="left action"]) > textarea:focus {
-  border-right-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-right-color: var(--accent-1, var(--accent, #356dca));
 }
 .ui.ui[class*="left action"].input > input:focus,
 .ui.ui[class*="left action"].input > textarea:focus {
-  border-left-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-left-color: var(--accent-1, var(--accent, #356dca));
 }
 
 /* --------------------
@@ -854,6 +862,13 @@
 }
 .ui.inverted.input:not(.transparent) > input::placeholder {
   color: #a1a9b7;
+}
+
+/* Fork: el ícono (lupa, calendario) del inverted input con el tono del placeholder inverted: con el texto del modo
+       claro y opacidad 0,5 era oscuro sobre el campo oscuro */
+.ui.inverted.input:not(.transparent) > i.icon:not(.link) {
+  color: #a1a9b7;
+  opacity: 1;
 }
 
 /* --------------------
@@ -977,48 +992,48 @@ input[type="file"].ui.file.input:focus + label.ui.button:not(.basic):not(.tertia
 /* this is related to existing buttons, so the button color variable is used here! */
 input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.red.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.red.button:not(.basic):not(.tertiary) {
@@ -1139,173 +1154,173 @@ input[type="file"].ui.file.input:focus + label.ui.black.button:not(.basic):not(.
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button,
 .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover,
 .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.primary.file.input::-ms-browse,
 .ui.primary.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-ms-browse:hover,
 .ui.primary.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::file-selector-button,
 .ui.primary.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.primary.file.input::file-selector-button:hover,
 .ui.primary.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button,
 .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover,
 .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-ms-browse,
 .ui.secondary.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-ms-browse:hover,
 .ui.secondary.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::file-selector-button,
 .ui.secondary.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::file-selector-button:hover,
 .ui.secondary.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button,
 .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover,
 .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::-ms-browse,
 .ui.accent-1.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-ms-browse:hover,
 .ui.accent-1.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::file-selector-button,
 .ui.accent-1.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::file-selector-button:hover,
 .ui.accent-1.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button,
 .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover,
 .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-ms-browse,
 .ui.accent-2.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-ms-browse:hover,
 .ui.accent-2.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::file-selector-button,
 .ui.accent-2.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  background: var(--accent-2, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::file-selector-button:hover,
 .ui.accent-2.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button,
 .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-3-fill, var(--accent-3, #c11574));
+  background: var(--accent-3, #c11574);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover,
 .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-ms-browse,
 .ui.accent-3.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-3-fill, var(--accent-3, #c11574));
+  background: var(--accent-3, #c11574);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-ms-browse:hover,
 .ui.accent-3.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-3-fill, var(--accent-3, #c11574));
+  background: var(--accent-3, #c11574);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::file-selector-button,
 .ui.accent-3.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-3-fill, var(--accent-3, #c11574));
+  background: var(--accent-3, #c11574);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::file-selector-button:hover,
 .ui.accent-3.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button,
 .ui.red.file.input input[type="file"]::-webkit-file-upload-button {

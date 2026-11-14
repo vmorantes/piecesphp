@@ -449,6 +449,11 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   `zz-agente-`, con `bin/cli walk-login-attempts mark=yes` y `prune=yes after-id=<n>` (`src/app/core/extensions/
   walk-login-attempts.php`, solo en local y excluida de la distribución), y lo dice en su última línea. Lo de abajo
   queda para las mediciones por HTTP que no pasan por el recorrido.
+  **Desde JIK** (`8f1d21ec`): `prune=yes` borra, por encima de `after-id`, las filas de usuarios `zz-agente-` y
+  `zz-siembra-` y, sin usuario (uno que no existe), las de `usernameAttempt` con esos prefijos; `bin/receta13 antes` la
+  corre desde la marca guardada. **`count=yes after-id=<n>` lo cuenta sin borrar** (por prefijo y con o sin usuario) y
+  dice cuántas borraría. Trampa: una medida hecha ANTES de `bin/receta13 despues` queda por debajo de la marca nueva y
+  nada la poda, pero `gates` la cuenta (`#2754`); se poda una vez con la marca anterior.
   **Cómo, sin cliente de base de datos** (`#1198`, 2026-10-09): una acción temporal `zz-scratch:` escrita en el
   scratchpad (`CliActions::make(...)->register()`, `(new \PiecesPHP\Core\BaseModel())->getDatabase()` y sentencias
   preparadas), que lee `id, userID, success, date` y si el usuario empieza por `zz-agente-` (sin imprimirlo), con

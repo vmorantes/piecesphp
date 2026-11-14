@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Text
+ * # Fomantic-UI 0.12.0 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -19,50 +19,50 @@ span.ui.text {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.primary.text {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.inverted.primary.text {
-  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.secondary.text {
-  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.inverted.secondary.text {
-  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.accent-1.text {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.inverted.accent-1.text {
-  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.accent-2.text {
-  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.inverted.accent-2.text {
-  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.accent-3.text {
-  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.inverted.accent-3.text {
-  color: oklch(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -189,7 +189,7 @@ span.ui.inverted.grey.text {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.black.text {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 span.ui.inverted.black.text {
   color: oklch(from #4b5363 max(l, 0.8) min(c, 0.14) h);
@@ -199,22 +199,22 @@ span.ui.inverted.black.text {
 span.ui.error.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #f04438 min(l, 0.42) c h), oklch(from #f04438 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #f04438 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.info.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.success.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.warning.text {
   
 /* Fork: tinta del estado, legible en ambos modos (D36) */
-  color: light-dark(oklch(from #f79009 min(l, 0.42) c h), oklch(from #f79009 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #f79009 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 span.ui.disabled.text {
   opacity: 0.45;

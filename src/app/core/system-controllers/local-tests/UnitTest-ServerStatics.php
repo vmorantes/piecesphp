@@ -38,7 +38,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $texto = static fn ($valor): string => var_export($valor, true);
 
     //──── 1. Rangos ────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[1/6] resolveRange(): un tramo → [inicio, fin]; inválido o fuera → false (416); varios o ninguno → null (200)');
+    echoTerminal('[1/7] resolveRange(): un tramo → [inicio, fin]; inválido o fuera → false (416); varios o ninguno → null (200)');
 
     $casos = [
         ['', 1000, null, 'sin cabecera → archivo entero'],
@@ -64,7 +64,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Cache-Control ─────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/6] cacheControlValue(): con versión, un año; sin ella, no-cache; lo validado, nunca public (ADR 0034)');
+    echoTerminal('[2/7] cacheControlValue(): con versión, un año; sin ella, no-cache; lo validado, nunca public (ADR 0034)');
 
     $casos = [
         [false, false, false, 'no-cache', 'público sin versión → no-cache'],
@@ -91,7 +91,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Vary ──────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/6] varyValues(): de qué depende la respuesta');
+    echoTerminal('[3/7] varyValues(): de qué depende la respuesta');
 
     $check(ServerStatics::varyValues(true, false, false) === ['Cookie', 'Authorization'], 'validado → Vary: Cookie, Authorization');
     $check(ServerStatics::varyValues(true, true, true) === ['Cookie', 'Authorization', 'Accept', 'Accept-Encoding'], 'validado, convertido y comprimido → los cuatro');
@@ -101,7 +101,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. ETag ──────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[4/6] eTagFor(): fecha, tamaño y tipo de salida');
+    echoTerminal('[4/7] eTagFor(): fecha, tamaño y tipo de salida');
 
     $check(ServerStatics::eTagFor(1757966939, 193) === ServerStatics::eTagFor(1757966939, 193), 'DISCRIMINANTE: lo mismo da el mismo ETag');
     $check(ServerStatics::eTagFor(1757966939, 193) !== ServerStatics::eTagFor(1757966939, 6291456), 'misma fecha y distinto tamaño → distinto ETag (antes coincidían)');
@@ -110,7 +110,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. Compresión ────────────────────────────────────────────────────────────────────────
-    echoTerminal('[5/6] allowCompression(): solo el texto');
+    echoTerminal('[5/7] allowCompression(): solo el texto');
 
     //Si esto cae, un PDF o un vídeo vuelven a leerse enteros para comprimirlos y pierden el streaming y el Range.
     $comprime = new \ReflectionMethod(ServerStatics::class, 'allowCompression');
@@ -123,7 +123,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 6. Salir de la carpeta ───────────────────────────────────────────────────────────────
-    echoTerminal('[6/6] pathHasTraversal(): «..» o el byte nulo se rechazan ANTES de delegar (P210)');
+    echoTerminal('[6/7] pathHasTraversal(): «..» o el byte nulo se rechazan ANTES de delegar (P210)');
 
     foreach (['../x.css', 'a/../b.png', 'a/..', "x\0.css", '....//x.js'] as $conSalida) {
         $check(ServerStatics::pathHasTraversal($conSalida) === true, $texto($conSalida) . ' → se rechaza');
@@ -169,6 +169,38 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     if ($check(is_link($enlace), 'CANARIO: existe el enlace delegado de publications.css', $enlace)) {
         $url = ServerStatics::getSymbolicLink(['params' => 'css/publications.css'], basepath('app/classes/Publications/Statics'));
         $check(is_string($url) && str_contains($url, 'server-delegated'), 'getSymbolicLink() sin «..» → la URL delegada', $texto($url));
+    }
+    echoTerminal(' ');
+
+    //──── 7. El código de estilos no se sirve ──────────────────────────────────────────────────
+    echoTerminal('[7/7] isStyleSource(): un .scss o .sass, o lo que cuelga de sass/, responde 404 (P310 b)');
+
+    foreach (['sass/design-sheet.scss', 'SASS/x.css', 'a/sass/b/c.png', 'x.SCSS', 'tema.sass'] as $estilo) {
+        $check(ServerStatics::isStyleSource($estilo) === true, $texto($estilo) . ' → se rechaza');
+    }
+    foreach (['css/design-sheet.css', 'css/about-framework.css.map', 'sassy/x.css', 'js/sass.js'] as $noEstilo) {
+        $check(ServerStatics::isStyleSource($noEstilo) === false, $texto($noEstilo) . ' → se acepta');
+    }
+    //Por HTTP: el servidor web es quien crea los enlaces delegados (la terminal no puede escribir en server-delegated/).
+    $estaticos = basepath('app/classes/PiecesPHP/AdminPanel/Statics');
+    if ($base !== '' && $check(is_file($estaticos . '/sass/design-sheet.scss') && is_file($estaticos . '/css/design-sheet.css'), 'CANARIO: existen la hoja de diseño en .scss y su .css')) {
+        foreach (['sass/design-sheet.scss' => true, 'css/design-sheet.css' => false] as $pedido => $rechazo) {
+            $h = \Terminal\TestRun::curlInit();
+            \Terminal\TestRun::curlSetoptArray($h, [
+                CURLOPT_URL => rtrim($base, '/') . '/admin/statics/' . $pedido,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_NOBODY => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_FOLLOWLOCATION => false,
+                CURLOPT_TIMEOUT => 30,
+            ]);
+            //RETORNO-IGNORADO: lo que cuenta es el código de estado, que se lee abajo.
+            curl_exec($h);
+            $codigo = (int) curl_getinfo($h, CURLINFO_RESPONSE_CODE);
+            $check($rechazo ? $codigo === 404 : in_array($codigo, [200, 302], true),
+                ($rechazo ? 'DISCRIMINANTE: GET admin/statics/' : 'GET admin/statics/') . $pedido . ($rechazo ? ' → 404' : ' → se sirve (200 o 302 al enlace delegado)'), (string) $codigo);
+        }
     }
     echoTerminal(' ');
 

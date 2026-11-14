@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Search
+ * # Fomantic-UI 0.12.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -123,7 +123,7 @@
 }
 .ui.search > .results .result .price {
   float: right;
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: tinta legible en ambos modos (D36) */
 }
@@ -168,7 +168,7 @@
 }
 .ui.search > .results .result.active .icon.image {
   border-color: var(--accent-200);
-  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1, var(--accent, #356dca));
 }
 
 /* Fork: pie de los resultados (ajuste `footer` del JS), p. ej. atajos de teclado. Los elementos van en línea; `.right`
@@ -232,7 +232,7 @@
        Focus
 --------------------- */
 .ui.search > .prompt:focus {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   background: var(--theme-surface);
   color: var(--theme-text);
 }
@@ -611,7 +611,7 @@
    cuando el prompt va dentro de un ui input */
 .ui.search > .prompt:focus,
 .ui.search > .ui.input > .prompt:focus {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);
 }

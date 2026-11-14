@@ -11,6 +11,9 @@ namespace PiecesPHP;
  */
 class Cli
 {
+    /** La salida se cerró (tubería rota, como con `| head`): no se vuelve a escribir en ella (P312 b). */
+    protected static bool $stdoutClosed = false;
+
     /** @var string */
     public readonly string $scriptPath;
 
@@ -332,10 +335,26 @@ class Cli
 
         $formattedString = $prefix . $text . $suffix;
 
-        if (defined('STDOUT')) {
+        if (defined('STDOUT') && !self::$stdoutClosed) {
             $newLineChars = $isTty ? $format['newLineChars'] : "\n";
-            fwrite(STDOUT, $formattedString . ($format['newLine'] ? $newLineChars : ''));
-            flush();
+            //Solo la tubería rota se calla y cierra la salida; cualquier otro aviso sigue a su manejador, como siempre.
+            $previous = null;
+            $previous = set_error_handler(function (int $level, string $message, string $file = '', int $line = 0) use (&$previous): bool {
+                if (str_contains($message, 'errno=32')) {
+                    self::$stdoutClosed = true;
+                    return true;
+                }
+                return is_callable($previous) ? (bool) $previous($level, $message, $file, $line) : false;
+            });
+            try {
+                //RETORNO-IGNORADO: un fallo de escritura llega al manejador de arriba, que decide.
+                fwrite(STDOUT, $formattedString . ($format['newLine'] ? $newLineChars : ''));
+            } finally {
+                restore_error_handler();
+            }
+            if (!self::$stdoutClosed) {
+                flush();
+            }
         }
 
         return $formattedString;

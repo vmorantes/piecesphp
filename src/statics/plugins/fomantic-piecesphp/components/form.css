@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Form
+ * # Fomantic-UI 0.12.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -455,7 +455,7 @@
 .ui.form input[type="url"]:focus,
 .ui.form input[type="week"]:focus {
   color: var(--theme-text);
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   border-radius: var(--r-md, 8px);
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -500,7 +500,7 @@
 }
 .ui.form textarea:focus {
   color: var(--theme-text);
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   border-radius: var(--r-md, 8px);
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);

@@ -142,7 +142,7 @@
   width: 0.8125rem;
   height: 0.8125rem;
   border-radius: 50%;
-  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  background: var(--accent-1, var(--accent, #356dca));
   animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
 .dt-container .dt-processing > div:last-child > div:nth-child(1) {
@@ -281,7 +281,7 @@ table.dataTable > thead > tr > .dt-ordering-desc .dt-column-order::after {
 table.dataTable > thead > tr > .dt-ordering-asc .dt-column-order::before,
 table.dataTable > thead > tr > .dt-ordering-desc .dt-column-order::after {
   opacity: 1;
-  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1, var(--accent, #356dca));
 }
 
 /* --------------
@@ -749,7 +749,7 @@ table.dataTable > tbody > tr.child span.dtr-title {
 }
 .dt-container .dt-length select.dt-input:focus-visible,
 .dt-container .dt-search .ui.input > input:focus {
-  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1, var(--accent, #356dca));
   outline: none;
   box-shadow: 0 0 0 3px var(--accent-ring);
 }

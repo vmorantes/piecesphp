@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Item
+ * # Fomantic-UI 0.12.0 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -216,7 +216,7 @@
   color: var(--theme-text);
 }
 .ui.items > .item > .content > a.header:hover {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Meta */
@@ -409,7 +409,7 @@
 }
 .ui.items a.item:hover .content .header,
 .ui.link.items > .item:hover .content .header {
-  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* --------------
@@ -473,10 +473,10 @@
   color: rgba(255, 255, 255, 0.8);
 }
 .ui.inverted.items > .item > .content a:not(.ui) {
-  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
+  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
 }
 .ui.inverted.items > .item > .content a:not(.ui):hover {
-  color: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.92) c h);
+  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.92) c h);
 }
 .ui.inverted.items > .item > .content > a.header {
   color: rgba(255, 255, 255, 0.9);

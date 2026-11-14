@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.11.0 - Progress
+ * # Fomantic-UI 0.12.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
