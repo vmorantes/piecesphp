@@ -12,21 +12,44 @@ scripts”**. All of them end with **“Cancel”** and **“Save”**.
 ## Artificial intelligence
 <!-- ve: configurations-integrations-ai -->
 
-Go to **“Artificial intelligence”**. It sets the provider, the model and the keys the platform uses for the
-artificial intelligence features.
+Go to **“Artificial intelligence”**. It is the control center for all of the platform's artificial intelligence: here you
+turn it on or off, choose the providers and their keys, and decide, feature by feature, who uses it and how much it can
+spend.
 
 ![Artificial intelligence](img/configurations-integrations-ai.webp)
+
+**Artificial intelligence**
+
+| Field | Required | Purpose |
+| --- | --- | --- |
+| AI enabled | No | The main switch. When off, no artificial intelligence feature calls a provider. |
+
+**Providers and keys**
 
 | Field | Required | Purpose |
 | --- | --- | --- |
 | OpenAI Model | No | The OpenAI model that is used. |
-| OpenAI API Key | No | The access key for OpenAI. |
+| OpenAI API Key | No | The access key for OpenAI. If the keys file defines it, the field cannot be changed and says so. |
 | Mistral Model | No | The Mistral model that is used. |
-| Mistral API Key | No | The access key for Mistral. |
-| Enable AI translation | No | Turns translation with artificial intelligence on or off. |
-| AI for translations | No | Which provider translates. |
-| Who can translate with AI | No | Which user types can use it. The main user (Root) always can. |
-| AI tokens limit | Yes | Informational only: the contracted quota, which the report uses to calculate the remaining tokens. It does not limit use. It is saved with its own **“Save”**. |
+| Mistral API Key | No | The access key for Mistral, with the same rule. |
+
+**Features**: one section for each artificial intelligence feature the platform has (for example, “Translation with
+AI”), with these fields:
+
+| Field | Required | Purpose |
+| --- | --- | --- |
+| Enabled | No | Turns that feature on or off. |
+| Who uses it | No | Which user types can use it. The main user (Root) always can. |
+| AI for translations | No | Only in “Translation with AI”: which provider translates. |
+| Quota (tokens) | No | How much the feature can spend in each period. **0 = no limit.** When the quota is reached, the feature stops calling the provider and says so, until the next period or until you reset the counter. |
+| Period | No | How often the quota starts counting again: **Cumulative** (it never does), **Monthly**, **Every N days** or **Every N months**. With the last two, the **“N”** field appears. |
+
+Below, the **“Usage this period”** line shows what has been spent (and the quota, if any) and since when. The **“Reset the
+counter”** button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
+the reports.
+
+**Token quota**, the form at the bottom, with its own **“Save”**: the **“AI tokens limit”** (required) is only used by the
+usage report and **does not limit anything**. The quota that limits is the one of each feature.
 
 ## Mail
 <!-- ve: configurations-integrations-mail -->

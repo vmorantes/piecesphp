@@ -9,6 +9,9 @@ namespace PiecesPHP\Settings\Controllers;
 use DataImportExportUtility\Controllers\DataTransferController;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AdminPanel\Controllers\HelperController;
+use PiecesPHP\AI\AICapability;
+use PiecesPHP\AI\AICapabilityRegistry;
+use PiecesPHP\AI\AIGateway;
 use PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\Backups\BackupPolicy;
@@ -298,8 +301,8 @@ class SettingsController extends AdminPanelController
         'OpenAIApiKey',
         'MistralAIApiKey',
         'translationAI',
-        'translationAIEnable',
-        \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG,
+        //El centro de mando (ADR 0074). translationAIEnable y translationAIUserTypes ya no se pintan: se leen como heredados.
+        AIGateway::CONFIG_NAME,
     ];
 
     /**
@@ -1860,7 +1863,7 @@ class SettingsController extends AdminPanelController
     public function ai(Request $req, Response $res)
     {
         $title = __(self::LANG_GROUP, 'Inteligencia artificial');
-        $header = $this->sectionHeader($title, __(self::LANG_GROUP, 'Proveedor, modelo y claves que usa la plataforma para las funciones con inteligencia artificial.'));
+        $header = $this->sectionHeader($title, __(self::LANG_GROUP, 'El centro de mando de la inteligencia artificial: encenderla, sus proveedores y claves, y quién usa cada función y cuánto puede gastar.'));
         return $this->securityOrAI($req, $res, 'integrations-ai', $title, 'ai', self::AI_CONFIG_KEYS, $header);
     }
 
@@ -2366,6 +2369,19 @@ class SettingsController extends AdminPanelController
                         return ($value === 1 || $value == '1' || $value === true);
                     }
                 ),
+                //El centro de mando: el JSON entero sale de los campos; lo que no vale lanza con su motivo (nada a medias).
+                AIGateway::CONFIG_NAME => new Parameter(
+                    AIGateway::CONFIG_NAME,
+                    null,
+                    function ($value) {
+                        self::aiCenterFromInput($value, get_config(AIGateway::CONFIG_NAME));
+                        return true;
+                    },
+                    true,
+                    function ($value) {
+                        return self::aiCenterFromInput($value, get_config(AIGateway::CONFIG_NAME));
+                    }
+                ),
             ];
             //«Quitar la guardada» (P317), una casilla por clave de IA que esta pantalla escribe.
             foreach (array_intersect($keys, self::AI_SECRET_CONFIG_KEYS) as $secretKey) {
@@ -2438,6 +2454,7 @@ class SettingsController extends AdminPanelController
                         'translationAI' => __(self::LANG_GROUP, 'IA para traducciones'),
                         'translationAIEnable' => __(self::LANG_GROUP, 'Configuración de traducción con IA actualizada'),
                         \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => __(self::LANG_GROUP, 'Quién puede traducir con IA actualizado'),
+                        AIGateway::CONFIG_NAME => __(self::LANG_GROUP, 'Las funciones de inteligencia artificial, actualizadas'),
                     ];
 
                     $messagesOnSaveLabels = [
@@ -3456,6 +3473,148 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * El JSON de ai_center a partir de los campos del formulario (o de un JSON ya armado: es idempotente). Parte de lo
+     * guardado: conserva el periodAnchor de cada capacidad y las entradas de las que ya no están registradas. Un toggle que
+     * no llega es false.
+     *
+     * @param mixed $input ['enabled' => …, 'capabilities' => ['<key>' => ['enabled', 'userTypes', 'quota', 'period', 'periodLength']]]
+     * @param mixed $saved Lo guardado (get_config)
+     * @return array<string,mixed>
+     * @throws InvalidParameterValueException si algún campo no vale, con el motivo traducido
+     */
+    public static function aiCenterFromInput($input, $saved): array
+    {
+        $invalid = function (string $capability, string $field) {
+            throw new InvalidParameterValueException(strReplaceTemplate(__(self::LANG_GROUP, 'Inteligencia artificial: el campo «%field%» de «%capability%» no es válido.'), [
+                '%field%' => $field,
+                '%capability%' => $capability,
+            ]));
+        };
+        if (!is_array($input)) {
+            throw new InvalidParameterValueException(__(self::LANG_GROUP, 'Inteligencia artificial: la configuración enviada no es válida.'));
+        }
+        $truthy = fn ($value): bool => $value === true || $value === 1 || $value === '1' || $value === 'on';
+
+        $center = AIGateway::normalizeCenter($saved);
+        $center = is_array($center) ? $center : [];
+        $center['enabled'] = $truthy($input['enabled'] ?? false);
+        $capabilities = is_array($center['capabilities'] ?? null) ? $center['capabilities'] : [];
+        $sent = is_array($input['capabilities'] ?? null) ? $input['capabilities'] : [];
+        $known = array_keys(UsersModel::TYPES_USERS);
+
+        foreach (AICapabilityRegistry::all() as $key => $capability) {
+            $fields = is_array($sent[$key] ?? null) ? $sent[$key] : [];
+            $name = $capability->name();
+            $entry = is_array($capabilities[$key] ?? null) ? $capabilities[$key] : [];
+
+            $entry['enabled'] = $truthy($fields['enabled'] ?? false);
+
+            $types = $fields['userTypes'] ?? [];
+            if (!is_array($types)) {
+                $invalid($name, __(self::LANG_GROUP, 'Quién la usa'));
+            }
+            $userTypes = [];
+            foreach ($types as $type) {
+                if ($type === '' || $type === null) {
+                    continue;
+                }
+                if (!Validator::isInteger($type) || !in_array((int) $type, $known, true)) {
+                    $invalid($name, __(self::LANG_GROUP, 'Quién la usa'));
+                }
+                $userTypes[] = (int) $type;
+            }
+            $entry['userTypes'] = array_values(array_unique($userTypes));
+
+            $quota = $fields['quota'] ?? 0;
+            if (!(is_int($quota) || (is_string($quota) && preg_match('/^\d+$/', trim($quota)) === 1)) || (int) $quota < 0) {
+                $invalid($name, __(self::LANG_GROUP, 'Cuota (tokens)'));
+            }
+            $entry['quota'] = (int) $quota;
+
+            $period = $fields['period'] ?? AICapability::PERIOD_ACCUMULATED;
+            if (!is_string($period) || !in_array($period, AICapability::PERIODS, true)) {
+                $invalid($name, __(self::LANG_GROUP, 'Periodo'));
+            }
+            $entry['period'] = $period;
+
+            $length = $fields['periodLength'] ?? 1;
+            $length = $length === '' ? 1 : $length;
+            if (!(is_int($length) || (is_string($length) && preg_match('/^\d+$/', trim($length)) === 1)) || (int) $length < 1) {
+                $invalid($name, 'N');
+            }
+            $entry['periodLength'] = (int) $length;
+
+            $capabilities[$key] = $entry;
+        }
+
+        $center['capabilities'] = $capabilities;
+        return $center;
+    }
+
+    /**
+     * «Reiniciar el contador» de una capacidad de IA: su periodo empieza ahora (periodAnchor). No borra ninguna fila del
+     * consumo: lo gastado desde ahora va a una fila nueva.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function aiUsageReset(Request $req, Response $res)
+    {
+        $body = $req->getParsedBody();
+        $capability = is_array($body) && is_string($body['capability'] ?? null) ? $body['capability'] : '';
+        if ($capability === '' || AICapabilityRegistry::get($capability) === null) {
+            return $res->withJson([
+                'success' => false,
+                'name' => __(self::LANG_GROUP, 'Reiniciar el contador'),
+                'message' => __(self::LANG_GROUP, 'Esa función de inteligencia artificial no existe.'),
+            ], 400);
+        }
+
+        $center = AIGateway::normalizeCenter(get_config(AIGateway::CONFIG_NAME));
+        $center = is_array($center) ? $center : [];
+        $capabilities = is_array($center['capabilities'] ?? null) ? $center['capabilities'] : [];
+        $entry = is_array($capabilities[$capability] ?? null) ? $capabilities[$capability] : [];
+        $entry['periodAnchor'] = date(AIGateway::ANCHOR_FORMAT);
+        $capabilities[$capability] = $entry;
+        $center['capabilities'] = $capabilities;
+
+        $option = new SettingsModel(AIGateway::CONFIG_NAME);
+        $option->value = ConfigOptions::valueToStore(AIGateway::CONFIG_NAME, $center);
+        if ($option->id !== null) {
+            $saved = $option->update();
+        } else {
+            $option->name = AIGateway::CONFIG_NAME;
+            $saved = $option->save();
+        }
+        if ($saved) {
+            set_config(AIGateway::CONFIG_NAME, $center);
+        }
+
+        $periodStart = AIGateway::periodStart($capability);
+        return $res->withJson([
+            'success' => (bool) $saved,
+            'name' => __(self::LANG_GROUP, 'Reiniciar el contador'),
+            'message' => $saved ? __(self::LANG_GROUP, 'Contador reiniciado.') : __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.'),
+            //El dato, no el texto: la pantalla lo pone como aiPeriodStartText() (d-m-Y H:i).
+            'periodStart' => $periodStart,
+            'usage' => AIGateway::usage($capability),
+        ]);
+    }
+
+    /**
+     * El inicio de un periodo, para leer: la fecha y la hora, sin segundos.
+     *
+     * @param string $periodStart Y-m-d H:i:s
+     * @return string
+     */
+    public static function aiPeriodStartText(string $periodStart): string
+    {
+        $date = \DateTimeImmutable::createFromFormat('!' . AIGateway::ANCHOR_FORMAT, $periodStart);
+        return $date === false ? $periodStart : $date->format('d-m-Y H:i');
+    }
+
+    /**
      * Quién puede traducir con IA, tal como llega del formulario: una lista de tipos conocidos. Sin ninguno elegido llega
      * `['']` (un '' suelto, Parameter lo toma por nulo y no se guardaría): es la lista vacía, solo root.
      *
@@ -3737,6 +3896,15 @@ class SettingsController extends AdminPanelController
                 $classname . ':ai',
                 self::$baseRouteName . '-' . 'integrations-ai',
                 'GET|POST',
+                true,
+                null,
+                self::ROLES_SECURITY_AND_AI
+            ),
+            new Route(
+                "{$startRoute}/integrations/ai/usage-reset[/]",
+                $classname . ':aiUsageReset',
+                self::$baseRouteName . '-' . 'integrations-ai-usage-reset',
+                'POST',
                 true,
                 null,
                 self::ROLES_SECURITY_AND_AI

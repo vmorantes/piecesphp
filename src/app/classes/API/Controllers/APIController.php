@@ -18,7 +18,9 @@ use News\Mappers\NewsMapper;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\AI\AIGateway;
+use PiecesPHP\AI\AIUnavailableException;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -502,8 +504,8 @@ class APIController extends AdminPanelController
 
         //Acciones permitidas
         $allowedActions = [
-            get_config('translationAIEnable') ? 'translate' : uniqid(),
-            get_config('translationAIEnable') ? 'translateGroup' : uniqid(),
+            self::translationAIAvailable() ? 'translate' : uniqid(),
+            self::translationAIAvailable() ? 'translateGroup' : uniqid(),
             'saveGroup',
         ];
         if (!in_array($actionType, $allowedActions)) {
@@ -616,7 +618,13 @@ class APIController extends AdminPanelController
                     $translationAI = get_config('translationAI');
                     $modelOpenAI = get_config('modelOpenAI');
                     $modelMistral = get_config('modelMistral');
-                    $aiHandler = AIGateway::chatHandler('translation');
+                    $aiUnavailable = null;
+                    try {
+                        $aiHandler = AIGateway::chatHandler('translation');
+                    } catch (AIUnavailableException $e) {
+                        $aiHandler = null;
+                        $aiUnavailable = $e->getMessage();
+                    }
                     $lastUsage = [];
                     $lastAskToChatOriginalResponse = [];
 
@@ -644,7 +652,7 @@ class APIController extends AdminPanelController
                         return $response->withJson([
                              ...$responseJSON,
                             'success' => false,
-                            'message' => __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA'),
+                            'message' => $aiUnavailable ?? __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA'),
                         ]);
                     }
 
@@ -743,10 +751,16 @@ class APIController extends AdminPanelController
 
                     if (count($pending) > 0) {
                         $translationAI = get_config('translationAI');
-                        $aiHandler = AIGateway::chatHandler('translation');
+                        $aiUnavailable = null;
+                        try {
+                            $aiHandler = AIGateway::chatHandler('translation');
+                        } catch (AIUnavailableException $e) {
+                            $aiHandler = null;
+                            $aiUnavailable = $e->getMessage();
+                        }
                         if ($aiHandler === null) {
                             $responseJSON['success'] = false;
-                            $responseJSON['message'] = __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA');
+                            $responseJSON['message'] = $aiUnavailable ?? __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA');
                         } else {
                             try {
                                 $aiResult = $this->translateWithAI($aiHandler, array_combine($pending, $pending), [], __('lang', Config::get_default_lang()), __('lang', $to));
@@ -1749,7 +1763,25 @@ class APIController extends AdminPanelController
         if ($user === null) {
             return false;
         }
+        //Con la capacidad registrada, una sola fuente: la puerta (ai_center, o lo de antes por la capa de los heredados).
+        if (AICapabilityRegistry::get('translation') !== null) {
+            return (int) $user->type === UsersModel::TYPE_USER_ROOT || in_array((int) $user->type, AIGateway::settingsFor('translation')['userTypes'], true);
+        }
         return in_array((int) $user->type, self::translationUserTypes(get_config(self::TRANSLATION_AI_USER_TYPES_CONFIG)), true);
+    }
+
+    /**
+     * Si la traducción con IA está disponible: el interruptor general y el de la capacidad, en la puerta. Sin la capacidad
+     * registrada, la casilla de antes.
+     *
+     * @return bool
+     */
+    public static function translationAIAvailable(): bool
+    {
+        if (AICapabilityRegistry::get('translation') !== null) {
+            return AIGateway::isEnabled() && AIGateway::settingsFor('translation')['enabled'];
+        }
+        return (bool) get_config('translationAIEnable');
     }
 
     /**

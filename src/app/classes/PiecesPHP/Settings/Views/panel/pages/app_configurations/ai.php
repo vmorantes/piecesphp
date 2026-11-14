@@ -9,6 +9,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $indexLink
  * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
+use PiecesPHP\AI\AICapability;
+use PiecesPHP\AI\AICapabilityRegistry;
+use PiecesPHP\AI\AIGateway;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 ?>
 <section class="module-view-container ai-view">
 
@@ -19,9 +24,15 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             'description' => $description,
         ]);
 
-        //Root no se ofrece: siempre puede (APIController::translationUserTypes()).
-        $translationUserTypesOptions = array_diff_key(\PiecesPHP\UserSystem\ORM\UsersModel::getTypesUser(), [\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ROOT => true]);
-        $translationUserTypesSelected = \API\Controllers\APIController::translationUserTypes(get_config(\API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG));
+        //Root no se ofrece: siempre puede (AIGateway::denialReason()).
+        $userTypesOptions = array_diff_key(UsersModel::getTypesUser(), [UsersModel::TYPE_USER_ROOT => true]);
+        $periodOptions = [
+            AICapability::PERIOD_ACCUMULATED => __($langGroup, 'Acumulado'),
+            AICapability::PERIOD_MONTHLY => __($langGroup, 'Mensual'),
+            AICapability::PERIOD_EVERY_DAYS => __($langGroup, 'Cada N días'),
+            AICapability::PERIOD_EVERY_MONTHS => __($langGroup, 'Cada N meses'),
+        ];
+        $resetURL = SettingsController::allowedRoute('integrations-ai-usage-reset') ? (string) SettingsController::routeName('integrations-ai-usage-reset') : '';
         //La que define el archivo de claves, sin placeholder: está deshabilitada y su texto lo dice (P318).
         $keyPlaceholder = fn(string $option): string => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option) ? '' : (mb_strlen((string) get_config($option)) > 0 ? __($langGroup, 'Clave guardada: vacío la conserva') : __($langGroup, 'Pega aquí la API key del proveedor'));
         //Una clave que da el archivo de claves manda (P318): el campo no se edita y lo dice.
@@ -36,15 +47,37 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         $tokensLimitElement = new \PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper(\PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
         $tokensLimitName = $tokensLimitElement->userSetContentName();
         $tokensLimitAction = \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::allowedRoute('actions-edit') ? (string) \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('actions-edit') : '';
+        //La línea del consumo: el JS la rehace tras «Reiniciar el contador» con las mismas plantillas.
+        $usageTemplate = __($langGroup, 'Consumo de este periodo: %usage% tokens, desde %start%.');
+        $usageQuotaTemplate = __($langGroup, 'Consumo de este periodo: %usage% tokens de %quota%, desde %start%.');
     ?>
 
     <form action="<?= $actionURL; ?>" method="POST" class="ui form initial ai segment" data-content-form>
+
+        <section aria-labelledby="ai-center-title">
+            <?php
+                $helpController->_render('panel/built-in/content/section-header.php', [
+                    'id' => 'ai-center-title',
+                    'title' => __($langGroup, 'La inteligencia artificial'),
+                ]);
+                $helpController->_render('panel/built-in/content/toggle-field.php', [
+                    'id' => 'ai-center-enabled',
+                    'inputName' => AIGateway::CONFIG_NAME . '[enabled]',
+                    'label' => __($langGroup, 'IA activada'),
+                    'description' => __($langGroup, 'Apagada, ninguna función de IA llama a un proveedor.'),
+                    'checked' => AIGateway::isEnabled(),
+                    'attributes' => ['data-ai-toggle' => ''],
+                ]);
+            ?>
+        </section>
+
+        <div class="ui section divider"></div>
 
         <section aria-labelledby="ai-provider-title">
             <?php
                 $helpController->_render('panel/built-in/content/section-header.php', [
                     'id' => 'ai-provider-title',
-                    'title' => __($langGroup, 'Proveedor y modelo'),
+                    'title' => __($langGroup, 'Proveedores y claves'),
                 ]);
             ?>
             <div class="two fields">
@@ -78,34 +111,88 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="ui section divider"></div>
 
-        <section aria-labelledby="ai-translation-title">
+        <section aria-labelledby="ai-capabilities-title">
             <?php
                 $helpController->_render('panel/built-in/content/section-header.php', [
-                    'id' => 'ai-translation-title',
-                    'title' => __($langGroup, 'Traducción con IA'),
-                ]);
-                $helpController->_render('panel/built-in/content/toggle-field.php', [
-                    'id' => 'ai-translation-enable',
-                    'inputName' => 'translationAIEnable',
-                    'label' => __($langGroup, 'Activar traducción con IA'),
-                    'checked' => (bool) get_config('translationAIEnable'),
+                    'id' => 'ai-capabilities-title',
+                    'title' => __($langGroup, 'Funciones'),
                 ]);
             ?>
-            <div class="two fields">
-                <div class="field">
-                    <label for="ai-translation-provider"><?= __($langGroup, 'IA para traducciones'); ?></label>
-                    <select id="ai-translation-provider" name="translationAI" class="ui fluid selection dropdown">
-                        <?= array_to_html_options(TRANSLATION_AI_LIST, get_config('translationAI')); ?>
-                    </select>
+            <?php foreach (AICapabilityRegistry::all() as $capabilityKey => $capability): ?>
+            <?php
+                $settings = AIGateway::settingsFor($capabilityKey);
+                $field = AIGateway::CONFIG_NAME . '[capabilities][' . $capabilityKey . ']';
+                $idBase = 'ai-capability-' . $capabilityKey;
+                $periodStart = AIGateway::periodStart($capabilityKey);
+                try {
+                    $usage = AIGateway::usage($capabilityKey);
+                } catch (\Throwable $e) {
+                    log_exception($e);
+                    $usage = null;
+                }
+                $usageText = $usage === null
+                    ? __($langGroup, 'El consumo no está disponible.')
+                    : strReplaceTemplate($settings['quota'] > 0 ? $usageQuotaTemplate : $usageTemplate, [
+                    '%usage%' => (string) $usage,
+                    '%quota%' => (string) $settings['quota'],
+                    '%start%' => SettingsController::aiPeriodStartText($periodStart),
+                ]);
+            ?>
+            <section class="ai-capability" aria-labelledby="<?= escape_html($idBase); ?>-title" data-ai-capability="<?= escape_html($capabilityKey); ?>">
+                <h3 class="ui header" id="<?= escape_html($idBase); ?>-title"><?= escape_html($capability->name()); ?></h3>
+                <?php
+                    $helpController->_render('panel/built-in/content/toggle-field.php', [
+                        'id' => $idBase . '-enabled',
+                        'inputName' => $field . '[enabled]',
+                        'label' => __($langGroup, 'Activada'),
+                        'checked' => $settings['enabled'],
+                        'attributes' => ['data-ai-toggle' => ''],
+                    ]);
+                ?>
+                <div class="two fields">
+                    <div class="field">
+                        <label for="<?= escape_html($idBase); ?>-users"><?= __($langGroup, 'Quién la usa'); ?></label>
+                        <select id="<?= escape_html($idBase); ?>-users" name="<?= escape_html($field); ?>[userTypes][]" class="ui fluid dropdown" multiple data-ai-user-types>
+                            <?= array_to_html_options($userTypesOptions, $settings['userTypes'], true); ?>
+                        </select>
+                        <div class="description"><?= __($langGroup, 'Root siempre puede.'); ?></div>
+                    </div>
+                    <?php if ($capabilityKey === 'translation'): ?>
+                    <div class="field">
+                        <label for="ai-translation-provider"><?= __($langGroup, 'IA para traducciones'); ?></label>
+                        <select id="ai-translation-provider" name="translationAI" class="ui fluid selection dropdown">
+                            <?= array_to_html_options(TRANSLATION_AI_LIST, get_config('translationAI')); ?>
+                        </select>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                <div class="three fields">
+                    <div class="field">
+                        <label for="<?= escape_html($idBase); ?>-quota"><?= __($langGroup, 'Cuota (tokens)'); ?></label>
+                        <input type="number" id="<?= escape_html($idBase); ?>-quota" name="<?= escape_html($field); ?>[quota]" min="0" step="1" value="<?= (int) $settings['quota']; ?>" aria-describedby="<?= escape_html($idBase); ?>-quota-description">
+                        <div class="description" id="<?= escape_html($idBase); ?>-quota-description"><?= __($langGroup, '0 = sin límite'); ?></div>
+                    </div>
+                    <div class="field">
+                        <label for="<?= escape_html($idBase); ?>-period"><?= __($langGroup, 'Periodo'); ?></label>
+                        <select id="<?= escape_html($idBase); ?>-period" name="<?= escape_html($field); ?>[period]" class="ui fluid selection dropdown" data-ai-period>
+                            <?= array_to_html_options($periodOptions, $settings['period']); ?>
+                        </select>
+                    </div>
+                    <div class="field" data-ai-period-length>
+                        <label for="<?= escape_html($idBase); ?>-length">N</label>
+                        <input type="number" id="<?= escape_html($idBase); ?>-length" name="<?= escape_html($field); ?>[periodLength]" min="1" step="1" value="<?= (int) $settings['periodLength']; ?>">
+                    </div>
                 </div>
                 <div class="field">
-                    <label for="ai-translation-users"><?= __($langGroup, 'Quién puede traducir con IA'); ?></label>
-                    <select id="ai-translation-users" name="<?= \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG; ?>[]" class="ui fluid dropdown" multiple>
-                        <?= array_to_html_options($translationUserTypesOptions, $translationUserTypesSelected, true); ?>
-                    </select>
-                    <div class="description"><?= __($langGroup, 'Root siempre puede.'); ?></div>
+                    <p class="ui text" data-ai-usage data-template="<?= escape_html($usageTemplate); ?>" data-template-quota="<?= escape_html($usageQuotaTemplate); ?>" data-quota="<?= (int) $settings['quota']; ?>"><?= escape_html($usageText); ?></p>
+                    <?php if ($resetURL !== ''): ?>
+                    <button type="button" class="ui basic button" data-ai-usage-reset="<?= escape_html($capabilityKey); ?>" data-url="<?= escape_html($resetURL); ?>" data-confirm-message="<?= escape_html(strReplaceTemplate(__($langGroup, '¿Reiniciar el contador de «%s»? Lo gastado hasta ahora se conserva, pero la cuota vuelve a contar desde cero.'), ['%s' => $capability->name()])); ?>">
+                        <i class="redo icon" aria-hidden="true"></i><?= __($langGroup, 'Reiniciar el contador'); ?>
+                    </button>
+                    <?php endif; ?>
                 </div>
-            </div>
+            </section>
+            <?php endforeach; ?>
         </section>
 
         <?php
@@ -125,7 +212,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             $helpController->_render('panel/built-in/content/section-header.php', [
                 'id' => 'ai-quota-title',
                 'title' => __($langGroup, 'Cuota de tokens'),
-                'description' => __($langGroup, 'Solo informativo: es la cuota contratada y sirve para calcular los tokens restantes del informe. No limita el uso de la inteligencia artificial.'),
+                'description' => __($langGroup, 'Solo para el informe de consumo: no limita. La cuota que limita cada función está arriba, en «Funciones».'),
             ]);
         ?>
         <input type="hidden" name="configName" value="<?= escape_html($tokensLimitName); ?>">

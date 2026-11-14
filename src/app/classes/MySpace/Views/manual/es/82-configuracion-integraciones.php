@@ -9,9 +9,28 @@ Scripts»</strong>. Todas terminan con <strong>«Cancelar»</strong> y <strong>�
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-ai'])): ?>
 <h2 class="active title" id="inteligencia-artificial"><span role="button" tabindex="0" aria-expanded="true" aria-controls="inteligencia-artificial-contenido"><i class="dropdown icon" aria-hidden="true"></i>Inteligencia artificial</span></h2>
 <div class="active content" id="inteligencia-artificial-contenido">
-<p>Entra por <strong>«Inteligencia artificial»</strong>. Define el proveedor, el modelo y las claves que usa la plataforma para las
-funciones con inteligencia artificial.</p>
+<p>Entra por <strong>«Inteligencia artificial»</strong>. Es el centro de mando de toda la inteligencia artificial de la plataforma: aquí
+la enciendes o la apagas, eliges los proveedores y sus claves, y decides, función por función, quién la usa y cuánto
+puede gastar.</p>
 <p><img class="ui image" alt="Inteligencia artificial" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
+<p><strong>La inteligencia artificial</strong></p>
+<table class="ui celled table">
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IA activada</td>
+<td>No</td>
+<td>El interruptor general. Apagado, ninguna función de inteligencia artificial llama a un proveedor.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Proveedores y claves</strong></p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -29,7 +48,7 @@ funciones con inteligencia artificial.</p>
 <tr>
 <td>API Key OpenAI</td>
 <td>No</td>
-<td>La clave de acceso a OpenAI.</td>
+<td>La clave de acceso a OpenAI. Si la define el archivo de claves, el campo no se puede cambiar y lo dice.</td>
 </tr>
 <tr>
 <td>Modelo Mistral</td>
@@ -39,30 +58,53 @@ funciones con inteligencia artificial.</p>
 <tr>
 <td>API Key Mistral</td>
 <td>No</td>
-<td>La clave de acceso a Mistral.</td>
+<td>La clave de acceso a Mistral, con la misma regla.</td>
 </tr>
+</tbody>
+</table>
+<p><strong>Funciones</strong>: una sección por cada función de inteligencia artificial que tenga la plataforma (por ejemplo, «Traducción
+con IA»), con estos campos:</p>
+<table class="ui celled table">
+<thead>
 <tr>
-<td>Activar traducción con IA</td>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Activada</td>
 <td>No</td>
-<td>Enciende o apaga la traducción con inteligencia artificial.</td>
+<td>Enciende o apaga esa función.</td>
 </tr>
 <tr>
-<td>IA para traducciones</td>
-<td>No</td>
-<td>Qué proveedor traduce.</td>
-</tr>
-<tr>
-<td>Quién puede traducir con IA</td>
+<td>Quién la usa</td>
 <td>No</td>
 <td>Qué tipos de usuario pueden usarla. El usuario principal (Root) siempre puede.</td>
 </tr>
 <tr>
-<td>Límite de tokens de IA</td>
-<td>Sí</td>
-<td>Solo informativo: la cuota contratada, con la que el informe calcula los tokens restantes. No limita el uso. Se guarda con su propio <strong>«Guardar»</strong>.</td>
+<td>IA para traducciones</td>
+<td>No</td>
+<td>Solo en «Traducción con IA»: qué proveedor traduce.</td>
+</tr>
+<tr>
+<td>Cuota (tokens)</td>
+<td>No</td>
+<td>Cuánto puede gastar la función en cada periodo. <strong>0 = sin límite.</strong> Al llegar a la cuota, la función deja de llamar al proveedor y avisa de que se alcanzó, hasta el periodo siguiente o hasta que reinicies el contador.</td>
+</tr>
+<tr>
+<td>Periodo</td>
+<td>No</td>
+<td>Cada cuánto vuelve a contar la cuota: <strong>Acumulado</strong> (no vuelve a contar), <strong>Mensual</strong>, <strong>Cada N días</strong> o <strong>Cada N meses</strong>. Con los dos últimos aparece el campo <strong>«N»</strong>.</td>
 </tr>
 </tbody>
 </table>
+<p>Debajo, la línea <strong>«Consumo de este periodo»</strong> dice lo gastado (y la cuota, si la hay) y desde cuándo. El botón
+<strong>«Reiniciar el contador»</strong> pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
+conserva para los informes.</p>
+<p><strong>Cuota de tokens</strong>, el formulario de abajo, con su propio <strong>«Guardar»</strong>: el <strong>«Límite de tokens de IA»</strong> (obligatorio)
+solo sirve para el informe de consumo y <strong>no limita nada</strong>. La cuota que limita es la de cada función.</p>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-mail'])): ?>

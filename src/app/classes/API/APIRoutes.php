@@ -67,6 +67,18 @@ class APIRoutes
                     AICapability::PROVIDER_CHAT,
                     true,
                     array_keys(UsersModel::TYPES_USERS),
+                    0,
+                    AICapability::PERIOD_ACCUMULATED,
+                    //Lo de antes del centro (hasta la 11.0.0): la casilla y quién traduce. La cuota de Configuración › IA no se
+                    //hereda aún: es «Solo informativo» y limitar sin poder reiniciar dejaría sin traducción a quien la pasó.
+                    static function (): array {
+                        $legacy = ['userTypes' => APIController::translationUserTypes(get_config(APIController::TRANSLATION_AI_USER_TYPES_CONFIG))];
+                        $enabled = get_config('translationAIEnable');
+                        if (is_bool($enabled)) {
+                            $legacy['enabled'] = $enabled;
+                        }
+                        return $legacy;
+                    },
                 ));
             }
 

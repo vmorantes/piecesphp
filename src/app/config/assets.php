@@ -197,7 +197,9 @@ $assets['simple_upload_placeholder']['plugins'] = [];
  * @link project://src/statics/plugins/elfinder/js/elfinder.full.js
  */
 $assets['elfinder']['js'] = [
+    'statics/plugins/jquery-ui/jquery-ui-backcompat.js',
     'statics/plugins/jquery-ui/jquery-ui.min.js',
+    'statics/plugins/jquery-ui/jquery-ui-fomantic-restore.js',
     'statics/plugins/elfinder/js/elfinder.full.js',
 ];
 $assets['elfinder']['css'] = [
@@ -207,10 +209,13 @@ $assets['elfinder']['css'] = [
 $assets['elfinder']['plugins'] = [];
 
 /**
- * jQuery UI, una compilación sin el widget accordion.
+ * jQuery UI 1.14.2, la compilación oficial completa (la que pide elFinder). Delante, la compatibilidad de botones de la 1.11;
+ * detrás, el accordion de Fomantic repuesto (jQuery UI trae uno con el mismo nombre).
  */
 $assets['jqueryui']['js'] = [
+    'statics/plugins/jquery-ui/jquery-ui-backcompat.js',
     'statics/plugins/jquery-ui/jquery-ui.min.js',
+    'statics/plugins/jquery-ui/jquery-ui-fomantic-restore.js',
 ];
 $assets['jqueryui']['css'] = [
     'statics/plugins/jquery-ui/jquery-ui.min.css',

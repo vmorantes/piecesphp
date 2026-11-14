@@ -75,6 +75,7 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | `db-backup` | `gz`, `data`, `routines`, `views`, `definer` (yes/no) | Respalda la base en `dumps/` |
 | `db-restore` | `file=<ruta>`, `confirm=yes`, `database=` | **Restaura** un volcado. Destruye los datos de la base destino: exige `confirm=yes`. Para aplicar una actualización de `databases/actualizaciones/`, `db-update` |
 | `db-update` | `file=<nombre>`, `apply=yes` | Lista, simula o aplica las actualizaciones de la base (`databases/actualizaciones/`). Aplicar exige un volcado de la última hora. Ver [10. db-update](#10-db-update) |
+| `users-meta-normalize` | `apply=yes` | Reescribe el `meta` de los usuarios que quedó guardado con el formato de MySQL (antes de la 10.21.0) con el del framework. Sin `apply=yes` solo cuenta; aplicar exige un volcado de la última hora. No imprime valores |
 | `bundle` | `app`, `statics`, `all`, `zip` (yes/no) | Empaqueta la app y/o los estáticos en `bundle/` |
 | `clean-cache` / `clean-logs` / `clean-all` | — | Fuerza que todos descarguen de nuevo los estáticos (renueva la marca global, borra las imágenes optimizadas y los accesos directos de `server-delegated` que el usuario que la ejecuta pueda borrar) / limpia los logs, **sin borrar los archivos del formato viejo de sesiones caducadas** / las dos |
 | `scan-missing-lang` | `--exclude-lang=`, `--exclude-group=` | Informe de traducciones faltantes |

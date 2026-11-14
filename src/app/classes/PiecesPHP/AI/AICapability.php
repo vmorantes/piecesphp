@@ -97,6 +97,11 @@ final class AICapability
     private $defaultPeriod;
 
     /**
+     * @var \Closure():array<string,mixed>|null
+     */
+    private $legacySettings;
+
+    /**
      * @param string $key Solo minúsculas, cifras y guiones
      * @param callable():string $name Devuelve el nombre ya traducido: se llama al pintar, no al registrar
      * @param string $providerType PROVIDER_CHAT o PROVIDER_SPEECH
@@ -104,9 +109,11 @@ final class AICapability
      * @param int[] $defaultUserTypes Los tipos de usuario que la usan (root, siempre)
      * @param int $defaultQuota Tokens por periodo; 0 = sin límite
      * @param string $defaultPeriod Uno de PERIODS
+     * @param \Closure|null $legacySettings Los valores que el módulo guardaba antes del centro (un array parcial con las claves de
+     *        AIGateway::settingsFor()); van entre los por omisión y lo guardado en ai_center, y se leen hasta la 11.0.0
      * @throws \InvalidArgumentException si la key, el tipo de proveedor, la cuota o el periodo no valen
      */
-    public function __construct(string $key, callable $name, string $providerType, bool $enabledByDefault = true, array $defaultUserTypes = [], int $defaultQuota = 0, string $defaultPeriod = self::PERIOD_ACCUMULATED)
+    public function __construct(string $key, callable $name, string $providerType, bool $enabledByDefault = true, array $defaultUserTypes = [], int $defaultQuota = 0, string $defaultPeriod = self::PERIOD_ACCUMULATED, ?\Closure $legacySettings = null)
     {
         if (preg_match(self::KEY_PATTERN, $key) !== 1) {
             throw new \InvalidArgumentException("La key de capacidad de IA «{$key}» no es válida.");
@@ -127,6 +134,7 @@ final class AICapability
         $this->defaultUserTypes = array_values(array_map('intval', $defaultUserTypes));
         $this->defaultQuota = $defaultQuota;
         $this->defaultPeriod = $defaultPeriod;
+        $this->legacySettings = $legacySettings;
     }
 
     /**
@@ -185,5 +193,19 @@ final class AICapability
     public function defaultPeriod(): string
     {
         return $this->defaultPeriod;
+    }
+
+    /**
+     * Los valores heredados del módulo, leídos ahora; [] si no tiene o si no devuelve un array.
+     *
+     * @return array<string,mixed>
+     */
+    public function legacySettings(): array
+    {
+        if ($this->legacySettings === null) {
+            return [];
+        }
+        $settings = ($this->legacySettings)();
+        return is_array($settings) ? $settings : [];
     }
 }

@@ -639,9 +639,11 @@ con sus opciones `fileManagerConfigURL` y `fileManagerUIURL`.
 
 ### Dos detalles del catálogo
 
-- **`jqueryui`** es una compilación **sin el widget `accordion`** (la palabra no aparece en ningún archivo de su
-  carpeta). `elfinder` y `jqueryui` comparten el mismo `jquery-ui.min.js`; el framework no añade dos veces un archivo
-  que ya está en la lista global.
+- **`jqueryui`** es jQuery UI **1.14.2, la compilación oficial completa** (la que pide elFinder). Delante va
+  `jquery-ui-backcompat.js`, que activa `jQuery.uiBackCompat` (elFinder usa la API de botón de la 1.11), y detrás
+  `jquery-ui-fomantic-restore.js`, que **devuelve a `$.fn.accordion` el de Fomantic**: jQuery UI trae uno con el mismo
+  nombre. El `slider` sí queda el de jQuery UI en esas páginas, porque elFinder lo usa. `elfinder` y `jqueryui`
+  comparten esos archivos; el framework no añade dos veces un archivo que ya está en la lista global.
 - **`locations`**: `import_locations()` importa también `mapbox` si pides el plugin `autoInit` o `$all`.
 
 ---

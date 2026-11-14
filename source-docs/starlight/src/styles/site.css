@@ -1,0 +1,51 @@
+/* El acento del panel (--accent-1, #356dca). En oscuro, el texto de acento es una variante clara del mismo tono que pasa
+   de 4.5:1 sobre el fondo y sobre la barra lateral (7.16:1 y 6.10:1). */
+:root {
+    --sl-color-accent-low: hsl(217, 54%, 20%);
+    --sl-color-accent: #356dca;
+    --sl-color-accent-high: #7da6e8;
+}
+
+:root[data-theme='light'] {
+    --sl-color-accent-low: hsl(217, 80%, 92%);
+    --sl-color-accent: #356dca;
+    --sl-color-accent-high: hsl(217, 60%, 30%);
+}
+
+/* Los botones que vienen de MkDocs ({ .md-button }, src/content.config.ts): las reglas de LinkButton de Starlight, que
+   son locales a su componente y no llegan a un <a> escrito en el Markdown. */
+@layer starlight.components {
+    .sl-markdown-content .sl-link-button {
+        align-items: center;
+        border: 1px solid transparent;
+        border-radius: 999rem;
+        display: inline-flex;
+        font-size: var(--sl-text-sm);
+        gap: 0.5em;
+        line-height: 1.1875;
+        margin-inline-end: 1rem;
+        outline-offset: 0.25rem;
+        padding: 0.4375rem 1.125rem;
+        text-decoration: none;
+    }
+
+    .sl-markdown-content .sl-link-button.primary,
+    .sl-markdown-content .sl-link-button.primary:hover {
+        background: var(--sl-color-text-accent);
+        border-color: var(--sl-color-text-accent);
+        color: var(--sl-color-black);
+    }
+
+    .sl-markdown-content .sl-link-button.secondary,
+    .sl-markdown-content .sl-link-button.secondary:hover {
+        border-color: var(--sl-color-text-accent);
+        color: var(--sl-color-text-accent);
+    }
+
+    @media (min-width: 50rem) {
+        .sl-markdown-content .sl-link-button {
+            font-size: var(--sl-text-base);
+            padding: 0.9375rem 1.25rem;
+        }
+    }
+}

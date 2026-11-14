@@ -121,7 +121,7 @@ CliActions::make('unit-tests:core/updated-event', function ($args) {
         $check(
             $changedRows($subject) === 0,
             'un guardado que no toca nada cuenta CERO filas cambiadas',
-            'contó ' . $changedRows($subject)
+            'contó ' . $changedRows($subject) . '; cambió: ' . json_encode($subject->lastChangedFields())
         );
         $check(
             $statusOf() === SystemApprovalsMapper::STATUS_REJECTED,

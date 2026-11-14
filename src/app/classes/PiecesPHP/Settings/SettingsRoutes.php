@@ -7,6 +7,7 @@
 namespace PiecesPHP\Settings;
 
 use API\Controllers\APIController;
+use PiecesPHP\AI\AIGateway;
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
@@ -102,6 +103,7 @@ class SettingsRoutes
         $declare(SettingsController::AI_SECRET_CONFIG_KEYS, $owner, ConfigOptions::SHAPE_SECRET);
         $declare(['translationAIEnable'], $owner, ConfigOptions::SHAPE_BOOL);
         $declare([APIController::TRANSLATION_AI_USER_TYPES_CONFIG], APIController::class, ConfigOptions::SHAPE_JSON);
+        $declare([AIGateway::CONFIG_NAME], AIGateway::class, ConfigOptions::SHAPE_JSON);
 
         //Colores, tipografía y forma: la pantalla Colores.
         $declare(SettingsController::COLOR_OPTIONS, $owner, ConfigOptions::SHAPE_COLOR);

@@ -9,9 +9,28 @@ scripts”</strong>. All of them end with <strong>“Cancel”</strong> and <str
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-ai'])): ?>
 <h2 class="active title" id="artificial-intelligence"><span role="button" tabindex="0" aria-expanded="true" aria-controls="artificial-intelligence-contenido"><i class="dropdown icon" aria-hidden="true"></i>Artificial intelligence</span></h2>
 <div class="active content" id="artificial-intelligence-contenido">
-<p>Go to <strong>“Artificial intelligence”</strong>. It sets the provider, the model and the keys the platform uses for the
-artificial intelligence features.</p>
+<p>Go to <strong>“Artificial intelligence”</strong>. It is the control center for all of the platform's artificial intelligence: here you
+turn it on or off, choose the providers and their keys, and decide, feature by feature, who uses it and how much it can
+spend.</p>
 <p><img class="ui image" alt="Artificial intelligence" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
+<p><strong>Artificial intelligence</strong></p>
+<table class="ui celled table">
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI enabled</td>
+<td>No</td>
+<td>The main switch. When off, no artificial intelligence feature calls a provider.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Providers and keys</strong></p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -29,7 +48,7 @@ artificial intelligence features.</p>
 <tr>
 <td>OpenAI API Key</td>
 <td>No</td>
-<td>The access key for OpenAI.</td>
+<td>The access key for OpenAI. If the keys file defines it, the field cannot be changed and says so.</td>
 </tr>
 <tr>
 <td>Mistral Model</td>
@@ -39,30 +58,53 @@ artificial intelligence features.</p>
 <tr>
 <td>Mistral API Key</td>
 <td>No</td>
-<td>The access key for Mistral.</td>
+<td>The access key for Mistral, with the same rule.</td>
 </tr>
+</tbody>
+</table>
+<p><strong>Features</strong>: one section for each artificial intelligence feature the platform has (for example, “Translation with
+AI”), with these fields:</p>
+<table class="ui celled table">
+<thead>
 <tr>
-<td>Enable AI translation</td>
+<th>Field</th>
+<th>Required</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enabled</td>
 <td>No</td>
-<td>Turns translation with artificial intelligence on or off.</td>
+<td>Turns that feature on or off.</td>
 </tr>
 <tr>
-<td>AI for translations</td>
-<td>No</td>
-<td>Which provider translates.</td>
-</tr>
-<tr>
-<td>Who can translate with AI</td>
+<td>Who uses it</td>
 <td>No</td>
 <td>Which user types can use it. The main user (Root) always can.</td>
 </tr>
 <tr>
-<td>AI tokens limit</td>
-<td>Yes</td>
-<td>Informational only: the contracted quota, which the report uses to calculate the remaining tokens. It does not limit use. It is saved with its own <strong>“Save”</strong>.</td>
+<td>AI for translations</td>
+<td>No</td>
+<td>Only in “Translation with AI”: which provider translates.</td>
+</tr>
+<tr>
+<td>Quota (tokens)</td>
+<td>No</td>
+<td>How much the feature can spend in each period. <strong>0 = no limit.</strong> When the quota is reached, the feature stops calling the provider and says so, until the next period or until you reset the counter.</td>
+</tr>
+<tr>
+<td>Period</td>
+<td>No</td>
+<td>How often the quota starts counting again: <strong>Cumulative</strong> (it never does), <strong>Monthly</strong>, <strong>Every N days</strong> or <strong>Every N months</strong>. With the last two, the <strong>“N”</strong> field appears.</td>
 </tr>
 </tbody>
 </table>
+<p>Below, the <strong>“Usage this period”</strong> line shows what has been spent (and the quota, if any) and since when. The <strong>“Reset the
+counter”</strong> button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
+the reports.</p>
+<p><strong>Token quota</strong>, the form at the bottom, with its own <strong>“Save”</strong>: the <strong>“AI tokens limit”</strong> (required) is only used by the
+usage report and <strong>does not limit anything</strong>. The quota that limits is the one of each feature.</p>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-integrations-mail'])): ?>

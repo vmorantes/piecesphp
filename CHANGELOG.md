@@ -1,3 +1,30 @@
+# 10.21.0 (13-11-2026)
+
+- **Nuevo: Configuración › IA es el centro de mando de la inteligencia artificial.** Un interruptor general; los
+  proveedores y sus claves; y una sección por función con su interruptor, quién la usa, su cuota (0 = sin límite) y su
+  periodo (acumulado, mensual, cada N días o cada N meses), con su consumo del periodo y «Reiniciar el contador». La
+  traducción con IA obedece a esa pantalla, y sus ajustes de antes se conservan. El «Límite de tokens de IA» del final
+  sigue siendo solo para el informe de consumo: no limita. Manual: «Configuración de las integraciones».
+- **Arreglado: un usuario rechazado ya no vuelve a pendiente** al guardarse sin cambios después de cambiar una
+  preferencia (modo de color, tamaño de letra, una tarjeta plegada…) o de haber estado bloqueado. **Al actualizar**:
+  `bin/cli db-backup` y después `bin/cli users-meta-normalize apply=yes`, que corrige los datos guardados antes (sin
+  `apply=yes` solo cuenta).
+- **El Gestor de archivos, al día**: jQuery UI 1.14.2 (antes 1.12.1, sin soporte desde hace años) y fuera del cliente de
+  elFinder lo que no se carga ni se usa (iconos de editores externos, añadidos, el protocolo antiguo y los idiomas que la
+  plataforma no ofrece). Se ve y funciona igual.
+- **Para quien desarrolla: el centro de mando de la IA, segunda y tercera entrega.** La puerta (`AIGateway`) controla, en
+  este orden, el interruptor general, el de cada capacidad, quién la usa (root siempre) y su cuota en el periodo, y si algo
+  lo impide lanza `AIUnavailableException` con el motivo, sin llamar al proveedor. Los ajustes viven en la opción
+  `ai_center`; léela con `AIGateway::normalizeCenter()`. `AIGateway::periodStart()` recibe ahora la capacidad. Una
+  capacidad puede traer los ajustes que su módulo ya tenía con otro nombre (octavo argumento de `AICapability`). Guía
+  «El centro de mando de la IA».
+- **Para quien desarrolla: jQuery UI 1.14.2** se carga con su compatibilidad de botones de la 1.11 activada
+  (`jQuery.uiBackCompat`), que necesita elFinder, y con el `accordion` de Fomantic repuesto detrás (jQuery UI trae uno con
+  el mismo nombre). Si tu proyecto carga jQuery UI con `import_jqueryui()` y usaba widgets que la 1.14 retiró, revisa su
+  guía de actualización.
+- **Documentación**: «Configuración de las integraciones» (manual), la guía de la IA y `users-meta-normalize` en
+  «Terminal».
+
 # 10.20.0 (13-11-2026)
 
 - **El número del contador de la campana, en blanco.** Antes salía negro sobre el rojo; ahora es blanco sobre un rojo algo

@@ -8,6 +8,7 @@ namespace PiecesPHP\UserSystem\ORM;
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
@@ -657,22 +658,35 @@ class UsersModel extends EntityMapperExtensible
     public function changeStatus($status, $id)
     {
         $this->updateModifiedAt($id);
-        //Bloquear guarda en `meta` el estado de antes, en la MISMA sentencia: unblockFromAttempts() lo devuelve, y una
-        //escritura de `meta` entre leer y escribir (los filtros guardados) no se pierde.
+        //Bloquear guarda en `meta` el estado de antes, en la misma sentencia, con lo leído en el WHERE (otra escritura de
+        //`meta` no se pierde: se relee una vez). Un `meta` que no es un objeto JSON se deja (el desbloqueo usa su respaldo).
         if ((int) $status === self::STATUS_USER_ATTEMPTS_BLOCK) {
-            //`meta` antes que `status`: las asignaciones de un UPDATE se evalúan de izquierda a derecha. Un `meta` que no es
-            //un objeto JSON se deja como está (sin estado guardado, el desbloqueo usa su respaldo).
-            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = CASE'
-                . " WHEN meta IS NULL OR meta = '' OR meta = '[]' THEN JSON_OBJECT(?, status)"
-                . " WHEN JSON_VALID(meta) AND JSON_TYPE(meta) = 'OBJECT' THEN JSON_SET(meta, ?, status)"
-                . ' ELSE meta END, status = ? WHERE id = ? AND status <> ?');
-            return $statement->execute([
-                self::META_STATUS_BEFORE_BLOCK,
-                '$.' . self::META_STATUS_BEFORE_BLOCK,
-                self::STATUS_USER_ATTEMPTS_BLOCK,
-                (int) $id,
-                self::STATUS_USER_ATTEMPTS_BLOCK,
-            ]);
+            for ($attempt = 1; $attempt <= 2; $attempt++) {
+                $fresh = static::freshStatusAndRawMeta((int) $id);
+                if ($fresh === null || $fresh['status'] === self::STATUS_USER_ATTEMPTS_BLOCK) {
+                    return true;
+                }
+                $meta = self::metaObjectOf($fresh['meta']);
+                if ($meta !== null) {
+                    $meta->{self::META_STATUS_BEFORE_BLOCK} = $fresh['status'];
+                }
+                $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = ?, status = ? WHERE id = ? AND meta <=> ? AND status = ? AND status <> ?');
+                //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza; lo que cuenta es el rowCount().
+                $statement->execute([
+                    $meta !== null ? self::metaToStore($meta) : $fresh['meta'],
+                    self::STATUS_USER_ATTEMPTS_BLOCK,
+                    (int) $id,
+                    $fresh['meta'],
+                    $fresh['status'],
+                    self::STATUS_USER_ATTEMPTS_BLOCK,
+                ]);
+                if ($statement->rowCount() > 0) {
+                    return true;
+                }
+            }
+            //RETORNO-IGNORADO: lo que importa es dejar constancia; la referencia no tiene a quién darse.
+            log_exception(new \RuntimeException("Bloqueo no aplicado al usuario {$id}: su estado o su meta cambiaron dos veces entre la lectura y la escritura."));
+            return false;
         }
         $model = $this->getModel();
         $model->resetAll();
@@ -694,8 +708,8 @@ class UsersModel extends EntityMapperExtensible
     public function unblockFromAttempts(int $id, int $statusIfNoneSaved, ?int $statusOverride = null): bool
     {
         $path = '$.' . self::META_STATUS_BEFORE_BLOCK;
-        //El estado Y lo guardado que se leyó, en el WHERE: si una resolución lo cambió, no se pisa; se relee una vez y, si
-        //no casa, no se desbloquea. La clave se quita en la base, sin reescribir el resto de `meta`.
+        //El estado, lo guardado que se leyó y el `meta` leído, en el WHERE: si algo cambió, no se pisa; se relee una vez y,
+        //si no casa, no se desbloquea. La clave se quita en PHP y `meta` se escribe con el formato del mapper.
         for ($attempt = 1; $attempt <= 2; $attempt++) {
             $fresh = static::freshStatusAndMeta($id);
             if ($fresh === null || $fresh['status'] !== self::STATUS_USER_ATTEMPTS_BLOCK) {
@@ -703,10 +717,17 @@ class UsersModel extends EntityMapperExtensible
             }
             $rawSaved = $fresh['meta'][self::META_STATUS_BEFORE_BLOCK] ?? null;
             $status = $statusOverride ?? self::validStatusBeforeBlock($rawSaved) ?? $statusIfNoneSaved;
+            $row = static::freshStatusAndRawMeta($id);
+            $raw = $row === null ? null : $row['meta'];
+            //Vacío, NULL o '[]' se quedan como están (como el IF(JSON_VALID…) de antes); lo que no es objeto, también.
+            $meta = in_array($raw, [null, '', '[]'], true) ? null : self::metaObjectOf($raw);
+            if ($meta !== null) {
+                unset($meta->{self::META_STATUS_BEFORE_BLOCK});
+            }
             $this->updateModifiedAt($id);
-            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET status = ?, failedAttempts = 0,'
-                . ' meta = IF(JSON_VALID(meta), JSON_REMOVE(meta, ?), meta) WHERE id = ? AND status = ? AND ' . self::sqlSavedStatusIs());
-            $statement->execute([$status, $path, $id, self::STATUS_USER_ATTEMPTS_BLOCK, $path, $path, $path, self::validStatusBeforeBlock($rawSaved) ?? -1]);
+            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET status = ?, failedAttempts = 0, meta = ?'
+                . ' WHERE id = ? AND status = ? AND meta <=> ? AND ' . self::sqlSavedStatusIs());
+            $statement->execute([$status, $meta !== null ? self::metaToStore($meta) : $raw, $id, self::STATUS_USER_ATTEMPTS_BLOCK, $raw, $path, $path, $path, self::validStatusBeforeBlock($rawSaved) ?? -1]);
             if ($statement->rowCount() > 0) {
                 return true;
             }
@@ -717,8 +738,8 @@ class UsersModel extends EntityMapperExtensible
     }
 
     /**
-     * Guarda una clave en `meta` sin reescribir el resto: JSON_SET en la base, como el estado de antes del bloqueo. El
-     * valor se guarda como texto.
+     * Guarda una clave en `meta` sin perder el resto: lee, pone la clave y escribe con el formato del mapper (metaToStore()),
+     * con lo leído en el WHERE; si otra escritura llegó entre medias, relee una vez. El valor se guarda como texto.
      *
      * @param int $id
      * @param string $key Letras, cifras y _; empieza por letra
@@ -731,11 +752,28 @@ class UsersModel extends EntityMapperExtensible
         if (preg_match('/^[A-Za-z][A-Za-z0-9_]{0,63}$/', $key) !== 1) {
             throw new \InvalidArgumentException("Clave de meta no válida: {$key}");
         }
-        $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = CASE'
-            . " WHEN meta IS NULL OR meta = '' OR meta = '[]' THEN JSON_OBJECT(?, ?)"
-            . " WHEN JSON_VALID(meta) AND JSON_TYPE(meta) = 'OBJECT' THEN JSON_SET(meta, ?, ?)"
-            . ' ELSE meta END WHERE id = ?');
-        return $statement->execute([$key, $value, '$.' . $key, $value, $id]);
+        for ($attempt = 1; $attempt <= 2; $attempt++) {
+            $fresh = static::freshStatusAndRawMeta($id);
+            //Sin usuario, o con un `meta` que no es un objeto JSON, no se escribe nada (como el CASE de antes).
+            $meta = $fresh === null ? null : self::metaObjectOf($fresh['meta']);
+            if ($fresh === null || $meta === null) {
+                return true;
+            }
+            $meta->{$key} = $value;
+            $text = self::metaToStore($meta);
+            if ($text === $fresh['meta']) {
+                return true;
+            }
+            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = ? WHERE id = ? AND meta <=> ?');
+            //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza; lo que cuenta es el rowCount().
+            $statement->execute([$text, $id, $fresh['meta']]);
+            if ($statement->rowCount() > 0) {
+                return true;
+            }
+        }
+        //RETORNO-IGNORADO: lo que importa es dejar constancia; la referencia no tiene a quién darse.
+        log_exception(new \RuntimeException("Meta no guardado en el usuario {$id} ({$key}): cambió dos veces entre la lectura y la escritura."));
+        return false;
     }
 
     /**
@@ -777,19 +815,27 @@ class UsersModel extends EntityMapperExtensible
      */
     public static function transitionStatusBeforeBlock(int $id, array $from, int $to): bool
     {
-        $path = '$.' . self::META_STATUS_BEFORE_BLOCK;
-        //Con el valor leído en el WHERE: si cambió, no se pisa; se relee una vez y, si no casa, no se transiciona. CAST: el
-        //marcador llega como cadena y JSON_SET guardaría "1", que validStatusBeforeBlock() no reconoce.
+        //Con lo leído en el WHERE: si cambió, no se pisa; se relee una vez y, si no casa, no se transiciona. El estado se
+        //guarda como número: validStatusBeforeBlock() no reconoce "1".
         for ($attempt = 1; $attempt <= 2; $attempt++) {
             $saved = static::statusBeforeBlock($id);
             if ($saved === null || !in_array($saved, $from, true)) {
                 return false;
             }
-            $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = JSON_SET(meta, ?, CAST(? AS SIGNED))'
-                . ' WHERE id = ? AND status = ? AND JSON_VALID(meta) AND JSON_EXTRACT(meta, ?) = CAST(? AS SIGNED)');
-            $statement->execute([$path, $to, $id, self::STATUS_USER_ATTEMPTS_BLOCK, $path, $saved]);
-            if ($statement->rowCount() > 0) {
-                return true;
+            $fresh = static::freshStatusAndRawMeta($id);
+            $meta = $fresh === null ? null : self::metaObjectOf($fresh['meta']);
+            if ($fresh !== null && $meta !== null && $fresh['status'] === self::STATUS_USER_ATTEMPTS_BLOCK && self::validStatusBeforeBlock($meta->{self::META_STATUS_BEFORE_BLOCK} ?? null) === $saved) {
+                $meta->{self::META_STATUS_BEFORE_BLOCK} = $to;
+                $text = self::metaToStore($meta);
+                if ($text === $fresh['meta']) {
+                    return true;
+                }
+                $statement = self::model()->prepare('UPDATE `' . self::TABLE . '` SET meta = ? WHERE id = ? AND status = ? AND meta <=> ?');
+                //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza; lo que cuenta es el rowCount().
+                $statement->execute([$text, $id, self::STATUS_USER_ATTEMPTS_BLOCK, $fresh['meta']]);
+                if ($statement->rowCount() > 0) {
+                    return true;
+                }
             }
         }
         //RETORNO-IGNORADO: lo que importa es dejar constancia; la referencia no tiene a quién darse.
@@ -913,6 +959,70 @@ class UsersModel extends EntityMapperExtensible
     {
         $fresh = static::freshStatusAndMeta($id);
         return $fresh !== null && $fresh['status'] !== self::STATUS_USER_DELETED;
+    }
+
+    /**
+     * `meta` con el texto que escribiría el mapper para un campo 'json': EntityMapper::castPHPToSQLTypes('json', …), que es
+     * json_encode() sin flags (piecesphp/database, EntityMapper.php:1766-1771), sobre el objeto que da su hidratación,
+     * json_decode() sin asociativo (:1843-1848). Así un guardado sin cambios no cuenta una fila (#2826, P329 a).
+     *
+     * @param \stdClass $meta
+     * @return string
+     */
+    public static function metaToStore(\stdClass $meta): string
+    {
+        return (string) EntityMapper::castPHPToSQLTypes('json', $meta);
+    }
+
+    /**
+     * El `meta` guardado reescrito con metaToStore(), o null si no es un objeto JSON (vacío, NULL, '[]', inválido u otro
+     * valor JSON): lo que normaliza users-meta-normalize.
+     *
+     * @param string|null $raw
+     * @return string|null
+     */
+    public static function normalizedMeta(?string $raw): ?string
+    {
+        if ($raw === null || $raw === '' || $raw === '[]') {
+            return null;
+        }
+        $meta = self::metaObjectOf($raw);
+        return $meta === null ? null : self::metaToStore($meta);
+    }
+
+    /**
+     * El `meta` como objeto para escribirle una clave: vacío, NULL o '[]' empiezan uno nuevo; un objeto JSON se decodifica;
+     * cualquier otra cosa da null (no se toca).
+     *
+     * @param string|null $raw
+     * @return \stdClass|null
+     */
+    private static function metaObjectOf(?string $raw): ?\stdClass
+    {
+        if ($raw === null || $raw === '' || $raw === '[]') {
+            return new \stdClass();
+        }
+        $decoded = json_decode($raw);
+        return $decoded instanceof \stdClass ? $decoded : null;
+    }
+
+    /**
+     * El estado y el `meta` crudo, frescos de la base: lo que las escrituras de `meta` comparan en su WHERE. Sobrescribible
+     * en las pruebas, como freshStatusAndMeta(), para provocar una escritura entre la lectura y el UPDATE.
+     *
+     * @param int $id
+     * @return array{status:int,meta:string|null}|null
+     */
+    protected static function freshStatusAndRawMeta(int $id): ?array
+    {
+        $statement = self::model()->prepare('SELECT status, meta FROM `' . self::TABLE . '` WHERE id = ?');
+        //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o lee o lanza; lo que cuenta es el fetch().
+        $statement->execute([$id]);
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        if (!is_array($row)) {
+            return null;
+        }
+        return ['status' => (int) $row['status'], 'meta' => $row['meta'] === null ? null : (string) $row['meta']];
     }
 
     /**

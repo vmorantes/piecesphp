@@ -8,6 +8,7 @@
 
 use API\Controllers\APIController;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AI\AIGateway;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
@@ -73,7 +74,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check(SettingsController::translationUserTypesIsValid([(string) UsersModel::TYPE_USER_ADMIN_GRAL, (string) UsersModel::TYPE_USER_GENERAL]), 'v1 la pantalla acepta una lista de tipos conocidos');
     $check(SettingsController::translationUserTypesIsValid(['']) && SettingsController::translationUserTypesIsValid([]), 'v2 y la vacía (nada elegido llega como [\'\']: solo root)');
     $check(!SettingsController::translationUserTypesIsValid(['99']) && !SettingsController::translationUserTypesIsValid('2') && !SettingsController::translationUserTypesIsValid('') && !SettingsController::translationUserTypesIsValid(['x']), 'v3 DISCRIMINANTE: rechaza un tipo desconocido, un valor suelto y basura');
-    $check(in_array(APIController::TRANSLATION_AI_USER_TYPES_CONFIG, SettingsController::AI_CONFIG_KEYS, true), 'v4 la opción la guarda Configuración › IA');
+    $check(in_array(AIGateway::CONFIG_NAME, SettingsController::AI_CONFIG_KEYS, true) && !in_array(APIController::TRANSLATION_AI_USER_TYPES_CONFIG, SettingsController::AI_CONFIG_KEYS, true), 'v4 Configuración › IA guarda ai_center; esta opción ya no se pinta y se lee como heredada (ADR 0074)');
     echoTerminal(' ');
 
     $database = (new BaseModel())->getDatabase();
@@ -96,6 +97,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         return $fila === false ? null : $fila;
     };
     $filaPrevia = $filaOpcion();
+
+    //Lo guardado en ai_center pisaría la lista que se prueba aquí (la capa de los heredados): fuera, en memoria.
+    $centroPrevio = get_config(AIGateway::CONFIG_NAME);
+    set_config(AIGateway::CONFIG_NAME, false);
 
     try {
         $database->prepare("DELETE FROM `{$tablaOpciones}` WHERE BINARY name = ?")->execute([$nombreOpcion]);
@@ -214,6 +219,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     } catch (\Throwable $e) {
         $check(false, 'e* el recorrido corre entero', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
+        set_config(AIGateway::CONFIG_NAME, $centroPrevio);
         set_config('current_user', $previoUsuario);
         set_config('pcsphp_current_user_stored', $previoGuardado);
         set_config($nombreOpcion, $configPrevia === false ? null : $configPrevia);

@@ -12,21 +12,44 @@ Scripts»**. Todas terminan con **«Cancelar»** y **«Guardar»**.
 ## Inteligencia artificial
 <!-- ve: configurations-integrations-ai -->
 
-Entra por **«Inteligencia artificial»**. Define el proveedor, el modelo y las claves que usa la plataforma para las
-funciones con inteligencia artificial.
+Entra por **«Inteligencia artificial»**. Es el centro de mando de toda la inteligencia artificial de la plataforma: aquí
+la enciendes o la apagas, eliges los proveedores y sus claves, y decides, función por función, quién la usa y cuánto
+puede gastar.
 
 ![Inteligencia artificial](img/configurations-integrations-ai.webp)
+
+**La inteligencia artificial**
+
+| Campo | Obligatorio | Para qué |
+| --- | --- | --- |
+| IA activada | No | El interruptor general. Apagado, ninguna función de inteligencia artificial llama a un proveedor. |
+
+**Proveedores y claves**
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Modelo OpenAI | No | El modelo de OpenAI que se usa. |
-| API Key OpenAI | No | La clave de acceso a OpenAI. |
+| API Key OpenAI | No | La clave de acceso a OpenAI. Si la define el archivo de claves, el campo no se puede cambiar y lo dice. |
 | Modelo Mistral | No | El modelo de Mistral que se usa. |
-| API Key Mistral | No | La clave de acceso a Mistral. |
-| Activar traducción con IA | No | Enciende o apaga la traducción con inteligencia artificial. |
-| IA para traducciones | No | Qué proveedor traduce. |
-| Quién puede traducir con IA | No | Qué tipos de usuario pueden usarla. El usuario principal (Root) siempre puede. |
-| Límite de tokens de IA | Sí | Solo informativo: la cuota contratada, con la que el informe calcula los tokens restantes. No limita el uso. Se guarda con su propio **«Guardar»**. |
+| API Key Mistral | No | La clave de acceso a Mistral, con la misma regla. |
+
+**Funciones**: una sección por cada función de inteligencia artificial que tenga la plataforma (por ejemplo, «Traducción
+con IA»), con estos campos:
+
+| Campo | Obligatorio | Para qué |
+| --- | --- | --- |
+| Activada | No | Enciende o apaga esa función. |
+| Quién la usa | No | Qué tipos de usuario pueden usarla. El usuario principal (Root) siempre puede. |
+| IA para traducciones | No | Solo en «Traducción con IA»: qué proveedor traduce. |
+| Cuota (tokens) | No | Cuánto puede gastar la función en cada periodo. **0 = sin límite.** Al llegar a la cuota, la función deja de llamar al proveedor y avisa de que se alcanzó, hasta el periodo siguiente o hasta que reinicies el contador. |
+| Periodo | No | Cada cuánto vuelve a contar la cuota: **Acumulado** (no vuelve a contar), **Mensual**, **Cada N días** o **Cada N meses**. Con los dos últimos aparece el campo **«N»**. |
+
+Debajo, la línea **«Consumo de este periodo»** dice lo gastado (y la cuota, si la hay) y desde cuándo. El botón
+**«Reiniciar el contador»** pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
+conserva para los informes.
+
+**Cuota de tokens**, el formulario de abajo, con su propio **«Guardar»**: el **«Límite de tokens de IA»** (obligatorio)
+solo sirve para el informe de consumo y **no limita nada**. La cuota que limita es la de cada función.
 
 ## Correo
 <!-- ve: configurations-integrations-mail -->

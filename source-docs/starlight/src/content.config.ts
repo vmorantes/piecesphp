@@ -110,8 +110,20 @@ function convertLinks(text: string, filePath: string, base: string): string {
 }
 
 /**
+ * `[texto](url){ .md-button }` (y `{ .md-button .md-button--primary }`) de MkDocs al botón de enlace de Starlight:
+ * `sl-link-button not-content`, secundario o primario. Su aspecto lo da src/styles/site.css: el CSS del componente es local.
+ */
+function convertButtons(text: string): string {
+	return text.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)\{[ \t]*\.md-button([ \t]+\.md-button--primary)?[ \t]*\}/g, (_match, label: string, href: string, primary: string | undefined) => {
+		const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+		return `<a class="sl-link-button not-content ${primary ? 'primary' : 'secondary'}" href="${escape(href)}">${escape(label)}</a>`
+	})
+}
+
+/**
  * La guía de MkDocs leída en su sitio, sin mover ni tocar los .md: el título sale del primer «#» al cargar; y antes de
- * pintar cada página, su texto se convierte (fragmentos, avisos, enlaces) y pierde ese «#» para que no salga dos veces.
+ * pintar cada página, su texto se convierte (fragmentos, avisos, enlaces, botones) y pierde ese «#» para que no salga
+ * dos veces.
  */
 function mkdocsLoader() {
 	const loader = glob({ base: DOCS_BASE, pattern: '**/[^_]*.md' })
@@ -141,6 +153,7 @@ function mkdocsLoader() {
 							body = resolveSnippets(body, filePath)
 							body = convertAdmonitions(body, filePath)
 							body = convertLinks(body, filePath, base)
+							body = convertButtons(body)
 							return render({ ...props, body })
 						}
 					},

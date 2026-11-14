@@ -113,7 +113,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                 <div class="item" data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
                 <?php endif; ?>
                 <div class="item" data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
-                <?php if(!$isBaseLang && APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable') && $translationAvailable && $translationURL !== ''):?>
+                <?php if(!$isBaseLang && APIRoutes::ENABLE_TRANSLATIONS && APIController::translationAIAvailable() && $translationAvailable && $translationURL !== ''):?>
                 <div class="right menu actions-buttons">
                     <button class="ui right labeled icon primary button" do-translation from-lang="<?= $baseLang; ?>" to-lang="<?= $langCode; ?>">
                         <?= __($langGroup, 'Traducir'); ?><i class="language icon"></i>

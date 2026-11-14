@@ -126,6 +126,25 @@ CliActions::make('unit-tests:core/page-imported-assets', function ($args) {
         $lista = $scripts($r['body']);
         $check($r['status'] === 200 && $trae($lista, 'elfinder.full.js') && $trae($lista, 'jquery-ui.min.js'),
             'g2 CANARIO: la vista para el editor (sin barra) los trae', "HTTP {$r['status']}");
+        //P330: elFinder 2.1.70 usa la API de botón de la 1.11, que la 1.14 solo acepta con jQuery.uiBackCompat puesto ANTES.
+        $posicion = function (array $lista, string $nombre): int {
+            foreach (array_values($lista) as $i => $src) {
+                if (str_contains($src, $nombre)) {
+                    return $i;
+                }
+            }
+            return -1;
+        };
+        $ordenes = [];
+        foreach (['filemanager', 'filemanager-rich-editor'] as $pantalla) {
+            $orden = $scripts($pedir($relativa(FileManagerController::routeName($pantalla, [], true)), $jwt)['body']);
+            $ordenes[$pantalla] = [$posicion($orden, 'jquery-ui-backcompat.js'), $posicion($orden, 'jquery-ui.min.js'), $posicion($orden, 'jquery-ui-fomantic-restore.js')];
+        }
+        $check(count(array_filter($ordenes, fn ($o) => $o[0] >= 0 && $o[0] < $o[1])) === 2, 'g3 DISCRIMINANTE: en las dos pantallas, jquery-ui-backcompat.js va delante de jquery-ui.min.js', (string) json_encode($ordenes));
+        //jQuery UI completo trae un accordion que pisa el de Fomantic: lo repone el archivo de DETRÁS.
+        $check(count(array_filter($ordenes, fn ($o) => $o[1] >= 0 && $o[2] > $o[1])) === 2, 'g5 DISCRIMINANTE: en las dos pantallas, jquery-ui-fomantic-restore.js va detrás de jquery-ui.min.js', (string) json_encode($ordenes));
+        $cabecera = (string) file_get_contents(basepath('statics/plugins/jquery-ui/jquery-ui.min.js'), false, null, 0, 40);
+        $check(str_starts_with($cabecera, '/*! jQuery UI - v1.14.2'), 'g4 el jquery-ui.min.js servido es la 1.14.2 (la que pide elFinder 2.1.70)', $cabecera);
         echoTerminal(' ');
 
         echoTerminal('[d] El alta de documentos');
