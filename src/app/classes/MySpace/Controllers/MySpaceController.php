@@ -366,6 +366,16 @@ class MySpaceController extends AdminPanelController
     }
 
     /**
+     * El NOMBRE de la ruta de «Mis sesiones» (no su URL): el destino de una notificación se guarda por nombre.
+     *
+     * @return string
+     */
+    public static function securityRouteName(): string
+    {
+        return self::$baseRouteName . '-user-security';
+    }
+
+    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */

@@ -14,7 +14,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $mailingLogo
  * @var string $partners
  * @var string $partnersVertical
- * @var string $partnersText
+ * @var array<string,string> $partnersTexts Idioma => lo que muestra su campo
  * @var array<string,bool> $invertOnDark La casilla de cada imagen que el modo oscuro puede volver blanca.
  * @var int $partnersTextMaxLength
  */
@@ -130,13 +130,17 @@ $imageCard = function (array $card) use ($helpController, $actionURL, $transpare
 
         <div class="ui hidden divider"></div>
 
-        <?php //El texto sobre el patrocinador (P258): opcional; vacío, el pie del menú no lo pinta. ?>
+        <?php //El texto sobre el patrocinador (P258), uno por idioma activo (H225): vacío en el principal, el pie no lo pinta. ?>
         <form action="<?= $actionURL; ?>" method="POST" class="ui form initial" partners-text-form data-content-form>
+            <?php $partnersMultilang = count($partnersTexts) > 1; ?>
+            <?php foreach ($partnersTexts as $partnersLang => $partnersValue): ?>
+            <?php $partnersIsDefault = $partnersLang === \PiecesPHP\Core\Config::get_default_lang(); ?>
             <div class="field">
-                <label for="partners-text"><?= __($langGroup, 'Texto sobre el patrocinador'); ?></label>
-                <input type="text" id="partners-text" name="partnersText" maxlength="<?= (int) $partnersTextMaxLength; ?>" value="<?= escape_html($partnersText); ?>">
-                <div class="description"><?= __($langGroup, 'Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Vacío, no se pinta.'); ?></div>
+                <label for="partners-text-<?= escape_html($partnersLang); ?>"><?= __($langGroup, 'Texto sobre el patrocinador'); ?><?= $partnersMultilang ? ' (' . escape_html(__('lang', $partnersLang)) . ')' : ''; ?></label>
+                <input type="text" id="partners-text-<?= escape_html($partnersLang); ?>" name="partnersText[<?= escape_html($partnersLang); ?>]" maxlength="<?= (int) $partnersTextMaxLength; ?>" value="<?= escape_html($partnersValue); ?>">
+                <div class="description"><?= $partnersIsDefault ? __($langGroup, 'Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Vacío, no se pinta.') : __($langGroup, 'Vacío, se usa el del idioma principal.'); ?></div>
             </div>
+            <?php endforeach; ?>
             <?php
                 $helpController->_render('panel/built-in/content/form-action-bar.php', [
                     'saveText' => __($langGroup, 'Guardar'),

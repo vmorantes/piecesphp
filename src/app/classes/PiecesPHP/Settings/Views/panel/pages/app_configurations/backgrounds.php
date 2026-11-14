@@ -44,8 +44,7 @@ $backgroundCard = function (array $card) use ($helpController, $actionURL, $lang
             ]);
         ?>
         <?php
-            //Imágenes primero y vacías detrás (loginBackgroundCards()); backgrounds.js mantiene el orden y los nombres
-            //libres al agregar y al eliminar, y deduce la ruta de una tarjeta recién llenada de su nombre (bg<n>.jpg).
+            //Imágenes primero y vacías detrás (loginBackgroundCards()); backgrounds.js recarga tras subir y reordena al eliminar.
         ?>
         <div class="ui two stackable horizontal cards" data-login-backgrounds data-delete-url="<?= escape_html($deleteURL); ?>" data-title-template="<?= escape_html(__($langGroup, 'Fondo ${n}')); ?>" data-edit-template="<?= escape_html(__(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::ADMIN_LANG_GROUP, 'Editar imagen: ${title}')); ?>" data-text-delete="<?= escape_html(__($langGroup, 'Eliminar')); ?>" data-text-only-one="<?= escape_html($onlyOneText); ?>" data-text-confirm="<?= escape_html(__($langGroup, '¿Eliminar este fondo? La imagen deja de mostrarse en el inicio de sesión.')); ?>" data-text-deleted="<?= escape_html(__($langGroup, 'Fondo eliminado')); ?>" data-text-deleted-detail="<?= escape_html(__($langGroup, 'La imagen ya no se muestra en el inicio de sesión.')); ?>" data-text-error="<?= escape_html(__($langGroup, 'No se pudo eliminar el fondo')); ?>">
             <?php foreach ($loginCards as $index => $loginCard): ?>

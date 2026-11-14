@@ -229,8 +229,8 @@ CliActions::make('unit-tests:core/deleted-user-gone', function ($args) {
         //─── r · Por relación sigue: el historial de ingresos ─────────────────────────────────────
         echoTerminal('');
         echoTerminal('[r] Por relación: el historial de ingresos lo conserva');
-        $database->prepare('INSERT INTO `' . LoginAttemptsModel::TABLE . '` (userID, usernameAttempt, success, ip, message, date) VALUES (?, ?, 1, ?, ?, NOW())')
-            ->execute([$borrado, $usuarioBorrado, '127.0.0.1', 'zz']);
+        $database->prepare('INSERT INTO `' . LoginAttemptsModel::TABLE . '` (userID, usernameAttempt, success, ip, ipGroup, message, date) VALUES (?, ?, 1, ?, ?, ?, NOW())')
+            ->execute([$borrado, $usuarioBorrado, '127.0.0.1', '127.0.0.1', 'zz']);
         $r = $pedir($conIngreso, $jwt['root'], null, $tabla);
         $check($r['status'] === 200 && str_contains($r['body'], $usuarioBorrado), 'r1 el eliminado sigue en «Usuarios con ingreso» (historial de actividad)', "HTTP {$r['status']}");
     } catch (\Throwable $e) {

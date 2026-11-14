@@ -25,6 +25,8 @@ var PCSPHP_TRANSLATIONS_ES = {
 		pass_not_match: 'Error: las contraseñas deben coincidir.',
 		unexpected_error: 'Ha ocurrido un error inesperado.',
 		unexpected_error_try_later: 'Ha ocurrido un error inesperado, intente más tarde.',
+		unknown_error_try_later: 'Ha ocurrido un error desconocido, intente más tarde.',
+		components_load_error: 'Ha ocurrido un error al cargar los componentes.',
 		server_connection_error: 'Ha ocurrido un error al conectar con el servidor, intente más tarde.',
 		name_is_required: 'El nombre es requerido.',
 		name_should_be_string: 'El nombre debe ser un string.',

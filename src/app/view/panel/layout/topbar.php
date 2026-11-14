@@ -39,16 +39,8 @@ $impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pull
 </div>
 <?php endif; ?>
 
-<?php if ($withNews) : ?>
-<?php //Las noticias: un popup del tema, que abre el botón de la barra (topbar-bar.php). NewsAdapter pinta en el contenedor. ?>
-<div class="ui wide fitted popup" news-popup role="dialog" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias')); ?>">
-    <div class="ui basic segment"><strong><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias'); ?></strong></div>
-    <div class="ui fitted divider"></div>
-    <div class="news-popup-list" data-url="<?= \News\Controllers\NewsController::routeName('ajax-all'); ?>">
-        <div news-toolbar-container class="news-popup-items"></div>
-    </div>
-</div>
-<?php endif; ?>
+<?php //La campana (ADR 0073): el popup entero sale de notifications-list.php, lo abre el botón de la barra (topbar-bar.php). ?>
+<?= \PiecesPHP\Notifications\Controllers\NotificationsController::listMarkup('notifications-popup-list', true); ?>
 
 <?php if ($withAdminOptions) : ?>
 <?php //Configuración: el patrón del tema (panel-configuracion): buscador y grupos plegables, todos cerrados; no marca la vista actual. ?>
@@ -95,7 +87,7 @@ $impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pull
 
                 <div class="image">
                     <?php if ($hasAvatar) : ?>
-                    <img class="ui tiny circular image" src="<?= $avatar; ?>" alt="Avatar">
+                    <img class="ui tiny circular image" src="<?= $avatar; ?>" alt="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Avatar'); ?>">
                     <?php else : ?>
                     <?= ($avatarLabel)('massive'); ?>
                     <?php endif; ?>

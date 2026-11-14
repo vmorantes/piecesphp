@@ -55,7 +55,7 @@
   justify-content: flex-start;
   gap: 0.85714286rem;
   box-sizing: border-box;
-  height: 84px;
+  min-height: 84px;
   margin: 0;
   padding: 0 1.42857143rem;
   color: var(--theme-text);
@@ -259,7 +259,22 @@
 }
 .ui.shell > .navigation > .ui.menu .item > .title > .dropdown.icon {
   order: 1;
+  flex: none;
   margin: 0;
+}
+
+/* Flecha de los grupos: un submenú se despliega hacia abajo, así que la flecha apunta abajo
+   cerrada y arriba abierta en todos los temas (antes dependía del acordeón de cada tema: a la
+   derecha girando 90° en unos, triángulo en otros). Un tema solo cambia su color o tamaño. */
+.ui.shell > .navigation > .ui.menu .item > .title > i.dropdown.icon {
+  transform: none;
+}
+.ui.shell > .navigation > .ui.menu .item > .title > i.dropdown.icon::before {
+  font-family: Icons;
+  content: "\f078";
+}
+.ui.shell > .navigation > .ui.menu .item > .active.title > i.dropdown.icon {
+  transform: rotate(180deg);
 }
 
 /* Submenú (contenido del acordeón) */
@@ -388,6 +403,11 @@
   height: 24px;
   margin: 0 0.28571429rem;
   background: var(--theme-border);
+}
+
+/* Fork: botones de ícono de la barra sin encogerse (a 390 la barra los estrechaba) */
+.ui.shell > .main > .bar .ui.icon.button {
+  flex: none;
 }
 
 /* Contador sobre un botón de la barra (`ui floating label` dentro del botón) */
@@ -738,7 +758,7 @@
   }
   .ui.shell > .navigation > .brand {
     justify-content: flex-start;
-    height: 72px;
+    min-height: 72px;
     padding: 0 0.85714286rem 0 1.14285714rem;
   }
   .ui.shell > .navigation > .ui.menu > .item:not(.header),
@@ -808,6 +828,20 @@
   .ui.shell .drawer.toggle.toggle,
   .ui.shell .mobile.only {
     display: none;
+  }
+}
+
+/* Móvil estrecho (≤ @narrowMaxWidth): `narrow hidden` se oculta (p. ej. el botón de ayuda de la barra) y `narrow only`
+   solo se ve ahí (p. ej. un grupo «Ayuda» dentro del menú del usuario). Con !important, como la visibilidad responsiva
+   de grid: tiene que ganar al display propio de botones e ítems de menú. */
+@media only screen and (max-width: 380px) {
+  .ui.shell .narrow.hidden {
+    display: none !important;
+  }
+}
+@media only screen and (min-width: 380.02px) {
+  .ui.shell .narrow.only {
+    display: none !important;
   }
 }
 

@@ -1,6 +1,6 @@
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.9.4 - Shell
+ * # Fomantic-UI 0.10.1 - Shell
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

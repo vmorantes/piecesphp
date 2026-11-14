@@ -369,6 +369,16 @@ table.dataTable th:is(.dt-center, .dt-head-center, [class*="center aligned"]) > 
   justify-content: center;
 }
 
+/* Fork: con la fila invertida el título no crece; si crecía, ocupaba la celda con el texto a la derecha y las
+   flechas quedaban solas en el borde izquierdo, como una columna fantasma junto a la anterior. Así van pegadas al
+   título (row-reverse + flex-start = a la derecha) */
+table.dataTable th:is(.dt-type-numeric, .dt-type-date, .dt-right, .dt-head-right, [class*="right aligned"]) > :is(.dt-column-header, .dt-column-footer) > .dt-column-title {
+  flex-grow: 0;
+}
+table.dataTable th:is(.dt-left, .dt-head-left, .dt-center, .dt-head-center, [class*="left aligned"], [class*="center aligned"]) > :is(.dt-column-header, .dt-column-footer) > .dt-column-title {
+  flex-grow: 0;
+}
+
 /* --------------
   Fila elegida
 --------------- */
@@ -635,6 +645,14 @@ table.dataTable > tbody > tr.child span.dtr-title {
   max-width: 100%;
 }
 
+/* En móvil, la paginación se queda en una línea: anterior, la página actual y siguiente (los números
+   y los puntos sueltos hacían bajar «Siguiente» sola a otra fila a 390) */
+@media only screen and (max-width: 767.98px) {
+  .dt-paging .ui.pagination.menu > .item:not(.active, [data-dt-idx="previous"], [data-dt-idx="next"]) {
+    display: none;
+  }
+}
+
 /* En móvil, un solo eje: todo a la izquierda, y la paginación más compacta para caber en una línea */
 @media only screen and (max-width: 767.98px) {
   .dt-container .dt-layout-row:not(.dt-layout-table) > .dt-layout-cell {
@@ -802,13 +820,11 @@ table.dataTable td.dt-type-date {
   padding: 0;
 }
 
-/* Tabla `fixed`: en tableta y móvil vuelve al ancho natural de sus columnas con un mínimo de
-   760px y se desplaza, en vez de estrujarse (rutas-permisos: table-layout:auto;min-width:760px
-   en ≤1023px) */
+/* Tabla `fixed` en tableta y móvil: vuelve al ancho natural de sus columnas en vez de estrujarse;
+   sin ancho mínimo propio (D89): si no cabe, desplaza el contenedor de la página. */
 @media only screen and (max-width: 991.98px) {
   .dt-container .dt-layout-full > .ui.fixed.table {
     table-layout: auto;
-    min-width: 760px;
   }
 }
 
@@ -816,4 +832,42 @@ table.dataTable td.dt-type-date {
    controles no suma su relleno superior al de la cabecera (12px en el original, no 30) */
 .ui.card > .content + .dt-container > .dt-layout-row:first-child {
   padding-top: 0;
+}
+
+/* La fecha con hora no parte (D84: el ancho lo ceden las palabras largas de otras columnas) */
+table.dataTable td.dt-type-date {
+  white-space: nowrap;
+}
+
+/* D84: la tabla cabe en su contenedor. Una palabra sin cortes (correos, rutas de clase como
+   «UserSystemFeaturesController::generateOTP») puede partir donde haga falta, en vez de fijar el
+   ancho mínimo de su columna y estrujar las demás (correos-enviados partía cada fecha en tres
+   líneas para dejar 318px a «Origen»). Solo en DataTables, que copia la clase de la columna a cada
+   celda: en una tabla normal, `collapsing` va solo en el th y sus fechas partían letra a letra
+   (hoja-diseno). Ni en las celdas `collapsing` ni en `single line`. Solo en escritorio: en tableta la
+   tabla mide su contenido y desplaza su contenedor, como en móvil (a 768 partía «AdminPanelControll/er»
+   en rutas-permisos; medido por PiecesPHP). */
+@media only screen and (min-width: 992px) {
+  table.ui.table.dataTable:not(.single.line) > tbody > tr > td:not(.collapsing):not(.single.line):not(.dt-type-date) {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* En móvil no: sin el mínimo de 760px (D89) la tabla se estrujaba a 390 y partía las palabras letra
+   a letra (tokens-otp, rutas-permisos, registros-accesos). Ahí la tabla mide su contenido y el
+   desplazamiento lo pone su contenedor. También en tableta (sin el corte de palabras, ver arriba). */
+@media only screen and (max-width: 991.98px) {
+  .dt-container > .dt-layout-table > .dt-layout-full {
+    overflow-x: auto;
+  }
+}
+
+/* En móvil, además, cada celda en una línea: ya desplaza su contenedor, y partir los números de factura por el guion, los
+   importes antes del «€» o las frases de «Información» solo daba filas de dos y tres líneas (completo, registros-accesos).
+   También en tableta: DataTables fija el ancho de cada columna en línea y, sin esto, una palabra técnica desbordaba su
+   celda a 768 (rutas-permisos). */
+@media only screen and (max-width: 991.98px) {
+  table.ui.table.dataTable > tbody > tr > td {
+    white-space: nowrap;
+  }
 }

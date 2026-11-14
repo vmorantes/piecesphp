@@ -683,6 +683,148 @@ $sessionRevocation = function (bool $revokeAllReal) {
         $check($suplanta($tokenI, $ids['otro'], $cookieI) === 'DENTRO', 's3 CANARIO: el otro root, sano, suplanta', $ultimaEntrada);
         $soloColumna($ids['rootI'], ['status' => UsersModel::STATUS_USER_INACTIVE]);
         $check($suplanta($tokenI, $ids['otro'], $cookieI) === 'FUERA', 's4 inactivo, root ya no suplanta', $ultimaEntrada);
+        echoTerminal(' ');
+
+        //─── K · Cambiar la contraseña cierra sesiones ──────────────────────────────────────────
+        echoTerminal('[K] Cambiar la contraseña: el propio usuario conserva la actual; en otro caso se cierran todas');
+        $bd = (new \PiecesPHP\Core\BaseModel())->getDatabase() ?? throw new \RuntimeException('Sin conexión a la base.');
+        $filas = function (int $id) use ($bd): array {
+            $consulta = $bd->prepare('SELECT id, closedAt, closedBy, closeReason FROM `' . UserSessions::TABLE . '` WHERE userID = ? ORDER BY id');
+            $consulta->execute([$id]);
+            return $consulta->fetchAll(\PDO::FETCH_ASSOC);
+        };
+        $cerradaPorClave = fn(array $fila): bool => $fila['closedAt'] !== null && $fila['closeReason'] === UserSessions::REASON_PASSWORD_CHANGED;
+        $describe = fn(array $lista): string => (string) json_encode(array_map(fn($f) => [$f['closedAt'] !== null ? 'cerrada' : 'abierta', $f['closeReason'], $f['closedBy']], $lista));
+        $conClave = function (string $sufijo, string $clave) use ($crear): int {
+            $id = $crear($sufijo, UsersModel::TYPE_USER_GENERAL);
+            $m = UsersModel::model();
+            $m->resetAll();
+            $m->update(['password' => password_hash($clave, \PASSWORD_DEFAULT)])->where(['id' => $id])->execute();
+            return $id;
+        };
+        $editar = (string) $ruta('users-edit-request');
+        $clave = 'Zz-Clave-' . bin2hex(random_bytes(4)) . '-9a';
+        $nueva = 'Zz-Nueva-' . bin2hex(random_bytes(4)) . '-9b';
+        $perfil = fn(int $id, string $actual): array => ['id' => $id, 'is_profile' => 'yes', 'firstname' => 'Zz', 'status' => UsersModel::STATUS_USER_ACTIVE, 'organization' => OrganizationMapper::INITIAL_ID_GLOBAL, 'password' => $nueva, 'password2' => $nueva, 'current-password' => $actual];
+        $tokenLector = $token($ids['lector']);
+
+        //p1 · el propio usuario, desde su perfil
+        $ids['pwPropio'] = $conClave('pw-propio', $clave);
+        $actualP1 = $token($ids['pwPropio']);
+        $token($ids['pwPropio']);
+        $token($ids['pwPropio']);
+        $r = $pedir('POST', $editar, $actualP1, $perfil($ids['pwPropio'], $clave));
+        $p1 = $filas($ids['pwPropio']);
+        $check(($r['json']['success'] ?? null) === true, 'p1 CANARIO: el perfil cambia la contraseña', "HTTP {$r['status']} " . mb_substr($r['body'], 0, 160));
+        $check(count($p1) === 3 && $p1[0]['closedAt'] === null && $cerradaPorClave($p1[1]) && $cerradaPorClave($p1[2]) && (int) $p1[1]['closedBy'] === $ids['pwPropio'],
+            'p1 DISCRIMINANTE: su sesión actual sigue abierta y las otras dos, cerradas por «password-changed»', $describe($p1));
+        $check((int) $bd->query('SELECT COUNT(*) FROM `' . \PiecesPHP\Notifications\Mappers\NotificationMapper::TABLE . "` WHERE `user` = {$ids['pwPropio']}")->fetchColumn() === 0, 'p1 y cambiarse la propia no le avisa');
+
+        //p2 · un administrador sobre otro
+        $ids['pwOtro'] = $crear('pw-otro', UsersModel::TYPE_USER_GENERAL);
+        $token($ids['pwOtro']);
+        $token($ids['pwOtro']);
+        $r = $pedir('POST', $editar, $token($ids['admin']), ['id' => $ids['pwOtro'], 'username' => "{$prefijo}-pw-otro", 'email' => "{$prefijo}-pw-otro@example.com", 'firstname' => 'Zz', 'first_lastname' => 'Prueba', 'status' => UsersModel::STATUS_USER_ACTIVE, 'organization' => OrganizationMapper::INITIAL_ID_GLOBAL, 'password' => $nueva, 'password2' => $nueva]);
+        $p2 = $filas($ids['pwOtro']);
+        $check(($r['json']['success'] ?? null) === true, 'p2 CANARIO: el administrador cambia la contraseña de otro', "HTTP {$r['status']} " . mb_substr($r['body'], 0, 160));
+        $check(count($p2) === 2 && $cerradaPorClave($p2[0]) && $cerradaPorClave($p2[1]) && (int) $p2[0]['closedBy'] === $ids['admin'],
+            'p2 DISCRIMINANTE: todas las del otro, cerradas por «password-changed» y a nombre del administrador', $describe($p2));
+
+        //p3 · la recuperación, sin sesión
+        $ids['pwRec'] = $crear('pw-rec', UsersModel::TYPE_USER_GENERAL);
+        $token($ids['pwRec']);
+        $token($ids['pwRec']);
+        $codigo = (string) random_int(100000, 999999);
+        $recuperacion = new \PiecesPHP\UserSystem\ORM\RecoveryPasswordModel();
+        $recuperacion->email = "{$prefijo}-pw-rec@example.com";
+        $recuperacion->code = $codigo;
+        $recuperacion->created = new \DateTime();
+        $recuperacion->expired = (new \DateTime())->modify('+10 minutes');
+        $recuperacion->save();
+        $r = $pedir('POST', (string) $ruta('users-new-password-create-code'), null, ['username' => "{$prefijo}-pw-rec@example.com", 'code' => $codigo, 'password' => $nueva, 'repassword' => $nueva]);
+        $p3 = $filas($ids['pwRec']);
+        $check(($r['json']['success'] ?? null) === true, 'p3 CANARIO: la recuperación cambia la contraseña', "HTTP {$r['status']} " . mb_substr($r['body'], 0, 160));
+        $check(count($p3) === 2 && $cerradaPorClave($p3[0]) && $cerradaPorClave($p3[1]) && $p3[0]['closedBy'] === null,
+            'p3 DISCRIMINANTE: la recuperación cierra todas, sin autor', $describe($p3));
+        //Si el cambio no consumió el código, se retira aquí: no puede quedar.
+        \PiecesPHP\UserSystem\ORM\RecoveryPasswordModel::deleteByEmail("{$prefijo}-pw-rec@example.com");
+
+        //p4 · CANARIO: lo de otro usuario no se toca
+        $lector = $filas($ids['lector']);
+        $abiertasLector = array_filter($lector, fn($f) => $f['closedAt'] === null);
+        $check($abiertasLector !== [] && array_filter($lector, $cerradaPorClave) === [], 'p4 CANARIO: las sesiones de otro usuario siguen como estaban', $describe($lector));
+
+        //p5 · root suplanta y cambia la contraseña del suplantado: se cierran las del suplantado; la de root, no
+        $ids['pwSup'] = $conClave('pw-sup', $clave);
+        $token($ids['pwSup']);
+        $ids['rootP'] = $crear('root-p', UsersModel::TYPE_USER_ROOT);
+        $tokenP = $token($ids['rootP']);
+        $cookieP = null;
+        $suplantaP = $suplanta($tokenP, $ids['pwSup'], $cookieP);
+        if ($check($suplantaP === 'DENTRO' && $cookieP !== null, 'p5 CANARIO: root suplanta al usuario', $ultimaEntrada)) {
+            $r = $pedir('POST', $editar, $tokenP, $perfil($ids['pwSup'], $clave), true, [CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME => $cookieP]);
+            $p5 = $filas($ids['pwSup']);
+            $p5Root = $filas($ids['rootP']);
+            $check(($r['json']['success'] ?? null) === true && $p5 !== [] && array_filter($p5, fn($f) => !$cerradaPorClave($f)) === [] && array_filter($p5Root, fn($f) => $f['closedAt'] !== null) === [],
+                'p5 suplantando, se cierran todas las del suplantado y la de root sigue abierta', "HTTP {$r['status']} · suplantado " . $describe($p5) . ' · root ' . $describe($p5Root) . ' · ' . mb_substr($r['body'], 0, 120));
+            //Suplantando, el usuario actual es el suplantado, pero quien actúa es root: el suplantado recibe el aviso.
+            $avisos = fn(int $id): int => (int) $bd->query('SELECT COUNT(*) FROM `' . \PiecesPHP\Notifications\Mappers\NotificationMapper::TABLE . "` WHERE `user` = {$id} AND kind = '" . \PiecesPHP\UserSystem\AccountChangeNotice::KIND . "'")->fetchColumn();
+            $check($avisos($ids['pwSup']) === 1 && $avisos($ids['rootP']) === 0, 'p5 y el suplantado recibe el aviso de que un administrador cambió su contraseña; root, ninguno', $avisos($ids['pwSup']) . ' / ' . $avisos($ids['rootP']));
+        }
+        //Los intentos que anota la recuperación apuntan al usuario: van antes que él.
+        $intentos = $bd->prepare('DELETE FROM `' . \PiecesPHP\UserSystem\ORM\LoginAttemptsModel::TABLE . '` WHERE userID = ?');
+        $intentos->execute([$ids['pwRec']]);
+        unset($tokenLector);
+        echoTerminal(' ');
+
+        //─── K6 · Quién escribe la contraseña ───────────────────────────────────────────────────
+        echoTerminal('[K6] Los sitios que escriben la contraseña de un usuario son los declarados');
+        //Cada sitio, con su clase: un camino nuevo que cambie la contraseña tiene que llamar a closeAfterPasswordChange().
+        $declarados = [
+            'app/classes/PiecesPHP/UserSystem/Controllers/UsersController.php#createUserFromRequest' => 'usuario nuevo, sin sesiones',
+            'app/classes/PiecesPHP/UserSystem/Controllers/UsersController.php#edit' => 'cierra sesiones',
+            'app/classes/PiecesPHP/UserSystem/Controllers/RecoveryPasswordController.php#newPasswordCreateCode' => 'cierra sesiones',
+            'app/classes/PiecesPHP/UserSystem/ORM/UsersModel.php#changePassword' => 'cierra sesiones (la llama la recuperación)',
+            'app/classes/DataImportExportUtility/Definitions/UsersImportDefinition.php#persist' => 'usuario nuevo, sin sesiones',
+            'app/classes/Terminal/Seeding/SeedContext.php#passwordHash' => 'siembra: fuera',
+            'app/classes/Terminal/Tasks/GeoLoadFixtureTask.php#write' => 'siembra: fuera',
+        ];
+        $encontrados = [];
+        $raizCenso = rtrim(str_replace('\\', '/', basepath('')), '/');
+        foreach (['app/classes', 'app/core'] as $carpeta) {
+            $iterador = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator("{$raizCenso}/{$carpeta}", \FilesystemIterator::SKIP_DOTS));
+            foreach ($iterador as $archivo) {
+                $rutaArchivo = str_replace('\\', '/', (string) $archivo);
+                if (!str_ends_with($rutaArchivo, '.php') || str_contains($rutaArchivo, '/local-tests/') || str_contains($rutaArchivo, '/vendor/')) {
+                    continue;
+                }
+                $tokens = \PhpToken::tokenize((string) file_get_contents($rutaArchivo));
+                $util = array_values(array_filter($tokens, fn(\PhpToken $t) => !$t->is([T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])));
+                $funcion = '*';
+                foreach ($util as $i => $t) {
+                    if ($t->is(T_FUNCTION) && isset($util[$i + 1]) && $util[$i + 1]->is(T_STRING)) {
+                        $funcion = $util[$i + 1]->text;
+                    }
+                    $siguiente = $util[$i + 1] ?? null;
+                    $escribe = ($t->is(T_OBJECT_OPERATOR) && $siguiente !== null && $siguiente->text === 'password' && ($util[$i + 2] ?? null)?->text === '=')
+                        || ($t->is(T_CONSTANT_ENCAPSED_STRING) && in_array($t->text, ["'password'", '"password"'], true) && $siguiente !== null && $siguiente->is(T_DOUBLE_ARROW) && $funcion !== '*' && str_contains($rutaArchivo, '/UserSystem/ORM/UsersModel.php'))
+                        || ($t->is(T_STRING) && $t->text === 'changePassword' && ($util[$i - 1] ?? null)?->is(T_OBJECT_OPERATOR) === true)
+                        || ($t->is(T_STRING) && $t->text === 'password_hash' && ($util[$i - 1] ?? null)?->is(T_FUNCTION) !== true);
+                    if ($escribe) {
+                        $encontrados[substr($rutaArchivo, strlen($raizCenso) + 1) . "#{$funcion}"] = true;
+                    }
+                }
+            }
+        }
+        $sitios = array_keys($encontrados);
+        //Fuera de los usuarios: la configuración del correo y el código de seguridad del segundo factor no son la contraseña de un usuario.
+        $ajenos = ['app/core/psr4/PiecesPHP/Core/ConfigHelpers/MailConfig.php', 'app/classes/API/Adapters/APIExternalAdapterExample.php', 'app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php', 'app/core/Utilities.php', 'app/core/psr4/PiecesPHP/Core/StringManipulate.php', 'app/classes/PiecesPHP/UserSystem/UserDataPackage.php'];
+        $sitios = array_values(array_filter($sitios, fn(string $s) => !in_array(explode('#', $s)[0], $ajenos, true)));
+        $nuevos = array_values(array_diff($sitios, array_keys($declarados)));
+        $desaparecidos = array_values(array_diff(array_keys($declarados), $sitios));
+        $check(count($sitios) >= 5, 'p6 CANARIO: el censo ve los sitios conocidos', implode(' · ', $sitios));
+        $check($nuevos === [], 'p6 DISCRIMINANTE: ningún sitio nuevo escribe la contraseña sin estar declarado', implode(' · ', $nuevos));
+        $check($desaparecidos === [], 'p6 y ningún declarado desapareció (la lista no miente)', implode(' · ', $desaparecidos));
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
@@ -727,8 +869,8 @@ $sessionRevocation = function (bool $revokeAllReal) {
                 new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $ultimoLog),
                 new WhereItem('textMessage', WhereItem::EQUAL_OPERATOR, LogsMapper::MESSAGES[LogsMapper::MSG_REVOKE_ALL_SESSIONS], WhereItem::AND_OPERATOR),
             ]))->execute();
-            //La suplantación de [S] deja su huella antes de que haya usuario actual: su autor no es de la prueba.
-            foreach ([LogsMapper::MSG_IMPERSONATION_START, LogsMapper::MSG_IMPERSONATION_END] as $tipo) {
+            //La suplantación de [S] y la recuperación de [K] dejan su huella sin un autor de la prueba.
+            foreach ([LogsMapper::MSG_IMPERSONATION_START, LogsMapper::MSG_IMPERSONATION_END, LogsMapper::MSG_TOKEN_USED] as $tipo) {
                 $logs->resetAll();
                 $logs->delete(new WhereSegment([
                     new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $ultimoLog),

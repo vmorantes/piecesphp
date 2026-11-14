@@ -18,7 +18,7 @@ function ComponentsProvider(file) {
 		error: function (jqXHR, textStatus, errorThrown) {
 			console.error(textStatus)
 			console.error(errorThrown)
-			errorMessage('Error', 'Ha ocurrido un error al cargar los componentes.')
+			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'components_load_error'))
 		},
 	})
 

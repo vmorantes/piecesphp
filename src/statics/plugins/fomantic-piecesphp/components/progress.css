@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Progress
+ * # Fomantic-UI 0.10.1 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -449,10 +449,12 @@
 /* --------------
      Colors
 --------------- */
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.primary.progress .bar::before,
 .ui.primary.progress .bar,
 .ui.progress .primary.bar {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.inverted.indeterminate.primary.progress .bar::before,
 .ui.primary.inverted.progress .bar,
@@ -463,16 +465,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.primary.progress .bar > .progress,
 .ui.progress .primary.bar > .progress {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.primary.inverted.progress .bar > .progress,
 .ui.inverted.progress .primary.bar > .progress {
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.secondary.progress .bar::before,
 .ui.secondary.progress .bar,
 .ui.progress .secondary.bar {
-  background-color: var(--accent-2, #7a5af8);
+  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.inverted.indeterminate.secondary.progress .bar::before,
 .ui.secondary.inverted.progress .bar,
@@ -483,16 +487,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.secondary.progress .bar > .progress,
 .ui.progress .secondary.bar > .progress {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.secondary.inverted.progress .bar > .progress,
 .ui.inverted.progress .secondary.bar > .progress {
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.accent-1.progress .bar::before,
 .ui.accent-1.progress .bar,
 .ui.progress .accent-1.bar {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.inverted.indeterminate.accent-1.progress .bar::before,
 .ui.accent-1.inverted.progress .bar,
@@ -503,16 +509,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.accent-1.progress .bar > .progress,
 .ui.progress .accent-1.bar > .progress {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-1.inverted.progress .bar > .progress,
 .ui.inverted.progress .accent-1.bar > .progress {
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.accent-2.progress .bar::before,
 .ui.accent-2.progress .bar,
 .ui.progress .accent-2.bar {
-  background-color: var(--accent-2, #7a5af8);
+  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.inverted.indeterminate.accent-2.progress .bar::before,
 .ui.accent-2.inverted.progress .bar,
@@ -523,16 +531,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.accent-2.progress .bar > .progress,
 .ui.progress .accent-2.bar > .progress {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-2.inverted.progress .bar > .progress,
 .ui.inverted.progress .accent-2.bar > .progress {
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.accent-3.progress .bar::before,
 .ui.accent-3.progress .bar,
 .ui.progress .accent-3.bar {
-  background-color: var(--accent-3, #c11574);
+  background-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.inverted.indeterminate.accent-3.progress .bar::before,
 .ui.accent-3.inverted.progress .bar,
@@ -543,16 +553,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.accent-3.progress .bar > .progress,
 .ui.progress .accent-3.bar > .progress {
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-3.inverted.progress .bar > .progress,
 .ui.inverted.progress .accent-3.bar > .progress {
-  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.red.progress .bar::before,
 .ui.red.progress .bar,
 .ui.progress .red.bar {
-  background-color: #f04438;
+  background-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.red.progress .bar::before,
 .ui.red.inverted.progress .bar,
@@ -563,16 +575,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.red.progress .bar > .progress,
 .ui.progress .red.bar > .progress {
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.red.inverted.progress .bar > .progress,
 .ui.inverted.progress .red.bar > .progress {
-  color: color(from #f97066 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #f97066 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.orange.progress .bar::before,
 .ui.orange.progress .bar,
 .ui.progress .orange.bar {
-  background-color: #ef6820;
+  background-color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.orange.progress .bar::before,
 .ui.orange.inverted.progress .bar,
@@ -583,16 +597,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.orange.progress .bar > .progress,
 .ui.progress .orange.bar > .progress {
-  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.orange.inverted.progress .bar > .progress,
 .ui.inverted.progress .orange.bar > .progress {
-  color: color(from #f38744 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #f38744 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.yellow.progress .bar::before,
 .ui.yellow.progress .bar,
 .ui.progress .yellow.bar {
-  background-color: #f79009;
+  background-color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.yellow.progress .bar::before,
 .ui.yellow.inverted.progress .bar,
@@ -603,16 +619,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.yellow.progress .bar > .progress,
 .ui.progress .yellow.bar > .progress {
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.yellow.inverted.progress .bar > .progress,
 .ui.inverted.progress .yellow.bar > .progress {
-  color: color(from #fdb022 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #fdb022 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.olive.progress .bar::before,
 .ui.olive.progress .bar,
 .ui.progress .olive.bar {
-  background-color: #84a11b;
+  background-color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.olive.progress .bar::before,
 .ui.olive.inverted.progress .bar,
@@ -623,16 +641,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.olive.progress .bar > .progress,
 .ui.progress .olive.bar > .progress {
-  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.olive.inverted.progress .bar > .progress,
 .ui.inverted.progress .olive.bar > .progress {
-  color: color(from #a6c43a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #a6c43a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.green.progress .bar::before,
 .ui.green.progress .bar,
 .ui.progress .green.bar {
-  background-color: #17b26a;
+  background-color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.green.progress .bar::before,
 .ui.green.inverted.progress .bar,
@@ -643,16 +663,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.green.progress .bar > .progress,
 .ui.progress .green.bar > .progress {
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.green.inverted.progress .bar > .progress,
 .ui.inverted.progress .green.bar > .progress {
-  color: color(from #47cd89 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #47cd89 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.teal.progress .bar::before,
 .ui.teal.progress .bar,
 .ui.progress .teal.bar {
-  background-color: #06aed4;
+  background-color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.teal.progress .bar::before,
 .ui.teal.inverted.progress .bar,
@@ -663,16 +685,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.teal.progress .bar > .progress,
 .ui.progress .teal.bar > .progress {
-  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.teal.inverted.progress .bar > .progress,
 .ui.inverted.progress .teal.bar > .progress {
-  color: color(from #22ccee srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #22ccee srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.blue.progress .bar::before,
 .ui.blue.progress .bar,
 .ui.progress .blue.bar {
-  background-color: #2e90fa;
+  background-color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.blue.progress .bar::before,
 .ui.blue.inverted.progress .bar,
@@ -683,16 +707,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.blue.progress .bar > .progress,
 .ui.progress .blue.bar > .progress {
-  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.blue.inverted.progress .bar > .progress,
 .ui.inverted.progress .blue.bar > .progress {
-  color: color(from #53b1fd srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #53b1fd srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.violet.progress .bar::before,
 .ui.violet.progress .bar,
 .ui.progress .violet.bar {
-  background-color: #7a5af8;
+  background-color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.violet.progress .bar::before,
 .ui.violet.inverted.progress .bar,
@@ -703,16 +729,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.violet.progress .bar > .progress,
 .ui.progress .violet.bar > .progress {
-  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.violet.inverted.progress .bar > .progress,
 .ui.inverted.progress .violet.bar > .progress {
-  color: color(from #9b8afb srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #9b8afb srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.purple.progress .bar::before,
 .ui.purple.progress .bar,
 .ui.progress .purple.bar {
-  background-color: #9e4cc9;
+  background-color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.purple.progress .bar::before,
 .ui.purple.inverted.progress .bar,
@@ -723,16 +751,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.purple.progress .bar > .progress,
 .ui.progress .purple.bar > .progress {
-  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.purple.inverted.progress .bar > .progress,
 .ui.inverted.progress .purple.bar > .progress {
-  color: color(from #c084e8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #c084e8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.pink.progress .bar::before,
 .ui.pink.progress .bar,
 .ui.progress .pink.bar {
-  background-color: #c11574;
+  background-color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.pink.progress .bar::before,
 .ui.pink.inverted.progress .bar,
@@ -743,16 +773,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.pink.progress .bar > .progress,
 .ui.progress .pink.bar > .progress {
-  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.pink.inverted.progress .bar > .progress,
 .ui.inverted.progress .pink.bar > .progress {
-  color: color(from #ee46bc srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #ee46bc srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.brown.progress .bar::before,
 .ui.brown.progress .bar,
 .ui.progress .brown.bar {
-  background-color: #6e4a2e;
+  background-color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
 }
 .ui.inverted.indeterminate.brown.progress .bar::before,
 .ui.brown.inverted.progress .bar,
@@ -763,16 +795,18 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.brown.progress .bar > .progress,
 .ui.progress .brown.bar > .progress {
-  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.brown.inverted.progress .bar > .progress,
 .ui.inverted.progress .brown.bar > .progress {
-  color: color(from #b08463 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #b08463 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.grey.progress .bar::before,
 .ui.grey.progress .bar,
 .ui.progress .grey.bar {
-  background-color: #687181;
+  background-color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
 }
 .ui.inverted.indeterminate.grey.progress .bar::before,
 .ui.grey.inverted.progress .bar,
@@ -783,31 +817,39 @@
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.grey.progress .bar > .progress,
 .ui.progress .grey.bar > .progress {
-  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.grey.inverted.progress .bar > .progress,
 .ui.inverted.progress .grey.bar > .progress {
-  color: color(from #99a1af srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #99a1af srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: black inverted (fondo oscuro en los dos modos) casi blanco; el gris claro era igual que la pista */
 .ui.indeterminate.black.progress .bar::before,
 .ui.black.progress .bar,
 .ui.progress .black.bar {
-  background-color: light-dark(#1f2430, #535c6e);
+  background-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
 }
 .ui.inverted.indeterminate.black.progress .bar::before,
 .ui.black.inverted.progress .bar,
 .ui.inverted.progress .black.bar {
-  background-color: #4b5363;
+  background-color: oklch(from #1f2430 max(l, 0.88) c h);
 }
 
 /* Fork: texto de la barra según la luminosidad de su relleno (D36) */
 .ui.black.progress .bar > .progress,
 .ui.progress .black.bar > .progress {
-  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.black.inverted.progress .bar > .progress,
 .ui.inverted.progress .black.bar > .progress {
-  color: color(from #4b5363 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from #1f2430 max(l, 0.88) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: black inverted, texto oscuro sobre su barra casi blanca */
+.ui.ui.black.inverted.progress .bar > .progress,
+.ui.ui.inverted.progress .black.bar > .progress {
+  color: #1f2430;
 }
 
 /* Fork: texto de la barra según la luminosidad de su relleno en los estados e indicating (D36) */
@@ -825,41 +867,41 @@
   color: #fff;
 }
 .ui.progress .bar > .progress {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.progress .bar > .progress {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.indicating.progress[data-percent^="1"] .bar > .progress,
 .ui.indicating.progress[data-percent^="2"] .bar > .progress {
-  color: color(from #d95c5c srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #d95c5c srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.indicating.progress[data-percent^="3"] .bar > .progress {
-  color: color(from #efbc72 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #efbc72 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.indicating.progress[data-percent^="4"] .bar > .progress,
 .ui.indicating.progress[data-percent^="5"] .bar > .progress {
-  color: color(from #e6bb48 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #e6bb48 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.indicating.progress[data-percent^="6"] .bar > .progress {
-  color: color(from #ddc928 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #ddc928 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.indicating.progress[data-percent^="7"] .bar > .progress,
 .ui.indicating.progress[data-percent^="8"] .bar > .progress {
-  color: color(from #b4d95c srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #b4d95c srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.indicating.progress[data-percent^="9"] .bar > .progress,
 .ui.indicating.progress[data-percent^="100"] .bar > .progress {
-  color: color(from #66da81 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #66da81 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.progress.success .bar > .progress {
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.progress.warning .bar > .progress {
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.progress.error .bar > .progress {
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* --------------
@@ -914,6 +956,13 @@
   height: 5em;
 }
 
+/* Fork: en mini y tiny la barra es más baja que el porcentaje, que se montaba sobre ella; el valor se lee en
+   la etiqueta */
+.ui.mini.progress .bar > .progress,
+.ui.tiny.progress .bar > .progress {
+  display: none;
+}
+
 /* ---------------
       Indeterminate
     ---------------- */
@@ -955,6 +1004,10 @@
 }
 .ui.indeterminate.progress:not(.sliding):not(.filling):not(.swinging) .bar::before {
   background: #fff;
+  
+/* Fork: el pulso solo existe animado; sin animación (reduced motion, capturas) tapaba la
+           barra con un blanco sólido */
+  opacity: 0;
 }
 .ui.sliding.indeterminate.progress .bar,
 .ui.swinging.indeterminate.progress .bar,
@@ -1124,109 +1177,109 @@
   color: #fff;
 }
 .ui.circular.primary.progress::before {
-  color: var(--accent-1, var(--accent, #356dca));
+  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.inverted.circular.primary.progress::before {
   color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
 }
 .ui.circular.secondary.progress::before {
-  color: var(--accent-2, #7a5af8);
+  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.inverted.circular.secondary.progress::before {
   color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
 }
 .ui.circular.accent-1.progress::before {
-  color: var(--accent-1, var(--accent, #356dca));
+  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
 }
 .ui.inverted.circular.accent-1.progress::before {
   color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
 }
 .ui.circular.accent-2.progress::before {
-  color: var(--accent-2, #7a5af8);
+  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
 }
 .ui.inverted.circular.accent-2.progress::before {
   color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
 }
 .ui.circular.accent-3.progress::before {
-  color: var(--accent-3, #c11574);
+  color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
 }
 .ui.inverted.circular.accent-3.progress::before {
   color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
 }
 .ui.circular.red.progress::before {
-  color: #f04438;
+  color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
 }
 .ui.inverted.circular.red.progress::before {
   color: #f97066;
 }
 .ui.circular.orange.progress::before {
-  color: #ef6820;
+  color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
 }
 .ui.inverted.circular.orange.progress::before {
   color: #f38744;
 }
 .ui.circular.yellow.progress::before {
-  color: #f79009;
+  color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
 }
 .ui.inverted.circular.yellow.progress::before {
   color: #fdb022;
 }
 .ui.circular.olive.progress::before {
-  color: #84a11b;
+  color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
 }
 .ui.inverted.circular.olive.progress::before {
   color: #a6c43a;
 }
 .ui.circular.green.progress::before {
-  color: #17b26a;
+  color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
 }
 .ui.inverted.circular.green.progress::before {
   color: #47cd89;
 }
 .ui.circular.teal.progress::before {
-  color: #06aed4;
+  color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
 }
 .ui.inverted.circular.teal.progress::before {
   color: #22ccee;
 }
 .ui.circular.blue.progress::before {
-  color: #2e90fa;
+  color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
 }
 .ui.inverted.circular.blue.progress::before {
   color: #53b1fd;
 }
 .ui.circular.violet.progress::before {
-  color: #7a5af8;
+  color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
 }
 .ui.inverted.circular.violet.progress::before {
   color: #9b8afb;
 }
 .ui.circular.purple.progress::before {
-  color: #9e4cc9;
+  color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
 }
 .ui.inverted.circular.purple.progress::before {
   color: #c084e8;
 }
 .ui.circular.pink.progress::before {
-  color: #c11574;
+  color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
 }
 .ui.inverted.circular.pink.progress::before {
   color: #ee46bc;
 }
 .ui.circular.brown.progress::before {
-  color: #6e4a2e;
+  color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
 }
 .ui.inverted.circular.brown.progress::before {
   color: #b08463;
 }
 .ui.circular.grey.progress::before {
-  color: #687181;
+  color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
 }
 .ui.inverted.circular.grey.progress::before {
   color: #99a1af;
 }
 .ui.circular.black.progress::before {
-  color: light-dark(#1f2430, #535c6e);
+  color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
 }
 .ui.inverted.circular.black.progress::before {
   color: #4b5363;
@@ -1253,15 +1306,16 @@
 }
 
 /* small y tiny: la barra no admite texto; el porcentaje sale debajo, a la derecha, en text-2
-   (la barra estática deja que se posicione respecto a la pista, sin recortarlo) */
+   (la barra estática deja que se posicione respecto a la pista, sin recortarlo). En circular no: el porcentaje va en
+   el centro del anillo (lo sacaba por debajo, sobre la etiqueta) */
 .ui.ui.small.progress .bar,
 .ui.ui.tiny.progress .bar,
 .ui.ui.mini.progress .bar {
   position: static;
 }
-.ui.ui.small.progress .bar > .progress,
-.ui.ui.tiny.progress .bar > .progress,
-.ui.ui.mini.progress .bar > .progress {
+.ui.ui.small.progress:not(.circular) .bar > .progress,
+.ui.ui.tiny.progress:not(.circular) .bar > .progress,
+.ui.ui.mini.progress:not(.circular) .bar > .progress {
   top: calc(100% + 0.28571429rem);
   right: 0;
   margin-top: 0;
@@ -1269,9 +1323,9 @@
   line-height: 1.33333333;
   color: light-dark(#4b5363, #cfd5de);
 }
-.ui.ui.small.progress .bar:not(:empty),
-.ui.ui.tiny.progress .bar:not(:empty),
-.ui.ui.mini.progress .bar:not(:empty) {
+.ui.ui.small.progress:not(.circular) .bar:not(:empty),
+.ui.ui.tiny.progress:not(.circular) .bar:not(:empty),
+.ui.ui.mini.progress:not(.circular) .bar:not(:empty) {
   min-width: 0.42857143rem;
 }
 
@@ -1280,4 +1334,12 @@
 .ui.tiny.progress > .label,
 .ui.mini.progress > .label {
   font-size: 0.85714286rem;
+}
+
+/* Inverted sliding, swinging y filling: el color se mueve por debajo del texto claro, que pasa de la pista oscura a la
+   barra clara (azul, verde, naranja aclarados). Un halo oscuro lo mantiene legible en los dos fondos */
+.ui.ui.inverted.sliding.indeterminate.progress .bar > .progress,
+.ui.ui.inverted.swinging.indeterminate.progress .bar > .progress,
+.ui.ui.inverted.filling.indeterminate.progress .bar > .progress {
+  text-shadow: 0 0 0.14285714rem rgba(0, 0, 0, 0.7), 0 0 0.28571429rem rgba(0, 0, 0, 0.5);
 }

@@ -91,7 +91,7 @@
                 <div class="horizontal-section-form">
                     <div class="ui small primary header number-step"><?= mb_strtoupper(__(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Paso')); ?> 2</div>
                     <div class="field">
-                        <input required type="text" name="code" placeholder="Ingrese el código">
+                        <input required type="text" name="code" placeholder="<?= __(\PiecesPHP\UserSystem\Controllers\UserProblemsController::LANG_GROUP, 'Ingrese el código'); ?>">
                     </div>
                 </div>
 

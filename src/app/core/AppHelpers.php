@@ -3180,7 +3180,7 @@ function getLoggedFrameworkUserOrFail(bool $reload = false): UserDataPackage
 }
 
 /**
- * Devuelve el html del breadcrumb a partir de un arreglo
+ * Devuelve el html del breadcrumb a partir de un arreglo, con el texto y la url escapados
  *
  * El arreglo puede contener una cadena de texto simple o una llave (que se usará para el título mostrado) con un arreglo asignado que contenga un elemento llamado 'url'
  * @param array $breadcrumbs
@@ -3193,9 +3193,9 @@ function get_breadcrumbs(array $breadcrumbs)
     foreach ($breadcrumbs as $title => $bread) {
         if (is_array($bread)) {
             $url = $bread['url'];
-            $breadHtml[] = "<a href='{$url}' >{$title}</a>";
+            $breadHtml[] = '<a href="' . escape_html((string) $url) . '">' . escape_html((string) $title) . '</a>';
         } else {
-            $breadHtml[] = $bread;
+            $breadHtml[] = escape_html((string) $bread);
         }
     }
 

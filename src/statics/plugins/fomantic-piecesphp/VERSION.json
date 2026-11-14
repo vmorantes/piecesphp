@@ -1,0 +1,10 @@
+{
+  "version": "0.10.1",
+  "fomantic": "2.9.4",
+  "commit": "e1bc25ba",
+  "sinCommitear": false,
+  "fecha": "2026-11-12",
+  "changelog": "CHANGELOG.md",
+  "tema": "piecesphp",
+  "soloCSS": false
+}

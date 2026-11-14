@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Form
+ * # Fomantic-UI 0.10.1 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -155,6 +155,14 @@
 .ui.form textarea.ui.code.segment {
   padding: 0.64285714em 0.85714286em;
 }
+
+/* Fork: textarea atenuado (`muted` en el textarea o en su campo), p. ej. el código de un bloque inactivo. Vale también
+   para el campo de código (textarea.ui.code.segment). */
+.ui.form textarea.muted,
+.ui.form .muted.field textarea,
+.ui.form .muted.fields textarea {
+  color: var(--theme-text-muted);
+}
 .ui.input > textarea {
   flex: 1 1 auto;
   max-width: 100%;
@@ -222,6 +230,29 @@
 --------------------------- */
 .ui.form input.attached {
   width: auto;
+}
+
+/* Fork: el botón (`ui attached button`, que sin lado es una barra en bloque) caía debajo del input, a todo el ancho y con
+   esquinas rectas. El campo los pone en una fila, a la misma altura, y la pareja lleva las esquinas del input. */
+.ui.form .field:has(> input.attached + .ui.attached.button) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.ui.form .field:has(> input.attached + .ui.attached.button) > :not(input.attached, .ui.attached.button) {
+  flex-basis: 100%;
+}
+.ui.form .field > input.attached:has(+ .ui.attached.button) {
+  min-width: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.ui.form .field > input.attached + .ui.attached.button {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  margin: 0;
+  border-radius: 0 var(--r-md, 8px) var(--r-md, 8px) 0;
 }
 
 /* --------------------
@@ -476,6 +507,17 @@
   -webkit-appearance: none;
 }
 
+/* Fork: solo lectura. Un `readonly` se veía igual que un campo editable; con su fondo y su texto propios (también con
+   foco, que se sigue marcando con el borde) */
+.ui.form input:not([type="checkbox"], [type="radio"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="range"])[readonly],
+.ui.form textarea[readonly],
+.ui.form input:not([type="checkbox"], [type="radio"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="range"])[readonly]:focus,
+.ui.form textarea[readonly]:focus {
+  background: light-dark(#fafbfc, #262b36);
+  color: light-dark(#4b5363, #cfd5de);
+  cursor: default;
+}
+
 /* Focus */
 .ui.form input:focus::-webkit-calendar-picker-indicator {
   opacity: 1;
@@ -532,7 +574,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.error .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.error .ui.label:not(.corner) {
-  color: color(from light-dark(#fef3f2, #351513) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#fef3f2, #351513) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.error .field .corner.label,
 .ui.form .field.error .corner.label {
@@ -540,7 +582,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#b42318, #fda29b) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#b42318, #fda29b) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.error .field textarea,
 .ui.form .fields.error .field select,
@@ -746,10 +788,21 @@
   background-color: light-dark(#b42318, #fda29b);
 }
 
-/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
+           fondo de la etiqueta: con un fondo casi blanco en modo claro, la etiqueta salía blanca. La casilla toma
+           el fondo de los campos inverted y conserva el borde del estado. */
 .ui.inverted.form .fields.error .field label,
+.ui.inverted.form .fields.error > label,
 .ui.inverted.form .error.field label {
-  color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label::before {
+  background-color: #1a1e27;
+}
+.ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::after,
+.ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label::after {
+  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label {
@@ -757,7 +810,7 @@
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.error) > label {
-    color: oklch(from light-dark(#fef3f2, #351513) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -808,7 +861,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.info .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.info .ui.label:not(.corner) {
-  color: color(from light-dark(#ecfdff, #0a2a33) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#ecfdff, #0a2a33) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.info .field .corner.label,
 .ui.form .field.info .corner.label {
@@ -816,7 +869,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#0e7090, #67e3f9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#0e7090, #67e3f9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.info .field textarea,
 .ui.form .fields.info .field select,
@@ -1014,10 +1067,21 @@
   background-color: light-dark(#0e7090, #67e3f9);
 }
 
-/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
+           fondo de la etiqueta: con un fondo casi blanco en modo claro, la etiqueta salía blanca. La casilla toma
+           el fondo de los campos inverted y conserva el borde del estado. */
 .ui.inverted.form .fields.info .field label,
+.ui.inverted.form .fields.info > label,
 .ui.inverted.form .info.field label {
-  color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label::before {
+  background-color: #1a1e27;
+}
+.ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::after,
+.ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label::after {
+  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label {
@@ -1025,7 +1089,7 @@
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.info) > label {
-    color: oklch(from light-dark(#ecfdff, #0a2a33) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1076,7 +1140,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.success .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.success .ui.label:not(.corner) {
-  color: color(from light-dark(#ecfdf3, #0c2a1c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#ecfdf3, #0c2a1c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.success .field .corner.label,
 .ui.form .field.success .corner.label {
@@ -1084,7 +1148,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#067647, #75e0a7) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#067647, #75e0a7) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.success .field textarea,
 .ui.form .fields.success .field select,
@@ -1282,10 +1346,21 @@
   background-color: light-dark(#067647, #75e0a7);
 }
 
-/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
+           fondo de la etiqueta: con un fondo casi blanco en modo claro, la etiqueta salía blanca. La casilla toma
+           el fondo de los campos inverted y conserva el borde del estado. */
 .ui.inverted.form .fields.success .field label,
+.ui.inverted.form .fields.success > label,
 .ui.inverted.form .success.field label {
-  color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label::before {
+  background-color: #1a1e27;
+}
+.ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label::after,
+.ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label::after {
+  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label {
@@ -1293,7 +1368,7 @@
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.success) > label {
-    color: oklch(from light-dark(#ecfdf3, #0c2a1c) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1344,7 +1419,7 @@
            luminosidad del relleno (D36). */
 .ui.ui.ui.form .fields.warning .field .ui.label:not(.corner),
 .ui.ui.ui.form .field.warning .ui.label:not(.corner) {
-  color: color(from light-dark(#fffaeb, #2e2108) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#fffaeb, #2e2108) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.warning .field .corner.label,
 .ui.form .field.warning .corner.label {
@@ -1352,7 +1427,7 @@
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#b54708, #fdb022) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(#b54708, #fdb022) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.warning .field textarea,
 .ui.form .fields.warning .field select,
@@ -1550,10 +1625,21 @@
   background-color: light-dark(#b54708, #fdb022);
 }
 
-/* Fork: sobre inverted, la rama clara de la tinta del estado (D36) */
+/* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
+           fondo de la etiqueta: con un fondo casi blanco en modo claro, la etiqueta salía blanca. La casilla toma
+           el fondo de los campos inverted y conserva el borde del estado. */
 .ui.inverted.form .fields.warning .field label,
+.ui.inverted.form .fields.warning > label,
 .ui.inverted.form .warning.field label {
-  color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::before,
+.ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label::before {
+  background-color: #1a1e27;
+}
+.ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::after,
+.ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label::after {
+  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label {
@@ -1561,7 +1647,7 @@
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.warning) > label {
-    color: oklch(from light-dark(#fffaeb, #2e2108) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1654,6 +1740,13 @@
   left: 100%;
 }
 
+/* Fork: si la etiqueta ocupa toda la línea (390), la casilla deja hueco al asterisco y este no se va
+       fuera del campo */
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > .checkbox,
+.ui.form .required.field > .checkbox {
+  max-width: calc(100% - 1em);
+}
+
 /* Fork: el asterisco es del campo, y si el campo tiene su etiqueta ya va en ella. La casilla que
        acompaña al control («Auto TLS» bajo «Protocolo») no lo repite; la que es el campo, sin
        etiqueta propia, lo conserva */
@@ -1696,7 +1789,7 @@
   color: #fff;
 }
 .ui.inverted.loading.form::before {
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.6);
 }
 
 /* Inverted Field */
@@ -1714,10 +1807,11 @@
 .ui.inverted.form input[type="text"],
 .ui.inverted.form input[type="file"],
 .ui.inverted.form input[type="url"],
-.ui.inverted.form input[type="week"] {
-  background: var(--theme-surface);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: var(--theme-text);
+.ui.inverted.form input[type="week"],
+.ui.inverted.form textarea {
+  background: #1a1e27;
+  border-color: #3a4150;
+  color: #e8ebf0;
   box-shadow: none;
 }
 
@@ -2057,7 +2151,7 @@
 .ui.form .attached.actions {
   margin: 0.57142857rem -1.42857143rem 0;
   padding: 1.14285714rem 1.42857143rem;
-  background: light-dark(#fafbfc, #161920);
+  background: light-dark(#fafbfc, #262b36);
   border-radius: 0 0 var(--r-lg, 12px) var(--r-lg, 12px);
 }
 @media only screen and (max-width: 767.98px) {
@@ -2077,6 +2171,38 @@
       PiecesPHP: Form
 *******************************/
 
+
+
+/*******************************
+      Core: Form Overrides
+*******************************/
+
+
+/* Inverted: los campos van sobre la superficie oscura del tema también en modo claro (eran bloques blancos sobre el
+   fondo inverted). También los desplegables y los campos con estado: el fondo de estado y el blanco del dropdown
+   ganaban a los `@invertedInput*` de la definición; el borde de estado se conserva. Antes lo repetían fluent y
+   piecesphp. */
+.ui.ui.inverted.form .field :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]), textarea),
+.ui.ui.inverted.form .field .ui.selection.dropdown:not(.inverted) {
+  background: #1a1e27;
+  color: #e8ebf0;
+}
+.ui.ui.inverted.form .field:not(.error):not(.info):not(.success):not(.warning) .ui.selection.dropdown:not(.inverted) {
+  border-color: #3a4150;
+}
+.ui.ui.inverted.form .field .ui.selection.dropdown:not(.inverted) > .text {
+  background: transparent;
+}
+.ui.inverted.form :-ms-input-placeholder {
+  color: #a1a9b7;
+}
+.ui.inverted.form ::-ms-input-placeholder {
+  color: #a1a9b7;
+}
+.ui.ui.inverted.form .field .ui.selection.dropdown:not(.inverted) > .default.text,
+.ui.inverted.form ::placeholder {
+  color: #a1a9b7;
+}
 
 /* -------------------
        Etiquetas

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Search
+ * # Fomantic-UI 0.10.1 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1141,6 +1141,9 @@
                         }
                         if (isFunction(template)) {
                             html = template(response, fields, settings.preserveHTML);
+                            if (html && settings.footer) {
+                                html += '<div class="footer">' + (isFunction(settings.footer) ? settings.footer.call(element, response) : settings.footer) + '</div>';
+                            }
                         } else {
                             module.error(error.noTemplate, false);
                         }
@@ -1339,6 +1342,10 @@
         // template to use (specified in settings.templates)
         type: 'standard',
 
+        // Fork: pie fijo al final de los resultados (HTML de confianza, o función que lo devuelve), p. ej. los atajos de
+        // teclado de un buscador de comandos. Solo cuando hay resultados.
+        footer: false,
+
         // minimum characters required to search
         minCharacters: 1,
 
@@ -1454,6 +1461,7 @@
             categoryResults: 'results', // array of results (category view)
             description: 'description', // result description
             image: 'image', // result image
+            icon: 'icon', // Fork: result icon (class names, e.g. 'cog'), shown in a tile instead of an image
             alt: 'alt', // result alt text for image
             price: 'price', // result price
             results: 'results', // array of results (standard)
@@ -1546,6 +1554,10 @@
                                         + ' <img src="' + result[fields.image].replace(/"/g, '') + (result[fields.alt] ? '" alt="' + result[fields.alt].replace(/"/g, '') : '') + '">'
                                         + '</div>';
                                 }
+                                // Fork: ícono en una baldosa, en el sitio de la imagen
+                                if (result[fields.icon] !== undefined && result[fields.image] === undefined) {
+                                    html += '<div class="icon image"><i class="' + String(result[fields.icon]).replace(/[^\w -]/g, '') + ' icon" aria-hidden="true"></i></div>';
+                                }
                                 html += '<div class="content">';
                                 if (result[fields.price] !== undefined) {
                                     html += '<div class="price">' + escape(result[fields.price], preserveHTML) + '</div>';
@@ -1598,6 +1610,10 @@
                                 + '<div class="image">'
                                 + ' <img src="' + result[fields.image].replace(/"/g, '') + (result[fields.alt] ? '" alt="' + result[fields.alt].replace(/"/g, '') : '') + '">'
                                 + '</div>';
+                        }
+                        // Fork: ícono en una baldosa, en el sitio de la imagen
+                        if (result[fields.icon] !== undefined && result[fields.image] === undefined) {
+                            html += '<div class="icon image"><i class="' + String(result[fields.icon]).replace(/[^\w -]/g, '') + ' icon" aria-hidden="true"></i></div>';
                         }
                         html += '<div class="content">';
                         if (result[fields.price] !== undefined) {

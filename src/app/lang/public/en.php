@@ -49,4 +49,5 @@ return [
     "Suscribirse" => "Subscribe",
     "Desordenadas" => "Unordered",
     "Ordenadas" => "Ordered",
+    'correo@correo.com' => 'email@email.com',
 ];

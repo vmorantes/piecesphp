@@ -33,7 +33,7 @@ todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos
 <tr>
 <td>Texto sobre el patrocinador</td>
 <td>No</td>
-<td>Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Vacío, no se pinta.</td>
+<td>Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Hay un campo por cada idioma activo del sitio. En el idioma principal, vacío, no se pinta; en los demás, vacío usa el del idioma principal.</td>
 </tr>
 <tr>
 <td>Invertir colores en modo oscuro</td>

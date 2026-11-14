@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Flyout
+ * # Fomantic-UI 0.10.1 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -575,6 +575,46 @@ body.pushable > .pusher {
    PiecesPHP: Flyout Overrides
 *******************************/
 
+
+
+/*******************************
+    Core: Flyout Overrides
+*******************************/
+
+
+/* Cabecera con ícono (`ui header` con `bordered icon`, el panel de Configuración del marco de
+   PiecesPHP): baldosa de 36px y título en fila, centrados. Sin esto el ícono bordered de
+   Fomantic medía el doble que el título en los temas que no son piecesphp. Colores y radio
+   finos, de cada tema. */
+.ui.flyout > .header:has(> i.bordered.icon) {
+  display: flex;
+  align-items: center;
+  gap: 0.85714286rem;
+}
+.ui.flyout > .ui.header:not(.icon):not(.center.aligned):has(> i.bordered.icon) > i.icon + .content {
+  min-width: 0;
+  
+/* El título no pasa por debajo del cierre */
+  padding: 0 2.28571429rem 0 0;
+}
+.ui.flyout > .header > i.bordered.icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.57142857rem;
+  height: 2.57142857rem;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-size: 1.14285714rem;
+  border-radius: var(--r-md, 8px);
+}
+
+/* Banda fija sobre el contenido desplazable (el buscador del panel): una línea debajo */
+.ui.flyout.left > .content:not(.scrolling):has(+ .scrolling.content),
+.ui.flyout.right > .content:not(.scrolling):has(+ .scrolling.content) {
+  border-bottom: 1px solid var(--theme-border);
+}
 
 /* Fondo del panel (el default lo fija en blanco, sin variable) */
 .ui.flyout {

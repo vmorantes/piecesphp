@@ -103,10 +103,10 @@ CliActions::make('unit-tests:core/gates-area-selection', function ($args) {
     echoTerminal(' ');
     echoTerminal('[s] Un artefacto de instrumento elige solo las suites que lo leen (ADR 0065)');
 
-    //Lo que cada suite de mentira lee, como lo calcularía suiteArtifactReads() de su archivo. maintenance-mode es real:
-    //declara route-inventory.json en SUITE_DISTRIBUTION_REQUIREMENTS.
-    $areasS = $areas + ['zz-lee-matriz' => ['src/app/classes/Forms/'], 'zz-files-dev' => ['src/app/classes/Forms/'], 'unit-tests:core/maintenance-mode' => ['src/app/classes/Forms/']];
-    $filesS = $files + ['zz-lee-matriz' => $dir . 'UnitTest-ZzLeeMatriz.php', 'zz-files-dev' => $dir . 'UnitTest-ZzFilesDev.php', 'unit-tests:core/maintenance-mode' => $dir . 'UnitTest-MaintenanceMode.php'];
+    //Lo que cada suite de mentira lee, como lo calcularía suiteArtifactReads() de su archivo. route-inventory es real:
+    //declara route-inventory.json en SUITE_DISTRIBUTION_REQUIREMENTS porque lo lee (UnitTest-RouteInventory.php:47).
+    $areasS = $areas + ['zz-lee-matriz' => ['src/app/classes/Forms/'], 'zz-files-dev' => ['src/app/classes/Forms/'], 'unit-tests:core/route-inventory' => ['src/app/classes/Forms/']];
+    $filesS = $files + ['zz-lee-matriz' => $dir . 'UnitTest-ZzLeeMatriz.php', 'zz-files-dev' => $dir . 'UnitTest-ZzFilesDev.php', 'unit-tests:core/route-inventory' => $dir . 'UnitTest-RouteInventory.php'];
     $reads = [
         'zz-lee-matriz' => ['names' => ['permissions-matrix.json'], 'devUnnamed' => false],
         'zz-files-dev' => ['names' => [], 'devUnnamed' => true],
@@ -122,7 +122,7 @@ CliActions::make('unit-tests:core/gates-area-selection', function ($args) {
     $check(($s3['zz-files-dev'] ?? null) === 'artefacto files/dev/scss-census.json' && !isset($s3['zz-lee-matriz']),
         's3 la que nombra files/dev sin nombre de archivo entra con cualquier files/dev/', $describe($s3));
     $s4 = $selectS(['files/dev/route-inventory.json']);
-    $check(($s4['unit-tests:core/maintenance-mode'] ?? null) === 'artefacto files/dev/route-inventory.json',
+    $check(($s4['unit-tests:core/route-inventory'] ?? null) === 'artefacto files/dev/route-inventory.json',
         's4 un artefacto declarado en SUITE_DISTRIBUTION_REQUIREMENTS elige su suite', $describe($s4));
     $s5 = $selectS(['files/dev/permissions-matrix.json', 'src/app/core/AppHelpers.php']);
     $check(count($s5) === count($areasS) && array_unique(array_values($s5)) === ['nucleo'], 's5 CANARIO: un artefacto MÁS un cambio de núcleo, todas', $describe($s5));

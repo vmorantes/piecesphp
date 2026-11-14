@@ -3,7 +3,7 @@ window.addEventListener('load', () => {
 
 	new ContentImageEditor()
 
-	//El texto sobre el patrocinador: un campo, sin recorte.
+	//El texto sobre el patrocinador: un campo por idioma activo, en un solo formulario y sin recorte.
 	genericFormHandler(`form[partners-text-form]`)
 
 	//La casilla «Invertir colores en modo oscuro»: se guarda al cambiarla y la vista previa la refleja, también en claro.

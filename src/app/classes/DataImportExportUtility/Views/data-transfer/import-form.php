@@ -102,7 +102,7 @@ $description = trim($definition->description());
 
         <section class="ui segment" aria-labelledby="import-columns">
             <h2 class="ui header" id="import-columns"><?= __($langGroup, 'Las columnas de la plantilla'); ?></h2>
-            <div class="ui basic fitted horizontal scrolling segment" role="region" tabindex="0" aria-label="<?= __($langGroup, 'Las columnas de la plantilla'); ?>">
+            <div class="ui basic fitted horizontal scrolling mirrored segment" role="region" tabindex="0" aria-label="<?= __($langGroup, 'Las columnas de la plantilla'); ?>">
             <table class="ui selectable very basic unstackable table content-table">
                 <thead>
                     <tr>

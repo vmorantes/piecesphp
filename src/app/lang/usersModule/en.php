@@ -86,6 +86,7 @@ $lang = [
     "Investigación" => "Research",
     "Organización" => "Organization",
     "Debe seleccionar una organización." => "You must select an organization.",
+    "La organización indicada no existe." => "The given organization does not exist.",
     "Representante de una organización" => "Organization representative",
     "Editar usuario" => "Edit user",
     "No aprobado" => "Not approved",

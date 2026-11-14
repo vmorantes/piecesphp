@@ -76,6 +76,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                                 'width' => 300,
                                 'height' => 300,
                             ],
+                            'stacked' => true,
                         ]);
                     ?>
                 </div>

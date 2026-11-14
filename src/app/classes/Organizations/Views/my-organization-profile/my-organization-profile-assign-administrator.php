@@ -65,7 +65,7 @@ if (OrganizationProfileController::allowedRoute('profile', ['organizationID' => 
                                     <div class="ui header name"><?= __($langGroup, 'Persona encargada'); ?></div>
                                     <div class="meta"><?= __($langGroup, 'Debe seleccionar una persona encargada para modificar el perfil'); ?></div>
                                     <div class="extra actions">
-                                        <button class="ui button blue" change-organization-admin-trigger>
+                                        <button class="ui basic button" change-organization-admin-trigger>
                                             <?= __($langGroup, 'Cambiar'); ?>
                                         </button>
                                     </div>
@@ -74,7 +74,7 @@ if (OrganizationProfileController::allowedRoute('profile', ['organizationID' => 
                                 <div class="middle aligned content">
                                     <div class="meta"><?= __($langGroup, 'No hay usuarios asociados a esta organización que puedan ser asignados como encargados, asocia algún usuario a esta organización desde el listado de usuarios en el siguiente botón'); ?></div>
                                     <div class="extra actions">
-                                        <a class="ui button blue" href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'); ?>" target="_blank">
+                                        <a class="ui basic button" href="<?= \PiecesPHP\UserSystem\Controllers\UsersController::routeName('list'); ?>" target="_blank">
                                             <?= __($langGroup, 'Ver usuarios'); ?>
                                         </a>
                                     </div>

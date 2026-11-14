@@ -61,7 +61,7 @@ $cronjobs[] = CronJobTask::make('Rellenar slugs pendientes', function () {
 
     return [
         'success' => true,
-        'message' => "Rellenados {$summary['filled']} slug(s) en {$summary['tables']} tabla(s).",
+        'message' => strReplaceTemplate(__(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Rellenados ${filled} slug(s) en ${tables} tabla(s).'), ['${filled}' => (string) $summary['filled'], '${tables}' => (string) $summary['tables']]),
         'extra_data' => $summary['detail'],
     ];
 })->dailyAt("00:10");
@@ -73,8 +73,12 @@ $cronjobs[] = CronJobTask::make('Sincronizar visibilidad de publicaciones', func
 
     return [
         'success' => $summary['failed'] === 0,
-        'message' => "Revisadas {$summary['publications']} publicación(es) activas: {$summary['renamed']} archivo(s) renombrados, "
-            . "{$summary['conflicts']} conflicto(s), {$summary['failed']} fallo(s).",
+        'message' => strReplaceTemplate(__(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Revisadas ${publications} publicación(es) activas: ${renamed} archivo(s) renombrados, ${conflicts} conflicto(s), ${failed} fallo(s).'), [
+            '${publications}' => (string) $summary['publications'],
+            '${renamed}' => (string) $summary['renamed'],
+            '${conflicts}' => (string) $summary['conflicts'],
+            '${failed}' => (string) $summary['failed'],
+        ]),
         'extra_data' => $summary,
     ];
 })->onMinute(5);
@@ -86,7 +90,7 @@ $cronjobs[] = CronJobTask::make('Procesar la cola', function () {
 
     return [
         'success' => !$result['aborted'],
-        'message' => $result['aborted'] ? 'Otra ejecución tenía la cola: esta pasada no procesó nada.' : "Procesadas {$result['processed']} tarea(s) de la cola.",
+        'message' => $result['aborted'] ? __(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Otra ejecución tenía la cola: esta pasada no procesó nada.') : strReplaceTemplate(__(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Procesadas ${processed} tarea(s) de la cola.'), ['${processed}' => (string) $result['processed']]),
         'extra_data' => $result['messages'],
     ];
 })->when(fn () => true);
@@ -99,8 +103,12 @@ $cronjobs[] = CronJobTask::make('Purgar registros viejos', function () {
 
     return [
         'success' => true,
-        'message' => "Borrados {$errors['soft']} contador(es) de suaves, {$errors['traces']} traza(s), "
-            . "{$queue['completed']} trabajo(s) terminado(s) y {$queue['failed']} fallido(s) de la cola.",
+        'message' => strReplaceTemplate(__(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Borrados ${soft} contador(es) de suaves, ${traces} traza(s), ${completed} trabajo(s) terminado(s) y ${failed} fallido(s) de la cola.'), [
+            '${soft}' => (string) $errors['soft'],
+            '${traces}' => (string) $errors['traces'],
+            '${completed}' => (string) $queue['completed'],
+            '${failed}' => (string) $queue['failed'],
+        ]),
         'extra_data' => ['errors' => $errors, 'queue' => $queue],
     ];
 })->dailyAt("03:30");

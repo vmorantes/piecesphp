@@ -68,7 +68,8 @@ class SettingsRoutes
         //Fondos e imágenes de marca (la de los problemas de usuario la siembra el arranque).
         $declare(['backgrounds'], $owner, ConfigOptions::SHAPE_JSON);
         $declare(['backgoundProblems', 'favicon', 'favicon-back', 'logo', 'partners', 'partnersVertical', 'mailingLogo'], $owner, ConfigOptions::SHAPE_TEXT);
-        $declare([SettingsController::PARTNERS_TEXT_CONFIG], $owner, ConfigOptions::SHAPE_TEXT);
+        //El texto sobre el patrocinador, uno por idioma (SettingsController::partnersTextOptionName()).
+        $declare(array_map(fn (string $lang) => SettingsController::partnersTextOptionName($lang), Config::get_allowed_langs()), $owner, ConfigOptions::SHAPE_TEXT);
         $declare(array_values(SettingsController::BRAND_IMAGES_INVERT_ON_DARK), $owner, ConfigOptions::SHAPE_BOOL);
 
         //SEO: el nombre por idioma lo da SettingsController::seoOptionName() (sin sufijo el del idioma por omisión).

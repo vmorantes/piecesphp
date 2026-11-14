@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Sidebar
+ * # Fomantic-UI 0.10.1 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -257,6 +257,19 @@ body.pushable > .pusher {
 .ui[class*="very thin"].left.sidebar,
 .ui[class*="very thin"].right.sidebar {
   width: 5.14285714rem;
+}
+
+/* Fork: el mínimo de 6em del menú labeled icon hacía los ítems más anchos que el sidebar very thin (60px):
+               barra de desplazamiento y la etiqueta cortada o tapada por el pusher */
+.ui[class*="very thin"].sidebar.labeled.icon.menu .item {
+  min-width: 0;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+/* Fork: lo mismo en el thin (150px) si el tema agranda el mínimo del menú labeled icon */
+.ui.thin.sidebar.labeled.icon.menu .item {
+  min-width: 0;
 }
 .ui.left.sidebar,
 .ui.right.sidebar {

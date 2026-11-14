@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Message
+ * # Fomantic-UI 0.10.1 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -93,6 +93,20 @@
 }
 .ui.message .list:not(.ui) li:last-child {
   margin-bottom: 0;
+}
+
+/* Fork: una lista ordenada (`ol.list`) salía con viñetas: numerada, con el número en el hueco de la viñeta */
+.ui.message ol.list:not(.ui) {
+  counter-reset: message-list;
+}
+.ui.message ol.list:not(.ui) > li {
+  counter-increment: message-list;
+}
+.ui.message ol.list:not(.ui) > li::before {
+  content: counter(message-list) ".";
+  left: auto;
+  right: calc(100% + 0.35em);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Icon */
@@ -282,6 +296,13 @@
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
+
+/* Fork: el borde del estado, en su rama clara; con el borde claro (neutro en un info sin
+               tinte) salía blanco, y warning casi igual a error */
+.ui.inverted.positive.message,
+.ui.attached.inverted.positive.message {
+  box-shadow: 0 0 0 1px oklch(from light-dark(#abefc6, #1b5e3c) max(l, 0.7) max(c, 0.1) h) inset;
+}
 .ui.negative.message {
   background-color: light-dark(#fef3f2, #351513);
   color: light-dark(#b42318, #fda29b);
@@ -301,6 +322,13 @@
   color: oklch(from light-dark(#fecdca, #7a271a) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: el borde del estado, en su rama clara; con el borde claro (neutro en un info sin
+               tinte) salía blanco, y warning casi igual a error */
+.ui.inverted.negative.message,
+.ui.attached.inverted.negative.message {
+  box-shadow: 0 0 0 1px oklch(from light-dark(#fecdca, #7a271a) max(l, 0.7) max(c, 0.1) h) inset;
 }
 .ui.error.message {
   background-color: light-dark(#fef3f2, #351513);
@@ -322,6 +350,13 @@
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
+
+/* Fork: el borde del estado, en su rama clara; con el borde claro (neutro en un info sin
+               tinte) salía blanco, y warning casi igual a error */
+.ui.inverted.error.message,
+.ui.attached.inverted.error.message {
+  box-shadow: 0 0 0 1px oklch(from light-dark(#fecdca, #7a271a) max(l, 0.7) max(c, 0.1) h) inset;
+}
 .ui.info.message {
   background-color: light-dark(#ecfdff, #0a2a33);
   color: light-dark(#0e7090, #67e3f9);
@@ -341,6 +376,13 @@
   color: oklch(from light-dark(#a5f0fc, #155b75) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: el borde del estado, en su rama clara; con el borde claro (neutro en un info sin
+               tinte) salía blanco, y warning casi igual a error */
+.ui.inverted.info.message,
+.ui.attached.inverted.info.message {
+  box-shadow: 0 0 0 1px oklch(from light-dark(#a5f0fc, #155b75) max(l, 0.7) max(c, 0.1) h) inset;
 }
 .ui.success.message {
   background-color: light-dark(#ecfdf3, #0c2a1c);
@@ -362,6 +404,13 @@
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
+
+/* Fork: el borde del estado, en su rama clara; con el borde claro (neutro en un info sin
+               tinte) salía blanco, y warning casi igual a error */
+.ui.inverted.success.message,
+.ui.attached.inverted.success.message {
+  box-shadow: 0 0 0 1px oklch(from light-dark(#abefc6, #1b5e3c) max(l, 0.7) max(c, 0.1) h) inset;
+}
 .ui.warning.message {
   background-color: light-dark(#fffaeb, #2e2108);
   color: light-dark(#b54708, #fdb022);
@@ -381,6 +430,13 @@
   color: oklch(from light-dark(#fedf89, #6b4a10) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
+}
+
+/* Fork: el borde del estado, en su rama clara; con el borde claro (neutro en un info sin
+               tinte) salía blanco, y warning casi igual a error */
+.ui.inverted.warning.message,
+.ui.attached.inverted.warning.message {
+  box-shadow: 0 0 0 1px oklch(from light-dark(#fedf89, #6b4a10) max(l, 0.7) max(c, 0.1) h) inset;
 }
 .ui.primary.message {
   background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 14%, transparent);

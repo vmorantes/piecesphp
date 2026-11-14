@@ -41,7 +41,7 @@ $severities = [
     ?>
     <?php else: ?>
     <?php //Sin desplazamiento en escritorio; a ≤767 la tabla guarda su ancho mínimo y se desplaza dentro (el fork). ?>
-    <section class="ui horizontal scrolling segment" role="region" tabindex="0" aria-label="<?= $escape($title); ?>">
+    <section class="ui horizontal scrolling mirrored segment" role="region" tabindex="0" aria-label="<?= $escape($title); ?>">
         <table class="ui very basic unstackable table" data-system-alerts-table>
             <thead>
                 <tr>

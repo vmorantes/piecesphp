@@ -12,6 +12,7 @@ use PiecesPHP\Core\Mailer;
 use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
+use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\RecoveryPasswordModel;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -198,6 +199,8 @@ class RecoveryPasswordController extends UsersController
 
                     //Verificar si la contraseña fue actualizada
                     if ($updated) {
+                        //RETORNO-IGNORADO: cuántas se cerraron no cambia la respuesta de la recuperación.
+                        UserSessions::closeAfterPasswordChange((int) $user->id);
                         $json_response['success'] = true;
                         $json_response['message'] = __(self::LANG_GROUP, 'Contraseña cambiada.');
                         RecoveryPasswordModel::deleteByEmail((string) $user->email);

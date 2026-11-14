@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Calendar
+ * # Fomantic-UI 0.10.1 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -356,5 +356,5 @@
 .ui.calendar .ui.table tr td.active,
 .ui.calendar .ui.table tr td.active:hover {
   background: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }

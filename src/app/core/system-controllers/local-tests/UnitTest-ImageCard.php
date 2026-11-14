@@ -138,6 +138,13 @@ CliActions::make('unit-tests:core/image-card', function ($args) {
     $check($xpath->query('//input[@type="file"][@required]')?->length === 1 && $xpath->query('//div[contains(@class,"required")][contains(@class,"field")]/label[@hidden]')?->length === 1, 'e9 obligatoria: input con required, y un .field con label oculta para el nombre y el error');
     $opcional = (string) (new BaseController())->render('panel/built-in/content/image-field', ['card' => ['id' => 'zz-o', 'title' => 'x', 'field' => 'f']], false);
     $check(!str_contains($opcional, ' required'), 'e10 DISCRIMINANTE: sin required, ni el input ni el .field la piden');
+    //Sin `stacked`, el marcado de siempre: los usos que no lo piden no cambian.
+    $campo = fn(array $extra): string => (string) (new BaseController())->render('panel/built-in/content/image-field', ['card' => ['id' => 'zz-h', 'title' => 'x', 'field' => 'f']] + $extra, false);
+    $horizontal = $campo([]);
+    $apilada = $campo(['stacked' => true]);
+    $check(str_contains($horizontal, '<div class="ui one stackable horizontal cards">') && $campo(['stacked' => false]) === $horizontal, 'e13 sin stacked o con false, la horizontal de siempre');
+    $check(str_contains($apilada, '<div class="ui one cards">') && !str_contains($apilada, 'horizontal'), 'e14 DISCRIMINANTE: con stacked, apilada: sin horizontal');
+    $check(str_replace('<div class="ui one cards">', '<div class="ui one stackable horizontal cards">', $apilada) === $horizontal, 'e15 y no cambia nada más');
     foreach (['replaced', 'replaced-detail', 'added', 'added-detail', 'error', 'error-detail', 'unreadable', 'unreadable-detail', 'export'] as $texto) {
         $check(preg_match('/data-text-' . $texto . '="[^"]+"/', $editor) === 1, "e2 trae el texto {$texto}");
     }

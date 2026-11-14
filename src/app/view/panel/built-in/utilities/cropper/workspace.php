@@ -30,7 +30,7 @@ $workspaceWidth = $referenceW >= 450 ? $referenceW : 450;
 
 <div class="preview" w="<?=$referenceW;?>">
     <img src="<?= baseurl("img-gen/{$referenceW}/{$referenceH}"); ?>">
-    <button <?= $hideStartButton ? "style='display:none;'" : ''; ?> class="ui button blue" type="button" start></button>
+    <button <?= $hideStartButton ? "style='display:none;'" : ''; ?> class="ui primary button" type="button" start></button>
 </div>
 
 <div class="workspace" style="width: <?= $workspaceWidth; ?>px; max-width: 100%;">
@@ -46,7 +46,7 @@ $workspaceWidth = $referenceW >= 450 ? $referenceW : 450;
                 <div class="content">
                     <div>
                         <i class="upload icon"></i>
-                        <button class="ui button blue fluid" type="button" load-image><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Seleccionar imagen'); ?></button>
+                        <button class="ui primary fluid button" type="button" load-image><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Seleccionar imagen'); ?></button>
                     </div>
                 </div>
 

@@ -7,6 +7,7 @@
 
 use API\Controllers\APIController;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\Terminal\CliActions;
@@ -42,6 +43,7 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
 
     $passed = 0;
     $failed = 0;
+    $skipped = 0;
     $check = function (bool $condition, string $name, string $detail = '') use (&$passed, &$failed): bool {
         if ($condition) {
             $passed++;
@@ -52,12 +54,17 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
         }
         return $condition;
     };
-    $balance = function () use (&$passed, &$failed): array {
+    //Lo que depende de la instalación se omite a la vista y cuenta aparte: nunca como pasado.
+    $omitir = function (string $caso, string $motivo) use (&$skipped): void {
+        $skipped++;
+        echoTerminal("   \e[33m[omitida]\e[39m {$caso}: {$motivo}");
+    };
+    $balance = function () use (&$passed, &$failed, &$skipped): array {
         $total = $passed + $failed;
         echoTerminal(' ');
         echoTerminal($failed === 0
-            ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS \e[39m"
-            : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
+            ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS, {$skipped} OMITIDAS \e[39m"
+            : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS, {$skipped} OMITIDAS \e[39m");
         return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
     };
 
@@ -268,10 +275,12 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
         //─── f · Cada resultado con su etiqueta, en los dos idiomas ──────────────────────────────
         echoTerminal(' ');
         echoTerminal('[f] Los cuatro resultados del libro llevan etiqueta y color; uno desconocido sale tal cual');
+        $conIngles = in_array('en', Config::get_allowed_langs(), true);
+        $motivoIngles = 'el inglés no es uno de los idiomas de esta instalación';
         $idiomaPrevio = get_config('app_lang');
         $etiquetas = [];
         try {
-            foreach (['es', 'en'] as $idioma) {
+            foreach ($conIngles ? ['es', 'en'] : ['es'] as $idioma) {
                 set_config('app_lang', $idioma);
                 foreach ([CronJobTask::STATUS_EXECUTED, CronJobTask::STATUS_FAILED, CronJobTask::STATUS_LOCKED, CronJobTask::STATUS_ALREADY_DONE, 'zz-resultado-raro'] as $resultado) {
                     $etiquetas[$idioma][$resultado] = SystemStatusController::taskRunStatusLabel($resultado);
@@ -285,12 +294,21 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
             'en' => [CronJobTask::STATUS_LOCKED => ['yellow', 'Skipped: another one running'], CronJobTask::STATUS_ALREADY_DONE => ['grey', 'Skipped: already done in its slot']],
         ];
         foreach ($esperadas as $idioma => $porResultado) {
+            if (!isset($etiquetas[$idioma])) {
+                $omitir("f1 ({$idioma})", $motivoIngles);
+                continue;
+            }
             foreach ($porResultado as $resultado => $esperada) {
                 $check(($etiquetas[$idioma][$resultado] ?? null) === $esperada, "f1 DISCRIMINANTE: «{$resultado}» en {$idioma}: «{$esperada[1]}», no el valor crudo", json_encode($etiquetas[$idioma][$resultado] ?? null, JSON_UNESCAPED_UNICODE) ?: '');
             }
         }
-        $check(($etiquetas['en'][CronJobTask::STATUS_EXECUTED] ?? null) === ['green', 'Executed'] && ($etiquetas['en'][CronJobTask::STATUS_FAILED] ?? null) === ['red', 'Failed'], 'f2 CANARIO: ejecutada y fallida, como siempre');
-        $check(($etiquetas['en']['zz-resultado-raro'] ?? null) === ['grey', 'zz-resultado-raro'], 'f3 un resultado desconocido sale tal cual, en gris: es un dato del registro');
+        if ($conIngles) {
+            $check(($etiquetas['en'][CronJobTask::STATUS_EXECUTED] ?? null) === ['green', 'Executed'] && ($etiquetas['en'][CronJobTask::STATUS_FAILED] ?? null) === ['red', 'Failed'], 'f2 CANARIO: ejecutada y fallida, como siempre');
+            $check(($etiquetas['en']['zz-resultado-raro'] ?? null) === ['grey', 'zz-resultado-raro'], 'f3 un resultado desconocido sale tal cual, en gris: es un dato del registro');
+        } else {
+            $omitir('f2', $motivoIngles);
+            $omitir('f3', $motivoIngles);
+        }
         $peticionFiltro = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/zz'), new Headers(), [], [], (new StreamFactory())->createStream(''));
         $htmlFiltro = SystemStatusController::taskRunsTab($peticionFiltro, 'https://zz.test/tab');
         $check(str_contains($htmlFiltro, 'value="' . CronJobTask::STATUS_LOCKED . '"') && str_contains($htmlFiltro, 'value="' . CronJobTask::STATUS_ALREADY_DONE . '"'),
@@ -302,26 +320,57 @@ CliActions::make('unit-tests:core/task-runs', function ($args) {
         $nombresDelFramework = ['Respaldar base de datos', 'Rellenar slugs pendientes', 'Sincronizar visibilidad de publicaciones', 'Procesar la cola', 'Purgar registros viejos'];
         $registradas = array_map(fn ($t) => $t->getName(), CronJobTask::getCronJobs());
         $check(array_diff($nombresDelFramework, $registradas) === [], 'g0 CANARIO: las cinco tareas del framework están registradas con su nombre en español', implode(' · ', $registradas));
-        $idiomaPrevio = get_config('app_lang');
-        try {
-            set_config('app_lang', 'en');
-            $enIngles = array_map(fn (string $n): string => SystemStatusController::taskDisplayName($n), $nombresDelFramework);
-            $desconocida = SystemStatusController::taskDisplayName('zz-tarea-de-un-clon');
-            $htmlIngles = SystemStatusController::taskRunsTab(new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/zz'), new Headers(), [], [], (new StreamFactory())->createStream('')), 'https://zz.test/tab');
-            $accesos = __(\PiecesPHP\UserSystem\UserSystemFeaturesLang::LANG_GROUP, 'Accesos');
-            set_config('app_lang', 'es');
-            $enEspanol = SystemStatusController::taskDisplayName('Procesar la cola');
-        } finally {
-            set_config('app_lang', $idiomaPrevio);
+        if (!$conIngles) {
+            foreach (['g1', 'g2', 'g3', 'g4', 'g5'] as $caso) {
+                $omitir($caso, $motivoIngles);
+            }
+        } else {
+            $idiomaPrevio = get_config('app_lang');
+            try {
+                set_config('app_lang', 'en');
+                $enIngles = array_map(fn (string $n): string => SystemStatusController::taskDisplayName($n), $nombresDelFramework);
+                $desconocida = SystemStatusController::taskDisplayName('zz-tarea-de-un-clon');
+                $htmlIngles = SystemStatusController::taskRunsTab(new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/zz'), new Headers(), [], [], (new StreamFactory())->createStream('')), 'https://zz.test/tab');
+                $accesos = __(\PiecesPHP\UserSystem\UserSystemFeaturesLang::LANG_GROUP, 'Accesos');
+                set_config('app_lang', 'es');
+                $enEspanol = SystemStatusController::taskDisplayName('Procesar la cola');
+            } finally {
+                set_config('app_lang', $idiomaPrevio);
+            }
+            $check($enIngles === ['Back up the database', 'Fill in pending slugs', 'Sync publications visibility', 'Process the queue', 'Purge old records'],
+                'g1 DISCRIMINANTE: en inglés, las cinco se pintan traducidas', json_encode($enIngles) ?: '');
+            $check($desconocida === 'zz-tarea-de-un-clon' && $enEspanol === 'Procesar la cola', 'g2 una tarea de un clon sale tal cual, y en español el nombre es el de siempre');
+            $check(str_contains($htmlIngles, '<option value="Procesar la cola">Process the queue</option>'), 'g3 el filtro «Tarea» filtra por el nombre ORIGINAL y enseña el traducido');
+            $check(str_contains($htmlIngles, '<code style="white-space: nowrap;">--local</code>') && str_contains($htmlIngles, 'Cron-Job-Key: &lt;KEY&gt;'), 'g4 el ejemplo del cron: --local en <code>, sin corte, y la llave como &lt;KEY&gt;');
+            $fuenteAccesos = (string) file_get_contents(basepath('app/classes/PiecesPHP/UserSystem/Controllers/LoginAttemptsController.php'));
+            $check($accesos === 'Access' && str_contains($fuenteAccesos, "__(UserSystemFeaturesLang::LANG_GROUP, 'Accesos')"),
+                'g5 «Accesos» se traduce con un grupo inyectado ANTES de registrar la pestaña, y tiene su inglés', $accesos);
         }
-        $check($enIngles === ['Back up the database', 'Fill in pending slugs', 'Sync publications visibility', 'Process the queue', 'Purge old records'],
-            'g1 DISCRIMINANTE: en inglés, las cinco se pintan traducidas', json_encode($enIngles) ?: '');
-        $check($desconocida === 'zz-tarea-de-un-clon' && $enEspanol === 'Procesar la cola', 'g2 una tarea de un clon sale tal cual, y en español el nombre es el de siempre');
-        $check(str_contains($htmlIngles, '<option value="Procesar la cola">Process the queue</option>'), 'g3 el filtro «Tarea» filtra por el nombre ORIGINAL y enseña el traducido');
-        $check(str_contains($htmlIngles, '<code style="white-space: nowrap;">--local</code>') && str_contains($htmlIngles, 'Cron-Job-Key: &lt;KEY&gt;'), 'g4 el ejemplo del cron: --local en <code>, sin corte, y la llave como &lt;KEY&gt;');
-        $fuenteAccesos = (string) file_get_contents(basepath('app/classes/PiecesPHP/UserSystem/Controllers/LoginAttemptsController.php'));
-        $check($accesos === 'Access' && str_contains($fuenteAccesos, "__(UserSystemFeaturesLang::LANG_GROUP, 'Accesos')"),
-            'g5 «Accesos» se traduce con un grupo inyectado ANTES de registrar la pestaña, y tiene su inglés', $accesos);
+
+        //─── h · Los mensajes de una tarea, en el idioma en que corre (H226) ──────────────────────
+        echoTerminal(' ');
+        echoTerminal('[h] Los mensajes que deja una tarea salen en el idioma en que corre');
+        if (!$conIngles) {
+            foreach (['h1', 'h2'] as $caso) {
+                $omitir($caso, $motivoIngles);
+            }
+        } else {
+            $idiomaPrevio = get_config('app_lang');
+            try {
+                set_config('app_lang', 'en');
+                //execute() no escribe en el libro (eso es run()): nada que retirar.
+                $conExcepcion = $tarea('h-falla', function (): array {
+                    throw new \RuntimeException('zz-h');
+                })->when(fn(): bool => true)->execute();
+                $omitida = $tarea('h-omitida', fn(): array => ['success' => true])->when(fn(): bool => false)->execute();
+                $porOmision = $tarea('h-omision', fn(): array => ['success' => true])->when(fn(): bool => true)->execute();
+            } finally {
+                set_config('app_lang', $idiomaPrevio);
+            }
+            $check(($conExcepcion['message'] ?? '') === 'Exception during the run: zz-h', 'h1 DISCRIMINANTE: en inglés, la excepción se anota en inglés', (string) ($conExcepcion['message'] ?? ''));
+            $check(($omitida['message'] ?? '') === 'Skipped. It does not meet its run condition.' && ($porOmision['message'] ?? '') === 'Task run successfully.',
+                'h2 y también la omitida y el mensaje por omisión', ($omitida['message'] ?? '') . ' / ' . ($porOmision['message'] ?? ''));
+        }
 
     } catch (\Throwable $e) {
         $check(false, 'sin excepciones', get_class($e) . ': ' . $e->getMessage());

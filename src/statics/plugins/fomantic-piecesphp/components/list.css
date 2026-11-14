@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - List
+ * # Fomantic-UI 0.10.1 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -390,11 +390,11 @@ ol.ui.list ol li,
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
 }
 
-/* Linking Content */
-.ui.inverted.list .item a:not(.ui) {
+/* Linking Content (link lists have their own unselected, hover and active colors) */
+.ui.inverted.list:not(.link) .item a:not(.ui) {
   color: rgba(255, 255, 255, 0.9) !important;
 }
-.ui.inverted.list .item a:not(.ui):hover {
+.ui.inverted.list:not(.link) .item a:not(.ui):hover {
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h)) !important;
 }
 
@@ -650,6 +650,17 @@ ol.ui.inverted.list li::before,
 }
 ol.ui.list li[value]::before {
   content: attr(value);
+}
+
+/* Fork: un valor largo («99») empezaba en el mismo sitio que un número de una cifra y llegaba al texto
+       («99Valor 99»): se alinea a la derecha, terminando a un hueco fijo del texto */
+.ui.ordered.list .list > .item[data-value]::before,
+.ui.ordered.list > .item[data-value]::before,
+ol.ui.list li[value]::before {
+  right: 100%;
+  margin-left: 0;
+  margin-right: 0.4em;
+  white-space: nowrap;
 }
 
 /* Child Lists */

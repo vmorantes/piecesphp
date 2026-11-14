@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Site
+ * # Fomantic-UI 0.10.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -312,6 +312,15 @@ select optgroup {
   color: var(--theme-text);
 }
 
+/* En un select en lista (multiple o con size) las opciones se pintan dentro del campo: sin fondo propio, o quedan en
+   una banda de otro tono (en oscuro, surface-strong sobre el campo) */
+select[multiple] option,
+select[multiple] optgroup,
+select[size]:not([size="1"]) option,
+select[size]:not([size="1"]) optgroup {
+  background-color: transparent;
+}
+
 /* Enlaces sueltos dentro de un bloque inverted (segment, item, feed…): el acento aclarado; con la
    tinta del modo claro quedaban en 1,8:1 sobre el fondo oscuro. L 0,86 y no la 0,78 de la tinta
    oscura: el inverted de algunos temas es un gris medio (el cristal de glass-ios, 3,5:1 con 0,78). */
@@ -325,6 +334,15 @@ small {
   font-size: 0.85714286rem;
 }
 
+/* Texto marcado (<mark>) fuera de los resultados del buscador, que tienen el suyo (p. ej. las coincidencias de un filtro
+   de ajustes): el amarillo del navegador no seguía al tema ni al modo. Tinte del acento con el texto del modo. */
+mark {
+  background: var(--accent-100);
+  color: var(--accent-text);
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
 /* Tokens del diseño publicados como variables CSS (tokens.md §1, §2, §5, §10). En html y no en
    :root, como los acentos de la capa común: si el host entrega los tonos precalculados en
    :root { --accent-25: … }, ganan los suyos (README del diseño, contrato de entrada).
@@ -332,7 +350,7 @@ small {
    superficie oscura (inferido). */
 html {
   --accent-solid: var(--accent-1);
-  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((r + 0.055) / 1.055, 2.4) + 0.7152 * pow((g + 0.055) / 1.055, 2.4) + 0.0722 * pow((b + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
   --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
   --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));

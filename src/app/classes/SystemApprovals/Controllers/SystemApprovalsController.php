@@ -36,6 +36,8 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\MailCatalog\Definitions\ApprovalStatusMail;
+use PiecesPHP\Notifications\NotificationMessage;
+use PiecesPHP\Notifications\Notifications;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -375,6 +377,11 @@ class SystemApprovalsController extends AdminPanelController
                             }
                         }
                         //Envío de correo - FIN
+                        //Y en la campana, a la misma persona: sin depender de que su correo llegue. No lanza.
+                        if ($contactUser !== null && $previousStatus != $approvalStatus && !UsersModel::isSystemUser($contactUser->id !== null ? (int) $contactUser->id : null)) {
+                            //RETORNO-IGNORADO: cuántas se crearon no cambia la respuesta.
+                            self::notifyResolution($contactUser, $mapper, (string) $reason);
+                        }
 
                         $resultOperation
                             ->setMessage($noticeReference === null ? $successEditMessage : strReplaceTemplate($mailFailedMessage, [
@@ -655,6 +662,61 @@ class SystemApprovalsController extends AdminPanelController
                 && (string) $record->referenceOrganizationAdministrator === (string) $user->id;
         }
         return true;
+    }
+
+    /**
+     * La notificación de una aprobación resuelta (ADR 0073), a la misma persona que el correo y con lo mismo que dice.
+     * Sin destino: ningún controlador da el nombre de la ruta de lo aprobado. Nunca lanza.
+     *
+     * @param UsersModel $contactUser
+     * @param SystemApprovalsMapper $approval
+     * @param string $reason
+     * @return int Cuántas creó
+     */
+    public static function notifyResolution(UsersModel $contactUser, SystemApprovalsMapper $approval, string $reason): int
+    {
+        $status = (string) $approval->status;
+        $current = getLoggedFrameworkUser();
+        $realActorID = \PiecesPHP\UserSystem\Authentication\Impersonation::rootOriginalID() ?? ($current !== null ? (int) $current->id : null);
+        //Solo aprobada o rechazada, y nunca a quien resuelve lo suyo.
+        if ($contactUser->id === null || !in_array($status, [SystemApprovalsMapper::STATUS_APPROVED, SystemApprovalsMapper::STATUS_REJECTED], true) || (int) $contactUser->id === $realActorID) {
+            return 0;
+        }
+        $params = ['{NAME}' => (string) $contactUser->getFullName(), '{CONTENT_NAME}' => (string) $approval->referenceAlias, '{REASON}' => trim($reason)];
+        try {
+            //Con argumentos con nombre y claves literales: así las ve bin/censo-claves-huerfanas.
+            $message = match (true) {
+                $status === SystemApprovalsMapper::STATUS_APPROVED => new NotificationMessage(
+                    kind: 'approval-resolved',
+                    level: NotificationMessage::LEVEL_SUCCESS,
+                    langGroup: self::LANG_GROUP,
+                    titleKey: 'Tu contenido fue aprobado',
+                    bodyKey: "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido aprobado",
+                    params: $params,
+                ),
+                trim($reason) !== '' => new NotificationMessage(
+                    kind: 'approval-resolved',
+                    level: NotificationMessage::LEVEL_WARNING,
+                    langGroup: self::LANG_GROUP,
+                    titleKey: 'Tu contenido fue rechazado',
+                    bodyKey: "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado. Motivo: {REASON}",
+                    params: $params,
+                ),
+                default => new NotificationMessage(
+                    kind: 'approval-resolved',
+                    level: NotificationMessage::LEVEL_WARNING,
+                    langGroup: self::LANG_GROUP,
+                    titleKey: 'Tu contenido fue rechazado',
+                    bodyKey: "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado",
+                    params: $params,
+                ),
+            };
+            return Notifications::notify((int) $contactUser->id, $message);
+        } catch (\Throwable $e) {
+            //RETORNO-IGNORADO: la referencia no la necesita nadie; la aprobación ya está guardada.
+            log_exception($e);
+            return 0;
+        }
     }
 
     /**

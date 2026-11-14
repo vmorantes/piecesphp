@@ -214,7 +214,7 @@ class BackupRotation
             //Un fallo repetido se llevaría los respaldos buenos. ADR 0038 §3.
             return [
                 'rotated' => false,
-                'message' => 'El respaldo falló: no se borró ningún respaldo.',
+                'message' => __(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'El respaldo falló: no se borró ningún respaldo.'),
                 'kept' => 0,
                 'deleted' => [],
                 'failed' => [],

@@ -1,6 +1,6 @@
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.9.4 - Slideshow
+ * # Fomantic-UI 0.10.1 - Slideshow
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

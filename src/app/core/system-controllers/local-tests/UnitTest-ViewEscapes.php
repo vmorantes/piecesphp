@@ -386,6 +386,11 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $falsaSmtp = 'zz-contrasena-falsa-' . bin2hex(random_bytes(6));
         $guardar = $pedir($rutaCorreo, $jwtRoot, $camposCorreo + ['password' => $falsaSmtp]);
         $check($texto($correoEnBase()->password()) === $falsaSmtp, 'f4 CANARIO: guardar otra contraseña la cambia', "HTTP {$guardar['status']}, mensaje " . mb_substr((string) (json_decode($guardar['body'], true)['message'] ?? ''), 0, 160));
+        $conEspacios = "zz-clave  con\tespacios\u{00A0}raros-" . bin2hex(random_bytes(3));
+        $guardar = $pedir($rutaCorreo, $jwtRoot, $camposCorreo + ['password' => $conEspacios]);
+        $guardada = $texto($correoEnBase()->password());
+        $check($guardada === $conEspacios, 'f4b DISCRIMINANTE: la contraseña del correo se guarda tal cual se escribe (dos espacios, tabulador, espacio duro)',
+            "HTTP {$guardar['status']} · longitud guardada " . mb_strlen($guardada) . ' de ' . mb_strlen($conEspacios));
         $claveOs = (string) (SettingsModel::getConfigValue('osTicketAPIKey') ?? '');
         $rutaOs = $camino(\PiecesPHP\Settings\Controllers\SettingsController::routeName('integrations-osticket', [], true));
         if ($claveOs === '') {

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Input
+ * # Fomantic-UI 0.10.1 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -56,6 +56,16 @@
   -webkit-transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   cursor: pointer;
+}
+
+/* Fork: solo lectura con fondo y texto propios (como en form) */
+.ui.input > input[readonly],
+.ui.input > textarea[readonly],
+.ui.input > input[readonly]:focus,
+.ui.input > textarea[readonly]:focus {
+  background: light-dark(#fafbfc, #262b36);
+  color: light-dark(#4b5363, #cfd5de);
+  cursor: default;
 }
 
 /* --------------------
@@ -532,6 +542,17 @@
   border-bottom-width: 0;
 }
 
+/* Fork: el ícono, dentro del triángulo propio; con las distancias de la etiqueta (pensadas para
+       4em) asomaba por la hipotenusa de un triángulo menor */
+.ui.labeled.input .corner.label > .icon {
+  top: calc(4em * 0.1);
+  right: calc(4em * 0.1);
+}
+.ui.labeled.input .left.corner.label > .icon {
+  right: auto;
+  left: calc(4em * 0.1);
+}
+
 /* Spacing with corner label */
 .ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > .ui.dropdown,
 .ui[class*="corner labeled"]:not([class*="left corner labeled"]).input > textarea,
@@ -817,6 +838,22 @@
 /* Standard */
 .ui.inverted.input > input {
   border: none;
+}
+
+/* Fork: un `ui inverted input` suelto (fuera de `ui inverted form`) lleva su fondo y su texto
+       (en claro era un campo blanco sobre el fondo oscuro); el transparent conserva el suyo */
+.ui.inverted.input:not(.transparent) > input {
+  background: #1a1e27;
+  color: #e8ebf0;
+}
+.ui.inverted.input:not(.transparent) > input:-ms-input-placeholder {
+  color: #a1a9b7;
+}
+.ui.inverted.input:not(.transparent) > input::-ms-input-placeholder {
+  color: #a1a9b7;
+}
+.ui.inverted.input:not(.transparent) > input::placeholder {
+  color: #a1a9b7;
 }
 
 /* --------------------
@@ -1858,4 +1895,10 @@ input[type="file"].ui.black.file.input::file-selector-button:hover,
 .ui.input > input[type="color"]:disabled {
   opacity: 1;
   cursor: default;
+}
+
+/* Campo de un action input estrecho (el nombre del archivo junto a «Examinar» a 390): puntos suspensivos en vez de cortar
+   la palabra contra el botón */
+.ui.action.input > input {
+  text-overflow: ellipsis;
 }

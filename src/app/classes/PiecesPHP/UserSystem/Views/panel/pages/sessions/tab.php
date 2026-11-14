@@ -27,7 +27,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </form>
 
 <div class="ui fluid card container-standard-table">
-    <table url="<?= escape_html($processTableLink); ?>" class="ui single line selectable very basic table content-table" data-search-placeholder="<?= escape_html(__($langGroup, 'Usuario, navegador o IP')); ?>" data-sessions-table>
+    <table url="<?= escape_html($processTableLink); ?>" class="ui selectable very basic table content-table" data-search-placeholder="<?= escape_html(__($langGroup, 'Usuario, navegador o IP')); ?>" data-sessions-table>
         <thead>
             <tr>
                 <th><?= __($langGroup, 'Usuario / correo'); ?></th>

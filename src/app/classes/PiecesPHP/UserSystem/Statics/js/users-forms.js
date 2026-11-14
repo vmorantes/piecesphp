@@ -93,7 +93,7 @@ $(document).ready(function (e) {
 				if (res.success) {
 					window.location.reload()
 				} else {
-					errorMessage('Error', res.message)
+					errorMessage(_i18n('titles', 'error'), res.message)
 				}
 			}).fail(function (res) {
 				console.error(res)

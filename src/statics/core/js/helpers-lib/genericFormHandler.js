@@ -271,7 +271,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 				hasConfirmation = buttonConfirmation.length > 0
 			}
 			if (typeof confirmationOptions.title != 'string') {
-				options.confirmation.title = 'Confirmación'
+				options.confirmation.title = _i18n('confirmAction', 'Confirmación')
 			}
 			if (typeof confirmationOptions.message != 'string') {
 				options.confirmation.message = '¿Está seguro de realizar esta acción?'
@@ -436,7 +436,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 			console.error('No se ha definido ninguna acción')
 
 			if (toast) {
-				errorMessage('Error', 'Ha ocurrido un error desconocido, intente más tarde.')
+				errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unknown_error_try_later'))
 			}
 
 		}

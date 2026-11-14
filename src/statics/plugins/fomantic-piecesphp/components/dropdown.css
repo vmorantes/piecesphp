@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Dropdown
+ * # Fomantic-UI 0.10.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -763,6 +763,10 @@ select.ui.dropdown {
 }
 .ui.selection.dropdown > .remove.icon {
   right: 3em;
+  
+/* Fork: la misma caja que el chevron, para quedar a su altura */
+  line-height: 1.42857143em;
+  height: auto;
 }
 .ui.inline.dropdown > .remove.icon {
   right: 2.2em;
@@ -780,8 +784,19 @@ select.ui.dropdown {
 .ui.dropdown:not(.selection) > .remove.icon ~ .dropdown.icon {
   margin-left: 1.5em;
 }
+
+/* Fork: centrada en el alto del dropdown; con un margen fijo en em quedaba muy por encima del
+       chevron según la tipografía del tema */
 .ui.dropdown:not(.selection):not(.multiple) > .remove.icon {
-  margin-top: -1.35em;
+  top: 50%;
+  right: 1.85em;
+  
+/* junto al chevron, que va en el flujo tras el texto */
+  height: auto;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  transform: translateY(-50%);
 }
 
 /* --------------
@@ -996,6 +1011,15 @@ select.ui.dropdown {
   border-radius: 500rem;
 }
 
+/* Fork: en inverted, pista y arco de la superficie oscura; con la pista clara de la página el
+       aro se veía blanco y cerrado */
+.ui.inverted.loading.dropdown > i.icon::before {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.ui.inverted.loading.dropdown > i.icon::after {
+  border-color: #fff transparent transparent;
+}
+
 /* Coupling */
 .ui.loading.dropdown.button > i.icon::before,
 .ui.loading.dropdown.button > i.icon::after {
@@ -1058,6 +1082,18 @@ select.ui.dropdown {
 .ui.selection.dropdown.error:hover {
   border-color: light-dark(#fecdca, #7a271a);
 }
+
+/* Fork: en inverted, la regla del selection inverted (que va después) quitaba el color del estado y los cuatro
+               salían iguales: texto en la rama clara de la tinta del estado (D36) y borde de ese tono */
+.ui.inverted.selection.dropdown.error,
+.ui.inverted.selection.dropdown.error > .text,
+.ui.inverted.selection.dropdown.error > .default.text {
+  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.selection.dropdown.error,
+.ui.inverted.selection.dropdown.error:hover {
+  border-color: color-mix(in srgb, oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
+}
 .ui.multiple.selection.error.dropdown > .label {
   border-color: light-dark(#fecdca, #7a271a);
 }
@@ -1089,6 +1125,18 @@ select.ui.dropdown {
 }
 .ui.selection.dropdown.info:hover {
   border-color: light-dark(#a5f0fc, #155b75);
+}
+
+/* Fork: en inverted, la regla del selection inverted (que va después) quitaba el color del estado y los cuatro
+               salían iguales: texto en la rama clara de la tinta del estado (D36) y borde de ese tono */
+.ui.inverted.selection.dropdown.info,
+.ui.inverted.selection.dropdown.info > .text,
+.ui.inverted.selection.dropdown.info > .default.text {
+  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.selection.dropdown.info,
+.ui.inverted.selection.dropdown.info:hover {
+  border-color: color-mix(in srgb, oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
 }
 .ui.multiple.selection.info.dropdown > .label {
   border-color: light-dark(#a5f0fc, #155b75);
@@ -1122,6 +1170,18 @@ select.ui.dropdown {
 .ui.selection.dropdown.success:hover {
   border-color: light-dark(#abefc6, #1b5e3c);
 }
+
+/* Fork: en inverted, la regla del selection inverted (que va después) quitaba el color del estado y los cuatro
+               salían iguales: texto en la rama clara de la tinta del estado (D36) y borde de ese tono */
+.ui.inverted.selection.dropdown.success,
+.ui.inverted.selection.dropdown.success > .text,
+.ui.inverted.selection.dropdown.success > .default.text {
+  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.selection.dropdown.success,
+.ui.inverted.selection.dropdown.success:hover {
+  border-color: color-mix(in srgb, oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
+}
 .ui.multiple.selection.success.dropdown > .label {
   border-color: light-dark(#abefc6, #1b5e3c);
 }
@@ -1153,6 +1213,18 @@ select.ui.dropdown {
 }
 .ui.selection.dropdown.warning:hover {
   border-color: light-dark(#fedf89, #6b4a10);
+}
+
+/* Fork: en inverted, la regla del selection inverted (que va después) quitaba el color del estado y los cuatro
+               salían iguales: texto en la rama clara de la tinta del estado (D36) y borde de ese tono */
+.ui.inverted.selection.dropdown.warning,
+.ui.inverted.selection.dropdown.warning > .text,
+.ui.inverted.selection.dropdown.warning > .default.text {
+  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
+}
+.ui.inverted.selection.dropdown.warning,
+.ui.inverted.selection.dropdown.warning:hover {
+  border-color: color-mix(in srgb, oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
 }
 .ui.multiple.selection.warning.dropdown > .label {
   border-color: light-dark(#fedf89, #6b4a10);
@@ -2108,6 +2180,11 @@ select.ui.dropdown {
 .ui.selection.dropdown > .text {
   display: block;
   overflow: hidden;
+  
+/* Con @textLineHeight 1em, overflow corta los descendentes en large–massive: hueco
+       vertical que no cambia la altura de la caja */
+  padding-block: 0.2em;
+  margin-block: -0.2em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2152,6 +2229,13 @@ select.ui.dropdown {
   max-width: calc(100vw - 2rem);
 }
 
+/* Selección y botón desplegable en la misma línea: alineados por el centro. Por la línea base, el
+   múltiple, el de botón (también cargando, sin texto visible) y el inline bajaban 2–5px */
+.ui.selection.dropdown,
+.ui.dropdown.button {
+  vertical-align: middle;
+}
+
 /* Ítems con radio 6px dentro del padding de 4px del menú */
 .ui.dropdown .menu > .item {
   border-radius: var(--r-sm, 6px);
@@ -2173,8 +2257,11 @@ select.ui.dropdown {
       Selection
 -------------------- */
 
-/* Flecha text-4 que gira al abrir */
+/* Flecha text-4 que gira al abrir. Centrada en el campo: su línea mide 20px y la del texto 14, así que con el `top` del
+   relleno del texto (11px) quedaba 2px baja; con 9px queda en el centro, también en los demás tamaños (em). Hallazgo de
+   ifcol (apartado 15). */
 .ui.selection.dropdown > .dropdown.icon {
+  top: 0.64285714em;
   color: light-dark(#99a1af, #737c8c);
 }
 .ui.selection.active.dropdown:not(.upward) > .dropdown.icon {
@@ -2308,4 +2395,18 @@ select.ui.dropdown:focus {
    por especificidad */
 .ui.dropdown .menu > .item > i.icon {
   color: light-dark(#99a1af, #737c8c);
+}
+
+/* Multiple sin caja (no selection): sin la sangría de 13px de la caja (6px de relleno y 7px del texto) que dejaba
+   «Multiple search» descolgado de lo que tiene alrededor; tras las etiquetas, el buscador conserva su separación */
+.ui.multiple.dropdown:not(.selection) {
+  padding-left: 0;
+}
+.ui.multiple.dropdown:not(.selection) > .text,
+.ui.multiple.dropdown:not(.selection) > input.search {
+  margin-left: 0;
+}
+.ui.multiple.dropdown:not(.selection) > .label ~ input.search,
+.ui.multiple.dropdown:not(.selection) > .label ~ .text {
+  margin-left: 0.28571429rem;
 }

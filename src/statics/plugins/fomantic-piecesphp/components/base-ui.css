@@ -376,6 +376,13 @@
   color: var(--theme-text);
 }
 
+:where(.ui, .dt-container) select[multiple] option, select[multiple] option:where(.ui, .dt-container),
+:where(.ui, .dt-container) select[multiple] optgroup, select[multiple] optgroup:where(.ui, .dt-container),
+:where(.ui, .dt-container) select[size]:not([size="1"]) option, select[size]:not([size="1"]) option:where(.ui, .dt-container),
+:where(.ui, .dt-container) select[size]:not([size="1"]) optgroup, select[size]:not([size="1"]) optgroup:where(.ui, .dt-container) {
+  background-color: transparent;
+}
+
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
   color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
@@ -383,6 +390,13 @@
 
 :where(.ui, .dt-container) small, small:where(.ui, .dt-container) {
   font-size: 0.85714286rem;
+}
+
+:where(.ui, .dt-container) mark, mark:where(.ui, .dt-container) {
+  background: var(--accent-100);
+  color: var(--accent-text);
+  border-radius: 3px;
+  padding: 0 1px;
 }
 
 :where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {

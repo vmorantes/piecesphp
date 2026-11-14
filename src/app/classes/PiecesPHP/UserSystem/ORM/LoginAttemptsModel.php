@@ -32,6 +32,7 @@ use \PiecesPHP\Core\Routing\RequestRoute as Request;
  * @property string $usernameAttempt
  * @property int $success
  * @property string $ip
+ * @property string|null $ipGroup
  * @property string|null $message
  * @property string|\DateTime $date
  * @property array|null $extraData
@@ -97,6 +98,11 @@ class LoginAttemptsModel extends BaseEntityMapper
         ],
         'ip' => [
             'type' => 'varchar',
+        ],
+        //Nula: las filas de antes de la columna no la tienen. El freno de intentos busca por ella (OTPRateLimiter::ipGroup()).
+        'ipGroup' => [
+            'type' => 'varchar',
+            'null' => true,
         ],
         'message' => [
             'type' => 'text',
@@ -198,6 +204,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         $mapper->success = $success ? self::SUCCESS_ATTEMPT : self::FAIL_ATTEMPT;
         $mapper->message = $message;
         $mapper->ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $mapper->ipGroup = OTPRateLimiter::ipGroup($mapper->ip);
         try {
             $mapper->extraData = $extraData;
         } catch (DatabaseClassesExceptions $e) {

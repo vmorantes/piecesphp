@@ -104,6 +104,7 @@ use Documents\Mappers\DocumentsMapper;
                                 'width' => 300,
                                 'height' => 300,
                             ],
+                            'stacked' => true,
                         ]);
                     ?>
                 </div>

@@ -184,7 +184,7 @@ window.addEventListener('load', function () {
 			}
 		}
 		if (messages.length > 0) {
-			const region = element('div', 'ui basic fitted horizontal scrolling segment')
+			const region = element('div', 'ui basic fitted horizontal scrolling mirrored segment')
 			region.setAttribute('role', 'region')
 			region.setAttribute('tabindex', '0')
 			region.setAttribute('aria-label', t('Errores de la importación'))
@@ -211,6 +211,10 @@ window.addEventListener('load', function () {
 		}
 
 		report.appendChild(segment)
+		//El tema pone la barra de arriba solo a lo que ya está al cargar la página: esta tabla llega después.
+		if (typeof $.fn.scrollMirror === 'function') {
+			$(report).find('.ui.horizontal.scrolling.mirrored.segment').scrollMirror()
+		}
 
 		if (data.persisted && data.artifact) {
 			download(data.artifact)

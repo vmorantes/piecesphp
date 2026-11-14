@@ -274,32 +274,73 @@ class NewsMapper extends EntityMapperExtensible
      */
     public function isVisibleTo(?\PiecesPHP\UserSystem\UserDataPackage $user): bool
     {
-        if ($this->id === null || $this->status != self::ACTIVE || (int) $this->draft !== 0 || !$this->isActiveByDates()) {
+        if ($this->id === null) {
             return false;
         }
-        $type = $user !== null ? (int) $user->type : -1;
+        $targets = is_array($this->profilesTarget) ? $this->profilesTarget : (array) $this->profilesTarget;
+        return self::isVisibleByValues(
+            (int) $this->status,
+            (int) $this->draft,
+            $this->startDate instanceof \DateTimeInterface ? $this->startDate : null,
+            $this->endDate instanceof \DateTimeInterface ? $this->endDate : null,
+            $targets,
+            $user !== null ? (int) $user->type : null,
+        );
+    }
+
+    /**
+     * La regla de isVisibleTo() sobre valores planos, para quien lee filas sin construir el mapper (la campana).
+     *
+     * @param int $status
+     * @param int $draft
+     * @param \DateTimeInterface|null $startDate
+     * @param \DateTimeInterface|null $endDate
+     * @param array<mixed> $profilesTarget
+     * @param int|null $userType null: sin usuario
+     * @return bool
+     */
+    public static function isVisibleByValues(int $status, int $draft, ?\DateTimeInterface $startDate, ?\DateTimeInterface $endDate, array $profilesTarget, ?int $userType): bool
+    {
+        if ($status != self::ACTIVE || $draft !== 0 || !self::isActiveByDateValues($startDate, $endDate)) {
+            return false;
+        }
+        $type = $userType ?? -1;
         if (in_array($type, self::CAN_VIEW_TARGET_ALL)) {
             return true;
         }
-        $targets = is_array($this->profilesTarget) ? $this->profilesTarget : (array) $this->profilesTarget;
-        return in_array($type, array_map('intval', $targets), true);
+        return in_array($type, array_map('intval', $profilesTarget), true);
     }
 
     /**
      * Verifica si ya está disponible según startDate y endDate
-     * @return string
+     * @return bool
      */
     public function isActiveByDates()
+    {
+        return self::isActiveByDateValues(
+            $this->startDate instanceof \DateTimeInterface ? $this->startDate : null,
+            $this->endDate instanceof \DateTimeInterface ? $this->endDate : null,
+        );
+    }
+
+    /**
+     * La comparación de isActiveByDates(), con el minuto actual (segundos a :00).
+     *
+     * @param \DateTimeInterface|null $startDate
+     * @param \DateTimeInterface|null $endDate
+     * @return bool
+     */
+    public static function isActiveByDateValues(?\DateTimeInterface $startDate, ?\DateTimeInterface $endDate): bool
     {
         $active = true;
         $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
 
-        if ($this->startDate !== null) {
-            $active = $active && $this->startDate <= $now;
+        if ($startDate !== null) {
+            $active = $active && $startDate <= $now;
         }
 
-        if ($this->endDate !== null) {
-            $active = $active && $this->endDate > $now;
+        if ($endDate !== null) {
+            $active = $active && $endDate > $now;
         }
 
         return $active;

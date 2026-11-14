@@ -330,7 +330,7 @@ class MailConfig
             'auth' => true,
             'host' => 'localhost',
             'user' => 'correo@correo.com',
-            'password' => '123456',
+            'password' => '',
             'name' => '',
             'protocol' => 'ssl',
             'port' => '465',

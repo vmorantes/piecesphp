@@ -253,6 +253,17 @@ CliActions::make('unit-tests:core/users-post-authority', function ($args) {
         $r = $pedir($alta, $encargadoA, ['username' => "{$prefijo}-alta-en-a", 'email' => "{$prefijo}-alta-en-a@example.com", 'password' => $clave, 'password2' => $clave, 'firstname' => 'Zz', 'first_lastname' => 'Autoridad', 'type' => UsersModel::TYPE_USER_GENERAL, 'status' => UsersModel::STATUS_USER_ACTIVE, 'organization' => $organizaciones['a']]);
         $creado = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username = " . $database->quote("{$prefijo}-alta-en-a"))->fetchColumn();
         $check($creado === 1, 'f3 CANARIO: el encargado de A da de alta en A', "HTTP {$r['status']}, creados {$creado}");
+        //Quien sí puede editar no deja al usuario en una organización que no existe: un mensaje, no un error interno.
+        $organizacionInexistente = (int) $database->query('SELECT COALESCE(MAX(id), 0) + 1000 FROM `' . OrganizationMapper::TABLE . '`')->fetchColumn();
+        $registroErrores = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/error.log.jsonl';
+        $lineasRegistro = fn(): int => is_file($registroErrores) ? count(file($registroErrores) ?: []) : 0;
+        $antes = $fila($usuarios['general']);
+        $lineasAntes = $lineasRegistro();
+        $r = $pedir($editar, $adminGeneral, $cuerpoEdicion('general', ['firstname' => 'Inexistente', 'organization' => $organizacionInexistente]));
+        $respuesta = json_decode($r['body'], true);
+        $mensaje = is_array($respuesta) ? (string) ($respuesta['message'] ?? '') : '';
+        $check($mensaje === __(UsersController::LANG_GROUP, 'La organización indicada no existe.'), 'f4 DISCRIMINANTE: editar con una organización que no existe da su mensaje de validación', "HTTP {$r['status']} · " . mb_substr($r['body'], 0, 160));
+        $check(preg_match('~ERR-\d{8}-[A-Z0-9]{6}~', $mensaje) !== 1 && $lineasRegistro() === $lineasAntes && $fila($usuarios['general']) === $antes, 'f4 sin código de error, sin escribir en error.log.jsonl y sin cambiar la fila', "{$lineasAntes} → " . $lineasRegistro());
 
         echoTerminal('');
         echoTerminal('[h] F3 · las publicaciones no activas, solo de la propia organización');

@@ -28,7 +28,7 @@ Para editar una imagen, púlsala. Además, cada una tiene el botón **«Cambiar 
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
-| Texto sobre el patrocinador | No | Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Vacío, no se pinta. |
+| Texto sobre el patrocinador | No | Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Hay un campo por cada idioma activo del sitio. En el idioma principal, vacío, no se pinta; en los demás, vacío usa el del idioma principal. |
 | Invertir colores en modo oscuro | No | Está en algunas imágenes. Necesita un PNG con fondo transparente: un fondo opaco saldría como un rectángulo blanco. |
 
 Cuando termines, pulsa **«Guardar»**.

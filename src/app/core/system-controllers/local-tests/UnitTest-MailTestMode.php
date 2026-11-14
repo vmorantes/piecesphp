@@ -255,6 +255,9 @@ CliActions::make('unit-tests:core/mail-test-mode', function ($args) {
         $check(!array_key_exists('test_mode', $cargada->toArray()), 'f2 test_mode no vuelve en lo que se guarda', (string) json_encode(array_keys($cargada->toArray())));
         $check(MailConfig::getValue('test_mode') === null && MailConfig::getValue('testMode') === null, 'f3 ni se lee por su nombre');
         $check($cargada->testModeActive() === MailDelivery::goesToSink(), 'f4 y testModeActive() sigue siendo lo que decide MailDelivery, no la clave');
+        $check($cargada->password() === '', 'f5 DISCRIMINANTE: sin la clave password guardada, la contraseña es vacía (no hay contraseña de fábrica)', (is_string($cargada->password()) ? mb_strlen($cargada->password()) : -1) . ' caracteres');
+        set_config('mail', null);
+        $check((new MailConfig())->password() === '', 'f6 y sin ninguna configuración de correo guardada, también');
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());

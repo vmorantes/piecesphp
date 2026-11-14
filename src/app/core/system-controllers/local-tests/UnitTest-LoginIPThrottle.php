@@ -246,6 +246,40 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         }
         $check(($nadie['json']['error'] ?? null) === UsersController::INCORRECT_PASSWORD && $entrar('198.51.100.72', "{$prefijo}-nadie", 'zz-mala')['status'] === 429,
             'e9 los fallos de usuarios que no existen también frenan la IP: con el de e5 son 5, y el siguiente da 429');
+
+        //g1-g3: el freno lee de la base solo las filas del grupo de la IP, con la columna ipGroup y su índice.
+        $ahoraBD = new \DateTime((string) $database->query('SELECT NOW()')->fetchColumn());
+        $insertar = $database->prepare("INSERT INTO `{$tablaIntentos}` (userID, usernameAttempt, success, ip, ipGroup, message, date, extraData) VALUES (NULL, ?, ?, ?, ?, 'zz', ?, ?)");
+        $viaLogin = json_encode([OTPRateLimiter::EXTRA_DATA_VIA => OTPRateLimiter::VIA_LOGIN_PASSWORD], JSON_THROW_ON_ERROR);
+        $fecha = $ahoraBD->format('Y-m-d H:i:s');
+        for ($i = 0; $i < 200; $i++) {
+            $ip = '2001:db8:' . dechex($i + 1) . '::1';
+            $insertar->execute(["{$prefijo}-g-otro-{$i}", LoginAttemptsModel::FAIL_ATTEMPT, $ip, OTPRateLimiter::ipGroup($ip), $fecha, $viaLogin]);
+        }
+        for ($i = 1; $i <= 5; $i++) {
+            $ip = "2001:db8:aaaa::{$i}";
+            $insertar->execute(["{$prefijo}-g-objetivo", LoginAttemptsModel::FAIL_ATTEMPT, $ip, OTPRateLimiter::ipGroup($ip), $fecha, $viaLogin]);
+        }
+        $enVentana = (int) $database->query("SELECT COUNT(*) FROM `{$tablaIntentos}` WHERE usernameAttempt LIKE " . $database->quote("{$prefijo}-g-%"))->fetchColumn();
+        $check($enVentana === 205, 'g1 CANARIO: 200 fallos de otros /64 y 5 del de la petición, en la ventana', "hay {$enVentana}");
+        $leidas = OTPRateLimiter::loginWindowRows('2001:db8:aaaa::99', $ahoraBD);
+        $deSuGrupo = array_filter($leidas, fn (array $f): bool => ($f['ipGroup'] ?? null) === '2001:db8:aaaa::/64');
+        $check(count($leidas) === 5 && count($deSuGrupo) === 5, 'g1 DISCRIMINANTE: con 200 fallos de otros grupos en la ventana, el freno del login lee solo las 5 de su grupo', 'leídas ' . count($leidas));
+        $check(OTPRateLimiter::loginSecondsToUnlock('2001:db8:aaaa::99', $ahoraBD) > 0, 'g1 y esas 5 lo frenan, desde otra dirección del mismo /64');
+        $leidasOTP = OTPRateLimiter::windowRows('zz-nadie-g1', '2001:db8:aaaa::99', $ahoraBD);
+        $check(count($leidasOTP) === 5, 'g1 y el freno del OTP, por grupo y sin usuario que coincida, también lee solo esas 5', 'leídas ' . count($leidasOTP));
+
+        //g2: una fila de antes de la columna (sin grupo) cuenta por su dirección exacta, y solo por ella.
+        $insertar->execute(["{$prefijo}-g-sin-grupo", LoginAttemptsModel::FAIL_ATTEMPT, '2001:db8:bbbb::7', null, $fecha, $viaLogin]);
+        $exacta = OTPRateLimiter::loginWindowRows('2001:db8:bbbb::7', $ahoraBD);
+        $vecina = OTPRateLimiter::loginWindowRows('2001:db8:bbbb::8', $ahoraBD);
+        $check(count($exacta) === 1 && count($vecina) === 0, 'g2 una fila sin ipGroup con la dirección exacta de la petición cuenta; otra dirección de su /64, no', count($exacta) . ' / ' . count($vecina));
+
+        //g3: record() guarda la dirección exacta y su grupo.
+        $_SERVER['REMOTE_ADDR'] = '2001:db8:cccc::5';
+        OTPRateLimiter::record(OTPRateLimiter::VIA_LOGIN_PASSWORD, null, "{$prefijo}-g3", false, 'zz');
+        $guardada = (array) $database->query("SELECT ip, ipGroup FROM `{$tablaIntentos}` WHERE usernameAttempt = " . $database->quote("{$prefijo}-g3"))->fetch(\PDO::FETCH_ASSOC);
+        $check(($guardada['ip'] ?? null) === '2001:db8:cccc::5' && ($guardada['ipGroup'] ?? null) === '2001:db8:cccc::/64', 'g3 record() guarda la dirección exacta y su grupo', json_encode($guardada, JSON_THROW_ON_ERROR));
     } catch (\Throwable $e) {
         $check(false, 'e* el recorrido corre entero', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

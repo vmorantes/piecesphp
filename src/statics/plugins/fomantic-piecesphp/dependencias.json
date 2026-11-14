@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "610f39d3",
+  "commit": "e1bc25ba",
   "fuenteSinCambios": true,
-  "generado": "2026-11-10T21:50:21.030Z",
+  "generado": "2026-11-12T01:11:43.621Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -994,9 +994,9 @@
             "width": 4
           },
           "muestras": [
-            "input.ui.invisible.file.input en div.: bottom -8208.94px → -8080.94px",
-            "input.ui.invisible.file.input en div.: bottom -8208.94px → -8080.94px",
-            "input.ui.invisible.file.input en div.: bottom -8848.94px → -8720.94px"
+            "input.ui.invisible.file.input en div.: bottom -8410.5px → -8282.5px",
+            "input.ui.invisible.file.input en div.: bottom -8410.5px → -8282.5px",
+            "input.ui.invisible.file.input en div.: bottom -9050.5px → -8922.5px"
           ]
         }
       },
@@ -1147,7 +1147,7 @@
             "perspective-origin": 642,
             "inline-size": 559,
             "width": 559,
-            "block-size": 514
+            "block-size": 513
           },
           "muestras": [
             "div.ui.list en div.: block-size 72px → 82.2188px",
@@ -1160,12 +1160,12 @@
           "propiedades": {
             "font-size": 744,
             "line-height": 685,
-            "perspective-origin": 625,
-            "transform-origin": 625,
-            "block-size": 514,
-            "height": 514,
-            "inline-size": 491,
-            "width": 491,
+            "perspective-origin": 624,
+            "transform-origin": 624,
+            "block-size": 513,
+            "height": 513,
+            "inline-size": 490,
+            "width": 490,
             "padding-block-start": 181,
             "padding-top": 181,
             "padding-block-end": 180,
@@ -1682,8 +1682,8 @@
             "block-size": 1088,
             "height": 1088,
             "line-height": 536,
-            "bottom": 326,
-            "inset-block-end": 326,
+            "bottom": 323,
+            "inset-block-end": 323,
             "inset-block-start": 323,
             "top": 323
           },
@@ -1999,8 +1999,8 @@
             "inline-size": 10,
             "width": 10,
             "line-height": 8,
-            "padding-inline-end": 7,
-            "padding-inline-start": 7
+            "padding-block-end": 7,
+            "padding-block-start": 7
           },
           "muestras": [
             "div.dt-container.dt-semanticUI en div.: block-size 370px → 422.75px",
@@ -2028,9 +2028,9 @@
       "css": [],
       "js": [],
       "opcional": {
-        "input": "CSS: solo si el marcado lleva esa pieza (1 de 63 ejemplos): input ← .ui.form .field > input[type=\"file\"]",
-        "loader": "CSS: solo si el marcado lleva esa pieza (3 de 63 ejemplos): form.ui.loading.form.initial ← .ui.ui.ui.ui.loading:not(.usual)",
-        "segment": "CSS: solo si el marcado lleva esa pieza (4 de 63 ejemplos): form.ui.form.segment.initial ← .ui.segment",
+        "input": "CSS: solo si el marcado lleva esa pieza (1 de 64 ejemplos): input ← .ui.form .field > input[type=\"file\"]",
+        "loader": "CSS: solo si el marcado lleva esa pieza (3 de 64 ejemplos): form.ui.loading.form.initial ← .ui.ui.ui.ui.loading:not(.usual)",
+        "segment": "CSS: solo si el marcado lleva esa pieza (4 de 64 ejemplos): form.ui.form.segment.initial ← .ui.segment",
         "checkbox": "JS: su uso normal (4 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 5 veces y lo comprueba 0 (sin guarda)",
         "transition": "JS: su uso normal (4 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 4 veces y lo comprueba 0 (sin guarda)",
         "calendar": "JS: solo si el formulario lleva ese campo; los ejemplos del catálogo lo llevan y sin él dan error",
@@ -2054,8 +2054,8 @@
         "table"
       ],
       "comprobacion": {
-        "ejemplos": 63,
-        "piezas": 860,
+        "ejemplos": 64,
+        "piezas": 865,
         "muestras": {
           "input": "input ← .ui.form .field > input[type=\"file\"]",
           "loader": "form.ui.loading.form.initial ← .ui.ui.ui.ui.loading:not(.usual)",
@@ -2075,20 +2075,20 @@
           "placeholder"
         ],
         "suelto": {
-          "piezas": 860,
+          "piezas": 865,
           "propiedades": {
-            "font-size": 875,
-            "scrollbar-color": 875,
-            "text-size-adjust": 875,
-            "-webkit-font-smoothing": 875,
-            "line-height": 872,
-            "scrollbar-width": 860,
-            "perspective-origin": 857,
-            "transform-origin": 857,
-            "block-size": 856,
-            "height": 856,
-            "box-sizing": 851,
-            "font-family": 717
+            "font-size": 880,
+            "scrollbar-color": 880,
+            "text-size-adjust": 880,
+            "-webkit-font-smoothing": 880,
+            "line-height": 877,
+            "scrollbar-width": 865,
+            "perspective-origin": 862,
+            "transform-origin": 862,
+            "block-size": 861,
+            "height": 861,
+            "box-sizing": 856,
+            "font-family": 722
           },
           "muestras": [
             "form.ui.form.initial en div.: block-size 235.094px → 268.094px",
@@ -2097,18 +2097,18 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 860,
+          "piezas": 865,
           "propiedades": {
-            "font-size": 875,
-            "perspective-origin": 857,
-            "transform-origin": 857,
-            "block-size": 856,
-            "height": 856,
+            "font-size": 880,
+            "perspective-origin": 862,
+            "transform-origin": 862,
+            "block-size": 861,
+            "height": 861,
             "inline-size": 576,
             "width": 576,
-            "line-height": 411,
-            "margin-block-end": 370,
-            "margin-bottom": 370,
+            "line-height": 413,
+            "margin-block-end": 373,
+            "margin-bottom": 373,
             "padding-inline-end": 364,
             "padding-right": 364
           },
@@ -2459,7 +2459,7 @@
             "font-family": 1358
           },
           "muestras": [
-            "table.ui.table en div.: block-size 223px → 260.344px",
+            "table.ui.table en div.: block-size 240px → 285.766px",
             "thead. en table.ui.table: block-size 38px → 52.2344px",
             "tr. en thead.: block-size 38px → 52.2344px"
           ]
@@ -2468,10 +2468,10 @@
           "piezas": 1394,
           "propiedades": {
             "font-size": 1441,
-            "perspective-origin": 1372,
-            "transform-origin": 1372,
-            "block-size": 1320,
-            "height": 1320,
+            "perspective-origin": 1400,
+            "transform-origin": 1400,
+            "block-size": 1392,
+            "height": 1392,
             "padding-inline-end": 846,
             "padding-inline-start": 846,
             "padding-left": 846,
@@ -2481,7 +2481,7 @@
             "line-height": 242
           },
           "muestras": [
-            "table.ui.table en div.: block-size 223px → 251.531px",
+            "table.ui.table en div.: block-size 240px → 273.953px",
             "thead. en table.ui.table: block-size 38px → 43.4219px",
             "tr. en thead.: block-size 38px → 43.4219px"
           ]
@@ -3559,10 +3559,10 @@
             "scrollbar-width": 781,
             "-webkit-font-smoothing": 692,
             "font-family": 585,
-            "padding-block-end": 530,
-            "padding-block-start": 530,
-            "padding-bottom": 530,
-            "padding-inline-end": 530
+            "padding-block-end": 572,
+            "padding-block-start": 572,
+            "padding-bottom": 572,
+            "padding-top": 572
           },
           "muestras": [
             "div.ui.dropdown en div.: block-size 20px → 19px",
@@ -3575,14 +3575,14 @@
           "propiedades": {
             "font-size": 928,
             "line-height": 863,
-            "padding-block-end": 530,
-            "padding-block-start": 530,
-            "padding-bottom": 530,
-            "padding-inline-end": 530,
-            "padding-inline-start": 530,
-            "padding-left": 530,
-            "padding-right": 530,
-            "padding-top": 530,
+            "padding-block-end": 572,
+            "padding-block-start": 572,
+            "padding-bottom": 572,
+            "padding-top": 572,
+            "padding-inline-end": 528,
+            "padding-right": 528,
+            "padding-inline-start": 525,
+            "padding-left": 525,
             "min-block-size": 367,
             "min-height": 367
           },
@@ -4368,6 +4368,7 @@
       "css": [],
       "js": [],
       "opcional": {
+        "icon": "CSS: solo si el marcado lleva esa pieza (1 de 41 ejemplos): i.search.icon ← i.icon",
         "transition": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 2 veces y lo comprueba 1 (con guarda $.fn)",
         "api": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 5 veces y lo comprueba 1 (con guarda $.fn)"
       },
@@ -4378,9 +4379,10 @@
         "loader"
       ],
       "comprobacion": {
-        "ejemplos": 39,
-        "piezas": 145,
+        "ejemplos": 41,
+        "piezas": 184,
         "muestras": {
+          "icon": "i.search.icon ← i.icon",
           "loader": "div.ui.loading.search ← .ui.ui.ui.ui.loading:not(.usual)",
           "transition": "div.results.transition.visible ← .transition"
         },
@@ -4388,27 +4390,28 @@
           "piezas": 0,
           "propiedades": {}
         },
+        "necesidad": {
+          "icon": "3 piezas cambian sin él",
+          "transition": "62 piezas cambian sin él"
+        },
         "sinEfecto": [
           "loader"
         ],
-        "necesidad": {
-          "transition": "60 piezas cambian sin él"
-        },
         "suelto": {
-          "piezas": 145,
+          "piezas": 184,
           "propiedades": {
-            "box-sizing": 145,
-            "font-size": 145,
-            "line-height": 145,
-            "scrollbar-color": 145,
-            "scrollbar-width": 145,
-            "text-size-adjust": 145,
-            "-webkit-font-smoothing": 145,
-            "font-family": 130,
-            "perspective-origin": 107,
-            "transform-origin": 107,
-            "block-size": 106,
-            "height": 106
+            "box-sizing": 187,
+            "font-size": 187,
+            "line-height": 187,
+            "scrollbar-color": 187,
+            "text-size-adjust": 187,
+            "scrollbar-width": 184,
+            "-webkit-font-smoothing": 181,
+            "font-family": 158,
+            "perspective-origin": 140,
+            "transform-origin": 140,
+            "block-size": 136,
+            "height": 136
           },
           "muestras": [
             "div.ui.search en div.: block-size 40px → 45.4219px",
@@ -4417,20 +4420,20 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 145,
+          "piezas": 184,
           "propiedades": {
-            "font-size": 145,
-            "perspective-origin": 107,
-            "transform-origin": 107,
-            "block-size": 104,
-            "height": 104,
-            "inline-size": 101,
-            "width": 101,
-            "padding-block-end": 54,
-            "padding-block-start": 54,
-            "padding-bottom": 54,
-            "padding-inline-end": 54,
-            "padding-inline-start": 54
+            "font-size": 187,
+            "perspective-origin": 137,
+            "transform-origin": 137,
+            "block-size": 134,
+            "height": 134,
+            "inline-size": 130,
+            "width": 130,
+            "line-height": 82,
+            "padding-block-end": 59,
+            "padding-block-start": 59,
+            "padding-bottom": 59,
+            "padding-inline-end": 59
           },
           "muestras": [
             "div.ui.search en div.: block-size 40px → 45.4219px",
@@ -4589,7 +4592,7 @@
             "inline-size": 143,
             "width": 143,
             "scrollbar-width": 124,
-            "block-size": 120
+            "block-size": 119
           },
           "muestras": [
             "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: box-sizing border-box → content-box",

@@ -35,7 +35,7 @@ $states = [
     <?php $groupId = 'system-health-' . preg_replace('/[^a-z0-9-]/', '-', mb_strtolower((string) $group)); ?>
     <section class="ui segment" aria-labelledby="<?= escape_html($groupId); ?>" data-system-health-group="<?= escape_html($group); ?>">
         <h2 class="ui header" id="<?= escape_html($groupId); ?>"><?= escape_html($groupTitle); ?></h2>
-        <div class="ui basic fitted horizontal scrolling segment" role="region" tabindex="0" aria-label="<?= escape_html($groupTitle); ?>">
+        <div class="ui basic fitted horizontal scrolling mirrored segment" role="region" tabindex="0" aria-label="<?= escape_html($groupTitle); ?>">
         <table class="ui very basic unstackable table" aria-label="<?= escape_html($groupTitle); ?>">
             <thead>
                 <tr>

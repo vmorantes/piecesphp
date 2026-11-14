@@ -23,7 +23,8 @@
 #
 # Un capítulo de proyecto con el mismo nombre de archivo sustituye al del framework. El orden lo da el prefijo NN. Las
 # imágenes van en img/ junto a cada idioma y se copian a los estáticos de MySpace (Statics/manual/<idioma>/), que las sirve:
-# solo las que cita algún capítulo publicado (H237, 11).
+# solo las que cita algún capítulo publicado (H237, 11). Una que no esté en el img/ de su idioma se toma del idioma principal
+# (IDIOMA_PRINCIPAL) y se sirve desde su carpeta, sin copiarla otra vez.
 #
 # Genera src/app/classes/MySpace/Views/manual/<idioma>/<slug>.php (el cuerpo, con el marcado de Fomantic) e index.php
 # (slug, titulo, rutas, ve si la hay, secciones, idioma, origen y fecha de la fuente), dentro del módulo que los pinta. Que una ruta citada
@@ -234,8 +235,10 @@ def fomantic(html, idioma, citadas):
         atributos = m.group(1)
         src = re.search(r'src="(?:\./)?img/([^"]+)"', atributos)
         if src:
-            citadas.append(src.group(1))
-            destino = "<?= escape_html(\\MySpace\\MySpaceRoutes::staticRoute('manual/%s/%s')); ?>" % (idioma, src.group(1).replace("'", ''))
+            #La del idioma del capítulo; si no la tiene, la del idioma principal, servida desde su carpeta.
+            de = idioma if (idioma, src.group(1)) in imagenes or (IDIOMA_PRINCIPAL, src.group(1)) not in imagenes else IDIOMA_PRINCIPAL
+            citadas.append((de, src.group(1)))
+            destino = "<?= escape_html(\\MySpace\\MySpaceRoutes::staticRoute('manual/%s/%s')); ?>" % (de, src.group(1).replace("'", ''))
             atributos = atributos.replace(src.group(0), f'src="{destino}"')
         return f'<img class="ui image"{atributos}>'
     html = re.sub(r'<img((?:\s[^>]*?)?)\s*/?>', imagen, html)
@@ -243,6 +246,9 @@ def fomantic(html, idioma, citadas):
 
 
 md = markdown.Markdown(extensions=['tables', 'admonition', 'fenced_code'])
+
+#El idioma de las imágenes que reutiliza otro idioma sin las suyas (el PO, 2026-11-11: el manual en inglés con las del español).
+IDIOMA_PRINCIPAL = 'es'
 
 #Los capítulos de cada idioma: los del framework y, encima, los del proyecto (sustituyen u ocultan por nombre).
 capitulos = {}
@@ -287,6 +293,8 @@ indice = []
 faltan = []
 #Las imágenes que cita algún capítulo PUBLICADO: solo esas se sirven (las de un capítulo oculto, no).
 publicadas = set()
+#Las del idioma principal que cita un capítulo de otro idioma: se cuentan en la salida.
+reutilizadas = set()
 for idioma in sorted(capitulos):
     for slug in sorted(capitulos[idioma]):
         titulo, rutas, ve, origen, trozos, ruta = capitulos[idioma][slug]
@@ -370,10 +378,11 @@ for idioma in sorted(capitulos):
                 parte = '\n'.join(contenido)
                 partes.append(envuelve(parte, v) if v is not None and parte != '' else parte)
             html = '\n'.join(p for p in partes if p != '')
-        publicadas.update((idioma, img) for img in citadas)
-        for img in citadas:
-            if (idioma, img) not in imagenes:
-                faltan.append(f'{relativa(ruta)}: cita img/{img}, y no está en ninguna img/ de «{idioma}»')
+        publicadas.update(citadas)
+        reutilizadas.update((de, img) for de, img in citadas if de != idioma)
+        for de, img in citadas:
+            if (de, img) not in imagenes:
+                faltan.append(f'{relativa(ruta)}: cita img/{img}, y no está en ninguna img/ de «{idioma}» ni de «{IDIOMA_PRINCIPAL}»')
         salidas[os.path.join(VISTAS, idioma, slug + '.php')] = (
             '<?php\n' + AVISO % relativa(ruta) + '\ndefined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");\n?>\n'
             + html + '\n')
@@ -426,7 +435,7 @@ if CHECK:
         print('bin/manual: lo generado no es lo que daría regenerarlo; corre bin/manual:\n  '
               + '\n  '.join(distintos + [s + ' (sobra)' for s in sobran]), file=sys.stderr)
         sys.exit(1)
-    print(f'bin/manual ejecutado: {len(indice)} capítulo(s), {len(copias)} imagen(es), al día')
+    print(f'bin/manual ejecutado: {len(indice)} capítulo(s), {len(copias)} imagen(es) ({len(reutilizadas)} reutilizada(s) del idioma principal), al día')
     sys.exit(0)
 
 #Las carpetas de salida son solo del generador: lo que ya no sale de ningún capítulo se retira.
@@ -443,5 +452,5 @@ for carpeta in (VISTAS, IMAGENES):
     for r, ds, ns in sorted(os.walk(carpeta, topdown=False), reverse=False) if os.path.isdir(carpeta) else []:
         if r != carpeta and not ds and not ns:
             os.rmdir(r)
-print(f'bin/manual ejecutado: {len(indice)} capítulo(s) en {len(capitulos)} idioma(s), {len(copias)} imagen(es); escrito '
+print(f'bin/manual ejecutado: {len(indice)} capítulo(s) en {len(capitulos)} idioma(s), {len(copias)} imagen(es) ({len(reutilizadas)} reutilizada(s) del idioma principal); escrito '
       f'{relativa(VISTAS)}/ y {relativa(IMAGENES)}/')

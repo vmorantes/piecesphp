@@ -40,6 +40,10 @@ nav:
         - Estructura: piecesphp/content/structure.md
         - Los archivos de configuración: piecesphp/content/configuration.md
         - Idiomas y traducciones: piecesphp/content/idiomas.md
+        - La sesión del panel: piecesphp/content/sesion.md
+        - Las imágenes de Configuración: piecesphp/content/imagenes-de-configuracion.md
+        - El correo saliente: piecesphp/content/correo.md
+        - Las notificaciones: piecesphp/content/notificaciones.md
         - Rutas: piecesphp/content/routing.md
         - Mappers: piecesphp/content/mappers.md
         - Gulp: piecesphp/content/gulp.md

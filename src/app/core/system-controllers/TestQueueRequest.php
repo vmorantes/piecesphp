@@ -37,7 +37,7 @@ class TestQueueRequest
         $reponseJSON = [
             'success' => false,
             'retry' => false,
-            'message' => 'Procesado',
+            'message' => __(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Procesado'),
         ];
 
         $baseUploadDir = get_config('upload_dir');

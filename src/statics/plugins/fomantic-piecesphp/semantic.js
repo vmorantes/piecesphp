@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 2.9.4
+ * # Fomantic UI - 0.10.1
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 2.9.4 - Site
+ * # Fomantic-UI 0.10.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -462,10 +462,58 @@
             };
         }),
     });
+    // Fork (D89, patrón «tabla desplazable»): un `ui horizontal scrolling segment` con la clase
+    // `mirrored` lleva una segunda barra de desplazamiento encima, sincronizada con la suya. La
+    // barra de arriba es un `div.scrolling.mirror` hermano que solo aparece si el contenido no cabe.
+    $.fn.scrollMirror = function () {
+        return this.each(function () {
+            var box = this;
+            if (box.previousElementSibling && box.previousElementSibling.classList.contains('mirror')) {
+                return;
+            }
+            var mirror = document.createElement('div');
+            var spacer = document.createElement('div');
+            var busy = false;
+            mirror.className = 'scrolling mirror';
+            mirror.setAttribute('aria-hidden', 'true');
+            mirror.appendChild(spacer);
+            box.parentNode.insertBefore(mirror, box);
+            var update = function () {
+                spacer.style.width = box.scrollWidth + 'px';
+                mirror.hidden = box.scrollWidth <= box.clientWidth + 1;
+            };
+            var sync = function (from, to) {
+                return function () {
+                    if (busy) {
+                        busy = false;
+
+                        return;
+                    }
+                    busy = true;
+                    to.scrollLeft = from.scrollLeft;
+                };
+            };
+            mirror.addEventListener('scroll', sync(mirror, box), { passive: true });
+            box.addEventListener('scroll', sync(box, mirror), { passive: true });
+            if (window.ResizeObserver) {
+                var observer = new ResizeObserver(update);
+                observer.observe(box);
+                if (box.firstElementChild) {
+                    observer.observe(box.firstElementChild);
+                }
+            } else {
+                $(window).on('resize', update);
+            }
+            update();
+        });
+    };
+    $(function () {
+        $('.ui.horizontal.scrolling.mirrored.segment').scrollMirror();
+    });
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Form Validation
+ * # Fomantic-UI 0.10.1 - Form Validation
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2665,7 +2713,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Accordion
+ * # Fomantic-UI 0.10.1 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3261,7 +3309,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Calendar
+ * # Fomantic-UI 0.10.1 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -5307,7 +5355,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Checkbox
+ * # Fomantic-UI 0.10.1 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -6199,7 +6247,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.9.4 - Colorpicker
+ * # Fomantic-UI 0.10.1 - Colorpicker
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -8573,7 +8621,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Dimmer
+ * # Fomantic-UI 0.10.1 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -9306,7 +9354,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Dropdown
+ * # Fomantic-UI 0.10.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -13756,7 +13804,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Embed
+ * # Fomantic-UI 0.10.1 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -14445,7 +14493,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Flyout
+ * # Fomantic-UI 0.10.1 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -16003,7 +16051,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Modal
+ * # Fomantic-UI 0.10.1 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -17642,7 +17690,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Nag
+ * # Fomantic-UI 0.10.1 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -18209,7 +18257,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Popup
+ * # Fomantic-UI 0.10.1 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -19772,7 +19820,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Progress
+ * # Fomantic-UI 0.10.1 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -20754,7 +20802,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Slider
+ * # Fomantic-UI 0.10.1 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -22301,7 +22349,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Rating
+ * # Fomantic-UI 0.10.1 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -22842,7 +22890,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Search
+ * # Fomantic-UI 0.10.1 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -23984,6 +24032,9 @@
                         }
                         if (isFunction(template)) {
                             html = template(response, fields, settings.preserveHTML);
+                            if (html && settings.footer) {
+                                html += '<div class="footer">' + (isFunction(settings.footer) ? settings.footer.call(element, response) : settings.footer) + '</div>';
+                            }
                         } else {
                             module.error(error.noTemplate, false);
                         }
@@ -24182,6 +24233,10 @@
         // template to use (specified in settings.templates)
         type: 'standard',
 
+        // Fork: pie fijo al final de los resultados (HTML de confianza, o función que lo devuelve), p. ej. los atajos de
+        // teclado de un buscador de comandos. Solo cuando hay resultados.
+        footer: false,
+
         // minimum characters required to search
         minCharacters: 1,
 
@@ -24297,6 +24352,7 @@
             categoryResults: 'results', // array of results (category view)
             description: 'description', // result description
             image: 'image', // result image
+            icon: 'icon', // Fork: result icon (class names, e.g. 'cog'), shown in a tile instead of an image
             alt: 'alt', // result alt text for image
             price: 'price', // result price
             results: 'results', // array of results (standard)
@@ -24389,6 +24445,10 @@
                                         + ' <img src="' + result[fields.image].replace(/"/g, '') + (result[fields.alt] ? '" alt="' + result[fields.alt].replace(/"/g, '') : '') + '">'
                                         + '</div>';
                                 }
+                                // Fork: ícono en una baldosa, en el sitio de la imagen
+                                if (result[fields.icon] !== undefined && result[fields.image] === undefined) {
+                                    html += '<div class="icon image"><i class="' + String(result[fields.icon]).replace(/[^\w -]/g, '') + ' icon" aria-hidden="true"></i></div>';
+                                }
                                 html += '<div class="content">';
                                 if (result[fields.price] !== undefined) {
                                     html += '<div class="price">' + escape(result[fields.price], preserveHTML) + '</div>';
@@ -24442,6 +24502,10 @@
                                 + ' <img src="' + result[fields.image].replace(/"/g, '') + (result[fields.alt] ? '" alt="' + result[fields.alt].replace(/"/g, '') : '') + '">'
                                 + '</div>';
                         }
+                        // Fork: ícono en una baldosa, en el sitio de la imagen
+                        if (result[fields.icon] !== undefined && result[fields.image] === undefined) {
+                            html += '<div class="icon image"><i class="' + String(result[fields.icon]).replace(/[^\w -]/g, '') + ' icon" aria-hidden="true"></i></div>';
+                        }
                         html += '<div class="content">';
                         if (result[fields.price] !== undefined) {
                             html += '<div class="price">' + escape(result[fields.price], preserveHTML) + '</div>';
@@ -24484,7 +24548,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Shape
+ * # Fomantic-UI 0.10.1 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -25282,7 +25346,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Sidebar
+ * # Fomantic-UI 0.10.1 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -26339,7 +26403,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.9.4 - Shell
+ * # Fomantic-UI 0.10.1 - Shell
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27132,7 +27196,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.9.4 - Slideshow
+ * # Fomantic-UI 0.10.1 - Slideshow
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27919,7 +27983,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Sticky
+ * # Fomantic-UI 0.10.1 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -28841,7 +28905,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Tab
+ * # Fomantic-UI 0.10.1 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29807,7 +29871,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Toast
+ * # Fomantic-UI 0.10.1 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -30772,7 +30836,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Transition
+ * # Fomantic-UI 0.10.1 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -31807,7 +31871,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - API
+ * # Fomantic-UI 0.10.1 - API
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -33033,7 +33097,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - State
+ * # Fomantic-UI 0.10.1 - State
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -33731,7 +33795,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.9.4 - Visibility
+ * # Fomantic-UI 0.10.1 - Visibility
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

@@ -5,6 +5,7 @@ namespace App\LangMessages;
 $lang = [
     "UNSUSCRIBE_TEXT" => "To unsubscribe from receiving this type of emails, please <a href='{{url}}' target='_blank'>click here</a>",
     'Clic aquí' => 'Click here',
+    'Logo' => 'Logo',
 ];
 
 return $lang;

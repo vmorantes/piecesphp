@@ -215,7 +215,7 @@ BaseEventDispatcher::listen('NombreEvento', function($data) {
     `src/app/core/extensions/mailing.php` existe y **da el logo de los correos**: `mailing_logo()`
     devuelve el que se subió en Configuración › Imágenes de marca si existe; si no, el de fábrica
     (`statics/images/mailing-logo.png`); si falta, lo genera desde el logo del sitio en
-    `statics/uploads/settings/brand/`. `get_config('mailing_logo')` sigue dando la ruta de fábrica: si tu
+    `uploads/settings/<tipo>/` con el tipo `brand` (ver [Las imágenes de Configuración](imagenes-de-configuracion.md)). `get_config('mailing_logo')` sigue dando la ruta de fábrica: si tu
     proyecto tiene sus propias plantillas de correo y quiere el logo subido, que usen `mailing_logo()`. Está
     marcado `@pcsphp-config framework`, es decir, **no conviene editarlo**. No tiene nada que ver con el
     SMTP.

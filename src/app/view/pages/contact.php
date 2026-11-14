@@ -27,7 +27,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div class="field required">
 
                     <label><?= __(LANG_GROUP, 'Correo electrónico'); ?></label>
-                    <input type="text" name="email" placeholder="correo@correo.com" required>
+                    <input type="text" name="email" placeholder="<?= __(LANG_GROUP, 'correo@correo.com'); ?>" required>
 
                 </div>
 
@@ -53,7 +53,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div class="field element-center">
                     <button class="ui right labeled icon button fluid" type="submit">
                         <i class="send icon"></i>
-                        Enviar
+                        <?= __(LANG_GROUP, 'Enviar'); ?>
                     </button>
                 </div>
 

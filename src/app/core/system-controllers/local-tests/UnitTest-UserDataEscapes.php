@@ -303,6 +303,14 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
 
         //──── [r] El canario del contenido enriquecido (P107) ───────────────────────────────
         echoTerminal('');
+        echoTerminal('[w] get_breadcrumbs() escapa el texto de las migas y su url');
+        $migas = get_breadcrumbs(['<b>zz-miga</b>' => ['url' => 'https://zz.test/?a=1&b="2"'], '<i>zz-final</i>']);
+        $check(!str_contains($migas, '<b>') && !str_contains($migas, '<i>zz') && str_contains($migas, '&lt;b&gt;zz-miga&lt;/b&gt;') && str_contains($migas, '&lt;i&gt;zz-final&lt;/i&gt;'),
+            'w1 DISCRIMINANTE: el texto de una miga y la última salen como texto', mb_substr($migas, 0, 200));
+        $check(str_contains($migas, 'href="https://zz.test/?a=1&amp;b=&quot;2&quot;"') && str_contains($migas, '<i class="angle right icon"></i>'),
+            'w2 la url, escapada en el href; el separador, el de siempre');
+        $check(get_breadcrumbs(['Inicio' => ['url' => '/zz/'], 'Categorías']) === '<a href="/zz/">Inicio</a><i class="angle right icon"></i>Categorías', 'w3 CANARIO: unas migas con texto llano no se alteran: el mismo texto, la misma url y el separador');
+
         echoTerminal('[r] El contenido enriquecido de una publicación sale EXACTAMENTE como se guardó');
         $check($publicaPagina['status'] === 200 && str_contains($publicaPagina['body'], $rico), 'r1 CANARIO: la página pública pinta el HTML del editor tal cual, sin escapar', "HTTP {$publicaPagina['status']}");
         $check(!str_contains($publicaPagina['body'], $esc($rico)), 'r2 y no aparece escapado en ningún sitio');

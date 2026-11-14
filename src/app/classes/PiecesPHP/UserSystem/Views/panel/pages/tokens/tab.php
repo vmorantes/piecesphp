@@ -18,7 +18,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <p><?= __($langGroup, 'Ver el valor de un código, invalidarlo o restablecer un doble factor es solo del usuario principal.'); ?></p>
         <?php endif; ?>
     </div>
-    <table url="<?= escape_html($processTableLink); ?>" class="ui single line selectable very basic table content-table" data-search-placeholder="<?= escape_html(__($langGroup, 'Tipo o usuario')); ?>" data-tokens-table>
+    <table url="<?= escape_html($processTableLink); ?>" class="ui selectable very basic table content-table" data-search-placeholder="<?= escape_html(__($langGroup, 'Tipo o usuario')); ?>" data-tokens-table>
         <thead>
             <tr>
                 <th><?= __($langGroup, 'Tipo'); ?></th>

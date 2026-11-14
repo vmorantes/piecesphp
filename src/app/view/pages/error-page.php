@@ -68,7 +68,7 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
                     <?php if ($errorActions !== []): ?>
                     <div class="fluid ui stackable centered relaxed flex">
                         <?php foreach ($errorActions as $errorIndex => $errorAction): ?>
-                        <a class="ui <?= $errorIndex === 0 ? 'primary labeled icon' : 'basic'; ?> button" href="<?= escape_html($errorAction['url']); ?>"><?php if ($errorIndex === 0): ?><i class="<?= escape_html($errorAction['icon'] ?? 'home'); ?> icon" aria-hidden="true"></i><?php endif; ?><?= escape_html($errorAction['text']); ?></a>
+                        <a class="ui <?= $errorIndex === 0 ? 'primary' : 'basic'; ?> button" href="<?= escape_html($errorAction['url']); ?>"><?php if ($errorIndex === 0): ?><i class="<?= escape_html($errorAction['icon'] ?? 'home'); ?> icon" aria-hidden="true"></i><?php endif; ?><?= escape_html($errorAction['text']); ?></a>
                         <?php endforeach; ?>
                     </div>
                     <?php endif; ?>

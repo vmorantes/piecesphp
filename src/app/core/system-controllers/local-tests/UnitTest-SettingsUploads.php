@@ -201,6 +201,31 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
     };
 
     try {
+        //─── g · Las carpetas que se crean al subir ─────────────────────────────────────────────────
+        echoTerminal('[g] Las carpetas que crea la subida quedan con escritura de grupo, aunque el umask la quite');
+        //En una carpeta propia: la de las subidas puede ser de Apache y no admitir al terminal.
+        $propia = dirname($raiz) . '/zz-prueba-carpetas-' . bin2hex(random_bytes(4));
+        $anidada = "{$propia}/brand";
+        $umaskAntes = umask(0022);
+        try {
+            $creada = SettingsController::makeGroupWritableFolder($anidada);
+        } finally {
+            umask($umaskAntes);
+        }
+        clearstatcache();
+        $permisos = fn(string $carpeta): string => is_dir($carpeta) ? sprintf('%o', fileperms($carpeta) & 07777) : 'no existe';
+        $check($creada && $permisos($propia) === '2775' && $permisos($anidada) === '2775', 'g1 DISCRIMINANTE: la carpeta y la que faltaba por encima, 2775', "{$permisos($propia)} · {$permisos($anidada)}");
+        $check(SettingsController::makeGroupWritableFolder($anidada) && $permisos($anidada) === '2775', 'g2 sobre una que ya existe, nada cambia');
+        foreach ([$anidada, $propia] as $carpeta) {
+            if (is_dir($carpeta)) {
+                //RETORNO-IGNORADO: lo comprueba g3.
+                rmdir($carpeta);
+            }
+        }
+        clearstatcache();
+        $check(!is_dir($propia), 'g3 y la suite la retira');
+        echoTerminal(' ');
+
         $check(is_dir(dirname($raiz)), 'banco: existe la carpeta de subidas');
         $check(count($fabricaAntes) > 10 && is_string($otro), 'banco: hay archivos de fábrica que vigilar y un segundo idioma', count($fabricaAntes) . ' · ' . var_export($otro, true));
         $u = new UsersModel();

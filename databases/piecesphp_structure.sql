@@ -178,12 +178,15 @@ CREATE TABLE `login_attempts` (
   `usernameAttempt` varchar(255) NOT NULL,
   `success` int(11) NOT NULL,
   `ip` varchar(255) NOT NULL,
+  `ipGroup` varchar(64) DEFAULT NULL,
   `message` text DEFAULT NULL,
   `date` datetime NOT NULL,
   `extraData` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `userID` (`userID`),
   KEY `date` (`date`),
+  KEY `ipGroupDate` (`ipGroup`,`date`),
+  KEY `usernameAttemptDate` (`usernameAttempt`,`date`),
   CONSTRAINT `login_attempts_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -338,6 +341,28 @@ CREATE TABLE `pcsphp_mail_log` (
   `reason` text DEFAULT NULL,
   `body` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+
+DROP TABLE IF EXISTS `pcsphp_notifications`;
+CREATE TABLE `pcsphp_notifications` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user` bigint(20) NOT NULL,
+  `kind` varchar(64) NOT NULL,
+  `level` varchar(16) NOT NULL,
+  `langGroup` varchar(64) NOT NULL,
+  `titleKey` text NOT NULL,
+  `bodyKey` text DEFAULT NULL,
+  `params` longtext DEFAULT NULL,
+  `routeName` varchar(191) DEFAULT NULL,
+  `routeParams` longtext DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `readAt` datetime DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userReadAt` (`user`,`readAt`),
+  KEY `userCreatedAt` (`user`,`createdAt`),
+  CONSTRAINT `pcsphp_notifications_ibfk_1` FOREIGN KEY (`user`) REFERENCES `pcsphp_users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 

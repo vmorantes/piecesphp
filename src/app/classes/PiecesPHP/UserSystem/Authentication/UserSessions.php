@@ -40,6 +40,7 @@ final class UserSessions
     const REASON_REVOKE_ALL_GLOBAL = 'revoke-all-global';
     /** El tipo del usuario ya no es un rol: el arranque le cierra la sesión sin borrarlo (P290, fase 1). */
     const REASON_INVALID_TYPE = 'invalid-type';
+    const REASON_PASSWORD_CHANGED = 'password-changed';
 
     /**
      * La marca en `data` del token que el terminal se fabrica a sí mismo: sin fila, y solo vale en el terminal.
@@ -252,6 +253,23 @@ final class UserSessions
         $statement = self::database()->prepare($sql);
         $statement->execute($values);
         return $statement->rowCount();
+    }
+
+    /**
+     * La llaman todos los caminos que cambian la contraseña de un usuario existente, tras guardarla; una prueba de censo
+     * lo vigila. Al propio usuario le conserva la sesión actual.
+     *
+     * @param int $userID
+     * @return int Las filas cerradas
+     */
+    public static function closeAfterPasswordChange(int $userID): int
+    {
+        $actor = getLoggedFrameworkUser();
+        $currentHash = self::currentHash();
+        if ($actor !== null && (int) $actor->id === $userID && $currentHash !== null) {
+            return self::closeAllOfUser($userID, $userID, self::REASON_PASSWORD_CHANGED, $currentHash);
+        }
+        return self::closeAllOfUser($userID, $actor !== null ? (int) $actor->id : null, self::REASON_PASSWORD_CHANGED);
     }
 
     /**

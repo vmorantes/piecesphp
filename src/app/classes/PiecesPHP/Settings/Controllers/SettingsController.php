@@ -640,7 +640,11 @@ class SettingsController extends AdminPanelController
         $clientName = is_string($_FILES[$field]['name'] ?? null) ? $_FILES[$field]['name'] : '';
         $extension = ProtectedUploads::safeExtension($temporary, pathinfo($clientName, \PATHINFO_EXTENSION));
         $extension = $extension === 'jpeg' ? 'jpg' : $extension;
-        $moved = $fileHandler->moveTo(basepath(self::SETTINGS_UPLOADS_FOLDER . "/{$type}"), "{$name}-upload-" . bin2hex(random_bytes(6)), $extension);
+        $folder = basepath(self::SETTINGS_UPLOADS_FOLDER . "/{$type}");
+        if (!is_dir($folder) && !self::makeGroupWritableFolder($folder)) {
+            return null;
+        }
+        $moved = $fileHandler->moveTo($folder, "{$name}-upload-" . bin2hex(random_bytes(6)), $extension);
         $file = is_string($moved[0] ?? null) ? $moved[0] : '';
         if ($file === '' || !is_file($file)) {
             return null;
@@ -667,6 +671,29 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * Crea la carpeta, y las que falten hasta ella, con escritura de grupo: la crea el servidor web y la tiene que poder
+     * escribir también la terminal. El umask de Apache quita la del grupo, así que se pone con chmod.
+     *
+     * @param string $folder Ruta absoluta
+     * @return bool Si la carpeta existe al terminar
+     */
+    public static function makeGroupWritableFolder(string $folder): bool
+    {
+        $missing = [];
+        for ($current = $folder; !is_dir($current) && $current !== dirname($current); $current = dirname($current)) {
+            $missing[] = $current;
+        }
+        if (!is_dir($folder) && !mkdir($folder, 02775, true) && !is_dir($folder)) {
+            return false;
+        }
+        foreach ($missing as $created) {
+            //RETORNO-IGNORADO: sin el chmod la carpeta sigue sirviendo al servidor web; solo la terminal se queda fuera.
+            chmod($created, 02775);
+        }
+        return true;
+    }
+
+    /**
      * Copia un archivo existente a SETTINGS_UPLOADS_FOLDER/<tipo>/ con el nombre de settleSettingsImage().
      *
      * @param string $source Ruta absoluta
@@ -677,7 +704,7 @@ class SettingsController extends AdminPanelController
     public static function copyIntoSettingsUploads(string $source, string $type, string $name): ?string
     {
         $folder = basepath(self::SETTINGS_UPLOADS_FOLDER . "/{$type}");
-        if (!is_file($source) || (!is_dir($folder) && !mkdir($folder, 0755, true))) {
+        if (!is_file($source) || (!is_dir($folder) && !self::makeGroupWritableFolder($folder))) {
             return null;
         }
         $temporary = "{$folder}/{$name}-upload-" . bin2hex(random_bytes(6)) . '.' . mb_strtolower(pathinfo($source, \PATHINFO_EXTENSION));
@@ -837,7 +864,7 @@ class SettingsController extends AdminPanelController
                 'partners' => get_config('partners'),
                 'partnersVertical' => get_config('partnersVertical'),
                 'mailingLogo' => mailing_logo(),
-                'partnersText' => self::partnersText(),
+                'partnersTexts' => array_combine(Config::get_allowed_langs(), array_map(fn (string $lang): string => self::storedPartnersText($lang), Config::get_allowed_langs())),
                 'invertOnDark' => array_map(fn(string $option) => self::brandImageInvertsOnDark((string) array_search($option, self::BRAND_IMAGES_INVERT_ON_DARK, true)), self::BRAND_IMAGES_INVERT_ON_DARK),
                 'partnersTextMaxLength' => self::PARTNERS_TEXT_MAX_LENGTH,
             ] + $this->sectionHeader(__(self::LANG_GROUP, 'Imágenes de marca'), __(self::LANG_GROUP, 'La plataforma es marca blanca: estas imágenes identifican al cliente en toda la plataforma, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.'));
@@ -847,12 +874,28 @@ class SettingsController extends AdminPanelController
             $this->settingsViews->render("{$baseViewDir}/logos-favicons", $data);
             $this->render('panel/layout/footer');
 
-        } elseif ($requestMethod == 'POST' && is_string($req->getParsedBodyParam(self::PARTNERS_TEXT_CONFIG, null))) {
+        } elseif ($requestMethod == 'POST' && (is_string($req->getParsedBodyParam(self::PARTNERS_TEXT_CONFIG, null)) || is_array($req->getParsedBodyParam(self::PARTNERS_TEXT_CONFIG, null)))) {
 
-            //El texto sobre el patrocinador: texto plano, recortado; vacío lo quita del pie.
-            $text = trim(strip_tags((string) $req->getParsedBodyParam(self::PARTNERS_TEXT_CONFIG, '')));
-            $text = mb_substr($text, 0, self::PARTNERS_TEXT_MAX_LENGTH);
-            $saved = SettingsModel::setConfigValue(self::PARTNERS_TEXT_CONFIG, $text);
+            //El texto sobre el patrocinador, uno por idioma: texto plano, recortado. Vacío en el idioma por omisión lo quita
+            //del pie; vacío en otro borra el suyo y se usa el del idioma por omisión. Un texto suelto es el del idioma por omisión.
+            $posted = $req->getParsedBodyParam(self::PARTNERS_TEXT_CONFIG, null);
+            $texts = is_array($posted) ? $posted : [Config::get_default_lang() => $posted];
+            $saved = true;
+            foreach (Config::get_allowed_langs() as $lang) {
+                if (!is_string($texts[$lang] ?? null)) {
+                    continue;
+                }
+                $text = mb_substr(trim(strip_tags($texts[$lang])), 0, self::PARTNERS_TEXT_MAX_LENGTH);
+                $optionName = self::partnersTextOptionName($lang);
+                if ($lang !== Config::get_default_lang() && $text === '') {
+                    $model = SettingsModel::model();
+                    $model->resetAll();
+                    //RETORNO-IGNORADO: si no existía, no hay nada que borrar; partnersText() cae al del idioma por omisión igual.
+                    $model->delete(new \PiecesPHP\Core\Database\ORM\Statements\WhereSegment([\PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem::isEqual('name', $optionName)]))->execute();
+                    continue;
+                }
+                $saved = SettingsModel::setConfigValue($optionName, $text) && $saved;
+            }
             $result = new ResultOperations([], __(self::LANG_GROUP, 'Texto sobre el patrocinador'));
             $result->setSingleOperation(true);
             $result
@@ -926,9 +969,13 @@ class SettingsController extends AdminPanelController
                             self::deleteSettingsImage($oldImage);
                         }
 
-                        $result
-                            ->setMessage($createMessage)
-                            ->setSuccessOnSingleOperation(true);
+                        if ($updated) {
+                            $result
+                                ->setMessage($createMessage)
+                                ->setSuccessOnSingleOperation(true);
+                        } else {
+                            $result->setMessage($unknowErrorMessage);
+                        }
 
                     } else {
                         $result->setMessage($unknowErrorMessage);
@@ -1474,6 +1521,7 @@ class SettingsController extends AdminPanelController
                         return clean_string($value);
                     }
                 ),
+                //Sin clean_string(): una contraseña se guarda tal cual se escribe, con sus espacios y tabuladores.
                 new Parameter(
                     'password',
                     '',
@@ -1482,7 +1530,7 @@ class SettingsController extends AdminPanelController
                     },
                     true,
                     function ($value) {
-                        return clean_string($value);
+                        return $value;
                     }
                 ),
                 new Parameter(
@@ -3149,15 +3197,51 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * El texto sobre el patrocinador: lo guardado si la opción existe, también vacío (quien lo borró lo quiso quitar), y
-     * si no existe, el de fábrica.
+     * El texto sobre el patrocinador en un idioma: el suyo si existe; si no, el del idioma por omisión, guardado también
+     * vacío (quien lo borró lo quiso quitar); y si tampoco existe, el de fábrica, traducido al idioma actual.
      *
+     * @param string|null $lang Por omisión, el de la petición
      * @return string
      */
-    public static function partnersText(): string
+    public static function partnersText(?string $lang = null): string
     {
+        $lang ??= Config::get_lang();
+        if ($lang !== Config::get_default_lang()) {
+            $own = get_config(self::partnersTextOptionName($lang));
+            if (is_string($own) && trim($own) !== '') {
+                return trim($own);
+            }
+        }
         $text = get_config(self::PARTNERS_TEXT_CONFIG);
         return is_string($text) ? trim($text) : __(LANG_GROUP, 'Con el apoyo de');
+    }
+
+    /**
+     * El nombre de la opción del texto sobre el patrocinador en un idioma, como seoOptionName(): sin sufijo el del idioma
+     * por omisión.
+     *
+     * @param string $lang
+     * @return string
+     */
+    public static function partnersTextOptionName(string $lang): string
+    {
+        return self::seoOptionName(self::PARTNERS_TEXT_CONFIG, $lang);
+    }
+
+    /**
+     * Lo que muestra el campo de un idioma: en el idioma por omisión, el texto de hoy (también el de fábrica); en los
+     * demás, solo el suyo, y vacío si no tiene (entonces se usa el del idioma por omisión).
+     *
+     * @param string $lang
+     * @return string
+     */
+    private static function storedPartnersText(string $lang): string
+    {
+        if ($lang === Config::get_default_lang()) {
+            return self::partnersText($lang);
+        }
+        $own = get_config(self::partnersTextOptionName($lang));
+        return is_string($own) ? trim($own) : '';
     }
 
     /**

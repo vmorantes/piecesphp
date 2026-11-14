@@ -116,7 +116,7 @@ $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $
 
         <!-- Header Section -->
         <div class="header">
-            <img src="<?=$header_image;?>" alt="Logo">
+            <img src="<?=$header_image;?>" alt="<?= __(MAILING_GENERAL_LANG_GROUP, 'Logo'); ?>">
         </div>
 
         <!-- Content Section -->

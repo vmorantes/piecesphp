@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Text
+ * # Fomantic-UI 0.10.1 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -189,7 +189,7 @@ span.ui.inverted.grey.text {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 span.ui.black.text {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 span.ui.inverted.black.text {
   color: oklch(from #4b5363 max(l, 0.8) min(c, 0.14) h);

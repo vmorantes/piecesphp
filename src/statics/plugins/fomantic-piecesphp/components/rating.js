@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Rating
+ * # Fomantic-UI 0.10.1 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

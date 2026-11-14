@@ -1111,6 +1111,8 @@ class APIController extends AdminPanelController
              * Si organanizationID resulta como NONE se crea la organización desde organizationName.
              */
             $parsedBody = $request->getParsedBody();
+            //La organización y el tipo solo los fija el servidor: los cifrados de abajo o la organización que se crea aquí.
+            unset($parsedBody['type'], $parsedBody['organization']);
             $equivalences = [
                 'type' => [
                     'from' => 'userType',
@@ -1242,6 +1244,16 @@ class APIController extends AdminPanelController
                     //Dado que esta persona creó su organización se pone como adminstrador de organización
                     $parsedBody['type'] = UsersModel::TYPE_USER_ADMIN_ORG;
                 }
+            }
+            //P39: la organización global no es destino de un alta pública; se pide una de verdad.
+            $resolvedOrganization = $parsedBody['organization'] ?? null;
+            if (Validator::isInteger($resolvedOrganization) && (int) $resolvedOrganization === OrganizationMapper::INITIAL_ID_GLOBAL) {
+                $operationName = __(self::LANG_GROUP, 'Creación de usuario');
+                $failedResult = new ResultOperations([
+                    new Operation($operationName),
+                ], $operationName);
+                $failedResult->setMessage(__(UsersController::LANG_GROUP, 'Debe seleccionar una organización.'));
+                return $response->withJson($failedResult);
             }
             $request = $request->withParsedBody($parsedBody);
             //Acciones de REGISTRO EXTERNO PERSONALIZADO - FIN

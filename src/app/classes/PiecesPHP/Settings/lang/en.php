@@ -110,6 +110,7 @@ return [
     'Registros y Logs' => 'Records and logs',
     'Texto sobre el patrocinador' => 'Text above the sponsor',
     'Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Vacío, no se pinta.' => 'Optional: it appears in the menu footer, above the sponsor image. Empty, it is not shown.',
+    'Vacío, se usa el del idioma principal.' => 'Empty, the one of the main language is used.',
     'Texto guardado.' => 'Text saved.',
     'Invertir colores en modo oscuro' => 'Invert colors in dark mode',
     'Necesita un PNG con fondo transparente: un fondo opaco saldría como un rectángulo blanco.' => 'It needs a PNG with a transparent background: an opaque background would show as a white rectangle.',

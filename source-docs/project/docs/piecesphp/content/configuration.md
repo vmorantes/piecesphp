@@ -223,7 +223,8 @@ adaptador de reCAPTCHA.
 !!! warning "Claves que ningún código lee"
     `LabsMobileAPIKey`, `LabsMobileSendInLocal` y `developer` están en `config.php`, pero **ningún código
     de `src/` (fuera de `vendor/`) las consulta** (búsqueda en el repositorio del 2026-10-23, por nombre de clave).
-    Rellenarlas no activa nada. `Azure` y `mailjet` sí tienen consumidor.
+    Rellenarlas no activa nada. `Azure` sí tiene consumidor; `mailjet` solo se lee para volver a guardar
+    cifrada la configuración de antes de la 9 (`MailjetConfig`): **ningún correo sale por Mailjet**.
 
 ### Un listener a la medida
 

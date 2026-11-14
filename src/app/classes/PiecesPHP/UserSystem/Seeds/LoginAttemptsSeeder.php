@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\UserSystem\Seeds;
 
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Terminal\Seeding\ModuleSeeder;
@@ -79,6 +80,7 @@ class LoginAttemptsSeeder extends ModuleSeeder
             'usernameAttempt' => $exists ? (string) ($user['username'] ?? $this->text('usuario', $index)) : $this->text('intento', $index),
             'success' => $success ? LoginAttemptsModel::SUCCESS_ATTEMPT : LoginAttemptsModel::FAIL_ATTEMPT,
             'ip' => '203.0.113.' . (10 + $index % 40),
+            'ipGroup' => OTPRateLimiter::ipGroup('203.0.113.' . (10 + $index % 40)),
             'message' => $success ? '' : ($exists ? 'La contraseña es incorrecta.' : 'El usuario no existe.'),
             'date' => $date,
             'extraData' => [

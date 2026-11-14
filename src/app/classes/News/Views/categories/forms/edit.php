@@ -79,6 +79,7 @@ use News\Mappers\NewsCategoryMapper;
                                     'format' => 'image/png',
                                     'fillColor' => 'transparent',
                                 ],
+                                'stacked' => true,
                             ]);
                         ?>
 

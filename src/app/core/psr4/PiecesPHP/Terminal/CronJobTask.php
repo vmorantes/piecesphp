@@ -310,7 +310,7 @@ class CronJobTask
         if (!$this->shouldExecute()) {
             return [
                 'success' => false,
-                'message' => 'Omitida. No cumple con la condición de ejecución.',
+                'message' => __(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Omitida. No cumple con la condición de ejecución.'),
                 'skipped' => true,
             ];
         }
@@ -603,7 +603,7 @@ class CronJobTask
 
             // Aseguramos que el resultado contenga las propiedades mínimas requeridas.
             $success = is_array($result) && array_key_exists('success', $result) ? (bool) $result['success'] : true;
-            $message = is_array($result) && array_key_exists('message', $result) ? (string) $result['message'] : 'Tarea ejecutada con éxito.';
+            $message = is_array($result) && array_key_exists('message', $result) ? (string) $result['message'] : __(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Tarea ejecutada con éxito.');
 
             $baseResponse = [
                 'success' => $success,
@@ -615,7 +615,7 @@ class CronJobTask
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Excepción durante la ejecución: ' . $e->getMessage(),
+                'message' => __(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Excepción durante la ejecución: ') . $e->getMessage(),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'skipped' => false,

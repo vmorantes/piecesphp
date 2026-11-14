@@ -363,6 +363,7 @@ $lang = [
     'Inactiva' => 'Inactive',
     'Seguridad. Verificación en dos pasos: activa' => 'Security. Two-step verification: active',
     'Seguridad. Verificación en dos pasos: inactiva' => 'Security. Two-step verification: inactive',
+    'Avatar' => 'Avatar',
 ];
 
 return $lang;

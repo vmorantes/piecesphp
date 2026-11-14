@@ -109,4 +109,8 @@ return [
     'Navegador o IP' => 'Browser or IP',
     'Actual' => 'Current',
     'Otras sesiones' => 'Other sessions',
+    'Un administrador cambió tu contraseña' => 'An administrator changed your password',
+    'Un administrador cerró una de tus sesiones' => 'An administrator closed one of your sessions',
+    'Un administrador cerró todas tus sesiones' => 'An administrator closed all your sessions',
+    'Si no lo esperabas, contacta con soporte.' => 'If you did not expect it, contact support.',
 ];

@@ -105,6 +105,34 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
+
+                                    <div class="field required">
+                                        <label><?= __($langGroupOrganizations, 'Correo electrónico'); ?></label>
+                                        <input type="text" required name="informativeEmail" value="<?= escape_html($organizationMapper->currentLangData('informativeEmail')); ?>">
+                                    </div>
+
+                                    <div class="field">
+                                        <label><?= __($langGroupOrganizations, 'Teléfono'); ?></label>
+                                        <div class="fields">
+                                            <div class="six wide field">
+                                                <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(\PiecesPHP\App\Locations\Mappers\CountryMapper::phoneCodeOptions($organizationMapper->phoneCode, true), $organizationMapper->phoneCode !== null ? escape_html($organizationMapper->phoneCode) : null); ?></select>
+                                            </div>
+                                            <div class="ten wide field">
+                                                <input type="tel" name="phone" value="<?= escape_html($organizationMapper->currentLangData('phone')); ?>">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="two fields">
+                                        <div class="field">
+                                            <label><?= __($langGroupOrganizations, 'Enlace LinkedIn'); ?></label>
+                                            <input type="url" name="linkedinLink" value="<?= escape_html($organizationMapper->currentLangData('linkedinLink')); ?>">
+                                        </div>
+                                        <div class="field">
+                                            <label><?= __($langGroupOrganizations, 'Enlace página web'); ?></label>
+                                            <input type="url" name="websiteLink" value="<?= escape_html($organizationMapper->currentLangData('websiteLink')); ?>">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="five wide column">
                                     <?php
@@ -119,38 +147,10 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                                 'width' => 400,
                                                 'height' => 400,
                                             ],
+                                            'stacked' => true,
                                         ]);
                                     ?>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="two fields">
-                            <div class="field required">
-                                <label><?= __($langGroupOrganizations, 'Correo electrónico'); ?></label>
-                                <input type="text" required name="informativeEmail" value="<?= escape_html($organizationMapper->currentLangData('informativeEmail')); ?>">
-                            </div>
-                            <div class="field">
-                                <label><?= __($langGroupOrganizations, 'Teléfono'); ?></label>
-                                <div class="fields">
-                                    <div class="six wide field">
-                                        <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(\PiecesPHP\App\Locations\Mappers\CountryMapper::phoneCodeOptions($organizationMapper->phoneCode, true), $organizationMapper->phoneCode !== null ? escape_html($organizationMapper->phoneCode) : null); ?></select>
-                                    </div>
-                                    <div class="ten wide field">
-                                        <input type="tel" name="phone" value="<?= escape_html($organizationMapper->currentLangData('phone')); ?>">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="two fields">
-                            <div class="field">
-                                <label><?= __($langGroupOrganizations, 'Enlace LinkedIn'); ?></label>
-                                <input type="url" name="linkedinLink" value="<?= escape_html($organizationMapper->currentLangData('linkedinLink')); ?>">
-                            </div>
-                            <div class="field">
-                                <label><?= __($langGroupOrganizations, 'Enlace página web'); ?></label>
-                                <input type="url" name="websiteLink" value="<?= escape_html($organizationMapper->currentLangData('websiteLink')); ?>">
                             </div>
                         </div>
 
@@ -171,7 +171,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                             <?= __($langGroup, 'Ver perfil'); ?>
                                             <i class="angle right icon"></i>
                                         </a>
-                                        <button class="ui button blue" change-organization-admin-trigger>
+                                        <button class="ui basic button" change-organization-admin-trigger>
                                             <?= __($langGroup, 'Cambiar'); ?>
                                         </button>
                                     </div>

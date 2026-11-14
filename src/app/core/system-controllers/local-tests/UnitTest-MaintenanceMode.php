@@ -126,11 +126,10 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
         foreach (MaintenanceMode::ALWAYS_ALLOWED as $nombre) {
             $check(MaintenanceMode::blocks($nombre, null) === false, 'e1 pasa sin sesión: ' . $nombre);
         }
-        //UN NOMBRE MAL ESCRITO EN ESA LISTA NO ES UN HUECO, ES UNA PUERTA QUE NO SE ABRE: el acceso
-        //quedaría detenido y el sitio muerto. Y al revés, una ruta que desaparezca deja la lista mintiendo.
-        $inventario = json_decode((string) @file_get_contents(dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/files/dev/route-inventory.json'), true);
-        $nombres = is_array($inventario) ? array_map(fn (array $r): string => (string) ($r['name'] ?? ''), $inventario) : [];
-        $check(count($nombres) > 300, 'e2 el inventario de rutas se pudo leer', count($nombres) . ' rutas');
+        //UN NOMBRE MAL ESCRITO EN ESA LISTA ES UNA PUERTA QUE NO SE ABRE (el sitio, muerto), y una ruta que desaparezca la
+        //deja mintiendo. Se mira en las rutas del proceso: el inventario de files/dev/ no viaja a los clones.
+        $nombres = array_map('strval', array_keys((array) get_routes()));
+        $check(count($nombres) > 300, 'e2 las rutas registradas en este proceso se pudieron leer', count($nombres) . ' rutas');
         foreach (MaintenanceMode::ALWAYS_ALLOWED as $nombre) {
             $check(in_array($nombre, $nombres, true), 'e3 y existe como ruta registrada: ' . $nombre);
         }

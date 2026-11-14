@@ -61,7 +61,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     };
 
     //──── 1. La configuración ──────────────────────────────────────────────────────────────────
-    echoTerminal('[1/4] config(): la de config.php, con las cinco vías que cuentan');
+    echoTerminal('[1/5] config(): la de config.php, con las cinco vías que cuentan');
 
     $check(OTPRateLimiter::config() === $config, 'otp_security de config.php: 5 por usuario, 20 por IP, 15 de ventana, 15 de bloqueo, uniforme, 20 del código y las tres del login (core/login-ip-throttle)',
         json_encode(OTPRateLimiter::config(), JSON_THROW_ON_ERROR));
@@ -69,7 +69,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Por usuario ───────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/4] Por usuario: el tope dentro de la ventana, y el bloqueo cuenta desde el fallo que lo completa');
+    echoTerminal('[2/5] Por usuario: el tope dentro de la ventana, y el bloqueo cuenta desde el fallo que lo completa');
 
     $check($segundos($fallos([4, 3, 2, 1])) === 0, 'debajo del tope: 4 fallos, sin bloqueo');
     $check($segundos($fallos([4, 3, 2, 1, 0])) === 900, 'DISCRIMINANTE: en el tope, 5 fallos, bloquea 15 minutos desde el quinto');
@@ -82,7 +82,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Por IP ────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/4] Por IP: muchos usuarios distintos desde la misma IP');
+    echoTerminal('[3/5] Por IP: muchos usuarios distintos desde la misma IP');
 
     $desdeLaIP = static function (int $cuantos) use ($fila): array {
         $filas = [];
@@ -97,7 +97,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Qué filas cuentan ─────────────────────────────────────────────────────────────────
-    echoTerminal('[4/4] Qué filas cuentan: fallos de las vías del OTP, y las bloqueadas no alargan el bloqueo');
+    echoTerminal('[4/5] Qué filas cuentan: fallos de las vías del OTP, y las bloqueadas no alargan el bloqueo');
 
     $exitos = array_map(fn (int $m): array => $fila('ana', '10.0.0.1', $m, ['otpVia' => OTPRateLimiter::VIA_CHECK_TOTP], 1), [4, 3, 2, 1, 0]);
     $check($segundos($exitos) === 0, 'los intentos correctos no cuentan');
@@ -116,6 +116,48 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $comoArreglo = array_map(fn (array $f): array => ['extraData' => ['otpVia' => OTPRateLimiter::VIA_GENERATE_OTP]] + $f, $sinColumna);
     $check($segundos($comoArreglo) === 900, 'extraData ya decodificado también se entiende');
     $check($segundos([['basura' => true], 'no es una fila', $fila('ana', '10.0.0.1', 0)]) === 0, 'una fila ilegible se ignora, y un fallo solo no bloquea');
+    echoTerminal(' ');
+
+    //──── 5. La IP como grupo ────────────────────────────────────────────────────────────────────
+    echoTerminal('[5/5] La IP se compara por grupo: una IPv6 por su /64; una IPv4, tal cual');
+
+    $grupos = [
+        '203.0.113.7' => '203.0.113.7',
+        '2001:0db8:0000:0001:0000:0000:0000:0042' => '2001:db8:0:1::/64',
+        '2001:db8:0:1::99' => '2001:db8:0:1::/64',
+        '2001:DB8:0:1:ABCD::1' => '2001:db8:0:1::/64',
+        '::ffff:198.51.100.4' => '198.51.100.4',
+        'no-es-una-ip' => 'no-es-una-ip',
+        '' => '',
+    ];
+    $malos = [];
+    foreach ($grupos as $entrada => $esperado) {
+        if (OTPRateLimiter::ipGroup((string) $entrada) !== $esperado) {
+            $malos[] = "«{$entrada}» → «" . OTPRateLimiter::ipGroup((string) $entrada) . "»";
+        }
+    }
+    $check($malos === [], 'i1 ipGroup: IPv4 tal cual; IPv6 completa, abreviada y en mayúsculas, a su /64; ::ffff:IPv4, la IPv4; lo demás, tal cual', implode(' · ', $malos) ?: null);
+
+    $login = ['otpVia' => OTPRateLimiter::VIA_LOGIN_PASSWORD];
+    $loginDesde = static function (array $ips, string $usuario = 'ana') use ($fila, $login): array {
+        return array_map(fn (int $i): array => $fila($usuario, $ips[$i], $i, $login), array_keys($ips));
+    };
+    $frenoLogin = static fn (array $filas, string $ip): int => OTPRateLimiter::loginSecondsToUnlockFromRows($filas, $ip, $ahora, $config);
+    $misma64 = array_map(fn (int $i): string => '2001:db8:0:1::' . dechex($i + 1), range(0, 4));
+    $check($frenoLogin($loginDesde($misma64), '2001:db8:0:1::ffff') > 0,
+        'i2 DISCRIMINANTE: 5 fallos desde 5 direcciones del mismo /64 frenan el login como si fueran una, también a otra dirección de ese /64');
+    $otpDesde64 = array_map(fn (int $i): array => $fila("usuario-{$i}", '2001:db8:0:1::' . dechex($i + 1), intdiv($i, 2)), range(0, 19));
+    $check($segundos($otpDesde64, 'zeta', '2001:db8:0:1::abc') > 0, 'i2 y lo mismo en el tope del OTP por IP: 20 direcciones del mismo /64');
+    $dosRedes = array_merge(array_slice($misma64, 0, 3), ['2001:db8:0:2::1', '2001:db8:0:2::2']);
+    $check($frenoLogin($loginDesde($dosRedes), '2001:db8:0:1::1') === 0 && $frenoLogin($loginDesde($dosRedes), '2001:db8:0:2::1') === 0,
+        'i3 dos /64 distintos siguen siendo dos: 3 y 2 fallos no completan el tope de 5 en ninguno');
+    $distintas = static fn (array $filas): int => OTPRateLimiter::loginDistinctIPsFromRows($filas, 'ana', $ahora, $config);
+    $check($distintas($loginDesde(array_slice($misma64, 0, 3))) === 1,
+        'i4 DISCRIMINANTE: tres direcciones del mismo /64 cuentan como UNA para el bloqueo de la cuenta', (string) $distintas($loginDesde(array_slice($misma64, 0, 3))));
+    $check($distintas($loginDesde(['2001:db8:0:1::1', '2001:db8:0:2::1', '2001:db8:0:3::1'])) === 3, 'i4 y tres /64 distintos, tres');
+    $vecinas = ['10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.4', '10.0.0.5'];
+    $check($frenoLogin($loginDesde($vecinas), '10.0.0.1') === 0 && $frenoLogin($loginDesde(array_fill(0, 5, '10.0.0.1')), '10.0.0.1') > 0 && $distintas($loginDesde(array_slice($vecinas, 0, 3))) === 3,
+        'i5 CANARIO: IPv4 como antes: cinco vecinas no se agrupan, la misma cinco veces frena, y tres son tres');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────────────

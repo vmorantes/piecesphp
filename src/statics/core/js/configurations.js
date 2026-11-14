@@ -757,15 +757,13 @@ function pcsAdminOptionsFlyout(toggle, flyout) {
 
 /**
  * Configura la barra superior del panel (topbar-bar.php) y lo que abre (topbar.php): el menú de usuario (`ui dropdown`),
- * las noticias (`ui popup`), Configuración y el perfil en línea (`ui flyout`).
+ * Configuración y el perfil en línea (`ui flyout`). La campana la monta notifications-list.js.
  *
  * @returns {void}
  */
 function pcsAdminTopbars() {
 
 	const userDropdown = $('[user-options-dropdown]')
-	const newsToggle = $('[news-toggle]')
-	const newsPopup = $('[news-popup]')
 	const adminToggle = $('[admin-options-toggle]')
 	const adminFlyout = $('[admin-options-flyout]')
 	const profileFlyout = $('[profile-flyout]')
@@ -774,10 +772,6 @@ function pcsAdminTopbars() {
 
 	if (userDropdown.length > 0) {
 		userDropdown.dropdown({ action: 'hide' })
-	}
-
-	if (newsToggle.length > 0 && newsPopup.length > 0) {
-		newsToggle.popup({ popup: newsPopup, on: 'click', position: 'bottom right', lastResort: 'bottom right', movePopup: false })
 	}
 
 	if (adminToggle.length > 0 && adminFlyout.length > 0) {
@@ -938,46 +932,6 @@ function pcsAdminTopbars() {
 		})
 	}
 
-	const loadNews = () => {
-
-		const mainContainerSelector = '[news-toolbar-container]'
-		const mainContainer = $(mainContainerSelector)
-		const newsModal = $('[news-modal]')
-		const url = $(mainContainerSelector).parent().data('url')
-		const markAsReadURL = pcsphpGlobals.frontConfigurationsFromBackend.NewsModuleMarkAsReadedEndpoint
-
-		if (mainContainer.length > 0 && typeof NewsAdapter !== 'undefined' && typeof url == 'string' && url.trim().length > 1) {
-			const newsManager = new NewsAdapter({
-				requestURL: url,
-				page: 1,
-				perPage: 10,
-				containerSelector: mainContainerSelector,
-				onDraw: (item, parsed) => {
-					parsed.on('click', () => {
-						newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)
-						newsModal.find('.content').html(item.content)
-						newsModal.modal('show')
-						//Marcar como leída
-						if (typeof markAsReadURL === 'string' && item.id) {
-							postRequest(markAsReadURL.replace('{ID}', item.id)).done((response) => {
-								if (response.success) {
-									parsed.remove()
-								}
-							})
-						}
-						newsToggle.popup('hide')
-					})
-					return parsed
-				},
-				onEmpty: (container) => {
-					container.html('...')
-				},
-			})
-
-			newsManager.loadItems()
-		}
-	}
-
 	//La foto de perfil abre el editor con la imagen actual (P276 a); sin foto, el selector de archivo.
 	const imageModalProfile = () => {
 		const photo = document.querySelector('[data-profile-photo]')
@@ -1017,7 +971,6 @@ function pcsAdminTopbars() {
 	}
 
 	imageModalProfile()
-	loadNews()
 	formAction()
 }
 

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Header
+ * # Fomantic-UI 0.10.1 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -721,10 +721,10 @@ a.ui.inverted.grey.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.black.header {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 a.ui.black.header:hover {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 .ui.black.dividing.header {
   border-bottom: 2px solid light-dark(#1f2430, #535c6e);

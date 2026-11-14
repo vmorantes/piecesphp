@@ -269,6 +269,7 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         $check($titulos($clave) === ['I do not remember my password'] && $pasos($clave) === ['STEP 1', 'STEP 2'], 't2 DISCRIMINANTE: «No recuerdo mi contraseña» en inglés', json_encode([$titulos($clave), $pasos($clave)]) ?: '');
         $bloqueo = $enIngles($ayuda['bloqueo']);
         $check($titulos($bloqueo) === ['User is locked', 'User Unlocked'] && $pasos($bloqueo) === ['STEP 1', 'STEP 2'], 't3 DISCRIMINANTE: «Usuario bloqueado» y «Usuario desbloqueado» en inglés', json_encode([$titulos($bloqueo), $pasos($bloqueo)]) ?: '');
+        $check(str_contains($clave, 'placeholder="Enter the code"') && str_contains($bloqueo, 'placeholder="Enter the code"'), 't5 DISCRIMINANTE: el placeholder del código, en inglés en «No recuerdo mi contraseña» y en «Usuario bloqueado» (H226)');
         $espanol = $pedir($ayuda['olvido'])['body'];
         $check($pasos($espanol) === ['PASO 1', 'PASO 2'] && str_contains($espanol, 'placeholder="Ingrese el código"') && !str_contains($espanol, 'codigó'), 't4 en español, «PASO» y el placeholder sin la errata');
     } catch (\Throwable $e) {

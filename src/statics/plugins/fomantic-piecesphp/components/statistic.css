@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Statistic
+ * # Fomantic-UI 0.10.1 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -532,7 +532,7 @@
 .ui.black.statistics .statistic > .value,
 .ui.statistics .black.statistic > .value,
 .ui.black.statistic > .value {
-  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #1f2430 min(l, 0.42) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 .ui.inverted.black.statistics .statistic > .value,
 .ui.statistics .inverted.black.statistic > .value,
@@ -680,9 +680,11 @@
 -------------------- */
 
 /* Fork: variación propia (cifra con una barra vertical de marca a su izquierda, la «medium
-   card» de PiecesPHP); la etiqueta queda alineada con la cifra, a la izquierda */
+   card» de PiecesPHP); la etiqueta queda alineada con la cifra, a la izquierda. Cifra y etiqueta
+   ocupan el ancho de la estadística (stretch): con el de su contenido, sus bordes derechos quedaban
+   a pocos px, ni alineados ni claramente distintos, y en una tarjeta la cifra no llenaba la fila */
 .ui.marked.statistic {
-  align-items: flex-start;
+  align-items: stretch;
 }
 .ui.marked.statistic > .value {
   display: flex;
@@ -742,11 +744,4 @@
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.02em;
-}
-
-/* Marked (Medium card): cifra y etiqueta del mismo ancho, alineadas a la izquierda como en la
-   definición. Con el ancho de su contenido, sus bordes derechos quedaban a 1–6px (5,7px en
-   Tareas programadas): ni alineados ni claramente distintos */
-.ui.marked.statistic {
-  align-items: stretch;
 }

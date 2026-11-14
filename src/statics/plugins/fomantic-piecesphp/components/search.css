@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Search
+ * # Fomantic-UI 0.10.1 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -144,6 +144,71 @@
   margin-top: 0.25rem;
   font-size: 1em;
   color: var(--theme-text-muted);
+}
+
+/* Fork: ícono en baldosa (`fields.icon` del JS) en el sitio de la imagen, a la izquierda */
+.ui.search > .results .result .icon.image {
+  float: left;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: light-dark(#f5f7fa, #20242d);
+  border: 1px solid var(--theme-border);
+  border-radius: 7px;
+  color: var(--theme-text-muted);
+}
+.ui.search > .results .result .icon.image > i.icon {
+  margin: 0;
+  height: auto;
+}
+.ui.search > .results .result .icon.image + .content {
+  margin: 0 0 0 39px;
+}
+.ui.search > .results .result.active .icon.image {
+  border-color: var(--accent-200);
+  color: var(--accent-1, var(--accent, #356dca));
+}
+
+/* Fork: pie de los resultados (ajuste `footer` del JS), p. ej. atajos de teclado. Los elementos van en línea; `.right`
+   se va a la derecha. En category los resultados son una tabla: el pie es su leyenda inferior, a todo el ancho. */
+.ui.search > .results > .footer {
+  display: block;
+  padding: 9px 14px;
+  border-top: 1px solid var(--theme-border);
+  background: light-dark(#fafbfc, #161920);
+  color: var(--theme-text-muted);
+  font-size: 0.92857143em;
+  line-height: 1.6;
+}
+.ui.category.search > .results > .footer {
+  display: table-caption;
+  caption-side: bottom;
+  border: 1px solid var(--theme-border);
+  border-top: none;
+  border-radius: 0 0 var(--r-lg, 12px) var(--r-lg, 12px);
+}
+.ui.search > .results > .footer > * {
+  margin-right: 16px;
+}
+.ui.search > .results > .footer > .right {
+  float: right;
+  margin-right: 0;
+}
+.ui.search > .results > .footer kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 1px 5px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-align: center;
+  color: var(--theme-text-muted);
+  background: var(--theme-surface);
+  border: 1px solid light-dark(#d8dde5, #3a4150);
+  border-bottom-width: 2px;
+  border-radius: 5px;
 }
 
 /* View All Results */

@@ -27,6 +27,8 @@ var PCSPHP_TRANSLATIONS_EN = {
 		pass_not_match: 'Error: passwords must match.',
 		unexpected_error: 'An unexpected error has occurred.',
 		unexpected_error_try_later: 'An unexpected error has occurred, try again later.',
+		unknown_error_try_later: 'An unknown error has occurred, try again later.',
+		components_load_error: 'An error occurred while loading the components.',
 		server_connection_error: 'An error occurred while connecting to the server, try again later.',
 		name_is_required: 'The name is required.',
 		name_should_be_string: 'The name must be a string.',

@@ -31,6 +31,7 @@ use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\Logs\LogTab;
 use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\UserSystem\AccountChangeNotice;
 use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\Authentication\SessionCookie;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
@@ -128,6 +129,10 @@ class UserSessionsController extends AdminPanelController
         $isCurrent = (string) $row['sessionHash'] === UserSessions::currentHash();
         if ($isCurrent) {
             SessionCookie::forget();
+        }
+        if (!$own) {
+            //RETORNO-IGNORADO: el aviso no cambia la respuesta.
+            AccountChangeNotice::notify((int) $row['userID'], AccountChangeNotice::ONE_SESSION);
         }
         return $response->withJson([
             'success' => true,

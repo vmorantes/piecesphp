@@ -27,6 +27,7 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
 
     $passed = 0;
     $failed = 0;
+    $skipped = 0;
     $check = function (bool $condition, string $name, string $detail = '') use (&$passed, &$failed): void {
         if ($condition) {
             $passed++;
@@ -35,6 +36,11 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
             $failed++;
             echoTerminal("   \e[31m[FALLÓ]\e[39m {$name}" . ($detail !== '' ? " — {$detail}" : ''));
         }
+    };
+    //Lo que depende de la instalación se omite a la vista y cuenta aparte: nunca como pasado.
+    $omitir = function (string $caso, string $motivo) use (&$skipped): void {
+        $skipped++;
+        echoTerminal("   \e[33m[omitida]\e[39m {$caso}: {$motivo}");
     };
 
     $marca = 'zz-prueba-api-' . bin2hex(random_bytes(3));
@@ -107,22 +113,29 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
         //─── a2 · La organización que no se puede crear ─────────────────────────────────────────────────
         echoTerminal('[a2] Si la organización no se puede crear, no queda usuario ni organización');
         //El nombre no cabe en la columna: la base lo rechaza, createOrganization() lo propaga y el alta se corta ahí.
-        //Sin tocar código: es un dato que el cliente podría mandar.
-        $nombreImposible = str_repeat('Z', 70000);
-        [$cuerpoA2, $textoA2] = $alta([
-            '__sufijo' => 'a2',
-            'organizationID' => BaseHashEncryption::encryptBidirectionalHash('NONE'),
-            'organizationName' => $nombreImposible,
-        ]);
-        $usuarioA2 = $usuario('a2');
-        $organizacionA2 = $organizacionPorNombre($nombreImposible);
-        if ($usuarioA2 !== null) { $creados['usuarios'][] = (string) $usuarioA2->username; }
-        if ($organizacionA2 !== null) { $creados['organizaciones'][] = 'la del nombre imposible'; }
-        $mensajeA2 = is_array($cuerpoA2) ? (string) ($cuerpoA2['message'] ?? '') : '';
-        $check(($cuerpoA2['success'] ?? null) === false, 'a2 responde que no', mb_substr($textoA2, 0, 200));
-        $check(preg_match('~ERR-\d{8}-[A-Z0-9]{6}~', $mensajeA2) === 1, 'a2 con el código de referencia del error (P56)', mb_substr($mensajeA2, 0, 200));
-        $check($usuarioA2 === null, 'a2 NO queda usuario');
-        $check($organizacionA2 === null, 'a2 NO queda organización');
+        //Sin tocar código: es un dato que el cliente podría mandar. El tope sale de la columna de esta instalación.
+        $columnaNombre = $pdo->prepare('SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?');
+        $columnaNombre->execute([OrganizationMapper::TABLE, 'name']);
+        $maximoNombre = (int) $columnaNombre->fetchColumn();
+        if ($maximoNombre <= 0 || $maximoNombre > 1000000) {
+            $omitir('a2', "la columna admite {$maximoNombre} caracteres: no se puede provocar sin tocar el esquema");
+        } else {
+            $nombreImposible = str_repeat('Z', $maximoNombre + 1);
+            [$cuerpoA2, $textoA2] = $alta([
+                '__sufijo' => 'a2',
+                'organizationID' => BaseHashEncryption::encryptBidirectionalHash('NONE'),
+                'organizationName' => $nombreImposible,
+            ]);
+            $usuarioA2 = $usuario('a2');
+            $organizacionA2 = $organizacionPorNombre($nombreImposible);
+            if ($usuarioA2 !== null) { $creados['usuarios'][] = (string) $usuarioA2->username; }
+            if ($organizacionA2 !== null) { $creados['organizaciones'][] = 'la del nombre imposible'; }
+            $mensajeA2 = is_array($cuerpoA2) ? (string) ($cuerpoA2['message'] ?? '') : '';
+            $check(($cuerpoA2['success'] ?? null) === false, 'a2 responde que no', mb_substr($textoA2, 0, 200));
+            $check(preg_match('~ERR-\d{8}-[A-Z0-9]{6}~', $mensajeA2) === 1, 'a2 con el código de referencia del error (P56)', mb_substr($mensajeA2, 0, 200));
+            $check($usuarioA2 === null, 'a2 NO queda usuario');
+            $check($organizacionA2 === null, 'a2 NO queda organización');
+        }
         echoTerminal(' ');
 
         //─── a4 · P39 ───────────────────────────────────────────────────────────────────────────────────
@@ -148,20 +161,57 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
         $cuantosMenosDiez = count((array) $conMenosDiez->result());
         $check($cuantosMenosDiez === 0, 'a4 ningún usuario de esta prueba quedó en la organización global', "con -10: {$cuantosMenosDiez}");
 
+        //─── r · La organización la fija el servidor ───────────────────────────────────────────────────
+        echoTerminal('[r] La organización solo la fijan el cifrado o la que se crea; la global y una inexistente se rechazan');
+        $mensajeObligatoria = __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'Debe seleccionar una organización.');
+        $tipoGeneral = BaseHashEncryption::encryptBidirectionalHash((string) UsersModel::TYPE_USER_GENERAL);
+        $mensajeDe = fn(mixed $cuerpo): string => is_array($cuerpo) ? (string) ($cuerpo['message'] ?? '') : '';
+        //Sin cifrado, la organización del cuerpo no cuenta: una que existe se queda fuera.
+        $check($organizacionCanario !== null && $organizacionCanario->id !== null, 'r0 CANARIO: hay una organización existente a la que apuntar');
+        [$cuerpoR1, $textoR1] = $alta(['__sufijo' => 'r1', 'userType' => $tipoGeneral, 'organization' => (string) ($organizacionCanario->id ?? '')]);
+        $usuarioR1 = $usuario('r1');
+        if ($usuarioR1 !== null) { $creados['usuarios'][] = (string) $usuarioR1->username; }
+        $check(($cuerpoR1['success'] ?? null) === false && $mensajeDe($cuerpoR1) === $mensajeObligatoria, 'r1 DISCRIMINANTE: «organization» sin cifrar no cuenta: falla por organización obligatoria', mb_substr($textoR1, 0, 200));
+        $check($usuarioR1 === null, 'r1 y no queda usuario', $usuarioR1 !== null ? 'en ' . var_export($usuarioR1->organization, true) : '');
+        [$cuerpoR3, $textoR3] = $alta(['__sufijo' => 'r3', 'userType' => $tipoGeneral, 'organizationID' => BaseHashEncryption::encryptBidirectionalHash((string) OrganizationMapper::INITIAL_ID_GLOBAL)]);
+        $usuarioR3 = $usuario('r3');
+        if ($usuarioR3 !== null) { $creados['usuarios'][] = (string) $usuarioR3->username; }
+        $check(($cuerpoR3['success'] ?? null) === false && $mensajeDe($cuerpoR3) === $mensajeObligatoria, 'r3 DISCRIMINANTE: la organización global, aunque llegue cifrada, falla por organización obligatoria', mb_substr($textoR3, 0, 200));
+        $check($usuarioR3 === null, 'r3 y no queda usuario', $usuarioR3 !== null ? 'en ' . var_export($usuarioR3->organization, true) : '');
+        $inexistente = (int) $pdo->query('SELECT COALESCE(MAX(id), 0) + 1000 FROM ' . OrganizationMapper::TABLE)->fetchColumn();
+        $registroErrores = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/error.log.jsonl';
+        $lineasRegistro = fn(): int => is_file($registroErrores) ? count(file($registroErrores) ?: []) : 0;
+        $lineasAntes = $lineasRegistro();
+        [$cuerpoR4, $textoR4] = $alta(['__sufijo' => 'r4', 'userType' => $tipoGeneral, 'organizationID' => BaseHashEncryption::encryptBidirectionalHash((string) $inexistente)]);
+        $usuarioR4 = $usuario('r4');
+        if ($usuarioR4 !== null) { $creados['usuarios'][] = (string) $usuarioR4->username; }
+        $mensajeR4 = $mensajeDe($cuerpoR4);
+        $check(($cuerpoR4['success'] ?? null) === false && $mensajeR4 === __(\PiecesPHP\UserSystem\Controllers\UsersController::LANG_GROUP, 'La organización indicada no existe.'), 'r4 DISCRIMINANTE: una organización que no existe da su mensaje de validación', mb_substr($textoR4, 0, 200));
+        $check(preg_match('~ERR-\d{8}-[A-Z0-9]{6}~', $mensajeR4) !== 1 && $lineasRegistro() === $lineasAntes, 'r4 sin código de error y sin escribir en error.log.jsonl', "{$lineasAntes} → " . $lineasRegistro());
+        $check($usuarioR4 === null, 'r4 y no queda usuario');
+        echoTerminal(' ');
+
         echoTerminal('[apagada] API_PUBLIC_SIGNUP de fábrica: la ruta no existe y no se crea nada');
-        $check(API_PUBLIC_SIGNUP === false, 'a0 de fábrica viene apagada');
-        $rechazada = false;
-        try {
-            (new APIController())->usersActions($peticion([
-                'email' => "{$marca}-apagada@example.com", 'password' => 'zz-Clave-Api-1', 'passwordConfirm' => 'zz-Clave-Api-1',
-                'firstName' => 'Zz', 'firstLastName' => 'Prueba', 'phoneCode' => '+57', 'phoneNumber' => '3000000000',
-            ]), new ResponseRoute());
-        } catch (\Throwable $e) {
-            //Fuera del enrutador, NotFoundException lanza al pedir el contexto de la ruta: lo que importa es que no sigue.
-            $rechazada = true;
+        if ((bool) constant('API_PUBLIC_SIGNUP')) {
+            $motivoApagada = 'el alta pública está encendida en esta instalación: estos casos miden el valor de fábrica';
+            $omitir('a0', $motivoApagada);
+            $omitir('a1', $motivoApagada);
+            $omitir('a2 (apagada)', $motivoApagada);
+        } else {
+            $check(API_PUBLIC_SIGNUP === false, 'a0 de fábrica viene apagada');
+            $rechazada = false;
+            try {
+                (new APIController())->usersActions($peticion([
+                    'email' => "{$marca}-apagada@example.com", 'password' => 'zz-Clave-Api-1', 'passwordConfirm' => 'zz-Clave-Api-1',
+                    'firstName' => 'Zz', 'firstLastName' => 'Prueba', 'phoneCode' => '+57', 'phoneNumber' => '3000000000',
+                ]), new ResponseRoute());
+            } catch (\Throwable $e) {
+                //Fuera del enrutador, NotFoundException lanza al pedir el contexto de la ruta: lo que importa es que no sigue.
+                $rechazada = true;
+            }
+            $check($rechazada, 'a1 apagada, responde como una ruta que no existe');
+            $check($usuario('apagada') === null, 'a2 y no crea el usuario');
         }
-        $check($rechazada, 'a1 apagada, responde como una ruta que no existe');
-        $check($usuario('apagada') === null, 'a2 y no crea el usuario');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());
     } finally {
@@ -186,8 +236,8 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
     echoTerminal(' ');
     $total = $passed + $failed;
     echoTerminal($failed === 0
-        ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS \e[39m"
-        : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
+        ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS, {$skipped} OMITIDAS \e[39m"
+        : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS, {$skipped} OMITIDAS \e[39m");
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 

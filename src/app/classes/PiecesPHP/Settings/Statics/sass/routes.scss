@@ -1,8 +1,7 @@
 .routes-view {
 
     //Prototipo §3.38: anchos fijos por columna y textos que parten (las rutas y los controladores llevan <wbr> en sus
-    //separadores; lo que no tenga, parte donde pueda). A ≤1023, ancho mínimo y desplazamiento dentro de su contenedor
-    //(.dt-layout-full, del fork).
+    //separadores; lo que no tenga, parte donde pueda). A ≤1023, la tabla toma su ancho y la desplaza .dt-layout-full (tema).
     table.routes-table {
         table-layout: fixed;
 
@@ -13,7 +12,6 @@
 
         @media only screen and (max-width: 1023.98px) {
             table-layout: auto;
-            min-width: 760px;
         }
     }
 

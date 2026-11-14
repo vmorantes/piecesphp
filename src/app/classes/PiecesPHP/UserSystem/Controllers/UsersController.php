@@ -40,6 +40,7 @@ use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
 use PiecesPHP\MailCatalog\Definitions\VerificationCodeMail;
 use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Tokens\Controllers\TokenController;
+use PiecesPHP\UserSystem\AccountChangeNotice;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Authentication\SessionCookie;
@@ -1473,6 +1474,8 @@ class UsersController extends AdminPanelController
             '%username%' => $currentUser->username,
             '%target%' => $target->username,
         ], 'id', (string) $target->id, UsersModel::TABLE);
+        //RETORNO-IGNORADO: el aviso no cambia la respuesta; no avisa si es el propio usuario.
+        AccountChangeNotice::notify((int) $target->id, AccountChangeNotice::ALL_SESSIONS);
 
         return $response->withJson([
             'success' => true,
@@ -1690,6 +1693,12 @@ class UsersController extends AdminPanelController
                 if (!Validator::isInteger($organization)) {
                     $result
                         ->setMessage($message_organization_required);
+                    return $response->withJson($result);
+                }
+                //Sin esto, una que no existe llega a la clave foránea y sale como error interno.
+                if (!OrganizationMapper::existsByID((int) $organization)) {
+                    $result
+                        ->setMessage(__(self::LANG_GROUP, 'La organización indicada no existe.'));
                     return $response->withJson($result);
                 }
             }
@@ -2094,6 +2103,12 @@ class UsersController extends AdminPanelController
                         ->setMessage($message_organization_required);
                     return $response->withJson($result);
                 }
+                //Como en el alta: una que no existe llegaría a la clave foránea como error interno.
+                if (!$isProfile && !OrganizationMapper::existsByID((int) $organization)) {
+                    $result
+                        ->setMessage(__(self::LANG_GROUP, 'La organización indicada no existe.'));
+                    return $response->withJson($result);
+                }
             }
 
             if ($userMapper->id !== null) {
@@ -2136,6 +2151,13 @@ class UsersController extends AdminPanelController
                     $success = $userMapper->update();
 
                     if ($success) {
+
+                        if ($change_password) {
+                            //RETORNO-IGNORADO: cuántas se cerraron no cambia la respuesta de la edición.
+                            UserSessions::closeAfterPasswordChange((int) $userMapper->id);
+                            //RETORNO-IGNORADO: el aviso no cambia la respuesta; no avisa si es el propio usuario.
+                            AccountChangeNotice::notify((int) $userMapper->id, AccountChangeNotice::PASSWORD);
+                        }
 
                         $result->setValue('reload', true);
 

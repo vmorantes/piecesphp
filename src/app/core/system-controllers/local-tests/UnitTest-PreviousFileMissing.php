@@ -72,6 +72,14 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
         return $valor === false ? null : (string) $valor;
     };
     $crudoTextoAntes = $crudoTexto();
+    $opcionIngles = SettingsController::partnersTextOptionName('en');
+    $crudoIngles = function () use ($database, $tabla, $opcionIngles): ?string {
+        $consulta = $database->prepare("SELECT value FROM `{$tabla}` WHERE BINARY name = ?");
+        $consulta->execute([$opcionIngles]);
+        $valor = $consulta->fetchColumn();
+        return $valor === false ? null : (string) $valor;
+    };
+    $crudoInglesAntes = $crudoIngles();
     //Lo que crea la prueba va a las subidas de Configuración (H230); el .png versionado no se toca.
     $creado = '';
     $crudoFondosAntes = (function () use ($database, $tabla): ?string {
@@ -131,7 +139,7 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
         $check(preg_match('#^' . preg_quote(SettingsController::SETTINGS_UPLOADS_FOLDER, '#') . '/brand/mailing-logo-[0-9a-f]{10}\.jpg$#', $creado) === 1 && is_file(basepath($creado)), 'p2 y la opción apunta al nuevo, en las subidas', var_export($crudo(), true));
 
         //──── [t] El texto sobre el patrocinador ─────────────────────────────────────────────
-        $peticion = function (string $camino, ?array $campos) use ($base, $jwt): array {
+        $peticion = function (string $camino, array|string|null $campos) use ($base, $jwt): array {
             $h = \Terminal\TestRun::curlInit();
             \Terminal\TestRun::curlSetoptArray($h, [
                 CURLOPT_URL => $base . '/' . ltrim($camino, '/'),
@@ -165,6 +173,45 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
         $r = $peticion($ruta, [$opcionTexto => '']);
         $sinTexto = $pie($peticion($inicio, null)['body']);
         $check($r['status'] === 200 && $crudoTexto() === '' && $sinTexto !== '' && !str_contains($sinTexto, $prefijo) && !str_contains($sinTexto, $textoDeFabrica), 't3 vacío, el pie no lo pinta', var_export($crudoTexto(), true) . ' · ' . mb_substr(preg_replace('/\s+/', ' ', $sinTexto) ?? '', 0, 600));
+
+        //──── [t] Uno por idioma (H225): el suyo, si no el del idioma por omisión, si no el de fábrica ──────────
+        $previoBase = get_config($opcionTexto);
+        $previoIngles = get_config($opcionIngles);
+        $idiomaPrevio = get_config('app_lang');
+        try {
+            //En memoria (set_config no escribe en la base): el finally repone lo de antes.
+            set_config($opcionTexto, 'zz-A');
+            set_config($opcionIngles, 'zz-B');
+            $check(SettingsController::partnersText('en') === 'zz-B' && SettingsController::partnersText('es') === 'zz-A', 't4 DISCRIMINANTE: con «zz-A» en el principal y «zz-B» en inglés, cada idioma da el suyo',
+                SettingsController::partnersText('en') . ' / ' . SettingsController::partnersText('es'));
+            set_config($opcionIngles, null);
+            $check(SettingsController::partnersText('en') === 'zz-A', 't5 sin el del inglés, el del idioma principal', SettingsController::partnersText('en'));
+            set_config($opcionTexto, null);
+            $deFabricaEs = SettingsController::partnersText('es');
+            set_config('app_lang', 'en');
+            $deFabricaEn = SettingsController::partnersText('en');
+            set_config('app_lang', $idiomaPrevio);
+            $check($deFabricaEs === 'Con el apoyo de' && $deFabricaEn === 'With the support of', 't6 sin ninguno, el de fábrica en el idioma de la petición', "{$deFabricaEs} / {$deFabricaEn}");
+            set_config($opcionTexto, '');
+            $check(SettingsController::partnersText('es') === '' && SettingsController::partnersText('en') === '', 't7 el principal vacío y sin inglés: vacío en los dos (no se pinta)');
+        } finally {
+            set_config($opcionTexto, $previoBase === false ? null : $previoBase);
+            set_config($opcionIngles, $previoIngles === false ? null : $previoIngles);
+            set_config('app_lang', $idiomaPrevio);
+        }
+        //Por HTTP: el formulario manda uno por idioma, y el menú en /en/ pinta el inglés.
+        $inicioIngles = '/en/' . ltrim($inicio, '/');
+        $r = $peticion($ruta, null);
+        $check($r['status'] === 200 && str_contains($r['body'], 'name="partnersText[es]"') && str_contains($r['body'], 'name="partnersText[en]"'), 't8 la pantalla tiene un campo por idioma activo', "HTTP {$r['status']}");
+        $r = $peticion($ruta, http_build_query([$opcionTexto => ['es' => "{$prefijo}-es", 'en' => "{$prefijo}-en"]]));
+        $enIngles = $pie($peticion($inicioIngles, null)['body']);
+        $enEspanol = $pie($peticion($inicio, null)['body']);
+        $check($r['status'] === 200 && $crudoTexto() === "{$prefijo}-es" && $crudoIngles() === "{$prefijo}-en" && str_contains($enIngles, "<strong>{$prefijo}-en</strong>") && str_contains($enEspanol, "<strong>{$prefijo}-es</strong>"),
+            't8 guarda los dos, y el menú pinta el inglés en /en/ y el principal en /', "HTTP {$r['status']} · en: " . var_export(str_contains($enIngles, "{$prefijo}-en"), true));
+        $r = $peticion($ruta, http_build_query([$opcionTexto => ['es' => "{$prefijo}-es", 'en' => '']]));
+        $enIngles = $pie($peticion($inicioIngles, null)['body']);
+        $check($r['status'] === 200 && $crudoIngles() === null && str_contains($enIngles, "<strong>{$prefijo}-es</strong>"), 't9 el inglés vacío borra su opción y el menú en /en/ vuelve al principal',
+            "HTTP {$r['status']} · fila: " . var_export($crudoIngles(), true));
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
@@ -205,6 +252,11 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
             $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute(['backgrounds']);
         } else {
             $database->prepare("UPDATE `{$tabla}` SET value = ? WHERE BINARY name = ?")->execute([$crudoFondosAntes, 'backgrounds']);
+        }
+        if ($crudoInglesAntes === null) {
+            $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute([$opcionIngles]);
+        } else {
+            $database->prepare("UPDATE `{$tabla}` SET value = ? WHERE BINARY name = ?")->execute([$crudoInglesAntes, $opcionIngles]);
         }
         if ($crudoTextoAntes === null) {
             $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute([$opcionTexto]);

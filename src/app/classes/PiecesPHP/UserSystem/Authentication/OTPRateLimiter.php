@@ -84,6 +84,30 @@ class OTPRateLimiter
     }
 
     /**
+     * La IP como se compara en los frenos: una IPv4 tal cual, una IPv6 por su /64 y una IPv6 que mapea una IPv4, esa IPv4.
+     * Lo que no es una IP vuelve tal cual. login_attempts sigue guardando la dirección exacta.
+     *
+     * @param string $ip
+     * @return string
+     */
+    public static function ipGroup(string $ip): string
+    {
+        if (filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) === false) {
+            return $ip;
+        }
+        $binary = inet_pton($ip);
+        if ($binary === false || strlen($binary) !== 16) {
+            return $ip;
+        }
+        if (substr($binary, 0, 12) === str_repeat("\0", 10) . "\xff\xff") {
+            $mapped = inet_ntop(substr($binary, 12));
+            return $mapped !== false ? $mapped : $ip;
+        }
+        $network = inet_ntop(substr($binary, 0, 8) . str_repeat("\0", 8));
+        return $network !== false ? $network . '/64' : $ip;
+    }
+
+    /**
      * @param string $username
      * @param string $ip
      * @param \DateTimeInterface|null $now Null: la hora de la base, la misma con la que se guardan los intentos
@@ -117,10 +141,25 @@ class OTPRateLimiter
             $parsed = is_string($databaseNow) ? \DateTime::createFromFormat('Y-m-d H:i:s', $databaseNow) : false;
             $now = $parsed !== false ? $parsed : new \DateTime();
         }
+        return self::secondsToUnlockFromRows(self::windowRows($username, $ip, $now), $username, $ip, $now, $config);
+    }
+
+    /**
+     * Las filas que lee secondsToUnlock(): los fallos de la ventana de ese usuario o del grupo de esa IP.
+     *
+     * @param string $username
+     * @param string $ip
+     * @param \DateTimeInterface $now
+     * @return array<int,array<string,mixed>>
+     */
+    public static function windowRows(string $username, string $ip, \DateTimeInterface $now): array
+    {
+        $config = self::config();
         $since = date('Y-m-d H:i:s', $now->getTimestamp() - ($config['windowMinutes'] + $config['lockMinutes']) * 60);
-        $statement = $database->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE success = ? AND date >= ? AND (usernameAttempt = ? OR ip = ?)');
-        $statement->execute([LoginAttemptsModel::FAIL_ATTEMPT, $since, $username, $ip]);
-        return self::secondsToUnlockFromRows($statement->fetchAll(\PDO::FETCH_ASSOC), $username, $ip, $now, $config);
+        //Una fila sin grupo es de antes de la columna: se compara por la dirección exacta.
+        $statement = self::databaseOrFail()->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE success = ? AND date >= ? AND (usernameAttempt = ? OR ipGroup = ? OR (ipGroup IS NULL AND ip = ?))');
+        $statement->execute([LoginAttemptsModel::FAIL_ATTEMPT, $since, $username, self::ipGroup($ip), $ip]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -136,6 +175,7 @@ class OTPRateLimiter
     public static function secondsToUnlockFromRows(array $rows, string $username, string $ip, \DateTimeInterface $now, array $config): int
     {
         $username = mb_strtolower(trim($username));
+        $ipGroup = self::ipGroup($ip);
         $byUser = [];
         $byIP = [];
         foreach ($rows as $row) {
@@ -149,7 +189,7 @@ class OTPRateLimiter
             if ($username !== '' && mb_strtolower(trim((string) ($row['usernameAttempt'] ?? ''))) === $username) {
                 $byUser[] = $date->getTimestamp();
             }
-            if ($ip !== '' && (string) ($row['ip'] ?? '') === $ip) {
+            if ($ip !== '' && self::ipGroup((string) ($row['ip'] ?? '')) === $ipGroup) {
                 $byIP[] = $date->getTimestamp();
             }
         }
@@ -171,10 +211,24 @@ class OTPRateLimiter
         $config = self::config();
         $database = self::databaseOrFail();
         $now = $now ?? self::databaseNow($database);
+        return self::loginSecondsToUnlockFromRows(self::loginWindowRows($ip, $now), $ip, $now, $config);
+    }
+
+    /**
+     * Las filas que lee loginSecondsToUnlock(): los fallos de la ventana del grupo de esa IP.
+     *
+     * @param string $ip
+     * @param \DateTimeInterface $now
+     * @return array<int,array<string,mixed>>
+     */
+    public static function loginWindowRows(string $ip, \DateTimeInterface $now): array
+    {
+        $config = self::config();
         $since = date('Y-m-d H:i:s', $now->getTimestamp() - ($config['windowMinutes'] + $config['lockMinutes']) * 60);
-        $statement = $database->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE success = ? AND date >= ? AND ip = ?');
-        $statement->execute([LoginAttemptsModel::FAIL_ATTEMPT, $since, $ip]);
-        return self::loginSecondsToUnlockFromRows($statement->fetchAll(\PDO::FETCH_ASSOC), $ip, $now, $config);
+        //Una fila sin grupo es de antes de la columna: se compara por la dirección exacta.
+        $statement = self::databaseOrFail()->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE success = ? AND date >= ? AND (ipGroup = ? OR (ipGroup IS NULL AND ip = ?))');
+        $statement->execute([LoginAttemptsModel::FAIL_ATTEMPT, $since, self::ipGroup($ip), $ip]);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -192,9 +246,10 @@ class OTPRateLimiter
         if ($ip === '') {
             return 0;
         }
+        $ipGroup = self::ipGroup($ip);
         $byIP = [];
         foreach ($rows as $row) {
-            if (!is_array($row) || !self::countsAsLoginFailure($row) || (string) ($row['ip'] ?? '') !== $ip) {
+            if (!is_array($row) || !self::countsAsLoginFailure($row) || self::ipGroup((string) ($row['ip'] ?? '')) !== $ipGroup) {
                 continue;
             }
             $date = \DateTime::createFromFormat('Y-m-d H:i:s', (string) ($row['date'] ?? ''));
@@ -297,7 +352,7 @@ class OTPRateLimiter
             }
             $date = \DateTime::createFromFormat('Y-m-d H:i:s', (string) ($row['date'] ?? ''));
             if ($date !== false && $date->getTimestamp() >= $since && $date->getTimestamp() <= $now->getTimestamp()) {
-                $ips[(string) ($row['ip'] ?? '')] = true;
+                $ips[self::ipGroup((string) ($row['ip'] ?? ''))] = true;
             }
         }
         return count($ips);

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Transition
+ * # Fomantic-UI 0.10.1 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -84,118 +84,144 @@
   }
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .red.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #f04438 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) 50%, transparent);
 }
 .red.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #f97066 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .orange.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #ef6820 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) 50%, transparent);
 }
 .orange.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #f38744 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .yellow.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #f79009 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) 50%, transparent);
 }
 .yellow.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #fdb022 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .olive.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #84a11b 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) 50%, transparent);
 }
 .olive.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #a6c43a 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .green.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #17b26a 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) 50%, transparent);
 }
 .green.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #47cd89 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .teal.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #06aed4 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) 50%, transparent);
 }
 .teal.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #22ccee 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .blue.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #2e90fa 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) 50%, transparent);
 }
 .blue.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #53b1fd 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .violet.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #7a5af8 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) 50%, transparent);
 }
 .violet.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #9b8afb 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .purple.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #9e4cc9 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) 50%, transparent);
 }
 .purple.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #c084e8 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .pink.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #c11574 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) 50%, transparent);
 }
 .pink.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #ee46bc 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .brown.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #6e4a2e 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) 50%, transparent);
 }
 .brown.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #b08463 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .grey.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, #687181 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) 50%, transparent);
 }
 .grey.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #99a1af 70%, transparent);
 }
 
+/* Fork: el indicador (igual que el color en claro, aclarado en oscuro: black se veía nulo) */
+
 /* Fork: color-mix en vez de fade(): el color del mapa puede ser un valor CSS (var(),
                light-dark()), con el que las funciones de color de LESS fallan */
 .black.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#1f2430, #535c6e) 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) 50%, transparent);
 }
 .black.inverted.pulsating.transition {
   box-shadow: 0 0 0 0 color-mix(in srgb, #4b5363 70%, transparent);

@@ -226,16 +226,17 @@
   background: #fff;
 }
 
-/* Diapositivas solo de contenido (sin imagen): los indicadores van sobre la superficie del tema,
-   no sobre una foto, y el blanco con sombra se veía como aros huecos */
-.ui.slideshow:not(:has(.slides .slide img, .slides .slide .image)) .indicators > .indicator {
+/* Fork: diapositivas solo de contenido (sin imagen): los indicadores van sobre la superficie del tema,
+   no sobre una foto, y el blanco con sombra se veía como aros huecos. :where() deja su especificidad en la de la
+   regla base, para que los colores y outside le ganen. En un pase mixto se decide por la diapositiva activa */
+.ui.slideshow:where(:not(:has(.slides .slide img, .slides .slide .image)), :has(.slides > .active.slide):not(:has(.slides > .active.slide img, .slides > .active.slide .image))) .indicators > .indicator {
   background: color-mix(in srgb, currentColor 25%, transparent);
   box-shadow: none;
 }
-.ui.slideshow:not(:has(.slides .slide img, .slides .slide .image)) .indicators > .indicator:hover {
+.ui.slideshow:where(:not(:has(.slides .slide img, .slides .slide .image)), :has(.slides > .active.slide):not(:has(.slides > .active.slide img, .slides > .active.slide .image))) .indicators > .indicator:hover {
   background: color-mix(in srgb, currentColor 45%, transparent);
 }
-.ui.slideshow:not(:has(.slides .slide img, .slides .slide .image)) .indicators > .active.indicator {
+.ui.slideshow:where(:not(:has(.slides .slide img, .slides .slide .image)), :has(.slides > .active.slide):not(:has(.slides > .active.slide img, .slides > .active.slide .image))) .indicators > .active.indicator {
   background: var(--accent-1, var(--accent, #356dca));
 }
 

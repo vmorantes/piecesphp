@@ -79,4 +79,7 @@ return [
     'por revisar' => 'to review',
     'Ver las aprobaciones' => 'See the approvals',
     'Las aprobaciones que puedes resolver tú.' => 'The approvals you can resolve.',
+    'Tu contenido fue aprobado' => 'Your content was approved',
+    'Tu contenido fue rechazado' => 'Your content was rejected',
+    "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado. Motivo: {REASON}" => "Mr./Mrs. {NAME}, we inform you that your content \"{CONTENT_NAME}\" has been rejected. Reason: {REASON}",
 ];

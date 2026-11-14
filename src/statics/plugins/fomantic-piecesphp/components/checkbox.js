@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Checkbox
+ * # Fomantic-UI 0.10.1 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

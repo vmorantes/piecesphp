@@ -24,6 +24,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\MailCatalog\Definitions\SupportTicketMail;
 use PiecesPHP\MailCatalog\MailCatalog;
+use PiecesPHP\Notifications\NotificationsRoutes;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
@@ -730,6 +731,10 @@ class AdminPanelController extends BaseController
         /* Módulo de noticias */
         if (NEWS_MODULE) {
             add_global_asset(NewsController::pathFrontNewsAdapter(), 'js');
+        }
+        /* La campana de notificaciones de la barra (ADR 0073) */
+        if (NotificationsRoutes::ENABLE) {
+            add_global_asset(NotificationsRoutes::staticRoute('js/notifications-list.js'), 'js');
         }
         /* Librerías de la aplicación */
         import_app_libraries([

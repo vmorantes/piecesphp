@@ -160,6 +160,19 @@ CliActions::make('unit-tests:core/api-register-mail', function ($args) {
             'a3 queda en esa organización y como usuario general',
             $usuarioA3 !== null ? 'organización ' . var_export($usuarioA3->organization, true) . ', tipo ' . $usuarioA3->type : 'sin usuario'
         );
+        echoTerminal(' ');
+
+        //─── r2 · El tipo lo fija el servidor ───────────────────────────────────────────────────────────
+        echoTerminal('[r2] Un «type» sin cifrar no cuenta: el alta queda como usuario general');
+        [$cuerpoR2, $textoR2] = $alta([
+            '__sufijo' => 'r2',
+            'organizationID' => BaseHashEncryption::encryptBidirectionalHash((string) ($organizacionPrevia !== null ? $organizacionPrevia->id : '')),
+            'type' => (string) UsersModel::TYPE_USER_ADMIN_ORG,
+        ]);
+        $usuarioR2 = $usuario('r2');
+        if ($usuarioR2 !== null) { $creados['usuarios'][] = (string) $usuarioR2->username; }
+        $check(($cuerpoR2['success'] ?? null) === true && $usuarioR2 !== null, 'r2 responde success y el usuario existe', mb_substr($textoR2, 0, 200));
+        $check($usuarioR2 !== null && (int) $usuarioR2->type === UsersModel::TYPE_USER_GENERAL, 'r2 DISCRIMINANTE: queda como usuario general, no con el tipo del cuerpo', $usuarioR2 !== null ? 'tipo ' . $usuarioR2->type : 'sin usuario');
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());
@@ -183,12 +196,12 @@ CliActions::make('unit-tests:core/api-register-mail', function ($args) {
     }
 
     echoTerminal(' ');
-    echoTerminal('[z2] Esta mitad ENVÍA: dos correos, uno por cada alta que sale bien, al sumidero local; y los retira');
+    echoTerminal('[z2] Esta mitad ENVÍA: tres correos, uno por cada alta que sale bien, al sumidero local; y los retira');
     //CANARIO: un mensaje AJENO, sembrado por la API de Mailpit, tiene que seguir ahí después de retirar lo propio.
     $ajeno = 'demo-ajeno-' . bin2hex(random_bytes(3)) . '@localhost.test';
     $sembrado = $pedirMailpit('POST', '/send', ['From' => ['Email' => 'demo-remitente@localhost.test'], 'To' => [['Email' => $ajeno]], 'Subject' => 'Ajeno a core/api-register-mail', 'Text' => 'canario']);
     $propios = $idsCon($marca);
-    $check(count($propios) === 2, 'z2a los dos correos de las altas llegaron al sumidero', count($propios) . ' de 2');
+    $check(count($propios) === 3, 'z2a los tres correos de las altas llegaron al sumidero', count($propios) . ' de 3');
     if ($propios !== []) {
         //RETORNO-IGNORADO: quien dice si se borraron es z2b.
         $pedirMailpit('DELETE', '/messages', ['IDs' => $propios]);
@@ -207,4 +220,4 @@ CliActions::make('unit-tests:core/api-register-mail', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('P37: las dos altas por API que salen bien, con organización nueva y con organización existente. ENVÍA DOS CORREOS, uno por alta: el aviso de «a la espera de aprobación» sale dentro del flujo del alta y no hay forma de ejercitarla sin que salga.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_EMAIL])->register();
+})->setDescription('P37: las altas por API que salen bien, con organización nueva y con organización existente, y un tipo sin cifrar que no cuenta. ENVÍA TRES CORREOS, uno por alta: el aviso de «a la espera de aprobación» sale dentro del flujo del alta y no hay forma de ejercitarla sin que salga.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_EMAIL])->register();

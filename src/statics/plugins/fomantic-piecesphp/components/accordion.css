@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Accordion
+ * # Fomantic-UI 0.10.1 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -372,6 +372,134 @@
   PiecesPHP: Accordion Overrides
 *******************************/
 
+
+
+/*******************************
+   Core: Accordion Overrides
+*******************************/
+
+
+/* --------------------------------------------------------------
+   Acordeón de navegación: un acordeón sin `styled` cuyos títulos
+   llevan `bordered icon` y cuyos contenidos son `ui link list` (el
+   panel de Configuración del marco de PiecesPHP). Aquí solo la
+   disposición, igual en todos los temas: cada título es una fila a
+   todo el ancho (baldosa del ícono, texto, contador y la flecha al
+   borde derecho), una línea entre grupos y los enlaces sangrados con
+   una línea guía. Colores, radios y tamaños finos son de cada tema.
+   Nació en piecesphp (pp-cfg-*); los demás temas mostraban la
+   disposición genérica de Fomantic (títulos del ancho de su texto y
+   la flecha pegada al contador).
+--------------------------------------------------------------- */
+
+/* En columna, para que los márgenes de los títulos no se colapsen */
+.ui.accordion:not(.styled):has(> .title > i.bordered.icon) {
+  display: flex;
+  flex-direction: column;
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) {
+  display: flex;
+  align-items: center;
+  gap: 0.85714286rem;
+  margin: 0.28571429rem 0;
+  padding: 0.71428571rem 0.57142857rem;
+  border-radius: var(--r-md, 8px);
+  font-weight: 600;
+  transition: background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon):hover {
+  background-color: var(--theme-fill);
+}
+
+/* Línea entre grupos: 4px bajo el título anterior o pegada a los enlaces abiertos */
+.ui.accordion:not(.styled) > .content + .title:has(> i.bordered.icon),
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .title:has(> i.bordered.icon) {
+  position: relative;
+  margin-top: 0.35714286rem;
+}
+.ui.accordion:not(.styled) > .content + .title:has(> i.bordered.icon)::before,
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .title:has(> i.bordered.icon)::before {
+  content: "";
+  position: absolute;
+  top: -0.35714286rem;
+  right: 0;
+  left: 0;
+  border-top: 1px solid var(--theme-border);
+}
+
+/* Baldosa del ícono: 32px con el glifo centrado (el relleno vertical de bordered es !important
+   en Fomantic: simétrico, la rejilla lo centra) */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > i.bordered.icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.28571429rem;
+  height: 2.28571429rem;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-size: 1rem;
+  border-radius: var(--r-md, 8px);
+}
+
+/* Texto que ocupa el hueco; contador a su tamaño; la flecha al final, hacia abajo cerrado y
+   hacia arriba abierto */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > .label {
+  flex: none;
+  margin: 0;
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > i.dropdown.icon {
+  order: 1;
+  flex: none;
+  margin: 0 0 0 auto;
+  font-size: 0.85714286rem;
+  transform: none;
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) > i.dropdown.icon::before {
+  font-family: Icons;
+  content: "\f078";
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon).active > i.dropdown.icon {
+  transform: rotate(180deg);
+}
+
+/* Enlaces del grupo: sangrados bajo la baldosa con una línea guía, filas de 36px */
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content {
+  margin: 0 0 0 1.71428571rem;
+  padding: 0 0 0.71428571rem 1.64285714rem;
+  border-left: 1px solid var(--theme-border);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list {
+  margin: 0;
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item {
+  display: flex;
+  align-items: center;
+  min-height: 2.57142857rem;
+  padding: 0 0.71428571rem;
+  border-radius: var(--r-md, 8px);
+  transition: background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item:hover {
+  background-color: var(--theme-fill);
+}
+
+/* Sin resultados del filtro: el texto tras el acordeón, centrado */
+.ui.accordion:not(.styled):has(> .title > i.bordered.icon) + .ui.muted.text {
+  margin: 0;
+  padding: 2.28571429rem 1.14285714rem;
+  text-align: center;
+}
+
+/* Móvil: títulos de 48px como mínimo y enlaces de 44px (área táctil) */
+@media only screen and (max-width: 767.98px) {
+  .ui.accordion:not(.styled) > .title:has(> i.bordered.icon) {
+    min-height: 3.42857143rem;
+  }
+  .ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item {
+    min-height: 3.14285714rem;
+  }
+}
 
 /* El fondo del título al pasar sigue el radio del acordeón */
 .ui.styled.accordion {

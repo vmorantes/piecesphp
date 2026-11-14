@@ -20,9 +20,9 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
 <?php if ($withHelpCenter) : ?>
 <button class="ui tertiary icon button" type="button" help-center-toggle aria-haspopup="menu" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Ayuda')); ?>"><i class="question circle icon" aria-hidden="true"></i></button>
 <?php endif; ?>
-<?php if ($withNews) : ?>
-<button class="ui tertiary icon button" type="button" news-toggle aria-haspopup="dialog" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias')); ?>" title="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias')); ?>"><i class="bell icon" aria-hidden="true"></i></button>
-<?php endif; ?>
+<?php //La campana (ADR 0073): sale con sesión; la insignia, las no leídas que trae la página, oculta con 0. ?>
+<?php $notificationsLabel = __(\PiecesPHP\Notifications\NotificationsLang::LANG_GROUP, 'Notificaciones, ${n} sin leer'); ?>
+<button class="ui tertiary icon button" type="button" notifications-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-popup-list" data-label-template="<?= escape_html($notificationsLabel); ?>" aria-label="<?= escape_html(str_replace('${n}', (string) $notificationsUnread, $notificationsLabel)); ?>" title="<?= escape_html(__(\PiecesPHP\Notifications\NotificationsLang::LANG_GROUP, 'Notificaciones')); ?>"><i class="bell icon" aria-hidden="true"></i><span class="ui floating circular mini red label" notifications-badge aria-hidden="true"<?= $notificationsUnread === 0 ? ' hidden' : ''; ?>><?= $notificationsUnread; ?></span></button>
 <?php if ($withAdminOptions) : ?>
 <button class="ui tertiary icon button" type="button" admin-options-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="admin-options-flyout" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Configuración del sistema')); ?>" title="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Configuración del sistema')); ?>"><i class="cogs icon" aria-hidden="true"></i></button>
 <?php endif; ?>

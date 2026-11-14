@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Site
+ * # Fomantic-UI 0.10.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -451,5 +451,53 @@
                 return !!$.data(elem, dataName);
             };
         }),
+    });
+    // Fork (D89, patrón «tabla desplazable»): un `ui horizontal scrolling segment` con la clase
+    // `mirrored` lleva una segunda barra de desplazamiento encima, sincronizada con la suya. La
+    // barra de arriba es un `div.scrolling.mirror` hermano que solo aparece si el contenido no cabe.
+    $.fn.scrollMirror = function () {
+        return this.each(function () {
+            var box = this;
+            if (box.previousElementSibling && box.previousElementSibling.classList.contains('mirror')) {
+                return;
+            }
+            var mirror = document.createElement('div');
+            var spacer = document.createElement('div');
+            var busy = false;
+            mirror.className = 'scrolling mirror';
+            mirror.setAttribute('aria-hidden', 'true');
+            mirror.appendChild(spacer);
+            box.parentNode.insertBefore(mirror, box);
+            var update = function () {
+                spacer.style.width = box.scrollWidth + 'px';
+                mirror.hidden = box.scrollWidth <= box.clientWidth + 1;
+            };
+            var sync = function (from, to) {
+                return function () {
+                    if (busy) {
+                        busy = false;
+
+                        return;
+                    }
+                    busy = true;
+                    to.scrollLeft = from.scrollLeft;
+                };
+            };
+            mirror.addEventListener('scroll', sync(mirror, box), { passive: true });
+            box.addEventListener('scroll', sync(box, mirror), { passive: true });
+            if (window.ResizeObserver) {
+                var observer = new ResizeObserver(update);
+                observer.observe(box);
+                if (box.firstElementChild) {
+                    observer.observe(box.firstElementChild);
+                }
+            } else {
+                $(window).on('resize', update);
+            }
+            update();
+        });
+    };
+    $(function () {
+        $('.ui.horizontal.scrolling.mirrored.segment').scrollMirror();
     });
 })(jQuery, window, document);

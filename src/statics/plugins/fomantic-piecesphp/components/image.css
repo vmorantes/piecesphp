@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.9.4 - Image
+ * # Fomantic-UI 0.10.1 - Image
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -237,6 +237,12 @@ img.ui.bordered.image {
   height: auto;
   font-size: 0.78571429rem;
 }
+
+/* Fork: en una lista, la imagen envuelta (div.image) es una celda de tabla junto a un contenido al 100 %, y su
+           img (max-width en %) no le da ancho mínimo: colapsaba a unos 7px */
+:where(.ui.list > .item, .ui.list .list > .item) > .ui.mini.image:not(img) {
+  min-width: 35px;
+}
 .ui.tiny.images .image,
 .ui.tiny.images img,
 .ui.tiny.images svg,
@@ -244,6 +250,12 @@ img.ui.bordered.image {
   width: 80px;
   height: auto;
   font-size: 0.85714286rem;
+}
+
+/* Fork: en una lista, la imagen envuelta (div.image) es una celda de tabla junto a un contenido al 100 %, y su
+           img (max-width en %) no le da ancho mínimo: colapsaba a unos 7px */
+:where(.ui.list > .item, .ui.list .list > .item) > .ui.tiny.image:not(img) {
+  min-width: 80px;
 }
 .ui.small.images .image,
 .ui.small.images img,
@@ -253,6 +265,12 @@ img.ui.bordered.image {
   height: auto;
   font-size: 0.92857143rem;
 }
+
+/* Fork: en una lista, la imagen envuelta (div.image) es una celda de tabla junto a un contenido al 100 %, y su
+           img (max-width en %) no le da ancho mínimo: colapsaba a unos 7px */
+:where(.ui.list > .item, .ui.list .list > .item) > .ui.small.image:not(img) {
+  min-width: 150px;
+}
 .ui.large.images .image,
 .ui.large.images img,
 .ui.large.images svg,
@@ -260,6 +278,12 @@ img.ui.bordered.image {
   width: 450px;
   height: auto;
   font-size: 1.14285714rem;
+}
+
+/* Fork: en una lista, la imagen envuelta (div.image) es una celda de tabla junto a un contenido al 100 %, y su
+           img (max-width en %) no le da ancho mínimo: colapsaba a unos 7px */
+:where(.ui.list > .item, .ui.list .list > .item) > .ui.large.image:not(img) {
+  min-width: 450px;
 }
 .ui.big.images .image,
 .ui.big.images img,
@@ -269,6 +293,12 @@ img.ui.bordered.image {
   height: auto;
   font-size: 1.28571429rem;
 }
+
+/* Fork: en una lista, la imagen envuelta (div.image) es una celda de tabla junto a un contenido al 100 %, y su
+           img (max-width en %) no le da ancho mínimo: colapsaba a unos 7px */
+:where(.ui.list > .item, .ui.list .list > .item) > .ui.big.image:not(img) {
+  min-width: 600px;
+}
 .ui.huge.images .image,
 .ui.huge.images img,
 .ui.huge.images svg,
@@ -277,6 +307,12 @@ img.ui.bordered.image {
   height: auto;
   font-size: 1.42857143rem;
 }
+
+/* Fork: en una lista, la imagen envuelta (div.image) es una celda de tabla junto a un contenido al 100 %, y su
+           img (max-width en %) no le da ancho mínimo: colapsaba a unos 7px */
+:where(.ui.list > .item, .ui.list .list > .item) > .ui.huge.image:not(img) {
+  min-width: 800px;
+}
 .ui.massive.images .image,
 .ui.massive.images img,
 .ui.massive.images svg,
@@ -284,6 +320,12 @@ img.ui.bordered.image {
   width: 960px;
   height: auto;
   font-size: 1.71428571rem;
+}
+
+/* Fork: en una lista, la imagen envuelta (div.image) es una celda de tabla junto a un contenido al 100 %, y su
+           img (max-width en %) no le da ancho mínimo: colapsaba a unos 7px */
+:where(.ui.list > .item, .ui.list .list > .item) > .ui.massive.image:not(img) {
+  min-width: 960px;
 }
 
 
