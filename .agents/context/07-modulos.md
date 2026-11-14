@@ -244,3 +244,10 @@ inexistente; **la ruta de permiso solo repite el ROL**: las comprobaciones extra
 (`get_sidebar_menu()` falla): lo que lea el menú, como `PanelSearchSource`, necesita en una suite el `include` de `menu.php`
 que hace `index.php` (lo hace `UnitTest-McpPanelServer.php`). Sin sesión, la ruta responde 200 con el HTML del acceso (lo que
 hace `require_login` con un POST), no 401. Guía: `source-docs/project/docs/piecesphp/new-features/herramientas-del-asistente.md`.
+
+**El asistente** (JJZ, `330c8d88`): `PiecesPHP\Mcp\Assistant::reply()`; capacidad `assistant` APAGADA por omisión (registrada en
+`McpRoutes::routes()`); cada llamada de herramienta va por `PanelServer::handle()` con el usuario, nunca por `McpTool::call()` directo
+(la suite `core/assistant` 3a lo provoca). **Topes (JKA, de la auditoría del 14)**: cinco llamadas a herramientas por vuelta, 8.000/32.000 caracteres de resultados, `max_tokens` 800, 30 s por llamada y 90 s en total, la cuota mirada antes de cada llamada, cuota por omisión 200.000/mes; los turnos `assistant` del historial, solo con su firma HMAC (`Config::app_key_derived()`). **Trampas**: `AIGateway::chatHandler()` cierra la conexión a la base antes del proveedor y las
+herramientas reconectan solas (medido, caso 10a); **nunca se llama al proveedor real sin P335** (claves del PO): las pruebas usan
+`Assistant::setAdapterFactoryForTesting()` y `bin/cli assistant-bench fake=yes`; en la terminal `Config::set_lang()` no recarga los
+diccionarios, así que el banco sale con el texto de sistema en español aunque pida otro idioma (H310).

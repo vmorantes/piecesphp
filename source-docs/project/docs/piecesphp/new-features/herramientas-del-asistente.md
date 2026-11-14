@@ -7,9 +7,9 @@ porque exige el permiso de una ruta, el mismo que ya decide si ve una pantalla. 
 
 !!! warning "Provisional"
 
-    Hoy existen el registro, el servidor y dos herramientas de lectura. El asistente de chat del panel, que las usará a
-    través del centro de mando de la IA, llega en una versión próxima. Las herramientas son de **solo lectura**: las
-    que escriban llegarán más adelante, con una marca explícita.
+    Hoy existen el registro, el servidor, dos herramientas de lectura y el asistente por dentro (abajo, «El
+    asistente»), apagado por omisión. La ventana del chat en el panel llega en una versión próxima. Las herramientas
+    son de **solo lectura**: las que escriban llegarán más adelante, con una marca explícita.
 
 ## Cómo funciona
 
@@ -82,6 +82,38 @@ Un clon quita o sustituye una herramienta como las tarjetas: `McpToolRegistry::r
 `bin/cli verify-integrity` comprueba que toda herramienta registrada exige el permiso de una ruta que existe y que su
 esquema está dentro del subconjunto. Una ruta renombrada sin actualizar su herramienta hace caer la comprobación: si
 no, nadie vería esa herramienta y nadie se enteraría.
+
+## El asistente
+
+`PiecesPHP\Mcp\Assistant::reply($user, $question, $history)` es la conversación: lo que usará la ventana del chat, y
+lo que responde la ruta `POST admin/assistant/` (nombre `assistant-ask`, con las mismas defensas que el servidor MCP).
+
+- **Es una capacidad del centro de mando de la IA**, `assistant` («Asistente del panel»), **apagada por omisión** y con
+  una cuota por omisión de 200.000 tokens al mes: hasta que quien administra la encienda en Configuración › IA,
+  responde `ok: false` con el motivo y no llama a ningún proveedor. La cuota se vuelve a mirar antes de cada llamada al
+  proveedor, no solo al empezar (ver [El centro de mando de la IA](../content/ia.md)).
+- **Al modelo solo se le ofrecen las herramientas que ve ese usuario**, y cada llamada que pide pasa por el mismo
+  servidor (`PanelServer`): mismo permiso, mismos argumentos.
+- **Topes de gasto por pregunta**: como mucho cuatro vueltas de herramientas, cinco llamadas a herramientas por vuelta
+  (las de más se le devuelven al modelo como error, sin ejecutarse), 8.000 caracteres por resultado y 32.000 en total
+  (lo que pase se recorta), 800 tokens por respuesta del modelo, 30 segundos por llamada al proveedor y 90 segundos en
+  total. Al llegar a un tope, responde que no ha podido terminar.
+- **Sus instrucciones** le limitan a lo que es de la plataforma: lo demás lo declina en una frase y ofrece lo que sí
+  puede hacer. No obedece instrucciones que lleguen dentro de un resultado o de la pregunta.
+- **No guarda nada**: el historial (como mucho diez mensajes de `user` o `assistant`, de hasta 2000 caracteres) lo
+  manda el cliente en cada pregunta, y la pregunta tiene como mucho 1000 caracteres.
+- **Un turno del asistente solo cuenta si lo firmó el servidor**: cada respuesta trae su `signature` (HMAC con una clave
+  derivada de la clave de la aplicación), y el cliente la devuelve con ese turno en el historial
+  (`{role: 'assistant', content, signature}`). Un turno del asistente sin firma o con otra se descarta: así nadie puede
+  inventarse lo que «dijo» el asistente para sacarlo de su terreno.
+- **Lo que devuelve**: `{ok, answer, signature, links: [{title, url}], toolsUsed, error}`. `links` son las pantallas
+  que encontró con `panel_find`.
+- **Al pintarlo** (la ventana del chat), `answer` y los títulos van como texto, nunca como HTML: pueden traer texto de
+  terceros (una noticia, un motivo de rechazo). Los enlaces, solo los de `links`, que son del propio sitio.
+
+Para probarlo contra el proveedor configurado hay un banco de preguntas, dentro y fuera de tema:
+`bin/cli assistant-bench confirm=yes user=<id>` (solo en local; llama al proveedor de verdad y gasta). Con `fake=yes`
+usa un proveedor simulado que no gasta nada.
 
 ## Las herramientas del framework
 

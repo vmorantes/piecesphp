@@ -1,3 +1,14 @@
+# 10.24.0 (14-11-2026)
+
+- **Nuevo en Configuración › IA: «Asistente del panel», apagado.** Es la función del asistente de chat del panel, que
+  responderá preguntas sobre la plataforma usando solo lo que puede ver quien pregunta. Viene apagado, con una cuota de
+  200.000 tokens al mes: enciéndelo y elige quién lo usa cuando llegue su ventana de chat, en una versión próxima.
+  Manual: «Configuración de las integraciones».
+- **Para quien desarrolla: el asistente por dentro.** `PiecesPHP\Mcp\Assistant::reply()` conversa con el proveedor
+  de la IA a través del centro de mando (capacidad `assistant`), le ofrece solo las herramientas del usuario y ejecuta
+  cada llamada por el servidor MCP del panel, con sus permisos. Los adaptadores de OpenAI y Mistral ganan
+  `chatWithTools()`. Ruta `POST admin/assistant/`. Guía «Ofrecer herramientas al asistente», sección «El asistente».
+
 # 10.23.0 (14-11-2026)
 
 - **Para quien desarrolla: el servidor MCP del panel, base del asistente.** Un módulo ofrece herramientas de solo lectura

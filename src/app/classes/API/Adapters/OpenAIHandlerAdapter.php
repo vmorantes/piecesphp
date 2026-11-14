@@ -22,6 +22,12 @@ use \OpenAI\Client as OpenAIClient;
 class OpenAIHandlerAdapter
 {
 
+    /**
+     * Los tiempos máximos de chatWithTools(), en segundos.
+     */
+    const CHAT_TIMEOUT_SECONDS = 30;
+    const CHAT_CONNECT_TIMEOUT_SECONDS = 10;
+
     protected ?OpenAIClient $openAIClient = null;
     protected string $apiKey;
     protected string $assistantID;
@@ -109,6 +115,83 @@ class OpenAIHandlerAdapter
         $choice = !empty($response['choices']) ? $response['choices'][0] : null;
         $this->lastAskToChatOriginalResponse = $response;
         return $choice !== null && is_string($choice['message']['content']) ? $choice['message']['content'] : '';
+    }
+
+    /**
+     * Una vuelta de conversación con herramientas (formato de OpenAI): los mensajes (system, user, assistant con tool_calls,
+     * tool con tool_call_id) y las herramientas ({type: function, function: {name, description, parameters}}).
+     *
+     * Los arguments de cada llamada vuelven CRUDOS, como los da el proveedor. Un error del proveedor lanza sin su mensaje:
+     * el de OpenAI puede repetir parte de la clave.
+     *
+     * @param array<int,array<string,mixed>> $messages
+     * @param array<int,array<string,mixed>> $tools
+     * @param float $temperature
+     * @param int $maxTokens El tope de tokens de la respuesta (max_tokens)
+     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int}
+     * @throws \RuntimeException si el proveedor da error
+     */
+    public function chatWithTools(array $messages, array $tools, float $temperature = 0.2, int $maxTokens = 800): array
+    {
+        $this->lastUsage = [];
+        $parameters = [
+            'model' => $this->model,
+            'messages' => $messages,
+            'temperature' => $temperature,
+            'max_tokens' => $maxTokens,
+        ];
+        if ($tools !== []) {
+            $parameters['tools'] = $tools;
+        }
+        try {
+            //Un cliente propio, con tiempo máximo: el de askToChat() no lo tiene, y no se toca.
+            $response = OpenAI::factory()->withApiKey($this->apiKey)->withHttpClient($this->chatHttpClient())->make()->chat()->create($parameters);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('OpenAI respondió con un error (' . get_class($e) . ', código ' . $e->getCode() . ').', 0);
+        }
+        $this->addLastUsage($response->usage);
+        $data = $response->toArray();
+        $this->lastAskToChatOriginalResponse = $data;
+        return self::parseChatWithTools($data);
+    }
+
+    /**
+     * El cliente HTTP de chatWithTools(): 30 s por llamada y 10 para conectar.
+     *
+     * @return \Psr\Http\Client\ClientInterface
+     */
+    protected function chatHttpClient(): \Psr\Http\Client\ClientInterface
+    {
+        return new \GuzzleHttp\Client(['timeout' => self::CHAT_TIMEOUT_SECONDS, 'connect_timeout' => self::CHAT_CONNECT_TIMEOUT_SECONDS]);
+    }
+
+    /**
+     * La respuesta de chat/completions (OpenAI, y Mistral, que usa el mismo formato) en la forma de chatWithTools().
+     *
+     * @param array<mixed> $data
+     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int}
+     */
+    public static function parseChatWithTools(array $data): array
+    {
+        $message = $data['choices'][0]['message'] ?? [];
+        $message = is_array($message) ? $message : [];
+        $toolCalls = [];
+        foreach (is_array($message['tool_calls'] ?? null) ? $message['tool_calls'] : [] as $call) {
+            if (!is_array($call) || !is_array($call['function'] ?? null)) {
+                continue;
+            }
+            $arguments = $call['function']['arguments'] ?? '';
+            $toolCalls[] = [
+                'id' => (string) ($call['id'] ?? ''),
+                'name' => (string) ($call['function']['name'] ?? ''),
+                'arguments' => is_string($arguments) ? $arguments : (string) json_encode($arguments),
+            ];
+        }
+        return [
+            'content' => is_string($message['content'] ?? null) ? $message['content'] : '',
+            'toolCalls' => $toolCalls,
+            'usage' => (int) ($data['usage']['total_tokens'] ?? 0),
+        ];
     }
 
     /**

@@ -7,6 +7,8 @@
 namespace PiecesPHP\Mcp;
 
 use PiecesPHP\AdminPanel\PanelSearchSource;
+use PiecesPHP\AI\AICapability;
+use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\Core\Mcp\McpTool;
 use PiecesPHP\Core\Mcp\McpToolRegistry;
 use PiecesPHP\Core\RouteGroup;
@@ -31,6 +33,11 @@ class McpRoutes
     const TOOL_PANEL_FIND = 'panel_find';
 
     /**
+     * La cuota por omisión del asistente: tokens al mes. Lo que guarde quien administra en Configuración › IA manda.
+     */
+    const ASSISTANT_DEFAULT_QUOTA = 200000;
+
+    /**
      * @param RouteGroup $groupAdministration
      * @return RouteGroup
      */
@@ -41,6 +48,11 @@ class McpRoutes
             $groupAdministration = McpController::routes($groupAdministration);
             if (McpToolRegistry::get(self::TOOL_PANEL_FIND) === null) {
                 McpToolRegistry::register(self::panelFindTool());
+            }
+            //El asistente, en el centro de mando de la IA (ADR 0074): apagado hasta que alguien lo encienda en Configuración › IA,
+            //y con cuota: sin ella, una pregunta podría gastar sin límite.
+            if (AICapabilityRegistry::get(Assistant::CAPABILITY) === null) {
+                AICapabilityRegistry::register(new AICapability(Assistant::CAPABILITY, fn(): string => __(McpLang::LANG_GROUP, 'Asistente del panel'), AICapability::PROVIDER_CHAT, false, [], self::ASSISTANT_DEFAULT_QUOTA, AICapability::PERIOD_MONTHLY));
             }
         }
         return $groupAdministration;
