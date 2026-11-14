@@ -141,7 +141,8 @@ if (APP_CONFIGURATION_MODULE) {
         $default_configurations_values['osTicketAPI'] = get_config('osTicketAPI');
     }
     if (get_config('osTicketAPIKey') !== false) {
-        $default_configurations_values['osTicketAPIKey'] = get_config('osTicketAPIKey');
+        //Sellada como la guarda el panel (ConfigOptions::SHAPE_SECRET): aquí aún no la ha declarado nadie.
+        $default_configurations_values['osTicketAPIKey'] = is_string(get_config('osTicketAPIKey')) ? ConfigOptions::sealSecret(get_config('osTicketAPIKey')) : get_config('osTicketAPIKey');
     }
     $default_configurations_values['meta_theme_color'] = get_config('meta_theme_color') !== false ? get_config('meta_theme_color') : '#13436C';
     $default_configurations_values['keywords'] = get_config('keywords') !== false ? get_config('keywords') : [

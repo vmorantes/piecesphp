@@ -5,6 +5,9 @@
  */
 namespace PiecesPHP\Core\ConfigHelpers;
 
+use PiecesPHP\Core\Crypto\Sealed;
+use PiecesPHP\Settings\ORM\SettingsModel;
+
 /**
  * ConfigOptions - El catálogo de las opciones a las que la base de datos puede dar valor (ADR 0055).
  *
@@ -24,6 +27,11 @@ class ConfigOptions
     const SHAPE_COLOR = 'color';
     const SHAPE_JSON = 'json';
     const SHAPE_SEALED = 'sealed';
+    /**
+     * Texto que se guarda sellado (Sealed::PURPOSE_CONFIG_SECRET) y que applyDeclared() abre al cargar: get_config() da
+     * la clave en claro. A diferencia de SHAPE_SEALED, que abre su dueño.
+     */
+    const SHAPE_SECRET = 'secret';
 
     const SHAPES = [
         self::SHAPE_TEXT,
@@ -32,7 +40,26 @@ class ConfigOptions
         self::SHAPE_COLOR,
         self::SHAPE_JSON,
         self::SHAPE_SEALED,
+        self::SHAPE_SECRET,
     ];
+
+    const SECRET_EMPTY = 'empty';
+    const SECRET_OPENED = 'opened';
+    const SECRET_UNREADABLE = 'unreadable';
+    const SECRET_LEGACY = 'legacy';
+
+    /**
+     * Solo para las suites: hace fallar el guardado sellado de lo de antes, para medir que la clave en claro queda intacta.
+     */
+    protected static bool $failSealLegacyForTesting = false;
+
+    /**
+     * Las SHAPE_SECRET ya avisadas en este proceso: sin permiso para escribir WARNED_FILE (la terminal, si lo creó el
+     * servidor) no se repite el aviso en cada carga del mismo proceso.
+     *
+     * @var array<string,true>
+     */
+    protected static array $unreadableWarnedInProcess = [];
 
     /**
      * Los ya avisados (relativo a basepath(); clean-cache lo borra), con la corrida de prueba que avisó cada uno o null si
@@ -124,12 +151,126 @@ class ConfigOptions
         foreach ($configurations as $name => $value) {
             $name = (string) $name;
             if (self::isDeclared($name)) {
-                set_config($name, $value);
+                set_config($name, self::$options[$name]['shape'] === self::SHAPE_SECRET ? self::loadSecret($name, $value) : $value);
             } else {
                 $skipped[] = $name;
             }
         }
         return $skipped;
+    }
+
+    /**
+     * Qué hacer con lo guardado de una SHAPE_SECRET (pura): vacío o no texto, tal cual; sellado, lo abierto, o '' si no
+     * abre; en claro (lo de antes), tal cual y para sellar.
+     *
+     * @param mixed $stored Lo que trae la base
+     * @param string|null $opened Sealed::open() de lo guardado, si estaba sellado y abrió
+     * @return array{0:mixed,1:string} El valor para get_config() y uno de SECRET_*
+     */
+    public static function decideSecret(mixed $stored, ?string $opened): array
+    {
+        if (!is_string($stored) || $stored === '') {
+            return [$stored, self::SECRET_EMPTY];
+        }
+        if (Sealed::isSealed($stored)) {
+            return $opened !== null ? [$opened, self::SECRET_OPENED] : ['', self::SECRET_UNREADABLE];
+        }
+        return [$stored, self::SECRET_LEGACY];
+    }
+
+    /**
+     * El sitio único que sella una clave antes de guardarla: vacía sigue vacía y lo ya sellado no se vuelve a sellar.
+     *
+     * @param string $plain
+     * @return string
+     */
+    public static function sealSecret(string $plain): string
+    {
+        return $plain === '' || Sealed::isSealed($plain) ? $plain : Sealed::seal($plain, Sealed::PURPOSE_CONFIG_SECRET);
+    }
+
+    /**
+     * Lo que se escribe en la base para una opción declarada: sellado si es SHAPE_SECRET (sealSecret()), tal cual si no.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function valueToStore(string $name, mixed $value): mixed
+    {
+        $isSecret = (self::$options[$name]['shape'] ?? null) === self::SHAPE_SECRET;
+        return $isSecret && is_string($value) ? self::sealSecret($value) : $value;
+    }
+
+    /**
+     * @param bool $fail
+     * @return void
+     */
+    public static function failSealLegacyForTesting(bool $fail): void
+    {
+        self::$failSealLegacyForTesting = $fail;
+    }
+
+    /**
+     * La clave en claro de una SHAPE_SECRET al cargar. Si no abre (otra app_key) da '' y lo avisa una vez, con el nombre
+     * y nunca el valor; lo de antes (en claro) se guarda sellado una vez.
+     *
+     * @param string $name
+     * @param mixed $stored
+     * @return mixed
+     */
+    protected static function loadSecret(string $name, mixed $stored): mixed
+    {
+        $opened = is_string($stored) && Sealed::isSealed($stored) ? Sealed::open($stored, Sealed::PURPOSE_CONFIG_SECRET) : null;
+        [$value, $state] = self::decideSecret($stored, $opened);
+        if ($state === self::SECRET_UNREADABLE) {
+            self::warnUnreadableSecret($name);
+        } elseif ($state === self::SECRET_LEGACY && is_string($stored)) {
+            self::sealLegacySecret($name, $stored);
+        }
+        return $value;
+    }
+
+    /**
+     * Lo de antes se guarda sellado una vez (como MailConfig::sealLegacy()), solo si lo leído es lo que hay en la base:
+     * una prueba que fija la opción en memoria no escribe en ella. Si falla, la clave en claro queda como estaba.
+     *
+     * @param string $name
+     * @param string $stored
+     * @return void
+     */
+    protected static function sealLegacySecret(string $name, string $stored): void
+    {
+        try {
+            if (SettingsModel::getConfigValue($name) !== $stored) {
+                return;
+            }
+            if (self::$failSealLegacyForTesting) {
+                throw new \RuntimeException('Fallo provocado por la suite.');
+            }
+            //RETORNO-IGNORADO: si no se guarda, sigue en claro y se intenta en la próxima carga.
+            SettingsModel::setConfigValue($name, self::sealSecret($stored));
+        } catch (\Throwable $exception) {
+            log_soft_error('No se pudo volver a guardar cifrada la opción ' . $name, ['error' => get_class($exception)]);
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return void
+     */
+    protected static function warnUnreadableSecret(string $name): void
+    {
+        $key = "secret-unreadable:{$name}";
+        $run = \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::testRun();
+        $warned = self::warned();
+        if (isset(self::$unreadableWarnedInProcess[$key]) || (array_key_exists($key, $warned) && ($warned[$key] === null || $warned[$key] === $run))) {
+            return;
+        }
+        self::$unreadableWarnedInProcess[$key] = true;
+        log_exception(new \RuntimeException("La opción «{$name}» de la tabla de configuración está cifrada con otra clave de la aplicación: no se pudo abrir y se usa vacía. Vuelva a guardarla desde el panel."));
+        $warned[$key] = $run;
+        self::saveWarned($warned);
     }
 
     /**

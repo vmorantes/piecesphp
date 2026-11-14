@@ -90,6 +90,8 @@ $config['hide_app_key_warning'] = false;
 //Orígenes exactos —esquema, host y puerto, como `https://app.ejemplo.com:8443`— que reciben CORS CON credenciales.
 //Cada uno recibe las cookies del usuario en sus peticiones: el propio de la instalación ya va incluido.
 $config['cors_credentials_origins'] = [];
+//Dominios que sirven esta instalación (".dominio" incluye sus subdominios); vacía, cualquiera.
+$config['allowed_hosts'] = [];
 //Límite de intentos de generate-otp, check-totp, two-factor-auth-status, del segundo factor y de la contraseña del login (OTPRateLimiter).
 //uniformResponse: generate-otp responde lo mismo exista o no el usuario. oneUseCodeMinutes: la validez del código de un uso.
 $config['otp_security'] = [

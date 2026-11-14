@@ -96,15 +96,9 @@ if (!isset($_SERVER['HTTP_HOST'])) {
 
 //Manejo de errores
 error_reporting(E_ALL);
-$isLocalBootstrap = (
-    isset($_SERVER['HTTP_HOST']) && (
-        $_SERVER['HTTP_HOST'] === 'localhost' ||
-        mb_substr($_SERVER['HTTP_HOST'], -10) === '.localhost'
-    )
-);
-if ($cliHandler->isCliPlatform) {
-    $isLocalBootstrap = $cliHandler->orginalArguments['--local'] ?? false;
-}
+//El Host lo manda el cliente: el entorno sale de environment.php o de --local (P58). Se carga a mano: aún no hay autoloads.
+require_once __DIR__ . "/psr4/PiecesPHP/Core/AppEnvironment.php";
+$isLocalBootstrap = \PiecesPHP\Core\AppEnvironment::isLocalAtBoot($cliHandler->isCliPlatform, (bool) ($cliHandler->orginalArguments['--local'] ?? false));
 ini_set('display_errors', $isLocalBootstrap);
 //El cuerpo vive en PhpErrorHandler para que las pruebas lo ejerzan fuera de local sin tocar la instalación. Se carga a
 //mano: el manejador se registra antes que los autoloads y un aviso en medio no encontraría la clase.
@@ -212,11 +206,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v10.15.0');
+    define('APP_VERSION', 'v10.16.0');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', (new \DateTime('2026-11-12'))->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-11-13'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];
@@ -226,6 +220,11 @@ require $directories['utilities'];
 
 require $directories['config'];
 $config['environment'] = app_environment();
+//Aquí, antes de que nada construya una URL o una cookie con el Host: fuera de la lista, 400 sin cuerpo.
+if (!$cliHandler->isCliPlatform && !\PiecesPHP\Core\AllowedHosts::allows(is_string($_SERVER['HTTP_HOST'] ?? null) ? $_SERVER['HTTP_HOST'] : '', is_array($config['allowed_hosts'] ?? null) ? $config['allowed_hosts'] : [])) {
+    http_response_code(400);
+    exit;
+}
 require $directories['config_class'];
 require $directories['database'];
 require $directories['cookies'];

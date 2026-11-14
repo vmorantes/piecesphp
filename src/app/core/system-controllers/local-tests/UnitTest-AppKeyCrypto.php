@@ -239,7 +239,7 @@ CliActions::make('unit-tests:core/app-key-crypto', function ($args) {
         $metodo = new \ReflectionMethod(VerifyIntegrityTask::class, 'cryptoCalls');
         $llamadas = $metodo->invoke(null, "<?php\nnamespace Zz;\nuse PiecesPHP\\Core\\Crypto\\Sealed;\nuse PiecesPHP\\UserSystem\\Controllers\\UsersController;\nSealed::seal(\$x, UsersController::SIGNUP_TYPE_PURPOSE);\nSealed::open(\$y, \$proposito);\n");
         $check(is_array($llamadas) && ($llamadas[0]['purpose'] ?? null) === UsersController::SIGNUP_TYPE_PURPOSE && !in_array(UsersController::SIGNUP_TYPE_PURPOSE, EncryptedDataRegistry::purposes(), true) && array_key_exists(1, $llamadas) && $llamadas[1]['purpose'] === null, 'f1 resuelve la constante de otra clase y ve que su valor NO está declarado; y una variable no es un propósito auditable', (string) json_encode($llamadas));
-        $check(in_array(Sealed::PURPOSE_TOKEN_DATA, EncryptedDataRegistry::purposes(), true) && count(EncryptedDataRegistry::purposes()) === 5, 'f2 los cinco propósitos del framework, declarados');
+        $check(in_array(Sealed::PURPOSE_TOKEN_DATA, EncryptedDataRegistry::purposes(), true) && in_array(Sealed::PURPOSE_CONFIG_SECRET, EncryptedDataRegistry::purposes(), true) && count(EncryptedDataRegistry::purposes()) === 6, 'f2 los seis propósitos del framework, declarados (con las claves de API de la configuración)', implode(', ', EncryptedDataRegistry::purposes()));
         echoTerminal(' ');
 
         //─── g · La primera arrancada ───────────────────────────────────────────────────────────────────

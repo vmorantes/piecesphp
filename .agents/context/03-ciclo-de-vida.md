@@ -15,11 +15,20 @@ En orden:
    argumento como acción, quita `--local`, y rellena
    `$_SERVER['PCSPHP_TERMINAL_DATA']` (`isTerminal`, `arguments`, `route`, `local`,
    `cli`). Simula `HTTP_HOST=localhost` para que el router funcione.
-3. **Manejo de errores**: `error_reporting(E_ALL)`, `display_errors` solo en local. **«Local» ya no es la cabecera
+3. **Manejo de errores**: `error_reporting(E_ALL)`, `display_errors` solo en local. **«Local» no es la cabecera
    `Host`** (P58, `c843341d`): en la web, `is_local()` es `app_environment() === 'local'`, que lee
    `src/app/config/environment.php` (NO versionado; plantilla `environment.example.php`) con
-   `PiecesPHP\Core\AppEnvironment::load()` en `bootstrap.php:272`, antes de `config.php` y `database.php`. Sin el archivo
-   o con otro valor: **producción**. En CLI, `--local` como siempre. `$config['environment']` lo guarda. `set_error_handler` convierte
+   `PiecesPHP\Core\AppEnvironment::load()` en `bootstrap.php`, antes de `config.php` y `database.php`. Sin el archivo
+   o con otro valor: **producción**. En CLI, `--local` como siempre. `$config['environment']` lo guarda.
+   **`display_errors` y si un aviso suave aborta** salen de `AppEnvironment::isLocalAtBoot()` (cargada a mano: aún no
+   hay autoloads). Hasta JIN (`f6996a76`, H272) los decidía el `Host` (`*.localhost`); suite `core/app-environment` [f].
+3bis. **Dominios permitidos** (P310 c, JIN `d21c4732`): justo después de cargar `config.php`, y antes de `Config.php`,
+   las cookies y la sesión, `AllowedHosts::allows()` compara el `Host` con `$config['allowed_hosts']`; fuera de la
+   lista, **400 sin cuerpo y `exit`** (en la web; la terminal no pasa). Lista vacía = cualquiera. Por eso los 24 lectores
+   del `Host` (censo en el tramo 2026-11-13) no se tocaron: pasada la puerta, el `Host` es uno de la lista. Trampa: con
+   lista, una petición sin `Host` (HTTP/1.0) recibe 400. `requestIsSameDomain()` solo se fía de `X-Forwarded-Host` si
+   está en la lista (`AllowedHosts::hostForSameDomain()`). Aviso `allowed-hosts-empty` fuera de local. Suite
+   `core/allowed-hosts`. `set_error_handler` convierte
    errores en `ErrorException` y lanza para `E_ERROR|E_WARNING|E_PARSE|E_NOTICE|E_DEPRECATED`.
    **P56, parte 1** (`#353`): `GenericHandler` pone a cada entrada un `reference` (`ERR-Ymd-6HEX`); `log_exception()` lo
    devuelve; `CustomSlimErrorHandler::getResponse($req, ?bool $isLocal)` fuera de local responde SOLO
@@ -107,11 +116,18 @@ En orden:
    **sobrescribe la configuración desde la base de datos** con
    `AppConfigModel::getConfigurations()`. → *Las configuraciones de BD ganan sobre
    `config.php`.*
-   **Desde D8 (ADR 0055, primera versión)** se siguen aplicando TODAS, pero antes de `$app->run()` las que ningún
-   módulo declaró con `ConfigOptions::declare()` se avisan una vez por nombre (`app/cache/config-options-warned.json`,
-   que guarda la corrida de prueba que avisó para que una prueba no consuma el aviso real; `clean-cache` lo borra).
-   Las acciones de `CliActions` vuelven antes de `run()` y no avisan. La carga sigue ANTES de que los módulos
-   declaren (`index.php` lee la tabla antes de `routes.php`): la versión que bloquee tendrá que moverla.
+   **Desde JAT (ADR 0055, segunda versión)** solo se aplica lo declarado: `ConfigOptions::applyDeclared()`
+   (`src/index.php:907`); lo no declarado se avisa una vez por nombre (`app/cache/config-options-warned.json`, que
+   guarda la corrida de prueba que avisó; `clean-cache` lo borra; lo crea el servidor como `www-data` 644 y la
+   terminal no puede apuntar en él, H271).
+   **Orden que muerde**: las extensiones (`final-configurations.php`, `src/index.php:831`, con las claves del archivo
+   seguro y su `override`) van ANTES de la tabla: una fila de la base, también vacía, pisa lo del archivo (P318).
+   **`SHAPE_SECRET`** (JIM, `55fc7e22`, P310 a): `applyDeclared()` abre la opción sellada con
+   `Sealed::PURPOSE_CONFIG_SECRET`; si no abre, `''` y un aviso con el nombre y sin el valor; si está en claro (clon
+   anterior), la aplica y la guarda sellada una vez (`sealLegacySecret()`, solo si lo leído es lo de la base). Para
+   guardar, `ConfigOptions::valueToStore()` (sella si la opción es `SHAPE_SECRET`) o `sealSecret()`. Lo vigila
+   `core/config-secrets`; una prueba que compare el valor guardado con el claro cae (`core/view-escapes` b3-b4, f6-f7,
+   ya ajustadas).
 6. `Router::createRouter($di)` y `setBasePath()` calculado desde `appbase()`.
 7. `$app->addBodyParsingMiddleware()` — soporte automático de JSON y XML en el body.
 8. **Middleware global principal (pre-routing)** — el bloque más grande del archivo

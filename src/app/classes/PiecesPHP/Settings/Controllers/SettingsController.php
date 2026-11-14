@@ -15,6 +15,7 @@ use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Backups\BackupRotation;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Email\MailDelivery;
@@ -1784,7 +1785,7 @@ class SettingsController extends AdminPanelController
                     //Vacía conserva la guardada: el formulario no la pinta.
                     $successKey = true;
                     if ($newKey !== '') {
-                        $key->value = $newKey;
+                        $key->value = ConfigOptions::valueToStore(self::OS_TICKET_KEY_CONFIG, $newKey);
                         $successKey = $key->id !== null ? $key->update() : $key->save();
                     }
                     //Éxito solo si se guardó todo lo que había que guardar.
@@ -2410,7 +2411,8 @@ class SettingsController extends AdminPanelController
                             if (!$isSameValue) {
 
                                 $optionMapper = new SettingsModel($configName);
-                                $optionMapper->value = $configValue;
+                                //Las claves de API, selladas (ConfigOptions::SHAPE_SECRET).
+                                $optionMapper->value = ConfigOptions::valueToStore($configName, $configValue);
 
                                 if ($optionMapper->id !== null) {
                                     $configSuccess = $optionMapper->update();

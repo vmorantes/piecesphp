@@ -93,11 +93,18 @@ ConfigOptions::declare('mi_modulo_color', MiModuloController::class, ConfigOptio
 ```
 
 - El segundo argumento es el dueño (la clase que la escribe); el tercero, su forma (`SHAPE_TEXT`, `SHAPE_INTEGER`,
-  `SHAPE_BOOL`, `SHAPE_COLOR`, `SHAPE_JSON`, `SHAPE_SEALED`) o `null` si no se sabe.
+  `SHAPE_BOOL`, `SHAPE_COLOR`, `SHAPE_JSON`, `SHAPE_SEALED`, `SHAPE_SECRET`) o `null` si no se sabe.
+- **`SHAPE_SECRET` es para una clave que no puede quedar en claro en la base** (una API key, por ejemplo): se guarda
+  sellada y se abre sola al cargar, así que `get_config()` la da en claro y quien la lee no cambia. Para guardarla, pasa
+  el valor por `ConfigOptions::valueToStore('mi_opcion', $valor)`, que la sella si la opción está declarada así; vacía
+  se guarda vacía. Una clave que ya estaba en claro (de una versión anterior) se lee igual y se guarda sellada en la
+  primera carga. Si la `app_key` cambió sin rotar, no abre: se usa vacía y el registro de errores lo dice una vez, con
+  el nombre y sin el valor. `SHAPE_SEALED`, en cambio, se guarda sellado y lo abre su dueño (como la configuración del
+  correo).
 - Declarar el mismo nombre con otro dueño, o con otra forma, lanza: cada opción tiene una sola fuente.
 - **Lo que no está declarado se avisa**: si la base tiene una fila con un nombre que nadie declaró, el registro de
-  errores lo dice una vez por nombre (sin el valor). **En esta versión se sigue aplicando**; la siguiente dejará de
-  hacerlo, así que una opción legítima de tu clon tiene que estar declarada antes (ADR 0055).
+  errores lo dice una vez por nombre (sin el valor), y **no se aplica**: una opción legítima de tu clon tiene que estar
+  declarada (ADR 0055, segunda versión).
 - `bin/cli config-options` lista el catálogo (nombre, dueño y forma) y las filas de la base que no lo cumplen, solo
   por su nombre.
 
@@ -105,8 +112,10 @@ ConfigOptions::declare('mi_modulo_color', MiModuloController::class, ConfigOptio
 
 Las llaves de OpenAI, Mistral, Groq, la del cron y las dos de reCAPTCHA v3 las lee `src/app/core/extensions/api-keys.php`
 de la carpeta `secure-keys/` (ignorada por git) con `set_configs_from_secure_keys()`. Con `'override' => true`, la
-llave segura **sustituye** lo que haya en `config.php` o en el panel, **incluso cuando el archivo de la llave no
-existe: entonces el valor queda vacío** (`getKeyFromSecureKeys()` devuelve `''`). Las de tus propios servicios van en
+llave segura **sustituye** lo que haya en `config.php`, **incluso cuando el archivo de la llave no existe: entonces el
+valor queda vacío** (`getKeyFromSecureKeys()` devuelve `''`). **Pero la tabla de opciones se aplica después**
+(`src/index.php`, tras `final-configurations.php`): si la clave de OpenAI o de Mistral se guardó alguna vez desde el panel,
+esa fila manda, también vacía, y la llave segura no se usa. Qué debe mandar está pendiente de decisión. Las de tus propios servicios van en
 `src/app/config/extensions/api-keys.php`. La `app_key` tiene su propio mecanismo:
 [La clave de la aplicación](../new-features/clave-de-la-aplicacion.md).
 
@@ -120,7 +129,7 @@ La configuración general de la instalación. Se carga el tercero y rellena `$co
 
 | Clave | Valor |
 | :-- | :-- |
-| `domain` | `$_SERVER['HTTP_HOST']` |
+| `domain` | `$_SERVER['HTTP_HOST']`: lo manda el navegador; con [`allowed_hosts`](#seguridad) solo llega uno de la lista |
 | `domain_protocol` | `https://` si existe `$_SERVER['HTTPS']`, si no `http://` |
 | `base_domain_path` | la ruta del script sin el nombre del archivo |
 | `base_domain_url` | protocolo + dominio |
@@ -164,11 +173,30 @@ La zona pública y las páginas de error no leen estas opciones: llevan sus colo
 | `hide_app_key_warning` | `bool` | `false` | Marca antigua que oculta el aviso de `app_key` de relleno; se gestiona desde Avisos del sistema ([ver](../new-features/system-status.md)). |
 | `cors_credentials_origins` | `string[]` | `[]` | Orígenes exactos (esquema, host y puerto: `https://app.ejemplo.com:8443`) que reciben CORS **con** credenciales. El propio origen de la instalación va incluido. |
 | `otp_security` | `array` | ver abajo | Límite de intentos del OTP, del segundo factor y de la contraseña del acceso. |
+| `allowed_hosts` | `string[]` | `[]` | Los dominios que sirven esta instalación. Vacía, cualquiera. Ver abajo. |
 
 **CORS.** Con `API_MODULE` activo el framework **refleja** el `Origin` recibido en `Access-Control-Allow-Origin` para
 cualquier origen (o `*` si no hay); lo que `cors_credentials_origins` controla es solo `Access-Control-Allow-Credentials`.
 La comparación es exacta: un origen con ruta, con barra final o con comodín no casa. Si la lista contiene algo que no sea
 una cadena, cuenta como vacía.
+
+**`allowed_hosts`.** El framework arma sus enlaces, el dominio de sus cookies y el destino tras entrar con el dominio que
+manda el navegador (la cabecera `Host`). Si el servidor atiende la instalación con cualquier dominio, un cliente puede
+hacer que construya enlaces con otro. Pon aquí los tuyos y cualquier otro recibe un **400 sin cuerpo**, antes de que se
+cree nada:
+
+```php
+$config['allowed_hosts'] = ['app.ejemplo.com', '.ejemplo.org'];
+```
+
+- Se comparan sin mayúsculas, sin el puerto y sin el punto final: `App.Ejemplo.com:8443` casa con `app.ejemplo.com`.
+- Una entrada que empieza por `.` vale para ese dominio **y** sus subdominios: `.ejemplo.org` casa con `ejemplo.org` y
+  `a.ejemplo.org`, no con `otroejemplo.org`. No hay otros comodines.
+- Una IPv6 va entre corchetes: `[2001:db8::1]`.
+- Con la lista puesta, una petición sin cabecera `Host` (HTTP/1.0) también recibe 400.
+- Detrás de un proxy, la cabecera `X-Forwarded-Host` solo cuenta para la comprobación de mismo dominio si está en la lista.
+- Vacía, todo funciona como antes de la 10.16.0; fuera de local, Avisos del sistema lo recuerda al administrador principal
+  (`allowed-hosts-empty`). La terminal no pasa por esta comprobación.
 
 **`otp_security`**, con los valores por omisión que usa `OTPRateLimiter` cuando una clave falta o no es válida:
 

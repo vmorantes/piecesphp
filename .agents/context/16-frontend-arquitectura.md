@@ -266,6 +266,12 @@ ruta, no por orden del menú.
 
 **Contraído, el menú desplaza, y con él los logos** (JDI, `9803d5f7`, P284; `admin_app_base.scss`, `menu.php`). El bloque `.collapsed.only` es el último hijo de `.ui.menu`, no del pie, y `.navigation` no desplaza: lo que sale de ella, como `.toggle`, se recortaría. Como el menú recorta, flotantes y tooltips van con `position: fixed`, a la altura que mide `pcsAdminRailPositions()` (`configurations.js`); `72px` y el hueco son del tema. **El puente del flotante mide 28 px**: con `fixed` hay un hueco que el del tema no cubre, y sin él no se pulsa un subítem. **Los logos no se encogen** (el PO rechazó eso en la `10.0.3`). Medido en `#2327`: 6 tamaños, con y sin aviso.
 
+**Bloques registrados en tres huecos** (JIO, `08047832`, P312 a): `SidebarBlockRegistry::renderSlot()` en `menu.php`
+(`brand-after-meta`, `menu-after`, `footer`); guía en `panel.md`, «La barra lateral». Trampa: **las tres llamadas van SIN
+sangría**: con ella, sin bloques salen espacios y cae el invariante (sin bloques, el `<nav>` es idéntico byte a byte:
+medido por sha1 del HTML del servidor). A 390 el cajón ignora contraer (`shell.js:320`). El tema aún no da estilo a
+`.sidebar-block` (H275). Suite `core/sidebar-blocks`.
+
 **Preguntar** (FT, `57e3c7d4`): la comprobación 50 caza también un toast de Fomantic con botones (`actions` dentro de la
 llamada); los avisos sin botones siguen permitidos. **`RowActions::delete()` pinta siempre en rojo** (decisión del
 arquitecto con el criterio del PO del 2026-10-10: borrar no va en negro).

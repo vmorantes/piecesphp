@@ -102,6 +102,18 @@ CliActions::make('unit-tests:core/app-environment', function ($args) {
         $check($same, 'd1 las dos respuestas coinciden en los tres casos');
         echoTerminal(' ');
 
+        //─── f · El arranque (H272) ────────────────────────────────────────────────────────────────────
+        echoTerminal('[f] El arranque decide display_errors por el entorno, no por el Host');
+        AppEnvironment::useForTesting($production);
+        $asWeb('zz.localhost');
+        $check(AppEnvironment::isLocalAtBoot(false, false) === false, 'f1 web, entorno production + Host «zz.localhost» → no es local');
+        AppEnvironment::useForTesting($local);
+        $asWeb('example.com');
+        $check(AppEnvironment::isLocalAtBoot(false, false) === true, 'f2 web, entorno local → local');
+        $check(AppEnvironment::isLocalAtBoot(true, true) === true, 'f3 terminal con --local → local');
+        $check(AppEnvironment::isLocalAtBoot(true, false) === false, 'f4 terminal sin --local → no es local aunque el archivo diga local');
+        echoTerminal(' ');
+
         //─── e · Esta instalación ───────────────────────────────────────────────────────────────────────
         echoTerminal('[e] Esta instalación');
         AppEnvironment::useForTesting(null);

@@ -429,6 +429,40 @@ class SystemStatusRoutes
             [UsersModel::TYPE_USER_ROOT],
             true
         ));
+
+        //Sin lista de dominios permitidos, la aplicación construye sus enlaces con el Host que mande el navegador (P310).
+        SystemAlertRegistry::register(new SystemAlert(
+            'allowed-hosts-empty',
+            SystemAlert::SEVERITY_WARNING,
+            fn() => __(SystemStatusController::LANG_GROUP, 'La lista de dominios permitidos está vacía: la aplicación acepta cualquier dominio que mande el navegador y con él construye sus enlaces. Pon los tuyos en $config[\'allowed_hosts\'] (src/app/config/config.php).'),
+            fn() => self::allowedHostsMissing(get_config('allowed_hosts'), is_local()),
+            true,
+            [UsersModel::TYPE_USER_ROOT],
+            true
+        ));
+    }
+
+    /**
+     * Si falta la lista de dominios permitidos fuera de local: no es un array o no tiene ninguna cadena no vacía. Puro.
+     *
+     * @param mixed $allowed Lo configurado en allowed_hosts
+     * @param bool $isLocal
+     * @return bool
+     */
+    public static function allowedHostsMissing(mixed $allowed, bool $isLocal): bool
+    {
+        if ($isLocal) {
+            return false;
+        }
+        if (!is_array($allowed)) {
+            return true;
+        }
+        foreach ($allowed as $host) {
+            if (is_string($host) && trim($host) !== '') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

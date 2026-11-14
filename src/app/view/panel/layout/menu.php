@@ -1,6 +1,8 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 $sidebarMenu = get_sidebar_menu();
+//Huecos de bloques registrados (SidebarBlockRegistry, P312 a): sus tres llamadas van SIN sangría para que, sin bloques, no salga ni un byte.
+$sidebarUser = getLoggedFrameworkUser();
 $langGroup = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::ADMIN_LANG_GROUP;
 //Los atributos de un grupo son ganchos de los módulos: van en su elemento, y su clase se suma a la del ítem.
 $groupAttributes = function (\PiecesPHP\Core\Menu\MenuGroup $group): array {
@@ -34,6 +36,7 @@ if ($developerName !== '' && $developerURL !== '') {
         <div class="identity">
             <span class="name"><?= escape_html((string) get_config('title_app')); ?></span>
             <small class="meta"><?= escape_html(strReplaceTemplate(__('general', 'Versión {ver}'), ['{ver}' => APP_VERSION])); ?></small>
+<?= \PiecesPHP\AdminPanel\SidebarBlockRegistry::renderSlot(\PiecesPHP\AdminPanel\SidebarBlock::SLOT_BRAND_AFTER_META, $sidebarUser); ?>
         </div>
         <button class="ui tertiary icon button drawer toggle" type="button"><i class="times icon" aria-hidden="true"></i></button>
     </div>
@@ -82,6 +85,7 @@ if ($developerName !== '' && $developerURL !== '') {
 
         <?php endforeach; ?>
 
+<?= \PiecesPHP\AdminPanel\SidebarBlockRegistry::renderSlot(\PiecesPHP\AdminPanel\SidebarBlock::SLOT_MENU_AFTER, $sidebarUser); ?>
         <div class="collapsed only">
             <div class="ui vertical centered flex">
                 <img class="partners<?= ($invertOnDark)('partnersVertical'); ?>" src="<?= get_config('partnersVertical'); ?>" alt="">
@@ -110,6 +114,7 @@ if ($developerName !== '' && $developerURL !== '') {
                 <?php endif; ?>
             </div>
         </div>
+<?= \PiecesPHP\AdminPanel\SidebarBlockRegistry::renderSlot(\PiecesPHP\AdminPanel\SidebarBlock::SLOT_FOOTER, $sidebarUser); ?>
     </div>
 
 </nav>

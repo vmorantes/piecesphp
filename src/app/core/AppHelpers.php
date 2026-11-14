@@ -194,7 +194,8 @@ function requestIsSameDomain()
         $_SERVER['SERVER_PORT'] == 443;
     $protocol = $isHttps ? 'https://' : 'http://';
     // 2. Determinar el dominio actual (considerando proxies)
-    $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+    $allowedHosts = get_config('allowed_hosts');
+    $host = \PiecesPHP\Core\AllowedHosts::hostForSameDomain($_SERVER, is_array($allowedHosts) ? $allowedHosts : []);
     $currentDomain = $protocol . $host;
     // 3. Obtener origen y referer
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';

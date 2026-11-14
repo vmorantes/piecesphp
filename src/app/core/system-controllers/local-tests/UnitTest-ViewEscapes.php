@@ -18,6 +18,7 @@ use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Crypto\Sealed;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Settings\ORM\SettingsModel;
@@ -188,6 +189,12 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         foreach ($claves as $nombre) {
             $ponerClave($nombre, "{$falsa}-{$nombre}");
         }
+        //Las claves se guardan selladas (P310 a, ConfigOptions::SHAPE_SECRET): lo guardado se compara ABIERTO, y además
+        //se exige que esté sellado. La plantada en claro la sella la primera carga.
+        $guardadaAbierta = function (string $nombre): ?string {
+            $valor = SettingsModel::getConfigValue($nombre);
+            return is_string($valor) && Sealed::isSealed($valor) ? Sealed::open($valor, Sealed::PURPOSE_CONFIG_SECRET) : null;
+        };
         $rutaIA = $camino(\PiecesPHP\Settings\Controllers\SettingsController::routeName('integrations-ai', [], true));
         $pagina = $pedir($rutaIA, $jwtRoot, null, false, false);
         $check($pagina['status'] === 200 && !str_contains($pagina['body'], $falsa), 'b1 la página de IA no contiene las claves guardadas en la base', "HTTP {$pagina['status']}, contiene " . var_export(str_contains($pagina['body'], $falsa), true));
@@ -212,9 +219,9 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             $resto['translationAIEnable'] = 1;
         }
         $guardar = $pedir($rutaIA, $jwtRoot, $resto + ['OpenAIApiKey' => '', 'MistralAIApiKey' => '']);
-        $check(SettingsModel::getConfigValue('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && SettingsModel::getConfigValue('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b3 guardar con las claves vacías las conserva', "HTTP {$guardar['status']}");
+        $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b3 guardar con las claves vacías las conserva (selladas en la base)', "HTTP {$guardar['status']}");
         $guardar = $pedir($rutaIA, $jwtRoot, $resto + ['OpenAIApiKey' => "{$falsa}-nueva", 'MistralAIApiKey' => '']);
-        $check(SettingsModel::getConfigValue('OpenAIApiKey') === "{$falsa}-nueva" && SettingsModel::getConfigValue('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b4 CANARIO: guardar otra clave la cambia (y la vacía sigue igual)', "HTTP {$guardar['status']}");
+        $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-nueva" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b4 CANARIO: guardar otra clave la cambia, sellada (y la vacía sigue igual)', "HTTP {$guardar['status']}");
 
         //──── [c] El contenido de una publicación, en su aprobación y en su edición ──────────
         echoTerminal('');
@@ -394,7 +401,8 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $guardada = $texto($correoEnBase()->password());
         $check($guardada === $conEspacios, 'f4b DISCRIMINANTE: la contraseña del correo se guarda tal cual se escribe (dos espacios, tabulador, espacio duro)',
             "HTTP {$guardar['status']} · longitud guardada " . mb_strlen($guardada) . ' de ' . mb_strlen($conEspacios));
-        $claveOs = (string) (SettingsModel::getConfigValue('osTicketAPIKey') ?? '');
+        $claveOsGuardada = (string) (SettingsModel::getConfigValue('osTicketAPIKey') ?? '');
+        $claveOs = Sealed::isSealed($claveOsGuardada) ? (string) $guardadaAbierta('osTicketAPIKey') : $claveOsGuardada;
         $rutaOs = $camino(\PiecesPHP\Settings\Controllers\SettingsController::routeName('integrations-osticket', [], true));
         if ($claveOs === '') {
             $ponerClave('osTicketAPIKey', "{$falsa}-osticket");
@@ -404,9 +412,9 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $check($pagina['status'] === 200 && !str_contains($pagina['body'], $claveOs) && str_contains($pagina['body'], 'name="key" value=""'), 'f5 la página de osTicket no contiene la clave guardada y su campo va vacío', "HTTP {$pagina['status']}");
         $urlOs = (string) (SettingsModel::getConfigValue('osTicketAPI') ?? '');
         $guardar = $pedir($rutaOs, $jwtRoot, ['url' => $urlOs, 'key' => '']);
-        $check(SettingsModel::getConfigValue('osTicketAPIKey') === $claveOs, 'f6 guardar osTicket con la clave vacía la conserva', "HTTP {$guardar['status']}");
+        $check($guardadaAbierta('osTicketAPIKey') === $claveOs, 'f6 guardar osTicket con la clave vacía la conserva (sellada en la base)', "HTTP {$guardar['status']}");
         $guardar = $pedir($rutaOs, $jwtRoot, ['url' => $urlOs, 'key' => "{$falsa}-osticket-nueva"]);
-        $check(SettingsModel::getConfigValue('osTicketAPIKey') === "{$falsa}-osticket-nueva", 'f7 CANARIO: guardar otra clave de osTicket la cambia', "HTTP {$guardar['status']}");
+        $check($guardadaAbierta('osTicketAPIKey') === "{$falsa}-osticket-nueva", 'f7 CANARIO: guardar otra clave de osTicket la cambia, sellada', "HTTP {$guardar['status']}");
         $urlMala = 'https://zz-osticket.example/"><script>zzOs()</script>';
         $guardar = $pedir($rutaOs, $jwtRoot, ['url' => $urlMala, 'key' => '']);
         $pagina = $pedir($rutaOs, $jwtRoot, null, false, false);

@@ -86,7 +86,8 @@ class SettingsRoutes
         $declare([MailDelivery::CONFIG_NAME], MailDelivery::class, ConfigOptions::SHAPE_TEXT);
 
         //osTicket, archivos del sitio, scripts inyectados y copias.
-        $declare([SettingsController::OS_TICKET_URL_CONFIG, SettingsController::OS_TICKET_KEY_CONFIG], $owner, ConfigOptions::SHAPE_TEXT);
+        $declare([SettingsController::OS_TICKET_URL_CONFIG], $owner, ConfigOptions::SHAPE_TEXT);
+        $declare([SettingsController::OS_TICKET_KEY_CONFIG], $owner, ConfigOptions::SHAPE_SECRET);
         $declare([SiteFilesController::CONFIG_ROBOTS, SiteFilesController::CONFIG_HUMANS, SiteFilesController::CONFIG_LLMS, SiteFilesController::CONFIG_UPDATED], SiteFilesController::class, ConfigOptions::SHAPE_TEXT);
         $declare([ExtraScripts::CONFIG_NAME], ExtraScripts::class, ConfigOptions::SHAPE_JSON);
         $declare([BackupPolicy::CONFIG_NAME], BackupPolicy::class, ConfigOptions::SHAPE_JSON);
@@ -96,7 +97,9 @@ class SettingsRoutes
         $declare([SessionToken::INACTIVITY_CONFIG, SessionToken::CEILING_CONFIG], SessionToken::class, ConfigOptions::SHAPE_INTEGER);
 
         //Inteligencia artificial.
-        $declare(['modelOpenAI', 'modelMistral', 'OpenAIApiKey', 'MistralAIApiKey', 'translationAI'], $owner, ConfigOptions::SHAPE_TEXT);
+        $declare(['modelOpenAI', 'modelMistral', 'translationAI'], $owner, ConfigOptions::SHAPE_TEXT);
+        //Las claves de API, selladas en la base y en claro en get_config() (P310 a).
+        $declare(SettingsController::AI_SECRET_CONFIG_KEYS, $owner, ConfigOptions::SHAPE_SECRET);
         $declare(['translationAIEnable'], $owner, ConfigOptions::SHAPE_BOOL);
         $declare([APIController::TRANSLATION_AI_USER_TYPES_CONFIG], APIController::class, ConfigOptions::SHAPE_JSON);
 

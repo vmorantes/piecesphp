@@ -9,6 +9,7 @@ use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\ConfigHelpers\MailjetConfig;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 
@@ -69,8 +70,8 @@ final class EncryptedDataRegistry
     }
 
     /**
-     * Lo del framework: los datos del token (no se guardan), la configuración de correo y de Mailjet (opciones), el
-     * secreto TOTP y el cuerpo del registro de correos (columnas).
+     * Lo del framework: los datos del token (no se guardan), la configuración de correo y de Mailjet y las claves de API
+     * (opciones), el secreto TOTP y el cuerpo del registro de correos (columnas).
      *
      * @return void
      */
@@ -89,6 +90,13 @@ final class EncryptedDataRegistry
                 $compressed = BaseHashEncryption::deobfuscate($stored, $obfuscationKey);
                 //Lo que no descomprime no es la configuración: null, nunca basura.
                 return @gzuncompress($compressed) !== false ? $compressed : null;
+            }));
+        }
+
+        //Las claves de API de la configuración (ConfigOptions::SHAPE_SECRET). Antes de la 10.16 iban en claro: lo no sellado es la clave.
+        foreach (['config-secret-openai' => 'OpenAIApiKey', 'config-secret-mistral' => 'MistralAIApiKey', 'config-secret-osticket' => SettingsController::OS_TICKET_KEY_CONFIG] as $key => $option) {
+            self::register(new EncryptedData($key, Sealed::PURPOSE_CONFIG_SECRET, EncryptedData::KIND_OPTION, $option, null, 'id', static function (string $stored): ?string {
+                return $stored;
             }));
         }
 

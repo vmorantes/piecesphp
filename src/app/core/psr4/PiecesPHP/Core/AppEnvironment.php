@@ -85,6 +85,18 @@ final class AppEnvironment
     }
 
     /**
+     * Si el arranque trata la ejecución como local: en la terminal, la bandera --local; en la web, el archivo de entorno.
+     *
+     * @param bool $isCliPlatform
+     * @param bool $cliLocalFlag
+     * @return bool
+     */
+    public static function isLocalAtBoot(bool $isCliPlatform, bool $cliLocalFlag): bool
+    {
+        return $isCliPlatform ? $cliLocalFlag : self::get() === self::LOCAL;
+    }
+
+    /**
      * Solo para pruebas: lee otro archivo (null vuelve al real) y relee.
      *
      * @param string|null $path

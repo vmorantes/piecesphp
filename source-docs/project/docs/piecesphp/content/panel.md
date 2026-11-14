@@ -152,6 +152,58 @@ DashboardCardRegistry::register(new DashboardCard(
 - Los repartos de siempre siguen delante: el administrador de organización y el usuario general entran a Mi perfil, y
   comunicaciones al listado de publicaciones.
 
+## La barra lateral: bloques que registra cada módulo
+
+La barra lateral tiene tres huecos donde un módulo o tu proyecto pintan un bloque propio, sin tocar
+`app/view/panel/layout/menu.php`. Los registra `PiecesPHP\AdminPanel\SidebarBlockRegistry`; cada uno es un
+`SidebarBlock`. **Sin bloques, la barra pinta lo mismo que antes**: ni un envoltorio vacío.
+
+| Hueco | Constante | Dónde sale |
+| :-- | :-- | :-- |
+| Debajo de la marca | `SidebarBlock::SLOT_BRAND_AFTER_META` | dentro de `.brand > .identity`, bajo «Versión …» |
+| Debajo del menú | `SidebarBlock::SLOT_MENU_AFTER` | tras la última entrada del menú, antes de los logos del carril contraído |
+| En el pie | `SidebarBlock::SLOT_FOOTER` | dentro de `.footer`, bajo el patrocinador y el crédito |
+
+```php
+new SidebarBlock(
+    string $key,        // minúsculas, cifras y guiones; única
+    string $slot,       // una de las tres constantes de arriba
+    callable $render,   // fn(UserDataPackage $user): string — el HTML del bloque; '' no pinta nada
+    int $position = 100, // de menor a mayor dentro del hueco
+    string $show = SidebarBlock::SHOW_ALWAYS // SHOW_ALWAYS, SHOW_EXPANDED o SHOW_COLLAPSED
+);
+```
+
+Así lo registraría un módulo desde sus Routes (ejemplo; el framework no trae ninguno):
+
+```php
+use PiecesPHP\AdminPanel\SidebarBlock;
+use PiecesPHP\AdminPanel\SidebarBlockRegistry;
+use PiecesPHP\UserSystem\UserDataPackage;
+
+SidebarBlockRegistry::register(new SidebarBlock(
+    'mi-modulo-usuario',
+    SidebarBlock::SLOT_BRAND_AFTER_META,
+    fn(UserDataPackage $user): string => '<small>' . escape_html($user->fullName) . '</small>',
+    show: SidebarBlock::SHOW_EXPANDED
+));
+```
+
+- **El HTML sale tal cual.** Lo que venga del usuario o de la base lo escapa quien escribe el bloque (`escape_html()`).
+- **Cada bloque va en `<div class="sidebar-block" data-sidebar-block="<clave>">`**, con `expanded only` o `collapsed only`
+  según `$show`.
+- **Un texto, solo con la barra expandida** (`SHOW_EXPANDED`): en el carril contraído (72 px) no cabe y se parte palabra a
+  palabra. En el carril, un icono (`SHOW_COLLAPSED`).
+- **A 390 px la barra es un cajón y no se contrae**: allí se ven los bloques `SHOW_ALWAYS` y `SHOW_EXPANDED`.
+- **Sin sesión no se pinta ninguno**; la función recibe siempre un usuario.
+- **Un clon quita o sustituye** los de un módulo, después de que se registren: `SidebarBlockRegistry::remove('<clave>')` o
+  `SidebarBlockRegistry::replace(new SidebarBlock('<clave>', …))` (lanza si la clave no existe; `register()` lanza si ya
+  existe).
+- **Una excepción dentro de la función no se captura**: rompe la página, como en las tarjetas del inicio.
+- **Provisional: el tema aún no da estilo base a `.sidebar-block`.** Un texto suelto toma la letra del sitio donde cae
+  (en la marca, la del nombre) y bajo el menú no lleva la sangría de las entradas. Mientras, da forma al bloque con las
+  piezas del tema (`<small>`, un `ui label`, un icono).
+
 ## Piezas que pone el sistema
 
 No las reimplementes en tu módulo: ya están en la barra superior.
