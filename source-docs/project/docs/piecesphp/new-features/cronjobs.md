@@ -99,7 +99,7 @@ Este comando revisará todos los `CronJobTask` registrados y ejecutará solo aqu
 - **Cada ejecución real queda en el libro**, la tabla `pcsphp_task_runs`: tarea, franja, quién la disparó (`http` o
   `cli`), resultado, intento, inicio, fin, duración y mensaje. Lo que no tocaba o estaba bloqueado no se anota. Se
   guardan las últimas 20.000 (`TaskRunMapper::MAX_ROWS`). Root lo ve en **Registros › Tareas programadas**.
-- Si la tabla no existe (una instalación sin `databases/actualizaciones/2026-10-14-libro-de-tareas-y-cola.sql`), la
+- Si la tabla no existe (una instalación que no aplicó `bin/cli db-update file=2026-10-14-libro-de-tareas-y-cola apply=yes`), la
   tarea corre igual y un aviso del sistema lo dice.
 
 ### Tareas del núcleo

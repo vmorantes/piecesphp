@@ -10,11 +10,14 @@ use API\Adapters\BlobStorageAzureAdapter;
 use API\Adapters\SpeechToTextAzureAdapter;
 use API\Adapters\SpeechToTextGroqAdapter;
 use API\Controllers\APIController;
+use PiecesPHP\AI\AICapability;
+use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\MailCatalog\Definitions\ApiUserCreatedMail;
 use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
 use PiecesPHP\MailCatalog\MailCatalog;
+use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
  * APIRoutes.
@@ -54,6 +57,17 @@ class APIRoutes
             if (self::ENABLE_USERS) {
                 MailCatalog::register(new ApiUserCreatedMail(), 'API');
                 MailCatalog::register(new RecoveryPasswordMail(true), 'API');
+            }
+
+            //La traducción, en el centro de mando de la IA (ADR 0074), con los valores por omisión de hoy.
+            if (self::ENABLE_TRANSLATIONS) {
+                AICapabilityRegistry::register(new AICapability(
+                    'translation',
+                    fn(): string => __(APILang::LANG_GROUP, 'Traducción con IA'),
+                    AICapability::PROVIDER_CHAT,
+                    true,
+                    array_keys(UsersModel::TYPES_USERS),
+                ));
             }
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {

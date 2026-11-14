@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.13.0 - Card
+ * # Fomantic-UI 0.14.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3042,12 +3042,36 @@ a.inverted.ui.card:hover,
    cambia por página con --adaptive-card-min-width */
 .ui.adaptive.cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--adaptive-card-min-width, 16em)), 1fr));
+  
+/* Tope de columnas con --adaptive-card-max-columns o con `two`…`six column`: la columna nunca baja de
+           (100% - (N - 1) huecos) / N, y el mínimo en em sigue mandando cuando es mayor. Sin tope, N vale 1000 y
+           ese término queda negativo, así que no cuenta */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(var(--adaptive-card-min-width, 16em), calc((100% - (var(--adaptive-card-max-columns, 1000) - 1) * 1em) / var(--adaptive-card-max-columns, 1000)))), 1fr));
   gap: 1em;
   margin: 0;
 }
+.ui.two.column.adaptive.cards {
+  --adaptive-card-max-columns: 2;
+}
+.ui.three.column.adaptive.cards {
+  --adaptive-card-max-columns: 3;
+}
+.ui.four.column.adaptive.cards {
+  --adaptive-card-max-columns: 4;
+}
+.ui.five.column.adaptive.cards {
+  --adaptive-card-max-columns: 5;
+}
+.ui.six.column.adaptive.cards {
+  --adaptive-card-max-columns: 6;
+}
 .ui.adaptive.cards > .card {
   width: auto;
+  margin: 0;
+}
+
+/* Los hijos pueden no ser .card (p. ej. ui segment): el hueco lo pone la rejilla, no sus márgenes */
+.ui.ui.adaptive.cards > * {
   margin: 0;
 }
 

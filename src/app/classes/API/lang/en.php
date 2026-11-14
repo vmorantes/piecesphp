@@ -16,4 +16,5 @@ return [
     "Aprobaciones" => "Approvals",
     "Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación." => "Dear {NAME}, we inform you that your user account has been created and is pending approval. For now, you can log in and complete your profile to expedite the approval process.",
     "Iniciar sesión" => "Log in",
+    "Traducción con IA" => "Translation with AI",
 ];

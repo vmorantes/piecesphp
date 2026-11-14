@@ -193,7 +193,7 @@ class DbRestoreTask extends TerminalTaskAbstract
      *
      * @return string[]
      */
-    protected static function statementsOf(string $sql): array
+    public static function statementsOf(string $sql): array
     {
         $statements = [];
         $delimiter = ';';
@@ -343,7 +343,7 @@ class DbRestoreTask extends TerminalTaskAbstract
      *
      * @return string|null La razón, o `null` si la sentencia se aplica.
      */
-    protected static function whyIgnored(string $statement): ?string
+    public static function whyIgnored(string $statement): ?string
     {
         $head = mb_strtoupper(ltrim($statement));
         if (str_starts_with($head, 'USE ') || str_starts_with($head, 'USE`')) {

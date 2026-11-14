@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 0.13.0
+ * # Fomantic UI - 0.14.0
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 0.13.0 - Reset
+ * # Fomantic-UI 0.14.0 - Reset
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -426,7 +426,7 @@ template {
   display: none;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Site
+ * # Fomantic-UI 0.14.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3231,7 +3231,7 @@ strong {
   font-weight: 600;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Button
+ * # Fomantic-UI 0.14.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3397,9 +3397,9 @@ strong {
   text-shadow: none;
 }
 
+/* Solo se oculta el texto de la etiqueta: con fondo y borde fuera, el conjunto perdía su forma */
+
 .ui.ui.ui.loading.button .label {
-  background-color: transparent;
-  border-color: transparent;
   color: transparent;
 }
 
@@ -4835,6 +4835,16 @@ strong {
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.primary.buttons .active.button,
+.ui.basic.primary.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.primary.buttons .button,
@@ -5044,6 +5054,16 @@ strong {
 .ui.basic.secondary.buttons .button:active,
 .ui.basic.secondary.button:active {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.secondary.buttons .active.button,
+.ui.basic.secondary.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -5259,6 +5279,16 @@ strong {
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.accent-1.buttons .active.button,
+.ui.basic.accent-1.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.accent-1.buttons .button,
@@ -5468,6 +5498,16 @@ strong {
 .ui.basic.accent-2.buttons .button:active,
 .ui.basic.accent-2.button:active {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.accent-2.buttons .active.button,
+.ui.basic.accent-2.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -5683,6 +5723,16 @@ strong {
   color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.accent-3.buttons .active.button,
+.ui.basic.accent-3.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.accent-3.buttons .button,
@@ -5892,6 +5942,16 @@ strong {
 .ui.basic.red.buttons .button:active,
 .ui.basic.red.button:active {
   box-shadow: 0 0 0 1px #e41f11 inset;
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.red.buttons .active.button,
+.ui.basic.red.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
@@ -6107,6 +6167,16 @@ strong {
   color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.orange.buttons .active.button,
+.ui.basic.orange.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+
 /* Inverted */
 
 .ui.inverted.orange.buttons .button,
@@ -6316,6 +6386,16 @@ strong {
 .ui.basic.yellow.buttons .button:active,
 .ui.basic.yellow.button:active {
   box-shadow: 0 0 0 1px #c77306 inset;
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.yellow.buttons .active.button,
+.ui.basic.yellow.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
@@ -6531,6 +6611,16 @@ strong {
   color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.olive.buttons .active.button,
+.ui.basic.olive.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.olive.buttons .button,
@@ -6740,6 +6830,16 @@ strong {
 .ui.basic.green.buttons .button:active,
 .ui.basic.green.button:active {
   box-shadow: 0 0 0 1px #11854f inset;
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.green.buttons .active.button,
+.ui.basic.green.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -6955,6 +7055,16 @@ strong {
   color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.teal.buttons .active.button,
+.ui.basic.teal.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.teal.buttons .button,
@@ -7164,6 +7274,16 @@ strong {
 .ui.basic.blue.buttons .button:active,
 .ui.basic.blue.button:active {
   box-shadow: 0 0 0 1px #0676ef inset;
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.blue.buttons .active.button,
+.ui.basic.blue.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -7379,6 +7499,16 @@ strong {
   color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.violet.buttons .active.button,
+.ui.basic.violet.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.violet.buttons .button,
@@ -7588,6 +7718,16 @@ strong {
 .ui.basic.purple.buttons .button:active,
 .ui.basic.purple.button:active {
   box-shadow: 0 0 0 1px #8434ae inset;
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.purple.buttons .active.button,
+.ui.basic.purple.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -7803,6 +7943,16 @@ strong {
   color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.pink.buttons .active.button,
+.ui.basic.pink.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.pink.buttons .button,
@@ -8012,6 +8162,16 @@ strong {
 .ui.basic.brown.buttons .button:active,
 .ui.basic.brown.button:active {
   box-shadow: 0 0 0 1px #4a321f inset;
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.brown.buttons .active.button,
+.ui.basic.brown.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -8227,6 +8387,16 @@ strong {
   color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.grey.buttons .active.button,
+.ui.basic.grey.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 
 .ui.inverted.grey.buttons .button,
@@ -8436,6 +8606,16 @@ strong {
 .ui.basic.black.buttons .button:active,
 .ui.basic.black.button:active {
   box-shadow: 0 0 0 1px light-dark(#141821, #4b5363) inset;
+  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+
+.ui.basic.black.buttons .active.button,
+.ui.basic.black.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 
@@ -8654,6 +8834,14 @@ strong {
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: activo en grupo con tinte, como en el bucle de colores */
+
+.ui.basic.positive.buttons .active.button,
+.ui.basic.positive.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
+
 .ui.buttons:not(.vertical) > .basic.positive.button:not(:first-child) {
   margin-left: -1px;
 }
@@ -8776,6 +8964,14 @@ strong {
 .ui.basic.negative.button:active {
   box-shadow: 0 0 0 1px #e41f11 inset;
   color: light-dark(oklch(from #f04438 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: activo en grupo con tinte, como en el bucle de colores */
+
+.ui.basic.negative.buttons .active.button,
+.ui.basic.negative.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 
 .ui.buttons:not(.vertical) > .basic.negative.button:not(:first-child) {
@@ -9884,7 +10080,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
         Chart Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Container
+ * # Fomantic-UI 0.14.0 - Container
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10261,7 +10457,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Divider
+ * # Fomantic-UI 0.14.0 - Divider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10604,7 +10800,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.13.0 - Emoji
+ * # Fomantic-UI 0.14.0 - Emoji
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29724,7 +29920,7 @@ em[data-emoji="regional_indicator_a"]::before {
              Emojis
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Flag
+ * # Fomantic-UI 0.14.0 - Flag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -31359,7 +31555,7 @@ i.flag.united.nations::before {
          Flex Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Header
+ * # Fomantic-UI 0.14.0 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32593,7 +32789,7 @@ h1.ui.header:not(:last-child) {
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 /*!
- * # Fomantic-UI 0.13.0 - Icon
+ * # Fomantic-UI 0.14.0 - Icon
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -41939,7 +42135,7 @@ i.huge.bordered.primary.icon.icon.icon.icon.icon.icon:not(.inverted) {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.13.0 - Image
+ * # Fomantic-UI 0.14.0 - Image
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -42360,7 +42556,7 @@ svg.ui.avatar.image,
   box-shadow: 0 0 0 1px var(--theme-border);
 }
 /*!
- * # Fomantic-UI 0.13.0 - Input
+ * # Fomantic-UI 0.14.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -44692,7 +44888,7 @@ input[type="file"].ui.black.file.input::file-selector-button:hover,
   text-overflow: ellipsis;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Label
+ * # Fomantic-UI 0.14.0 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -48158,7 +48354,7 @@ a.ui.ui.ui.basic.teal.label:hover {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.13.0 - List
+ * # Fomantic-UI 0.14.0 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -49315,7 +49511,7 @@ ol.ui.suffixed.list li::before,
   padding: 0;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Loader
+ * # Fomantic-UI 0.14.0 - Loader
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -50654,7 +50850,7 @@ ol.ui.suffixed.list li::before,
   border-color: rgba(255, 255, 255, 0.15);
 }
 /*!
- * # Fomantic-UI 0.13.0 - Placeholder
+ * # Fomantic-UI 0.14.0 - Placeholder
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -50960,7 +51156,7 @@ body {
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 /*!
- * # Fomantic-UI 0.13.0 - Rail
+ * # Fomantic-UI 0.14.0 - Rail
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51118,7 +51314,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Reveal
+ * # Fomantic-UI 0.14.0 - Reveal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51425,7 +51621,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Segment
+ * # Fomantic-UI 0.14.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -52465,6 +52661,16 @@ body {
   box-shadow: none;
 }
 
+/* Fork: separador entre los segmentos de un grupo inverted (sin bordes, el grupo era un solo bloque con huecos) */
+
+.ui.inverted.segments:not(.horizontal) > .segment + .segment {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ui.inverted.horizontal.segments > .segment + .segment {
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
 .ui.inverted.segments .segment,
 .ui.inverted.segment,
 .ui.primary.inverted.segment {
@@ -53159,7 +53365,7 @@ body {
   color-scheme: inherit;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Step
+ * # Fomantic-UI 0.14.0 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -56747,7 +56953,7 @@ body {
         Swatch Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Text
+ * # Fomantic-UI 0.14.0 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -57148,7 +57354,7 @@ span.ui.info.text {
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.13.0 - Breadcrumb
+ * # Fomantic-UI 0.14.0 - Breadcrumb
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -58323,7 +58529,7 @@ table.dataTable td.dt-type-date {
   }
 }
 /*!
- * # Fomantic-UI 0.13.0 - Form
+ * # Fomantic-UI 0.14.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -60949,7 +61155,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.13.0 - Grid
+ * # Fomantic-UI 0.14.0 - Grid
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -63324,7 +63530,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.13.0 - Menu
+ * # Fomantic-UI 0.14.0 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -66725,7 +66931,7 @@ Floated Menu / Item
   }
 }
 /*!
- * # Fomantic-UI 0.13.0 - Message
+ * # Fomantic-UI 0.14.0 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -67905,7 +68111,7 @@ Floated Menu / Item
   box-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Table
+ * # Fomantic-UI 0.14.0 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -73431,7 +73637,7 @@ Floated Menu / Item
   color: #4b5363;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Ad
+ * # Fomantic-UI 0.14.0 - Ad
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -73736,7 +73942,7 @@ Floated Menu / Item
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Card
+ * # Fomantic-UI 0.14.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -77133,13 +77339,42 @@ a.inverted.ui.card:hover,
 
 .ui.adaptive.cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--adaptive-card-min-width, 16em)), 1fr));
+  /* Tope de columnas con --adaptive-card-max-columns o con `two`…`six column`: la columna nunca baja de
+           (100% - (N - 1) huecos) / N, y el mínimo en em sigue mandando cuando es mayor. Sin tope, N vale 1000 y
+           ese término queda negativo, así que no cuenta */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, max(var(--adaptive-card-min-width, 16em), calc((100% - (var(--adaptive-card-max-columns, 1000) - 1) * 1em) / var(--adaptive-card-max-columns, 1000)))), 1fr));
   gap: 1em;
   margin: 0;
 }
 
+.ui.two.column.adaptive.cards {
+  --adaptive-card-max-columns: 2;
+}
+
+.ui.three.column.adaptive.cards {
+  --adaptive-card-max-columns: 3;
+}
+
+.ui.four.column.adaptive.cards {
+  --adaptive-card-max-columns: 4;
+}
+
+.ui.five.column.adaptive.cards {
+  --adaptive-card-max-columns: 5;
+}
+
+.ui.six.column.adaptive.cards {
+  --adaptive-card-max-columns: 6;
+}
+
 .ui.adaptive.cards > .card {
   width: auto;
+  margin: 0;
+}
+
+/* Los hijos pueden no ser .card (p. ej. ui segment): el hueco lo pone la rejilla, no sus márgenes */
+
+.ui.ui.adaptive.cards > * {
   margin: 0;
 }
 
@@ -77401,7 +77636,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   align-self: flex-start;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Comment
+ * # Fomantic-UI 0.14.0 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -77747,7 +77982,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   object-fit: cover;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Feed
+ * # Fomantic-UI 0.14.0 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -78923,7 +79158,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Item
+ * # Fomantic-UI 0.14.0 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79546,7 +79781,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.5;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Statistic
+ * # Fomantic-UI 0.14.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79564,6 +79799,9 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.statistic {
   display: inline-flex;
   flex-direction: column;
+  /* Fork: en línea, alineadas por arriba (por la línea base, una cifra en texto bajaba su etiqueta respecto a la
+       numérica de al lado aunque las dos cajas midan lo mismo) */
+  vertical-align: top;
   margin: 1em 0;
   max-width: none;
 }
@@ -79692,6 +79930,11 @@ a.ui.link.card > .content > i.right.floated.icon {
   /* Fork: el alto del valor numérico del mismo tamaño (@textValueMinHeight, 2em, solo cuadraba con un texto de la
        mitad del número, como en default): las etiquetas de un grupo quedan alineadas con cualquier proporción */
   min-height: 2.28571429rem;
+  /* Fork: centrado en vertical en ese alto (quedaba arriba, a la altura del borde superior de la cifra) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   font-weight: 600;
   text-align: center;
 }
@@ -80390,7 +80633,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   letter-spacing: -0.02em;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Accordion
+ * # Fomantic-UI 0.14.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81135,7 +81378,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.13.0 - Calendar
+ * # Fomantic-UI 0.14.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81563,7 +81806,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 /*!
- * # Fomantic-UI 0.13.0 - Checkbox
+ * # Fomantic-UI 0.14.0 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83044,7 +83287,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Colorpicker Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Dimmer
+ * # Fomantic-UI 0.14.0 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83503,7 +83746,7 @@ body.dimmable > .dimmer {
   padding: 1.71428571rem;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Dropdown
+ * # Fomantic-UI 0.14.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -86281,7 +86524,7 @@ select.ui.dropdown:focus {
   margin-left: 0.28571429rem;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Embed
+ * # Fomantic-UI 0.14.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -86449,7 +86692,7 @@ select.ui.dropdown:focus {
   text-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Flyout
+ * # Fomantic-UI 0.14.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -87295,7 +87538,7 @@ body.pushable > .pusher {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 /*!
- * # Fomantic-UI 0.13.0 - Modal
+ * # Fomantic-UI 0.14.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88261,7 +88504,7 @@ body.pushable > .pusher {
   color: #fff;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Nag
+ * # Fomantic-UI 0.14.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88984,7 +89227,7 @@ a.ui.nag {
 /* Variantes de estado: variación `states` del fork (nag.less) con los colores de estado del
    tema (globales). */
 /*!
- * # Fomantic-UI 0.13.0 - Popup
+ * # Fomantic-UI 0.14.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90597,7 +90840,7 @@ span[data-tooltip] {
   cursor: help;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Progress
+ * # Fomantic-UI 0.14.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92172,7 +92415,7 @@ span[data-tooltip] {
   text-shadow: 0 0 0.14285714rem rgba(0, 0, 0, 0.7), 0 0 0.28571429rem rgba(0, 0, 0, 0.5);
 }
 /*!
- * # Fomantic-UI 0.13.0 - Slider
+ * # Fomantic-UI 0.14.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -93514,7 +93757,7 @@ span[data-tooltip] {
   box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px light-dark(#1f2430, #535c6e) inset;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Rating
+ * # Fomantic-UI 0.14.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94072,7 +94315,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Search
+ * # Fomantic-UI 0.14.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94807,7 +95050,7 @@ span[data-tooltip] {
   color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.13.0 - Shape
+ * # Fomantic-UI 0.14.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94952,7 +95195,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Sidebar
+ * # Fomantic-UI 0.14.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97458,7 +97701,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Sticky
+ * # Fomantic-UI 0.14.0 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97523,7 +97766,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.13.0 - Tab
+ * # Fomantic-UI 0.14.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97612,7 +97855,7 @@ body.pushable > .pusher {
   padding-top: 1.14285714rem;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Toast
+ * # Fomantic-UI 0.14.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -98793,7 +99036,7 @@ body.pushable > .pusher {
   background: transparent;
 }
 /*!
- * # Fomantic-UI 0.13.0 - Transition
+ * # Fomantic-UI 0.14.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

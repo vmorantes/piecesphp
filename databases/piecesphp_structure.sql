@@ -299,6 +299,21 @@ CREATE TABLE `organizations_elements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
+DROP TABLE IF EXISTS `pcsphp_ai_usage`;
+CREATE TABLE `pcsphp_ai_usage` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `capability` varchar(64) NOT NULL,
+  `provider` varchar(64) NOT NULL,
+  `periodStart` datetime NOT NULL,
+  `tokens` bigint(20) NOT NULL,
+  `requests` int(11) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `capabilityProviderPeriod` (`capability`,`provider`,`periodStart`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+
 DROP TABLE IF EXISTS `pcsphp_app_config`;
 CREATE TABLE `pcsphp_app_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

@@ -18,10 +18,10 @@ use News\Mappers\NewsMapper;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\AI\AIGateway;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseHashEncryption;
-use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
@@ -613,7 +613,10 @@ class APIController extends AdminPanelController
                      */
                     $asHTMLProperties = $expectedParameters->getValue('asHTMLProperties');
 
-                    [$aiHandler, $translationAI, $modelOpenAI, $modelMistral] = $this->translationAIHandler();
+                    $translationAI = get_config('translationAI');
+                    $modelOpenAI = get_config('modelOpenAI');
+                    $modelMistral = get_config('modelMistral');
+                    $aiHandler = AIGateway::chatHandler('translation');
                     $lastUsage = [];
                     $lastAskToChatOriginalResponse = [];
 
@@ -667,7 +670,7 @@ class APIController extends AdminPanelController
                         $responseJSON['AI']['tokensUsed'] = $tokensUsed;
 
                         //Actualizar el uso de tokens
-                        $this->recordTokensUsed($translationAI, $tokensUsed);
+                        AIGateway::recordUsage('translation', (string) $translationAI, (int) $tokensUsed);
 
                         if ($translation !== null) {
                             $responseJSON['success'] = true;
@@ -739,14 +742,15 @@ class APIController extends AdminPanelController
                     ];
 
                     if (count($pending) > 0) {
-                        [$aiHandler, $translationAI] = $this->translationAIHandler();
+                        $translationAI = get_config('translationAI');
+                        $aiHandler = AIGateway::chatHandler('translation');
                         if ($aiHandler === null) {
                             $responseJSON['success'] = false;
                             $responseJSON['message'] = __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA');
                         } else {
                             try {
                                 $aiResult = $this->translateWithAI($aiHandler, array_combine($pending, $pending), [], __('lang', Config::get_default_lang()), __('lang', $to));
-                                $this->recordTokensUsed($translationAI, $aiResult['tokensUsed']);
+                                AIGateway::recordUsage('translation', (string) $translationAI, (int) $aiResult['tokensUsed']);
                                 $filtered = DynamicTranslationsHelper::acceptTranslations($pending, $aiResult['translation'] ?? []);
                                 $responseJSON['saved'] = $this->saveDynamicTranslations($to, $group, $filtered['accepted']);
                                 $responseJSON['translation'] = [$group => $filtered['accepted']];
@@ -786,30 +790,6 @@ class APIController extends AdminPanelController
             $response = $response->withJson($responseJSON);
         }
         return $response;
-    }
-
-    /**
-     * El manejador de IA configurado, con el proveedor y los modelos
-     *
-     * @return array{0: OpenAIHandlerAdapter|MistralHandlerAdapter|null, 1: mixed, 2: mixed, 3: mixed}
-     */
-    private function translationAIHandler(): array
-    {
-        $translationAI = get_config('translationAI');
-        $modelOpenAI = get_config('modelOpenAI');
-        $modelMistral = get_config('modelMistral');
-        $aiHandler = null;
-
-        //Destruir la conexión a la base de datos para evitar errores de conexión
-        BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
-
-        if ($translationAI == AI_OPENAI) {
-            $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
-        } elseif ($translationAI == AI_MISTRAL) {
-            $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
-        }
-
-        return [$aiHandler, $translationAI, $modelOpenAI, $modelMistral];
     }
 
     /**
@@ -917,20 +897,6 @@ class APIController extends AdminPanelController
             'lastAskToChatOriginalResponse' => $lastAskToChatOriginalResponse,
             'tokensUsed' => $aiHandler->getTokensUsed($lastUsage),
         ];
-    }
-
-    /**
-     * Suma los tokens usados al contador del proveedor
-     *
-     * @param mixed $translationAI
-     * @param mixed $tokensUsed
-     * @return void
-     */
-    private function recordTokensUsed($translationAI, $tokensUsed): void
-    {
-        $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
-        $currentUsageData[$translationAI] += $tokensUsed;
-        GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
     }
 
     /**

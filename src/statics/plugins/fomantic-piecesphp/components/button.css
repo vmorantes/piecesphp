@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.13.0 - Button
+ * # Fomantic-UI 0.14.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -154,9 +154,9 @@
   color: transparent;
   text-shadow: none;
 }
+
+/* Solo se oculta el texto de la etiqueta: con fondo y borde fuera, el conjunto perdía su forma */
 .ui.ui.ui.loading.button .label {
-  background-color: transparent;
-  border-color: transparent;
   color: transparent;
 }
 .ui.labeled.icon.loading.button .icon {
@@ -1384,6 +1384,15 @@
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.primary.buttons .active.button,
+.ui.basic.primary.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.primary.buttons .button,
 .ui.inverted.primary.button {
@@ -1577,6 +1586,15 @@
 .ui.basic.secondary.buttons .button:active,
 .ui.basic.secondary.button:active {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.secondary.buttons .active.button,
+.ui.basic.secondary.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -1776,6 +1794,15 @@
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.accent-1.buttons .active.button,
+.ui.basic.accent-1.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.accent-1.buttons .button,
 .ui.inverted.accent-1.button {
@@ -1969,6 +1996,15 @@
 .ui.basic.accent-2.buttons .button:active,
 .ui.basic.accent-2.button:active {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.accent-2.buttons .active.button,
+.ui.basic.accent-2.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -2168,6 +2204,15 @@
   color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.accent-3.buttons .active.button,
+.ui.basic.accent-3.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.accent-3.buttons .button,
 .ui.inverted.accent-3.button {
@@ -2361,6 +2406,15 @@
 .ui.basic.red.buttons .button:active,
 .ui.basic.red.button:active {
   box-shadow: 0 0 0 1px #e41f11 inset;
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.red.buttons .active.button,
+.ui.basic.red.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
@@ -2560,6 +2614,15 @@
   color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.orange.buttons .active.button,
+.ui.basic.orange.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+
 /* Inverted */
 .ui.inverted.orange.buttons .button,
 .ui.inverted.orange.button {
@@ -2753,6 +2816,15 @@
 .ui.basic.yellow.buttons .button:active,
 .ui.basic.yellow.button:active {
   box-shadow: 0 0 0 1px #c77306 inset;
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.yellow.buttons .active.button,
+.ui.basic.yellow.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
@@ -2952,6 +3024,15 @@
   color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.olive.buttons .active.button,
+.ui.basic.olive.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.olive.buttons .button,
 .ui.inverted.olive.button {
@@ -3145,6 +3226,15 @@
 .ui.basic.green.buttons .button:active,
 .ui.basic.green.button:active {
   box-shadow: 0 0 0 1px #11854f inset;
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.green.buttons .active.button,
+.ui.basic.green.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -3344,6 +3434,15 @@
   color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.teal.buttons .active.button,
+.ui.basic.teal.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.teal.buttons .button,
 .ui.inverted.teal.button {
@@ -3537,6 +3636,15 @@
 .ui.basic.blue.buttons .button:active,
 .ui.basic.blue.button:active {
   box-shadow: 0 0 0 1px #0676ef inset;
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.blue.buttons .active.button,
+.ui.basic.blue.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -3736,6 +3844,15 @@
   color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.violet.buttons .active.button,
+.ui.basic.violet.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.violet.buttons .button,
 .ui.inverted.violet.button {
@@ -3929,6 +4046,15 @@
 .ui.basic.purple.buttons .button:active,
 .ui.basic.purple.button:active {
   box-shadow: 0 0 0 1px #8434ae inset;
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.purple.buttons .active.button,
+.ui.basic.purple.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -4128,6 +4254,15 @@
   color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.pink.buttons .active.button,
+.ui.basic.pink.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.pink.buttons .button,
 .ui.inverted.pink.button {
@@ -4321,6 +4456,15 @@
 .ui.basic.brown.buttons .button:active,
 .ui.basic.brown.button:active {
   box-shadow: 0 0 0 1px #4a321f inset;
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.brown.buttons .active.button,
+.ui.basic.brown.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
@@ -4520,6 +4664,15 @@
   color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.grey.buttons .active.button,
+.ui.basic.grey.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* Inverted */
 .ui.inverted.grey.buttons .button,
 .ui.inverted.grey.button {
@@ -4712,6 +4865,15 @@
 .ui.basic.black.buttons .button:active,
 .ui.basic.black.button:active {
   box-shadow: 0 0 0 1px light-dark(#141821, #4b5363) inset;
+  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+}
+
+/* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
+               que salía rectangular dentro del contorno redondeado del grupo */
+.ui.basic.black.buttons .active.button,
+.ui.basic.black.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
   color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
 
@@ -4913,6 +5075,13 @@
   box-shadow: 0 0 0 1px #11854f inset;
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: activo en grupo con tinte, como en el bucle de colores */
+.ui.basic.positive.buttons .active.button,
+.ui.basic.positive.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
+}
 .ui.buttons:not(.vertical) > .basic.positive.button:not(:first-child) {
   margin-left: -1px;
 }
@@ -5021,6 +5190,13 @@
 .ui.basic.negative.button:active {
   box-shadow: 0 0 0 1px #e41f11 inset;
   color: light-dark(oklch(from #f04438 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
+/* Fork: activo en grupo con tinte, como en el bucle de colores */
+.ui.basic.negative.buttons .active.button,
+.ui.basic.negative.buttons .active.button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  box-shadow: none;
 }
 .ui.buttons:not(.vertical) > .basic.negative.button:not(:first-child) {
   margin-left: -1px;

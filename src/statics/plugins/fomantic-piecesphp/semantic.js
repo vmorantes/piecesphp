@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 0.13.0
+ * # Fomantic UI - 0.14.0
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 0.13.0 - Site
+ * # Fomantic-UI 0.14.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -513,7 +513,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Form Validation
+ * # Fomantic-UI 0.14.0 - Form Validation
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2713,7 +2713,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Accordion
+ * # Fomantic-UI 0.14.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3309,7 +3309,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Calendar
+ * # Fomantic-UI 0.14.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -5355,7 +5355,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Checkbox
+ * # Fomantic-UI 0.14.0 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -6247,7 +6247,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 0.13.0 - Colorpicker
+ * # Fomantic-UI 0.14.0 - Colorpicker
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -8621,7 +8621,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Dimmer
+ * # Fomantic-UI 0.14.0 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -9354,7 +9354,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Dropdown
+ * # Fomantic-UI 0.14.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -9510,6 +9510,7 @@
                     module.verbose('Destroying previous dropdown', $module);
                     module.remove.tabbable();
                     module.remove.active();
+                    module.fixedMenu.clear();
                     $menu.transition('stop all');
                     $menu.removeClass(className.visible).addClass(className.hidden);
                     $module
@@ -9925,6 +9926,7 @@
                         if (settings.onHide.call(element) !== false) {
                             module.animate.hide(function () {
                                 module.remove.visible();
+                                module.fixedMenu.clear();
                                 // hiding search focus
                                 if (module.is.focusedOnSearch() && preventBlur !== true) {
                                     $search.trigger('blur');
@@ -13061,6 +13063,67 @@
                     },
                 },
 
+                /* Fork: menuPosition 'fixed' (pedido por PiecesPHP): la lista se coloca con position: fixed sobre las
+                   coordenadas del campo, así no la recorta un contenedor con overflow. Abre hacia donde quepa en la
+                   ventana (y si no cabe en ningún lado, en el mayor con el alto limitado). No se mueve en el DOM: refresh,
+                   teclado y el cierre al pulsar fuera siguen igual. Se recoloca al desplazar (en cualquier ancestro) o
+                   redimensionar, y se limpia al cerrar */
+                fixedMenu: {
+                    place: function () {
+                        var
+                            rect = element.getBoundingClientRect(),
+                            viewport = document.documentElement.clientHeight || window.innerHeight,
+                            below = viewport - rect.bottom,
+                            above = rect.top,
+                            menuHeight,
+                            upward
+                        ;
+                        // .ui.selection.dropdown lleva transform: rotateZ(0), que haría del campo el bloque contenedor
+                        // de la lista fija; se anula mientras está abierta
+                        $module.css('transform', 'none');
+                        $menu.css({ position: 'fixed', maxHeight: '' });
+                        menuHeight = $menu.outerHeight();
+                        upward = menuHeight > below && (menuHeight <= above || above > below);
+                        $module.toggleClass(className.upward, upward);
+                        $menu.css({
+                            left: rect.left + 'px',
+                            width: rect.width + 'px',
+                            minWidth: rect.width + 'px',
+                            top: upward ? 'auto' : rect.bottom + 'px',
+                            bottom: upward ? (viewport - rect.top) + 'px' : 'auto',
+                        });
+                        // si no cabe por ningún lado, se limita al espacio mayor (descontando bordes y un margen de 8px)
+                        if (menuHeight > Math.max(below, above)) {
+                            $menu.css('maxHeight', (Math.max(below, above) - 8 - ($menu[0].offsetHeight - $menu[0].clientHeight)) + 'px');
+                        }
+                    },
+                    bind: function () {
+                        if (!module.fixedMenu.handler) {
+                            module.fixedMenu.handler = function (event) {
+                                if (event && event.type === 'scroll' && $menu[0].contains(event.target)) {
+                                    return;
+                                }
+                                module.fixedMenu.place();
+                            };
+                            window.addEventListener('scroll', module.fixedMenu.handler, true);
+                            window.addEventListener('resize', module.fixedMenu.handler);
+                        }
+                    },
+                    clear: function () {
+                        if (module.fixedMenu.handler) {
+                            window.removeEventListener('scroll', module.fixedMenu.handler, true);
+                            window.removeEventListener('resize', module.fixedMenu.handler);
+                            module.fixedMenu.handler = null;
+                        }
+                        if (settings.menuPosition === 'fixed') {
+                            $module.css('transform', '');
+                            $menu.css({
+                                position: '', left: '', width: '', minWidth: '', top: '', bottom: '', maxHeight: '',
+                            });
+                        }
+                    },
+                },
+
                 animate: {
                     show: function (callback, $subMenu) {
                         var
@@ -13079,6 +13142,10 @@
                             : function () {};
                         module.verbose('Doing menu show animation', $currentMenu);
                         module.set.direction($subMenu);
+                        if (!$subMenu && settings.menuPosition === 'fixed') {
+                            module.fixedMenu.place();
+                            module.fixedMenu.bind();
+                        }
                         transition = settings.transition.showMethod || module.get.transition($subMenu);
                         if (module.is.selection()) {
                             module.set.scrollPosition(module.get.selectedItem(), true);
@@ -13102,6 +13169,9 @@
                                         onStart: start,
                                         displayType: module.get.displayType(),
                                         onComplete: function () {
+                                            if (!$subMenu && settings.menuPosition === 'fixed') {
+                                                module.fixedMenu.place();
+                                            }
                                             callback.call(element);
                                         },
                                     })
@@ -13433,6 +13503,7 @@
 
         context: window, // Context to use when determining if on screen
         direction: 'auto', // Whether dropdown should always open in one direction
+        menuPosition: 'absolute', // Fork: 'fixed' places the menu over the field with position: fixed, so a scrolling container does not clip it
         keepOnScreen: true, // Whether dropdown should check whether it is on screen before showing
 
         match: 'both', // what to match against with search selection (both, text, or label)
@@ -13804,7 +13875,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Embed
+ * # Fomantic-UI 0.14.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -14493,7 +14564,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Flyout
+ * # Fomantic-UI 0.14.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -16051,7 +16122,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Modal
+ * # Fomantic-UI 0.14.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -17690,7 +17761,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Nag
+ * # Fomantic-UI 0.14.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -18257,7 +18328,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Popup
+ * # Fomantic-UI 0.14.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -19820,7 +19891,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Progress
+ * # Fomantic-UI 0.14.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -20802,7 +20873,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Slider
+ * # Fomantic-UI 0.14.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -22349,7 +22420,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Rating
+ * # Fomantic-UI 0.14.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -22890,7 +22961,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Search
+ * # Fomantic-UI 0.14.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -24548,7 +24619,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Shape
+ * # Fomantic-UI 0.14.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -25346,7 +25417,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Sidebar
+ * # Fomantic-UI 0.14.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -26403,7 +26474,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 0.13.0 - Shell
+ * # Fomantic-UI 0.14.0 - Shell
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27196,7 +27267,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 0.13.0 - Slideshow
+ * # Fomantic-UI 0.14.0 - Slideshow
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27983,7 +28054,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Sticky
+ * # Fomantic-UI 0.14.0 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -28905,7 +28976,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Tab
+ * # Fomantic-UI 0.14.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29871,7 +29942,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Toast
+ * # Fomantic-UI 0.14.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -30836,7 +30907,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Transition
+ * # Fomantic-UI 0.14.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -31871,7 +31942,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - API
+ * # Fomantic-UI 0.14.0 - API
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -33097,7 +33168,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - State
+ * # Fomantic-UI 0.14.0 - State
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -33795,7 +33866,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 0.13.0 - Visibility
+ * # Fomantic-UI 0.14.0 - Visibility
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

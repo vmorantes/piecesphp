@@ -1,7 +1,24 @@
+# 10.19.0 (13-11-2026)
+
+- **Nuevo: `bin/cli db-update`**, para aplicar las actualizaciones de la base que trae `databases/actualizaciones/` (tablas
+  nuevas, columnas, índices). Sin más, las lista; con `file=<nombre>`, enseña qué haría sin tocar nada; con `apply=yes`, las
+  aplica sentencia a sentencia, y solo si hay un respaldo de la última hora (`bin/cli db-backup`). Acepta el nombre de un
+  archivo de esa carpeta, nunca una ruta. Guía «Terminal», `db-update`.
+- **Tabla nueva, el consumo de la IA**: aplica `bin/cli db-backup` y después
+  `bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes`. Sin ella todo sigue funcionando: lo que no se pueda anotar
+  queda en el registro de errores.
+- **Para quien desarrolla: el centro de mando de la IA, primera entrega.** Un módulo registra sus usos de la IA con
+  `AICapabilityRegistry::register(new AICapability(…))` y pide el proveedor a `AIGateway::chatHandler()`, que anota lo
+  gastado con `AIGateway::recordUsage()`. La traducción con IA ya pasa por ahí, sin cambios visibles. Los controles por
+  capacidad (encenderla, quién la usa, cuota) llegan en una entrega próxima. Guía «El centro de mando de la IA».
+- **El tema del panel, 0.14.0** (antes 0.13.0; `bin/traer-tema`): trae clases nuevas que todavía no usa ninguna pantalla;
+  nada cambia a la vista.
+- **Documentación**: «Las notificaciones», «CronJobs» y la guía de la IA dicen cómo aplicar su tabla con `db-update`.
+
 # 10.18.0 (13-11-2026)
 
 - **Nuevo: `bin/mcp`**, un servidor MCP de solo lectura para quien desarrolla sobre el clon: un asistente de IA compatible con MCP puede consultar las rutas, los permisos, la API y la documentación sin leer el código. PHP, sin dependencias, solo en local. Guía «Un MCP para desarrollar».
-- **Geovisor**: las fechas del filtro van una debajo de otra y su calendario se abre fuera del panel de filtros, entero (antes, el panel lo cortaba y tapaba los campos). La lista de un desplegable largo del panel todavía puede quedar cortada en escritorio (se alcanza desplazando el panel); se arregla con la próxima versión del tema.
+- **Geovisor**: las fechas del filtro van una debajo de otra y su calendario se abre fuera del panel de filtros (antes, el panel lo cortaba y tapaba los campos); en una ventana muy baja puede no caber entero. La lista de un desplegable largo del panel todavía puede quedar cortada en escritorio (se alcanza desplazando el panel); se arregla con la próxima versión del tema.
 - **Con `open_basedir`** (por ejemplo, HestiaCP): la búsqueda de la carpeta de claves ya no deja un aviso en cada petición, y `constants.php` no redefine las rutas del registro de errores.
 - **Arreglado**: el cron ya no anota un error grave en cada pasada por una tarea que todavía no ha corrido nunca; una orden de la terminal lanzada en el mismo segundo que «cerrar todas las sesiones» ya no se queda sin acceso.
 - **Seguridad**: las carpetas de subidas niegan también `.pht` y `.phtm`.

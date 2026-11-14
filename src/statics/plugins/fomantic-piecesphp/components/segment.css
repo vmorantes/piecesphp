@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.13.0 - Segment
+ * # Fomantic-UI 0.14.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -916,6 +916,14 @@
 .ui.inverted.segment {
   border: none;
   box-shadow: none;
+}
+
+/* Fork: separador entre los segmentos de un grupo inverted (sin bordes, el grupo era un solo bloque con huecos) */
+.ui.inverted.segments:not(.horizontal) > .segment + .segment {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+.ui.inverted.horizontal.segments > .segment + .segment {
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
 }
 .ui.inverted.segments .segment,
 .ui.inverted.segment,

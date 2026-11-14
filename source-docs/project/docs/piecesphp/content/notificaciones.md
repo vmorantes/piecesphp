@@ -47,7 +47,8 @@ $created = Notifications::notify($userID, new NotificationMessage(
 (el icono va ahí). Borrar un usuario borra sus notificaciones. **Las leídas de más de 90 días**
 (`NotificationMapper::RETENTION_DAYS`) se borran al escribir una nueva, sin tarea programada. Las no leídas se quedan.
 
-Una instalación que ya existe crea la tabla con `databases/actualizaciones/2026-11-11-centro-de-notificaciones.sql`.
+Una instalación que ya existe crea la tabla con `bin/cli db-update file=2026-11-11-centro-de-notificaciones apply=yes`
+(con un `bin/cli db-backup` antes).
 
 ## La campana y la lista
 

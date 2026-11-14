@@ -73,7 +73,8 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | Acción | Parámetros | Qué hace |
 | :-- | :-- | :-- |
 | `db-backup` | `gz`, `data`, `routines`, `views`, `definer` (yes/no) | Respalda la base en `dumps/` |
-| `db-restore` | `file=<ruta>`, `confirm=yes`, `database=` | **Restaura** un volcado. Destruye los datos de la base destino: exige `confirm=yes` |
+| `db-restore` | `file=<ruta>`, `confirm=yes`, `database=` | **Restaura** un volcado. Destruye los datos de la base destino: exige `confirm=yes`. Para aplicar una actualización de `databases/actualizaciones/`, `db-update` |
+| `db-update` | `file=<nombre>`, `apply=yes` | Lista, simula o aplica las actualizaciones de la base (`databases/actualizaciones/`). Aplicar exige un volcado de la última hora. Ver [10. db-update](#10-db-update) |
 | `bundle` | `app`, `statics`, `all`, `zip` (yes/no) | Empaqueta la app y/o los estáticos en `bundle/` |
 | `clean-cache` / `clean-logs` / `clean-all` | — | Fuerza que todos descarguen de nuevo los estáticos (renueva la marca global, borra las imágenes optimizadas y los accesos directos de `server-delegated` que el usuario que la ejecuta pueda borrar) / limpia los logs, **sin borrar los archivos del formato viejo de sesiones caducadas** / las dos |
 | `scan-missing-lang` | `--exclude-lang=`, `--exclude-group=` | Informe de traducciones faltantes |
@@ -100,7 +101,7 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | `system-alerts` | — | Enumera los avisos del sistema activos, con su gravedad y si están ocultos. Solo lectura |
 | `version` | — | Imprime la versión de la instalación, su fecha y el commit del que salió, con su fuente |
 | `version-stamp` | `commit=<40 hex>` | Escribe el sello de despliegue con el commit, para instalaciones sin `.git`. Sale con 1 si el hash no es válido o no hay ninguno |
-| `clone-compare` | `ruta=`, `framework=`, `contra=`, `salida=`, `detalle=yes` | Compara un proyecto hecho a partir del framework con el framework, archivo por archivo, y dice de qué versión partió. Solo lectura. Ver [10. clone-compare](#10-clone-compare) |
+| `clone-compare` | `ruta=`, `framework=`, `contra=`, `salida=`, `detalle=yes` | Compara un proyecto hecho a partir del framework con el framework, archivo por archivo, y dice de qué versión partió. Solo lectura. Ver [11. clone-compare](#11-clone-compare) |
 | `clean-test-configs` | `apply=yes`, `key=<nombre>` | Retira las configuraciones de prueba (las que empiezan por el prefijo de prueba). Sin `apply=yes` solo las enumera |
 | `settings-migrate-extra-scripts` | — | Pasa los «Scripts adicionales» de Identidad y SEO a la pantalla «Scripts» y retira las opciones viejas. Se puede repetir: la segunda vez no hace nada |
 | `sessions-revoke-all` | `confirm=yes` | **Cierra las sesiones de todos los usuarios**. Exige `confirm=yes` |
@@ -257,7 +258,28 @@ El atajo `h` se retiró en la 8.0.0.
 
 ---
 
-### 10. clone-compare
+### 10. db-update
+Aplica a una instalación que ya existe las actualizaciones de la base que trae `databases/actualizaciones/`: tablas
+nuevas, columnas, índices. Cada versión que las necesite lo dice en el `CHANGELOG`, con el nombre del archivo.
+
+```bash
+bin/cli db-update                                             # lista las actualizaciones, con su primera línea
+bin/cli db-update file=2026-11-13-consumo-de-la-ia            # SIMULA: cuenta las sentencias y enseña cada una
+bin/cli db-backup                                             # aplicar exige un volcado de la última hora
+bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes  # aplica, sentencia a sentencia
+```
+
+- `file=` es el **nombre** de un archivo de esa carpeta, con o sin `.sql`; nunca una ruta (una con `/`, `\` o `..` se
+  rechaza sin leer nada).
+- Sin `apply=yes` no toca la base. Con él, y sin un volcado de la última hora en `dumps/`, tampoco: lo dice y sale con 1.
+- Aplica cada sentencia por separado, dice `OK` o `FALLO` en cada una, **sigue tras un fallo** y sale con 1 si alguna
+  falló. Un `ALTER` que ya se aplicó falla sin daño (por ejemplo, «Duplicate key name»): si la tabla ya estaba, ese
+  fallo es lo esperado.
+- A diferencia de `db-restore`, no deja el rastro de «base restaurada» que leen las herramientas de desarrollo.
+
+---
+
+### 11. clone-compare
 Compara un proyecto que nació de PiecesPHP con el framework, archivo por archivo, para saber de qué versión partió y qué
 cambió. Sirve para preparar la actualización de un proyecto antiguo. **Solo lee**: no escribe en el proyecto ni en el
 framework, y nunca enseña el contenido de un archivo, solo rutas y cifras (un proyecto tiene configuración y claves).

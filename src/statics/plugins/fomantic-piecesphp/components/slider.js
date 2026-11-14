@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.13.0 - Slider
+ * # Fomantic-UI 0.14.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

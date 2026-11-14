@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.13.0 - Statistic
+ * # Fomantic-UI 0.14.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -18,6 +18,10 @@
 .ui.statistic {
   display: inline-flex;
   flex-direction: column;
+  
+/* Fork: en línea, alineadas por arriba (por la línea base, una cifra en texto bajaba su etiqueta respecto a la
+       numérica de al lado aunque las dos cajas midan lo mismo) */
+  vertical-align: top;
   margin: 1em 0;
   max-width: none;
 }
@@ -139,6 +143,12 @@
 /* Fork: el alto del valor numérico del mismo tamaño (@textValueMinHeight, 2em, solo cuadraba con un texto de la
        mitad del número, como en default): las etiquetas de un grupo quedan alineadas con cualquier proporción */
   min-height: 2.28571429rem;
+  
+/* Fork: centrado en vertical en ese alto (quedaba arriba, a la altura del borde superior de la cifra) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   font-weight: 600;
   text-align: center;
 }
