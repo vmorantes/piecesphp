@@ -1,3 +1,8 @@
+# 10.16.1 (13-11-2026)
+
+- **El tema del panel, 0.13.0** (antes 0.12.0; `bin/traer-tema`): los bloques de la barra lateral toman la forma de su hueco (en la marca, la letra de «Versión …»; bajo el menú, la sangría de las entradas; en el pie, centrados; en la barra contraída, centrados), la campana deja más sitio a su contador frente al botón de al lado, y además: el aro blanco del botón `inverted basic black`, las `ui cards` sin número de columnas a todo el ancho en el móvil, el valor de texto de `statistic` con el alto de un número y el `feed inverted black basic` legible.
+- **Arreglado**: en Usuarios, el buscador ocupa el ancho de su fila y su texto de ayuda se lee entero en escritorio (la etiqueta «Buscar:» pasa encima del campo); en «Mi cuenta» › «Preferencias», la ayuda del tamaño de letra ya no queda pegada a sus botones.
+
 # 10.16.0 (13-11-2026)
 
 - **Nuevo: los dominios permitidos.** `$config['allowed_hosts']` (en `config.php`, bloque «Seguridad») dice con qué dominios se sirve la instalación; cualquier otro recibe un 400 antes de que el framework arme un enlace o una cookie. Una entrada que empieza por `.` vale también para sus subdominios. **Vacía, que es como viene, todo funciona como antes**; fuera de local, Avisos del sistema lo recuerda al administrador principal hasta que pongas los tuyos. Detalle en la guía de configuración («Seguridad»).

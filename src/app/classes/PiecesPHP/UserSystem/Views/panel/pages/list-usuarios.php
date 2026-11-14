@@ -55,7 +55,7 @@ $perPageOptions = [12, 24, 48];
                             </select>
                             <span><?= __($langGroup, 'elementos'); ?></span>
                         </div>
-                        <div class="ui inline field">
+                        <div class="ui inline wide fluid field">
                             <label for="users-search-<?= $tabKey; ?>"><?= __($langGroup, 'Buscar:'); ?></label>
                             <div class="ui icon input">
                                 <input type="search" id="users-search-<?= $tabKey; ?>" placeholder="<?= escape_html(__($langGroup, 'Nombre, usuario, email u organización')); ?>">

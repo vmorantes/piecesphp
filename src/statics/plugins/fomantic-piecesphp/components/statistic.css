@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.12.0 - Statistic
+ * # Fomantic-UI 0.13.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -135,7 +135,10 @@
 .ui.statistics .statistic > .text.value,
 .ui.statistic > .text.value {
   line-height: 1em;
-  min-height: 2em;
+  
+/* Fork: el alto del valor numérico del mismo tamaño (@textValueMinHeight, 2em, solo cuadraba con un texto de la
+       mitad del número, como en default): las etiquetas de un grupo quedan alineadas con cualquier proporción */
+  min-height: 2.28571429rem;
   font-weight: 600;
   text-align: center;
 }
@@ -601,6 +604,7 @@
 .ui.mini.statistics .statistic > .text.value,
 .ui.mini.statistic > .text.value {
   font-size: 1rem;
+  min-height: 1.52380952rem;
 }
 .ui.tiny.statistics .statistic > .value,
 .ui.tiny.statistic > .value {
@@ -613,6 +617,7 @@
 .ui.tiny.statistics .statistic > .text.value,
 .ui.tiny.statistic > .text.value {
   font-size: 1rem;
+  min-height: 1.71428571rem;
 }
 .ui.small.statistics .statistic > .value,
 .ui.small.statistic > .value {
@@ -625,6 +630,7 @@
 .ui.small.statistics .statistic > .text.value,
 .ui.small.statistic > .text.value {
   font-size: 1rem;
+  min-height: 1.9047619rem;
 }
 .ui.large.statistics .statistic > .value,
 .ui.large.statistic > .value {
@@ -637,6 +643,7 @@
 .ui.large.statistics .statistic > .text.value,
 .ui.large.statistic > .text.value {
   font-size: 1.42857143rem;
+  min-height: 3.04761905rem;
 }
 .ui.big.statistics .statistic > .value,
 .ui.big.statistic > .value {
@@ -649,6 +656,7 @@
 .ui.big.statistics .statistic > .text.value,
 .ui.big.statistic > .text.value {
   font-size: 1.71428571rem;
+  min-height: 3.80952381rem;
 }
 .ui.huge.statistics .statistic > .value,
 .ui.huge.statistic > .value {
@@ -661,6 +669,7 @@
 .ui.huge.statistics .statistic > .text.value,
 .ui.huge.statistic > .text.value {
   font-size: 2.28571429rem;
+  min-height: 5.33333333rem;
 }
 .ui.massive.statistics .statistic > .value,
 .ui.massive.statistic > .value {
@@ -673,6 +682,7 @@
 .ui.massive.statistics .statistic > .text.value,
 .ui.massive.statistic > .text.value {
   font-size: 2.85714286rem;
+  min-height: 6.0952381rem;
 }
 
 /* -------------------

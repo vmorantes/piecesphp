@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.12.0 - Card
+ * # Fomantic-UI 0.13.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3083,6 +3083,15 @@ a.inverted.ui.card:hover,
   height: auto;
   margin: 0 0 0.57142857em;
   text-align: left;
+}
+
+/* Tarjetas de ancho fijo en móvil: sin número de columnas, una tarjeta de @width dejaba la franja a
+   medias (a 390, unos 70px vacíos a la derecha). Ocupan la fila; un tema que quiera otra rejilla en
+   móvil (piecesphp: dos statistic por fila) la declara con más especificidad. */
+@media only screen and (max-width: 767.98px) {
+  .ui.cards:not([class*="column"]):not(.one):not(.two):not(.three):not(.four):not(.five):not(.six):not(.seven):not(.eight):not(.horizontal) > .card {
+    width: calc(100% - 1.42857143rem);
+  }
 }
 
 /* Descripción en Pequeño 12/16 (sin variable de tamaño) y meta con su interlineado */

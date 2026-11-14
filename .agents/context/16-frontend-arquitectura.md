@@ -269,8 +269,8 @@ ruta, no por orden del menú.
 **Bloques registrados en tres huecos** (JIO, `08047832`, P312 a): `SidebarBlockRegistry::renderSlot()` en `menu.php`
 (`brand-after-meta`, `menu-after`, `footer`); guía en `panel.md`, «La barra lateral». Trampa: **las tres llamadas van SIN
 sangría**: con ella, sin bloques salen espacios y cae el invariante (sin bloques, el `<nav>` es idéntico byte a byte:
-medido por sha1 del HTML del servidor). A 390 el cajón ignora contraer (`shell.js:320`). El tema aún no da estilo a
-`.sidebar-block` (H275). Suite `core/sidebar-blocks`.
+medido por sha1 del HTML del servidor). A 390 el cajón ignora contraer (`shell.js:320`). El estilo de `.sidebar-block` es del
+tema (0.13.0, JIS `5448d183`). Suite `core/sidebar-blocks`.
 
 **Preguntar** (FT, `57e3c7d4`): la comprobación 50 caza también un toast de Fomantic con botones (`actions` dentro de la
 llamada); los avisos sin botones siguen permitidos. **`RowActions::delete()` pinta siempre en rojo** (decisión del
@@ -452,6 +452,7 @@ panel implementado**, y el tema se compara contra él:
   `.dropdown()` sale nativo (el salto de «Correos del sitio» lo era); al iniciarlo, el envoltorio del tema no copia el
   `aria-label` del `select`: hay que copiarlo (H224).
 - **Cada `bin/traer-tema` lleva capturas antes y después, a 1440 Y a 390** (la de JFO fue solo a 1440 y dejó pasar una
+- **El repositorio del tema avanza solo**: antes de traer, el compilado se comprueba por su historial (`git log <etiqueta>..HEAD -- dist-temas/piecesphp` vacío) y su estado, no por el HEAD; `ORIGEN.json` registra el HEAD y `--check` avisa de que `VERSION.json` es de otro commit (esperado; JIS, `#2784`).
   regresión de móvil en la cabecera de página), de la hoja de diseño (etiquetas de estado, piezas) y de las
   pantallas que cambian: el punto de las etiquetas de estado partido en celdas estrechas entró con una traída y nadie lo
   vio. El tema compila en vivo: lo que se verifica es lo de `ORIGEN.json`, con `sin_commitear` 0.

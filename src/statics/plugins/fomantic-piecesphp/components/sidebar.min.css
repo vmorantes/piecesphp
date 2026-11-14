@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.12.0 - Sidebar
+ * # Fomantic-UI 0.13.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

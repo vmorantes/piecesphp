@@ -200,9 +200,9 @@ SidebarBlockRegistry::register(new SidebarBlock(
   `SidebarBlockRegistry::replace(new SidebarBlock('<clave>', …))` (lanza si la clave no existe; `register()` lanza si ya
   existe).
 - **Una excepción dentro de la función no se captura**: rompe la página, como en las tarjetas del inicio.
-- **Provisional: el tema aún no da estilo base a `.sidebar-block`.** Un texto suelto toma la letra del sitio donde cae
-  (en la marca, la del nombre) y bajo el menú no lleva la sangría de las entradas. Mientras, da forma al bloque con las
-  piezas del tema (`<small>`, un `ui label`, un icono).
+- **El tema da la forma base** (desde su 0.13.0): en la marca, la letra de «Versión …»; bajo el menú, la sangría de las
+  entradas; en el pie, centrado; en el carril contraído, el bloque centrado. Un texto suelto ya se ve bien; para más,
+  las piezas del tema.
 
 ## Piezas que pone el sistema
 

@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 0.12.0
+ * # Fomantic UI - 0.13.0
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 0.12.0 - Reset
+ * # Fomantic-UI 0.13.0 - Reset
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -426,7 +426,7 @@ template {
   display: none;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Site
+ * # Fomantic-UI 0.13.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3231,7 +3231,7 @@ strong {
   font-weight: 600;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Button
+ * # Fomantic-UI 0.13.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -8505,6 +8505,7 @@ strong {
 .ui.inverted.black.buttons .basic.button:hover,
 .ui.inverted.black.basic.button:hover {
   box-shadow: 0 0 0 2px #000000 inset;
+  box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
 }
 
@@ -8513,12 +8514,14 @@ strong {
 .ui.inverted.black.basic.button:focus {
   box-shadow: 0 0 0 2px #000000 inset;
   color: oklch(from #4b5363 max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px #fff inset;
 }
 
 .ui.inverted.black.basic.buttons .active.button,
 .ui.inverted.black.buttons .basic.active.button,
 .ui.inverted.black.basic.active.button {
   box-shadow: 0 0 0 2px #000000 inset;
+  box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
 }
 
@@ -8526,6 +8529,7 @@ strong {
 .ui.inverted.black.buttons .basic.button:active,
 .ui.inverted.black.basic.button:active {
   box-shadow: 0 0 0 2px #000000 inset;
+  box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
 }
 
@@ -9880,7 +9884,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
         Chart Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Container
+ * # Fomantic-UI 0.13.0 - Container
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10257,7 +10261,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Divider
+ * # Fomantic-UI 0.13.0 - Divider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10600,7 +10604,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.12.0 - Emoji
+ * # Fomantic-UI 0.13.0 - Emoji
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29720,7 +29724,7 @@ em[data-emoji="regional_indicator_a"]::before {
              Emojis
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Flag
+ * # Fomantic-UI 0.13.0 - Flag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -31355,7 +31359,7 @@ i.flag.united.nations::before {
          Flex Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Header
+ * # Fomantic-UI 0.13.0 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32589,7 +32593,7 @@ h1.ui.header:not(:last-child) {
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 /*!
- * # Fomantic-UI 0.12.0 - Icon
+ * # Fomantic-UI 0.13.0 - Icon
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -41935,7 +41939,7 @@ i.huge.bordered.primary.icon.icon.icon.icon.icon.icon:not(.inverted) {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.12.0 - Image
+ * # Fomantic-UI 0.13.0 - Image
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -42356,7 +42360,7 @@ svg.ui.avatar.image,
   box-shadow: 0 0 0 1px var(--theme-border);
 }
 /*!
- * # Fomantic-UI 0.12.0 - Input
+ * # Fomantic-UI 0.13.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -44688,7 +44692,7 @@ input[type="file"].ui.black.file.input::file-selector-button:hover,
   text-overflow: ellipsis;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Label
+ * # Fomantic-UI 0.13.0 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -48154,7 +48158,7 @@ a.ui.ui.ui.basic.teal.label:hover {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.12.0 - List
+ * # Fomantic-UI 0.13.0 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -49311,7 +49315,7 @@ ol.ui.suffixed.list li::before,
   padding: 0;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Loader
+ * # Fomantic-UI 0.13.0 - Loader
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -50650,7 +50654,7 @@ ol.ui.suffixed.list li::before,
   border-color: rgba(255, 255, 255, 0.15);
 }
 /*!
- * # Fomantic-UI 0.12.0 - Placeholder
+ * # Fomantic-UI 0.13.0 - Placeholder
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -50956,7 +50960,7 @@ body {
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 /*!
- * # Fomantic-UI 0.12.0 - Rail
+ * # Fomantic-UI 0.13.0 - Rail
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51114,7 +51118,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Reveal
+ * # Fomantic-UI 0.13.0 - Reveal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51421,7 +51425,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Segment
+ * # Fomantic-UI 0.13.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -53155,7 +53159,7 @@ body {
   color-scheme: inherit;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Step
+ * # Fomantic-UI 0.13.0 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -56743,7 +56747,7 @@ body {
         Swatch Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Text
+ * # Fomantic-UI 0.13.0 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -57144,7 +57148,7 @@ span.ui.info.text {
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.12.0 - Breadcrumb
+ * # Fomantic-UI 0.13.0 - Breadcrumb
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -58319,7 +58323,7 @@ table.dataTable td.dt-type-date {
   }
 }
 /*!
- * # Fomantic-UI 0.12.0 - Form
+ * # Fomantic-UI 0.13.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -60945,7 +60949,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.12.0 - Grid
+ * # Fomantic-UI 0.13.0 - Grid
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -63320,7 +63324,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.12.0 - Menu
+ * # Fomantic-UI 0.13.0 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -66721,7 +66725,7 @@ Floated Menu / Item
   }
 }
 /*!
- * # Fomantic-UI 0.12.0 - Message
+ * # Fomantic-UI 0.13.0 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -67901,7 +67905,7 @@ Floated Menu / Item
   box-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Table
+ * # Fomantic-UI 0.13.0 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -73427,7 +73431,7 @@ Floated Menu / Item
   color: #4b5363;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Ad
+ * # Fomantic-UI 0.13.0 - Ad
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -73732,7 +73736,7 @@ Floated Menu / Item
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Card
+ * # Fomantic-UI 0.13.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -77169,6 +77173,16 @@ a.inverted.ui.card:hover,
   text-align: left;
 }
 
+/* Tarjetas de ancho fijo en móvil: sin número de columnas, una tarjeta de @width dejaba la franja a
+   medias (a 390, unos 70px vacíos a la derecha). Ocupan la fila; un tema que quiera otra rejilla en
+   móvil (piecesphp: dos statistic por fila) la declara con más especificidad. */
+
+@media only screen and (max-width: 767.98px) {
+  .ui.cards:not([class*="column"]):not(.one):not(.two):not(.three):not(.four):not(.five):not(.six):not(.seven):not(.eight):not(.horizontal) > .card {
+    width: calc(100% - 1.42857143rem);
+  }
+}
+
 /* Descripción en Pequeño 12/16 (sin variable de tamaño) y meta con su interlineado */
 
 .ui.cards > .card > .content > .description,
@@ -77387,7 +77401,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   align-self: flex-start;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Comment
+ * # Fomantic-UI 0.13.0 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -77733,7 +77747,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   object-fit: cover;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Feed
+ * # Fomantic-UI 0.13.0 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -78845,6 +78859,14 @@ a.ui.link.card > .content > i.right.floated.icon {
   color: #4b5363;
 }
 
+/* Fork: inverted basic black con el texto inverted (su tono claro, @lightBlack, es gris oscuro y el número y el aro
+   no se veían sobre el fondo oscuro), como el aro blanco del botón inverted basic black */
+
+.ui.feed > .event > .inverted.black.basic.label::before,
+.ui.inverted.black.basic.feed > .event > .label::before {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .ui.ui.feed > .event > .basic.label::before,
 .ui.ui.ui.basic.feed > .event > .label::before {
   background: transparent;
@@ -78901,7 +78923,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Item
+ * # Fomantic-UI 0.13.0 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79524,7 +79546,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.5;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Statistic
+ * # Fomantic-UI 0.13.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79667,7 +79689,9 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.statistics .statistic > .text.value,
 .ui.statistic > .text.value {
   line-height: 1em;
-  min-height: 2em;
+  /* Fork: el alto del valor numérico del mismo tamaño (@textValueMinHeight, 2em, solo cuadraba con un texto de la
+       mitad del número, como en default): las etiquetas de un grupo quedan alineadas con cualquier proporción */
+  min-height: 2.28571429rem;
   font-weight: 600;
   text-align: center;
 }
@@ -80192,6 +80216,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.mini.statistics .statistic > .text.value,
 .ui.mini.statistic > .text.value {
   font-size: 1rem;
+  min-height: 1.52380952rem;
 }
 
 .ui.tiny.statistics .statistic > .value,
@@ -80207,6 +80232,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.tiny.statistics .statistic > .text.value,
 .ui.tiny.statistic > .text.value {
   font-size: 1rem;
+  min-height: 1.71428571rem;
 }
 
 .ui.small.statistics .statistic > .value,
@@ -80222,6 +80248,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.small.statistics .statistic > .text.value,
 .ui.small.statistic > .text.value {
   font-size: 1rem;
+  min-height: 1.9047619rem;
 }
 
 .ui.large.statistics .statistic > .value,
@@ -80237,6 +80264,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.large.statistics .statistic > .text.value,
 .ui.large.statistic > .text.value {
   font-size: 1.42857143rem;
+  min-height: 3.04761905rem;
 }
 
 .ui.big.statistics .statistic > .value,
@@ -80252,6 +80280,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.big.statistics .statistic > .text.value,
 .ui.big.statistic > .text.value {
   font-size: 1.71428571rem;
+  min-height: 3.80952381rem;
 }
 
 .ui.huge.statistics .statistic > .value,
@@ -80267,6 +80296,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.huge.statistics .statistic > .text.value,
 .ui.huge.statistic > .text.value {
   font-size: 2.28571429rem;
+  min-height: 5.33333333rem;
 }
 
 .ui.massive.statistics .statistic > .value,
@@ -80282,6 +80312,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.massive.statistics .statistic > .text.value,
 .ui.massive.statistic > .text.value {
   font-size: 2.85714286rem;
+  min-height: 6.0952381rem;
 }
 
 /* -------------------
@@ -80359,7 +80390,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   letter-spacing: -0.02em;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Accordion
+ * # Fomantic-UI 0.13.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81104,7 +81135,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.12.0 - Calendar
+ * # Fomantic-UI 0.13.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81532,7 +81563,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 /*!
- * # Fomantic-UI 0.12.0 - Checkbox
+ * # Fomantic-UI 0.13.0 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83013,7 +83044,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Colorpicker Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Dimmer
+ * # Fomantic-UI 0.13.0 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83472,7 +83503,7 @@ body.dimmable > .dimmer {
   padding: 1.71428571rem;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Dropdown
+ * # Fomantic-UI 0.13.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -86250,7 +86281,7 @@ select.ui.dropdown:focus {
   margin-left: 0.28571429rem;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Embed
+ * # Fomantic-UI 0.13.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -86418,7 +86449,7 @@ select.ui.dropdown:focus {
   text-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Flyout
+ * # Fomantic-UI 0.13.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -87264,7 +87295,7 @@ body.pushable > .pusher {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 /*!
- * # Fomantic-UI 0.12.0 - Modal
+ * # Fomantic-UI 0.13.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88230,7 +88261,7 @@ body.pushable > .pusher {
   color: #fff;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Nag
+ * # Fomantic-UI 0.13.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88953,7 +88984,7 @@ a.ui.nag {
 /* Variantes de estado: variación `states` del fork (nag.less) con los colores de estado del
    tema (globales). */
 /*!
- * # Fomantic-UI 0.12.0 - Popup
+ * # Fomantic-UI 0.13.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90566,7 +90597,7 @@ span[data-tooltip] {
   cursor: help;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Progress
+ * # Fomantic-UI 0.13.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92141,7 +92172,7 @@ span[data-tooltip] {
   text-shadow: 0 0 0.14285714rem rgba(0, 0, 0, 0.7), 0 0 0.28571429rem rgba(0, 0, 0, 0.5);
 }
 /*!
- * # Fomantic-UI 0.12.0 - Slider
+ * # Fomantic-UI 0.13.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -93483,7 +93514,7 @@ span[data-tooltip] {
   box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px light-dark(#1f2430, #535c6e) inset;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Rating
+ * # Fomantic-UI 0.13.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94041,7 +94072,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Search
+ * # Fomantic-UI 0.13.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94776,7 +94807,7 @@ span[data-tooltip] {
   color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.12.0 - Shape
+ * # Fomantic-UI 0.13.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94921,7 +94952,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Sidebar
+ * # Fomantic-UI 0.13.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -95673,6 +95704,18 @@ body.pushable > .pusher {
   margin: 0 0 0 auto;
 }
 
+/* Fork: bloques de módulo en la barra lateral (`.sidebar-block`, pedidos por PiecesPHP): debajo de la marca, del menú y
+   en el pie. En la marca, con la letra de `.meta` (heredaban la de `.name` y la marca crecía) */
+
+.ui.shell > .navigation > .brand > .identity > .sidebar-block {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--theme-text-muted);
+  font-size: 0.85714286rem;
+  font-weight: 400;
+  line-height: 1.33333333;
+}
+
 /* --------------
   Collapse toggle
 --------------- */
@@ -95760,6 +95803,14 @@ body.pushable > .pusher {
 
 .ui.shell > .navigation > .ui.menu .item::before {
   display: none;
+}
+
+/* Fork: bloque de módulo bajo el menú, con la sangría y el margen de las entradas */
+
+.ui.shell > .navigation > .ui.menu > .sidebar-block {
+  margin: 0 0 0.14285714rem;
+  padding: 0 0.71428571rem;
+  overflow-wrap: anywhere;
 }
 
 /* Filas: ítem, título de grupo e ítem de submenú comparten disposición */
@@ -95943,6 +95994,14 @@ body.pushable > .pusher {
   align-self: stretch;
 }
 
+/* Fork: bloque de módulo en el pie: a lo ancho, con la separación (gap) y la letra del pie */
+
+.ui.shell > .navigation > .footer > .sidebar-block {
+  align-self: stretch;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
 /* Un `ui vertical flex` sin separación propia dentro de ese bloque reparte sus piezas con la del
    pie (el bloque es un solo hijo del pie y su gap no le llegaba) */
 
@@ -96020,7 +96079,7 @@ body.pushable > .pusher {
 
 .ui.shell > .main > .bar .ui.ui.button:has(> .floating.label) {
   position: relative;
-  margin-right: 4px !important;
+  margin-right: 7px !important;
   /* Fork: hueco para un contador de tres cifras (99+) que sale del botón; !important porque el tertiary icon de algunos temas fuerza margin 0 */
 }
 
@@ -96170,6 +96229,14 @@ body.pushable > .pusher {
   .ui.collapsed.shell > .navigation > .ui.menu {
     overflow: visible;
     padding: 0 0.85714286rem 1.14285714rem;
+  }
+
+  /* Fork: bloque de módulo en el carril: centrado y sin sangría (ahí solo cabe un ícono) */
+
+  .ui.collapsed.shell > .navigation > .ui.menu > .sidebar-block:not(.expanded) {
+    display: flex;
+    justify-content: center;
+    padding: 0;
   }
 
   /* Etiquetas de sección: una línea */
@@ -97391,7 +97458,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Sticky
+ * # Fomantic-UI 0.13.0 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97456,7 +97523,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.12.0 - Tab
+ * # Fomantic-UI 0.13.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97545,7 +97612,7 @@ body.pushable > .pusher {
   padding-top: 1.14285714rem;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Toast
+ * # Fomantic-UI 0.13.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -98726,7 +98793,7 @@ body.pushable > .pusher {
   background: transparent;
 }
 /*!
- * # Fomantic-UI 0.12.0 - Transition
+ * # Fomantic-UI 0.13.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

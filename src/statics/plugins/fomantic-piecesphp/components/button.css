@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.12.0 - Button
+ * # Fomantic-UI 0.13.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -4779,6 +4779,7 @@
 .ui.inverted.black.buttons .basic.button:hover,
 .ui.inverted.black.basic.button:hover {
   box-shadow: 0 0 0 2px #000000 inset;
+  box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
 }
 .ui.inverted.black.basic.buttons .button:focus,
@@ -4786,17 +4787,20 @@
 .ui.inverted.black.basic.button:focus {
   box-shadow: 0 0 0 2px #000000 inset;
   color: oklch(from #4b5363 max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px #fff inset;
 }
 .ui.inverted.black.basic.buttons .active.button,
 .ui.inverted.black.buttons .basic.active.button,
 .ui.inverted.black.basic.active.button {
   box-shadow: 0 0 0 2px #000000 inset;
+  box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
 }
 .ui.inverted.black.basic.buttons .button:active,
 .ui.inverted.black.buttons .basic.button:active,
 .ui.inverted.black.basic.button:active {
   box-shadow: 0 0 0 2px #000000 inset;
+  box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
 }
 

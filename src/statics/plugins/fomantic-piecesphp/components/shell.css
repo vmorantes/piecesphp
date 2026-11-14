@@ -101,6 +101,17 @@
   margin: 0 0 0 auto;
 }
 
+/* Fork: bloques de módulo en la barra lateral (`.sidebar-block`, pedidos por PiecesPHP): debajo de la marca, del menú y
+   en el pie. En la marca, con la letra de `.meta` (heredaban la de `.name` y la marca crecía) */
+.ui.shell > .navigation > .brand > .identity > .sidebar-block {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--theme-text-muted);
+  font-size: 0.85714286rem;
+  font-weight: 400;
+  line-height: 1.33333333;
+}
+
 /* --------------
   Collapse toggle
 --------------- */
@@ -181,6 +192,13 @@
 /* Sin separadores entre ítems (también libera ::before para los tooltips) */
 .ui.shell > .navigation > .ui.menu .item::before {
   display: none;
+}
+
+/* Fork: bloque de módulo bajo el menú, con la sangría y el margen de las entradas */
+.ui.shell > .navigation > .ui.menu > .sidebar-block {
+  margin: 0 0 0.14285714rem;
+  padding: 0 0.71428571rem;
+  overflow-wrap: anywhere;
 }
 
 /* Filas: ítem, título de grupo e ítem de submenú comparten disposición */
@@ -342,6 +360,13 @@
   align-self: stretch;
 }
 
+/* Fork: bloque de módulo en el pie: a lo ancho, con la separación (gap) y la letra del pie */
+.ui.shell > .navigation > .footer > .sidebar-block {
+  align-self: stretch;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
 /* Un `ui vertical flex` sin separación propia dentro de ese bloque reparte sus piezas con la del
    pie (el bloque es un solo hijo del pie y su gap no le llegaba) */
 .ui.shell > .navigation > .footer > .only > .ui.vertical.flex:not(.tight):not(.relaxed):not(.wide):not(.fitted) {
@@ -413,7 +438,7 @@
 /* Contador sobre un botón de la barra (`ui floating label` dentro del botón) */
 .ui.shell > .main > .bar .ui.ui.button:has(> .floating.label) {
   position: relative;
-  margin-right: 4px !important;
+  margin-right: 7px !important;
   
 /* Fork: hueco para un contador de tres cifras (99+) que sale del botón; !important porque el tertiary icon de algunos temas fuerza margin 0 */
 }
@@ -546,6 +571,13 @@
   .ui.collapsed.shell > .navigation > .ui.menu {
     overflow: visible;
     padding: 0 0.85714286rem 1.14285714rem;
+  }
+  
+/* Fork: bloque de módulo en el carril: centrado y sin sangría (ahí solo cabe un ícono) */
+  .ui.collapsed.shell > .navigation > .ui.menu > .sidebar-block:not(.expanded) {
+    display: flex;
+    justify-content: center;
+    padding: 0;
   }
   
 /* Etiquetas de sección: una línea */

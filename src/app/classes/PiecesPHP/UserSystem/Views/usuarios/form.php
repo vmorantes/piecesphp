@@ -139,13 +139,15 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
                 ]);
             ?>
             <?php //El mismo grupo que tenía el menú de usuario: lo guarda y lo aplica el manejador de configurations.js. ?>
-            <small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra'); ?></small>
-            <div class="ui three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra')); ?>" aria-describedby="user-preferences-text-size-help" text-size-selector data-url="<?= escape_html(AdminPanelController::routeName('text-size')); ?>">
-                <?php foreach (['normal' => 'Normal', 'large' => 'Grande', 'larger' => 'Más grande'] as $textSizeOption => $textSizeOptionName) : ?>
-                <button type="button" class="ui button<?= ($textSize ?? '') === $textSizeOption ? ' active' : ''; ?>" role="radio" aria-checked="<?= ($textSize ?? '') === $textSizeOption ? 'true' : 'false'; ?>" tabindex="<?= ($textSize ?? '') === $textSizeOption ? '0' : '-1'; ?>" data-text-size="<?= $textSizeOption; ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, $textSizeOptionName); ?></button>
-                <?php endforeach; ?>
+            <div class="ui vertical flex">
+                <small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra'); ?></small>
+                <div class="ui three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra')); ?>" aria-describedby="user-preferences-text-size-help" text-size-selector data-url="<?= escape_html(AdminPanelController::routeName('text-size')); ?>">
+                    <?php foreach (['normal' => 'Normal', 'large' => 'Grande', 'larger' => 'Más grande'] as $textSizeOption => $textSizeOptionName) : ?>
+                    <button type="button" class="ui button<?= ($textSize ?? '') === $textSizeOption ? ' active' : ''; ?>" role="radio" aria-checked="<?= ($textSize ?? '') === $textSizeOption ? 'true' : 'false'; ?>" tabindex="<?= ($textSize ?? '') === $textSizeOption ? '0' : '-1'; ?>" data-text-size="<?= $textSizeOption; ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, $textSizeOptionName); ?></button>
+                    <?php endforeach; ?>
+                </div>
+                <p class="ui muted text" id="user-preferences-text-size-help"><?= __($langGroup, 'Se aplica al momento y se guarda en tu cuenta.'); ?></p>
             </div>
-            <p class="ui muted text" id="user-preferences-text-size-help"><?= __($langGroup, 'Se aplica al momento y se guarda en tu cuenta.'); ?></p>
         </section>
 
     </div>

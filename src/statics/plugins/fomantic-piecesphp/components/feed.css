@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.12.0 - Feed
+ * # Fomantic-UI 0.13.0 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -972,6 +972,13 @@
 .ui.feed > .event > .inverted.black.basic.label::before,
 .ui.inverted.black.basic.feed > .event > .label::before {
   color: #4b5363;
+}
+
+/* Fork: inverted basic black con el texto inverted (su tono claro, @lightBlack, es gris oscuro y el número y el aro
+   no se veían sobre el fondo oscuro), como el aro blanco del botón inverted basic black */
+.ui.feed > .event > .inverted.black.basic.label::before,
+.ui.inverted.black.basic.feed > .event > .label::before {
+  color: rgba(255, 255, 255, 0.9);
 }
 .ui.ui.feed > .event > .basic.label::before,
 .ui.ui.ui.basic.feed > .event > .label::before {
