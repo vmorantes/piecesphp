@@ -90,8 +90,12 @@ class NotificationsController extends AdminPanelController
      */
     public static function listMarkup(string $id, bool $inPopup): string
     {
-        //HelperController y no BaseController: el constructor de BaseController vacía los estáticos globales de la página.
-        return (string) (new HelperController(null, []))->render('panel/built-in/content/notifications-list', [
+        //HelperController (BaseController vacía los estáticos), con lock_assets repuesto: si no, el próximo controlador de
+        //la página vacía lo importado antes de la cabecera (H261).
+        $lockAssets = get_config('lock_assets');
+        $helper = new HelperController(null, []);
+        set_config('lock_assets', $lockAssets);
+        return (string) $helper->render('panel/built-in/content/notifications-list', [
             'id' => $id,
             'inPopup' => $inPopup,
             'filters' => Notifications::filters(),
