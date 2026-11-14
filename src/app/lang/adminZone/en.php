@@ -364,6 +364,10 @@ $lang = [
     'Seguridad. Verificación en dos pasos: activa' => 'Security. Two-step verification: active',
     'Seguridad. Verificación en dos pasos: inactiva' => 'Security. Two-step verification: inactive',
     'Avatar' => 'Avatar',
+    'Tamaño de letra' => 'Text size',
+    'Normal' => 'Normal',
+    'Grande' => 'Large',
+    'Más grande' => 'Larger',
 ];
 
 return $lang;

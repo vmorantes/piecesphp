@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Statistic
+ * # Fomantic-UI 0.11.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -294,12 +294,12 @@
 .ui.primary.statistics .statistic > .value,
 .ui.statistics .primary.statistic > .value,
 .ui.primary.statistic > .value {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.primary.statistics .statistic > .value,
 .ui.statistics .inverted.primary.statistic > .value,
 .ui.inverted.primary.statistic > .value {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -308,12 +308,12 @@
 .ui.secondary.statistics .statistic > .value,
 .ui.statistics .secondary.statistic > .value,
 .ui.secondary.statistic > .value {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.secondary.statistics .statistic > .value,
 .ui.statistics .inverted.secondary.statistic > .value,
 .ui.inverted.secondary.statistic > .value {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -322,12 +322,12 @@
 .ui.accent-1.statistics .statistic > .value,
 .ui.statistics .accent-1.statistic > .value,
 .ui.accent-1.statistic > .value {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.accent-1.statistics .statistic > .value,
 .ui.statistics .inverted.accent-1.statistic > .value,
 .ui.inverted.accent-1.statistic > .value {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -336,12 +336,12 @@
 .ui.accent-2.statistics .statistic > .value,
 .ui.statistics .accent-2.statistic > .value,
 .ui.accent-2.statistic > .value {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.accent-2.statistics .statistic > .value,
 .ui.statistics .inverted.accent-2.statistic > .value,
 .ui.inverted.accent-2.statistic > .value {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -350,12 +350,12 @@
 .ui.accent-3.statistics .statistic > .value,
 .ui.statistics .accent-3.statistic > .value,
 .ui.accent-3.statistic > .value {
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.accent-3.statistics .statistic > .value,
 .ui.statistics .inverted.accent-3.statistic > .value,
 .ui.inverted.accent-3.statistic > .value {
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -364,7 +364,7 @@
 .ui.red.statistics .statistic > .value,
 .ui.statistics .red.statistic > .value,
 .ui.red.statistic > .value {
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.inverted.red.statistics .statistic > .value,
 .ui.statistics .inverted.red.statistic > .value,
@@ -378,7 +378,7 @@
 .ui.orange.statistics .statistic > .value,
 .ui.statistics .orange.statistic > .value,
 .ui.orange.statistic > .value {
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.inverted.orange.statistics .statistic > .value,
 .ui.statistics .inverted.orange.statistic > .value,
@@ -392,7 +392,7 @@
 .ui.yellow.statistics .statistic > .value,
 .ui.statistics .yellow.statistic > .value,
 .ui.yellow.statistic > .value {
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.inverted.yellow.statistics .statistic > .value,
 .ui.statistics .inverted.yellow.statistic > .value,
@@ -406,7 +406,7 @@
 .ui.olive.statistics .statistic > .value,
 .ui.statistics .olive.statistic > .value,
 .ui.olive.statistic > .value {
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.olive.statistics .statistic > .value,
 .ui.statistics .inverted.olive.statistic > .value,
@@ -420,7 +420,7 @@
 .ui.green.statistics .statistic > .value,
 .ui.statistics .green.statistic > .value,
 .ui.green.statistic > .value {
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.green.statistics .statistic > .value,
 .ui.statistics .inverted.green.statistic > .value,
@@ -434,7 +434,7 @@
 .ui.teal.statistics .statistic > .value,
 .ui.statistics .teal.statistic > .value,
 .ui.teal.statistic > .value {
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.teal.statistics .statistic > .value,
 .ui.statistics .inverted.teal.statistic > .value,
@@ -448,7 +448,7 @@
 .ui.blue.statistics .statistic > .value,
 .ui.statistics .blue.statistic > .value,
 .ui.blue.statistic > .value {
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.blue.statistics .statistic > .value,
 .ui.statistics .inverted.blue.statistic > .value,
@@ -462,7 +462,7 @@
 .ui.violet.statistics .statistic > .value,
 .ui.statistics .violet.statistic > .value,
 .ui.violet.statistic > .value {
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.violet.statistics .statistic > .value,
 .ui.statistics .inverted.violet.statistic > .value,
@@ -476,7 +476,7 @@
 .ui.purple.statistics .statistic > .value,
 .ui.statistics .purple.statistic > .value,
 .ui.purple.statistic > .value {
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.purple.statistics .statistic > .value,
 .ui.statistics .inverted.purple.statistic > .value,
@@ -490,7 +490,7 @@
 .ui.pink.statistics .statistic > .value,
 .ui.statistics .pink.statistic > .value,
 .ui.pink.statistic > .value {
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.pink.statistics .statistic > .value,
 .ui.statistics .inverted.pink.statistic > .value,
@@ -504,7 +504,7 @@
 .ui.brown.statistics .statistic > .value,
 .ui.statistics .brown.statistic > .value,
 .ui.brown.statistic > .value {
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.brown.statistics .statistic > .value,
 .ui.statistics .inverted.brown.statistic > .value,
@@ -518,7 +518,7 @@
 .ui.grey.statistics .statistic > .value,
 .ui.statistics .grey.statistic > .value,
 .ui.grey.statistic > .value {
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.grey.statistics .statistic > .value,
 .ui.statistics .inverted.grey.statistic > .value,
@@ -698,7 +698,7 @@
   width: 4px;
   margin: 0.18em 0;
   border-radius: 4px;
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.marked.statistic > .label {
   padding-left: calc(4px + 14px);

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Toast
+ * # Fomantic-UI 0.11.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

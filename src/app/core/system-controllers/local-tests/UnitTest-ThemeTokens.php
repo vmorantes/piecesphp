@@ -79,11 +79,11 @@ CliActions::make('unit-tests:core/theme-tokens', function ($args) {
         $pila = SettingsController::THEME_FONTS['poppins']['stack'];
         $check(($tokens['font-body'] ?? null) === $pila && ($tokens['font-heading'] ?? null) === $pila, 'b3 la fuente, en el cuerpo y en los títulos');
         $check(SettingsController::themeFontStylesheet() === 'statics/fonts/poppins/poppins.css', 'b4 y con su hoja');
-        $check(($tokens['font-size-base'] ?? null) === '16px', 'b5 el tamaño base');
+        $check(($tokens['font-size-site'] ?? null) === '16px', 'b5 el tamaño base (--font-size-site, del que salen los tres niveles)');
         $check(($tokens['r-md'] ?? null) === '12px' && ($tokens['r-xs'] ?? null) === '6px' && ($tokens['r-sm'] ?? null) === '9px' && ($tokens['r-lg'] ?? null) === '18px', 'b6 el radio y sus tres proporciones', (string) json_encode($tokens));
         $fijar(['theme_font_size' => '15', 'theme_radius' => '4']);
         $tokens = SettingsController::themeTokens();
-        $check(($tokens['font-size-base'] ?? null) === '15px' && ($tokens['r-sm'] ?? null) === '3px', 'b7 un número guardado como texto vale igual');
+        $check(($tokens['font-size-site'] ?? null) === '15px' && ($tokens['r-sm'] ?? null) === '3px', 'b7 un número guardado como texto vale igual');
         $fijar(['theme_radius' => 0]);
         $check((SettingsController::themeTokens()['r-lg'] ?? null) === '0px', 'b8 un radio de 0 se publica');
 
@@ -95,7 +95,7 @@ CliActions::make('unit-tests:core/theme-tokens', function ($args) {
         $check(SettingsController::themeFontStylesheet() === null, 'c2 y una fuente fuera de la lista no pide hoja');
         $fijar(['theme_font_size' => [16], 'theme_radius' => 'zz']);
         $tokens = SettingsController::themeTokens();
-        $check(!array_key_exists('font-size-base', $tokens) && !array_key_exists('r-md', $tokens), 'c3 ni un tamaño o un radio que no son números');
+        $check(!array_key_exists('font-size-site', $tokens) && !array_key_exists('r-md', $tokens), 'c3 ni un tamaño o un radio que no son números');
     } finally {
         foreach ($enProceso as $opcion => $valor) {
             set_config($opcion, $valor);
@@ -264,7 +264,7 @@ CliActions::make('unit-tests:core/theme-tokens', function ($args) {
         echoTerminal(' ');
         echoTerminal('[h] La hoja de variables publica lo guardado');
         $hoja = $pedir($camino(CSSVariables::globalVersionedURL()), $jwtRoot);
-        $check($hoja['status'] === 200 && str_contains($hoja['body'], '--accent: #0E7A5A;') && str_contains($hoja['body'], '--font-size-base: 16px;') && str_contains($hoja['body'], '--r-md: 12px;') && str_contains($hoja['body'], "'Poppins'"), 'h1 acento, tamaño, radio y fuente', "HTTP {$hoja['status']}");
+        $check($hoja['status'] === 200 && str_contains($hoja['body'], '--accent: #0E7A5A;') && str_contains($hoja['body'], '--font-size-site: 16px;') && str_contains($hoja['body'], '--r-md: 12px;') && str_contains($hoja['body'], "'Poppins'"), 'h1 acento, tamaño, radio y fuente', "HTTP {$hoja['status']}");
         $pantalla = $pedir($camino(SettingsController::routeName('appearance-colors', [], true)), $jwtRoot);
         $check($pantalla['status'] === 200 && str_contains($pantalla['body'], 'value="#0e7a5a"') && str_contains($pantalla['body'], 'value="poppins" data-font-stack="') && substr_count($pantalla['body'], ' selected') >= 3, 'h2 la pantalla pinta lo guardado', "HTTP {$pantalla['status']}");
         $tonos = [

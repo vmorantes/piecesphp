@@ -276,12 +276,12 @@
 }
 
 :where(.ui, .dt-container) a, a:where(.ui, .dt-container) {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 
 :where(.ui, .dt-container) a:hover, a:hover:where(.ui, .dt-container) {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 
@@ -385,7 +385,7 @@
 
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
+  color: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.86) c h);
 }
 
 :where(.ui, .dt-container) small, small:where(.ui, .dt-container) {
@@ -397,6 +397,906 @@
   color: var(--accent-text);
   border-radius: 3px;
   padding: 0 1px;
+}
+
+:where(.ui, .dt-container) :root[data-motion="reduce"], :root[data-motion="reduce"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-motion="reduce"] *, :root[data-motion="reduce"] *:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *:where(.ui, .dt-container)::before,
+:where(.ui, .dt-container) :root[data-motion="reduce"] *::after, :root[data-motion="reduce"] *:where(.ui, .dt-container)::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+:where(.ui, .dt-container) :root[data-motion="auto"], :root[data-motion="auto"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-motion="auto"] *, :root[data-motion="auto"] *:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-motion="auto"] *::before, :root[data-motion="auto"] *:where(.ui, .dt-container)::before,
+:where(.ui, .dt-container) :root[data-motion="auto"] *::after, :root[data-motion="auto"] *:where(.ui, .dt-container)::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+}
+
+:where(.ui, .dt-container) :root[data-focus="strong"] :focus-visible, :root[data-focus="strong"] :focus-visible:where(.ui, .dt-container) {
+  outline: 3px solid var(--theme-text) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px var(--theme-surface) !important;
+}
+
+@media (forced-colors: active) {
+.ui.button,
+.ui.label,
+.ui.checkbox label::before,
+.ui.toggle.checkbox label::before,
+.ui.progress,
+.ui.menu .active.item,
+.ui.selection.dropdown {
+  border: 1px solid ButtonText;
+}
+}
+
+@media (forced-colors: active) {
+.ui.progress .bar {
+  background: Highlight;
+  forced-color-adjust: none;
+}
+}
+
+@media (forced-colors: active) {
+.ui.checkbox input:checked ~ label::after {
+  color: Highlight;
+}
+}
+
+@media (forced-colors: active) {
+:where(.ui, .dt-container) :focus-visible, :focus-visible:where(.ui, .dt-container) {
+  outline: 2px solid Highlight !important;
+  outline-offset: 2px;
+}
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.red.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.red.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.red.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.table, :root[data-contrast="more"] .ui.inverted.red.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.red, :root[data-contrast="more"] .ui.inverted.table tr.red:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .red, :root[data-contrast="more"] .ui.inverted.table tr > .red:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.red th, :root[data-contrast="more"] .ui.inverted.table thead.red th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.red.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.card, :root[data-contrast="more"] .ui.inverted.red.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.cards > .card, :root[data-contrast="more"] .ui.inverted.red.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.red.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.red.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.table :is(th, td), :root[data-contrast="more"] .ui.inverted.red.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.red.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.red.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.red.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.red.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.red.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.red.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.orange.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.orange.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.orange.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.table, :root[data-contrast="more"] .ui.inverted.orange.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.orange, :root[data-contrast="more"] .ui.inverted.table tr.orange:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .orange, :root[data-contrast="more"] .ui.inverted.table tr > .orange:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.orange th, :root[data-contrast="more"] .ui.inverted.table thead.orange th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.card, :root[data-contrast="more"] .ui.inverted.orange.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.cards > .card, :root[data-contrast="more"] .ui.inverted.orange.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.orange.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.orange.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.table :is(th, td), :root[data-contrast="more"] .ui.inverted.orange.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.orange.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.orange.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.orange.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.orange.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.orange.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.yellow.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.yellow.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.yellow.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.table, :root[data-contrast="more"] .ui.inverted.yellow.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.yellow, :root[data-contrast="more"] .ui.inverted.table tr.yellow:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .yellow, :root[data-contrast="more"] .ui.inverted.table tr > .yellow:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.yellow th, :root[data-contrast="more"] .ui.inverted.table thead.yellow th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.card, :root[data-contrast="more"] .ui.inverted.yellow.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.cards > .card, :root[data-contrast="more"] .ui.inverted.yellow.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.yellow.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.yellow.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.table :is(th, td), :root[data-contrast="more"] .ui.inverted.yellow.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.yellow.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.yellow.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.yellow.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.yellow.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.yellow.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.olive.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.olive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.olive.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.table, :root[data-contrast="more"] .ui.inverted.olive.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.olive, :root[data-contrast="more"] .ui.inverted.table tr.olive:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .olive, :root[data-contrast="more"] .ui.inverted.table tr > .olive:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.olive th, :root[data-contrast="more"] .ui.inverted.table thead.olive th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.card, :root[data-contrast="more"] .ui.inverted.olive.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.cards > .card, :root[data-contrast="more"] .ui.inverted.olive.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.olive.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.olive.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.table :is(th, td), :root[data-contrast="more"] .ui.inverted.olive.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.olive.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.olive.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.olive.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.olive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.olive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.green.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.green.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.green.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.table, :root[data-contrast="more"] .ui.inverted.green.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.green, :root[data-contrast="more"] .ui.inverted.table tr.green:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .green, :root[data-contrast="more"] .ui.inverted.table tr > .green:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.green th, :root[data-contrast="more"] .ui.inverted.table thead.green th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.green.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.card, :root[data-contrast="more"] .ui.inverted.green.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.cards > .card, :root[data-contrast="more"] .ui.inverted.green.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.green.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.green.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.table :is(th, td), :root[data-contrast="more"] .ui.inverted.green.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.green.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.green.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.green.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.green.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.green.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.green.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.teal.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.teal.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.teal.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.table, :root[data-contrast="more"] .ui.inverted.teal.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.teal, :root[data-contrast="more"] .ui.inverted.table tr.teal:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .teal, :root[data-contrast="more"] .ui.inverted.table tr > .teal:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.teal th, :root[data-contrast="more"] .ui.inverted.table thead.teal th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.card, :root[data-contrast="more"] .ui.inverted.teal.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.cards > .card, :root[data-contrast="more"] .ui.inverted.teal.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.teal.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.teal.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.table :is(th, td), :root[data-contrast="more"] .ui.inverted.teal.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.teal.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.teal.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.teal.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.teal.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.teal.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.blue.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.blue.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.blue.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.table, :root[data-contrast="more"] .ui.inverted.blue.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.blue, :root[data-contrast="more"] .ui.inverted.table tr.blue:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .blue, :root[data-contrast="more"] .ui.inverted.table tr > .blue:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.blue th, :root[data-contrast="more"] .ui.inverted.table thead.blue th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.card, :root[data-contrast="more"] .ui.inverted.blue.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.cards > .card, :root[data-contrast="more"] .ui.inverted.blue.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.blue.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.blue.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.table :is(th, td), :root[data-contrast="more"] .ui.inverted.blue.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.blue.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.blue.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.blue.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.blue.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.blue.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.violet.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.violet.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.violet.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.table, :root[data-contrast="more"] .ui.inverted.violet.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.violet, :root[data-contrast="more"] .ui.inverted.table tr.violet:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .violet, :root[data-contrast="more"] .ui.inverted.table tr > .violet:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.violet th, :root[data-contrast="more"] .ui.inverted.table thead.violet th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.card, :root[data-contrast="more"] .ui.inverted.violet.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.cards > .card, :root[data-contrast="more"] .ui.inverted.violet.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.violet.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.violet.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.table :is(th, td), :root[data-contrast="more"] .ui.inverted.violet.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.violet.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.violet.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.violet.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.violet.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.violet.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.purple.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.purple.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.purple.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.table, :root[data-contrast="more"] .ui.inverted.purple.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.purple, :root[data-contrast="more"] .ui.inverted.table tr.purple:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .purple, :root[data-contrast="more"] .ui.inverted.table tr > .purple:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.purple th, :root[data-contrast="more"] .ui.inverted.table thead.purple th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.card, :root[data-contrast="more"] .ui.inverted.purple.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.cards > .card, :root[data-contrast="more"] .ui.inverted.purple.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.purple.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.purple.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.table :is(th, td), :root[data-contrast="more"] .ui.inverted.purple.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.purple.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.purple.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.purple.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.purple.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.purple.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.pink.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.pink.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.pink.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.table, :root[data-contrast="more"] .ui.inverted.pink.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.pink, :root[data-contrast="more"] .ui.inverted.table tr.pink:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .pink, :root[data-contrast="more"] .ui.inverted.table tr > .pink:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.pink th, :root[data-contrast="more"] .ui.inverted.table thead.pink th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.card, :root[data-contrast="more"] .ui.inverted.pink.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.cards > .card, :root[data-contrast="more"] .ui.inverted.pink.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.pink.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.pink.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.table :is(th, td), :root[data-contrast="more"] .ui.inverted.pink.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.pink.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.pink.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.pink.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.pink.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.pink.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.brown.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.brown.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.brown.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.table, :root[data-contrast="more"] .ui.inverted.brown.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.brown, :root[data-contrast="more"] .ui.inverted.table tr.brown:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .brown, :root[data-contrast="more"] .ui.inverted.table tr > .brown:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.brown th, :root[data-contrast="more"] .ui.inverted.table thead.brown th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.card, :root[data-contrast="more"] .ui.inverted.brown.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.cards > .card, :root[data-contrast="more"] .ui.inverted.brown.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.brown.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.brown.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.table :is(th, td), :root[data-contrast="more"] .ui.inverted.brown.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.brown.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.brown.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.brown.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.brown.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.brown.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.grey.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.grey.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.grey.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.table, :root[data-contrast="more"] .ui.inverted.grey.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.grey, :root[data-contrast="more"] .ui.inverted.table tr.grey:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .grey, :root[data-contrast="more"] .ui.inverted.table tr > .grey:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.grey th, :root[data-contrast="more"] .ui.inverted.table thead.grey th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.card, :root[data-contrast="more"] .ui.inverted.grey.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.cards > .card, :root[data-contrast="more"] .ui.inverted.grey.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.grey.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.grey.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.table :is(th, td), :root[data-contrast="more"] .ui.inverted.grey.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.grey.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.grey.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.grey.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.grey.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.grey.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.black.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.black.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.black.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.table, :root[data-contrast="more"] .ui.inverted.black.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.black, :root[data-contrast="more"] .ui.inverted.table tr.black:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .black, :root[data-contrast="more"] .ui.inverted.table tr > .black:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.black th, :root[data-contrast="more"] .ui.inverted.table thead.black th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.black.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.card, :root[data-contrast="more"] .ui.inverted.black.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.cards > .card, :root[data-contrast="more"] .ui.inverted.black.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.black.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.black.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.table :is(th, td), :root[data-contrast="more"] .ui.inverted.black.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.black.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.black.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.black.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.black.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.black.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.black.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.positive.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.positive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.positive.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.table, :root[data-contrast="more"] .ui.inverted.positive.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.positive, :root[data-contrast="more"] .ui.inverted.table tr.positive:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .positive, :root[data-contrast="more"] .ui.inverted.table tr > .positive:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.positive th, :root[data-contrast="more"] .ui.inverted.table thead.positive th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.card, :root[data-contrast="more"] .ui.inverted.positive.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.cards > .card, :root[data-contrast="more"] .ui.inverted.positive.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.positive.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.positive.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.table :is(th, td), :root[data-contrast="more"] .ui.inverted.positive.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.positive.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.positive.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.positive.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.positive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.positive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.negative.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.negative.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.negative.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.table, :root[data-contrast="more"] .ui.inverted.negative.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.negative, :root[data-contrast="more"] .ui.inverted.table tr.negative:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .negative, :root[data-contrast="more"] .ui.inverted.table tr > .negative:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.negative th, :root[data-contrast="more"] .ui.inverted.table thead.negative th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.card, :root[data-contrast="more"] .ui.inverted.negative.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.cards > .card, :root[data-contrast="more"] .ui.inverted.negative.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.negative.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.negative.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.table :is(th, td), :root[data-contrast="more"] .ui.inverted.negative.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.negative.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.negative.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.negative.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.negative.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.negative.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.success.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.success.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.success.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.table, :root[data-contrast="more"] .ui.inverted.success.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.success, :root[data-contrast="more"] .ui.inverted.table tr.success:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .success, :root[data-contrast="more"] .ui.inverted.table tr > .success:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.success th, :root[data-contrast="more"] .ui.inverted.table thead.success th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.success.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.card, :root[data-contrast="more"] .ui.inverted.success.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.cards > .card, :root[data-contrast="more"] .ui.inverted.success.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.success.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.success.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.table :is(th, td), :root[data-contrast="more"] .ui.inverted.success.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.success.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.success.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.success.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.success.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.success.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.success.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.error.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.error.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.error.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.table, :root[data-contrast="more"] .ui.inverted.error.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.error, :root[data-contrast="more"] .ui.inverted.table tr.error:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .error, :root[data-contrast="more"] .ui.inverted.table tr > .error:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.error th, :root[data-contrast="more"] .ui.inverted.table thead.error th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.error.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.card, :root[data-contrast="more"] .ui.inverted.error.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.cards > .card, :root[data-contrast="more"] .ui.inverted.error.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.error.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.error.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.table :is(th, td), :root[data-contrast="more"] .ui.inverted.error.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.error.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.error.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.error.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.error.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.error.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.error.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.warning.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.warning.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.warning.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.table, :root[data-contrast="more"] .ui.inverted.warning.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.warning, :root[data-contrast="more"] .ui.inverted.table tr.warning:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .warning, :root[data-contrast="more"] .ui.inverted.table tr > .warning:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.warning th, :root[data-contrast="more"] .ui.inverted.table thead.warning th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.card, :root[data-contrast="more"] .ui.inverted.warning.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.cards > .card, :root[data-contrast="more"] .ui.inverted.warning.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.warning.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.warning.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.table :is(th, td), :root[data-contrast="more"] .ui.inverted.warning.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.warning.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.warning.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.warning.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.warning.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.warning.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.info.button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted), :root[data-contrast="more"] .ui.info.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.info.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.table, :root[data-contrast="more"] .ui.inverted.info.table:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr.info, :root[data-contrast="more"] .ui.inverted.table tr.info:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table tr > .info, :root[data-contrast="more"] .ui.inverted.table tr > .info:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.table thead.info th, :root[data-contrast="more"] .ui.inverted.table thead.info th:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.info.segment:not(.basic):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.card, :root[data-contrast="more"] .ui.inverted.info.card:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.cards > .card, :root[data-contrast="more"] .ui.inverted.info.cards > .card:where(.ui, .dt-container) {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.info.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
+  background-color: transparent !important;
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.info.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
+  background-color: color-mix(in oklab, oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.table :is(th, td), :root[data-contrast="more"] .ui.inverted.info.table :is(th, td):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.segment:not(.basic) .ui.header, :root[data-contrast="more"] .ui.inverted.info.segment:not(.basic) .ui.header:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.info.card :is(.header, .meta, .description), :root[data-contrast="more"] .ui.inverted.info.card :is(.header, .meta, .description):where(.ui, .dt-container) {
+  color: #fff !important;
+}
+
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.info.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-contrast="more"] .ui.info.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active), :root[data-contrast="more"] .ui.info.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active):where(.ui, .dt-container) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
 }
 
 :where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
@@ -464,7 +1364,7 @@
   border: 1px solid var(--theme-border);
   border-radius: 5px;
   background: light-dark(#f5f7fa, #20242d);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   overflow-wrap: break-word;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;

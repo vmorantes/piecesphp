@@ -36,7 +36,7 @@
   flex: 0 0 auto;
   align-self: flex-start;
   box-sizing: border-box;
-  width: 256px;
+  width: 18.28571429rem;
   height: var(--shell-height, 100vh);
   margin: 0;
   padding: 0;
@@ -608,10 +608,10 @@
     line-height: 0;
   }
   .ui.collapsed.shell > .navigation > .ui.menu > .item > .title > .label {
-    background: var(--accent-1, var(--accent, #356dca));
+    background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   }
   .ui.collapsed.shell > .navigation > .ui.menu > .active.item > .label {
-    background: var(--accent-1, var(--accent, #356dca));
+    background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   }
   
 /* Grupo con la página actual dentro */
@@ -698,7 +698,9 @@
     --shell-mode: rail;
   }
   .ui.shell:not(.collapsed) > .navigation {
-    margin-right: -184px;
+    margin-right: calc(72px - 18.285714285714285rem);
+    
+/* Fork: el ancho de la navegación va en rem */
     box-shadow: var(--shadow-lg, 0 24px 48px -12px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 8px 16px -8px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)));
   }
   .ui.shell > .main > .bar {
@@ -776,6 +778,12 @@
     background: var(--theme-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+  
+/* Fork: en la barra móvil (alto fijo), los botones de ícono son controles y no crecen con el texto
+       (data-text-size, D95); con el texto grande no cabían a 390 */
+  .ui.shell > .main > .bar .ui.icon.button {
+    font-size: 14px;
   }
   
 /* Sin teclado físico: sin pista del atajo; lo marcado `mobile hidden` (p. ej. el nombre del
@@ -894,7 +902,7 @@
   color: var(--theme-text-muted);
 }
 .ui.shell > .navigation > .ui.menu .active.item > i.icon {
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Flecha de los grupos (pp-chev): chevron en text-4, hacia abajo cerrado y hacia arriba abierto */
@@ -929,7 +937,7 @@
   color: var(--theme-text);
 }
 .ui.shell > .navigation > .ui.menu > .item:has(> .content .active.item) > .title > i.icon {
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Barra de 2px del acento en el subítem activo, sobre la línea del submenú */
@@ -941,7 +949,7 @@
   left: -11.5px;
   width: 2px;
   border-radius: 2px;
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Etiqueta de sección (pp-nav-label): Pequeño 600 en text-3 */
@@ -989,7 +997,7 @@
 }
 .ui.shell > .main > .bar > .ui.search > .ui.input > input:focus {
   background: var(--theme-surface);
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
@@ -1025,9 +1033,11 @@
     color: var(--theme-text-muted);
     font-size: 1.14285714em;
   }
+  
+/* En em del botón, que en la barra móvil no crece con el texto (shell.less, D95): 40px siempre */
   .ui.shell > .main > .bar .ui.tertiary.icon.button {
-    width: 2.85714286rem;
-    height: 2.85714286rem;
+    width: 2.85714286em;
+    height: 2.85714286em;
   }
   
 /* Cierre del drawer (.pp-drawer-close): 40px con el ícono de 16px, 4px hacia el borde */

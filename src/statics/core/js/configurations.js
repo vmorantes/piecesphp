@@ -808,6 +808,22 @@ function pcsAdminTopbars() {
 		})
 	})
 
+	//El tamaño de letra (topbar-bar.php): se guarda en la meta del usuario y se aplica al momento; el tema traduce data-text-size.
+	const textSizeSelector = $('[text-size-selector]')
+	textSizeSelector.find('[data-text-size]').on('click', function (e) {
+		e.preventDefault()
+		e.stopPropagation()
+		const option = $(this)
+		const size = option.data('textSize')
+		postRequest(textSizeSelector.data('url'), { size: size }).done(function (response) {
+			if (response.success) {
+				document.documentElement.setAttribute('data-text-size', response.size)
+				textSizeSelector.find('[data-text-size]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
+				option.addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
+			}
+		})
+	})
+
 	const openProfile = (tab) => {
 		userDropdown.dropdown('hide')
 		profileFlyout.flyout('show')

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Breadcrumb
+ * # Fomantic-UI 0.11.0 - Breadcrumb
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -44,10 +44,10 @@
 
 /* Link */
 .ui.breadcrumb a {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.breadcrumb a:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Icon Divider */

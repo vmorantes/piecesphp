@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Calendar
+ * # Fomantic-UI 0.11.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -136,7 +136,7 @@
 }
 .ui.calendar:not(.disabled):focus .ui.table tbody tr td.focus,
 .ui.calendar:not(.disabled).popup.active .ui.table tbody tr td.focus {
-  box-shadow: inset 0 0 0 2px var(--accent-1, var(--accent, #356dca));
+  box-shadow: inset 0 0 0 2px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.calendar .ui.table.inverted tr td.range {
   background: rgba(255, 255, 255, 0.08);
@@ -146,6 +146,12 @@
 .ui.inverted.calendar:not(.disabled) .calendar:focus .ui.table.inverted tbody tr td.focus,
 .ui.inverted.calendar:not(.disabled).popup.active .ui.table.inverted tbody tr td.focus {
   box-shadow: inset 0 0 0 1px #85b7d9;
+}
+
+/* Fork: el día activo de un calendario inverted no lleva la marca lateral de `td.active` de la
+       tabla inverted (4px de currentColor): sobre el relleno claro del activo salía una barra negra */
+.ui.inverted.calendar .ui.ui.inverted.table td.active {
+  box-shadow: none;
 }
 .ui.inverted.calendar .ui.ui.ui.inverted.table tr .disabled {
   color: rgba(225, 225, 225, 0.3);
@@ -355,6 +361,6 @@
 }
 .ui.calendar .ui.table tr td.active,
 .ui.calendar .ui.table tr td.active:hover {
-  background: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1-text, color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }

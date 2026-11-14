@@ -941,6 +941,23 @@ class UsersModel extends EntityMapperExtensible
     }
 
     /**
+     * Quien pasa a un estado que index.php ya rechaza pierde sus sesiones: los archivos protegidos solo miran la sesión.
+     * Lo llama todo el que escriba el estado de un usuario; el bloqueo por intentos no entra (lo provoca un tercero).
+     *
+     * @param int $id
+     * @param int $before El estado guardado antes de escribir
+     * @param int $after El que se acaba de guardar
+     * @return bool Si cerró sus sesiones
+     */
+    public static function closeSessionsIfInactivated(int $id, int $before, int $after): bool
+    {
+        if (!in_array($after, self::STATUSES_INACTIVE_EQUIVALENT, true) || in_array($before, self::STATUSES_INACTIVE_EQUIVALENT, true)) {
+            return false;
+        }
+        return (new self())->revokeSessions($id);
+    }
+
+    /**
      * Cierra todas las sesiones del usuario: mueve su marca `sessionsValidFrom` a ahora (ADR 0026).
      *
      * Solo esa columna: `update()` reescribiría la fila entera con lo que el mapper leyó antes. La hora sale de PHP
@@ -1064,7 +1081,8 @@ class UsersModel extends EntityMapperExtensible
 
         if (!empty($ignoreIDs)) {
 
-            $ignoreIDs = implode(', ', $ignoreIDs);
+            //Como enteros: la lista va escrita en el SQL, no por marcador (IN no lo admite).
+            $ignoreIDs = implode(', ', array_map('intval', $ignoreIDs));
             $where[] = "AND id NOT IN ({$ignoreIDs})";
         }
 
@@ -1089,13 +1107,14 @@ class UsersModel extends EntityMapperExtensible
         $model = self::model();
 
         $where = [
-            '(type = ' . implode(' OR type = ', $types) . ')',
+            '(type = ' . implode(' OR type = ', array_map('intval', $types)) . ')',
             'AND ' . self::excludeSystemUserSQL(),
         ];
 
         if (!empty($ignoreIDs)) {
 
-            $ignoreIDs = implode(', ', $ignoreIDs);
+            //Como enteros: la lista va escrita en el SQL, no por marcador (IN no lo admite).
+            $ignoreIDs = implode(', ', array_map('intval', $ignoreIDs));
             $where[] = "AND id NOT IN ({$ignoreIDs})";
         }
 
@@ -1118,7 +1137,8 @@ class UsersModel extends EntityMapperExtensible
 
         $model = self::model();
 
-        $ids = !empty($ids) ? implode(', ', $ids) : -1;
+        //Como enteros: la lista va escrita en el SQL, no por marcador (IN no lo admite).
+        $ids = !empty($ids) ? implode(', ', array_map('intval', $ids)) : -1;
         $where = [
             "id IN ({$ids})",
         ];
@@ -1195,7 +1215,7 @@ class UsersModel extends EntityMapperExtensible
 
         $model = self::model();
         $table = self::TABLE;
-        $allowerdTypes = implode(', ', OrganizationMapper::PROFILE_EDITOR);
+        $allowerdTypes = implode(', ', array_map('intval', OrganizationMapper::PROFILE_EDITOR));
 
         $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Usuarios');
         $options = [];

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Dropdown
+ * # Fomantic-UI 0.11.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -108,7 +108,7 @@
   border-top: none;
   line-height: 1.42857143em;
   font-size: 1rem;
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   padding: 0.57142857rem 0.71428571rem;
   text-transform: none;
   font-weight: 400;
@@ -545,27 +545,27 @@ select.ui.dropdown {
 /* Active */
 .ui.selection.simple.dropdown:hover,
 .ui.selection.active.dropdown {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .ui.selection.simple.dropdown:hover .menu,
 .ui.selection.active.dropdown .menu {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 
 /* Focus */
 .ui.selection.dropdown:focus {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .ui.selection.dropdown:focus .menu {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 @supports selector(:has(.f)) {
   .ui.ui.selection.dropdown:not(.inverted):has(> input:focus) {
-    border-color: var(--accent-1, var(--accent, #356dca));
+    border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
     box-shadow: none;
   }
   .ui.ui.selection.dropdown:not(.inverted):has(> input:focus) > i.icon {
@@ -584,11 +584,11 @@ select.ui.dropdown {
 
 /* Visible Hover */
 .ui.selection.active.dropdown:hover {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .ui.selection.active.dropdown:hover .menu {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 
@@ -1073,7 +1073,7 @@ select.ui.dropdown {
 .ui.dropdown.error,
 .ui.dropdown.error > .text,
 .ui.dropdown.error > .default.text {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.selection.dropdown.error {
   background: light-dark(#fef3f2, #351513);
@@ -1088,11 +1088,11 @@ select.ui.dropdown {
 .ui.inverted.selection.dropdown.error,
 .ui.inverted.selection.dropdown.error > .text,
 .ui.inverted.selection.dropdown.error > .default.text {
-  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.selection.dropdown.error,
 .ui.inverted.selection.dropdown.error:hover {
-  border-color: color-mix(in srgb, oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
+  border-color: color-mix(in srgb, oklch(from light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
 }
 .ui.multiple.selection.error.dropdown > .label {
   border-color: light-dark(#fecdca, #7a271a);
@@ -1102,7 +1102,7 @@ select.ui.dropdown {
   border-color: light-dark(#fecdca, #7a271a);
 }
 .ui.dropdown.error > .menu > .item {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Item Hover */
@@ -1117,7 +1117,7 @@ select.ui.dropdown {
 .ui.dropdown.info,
 .ui.dropdown.info > .text,
 .ui.dropdown.info > .default.text {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.selection.dropdown.info {
   background: light-dark(#ecfdff, #0a2a33);
@@ -1132,11 +1132,11 @@ select.ui.dropdown {
 .ui.inverted.selection.dropdown.info,
 .ui.inverted.selection.dropdown.info > .text,
 .ui.inverted.selection.dropdown.info > .default.text {
-  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.selection.dropdown.info,
 .ui.inverted.selection.dropdown.info:hover {
-  border-color: color-mix(in srgb, oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
+  border-color: color-mix(in srgb, oklch(from light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
 }
 .ui.multiple.selection.info.dropdown > .label {
   border-color: light-dark(#a5f0fc, #155b75);
@@ -1146,7 +1146,7 @@ select.ui.dropdown {
   border-color: light-dark(#a5f0fc, #155b75);
 }
 .ui.dropdown.info > .menu > .item {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Item Hover */
@@ -1161,7 +1161,7 @@ select.ui.dropdown {
 .ui.dropdown.success,
 .ui.dropdown.success > .text,
 .ui.dropdown.success > .default.text {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.selection.dropdown.success {
   background: light-dark(#ecfdf3, #0c2a1c);
@@ -1176,11 +1176,11 @@ select.ui.dropdown {
 .ui.inverted.selection.dropdown.success,
 .ui.inverted.selection.dropdown.success > .text,
 .ui.inverted.selection.dropdown.success > .default.text {
-  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.selection.dropdown.success,
 .ui.inverted.selection.dropdown.success:hover {
-  border-color: color-mix(in srgb, oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
+  border-color: color-mix(in srgb, oklch(from light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
 }
 .ui.multiple.selection.success.dropdown > .label {
   border-color: light-dark(#abefc6, #1b5e3c);
@@ -1190,7 +1190,7 @@ select.ui.dropdown {
   border-color: light-dark(#abefc6, #1b5e3c);
 }
 .ui.dropdown.success > .menu > .item {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Item Hover */
@@ -1205,7 +1205,7 @@ select.ui.dropdown {
 .ui.dropdown.warning,
 .ui.dropdown.warning > .text,
 .ui.dropdown.warning > .default.text {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.selection.dropdown.warning {
   background: light-dark(#fffaeb, #2e2108);
@@ -1220,11 +1220,11 @@ select.ui.dropdown {
 .ui.inverted.selection.dropdown.warning,
 .ui.inverted.selection.dropdown.warning > .text,
 .ui.inverted.selection.dropdown.warning > .default.text {
-  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.selection.dropdown.warning,
 .ui.inverted.selection.dropdown.warning:hover {
-  border-color: color-mix(in srgb, oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
+  border-color: color-mix(in srgb, oklch(from light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h) 60%, transparent);
 }
 .ui.multiple.selection.warning.dropdown > .label {
   border-color: light-dark(#fedf89, #6b4a10);
@@ -1234,7 +1234,7 @@ select.ui.dropdown {
   border-color: light-dark(#fedf89, #6b4a10);
 }
 .ui.dropdown.warning > .menu > .item {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Item Hover */
@@ -1683,7 +1683,7 @@ select.ui.dropdown {
   }
 }
 .ui.selection.pointing.dropdown > .menu::after {
-  box-shadow: -1px -1px 0 0 var(--accent-1, var(--accent, #356dca));
+  box-shadow: -1px -1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.pointing.dropdown > .menu:not(.hidden)::after {
   top: -0.25em;
@@ -1830,7 +1830,7 @@ select.ui.dropdown {
   margin: -0.25em 0 0;
 }
 .ui.selection.pointing.upward.dropdown .menu::after {
-  box-shadow: 1px 1px 0 0 var(--accent-1, var(--accent, #356dca));
+  box-shadow: 1px 1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Right Pointing Upward */
@@ -2285,7 +2285,7 @@ select.ui.dropdown {
    contorno de teclado va en el campo, no en el input interior */
 @supports selector(:has(.f)) {
   .ui.ui.selection.dropdown:not(.inverted):not(.error):has(> input:focus) {
-    border-color: var(--accent-1, var(--accent, #356dca));
+    border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
     box-shadow: 0 0 0 3px var(--accent-ring);
   }
   .ui.search.dropdown:has(> input.search:focus-visible) {
@@ -2326,28 +2326,28 @@ select.ui.dropdown {
 .ui.form .fields.error .field .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#fecdca, #7a271a) 60%, var(--theme-surface));
   box-shadow: 0 0 0 1px light-dark(#fecdca, #7a271a) inset;
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.multiple.selection.info.dropdown > .label,
 .ui.form .field.info .ui.multiple.selection.dropdown > .label,
 .ui.form .fields.info .field .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#a5f0fc, #155b75) 60%, var(--theme-surface));
   box-shadow: 0 0 0 1px light-dark(#a5f0fc, #155b75) inset;
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.multiple.selection.success.dropdown > .label,
 .ui.form .field.success .ui.multiple.selection.dropdown > .label,
 .ui.form .fields.success .field .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#abefc6, #1b5e3c) 60%, var(--theme-surface));
   box-shadow: 0 0 0 1px light-dark(#abefc6, #1b5e3c) inset;
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.multiple.selection.warning.dropdown > .label,
 .ui.form .field.warning .ui.multiple.selection.dropdown > .label,
 .ui.form .fields.warning .field .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#fedf89, #6b4a10) 60%, var(--theme-surface));
   box-shadow: 0 0 0 1px light-dark(#fedf89, #6b4a10) inset;
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Texto elegido en una línea, con puntos suspensivos */
@@ -2386,7 +2386,7 @@ select.ui.dropdown:hover {
   border-color: light-dark(#cfd5de, #3a4150);
 }
 select.ui.dropdown:focus {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   box-shadow: 0 0 0 3px var(--accent-ring);
   outline: none;
 }

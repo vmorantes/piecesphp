@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Loader
+ * # Fomantic-UI 0.11.0 - Loader
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92,7 +92,7 @@
 
 /* White Dimmer (Inverted) */
 .ui.inverted.dimmer > .ui.loader {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.inverted.dimmer > .ui.loader:not(.elastic)::before {
   border-color: var(--theme-border);
@@ -275,7 +275,7 @@
 .ui.ui.ui.ui.primary.loading .input > i.icon::after,
 .ui.ui.ui.ui.primary.loading > i.icon::after,
 .ui.ui.ui.primary.loader::after {
-  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.inverted.primary.elastic.loader::before,
 .ui.ui.ui.inverted.primary.elastic.loading:not(.segment):not(.segments):not(.card)::before,
@@ -285,7 +285,7 @@
 .ui.ui.ui.ui.inverted.primary.loading .input > i.icon::after,
 .ui.ui.ui.ui.inverted.primary.loading > i.icon::after,
 .ui.ui.ui.inverted.primary.loader::after {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Fork: sobre el dimmer (oscuro salvo el inverted), la rama clara del color: los oscuros
@@ -293,13 +293,13 @@
 .ui.ui.ui.dimmer:not(.inverted) > .ui.primary.loader::after,
 .ui.ui.ui.dimmer:not(.inverted) > .ui.primary.elastic.loader::before,
 .ui.ui.ui.dimmer:not(.inverted) > .content > .ui.primary.loader::after {
-  color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.72) c h);
+  color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.72) c h);
 }
 
 /* Fork: segmento inverted de color: el arco va en la tinta de texto del relleno; con la
            variante clara del mismo color no se distinguía del fondo */
 .ui.ui.ui.ui.ui.inverted.primary.loading.segment:not(.usual)::after {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.secondary.elastic.loader::before,
 .ui.secondary.basic.elastic.loading.button::before,
@@ -311,7 +311,7 @@
 .ui.ui.ui.ui.secondary.loading .input > i.icon::after,
 .ui.ui.ui.ui.secondary.loading > i.icon::after,
 .ui.ui.ui.secondary.loader::after {
-  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.inverted.secondary.elastic.loader::before,
 .ui.ui.ui.inverted.secondary.elastic.loading:not(.segment):not(.segments):not(.card)::before,
@@ -321,7 +321,7 @@
 .ui.ui.ui.ui.inverted.secondary.loading .input > i.icon::after,
 .ui.ui.ui.ui.inverted.secondary.loading > i.icon::after,
 .ui.ui.ui.inverted.secondary.loader::after {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Fork: sobre el dimmer (oscuro salvo el inverted), la rama clara del color: los oscuros
@@ -329,13 +329,13 @@
 .ui.ui.ui.dimmer:not(.inverted) > .ui.secondary.loader::after,
 .ui.ui.ui.dimmer:not(.inverted) > .ui.secondary.elastic.loader::before,
 .ui.ui.ui.dimmer:not(.inverted) > .content > .ui.secondary.loader::after {
-  color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.72) c h);
+  color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.72) c h);
 }
 
 /* Fork: segmento inverted de color: el arco va en la tinta de texto del relleno; con la
            variante clara del mismo color no se distinguía del fondo */
 .ui.ui.ui.ui.ui.inverted.secondary.loading.segment:not(.usual)::after {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.accent-1.elastic.loader::before,
 .ui.accent-1.basic.elastic.loading.button::before,
@@ -347,7 +347,7 @@
 .ui.ui.ui.ui.accent-1.loading .input > i.icon::after,
 .ui.ui.ui.ui.accent-1.loading > i.icon::after,
 .ui.ui.ui.accent-1.loader::after {
-  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.inverted.accent-1.elastic.loader::before,
 .ui.ui.ui.inverted.accent-1.elastic.loading:not(.segment):not(.segments):not(.card)::before,
@@ -357,7 +357,7 @@
 .ui.ui.ui.ui.inverted.accent-1.loading .input > i.icon::after,
 .ui.ui.ui.ui.inverted.accent-1.loading > i.icon::after,
 .ui.ui.ui.inverted.accent-1.loader::after {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Fork: sobre el dimmer (oscuro salvo el inverted), la rama clara del color: los oscuros
@@ -365,13 +365,13 @@
 .ui.ui.ui.dimmer:not(.inverted) > .ui.accent-1.loader::after,
 .ui.ui.ui.dimmer:not(.inverted) > .ui.accent-1.elastic.loader::before,
 .ui.ui.ui.dimmer:not(.inverted) > .content > .ui.accent-1.loader::after {
-  color: oklch(from light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) max(l, 0.72) c h);
+  color: oklch(from light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h)) max(l, 0.72) c h);
 }
 
 /* Fork: segmento inverted de color: el arco va en la tinta de texto del relleno; con la
            variante clara del mismo color no se distinguía del fondo */
 .ui.ui.ui.ui.ui.inverted.accent-1.loading.segment:not(.usual)::after {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.accent-2.elastic.loader::before,
 .ui.accent-2.basic.elastic.loading.button::before,
@@ -383,7 +383,7 @@
 .ui.ui.ui.ui.accent-2.loading .input > i.icon::after,
 .ui.ui.ui.ui.accent-2.loading > i.icon::after,
 .ui.ui.ui.accent-2.loader::after {
-  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.inverted.accent-2.elastic.loader::before,
 .ui.ui.ui.inverted.accent-2.elastic.loading:not(.segment):not(.segments):not(.card)::before,
@@ -393,7 +393,7 @@
 .ui.ui.ui.ui.inverted.accent-2.loading .input > i.icon::after,
 .ui.ui.ui.ui.inverted.accent-2.loading > i.icon::after,
 .ui.ui.ui.inverted.accent-2.loader::after {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Fork: sobre el dimmer (oscuro salvo el inverted), la rama clara del color: los oscuros
@@ -401,13 +401,13 @@
 .ui.ui.ui.dimmer:not(.inverted) > .ui.accent-2.loader::after,
 .ui.ui.ui.dimmer:not(.inverted) > .ui.accent-2.elastic.loader::before,
 .ui.ui.ui.dimmer:not(.inverted) > .content > .ui.accent-2.loader::after {
-  color: oklch(from light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) max(l, 0.72) c h);
+  color: oklch(from light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h)) max(l, 0.72) c h);
 }
 
 /* Fork: segmento inverted de color: el arco va en la tinta de texto del relleno; con la
            variante clara del mismo color no se distinguía del fondo */
 .ui.ui.ui.ui.ui.inverted.accent-2.loading.segment:not(.usual)::after {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.accent-3.elastic.loader::before,
 .ui.accent-3.basic.elastic.loading.button::before,
@@ -419,7 +419,7 @@
 .ui.ui.ui.ui.accent-3.loading .input > i.icon::after,
 .ui.ui.ui.ui.accent-3.loading > i.icon::after,
 .ui.ui.ui.accent-3.loader::after {
-  color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
+  color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
 }
 .ui.inverted.accent-3.elastic.loader::before,
 .ui.ui.ui.inverted.accent-3.elastic.loading:not(.segment):not(.segments):not(.card)::before,
@@ -429,7 +429,7 @@
 .ui.ui.ui.ui.inverted.accent-3.loading .input > i.icon::after,
 .ui.ui.ui.ui.inverted.accent-3.loading > i.icon::after,
 .ui.ui.ui.inverted.accent-3.loader::after {
-  color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 
 /* Fork: sobre el dimmer (oscuro salvo el inverted), la rama clara del color: los oscuros
@@ -437,13 +437,13 @@
 .ui.ui.ui.dimmer:not(.inverted) > .ui.accent-3.loader::after,
 .ui.ui.ui.dimmer:not(.inverted) > .ui.accent-3.elastic.loader::before,
 .ui.ui.ui.dimmer:not(.inverted) > .content > .ui.accent-3.loader::after {
-  color: oklch(from light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) max(l, 0.72) c h);
+  color: oklch(from light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h)) max(l, 0.72) c h);
 }
 
 /* Fork: segmento inverted de color: el arco va en la tinta de texto del relleno; con la
            variante clara del mismo color no se distinguía del fondo */
 .ui.ui.ui.ui.ui.inverted.accent-3.loading.segment:not(.usual)::after {
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.red.elastic.loader::before,
 .ui.red.basic.elastic.loading.button::before,
@@ -937,19 +937,19 @@
   color: #687181;
 }
 .ui.ui.ui.ui.primary.basic.loading.button:not(.inverted)::after {
-  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.ui.ui.ui.secondary.basic.loading.button:not(.inverted)::after {
-  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.ui.ui.ui.accent-1.basic.loading.button:not(.inverted)::after {
-  color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.ui.ui.ui.accent-2.basic.loading.button:not(.inverted)::after {
-  color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.ui.ui.ui.accent-3.basic.loading.button:not(.inverted)::after {
-  color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
+  color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
 }
 .ui.ui.ui.ui.red.basic.loading.button:not(.inverted)::after {
   color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));

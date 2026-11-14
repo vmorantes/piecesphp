@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Modal
+ * # Fomantic-UI 0.11.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -785,7 +785,7 @@
 
 /* Contenido en text-2 (el basic va sobre el velo oscuro: conserva el texto claro de Fomantic) */
 .ui.modal:not(.basic) > .content {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Contenido con desplazamiento: separado por líneas arriba y abajo; las acciones de debajo no
@@ -815,7 +815,7 @@
 }
 .ui.modal > .close:hover {
   background-color: light-dark(#eef1f5, #262b36);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fomantic quita el contorno al enfocar el cierre: se recupera el foco único con teclado */

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Card
+ * # Fomantic-UI 0.11.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -170,7 +170,7 @@
 }
 .ui.cards > .card > .checkered.image > button:focus-visible,
 .ui.card > .checkered.image > button:focus-visible {
-  outline: 2px solid var(--accent-1, var(--accent, #356dca));
+  outline: 2px solid var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   outline-offset: 2px;
 }
 .ui.cards > .card > .inverted.checkered.image,
@@ -336,7 +336,7 @@
 }
 .ui.cards > .card > .content > a.header:hover,
 .ui.card > .content > a.header:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Meta */
@@ -461,7 +461,7 @@
 }
 .ui.cards > .card > .extra a:not(.ui),
 .ui.card > .extra a:not(.ui) {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.cards > .card > .extra a:not(.ui):hover,
 .ui.card > .extra a:not(.ui):hover {
@@ -640,7 +640,7 @@ a.ui.card:hover,
 .ui.primary.cards > .card,
 .ui.cards > .primary.card,
 .ui.primary.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-1, var(--accent, #356dca)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.primary.card:hover,
 .ui.primary.cards a.card:hover,
@@ -648,13 +648,13 @@ a.ui.card:hover,
 .ui.link.cards .primary.card:not(.icon):hover,
 a.ui.primary.card:hover,
 .ui.link.primary.card:hover {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards > .basic.primary.card,
 .ui.basic.primary.cards > .card,
 .ui.basic.cards > .primary.card,
 .ui.basic.primary.card {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 .ui.basic.cards a.primary.card:hover,
 .ui.cards a.basic.primary.card:hover,
@@ -664,12 +664,12 @@ a.ui.primary.card:hover,
 .ui.link.basic.cards .primary.card:not(.icon):hover,
 a.ui.basic.primary.card:hover,
 .ui.link.basic.primary.card:hover {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
 }
 .ui.inverted.primary.cards > .card,
 .ui.inverted.cards > .primary.card,
 .ui.inverted.primary.card {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white), 0 0 0 1px #555;
 }
 .ui.inverted.cards a.primary.card:hover,
 .ui.inverted.primary.cards a.card:hover,
@@ -677,13 +677,13 @@ a.ui.basic.primary.card:hover,
 .ui.link.inverted.cards .primary.card:not(.icon):hover,
 a.ui.inverted.primary.card:hover,
 .ui.link.inverted.primary.card:hover {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black), 0 0 0 1px #555;
 }
 .ui.inverted.cards > .basic.primary.card,
 .ui.basic.inverted.primary.cards > .card,
 .ui.basic.inverted.cards > .primary.card,
 .ui.basic.inverted.primary.card {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.cards a.basic.primary.card:hover,
 .ui.basic.inverted.cards a.primary.card:hover,
@@ -693,7 +693,7 @@ a.ui.inverted.primary.card:hover,
 .ui.link.basic.inverted.cards .primary.card:not(.icon):hover,
 a.ui.basic.inverted.primary.card:hover,
 .ui.link.basic.inverted.primary.card:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 
 /* Fork: texto de las cards basic de color según la luminosidad de su relleno (D36): el
@@ -718,7 +718,7 @@ a.ui.basic.inverted.primary.card:hover,
 .ui.basic.primary.cards > .card .description,
 .ui.basic.cards > .primary.card .description,
 .ui.basic.primary.card .description {
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.cards > .basic.primary.card,
 .ui.basic.inverted.primary.cards > .card,
@@ -740,12 +740,12 @@ a.ui.basic.inverted.primary.card:hover,
 .ui.basic.inverted.primary.cards > .card .description,
 .ui.basic.inverted.cards > .primary.card .description,
 .ui.basic.inverted.primary.card .description {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.secondary.cards > .card,
 .ui.cards > .secondary.card,
 .ui.secondary.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-2, #7a5af8), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.secondary.card:hover,
 .ui.secondary.cards a.card:hover,
@@ -753,13 +753,13 @@ a.ui.basic.inverted.primary.card:hover,
 .ui.link.cards .secondary.card:not(.icon):hover,
 a.ui.secondary.card:hover,
 .ui.link.secondary.card:hover {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards > .basic.secondary.card,
 .ui.basic.secondary.cards > .card,
 .ui.basic.cards > .secondary.card,
 .ui.basic.secondary.card {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 .ui.basic.cards a.secondary.card:hover,
 .ui.cards a.basic.secondary.card:hover,
@@ -769,12 +769,12 @@ a.ui.secondary.card:hover,
 .ui.link.basic.cards .secondary.card:not(.icon):hover,
 a.ui.basic.secondary.card:hover,
 .ui.link.basic.secondary.card:hover {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
 }
 .ui.inverted.secondary.cards > .card,
 .ui.inverted.cards > .secondary.card,
 .ui.inverted.secondary.card {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white), 0 0 0 1px #555;
 }
 .ui.inverted.cards a.secondary.card:hover,
 .ui.inverted.secondary.cards a.card:hover,
@@ -782,13 +782,13 @@ a.ui.basic.secondary.card:hover,
 .ui.link.inverted.cards .secondary.card:not(.icon):hover,
 a.ui.inverted.secondary.card:hover,
 .ui.link.inverted.secondary.card:hover {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black), 0 0 0 1px #555;
 }
 .ui.inverted.cards > .basic.secondary.card,
 .ui.basic.inverted.secondary.cards > .card,
 .ui.basic.inverted.cards > .secondary.card,
 .ui.basic.inverted.secondary.card {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.inverted.cards a.basic.secondary.card:hover,
 .ui.basic.inverted.cards a.secondary.card:hover,
@@ -798,7 +798,7 @@ a.ui.inverted.secondary.card:hover,
 .ui.link.basic.inverted.cards .secondary.card:not(.icon):hover,
 a.ui.basic.inverted.secondary.card:hover,
 .ui.link.basic.inverted.secondary.card:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 
 /* Fork: texto de las cards basic de color según la luminosidad de su relleno (D36): el
@@ -823,7 +823,7 @@ a.ui.basic.inverted.secondary.card:hover,
 .ui.basic.secondary.cards > .card .description,
 .ui.basic.cards > .secondary.card .description,
 .ui.basic.secondary.card .description {
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.cards > .basic.secondary.card,
 .ui.basic.inverted.secondary.cards > .card,
@@ -845,12 +845,12 @@ a.ui.basic.inverted.secondary.card:hover,
 .ui.basic.inverted.secondary.cards > .card .description,
 .ui.basic.inverted.cards > .secondary.card .description,
 .ui.basic.inverted.secondary.card .description {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-1.cards > .card,
 .ui.cards > .accent-1.card,
 .ui.accent-1.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-1, var(--accent, #356dca)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.accent-1.card:hover,
 .ui.accent-1.cards a.card:hover,
@@ -858,13 +858,13 @@ a.ui.basic.inverted.secondary.card:hover,
 .ui.link.cards .accent-1.card:not(.icon):hover,
 a.ui.accent-1.card:hover,
 .ui.link.accent-1.card:hover {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards > .basic.accent-1.card,
 .ui.basic.accent-1.cards > .card,
 .ui.basic.cards > .accent-1.card,
 .ui.basic.accent-1.card {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 .ui.basic.cards a.accent-1.card:hover,
 .ui.cards a.basic.accent-1.card:hover,
@@ -874,12 +874,12 @@ a.ui.accent-1.card:hover,
 .ui.link.basic.cards .accent-1.card:not(.icon):hover,
 a.ui.basic.accent-1.card:hover,
 .ui.link.basic.accent-1.card:hover {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
 }
 .ui.inverted.accent-1.cards > .card,
 .ui.inverted.cards > .accent-1.card,
 .ui.inverted.accent-1.card {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white), 0 0 0 1px #555;
 }
 .ui.inverted.cards a.accent-1.card:hover,
 .ui.inverted.accent-1.cards a.card:hover,
@@ -887,13 +887,13 @@ a.ui.basic.accent-1.card:hover,
 .ui.link.inverted.cards .accent-1.card:not(.icon):hover,
 a.ui.inverted.accent-1.card:hover,
 .ui.link.inverted.accent-1.card:hover {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black), 0 0 0 1px #555;
 }
 .ui.inverted.cards > .basic.accent-1.card,
 .ui.basic.inverted.accent-1.cards > .card,
 .ui.basic.inverted.cards > .accent-1.card,
 .ui.basic.inverted.accent-1.card {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.cards a.basic.accent-1.card:hover,
 .ui.basic.inverted.cards a.accent-1.card:hover,
@@ -903,7 +903,7 @@ a.ui.inverted.accent-1.card:hover,
 .ui.link.basic.inverted.cards .accent-1.card:not(.icon):hover,
 a.ui.basic.inverted.accent-1.card:hover,
 .ui.link.basic.inverted.accent-1.card:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 
 /* Fork: texto de las cards basic de color según la luminosidad de su relleno (D36): el
@@ -928,7 +928,7 @@ a.ui.basic.inverted.accent-1.card:hover,
 .ui.basic.accent-1.cards > .card .description,
 .ui.basic.cards > .accent-1.card .description,
 .ui.basic.accent-1.card .description {
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.cards > .basic.accent-1.card,
 .ui.basic.inverted.accent-1.cards > .card,
@@ -950,12 +950,12 @@ a.ui.basic.inverted.accent-1.card:hover,
 .ui.basic.inverted.accent-1.cards > .card .description,
 .ui.basic.inverted.cards > .accent-1.card .description,
 .ui.basic.inverted.accent-1.card .description {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-2.cards > .card,
 .ui.cards > .accent-2.card,
 .ui.accent-2.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-2, #7a5af8), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.accent-2.card:hover,
 .ui.accent-2.cards a.card:hover,
@@ -963,13 +963,13 @@ a.ui.basic.inverted.accent-1.card:hover,
 .ui.link.cards .accent-2.card:not(.icon):hover,
 a.ui.accent-2.card:hover,
 .ui.link.accent-2.card:hover {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards > .basic.accent-2.card,
 .ui.basic.accent-2.cards > .card,
 .ui.basic.cards > .accent-2.card,
 .ui.basic.accent-2.card {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 .ui.basic.cards a.accent-2.card:hover,
 .ui.cards a.basic.accent-2.card:hover,
@@ -979,12 +979,12 @@ a.ui.accent-2.card:hover,
 .ui.link.basic.cards .accent-2.card:not(.icon):hover,
 a.ui.basic.accent-2.card:hover,
 .ui.link.basic.accent-2.card:hover {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
 }
 .ui.inverted.accent-2.cards > .card,
 .ui.inverted.cards > .accent-2.card,
 .ui.inverted.accent-2.card {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white), 0 0 0 1px #555;
 }
 .ui.inverted.cards a.accent-2.card:hover,
 .ui.inverted.accent-2.cards a.card:hover,
@@ -992,13 +992,13 @@ a.ui.basic.accent-2.card:hover,
 .ui.link.inverted.cards .accent-2.card:not(.icon):hover,
 a.ui.inverted.accent-2.card:hover,
 .ui.link.inverted.accent-2.card:hover {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black), 0 0 0 1px #555;
 }
 .ui.inverted.cards > .basic.accent-2.card,
 .ui.basic.inverted.accent-2.cards > .card,
 .ui.basic.inverted.cards > .accent-2.card,
 .ui.basic.inverted.accent-2.card {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.inverted.cards a.basic.accent-2.card:hover,
 .ui.basic.inverted.cards a.accent-2.card:hover,
@@ -1008,7 +1008,7 @@ a.ui.inverted.accent-2.card:hover,
 .ui.link.basic.inverted.cards .accent-2.card:not(.icon):hover,
 a.ui.basic.inverted.accent-2.card:hover,
 .ui.link.basic.inverted.accent-2.card:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 
 /* Fork: texto de las cards basic de color según la luminosidad de su relleno (D36): el
@@ -1033,7 +1033,7 @@ a.ui.basic.inverted.accent-2.card:hover,
 .ui.basic.accent-2.cards > .card .description,
 .ui.basic.cards > .accent-2.card .description,
 .ui.basic.accent-2.card .description {
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.cards > .basic.accent-2.card,
 .ui.basic.inverted.accent-2.cards > .card,
@@ -1055,12 +1055,12 @@ a.ui.basic.inverted.accent-2.card:hover,
 .ui.basic.inverted.accent-2.cards > .card .description,
 .ui.basic.inverted.cards > .accent-2.card .description,
 .ui.basic.inverted.accent-2.card .description {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.accent-3.cards > .card,
 .ui.cards > .accent-3.card,
 .ui.accent-3.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-3, #c11574), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-3-fill, var(--accent-3, #c11574)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.accent-3.card:hover,
 .ui.accent-3.cards a.card:hover,
@@ -1068,13 +1068,13 @@ a.ui.basic.inverted.accent-2.card:hover,
 .ui.link.cards .accent-3.card:not(.icon):hover,
 a.ui.accent-3.card:hover,
 .ui.link.accent-3.card:hover {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-3, #c11574) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black), var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards > .basic.accent-3.card,
 .ui.basic.accent-3.cards > .card,
 .ui.basic.cards > .accent-3.card,
 .ui.basic.accent-3.card {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 .ui.basic.cards a.accent-3.card:hover,
 .ui.cards a.basic.accent-3.card:hover,
@@ -1084,12 +1084,12 @@ a.ui.accent-3.card:hover,
 .ui.link.basic.cards .accent-3.card:not(.icon):hover,
 a.ui.basic.accent-3.card:hover,
 .ui.link.basic.accent-3.card:hover {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
 }
 .ui.inverted.accent-3.cards > .card,
 .ui.inverted.cards > .accent-3.card,
 .ui.inverted.accent-3.card {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-3, #c11574) 72%, white), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white), 0 0 0 1px #555;
 }
 .ui.inverted.cards a.accent-3.card:hover,
 .ui.inverted.accent-3.cards a.card:hover,
@@ -1097,13 +1097,13 @@ a.ui.basic.accent-3.card:hover,
 .ui.link.inverted.cards .accent-3.card:not(.icon):hover,
 a.ui.inverted.accent-3.card:hover,
 .ui.link.inverted.accent-3.card:hover {
-  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black), 0 0 0 1px #555;
+  box-shadow: 0 1px 3px 0 #555, 0 2px 0 0 color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black), 0 0 0 1px #555;
 }
 .ui.inverted.cards > .basic.accent-3.card,
 .ui.basic.inverted.accent-3.cards > .card,
 .ui.basic.inverted.cards > .accent-3.card,
 .ui.basic.inverted.accent-3.card {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.inverted.cards a.basic.accent-3.card:hover,
 .ui.basic.inverted.cards a.accent-3.card:hover,
@@ -1113,7 +1113,7 @@ a.ui.inverted.accent-3.card:hover,
 .ui.link.basic.inverted.cards .accent-3.card:not(.icon):hover,
 a.ui.basic.inverted.accent-3.card:hover,
 .ui.link.basic.inverted.accent-3.card:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 
 /* Fork: texto de las cards basic de color según la luminosidad de su relleno (D36): el
@@ -1138,7 +1138,7 @@ a.ui.basic.inverted.accent-3.card:hover,
 .ui.basic.accent-3.cards > .card .description,
 .ui.basic.cards > .accent-3.card .description,
 .ui.basic.accent-3.card .description {
-  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.cards > .basic.accent-3.card,
 .ui.basic.inverted.accent-3.cards > .card,
@@ -1160,7 +1160,7 @@ a.ui.basic.inverted.accent-3.card:hover,
 .ui.basic.inverted.accent-3.cards > .card .description,
 .ui.basic.inverted.cards > .accent-3.card .description,
 .ui.basic.inverted.accent-3.card .description {
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.red.cards > .card,
 .ui.cards > .red.card,
@@ -2910,7 +2910,7 @@ a.ui.basic.inverted.black.card:hover,
 }
 .ui.inverted.cards > .card > .content > a.header:hover,
 .ui.inverted.card > .content > a.header:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Description */
@@ -3037,6 +3037,20 @@ a.inverted.ui.card:hover,
   padding: 1rem;
 }
 
+/* Fork: rejilla adaptable (D95): tantas columnas como quepan con un ancho mínimo en em, así que con el texto grande
+   (data-text-size) salen menos columnas en vez de tarjetas estrechas. Sirve con `statistic card`. El mínimo se
+   cambia por página con --adaptive-card-min-width */
+.ui.adaptive.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--adaptive-card-min-width, 16em)), 1fr));
+  gap: 1em;
+  margin: 0;
+}
+.ui.adaptive.cards > .card {
+  width: auto;
+  margin: 0;
+}
+
 
 /*******************************
          Theme Overrides
@@ -3122,7 +3136,7 @@ a.inverted.ui.card:hover,
 /* Título de las tarjetas de cifra en text-2 y 600 (.pp-stat-title, .pp-mid-title, también cuando
    va dentro de una fila con su ayuda); el de la de acción, en el color del texto */
 .ui.cards > .statistic.card > .content .header:not(.ui) {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   font-weight: 600;
 }
 .ui.cards > .statistic.card > .content > i.bordered.icon ~ .header {
@@ -3153,7 +3167,7 @@ a.ui.link.card:hover > .content > i.bordered.icon {
 }
 .ui.cards > a.link.card:hover > .content > i.right.floated.icon,
 a.ui.link.card:hover > .content > i.right.floated.icon {
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   transform: translateX(3px);
 }
 .ui.cards > a.link.card:hover > .content > .header,
@@ -3232,7 +3246,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.cards > .statistic.card > .content > .right.floated.icon.button:hover,
 .ui.statistic.card > .content > .right.floated.icon.button:hover {
   background: light-dark(#eef1f5, #262b36);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.cards > .statistic.card > .content > .right.floated.icon.button > .icon,
 .ui.statistic.card > .content > .right.floated.icon.button > .icon {

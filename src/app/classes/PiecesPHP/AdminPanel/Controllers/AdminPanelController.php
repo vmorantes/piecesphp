@@ -25,6 +25,7 @@ use PiecesPHP\CSSVariables;
 use PiecesPHP\MailCatalog\Definitions\SupportTicketMail;
 use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Notifications\NotificationsRoutes;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
@@ -88,6 +89,17 @@ class AdminPanelController extends BaseController
     const THEME_MODE_LIGHT = 'light';
     const THEME_MODE_AUTO = 'auto';
     const THEME_MODES = [self::THEME_MODE_LIGHT, 'dark', self::THEME_MODE_AUTO];
+
+    /**
+     * El tamaño de letra del panel: tres niveles relativos al «Tamaño base» de Colores. Es el `data-text-size` de `<html>`.
+     */
+    const TEXT_SIZE_META = 'text_size';
+    const TEXT_SIZE_NORMAL = 'normal';
+    const TEXT_SIZES = [self::TEXT_SIZE_NORMAL, 'large', 'larger'];
+    /**
+     * Los píxeles que suma cada nivel al «Tamaño base» de Colores.
+     */
+    const TEXT_SIZE_STEPS = [self::TEXT_SIZE_NORMAL => 0, 'large' => 2, 'larger' => 4];
 
     /**
      * @return static
@@ -184,6 +196,27 @@ class AdminPanelController extends BaseController
     }
 
     /**
+     * Guarda el tamaño de letra del panel del usuario actual (TEXT_SIZES): 400 con cualquier otro valor. Devuelve también
+     * los píxeles, para que el navegador lo aplique sin recargar.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function textSize(Request $req, Response $res)
+    {
+        $size = $req->getParsedBodyParam('size', '');
+        $user = getLoggedFrameworkUserOrFail();
+        $allowed = is_string($size) && in_array($size, self::TEXT_SIZES, true);
+        $saved = $allowed && UsersModel::setMetaValue((int) $user->id, self::TEXT_SIZE_META, $size);
+        return $res->withJson([
+            'success' => $saved,
+            'size' => $saved ? $size : null,
+            'pixels' => $saved ? self::textSizePixels($size) : null,
+        ], $saved ? 200 : 400);
+    }
+
+    /**
      * Las iniciales del avatar sin foto (el «MR» del marco del tema): la primera letra del nombre y la del primer
      * apellido, en mayúscula; con uno solo, una letra; sin ninguno, vacío (y el marco pinta el icono).
      *
@@ -198,7 +231,8 @@ class AdminPanelController extends BaseController
     }
 
     /**
-     * El modo de color guardado de un usuario; sin guardar o con un valor que ya no vale, el de por defecto.
+     * El modo de color guardado de un usuario; sin guardar o con un valor que ya no vale, el del sitio (Apariencia ›
+     * Accesibilidad).
      *
      * @param int $userID
      * @return string Uno de THEME_MODES
@@ -206,7 +240,28 @@ class AdminPanelController extends BaseController
     public static function themeModeOf(int $userID): string
     {
         $mode = UsersModel::metaValue($userID, self::THEME_MODE_META);
-        return is_string($mode) && in_array($mode, self::THEME_MODES, true) ? $mode : self::THEME_MODE_AUTO;
+        return is_string($mode) && in_array($mode, self::THEME_MODES, true) ? $mode : SettingsController::accessibilityThemeMode();
+    }
+
+    /**
+     * El tamaño de letra guardado de un usuario; sin guardar o con un valor que ya no vale, el del sitio.
+     *
+     * @param int $userID
+     * @return string Uno de TEXT_SIZES
+     */
+    public static function textSizeOf(int $userID): string
+    {
+        $size = UsersModel::metaValue($userID, self::TEXT_SIZE_META);
+        return is_string($size) && in_array($size, self::TEXT_SIZES, true) ? $size : SettingsController::accessibilityTextSize();
+    }
+
+    /**
+     * @param string $level Uno de TEXT_SIZES; otro cuenta como normal
+     * @return int El tamaño base de Colores más el paso del nivel, en píxeles
+     */
+    public static function textSizePixels(string $level): int
+    {
+        return SettingsController::themeFontSize() + (self::TEXT_SIZE_STEPS[$level] ?? 0);
     }
 
     //Medidas en la cabecera de cada archivo de statics/plugins/: al actualizar una librería, se actualiza aquí.
@@ -565,6 +620,15 @@ class AdminPanelController extends BaseController
                 "{$startRoute}theme-mode[/]",
                 self::class . ':themeMode',
                 'admin-theme-mode',
+                'POST',
+                true,
+                null,
+                $allRoles
+            ),
+            new Route(
+                "{$startRoute}text-size[/]",
+                self::class . ':textSize',
+                'admin-text-size',
                 'POST',
                 true,
                 null,

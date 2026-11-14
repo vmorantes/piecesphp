@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Table
+ * # Fomantic-UI 0.11.0 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27,7 +27,7 @@
   border-radius: var(--r-lg, 12px);
   text-align: left;
   vertical-align: middle;
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -101,7 +101,7 @@
   border-top: 1px solid var(--theme-border);
   background: light-dark(#fafbfc, #161920);
   text-align: inherit;
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   padding: 0 0.71428571em;
   vertical-align: inherit;
   font-style: 400;
@@ -237,64 +237,64 @@
     box-shadow: none !important;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="primary marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="primary marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="primary marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="primary marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="secondary marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="secondary marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="secondary marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="secondary marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="accent-1 marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="accent-1 marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="accent-1 marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="accent-1 marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="accent-2 marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="accent-2 marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="accent-2 marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="accent-2 marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="accent-3 marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-3, #c11574) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-3-fill, var(--accent-3, #c11574)) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="accent-3 marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-3, #c11574) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-3-fill, var(--accent-3, #c11574)) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="accent-3 marked"].left {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) inset;
   }
   .ui.ui.ui.ui.inverted.table:not(.unstackable):not(.dataTable) tr[class*="accent-3 marked"].right {
-    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
+    box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) inset;
   }
   .ui.ui.ui.ui.table:not(.unstackable):not(.dataTable) tr[class*="red marked"].left {
     box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 #f04438 inset;
@@ -882,7 +882,7 @@
 .ui.ui.table td.positive {
   box-shadow: 0 0 0 light-dark(#abefc6, #1b5e3c) inset;
   background: light-dark(#ecfdf3, #0c2a1c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.ui.ui.ui.inverted.table tr.positive,
 .ui.ui.inverted.table td.positive {
@@ -897,7 +897,7 @@
 .ui.ui.table td.negative {
   box-shadow: 0 0 0 light-dark(#fecdca, #7a271a) inset;
   background: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.ui.ui.ui.inverted.table tr.negative,
 .ui.ui.inverted.table td.negative {
@@ -912,7 +912,7 @@
 .ui.ui.table td.error {
   box-shadow: 0 0 0 light-dark(#fecdca, #7a271a) inset;
   background: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.ui.ui.ui.inverted.table tr.error,
 .ui.ui.inverted.table td.error {
@@ -927,7 +927,7 @@
 .ui.ui.table td.warning {
   box-shadow: 0 0 0 light-dark(#fedf89, #6b4a10) inset;
   background: light-dark(#fffaeb, #2e2108);
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.ui.ui.ui.inverted.table tr.warning,
 .ui.ui.inverted.table td.warning {
@@ -1026,64 +1026,64 @@
   }
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="primary marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="primary marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="primary marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="primary marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="secondary marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="secondary marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="secondary marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="secondary marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="accent-1 marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="accent-1 marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="accent-1 marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="accent-1 marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="accent-2 marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="accent-2 marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="accent-2 marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="accent-2 marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="accent-3 marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-3, #c11574) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 var(--accent-3-fill, var(--accent-3, #c11574)) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="accent-3 marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-3, #c11574) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 var(--accent-3-fill, var(--accent-3, #c11574)) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="accent-3 marked"].left {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].inverted.table tr[class*="accent-3 marked"].right {
-  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
+  box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, -0.2em 0 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) inset;
 }
 .ui.ui.ui.ui[class*="tablet stackable"].table tr[class*="red marked"].left {
   box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.1) inset, 0.2em 0 0 0 #f04438 inset;
@@ -1332,13 +1332,13 @@
 .ui.table tr td.selectable.error:hover,
 .ui.selectable.table tr:hover td.error {
   background: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.ui.selectable.table tr.warning:hover,
 .ui.table tr td.selectable.warning:hover,
 .ui.selectable.table tr:hover td.warning {
   background: light-dark(#fffaeb, #2e2108);
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.ui.selectable.table tr.active:hover,
 .ui.table tr td.selectable.active:hover,
@@ -1350,13 +1350,13 @@
 .ui.table tr td.selectable.positive:hover,
 .ui.selectable.table tr:hover td.positive {
   background: light-dark(#ecfdf3, #0c2a1c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.ui.selectable.table tr.negative:hover,
 .ui.table tr td.selectable.negative:hover,
 .ui.selectable.table tr:hover td.negative {
   background: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* -------------------
@@ -1460,13 +1460,13 @@
 
 /* Fork: relleno de las celdas de color y texto de Fomantic para `.fill-text()` (D36) */
 .ui.primary.table {
-  border-top: 0.2em solid var(--accent-1, var(--accent, #356dca));
+  border-top: 0.2em solid var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.primary.table {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: `.ui.ui` para ganar a `.ui.ui.inverted.table > thead > tr > th`, que va después */
@@ -1475,7 +1475,7 @@
 .ui.ui.inverted.primary.table > tfoot > tr > th,
 .ui.ui.inverted.primary.table > tbody > tr > td,
 .ui.ui.inverted.primary.table > tfoot > tr > td {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: la fila rayada y la fila bajo el cursor se separan del relleno en la dirección
@@ -1483,41 +1483,41 @@
                    decidido con el color, conserva su contraste. Con el velo blanco de Fomantic, el texto
                    blanco del gris de tinker bajaba a 4,1:1. */
 .ui.ui.inverted.primary.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 95%, color(from color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 95%, color(from color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 .ui.ui.inverted.primary.selectable.table > tbody > tr:hover {
-  background-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 92%, color(from color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 92%, color(from color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 
 /* Same color for background and color to camouflage the scrollbar */
 .ui.scrolling.table > thead.primary,
 .ui.scrolling.table > tfoot.primary {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white));
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white));
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white));
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white));
   
 /* Fork: con un tema de modos, en oscuro el mismo tinte que las celdas de color */
-  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
-  color: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
+  background: light-dark(color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 30%, var(--theme-surface)));
+  color: light-dark(color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 30%, var(--theme-surface)));
 }
 .ui.scrolling.table > thead.primary > tr > th,
 .ui.scrolling.table > tfoot.primary > tr > th,
 .ui.scrolling.table > thead.primary > tr > td,
 .ui.scrolling.table > tfoot.primary > tr > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.inverted.scrolling.table > thead.primary,
 .ui.inverted.scrolling.table > tfoot.primary {
-  background: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.scrolling.table > thead.primary > tr > th,
 .ui.inverted.scrolling.table > tfoot.primary > tr > th,
 .ui.inverted.scrolling.table > thead.primary > tr > td,
 .ui.inverted.scrolling.table > tfoot.primary > tr > td {
   background: inherit;
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.ui.table tr[class*="primary colored"],
 .ui.ui.table th[class*="primary colored"],
@@ -1525,13 +1525,13 @@
 .ui.ui.ui.ui.table tr.primary:not(.marked),
 .ui.ui.table th.primary:not(.marked),
 .ui.ui.table td.primary:not(.marked) {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white));
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: light-dark(color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 30%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="primary colored"] > th,
 .ui.table > tfoot > tr[class*="primary colored"] > th,
@@ -1540,7 +1540,7 @@
 .ui.table > tfoot > tr.primary:not(.marked) > th,
 .ui.table > tfoot > tr.primary:not(.marked) > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   color: inherit;
 }
 .ui.ui.ui.ui.inverted.table tr[class*="primary colored"],
@@ -1549,8 +1549,8 @@
 .ui.ui.ui.ui.inverted.table tr.primary:not(.marked),
 .ui.ui.inverted.table th.primary:not(.marked),
 .ui.ui.inverted.table td.primary:not(.marked) {
-  background: var(--accent-1, var(--accent, #356dca));
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.table > thead > tr[class*="primary colored"] > th,
 .ui.inverted.table > tfoot > tr[class*="primary colored"] > th,
@@ -1559,7 +1559,7 @@
 .ui.inverted.table > tfoot > tr.primary:not(.marked) > th,
 .ui.inverted.table > tfoot > tr.primary:not(.marked) > td {
   background: inherit;
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.selectable.table tr[class*="primary colored"]:hover,
 .ui.table tr td.selectable[class*="primary colored"]:hover,
@@ -1567,10 +1567,10 @@
 .ui.ui.selectable.table tr.primary:not(.marked):hover,
 .ui.table tr td.selectable.primary:not(.marked):hover,
 .ui.selectable.table tr:hover td.primary:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 40%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 40%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.ui.inverted.selectable.table tr[class*="primary colored"]:hover,
 .ui.inverted.table tr td.selectable[class*="primary colored"]:hover,
@@ -1578,35 +1578,35 @@
 .ui.ui.inverted.selectable.table tr.primary:not(.marked):hover,
 .ui.inverted.table tr td.selectable.primary:not(.marked):hover,
 .ui.inverted.selectable.table tr:hover td.primary:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.table td[class*="primary marked"].left,
 .ui.table tr[class*="primary marked"].left {
-  box-shadow: 0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.table td[class*="primary marked"].right,
 .ui.table tr[class*="primary marked"].right {
-  box-shadow: -0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: -0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.inverted.table td[class*="primary marked"].left,
 .ui.inverted.table tr[class*="primary marked"].left {
-  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 .ui.inverted.table td[class*="primary marked"].right,
 .ui.inverted.table tr[class*="primary marked"].right {
-  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 
 /* Fork: relleno de las celdas de color y texto de Fomantic para `.fill-text()` (D36) */
 .ui.secondary.table {
-  border-top: 0.2em solid var(--accent-2, #7a5af8);
+  border-top: 0.2em solid var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.inverted.secondary.table {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: `.ui.ui` para ganar a `.ui.ui.inverted.table > thead > tr > th`, que va después */
@@ -1615,7 +1615,7 @@
 .ui.ui.inverted.secondary.table > tfoot > tr > th,
 .ui.ui.inverted.secondary.table > tbody > tr > td,
 .ui.ui.inverted.secondary.table > tfoot > tr > td {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: la fila rayada y la fila bajo el cursor se separan del relleno en la dirección
@@ -1623,41 +1623,41 @@
                    decidido con el color, conserva su contraste. Con el velo blanco de Fomantic, el texto
                    blanco del gris de tinker bajaba a 4,1:1. */
 .ui.ui.inverted.secondary.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in srgb, var(--accent-2, #7a5af8) 95%, color(from color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 95%, color(from color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 .ui.ui.inverted.secondary.selectable.table > tbody > tr:hover {
-  background-color: color-mix(in srgb, var(--accent-2, #7a5af8) 92%, color(from color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 92%, color(from color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 
 /* Same color for background and color to camouflage the scrollbar */
 .ui.scrolling.table > thead.secondary,
 .ui.scrolling.table > tfoot.secondary {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white));
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white));
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white));
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white));
   
 /* Fork: con un tema de modos, en oscuro el mismo tinte que las celdas de color */
-  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
-  color: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
+  background: light-dark(color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 30%, var(--theme-surface)));
+  color: light-dark(color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 30%, var(--theme-surface)));
 }
 .ui.scrolling.table > thead.secondary > tr > th,
 .ui.scrolling.table > tfoot.secondary > tr > th,
 .ui.scrolling.table > thead.secondary > tr > td,
 .ui.scrolling.table > tfoot.secondary > tr > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.inverted.scrolling.table > thead.secondary,
 .ui.inverted.scrolling.table > tfoot.secondary {
-  background: var(--accent-2, #7a5af8);
-  color: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  color: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.inverted.scrolling.table > thead.secondary > tr > th,
 .ui.inverted.scrolling.table > tfoot.secondary > tr > th,
 .ui.inverted.scrolling.table > thead.secondary > tr > td,
 .ui.inverted.scrolling.table > tfoot.secondary > tr > td {
   background: inherit;
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.ui.table tr[class*="secondary colored"],
 .ui.ui.table th[class*="secondary colored"],
@@ -1665,13 +1665,13 @@
 .ui.ui.ui.ui.table tr.secondary:not(.marked),
 .ui.ui.table th.secondary:not(.marked),
 .ui.ui.table td.secondary:not(.marked) {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white));
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: light-dark(color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 30%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="secondary colored"] > th,
 .ui.table > tfoot > tr[class*="secondary colored"] > th,
@@ -1680,7 +1680,7 @@
 .ui.table > tfoot > tr.secondary:not(.marked) > th,
 .ui.table > tfoot > tr.secondary:not(.marked) > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   color: inherit;
 }
 .ui.ui.ui.ui.inverted.table tr[class*="secondary colored"],
@@ -1689,8 +1689,8 @@
 .ui.ui.ui.ui.inverted.table tr.secondary:not(.marked),
 .ui.ui.inverted.table th.secondary:not(.marked),
 .ui.ui.inverted.table td.secondary:not(.marked) {
-  background: var(--accent-2, #7a5af8);
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.table > thead > tr[class*="secondary colored"] > th,
 .ui.inverted.table > tfoot > tr[class*="secondary colored"] > th,
@@ -1699,7 +1699,7 @@
 .ui.inverted.table > tfoot > tr.secondary:not(.marked) > th,
 .ui.inverted.table > tfoot > tr.secondary:not(.marked) > td {
   background: inherit;
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.selectable.table tr[class*="secondary colored"]:hover,
 .ui.table tr td.selectable[class*="secondary colored"]:hover,
@@ -1707,10 +1707,10 @@
 .ui.ui.selectable.table tr.secondary:not(.marked):hover,
 .ui.table tr td.selectable.secondary:not(.marked):hover,
 .ui.selectable.table tr:hover td.secondary:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black), color-mix(in srgb, var(--accent-2, #7a5af8) 40%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 40%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.ui.inverted.selectable.table tr[class*="secondary colored"]:hover,
 .ui.inverted.table tr td.selectable[class*="secondary colored"]:hover,
@@ -1718,35 +1718,35 @@
 .ui.ui.inverted.selectable.table tr.secondary:not(.marked):hover,
 .ui.inverted.table tr td.selectable.secondary:not(.marked):hover,
 .ui.inverted.selectable.table tr:hover td.secondary:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.table td[class*="secondary marked"].left,
 .ui.table tr[class*="secondary marked"].left {
-  box-shadow: 0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: 0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.table td[class*="secondary marked"].right,
 .ui.table tr[class*="secondary marked"].right {
-  box-shadow: -0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: -0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.inverted.table td[class*="secondary marked"].left,
 .ui.inverted.table tr[class*="secondary marked"].left {
-  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 .ui.inverted.table td[class*="secondary marked"].right,
 .ui.inverted.table tr[class*="secondary marked"].right {
-  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 
 /* Fork: relleno de las celdas de color y texto de Fomantic para `.fill-text()` (D36) */
 .ui.accent-1.table {
-  border-top: 0.2em solid var(--accent-1, var(--accent, #356dca));
+  border-top: 0.2em solid var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.accent-1.table {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: `.ui.ui` para ganar a `.ui.ui.inverted.table > thead > tr > th`, que va después */
@@ -1755,7 +1755,7 @@
 .ui.ui.inverted.accent-1.table > tfoot > tr > th,
 .ui.ui.inverted.accent-1.table > tbody > tr > td,
 .ui.ui.inverted.accent-1.table > tfoot > tr > td {
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: la fila rayada y la fila bajo el cursor se separan del relleno en la dirección
@@ -1763,41 +1763,41 @@
                    decidido con el color, conserva su contraste. Con el velo blanco de Fomantic, el texto
                    blanco del gris de tinker bajaba a 4,1:1. */
 .ui.ui.inverted.accent-1.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 95%, color(from color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 95%, color(from color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 .ui.ui.inverted.accent-1.selectable.table > tbody > tr:hover {
-  background-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 92%, color(from color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 92%, color(from color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 
 /* Same color for background and color to camouflage the scrollbar */
 .ui.scrolling.table > thead.accent-1,
 .ui.scrolling.table > tfoot.accent-1 {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white));
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white));
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white));
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white));
   
 /* Fork: con un tema de modos, en oscuro el mismo tinte que las celdas de color */
-  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
-  color: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
+  background: light-dark(color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 30%, var(--theme-surface)));
+  color: light-dark(color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 30%, var(--theme-surface)));
 }
 .ui.scrolling.table > thead.accent-1 > tr > th,
 .ui.scrolling.table > tfoot.accent-1 > tr > th,
 .ui.scrolling.table > thead.accent-1 > tr > td,
 .ui.scrolling.table > tfoot.accent-1 > tr > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.inverted.scrolling.table > thead.accent-1,
 .ui.inverted.scrolling.table > tfoot.accent-1 {
-  background: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.scrolling.table > thead.accent-1 > tr > th,
 .ui.inverted.scrolling.table > tfoot.accent-1 > tr > th,
 .ui.inverted.scrolling.table > thead.accent-1 > tr > td,
 .ui.inverted.scrolling.table > tfoot.accent-1 > tr > td {
   background: inherit;
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.ui.table tr[class*="accent-1 colored"],
 .ui.ui.table th[class*="accent-1 colored"],
@@ -1805,13 +1805,13 @@
 .ui.ui.ui.ui.table tr.accent-1:not(.marked),
 .ui.ui.table th.accent-1:not(.marked),
 .ui.ui.table td.accent-1:not(.marked) {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white));
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: light-dark(color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 30%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="accent-1 colored"] > th,
 .ui.table > tfoot > tr[class*="accent-1 colored"] > th,
@@ -1820,7 +1820,7 @@
 .ui.table > tfoot > tr.accent-1:not(.marked) > th,
 .ui.table > tfoot > tr.accent-1:not(.marked) > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   color: inherit;
 }
 .ui.ui.ui.ui.inverted.table tr[class*="accent-1 colored"],
@@ -1829,8 +1829,8 @@
 .ui.ui.ui.ui.inverted.table tr.accent-1:not(.marked),
 .ui.ui.inverted.table th.accent-1:not(.marked),
 .ui.ui.inverted.table td.accent-1:not(.marked) {
-  background: var(--accent-1, var(--accent, #356dca));
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.table > thead > tr[class*="accent-1 colored"] > th,
 .ui.inverted.table > tfoot > tr[class*="accent-1 colored"] > th,
@@ -1839,7 +1839,7 @@
 .ui.inverted.table > tfoot > tr.accent-1:not(.marked) > th,
 .ui.inverted.table > tfoot > tr.accent-1:not(.marked) > td {
   background: inherit;
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.selectable.table tr[class*="accent-1 colored"]:hover,
 .ui.table tr td.selectable[class*="accent-1 colored"]:hover,
@@ -1847,10 +1847,10 @@
 .ui.ui.selectable.table tr.accent-1:not(.marked):hover,
 .ui.table tr td.selectable.accent-1:not(.marked):hover,
 .ui.selectable.table tr:hover td.accent-1:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 40%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black), color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 40%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.ui.inverted.selectable.table tr[class*="accent-1 colored"]:hover,
 .ui.inverted.table tr td.selectable[class*="accent-1 colored"]:hover,
@@ -1858,35 +1858,35 @@
 .ui.ui.inverted.selectable.table tr.accent-1:not(.marked):hover,
 .ui.inverted.table tr td.selectable.accent-1:not(.marked):hover,
 .ui.inverted.selectable.table tr:hover td.accent-1:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.table td[class*="accent-1 marked"].left,
 .ui.table tr[class*="accent-1 marked"].left {
-  box-shadow: 0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.table td[class*="accent-1 marked"].right,
 .ui.table tr[class*="accent-1 marked"].right {
-  box-shadow: -0.2em 0 0 0 var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: -0.2em 0 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.inverted.table td[class*="accent-1 marked"].left,
 .ui.inverted.table tr[class*="accent-1 marked"].left {
-  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 .ui.inverted.table td[class*="accent-1 marked"].right,
 .ui.inverted.table tr[class*="accent-1 marked"].right {
-  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
+  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) inset;
 }
 
 /* Fork: relleno de las celdas de color y texto de Fomantic para `.fill-text()` (D36) */
 .ui.accent-2.table {
-  border-top: 0.2em solid var(--accent-2, #7a5af8);
+  border-top: 0.2em solid var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.inverted.accent-2.table {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: `.ui.ui` para ganar a `.ui.ui.inverted.table > thead > tr > th`, que va después */
@@ -1895,7 +1895,7 @@
 .ui.ui.inverted.accent-2.table > tfoot > tr > th,
 .ui.ui.inverted.accent-2.table > tbody > tr > td,
 .ui.ui.inverted.accent-2.table > tfoot > tr > td {
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: la fila rayada y la fila bajo el cursor se separan del relleno en la dirección
@@ -1903,41 +1903,41 @@
                    decidido con el color, conserva su contraste. Con el velo blanco de Fomantic, el texto
                    blanco del gris de tinker bajaba a 4,1:1. */
 .ui.ui.inverted.accent-2.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in srgb, var(--accent-2, #7a5af8) 95%, color(from color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 95%, color(from color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 .ui.ui.inverted.accent-2.selectable.table > tbody > tr:hover {
-  background-color: color-mix(in srgb, var(--accent-2, #7a5af8) 92%, color(from color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 92%, color(from color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 
 /* Same color for background and color to camouflage the scrollbar */
 .ui.scrolling.table > thead.accent-2,
 .ui.scrolling.table > tfoot.accent-2 {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white));
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white));
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white));
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white));
   
 /* Fork: con un tema de modos, en oscuro el mismo tinte que las celdas de color */
-  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
-  color: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
+  background: light-dark(color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 30%, var(--theme-surface)));
+  color: light-dark(color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 30%, var(--theme-surface)));
 }
 .ui.scrolling.table > thead.accent-2 > tr > th,
 .ui.scrolling.table > tfoot.accent-2 > tr > th,
 .ui.scrolling.table > thead.accent-2 > tr > td,
 .ui.scrolling.table > tfoot.accent-2 > tr > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.inverted.scrolling.table > thead.accent-2,
 .ui.inverted.scrolling.table > tfoot.accent-2 {
-  background: var(--accent-2, #7a5af8);
-  color: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  color: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.inverted.scrolling.table > thead.accent-2 > tr > th,
 .ui.inverted.scrolling.table > tfoot.accent-2 > tr > th,
 .ui.inverted.scrolling.table > thead.accent-2 > tr > td,
 .ui.inverted.scrolling.table > tfoot.accent-2 > tr > td {
   background: inherit;
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.ui.table tr[class*="accent-2 colored"],
 .ui.ui.table th[class*="accent-2 colored"],
@@ -1945,13 +1945,13 @@
 .ui.ui.ui.ui.table tr.accent-2:not(.marked),
 .ui.ui.table th.accent-2:not(.marked),
 .ui.ui.table td.accent-2:not(.marked) {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white));
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: light-dark(color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 30%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="accent-2 colored"] > th,
 .ui.table > tfoot > tr[class*="accent-2 colored"] > th,
@@ -1960,7 +1960,7 @@
 .ui.table > tfoot > tr.accent-2:not(.marked) > th,
 .ui.table > tfoot > tr.accent-2:not(.marked) > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   color: inherit;
 }
 .ui.ui.ui.ui.inverted.table tr[class*="accent-2 colored"],
@@ -1969,8 +1969,8 @@
 .ui.ui.ui.ui.inverted.table tr.accent-2:not(.marked),
 .ui.ui.inverted.table th.accent-2:not(.marked),
 .ui.ui.inverted.table td.accent-2:not(.marked) {
-  background: var(--accent-2, #7a5af8);
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.table > thead > tr[class*="accent-2 colored"] > th,
 .ui.inverted.table > tfoot > tr[class*="accent-2 colored"] > th,
@@ -1979,7 +1979,7 @@
 .ui.inverted.table > tfoot > tr.accent-2:not(.marked) > th,
 .ui.inverted.table > tfoot > tr.accent-2:not(.marked) > td {
   background: inherit;
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.selectable.table tr[class*="accent-2 colored"]:hover,
 .ui.table tr td.selectable[class*="accent-2 colored"]:hover,
@@ -1987,10 +1987,10 @@
 .ui.ui.selectable.table tr.accent-2:not(.marked):hover,
 .ui.table tr td.selectable.accent-2:not(.marked):hover,
 .ui.selectable.table tr:hover td.accent-2:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black), color-mix(in srgb, var(--accent-2, #7a5af8) 40%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black), color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 40%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.ui.inverted.selectable.table tr[class*="accent-2 colored"]:hover,
 .ui.inverted.table tr td.selectable[class*="accent-2 colored"]:hover,
@@ -1998,35 +1998,35 @@
 .ui.ui.inverted.selectable.table tr.accent-2:not(.marked):hover,
 .ui.inverted.table tr td.selectable.accent-2:not(.marked):hover,
 .ui.inverted.selectable.table tr:hover td.accent-2:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.table td[class*="accent-2 marked"].left,
 .ui.table tr[class*="accent-2 marked"].left {
-  box-shadow: 0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: 0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.table td[class*="accent-2 marked"].right,
 .ui.table tr[class*="accent-2 marked"].right {
-  box-shadow: -0.2em 0 0 0 var(--accent-2, #7a5af8) inset;
+  box-shadow: -0.2em 0 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.inverted.table td[class*="accent-2 marked"].left,
 .ui.inverted.table tr[class*="accent-2 marked"].left {
-  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 .ui.inverted.table td[class*="accent-2 marked"].right,
 .ui.inverted.table tr[class*="accent-2 marked"].right {
-  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
+  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) inset;
 }
 
 /* Fork: relleno de las celdas de color y texto de Fomantic para `.fill-text()` (D36) */
 .ui.accent-3.table {
-  border-top: 0.2em solid var(--accent-3, #c11574);
+  border-top: 0.2em solid var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.inverted.accent-3.table {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: `.ui.ui` para ganar a `.ui.ui.inverted.table > thead > tr > th`, que va después */
@@ -2035,7 +2035,7 @@
 .ui.ui.inverted.accent-3.table > tfoot > tr > th,
 .ui.ui.inverted.accent-3.table > tbody > tr > td,
 .ui.ui.inverted.accent-3.table > tfoot > tr > td {
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: la fila rayada y la fila bajo el cursor se separan del relleno en la dirección
@@ -2043,41 +2043,41 @@
                    decidido con el color, conserva su contraste. Con el velo blanco de Fomantic, el texto
                    blanco del gris de tinker bajaba a 4,1:1. */
 .ui.ui.inverted.accent-3.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in srgb, var(--accent-3, #c11574) 95%, color(from color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 95%, color(from color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 .ui.ui.inverted.accent-3.selectable.table > tbody > tr:hover {
-  background-color: color-mix(in srgb, var(--accent-3, #c11574) 92%, color(from color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  background-color: color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 92%, color(from color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 
 /* Same color for background and color to camouflage the scrollbar */
 .ui.scrolling.table > thead.accent-3,
 .ui.scrolling.table > tfoot.accent-3 {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white));
-  color: color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white));
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white));
+  color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white));
   
 /* Fork: con un tema de modos, en oscuro el mismo tinte que las celdas de color */
-  background: light-dark(color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-3, #c11574) 30%, var(--theme-surface)));
-  color: light-dark(color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-3, #c11574) 30%, var(--theme-surface)));
+  background: light-dark(color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 30%, var(--theme-surface)));
+  color: light-dark(color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 30%, var(--theme-surface)));
 }
 .ui.scrolling.table > thead.accent-3 > tr > th,
 .ui.scrolling.table > tfoot.accent-3 > tr > th,
 .ui.scrolling.table > thead.accent-3 > tr > td,
 .ui.scrolling.table > tfoot.accent-3 > tr > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  color: color(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.inverted.scrolling.table > thead.accent-3,
 .ui.inverted.scrolling.table > tfoot.accent-3 {
-  background: var(--accent-3, #c11574);
-  color: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
+  color: var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.inverted.scrolling.table > thead.accent-3 > tr > th,
 .ui.inverted.scrolling.table > tfoot.accent-3 > tr > th,
 .ui.inverted.scrolling.table > thead.accent-3 > tr > td,
 .ui.inverted.scrolling.table > tfoot.accent-3 > tr > td {
   background: inherit;
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.ui.table tr[class*="accent-3 colored"],
 .ui.ui.table th[class*="accent-3 colored"],
@@ -2085,13 +2085,13 @@
 .ui.ui.ui.ui.table tr.accent-3:not(.marked),
 .ui.ui.table th.accent-3:not(.marked),
 .ui.ui.table td.accent-3:not(.marked) {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white));
-  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white));
+  color: color(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-3, #c11574) 30%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: light-dark(color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 30%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="accent-3 colored"] > th,
 .ui.table > tfoot > tr[class*="accent-3 colored"] > th,
@@ -2100,7 +2100,7 @@
 .ui.table > tfoot > tr.accent-3:not(.marked) > th,
 .ui.table > tfoot > tr.accent-3:not(.marked) > td {
   background: inherit;
-  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   color: inherit;
 }
 .ui.ui.ui.ui.inverted.table tr[class*="accent-3 colored"],
@@ -2109,8 +2109,8 @@
 .ui.ui.ui.ui.inverted.table tr.accent-3:not(.marked),
 .ui.ui.inverted.table th.accent-3:not(.marked),
 .ui.ui.inverted.table td.accent-3:not(.marked) {
-  background: var(--accent-3, #c11574);
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.table > thead > tr[class*="accent-3 colored"] > th,
 .ui.inverted.table > tfoot > tr[class*="accent-3 colored"] > th,
@@ -2119,7 +2119,7 @@
 .ui.inverted.table > tfoot > tr.accent-3:not(.marked) > th,
 .ui.inverted.table > tfoot > tr.accent-3:not(.marked) > td {
   background: inherit;
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.selectable.table tr[class*="accent-3 colored"]:hover,
 .ui.table tr td.selectable[class*="accent-3 colored"]:hover,
@@ -2127,10 +2127,10 @@
 .ui.ui.selectable.table tr.accent-3:not(.marked):hover,
 .ui.table tr td.selectable.accent-3:not(.marked):hover,
 .ui.selectable.table tr:hover td.accent-3:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
-  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black), color-mix(in srgb, var(--accent-3, #c11574) 40%, var(--theme-surface)));
-  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: light-dark(color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black), color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 40%, var(--theme-surface)));
+  color: light-dark(color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.ui.inverted.selectable.table tr[class*="accent-3 colored"]:hover,
 .ui.inverted.table tr td.selectable[class*="accent-3 colored"]:hover,
@@ -2138,24 +2138,24 @@
 .ui.ui.inverted.selectable.table tr.accent-3:not(.marked):hover,
 .ui.inverted.table tr td.selectable.accent-3:not(.marked):hover,
 .ui.inverted.selectable.table tr:hover td.accent-3:not(.marked) {
-  background: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.table td[class*="accent-3 marked"].left,
 .ui.table tr[class*="accent-3 marked"].left {
-  box-shadow: 0.2em 0 0 0 var(--accent-3, #c11574) inset;
+  box-shadow: 0.2em 0 0 0 var(--accent-3-fill, var(--accent-3, #c11574)) inset;
 }
 .ui.table td[class*="accent-3 marked"].right,
 .ui.table tr[class*="accent-3 marked"].right {
-  box-shadow: -0.2em 0 0 0 var(--accent-3, #c11574) inset;
+  box-shadow: -0.2em 0 0 0 var(--accent-3-fill, var(--accent-3, #c11574)) inset;
 }
 .ui.inverted.table td[class*="accent-3 marked"].left,
 .ui.inverted.table tr[class*="accent-3 marked"].left {
-  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
+  box-shadow: 0.2em 0 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) inset;
 }
 .ui.inverted.table td[class*="accent-3 marked"].right,
 .ui.inverted.table tr[class*="accent-3 marked"].right {
-  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
+  box-shadow: -0.2em 0 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) inset;
 }
 
 /* Fork: relleno de las celdas de color y texto de Fomantic para `.fill-text()` (D36) */
@@ -4649,7 +4649,7 @@
 }
 .ui.sortable.table > thead > tr > th.sorted::after {
   opacity: 1;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.sortable.table > thead > tr > th.ascending::after {
   content: "\f0de";
@@ -4677,7 +4677,7 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 .ui.inverted.sortable.table > thead > tr > th.sorted::after {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Íconos de color dentro de una tabla inverted: el tono claro de su color (la tinta del modo
@@ -4685,27 +4685,27 @@
 
 /* (las clases repetidas igualan las de Fomantic: i.<color>.icon.icon.icon.icon.icon.icon) */
 .ui.inverted.table i.primary.icon.icon.icon.icon.icon.icon:not(.inverted) {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* (las clases repetidas igualan las de Fomantic: i.<color>.icon.icon.icon.icon.icon.icon) */
 .ui.inverted.table i.secondary.icon.icon.icon.icon.icon.icon:not(.inverted) {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* (las clases repetidas igualan las de Fomantic: i.<color>.icon.icon.icon.icon.icon.icon) */
 .ui.inverted.table i.accent-1.icon.icon.icon.icon.icon.icon:not(.inverted) {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* (las clases repetidas igualan las de Fomantic: i.<color>.icon.icon.icon.icon.icon.icon) */
 .ui.inverted.table i.accent-2.icon.icon.icon.icon.icon.icon:not(.inverted) {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* (las clases repetidas igualan las de Fomantic: i.<color>.icon.icon.icon.icon.icon.icon) */
 .ui.inverted.table i.accent-3.icon.icon.icon.icon.icon.icon:not(.inverted) {
-  color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 
 /* (las clases repetidas igualan las de Fomantic: i.<color>.icon.icon.icon.icon.icon.icon) */

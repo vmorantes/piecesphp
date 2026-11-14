@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Segment
+ * # Fomantic-UI 0.11.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -578,16 +578,16 @@
        Colors
 -------------------- */
 .ui.ui.ui.ui.ui.accent-1.segment:not(.inverted) {
-  border-top: 2px solid var(--accent-1, var(--accent, #356dca));
+  border-top: 2px solid var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.ui.ui.ui.ui.inverted.accent-1.segment {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.accent-1.segment:not(.piled) {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Fork: un header inverted dentro toma el color que el segmento eligió por su
@@ -597,16 +597,16 @@
   color: inherit;
 }
 .ui.ui.ui.ui.ui.accent-2.segment:not(.inverted) {
-  border-top: 2px solid var(--accent-2, #7a5af8);
+  border-top: 2px solid var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.ui.ui.ui.ui.inverted.accent-2.segment {
-  background-color: var(--accent-2, #7a5af8);
+  background-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.accent-2.segment:not(.piled) {
-  border-color: var(--accent-2, #7a5af8);
+  border-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 
 /* Fork: un header inverted dentro toma el color que el segmento eligió por su
@@ -616,16 +616,16 @@
   color: inherit;
 }
 .ui.ui.ui.ui.ui.accent-3.segment:not(.inverted) {
-  border-top: 2px solid var(--accent-3, #c11574);
+  border-top: 2px solid var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.ui.ui.ui.ui.inverted.accent-3.segment {
-  background-color: var(--accent-3, #c11574);
+  background-color: var(--accent-3-fill, var(--accent-3, #c11574));
   
 /* Fork: texto según la luminosidad del relleno (D36) */
-  color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.inverted.accent-3.segment:not(.piled) {
-  border-color: var(--accent-3, #c11574);
+  border-color: var(--accent-3-fill, var(--accent-3, #c11574));
 }
 
 /* Fork: un header inverted dentro toma el color que el segmento eligió por su
@@ -954,7 +954,7 @@
 /* Secondary */
 .ui.secondary.segment {
   background: light-dark(#fafbfc, #161920);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.secondary.inverted.segment {
   background: #2f3749 linear-gradient(rgba(255, 255, 255, 0.08) 0, rgba(255, 255, 255, 0.08) 100%);
@@ -964,7 +964,7 @@
 /* Tertiary */
 .ui.tertiary.segment {
   background: light-dark(#eef1f5, #262b36);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.tertiary.inverted.segment {
   background: #3b455b linear-gradient(rgba(255, 255, 255, 0.14) 0, rgba(255, 255, 255, 0.14) 100%);
@@ -1244,7 +1244,7 @@
   font-family: var(--font-body);
   padding: 0.85714286rem 1.14285714rem;
   background: light-dark(#fafbfc, #161920);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   border: 1px solid var(--theme-border);
   border-radius: var(--r-md, 8px);
   box-shadow: none;
@@ -1459,7 +1459,7 @@
   margin: 0 auto 1rem;
   border-radius: var(--r-xl, 16px);
   background: var(--accent-50);
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   font-size: 1.64285714rem;
   line-height: 4rem;
 }
@@ -1493,7 +1493,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle at 14px 14px, color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 28%, transparent) 1.6px, transparent 2.2px), linear-gradient(to bottom, transparent 13.5px, color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 16%, transparent) 13.5px, color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 16%, transparent) 14.5px, transparent 14.5px), linear-gradient(to right, transparent 13.5px, color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 10%, transparent) 13.5px, color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 10%, transparent) 14.5px, transparent 14.5px);
+  background-image: radial-gradient(circle at 14px 14px, color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 28%, transparent) 1.6px, transparent 2.2px), linear-gradient(to bottom, transparent 13.5px, color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 16%, transparent) 13.5px, color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 16%, transparent) 14.5px, transparent 14.5px), linear-gradient(to right, transparent 13.5px, color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 10%, transparent) 13.5px, color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 10%, transparent) 14.5px, transparent 14.5px);
   background-size: 28px 28px;
   -webkit-mask-image: radial-gradient(ellipse at 30% 40%, #000 0%, transparent 75%);
           mask-image: radial-gradient(ellipse at 30% 40%, #000 0%, transparent 75%);

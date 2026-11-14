@@ -173,7 +173,7 @@ window.addEventListener('load', () => {
 	}
 
 	function setFontSize() {
-		root.style.setProperty('--font-size-base', `${fontSizeSelect.val()}px`)
+		root.style.setProperty('--font-size-site', `${fontSizeSelect.val()}px`)
 	}
 
 	//Las mismas proporciones que SettingsController::themeTokens()

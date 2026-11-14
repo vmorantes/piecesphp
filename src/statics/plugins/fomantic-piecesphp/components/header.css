@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Header
+ * # Fomantic-UI 0.11.0 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -347,120 +347,120 @@ h6.ui.header .sub.header {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.primary.header {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.primary.header:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.primary.dividing.header {
-  border-bottom: 2px solid var(--accent-1, var(--accent, #356dca));
+  border-bottom: 2px solid var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
 .ui.inverted.primary.header.header.header {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 a.ui.inverted.primary.header.header.header:hover {
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.primary.dividing.header {
-  border-bottom: 2px solid color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.secondary.header {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.secondary.header:hover {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.secondary.dividing.header {
-  border-bottom: 2px solid var(--accent-2, #7a5af8);
+  border-bottom: 2px solid var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 
 /* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
 .ui.inverted.secondary.header.header.header {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 a.ui.inverted.secondary.header.header.header:hover {
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.secondary.dividing.header {
-  border-bottom: 2px solid color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.accent-1.header {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.accent-1.header:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.accent-1.dividing.header {
-  border-bottom: 2px solid var(--accent-1, var(--accent, #356dca));
+  border-bottom: 2px solid var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
 .ui.inverted.accent-1.header.header.header {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 a.ui.inverted.accent-1.header.header.header:hover {
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-1.dividing.header {
-  border-bottom: 2px solid color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.accent-2.header {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.accent-2.header:hover {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.accent-2.dividing.header {
-  border-bottom: 2px solid var(--accent-2, #7a5af8);
+  border-bottom: 2px solid var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 
 /* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
 .ui.inverted.accent-2.header.header.header {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 a.ui.inverted.accent-2.header.header.header:hover {
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-2.dividing.header {
-  border-bottom: 2px solid color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.accent-3.header {
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.accent-3.header:hover {
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.accent-3.dividing.header {
-  border-bottom: 2px solid var(--accent-3, #c11574);
+  border-bottom: 2px solid var(--accent-3-fill, var(--accent-3, #c11574));
 }
 
 /* Fork: tinta clara garantizada sobre la superficie inverted (D36) */
 .ui.inverted.accent-3.header.header.header {
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 a.ui.inverted.accent-3.header.header.header:hover {
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-3.dividing.header {
-  border-bottom: 2px solid color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  border-bottom: 2px solid color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.red.header {
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 a.ui.red.header:hover {
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.red.dividing.header {
   border-bottom: 2px solid #f04438;
@@ -479,10 +479,10 @@ a.ui.inverted.red.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.orange.header {
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 a.ui.orange.header:hover {
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.orange.dividing.header {
   border-bottom: 2px solid #ef6820;
@@ -501,10 +501,10 @@ a.ui.inverted.orange.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.yellow.header {
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 a.ui.yellow.header:hover {
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.yellow.dividing.header {
   border-bottom: 2px solid #f79009;
@@ -523,10 +523,10 @@ a.ui.inverted.yellow.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.olive.header {
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.olive.header:hover {
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.olive.dividing.header {
   border-bottom: 2px solid #84a11b;
@@ -545,10 +545,10 @@ a.ui.inverted.olive.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.green.header {
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.green.header:hover {
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.green.dividing.header {
   border-bottom: 2px solid #17b26a;
@@ -567,10 +567,10 @@ a.ui.inverted.green.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.teal.header {
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.teal.header:hover {
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.teal.dividing.header {
   border-bottom: 2px solid #06aed4;
@@ -589,10 +589,10 @@ a.ui.inverted.teal.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.blue.header {
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.blue.header:hover {
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.blue.dividing.header {
   border-bottom: 2px solid #2e90fa;
@@ -611,10 +611,10 @@ a.ui.inverted.blue.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.violet.header {
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.violet.header:hover {
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.violet.dividing.header {
   border-bottom: 2px solid #7a5af8;
@@ -633,10 +633,10 @@ a.ui.inverted.violet.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.purple.header {
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.purple.header:hover {
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.purple.dividing.header {
   border-bottom: 2px solid #9e4cc9;
@@ -655,10 +655,10 @@ a.ui.inverted.purple.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.pink.header {
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.pink.header:hover {
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.pink.dividing.header {
   border-bottom: 2px solid #c11574;
@@ -677,10 +677,10 @@ a.ui.inverted.pink.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.brown.header {
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.brown.header:hover {
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.brown.dividing.header {
   border-bottom: 2px solid #6e4a2e;
@@ -699,10 +699,10 @@ a.ui.inverted.brown.header.header.header:hover {
 
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
 .ui.grey.header {
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 a.ui.grey.header:hover {
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.grey.dividing.header {
   border-bottom: 2px solid #687181;
@@ -1010,5 +1010,5 @@ h1.ui.header:not(:last-child) {
 /* Cifra destacada de color (.pp-err-code): el acento mismo, no su tinta de texto (D35). Es texto
    grande (56px), al que le basta 3:1 en ambos modos */
 .ui.massive.primary.header {
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Comment
+ * # Fomantic-UI 0.11.0 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -106,7 +106,7 @@
   cursor: pointer;
 }
 .ui.comments .comment a.author:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* --------------
@@ -284,7 +284,7 @@
 
 /* Texto del comentario en text-2 (sin variable de color) */
 .ui.comments:not(.inverted) .comment > .content > .text {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Avatar de iniciales (.avatar.pp-accent del diseño): sin imagen, círculo --accent-100 con

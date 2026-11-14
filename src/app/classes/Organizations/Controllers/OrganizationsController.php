@@ -873,7 +873,14 @@ class OrganizationsController extends AdminPanelController
                                 if ($status !== $invalidVal) {$mapper->setLangData($lang, 'status', $status);}
                             }
                             if ($administrator !== null) {
-                                if ($administrator !== $invalidVal) {$mapper->administrator = $administrator;}
+                                if ($administrator !== $invalidVal) {
+                                    //El encargado tiene que ser de esta organización, como en «Mi organización».
+                                    $newAdminUser = UsersModel::getBy((int) $administrator);
+                                    if (!is_object($newAdminUser) || (int) ($newAdminUser->organization ?? 0) !== (int) $mapper->id) {
+                                        throw new SafeException(__(self::LANG_GROUP, 'El usuario seleccionado como encargado no pertenece a esta organización'));
+                                    }
+                                    $mapper->administrator = $administrator;
+                                }
                             }
                         }
 

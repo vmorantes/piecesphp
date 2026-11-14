@@ -237,7 +237,7 @@
   background: color-mix(in srgb, currentColor 45%, transparent);
 }
 .ui.slideshow:where(:not(:has(.slides .slide img, .slides .slide .image)), :has(.slides > .active.slide):not(:has(.slides > .active.slide img, .slides > .active.slide .image))) .indicators > .active.indicator {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 
@@ -337,7 +337,7 @@
   background: light-dark(#99a1af, #737c8c);
 }
 .ui.outside.slideshow .indicators > .active.indicator {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* --------------
@@ -345,58 +345,58 @@
 --------------- */
 .ui.primary.slideshow .indicators > .active.indicator,
 .ui.primary.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.primary.slideshow > .control:focus-visible,
 .ui.primary.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-1, var(--accent, #356dca));
+  outline-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.primary.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 .ui.secondary.slideshow .indicators > .active.indicator,
 .ui.secondary.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.secondary.slideshow > .control:focus-visible,
 .ui.secondary.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-2, #7a5af8);
+  outline-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.secondary.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 .ui.accent-1.slideshow .indicators > .active.indicator,
 .ui.accent-1.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.accent-1.slideshow > .control:focus-visible,
 .ui.accent-1.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-1, var(--accent, #356dca));
+  outline-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.accent-1.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 .ui.accent-2.slideshow .indicators > .active.indicator,
 .ui.accent-2.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.accent-2.slideshow > .control:focus-visible,
 .ui.accent-2.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-2, #7a5af8);
+  outline-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.accent-2.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 .ui.accent-3.slideshow .indicators > .active.indicator,
 .ui.accent-3.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.accent-3.slideshow > .control:focus-visible,
 .ui.accent-3.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-3, #c11574);
+  outline-color: var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.accent-3.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 .ui.red.slideshow .indicators > .active.indicator,
 .ui.red.slideshow .indicators > .active.indicator:hover {

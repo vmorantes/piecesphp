@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Slider
+ * # Fomantic-UI 0.11.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -41,7 +41,7 @@
 .ui.slider .inner .track-fill {
   position: absolute;
   border-radius: var(--r-full, 999px);
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.slider:not(.vertical) .inner .track-fill {
   height: 0.42857143em;
@@ -56,7 +56,7 @@
   width: 1.28571429em;
   background: var(--theme-surface);
   border-radius: 100%;
-  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
   transition: background 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .ui.slider:not(.disabled) .inner .thumb:hover {
@@ -293,7 +293,7 @@
   transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .ui.labeled.ticked.slider > .active.labels .active.label::after {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.inverted.labeled.ticked.slider > .active.labels .active.label::after {
   background: #4b5363;
@@ -309,162 +309,162 @@
 
 /* Standard */
 .ui.primary.slider .inner .track-fill {
-  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.primary.inverted.slider .inner .track-fill {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Basic */
 .ui.primary.slider.basic .inner .thumb {
-  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.primary.slider.basic .inner .thumb:hover,
 .ui.primary.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 
 /* Basic Inverted */
 .ui.primary.inverted.slider.basic .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 .ui.primary.inverted.slider.basic .inner .thumb:hover,
 .ui.primary.inverted.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
 }
 .ui.primary.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.primary.inverted.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Standard */
 .ui.secondary.slider .inner .track-fill {
-  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.secondary.inverted.slider .inner .track-fill {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Basic */
 .ui.secondary.slider.basic .inner .thumb {
-  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.secondary.slider.basic .inner .thumb:hover,
 .ui.secondary.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 
 /* Basic Inverted */
 .ui.secondary.inverted.slider.basic .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 .ui.secondary.inverted.slider.basic .inner .thumb:hover,
 .ui.secondary.inverted.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
 }
 .ui.secondary.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.secondary.inverted.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Standard */
 .ui.accent-1.slider .inner .track-fill {
-  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.accent-1.inverted.slider .inner .track-fill {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Basic */
 .ui.accent-1.slider.basic .inner .thumb {
-  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.accent-1.slider.basic .inner .thumb:hover,
 .ui.accent-1.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 
 /* Basic Inverted */
 .ui.accent-1.inverted.slider.basic .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 .ui.accent-1.inverted.slider.basic .inner .thumb:hover,
 .ui.accent-1.inverted.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
 }
 .ui.accent-1.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.7) c h));
 }
 .ui.accent-1.inverted.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 
 /* Standard */
 .ui.accent-2.slider .inner .track-fill {
-  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.accent-2.inverted.slider .inner .track-fill {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Basic */
 .ui.accent-2.slider.basic .inner .thumb {
-  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.accent-2.slider.basic .inner .thumb:hover,
 .ui.accent-2.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 
 /* Basic Inverted */
 .ui.accent-2.inverted.slider.basic .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 .ui.accent-2.inverted.slider.basic .inner .thumb:hover,
 .ui.accent-2.inverted.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
 }
 .ui.accent-2.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-2-fill, var(--accent-2, #7a5af8)), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, 0.7) c h));
 }
 .ui.accent-2.inverted.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 
 /* Standard */
 .ui.accent-3.slider .inner .track-fill {
-  background-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
 }
 .ui.accent-3.inverted.slider .inner .track-fill {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 
 /* Basic */
 .ui.accent-3.slider.basic .inner .thumb {
-  background-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
 }
 .ui.accent-3.slider.basic .inner .thumb:hover,
 .ui.accent-3.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 
 /* Basic Inverted */
 .ui.accent-3.inverted.slider.basic .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 .ui.accent-3.inverted.slider.basic .inner .thumb:hover,
 .ui.accent-3.inverted.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
 }
 .ui.accent-3.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h));
+  background-color: light-dark(var(--accent-3-fill, var(--accent-3, #c11574)), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, 0.7) c h));
 }
 .ui.accent-3.inverted.labeled.ticked.slider > .active.labels .active.label::after {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 
 /* Standard */
@@ -889,11 +889,11 @@
 
 /* Standard */
 .ui.slider.basic .inner .thumb {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.slider.basic .inner .thumb:hover,
 .ui.slider.basic:focus .inner .thumb {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 
 /* --------------
@@ -1035,24 +1035,24 @@
 
 /* Foco de teclado: halo --accent-ring de 4px alrededor del tirador */
 .ui.slider:focus-visible .inner .thumb {
-  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1, var(--accent, #356dca)) inset, 0 0 0 4px var(--accent-ring);
+  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset, 0 0 0 4px var(--accent-ring);
 }
 
 /* Sliders de color: el aro del tirador del color del slider, no siempre el del acento */
 .ui.primary.slider .inner .thumb {
-  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.secondary.slider .inner .thumb {
-  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-2, #7a5af8) inset;
+  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.accent-1.slider .inner .thumb {
-  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset;
 }
 .ui.accent-2.slider .inner .thumb {
-  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-2, #7a5af8) inset;
+  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-2-fill, var(--accent-2, #7a5af8)) inset;
 }
 .ui.accent-3.slider .inner .thumb {
-  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-3, #c11574) inset;
+  box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px var(--accent-3-fill, var(--accent-3, #c11574)) inset;
 }
 .ui.red.slider .inner .thumb {
   box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px #f04438 inset;

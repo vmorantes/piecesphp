@@ -26,6 +26,15 @@ the manual does not appear for you, your user type does not have it.
 !!! tip "If you cannot log in"
     On the login screen, the help link lets you recover your password or username, or report another problem.
 
+## Text size and color mode
+
+Open the menu under your name, at the top right:
+
+- **“Color mode”**: **“Light”**, **“Dark”** or **“System”** (your device's).
+- **“Text size”**: **“Normal”**, **“Large”** or **“Larger”**.
+
+It applies at once and is saved in your account. Until you choose, you see whatever the site's administrator chose.
+
 ## Help
 
 The question mark icon in the top bar opens the **help center**: this manual and, if your organization has it

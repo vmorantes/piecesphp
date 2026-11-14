@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Input
+ * # Fomantic-UI 0.11.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -64,7 +64,7 @@
 .ui.input > input[readonly]:focus,
 .ui.input > textarea[readonly]:focus {
   background: light-dark(#fafbfc, #262b36);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   cursor: default;
 }
 
@@ -163,7 +163,7 @@
 --------------------- */
 .ui.input.focus > input,
 .ui.input > input:focus {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   background: var(--theme-surface);
   color: var(--theme-text);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -189,138 +189,138 @@
 .ui.input.error > input {
   background-color: light-dark(#fef3f2, #351513);
   border-color: light-dark(#fecdca, #7a271a);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: none;
 }
 
 /* Placeholder */
 .ui.input.error > input:-ms-input-placeholder {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.error > input::-ms-input-placeholder {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.error > input::placeholder {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.error > input:-ms-input-placeholder {
-  color: light-dark(#b42318, #fda29b) !important;
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Focused Placeholder */
 .ui.input.error > input:focus:-ms-input-placeholder {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.error > input:focus::-ms-input-placeholder {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.error > input:focus::placeholder {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.error > input:focus:-ms-input-placeholder {
-  color: light-dark(#b42318, #fda29b) !important;
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 .ui.input.info > input {
   background-color: light-dark(#ecfdff, #0a2a33);
   border-color: light-dark(#a5f0fc, #155b75);
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: none;
 }
 
 /* Placeholder */
 .ui.input.info > input:-ms-input-placeholder {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.info > input::-ms-input-placeholder {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.info > input::placeholder {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.info > input:-ms-input-placeholder {
-  color: light-dark(#0e7090, #67e3f9) !important;
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Focused Placeholder */
 .ui.input.info > input:focus:-ms-input-placeholder {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.info > input:focus::-ms-input-placeholder {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.info > input:focus::placeholder {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.info > input:focus:-ms-input-placeholder {
-  color: light-dark(#0e7090, #67e3f9) !important;
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 .ui.input.success > input {
   background-color: light-dark(#ecfdf3, #0c2a1c);
   border-color: light-dark(#abefc6, #1b5e3c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: none;
 }
 
 /* Placeholder */
 .ui.input.success > input:-ms-input-placeholder {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.success > input::-ms-input-placeholder {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.success > input::placeholder {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.success > input:-ms-input-placeholder {
-  color: light-dark(#067647, #75e0a7) !important;
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Focused Placeholder */
 .ui.input.success > input:focus:-ms-input-placeholder {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.success > input:focus::-ms-input-placeholder {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.success > input:focus::placeholder {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.success > input:focus:-ms-input-placeholder {
-  color: light-dark(#067647, #75e0a7) !important;
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 .ui.input.warning > input {
   background-color: light-dark(#fffaeb, #2e2108);
   border-color: light-dark(#fedf89, #6b4a10);
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: none;
 }
 
 /* Placeholder */
 .ui.input.warning > input:-ms-input-placeholder {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.warning > input::-ms-input-placeholder {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.warning > input::placeholder {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.warning > input:-ms-input-placeholder {
-  color: light-dark(#b54708, #fdb022) !important;
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Focused Placeholder */
 .ui.input.warning > input:focus:-ms-input-placeholder {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.warning > input:focus::-ms-input-placeholder {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.warning > input:focus::placeholder {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.input.warning > input:focus:-ms-input-placeholder {
-  color: light-dark(#b54708, #fdb022) !important;
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 
@@ -490,7 +490,7 @@
   border-left-color: transparent;
 }
 .ui.labeled.input:not([class*="corner labeled"]) .label:first-child + input:focus {
-  border-left-color: var(--accent-1, var(--accent, #356dca));
+  border-left-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Regular Label on Right */
@@ -504,7 +504,7 @@
   border-bottom-left-radius: 0;
 }
 .ui[class*="right labeled"].input > input:focus {
-  border-right-color: var(--accent-1, var(--accent, #356dca)) !important;
+  border-right-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) !important;
 }
 
 /* Corner Label */
@@ -824,11 +824,11 @@
 /* Input Focus */
 .ui.action.input:not([class*="left action"]) > input:focus,
 .ui.action.input:not([class*="left action"]) > textarea:focus {
-  border-right-color: var(--accent-1, var(--accent, #356dca));
+  border-right-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.ui[class*="left action"].input > input:focus,
 .ui.ui[class*="left action"].input > textarea:focus {
-  border-left-color: var(--accent-1, var(--accent, #356dca));
+  border-left-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* --------------------
@@ -977,48 +977,48 @@ input[type="file"].ui.file.input:focus + label.ui.button:not(.basic):not(.tertia
 /* this is related to existing buttons, so the button color variable is used here! */
 input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.red.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.red.button:not(.basic):not(.tertiary) {
@@ -1139,173 +1139,173 @@ input[type="file"].ui.file.input:focus + label.ui.black.button:not(.basic):not(.
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button,
 .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover,
 .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.primary.file.input::-ms-browse,
 .ui.primary.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-ms-browse:hover,
 .ui.primary.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::file-selector-button,
 .ui.primary.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.primary.file.input::file-selector-button:hover,
 .ui.primary.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button,
 .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover,
 .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-ms-browse,
 .ui.secondary.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-ms-browse:hover,
 .ui.secondary.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::file-selector-button,
 .ui.secondary.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::file-selector-button:hover,
 .ui.secondary.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button,
 .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover,
 .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::-ms-browse,
 .ui.accent-1.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-ms-browse:hover,
 .ui.accent-1.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::file-selector-button,
 .ui.accent-1.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::file-selector-button:hover,
 .ui.accent-1.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button,
 .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover,
 .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-ms-browse,
 .ui.accent-2.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-ms-browse:hover,
 .ui.accent-2.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::file-selector-button,
 .ui.accent-2.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2-fill, var(--accent-2, #7a5af8));
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::file-selector-button:hover,
 .ui.accent-2.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button,
 .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover,
 .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-ms-browse,
 .ui.accent-3.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-ms-browse:hover,
 .ui.accent-3.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::file-selector-button,
 .ui.accent-3.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3-fill, var(--accent-3, #c11574));
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::file-selector-button:hover,
 .ui.accent-3.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button,
 .ui.red.file.input input[type="file"]::-webkit-file-upload-button {

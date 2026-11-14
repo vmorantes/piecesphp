@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Accordion
+ * # Fomantic-UI 0.11.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -514,7 +514,7 @@
 /* Contenido en text-2 */
 .ui.styled.accordion:not(.inverted) > .content,
 .ui.styled.accordion:not(.inverted) .accordion > .content {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Foco: contorno hacia dentro (el acordeón recorta lo que sale) y halo interior */
@@ -585,7 +585,7 @@
 .ui.accordion:not(.styled) > .title:has(> i.bordered.icon).active > i.bordered.icon {
   background: var(--accent-50);
   box-shadow: 0 0 0 1px var(--accent-100) inset;
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Contador junto al texto; el chevron a la derecha, hacia abajo y hacia arriba al abrir */
@@ -621,7 +621,7 @@
   min-height: 2.57142857rem;
   padding: 0 0.71428571rem;
   border-radius: var(--r-md, 8px);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   transition: background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .ui.accordion:not(.styled) > .title:has(> i.bordered.icon) + .content > .ui.link.list > .item:hover,
@@ -637,7 +637,7 @@
   margin-left: auto;
   font-family: icons;
   font-size: 0.85714286rem;
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   opacity: 0;
   transform: translateX(-4px);
   transition: opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Form
+ * # Fomantic-UI 0.11.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -367,10 +367,10 @@
   white-space: normal;
   background: var(--theme-surface) !important;
   border: 1px solid light-dark(#fecdca, #7a271a) !important;
-  color: light-dark(#b42318, #fda29b) !important;
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 .ui.form .field .prompt.label li::before {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .inline.fields .field .prompt,
 .ui.form .inline.field .prompt {
@@ -455,7 +455,7 @@
 .ui.form input[type="url"]:focus,
 .ui.form input[type="week"]:focus {
   color: var(--theme-text);
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   border-radius: var(--r-md, 8px);
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -500,7 +500,7 @@
 }
 .ui.form textarea:focus {
   color: var(--theme-text);
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   border-radius: var(--r-md, 8px);
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -514,7 +514,7 @@
 .ui.form input:not([type="checkbox"], [type="radio"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="range"])[readonly]:focus,
 .ui.form textarea[readonly]:focus {
   background: light-dark(#fafbfc, #262b36);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   cursor: default;
 }
 
@@ -558,11 +558,11 @@
 .ui.ui.form .field.error .ui.label:not(.corner),
 .ui.ui.form .fields.error .field .input,
 .ui.ui.form .field.error .input {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 @supports selector(:has(.f)) {
   .ui.form .fields:has(.error) > label {
-    color: light-dark(#b42318, #fda29b);
+    color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   }
 }
 .ui.form .fields.error .field .ui.label,
@@ -578,11 +578,11 @@
 }
 .ui.form .fields.error .field .corner.label,
 .ui.form .field.error .corner.label {
-  border-color: light-dark(#b42318, #fda29b);
+  border-color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#b42318, #fda29b) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.error .field textarea,
 .ui.form .fields.error .field select,
@@ -618,7 +618,7 @@
 .ui.form .field.error input[type="file"],
 .ui.form .field.error input[type="url"],
 .ui.form .field.error input[type="week"] {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#fef3f2, #351513);
   border-color: #f04438;
   border-radius: "";
@@ -629,7 +629,7 @@
            salía en rojo al cargar con cualquier `required` vacío (D70) */
 .ui.form:not(.initial) .field textarea:user-invalid,
 .ui.form:not(.initial) .field input:user-invalid {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#fef3f2, #351513);
   border-color: #f04438;
   border-radius: "";
@@ -654,7 +654,7 @@
 .ui.form .field.error input[type="week"]:focus {
   background: light-dark(#fef3f2, #351513);
   border-color: #f04438;
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: 0 0 0 3px color-mix(in srgb, #f04438 22%, transparent);
 }
 .ui.form .field.error > textarea:hover:not(:focus),
@@ -678,7 +678,7 @@
 .ui.form .field.error input.transparent,
 .ui.form .field.error textarea.transparent {
   background-color: light-dark(#fef3f2, #351513) !important;
-  color: light-dark(#b42318, #fda29b) !important;
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Autofilled */
@@ -689,30 +689,30 @@
 
 /* Placeholder */
 .ui.form .error :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .error ::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .error .ui.dropdown > .default.text,
 .ui.form .error ::placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .error :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 .ui.form .error :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .error :focus::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .error .ui.dropdown > input:focus ~ .default.text,
 .ui.form .error :focus::placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .error :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b42318, #fda29b) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 
 /*------------------
@@ -725,7 +725,7 @@
 .ui.form .field.error .ui.dropdown > .text,
 .ui.form .field.error .ui.dropdown .item {
   background: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.error .field .ui.dropdown,
 .ui.form .field.error .ui.dropdown {
@@ -742,7 +742,7 @@
 .ui.form .fields.error .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.error .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#fecdca, #7a271a) 60%, var(--theme-surface));
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Hover */
@@ -769,7 +769,7 @@
 
 .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label,
 .ui.form .field.error .checkbox:not(.toggle):not(.slider) label {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.error .checkbox:not(.toggle):not(.slider) label::before {
@@ -778,14 +778,14 @@
 }
 .ui.form .fields.error .field .checkbox label::after,
 .ui.form .field.error .checkbox label::after {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
            el checkbox marcado y el resto de controles del campo (D48) */
 .ui.form .fields.error .field .ui.toggle.checkbox input:checked ~ label::before,
 .ui.form .field.error .ui.toggle.checkbox input:checked ~ label::before {
-  background-color: light-dark(#b42318, #fda29b);
+  background-color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
@@ -794,7 +794,7 @@
 .ui.inverted.form .fields.error .field label,
 .ui.inverted.form .fields.error > label,
 .ui.inverted.form .error.field label {
-  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label::before {
@@ -802,15 +802,15 @@
 }
 .ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::after,
 .ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label::after {
-  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.error .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.error .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.error) > label {
-    color: oklch(from light-dark(#b42318, #fda29b) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -845,11 +845,11 @@
 .ui.ui.form .field.info .ui.label:not(.corner),
 .ui.ui.form .fields.info .field .input,
 .ui.ui.form .field.info .input {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 @supports selector(:has(.f)) {
   .ui.form .fields:has(.info) > label {
-    color: light-dark(#0e7090, #67e3f9);
+    color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
   }
 }
 .ui.form .fields.info .field .ui.label,
@@ -865,11 +865,11 @@
 }
 .ui.form .fields.info .field .corner.label,
 .ui.form .field.info .corner.label {
-  border-color: light-dark(#0e7090, #67e3f9);
+  border-color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#0e7090, #67e3f9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.info .field textarea,
 .ui.form .fields.info .field select,
@@ -905,7 +905,7 @@
 .ui.form .field.info input[type="file"],
 .ui.form .field.info input[type="url"],
 .ui.form .field.info input[type="week"] {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#ecfdff, #0a2a33);
   border-color: #06aed4;
   border-radius: "";
@@ -933,7 +933,7 @@
 .ui.form .field.info input[type="week"]:focus {
   background: light-dark(#ecfdff, #0a2a33);
   border-color: #06aed4;
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: 0 0 0 3px color-mix(in srgb, #06aed4 22%, transparent);
 }
 .ui.form .field.info > textarea:hover:not(:focus),
@@ -957,7 +957,7 @@
 .ui.form .field.info input.transparent,
 .ui.form .field.info textarea.transparent {
   background-color: light-dark(#ecfdff, #0a2a33) !important;
-  color: light-dark(#0e7090, #67e3f9) !important;
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Autofilled */
@@ -968,30 +968,30 @@
 
 /* Placeholder */
 .ui.form .info :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .info ::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .info .ui.dropdown > .default.text,
 .ui.form .info ::placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .info :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 .ui.form .info :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .info :focus::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .info .ui.dropdown > input:focus ~ .default.text,
 .ui.form .info :focus::placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .info :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#0e7090, #67e3f9) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 
 /*------------------
@@ -1004,7 +1004,7 @@
 .ui.form .field.info .ui.dropdown > .text,
 .ui.form .field.info .ui.dropdown .item {
   background: light-dark(#ecfdff, #0a2a33);
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.info .field .ui.dropdown,
 .ui.form .field.info .ui.dropdown {
@@ -1021,7 +1021,7 @@
 .ui.form .fields.info .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.info .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#a5f0fc, #155b75) 60%, var(--theme-surface));
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Hover */
@@ -1048,7 +1048,7 @@
 
 .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label,
 .ui.form .field.info .checkbox:not(.toggle):not(.slider) label {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.info .checkbox:not(.toggle):not(.slider) label::before {
@@ -1057,14 +1057,14 @@
 }
 .ui.form .fields.info .field .checkbox label::after,
 .ui.form .field.info .checkbox label::after {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
            el checkbox marcado y el resto de controles del campo (D48) */
 .ui.form .fields.info .field .ui.toggle.checkbox input:checked ~ label::before,
 .ui.form .field.info .ui.toggle.checkbox input:checked ~ label::before {
-  background-color: light-dark(#0e7090, #67e3f9);
+  background-color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
@@ -1073,7 +1073,7 @@
 .ui.inverted.form .fields.info .field label,
 .ui.inverted.form .fields.info > label,
 .ui.inverted.form .info.field label {
-  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label::before {
@@ -1081,15 +1081,15 @@
 }
 .ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::after,
 .ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label::after {
-  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.info .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.info .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.info) > label {
-    color: oklch(from light-dark(#0e7090, #67e3f9) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1124,11 +1124,11 @@
 .ui.ui.form .field.success .ui.label:not(.corner),
 .ui.ui.form .fields.success .field .input,
 .ui.ui.form .field.success .input {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 @supports selector(:has(.f)) {
   .ui.form .fields:has(.success) > label {
-    color: light-dark(#067647, #75e0a7);
+    color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
   }
 }
 .ui.form .fields.success .field .ui.label,
@@ -1144,11 +1144,11 @@
 }
 .ui.form .fields.success .field .corner.label,
 .ui.form .field.success .corner.label {
-  border-color: light-dark(#067647, #75e0a7);
+  border-color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#067647, #75e0a7) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.success .field textarea,
 .ui.form .fields.success .field select,
@@ -1184,7 +1184,7 @@
 .ui.form .field.success input[type="file"],
 .ui.form .field.success input[type="url"],
 .ui.form .field.success input[type="week"] {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#ecfdf3, #0c2a1c);
   border-color: #17b26a;
   border-radius: "";
@@ -1212,7 +1212,7 @@
 .ui.form .field.success input[type="week"]:focus {
   background: light-dark(#ecfdf3, #0c2a1c);
   border-color: #17b26a;
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: 0 0 0 3px color-mix(in srgb, #17b26a 22%, transparent);
 }
 .ui.form .field.success > textarea:hover:not(:focus),
@@ -1236,7 +1236,7 @@
 .ui.form .field.success input.transparent,
 .ui.form .field.success textarea.transparent {
   background-color: light-dark(#ecfdf3, #0c2a1c) !important;
-  color: light-dark(#067647, #75e0a7) !important;
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Autofilled */
@@ -1247,30 +1247,30 @@
 
 /* Placeholder */
 .ui.form .success :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .success ::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .success .ui.dropdown > .default.text,
 .ui.form .success ::placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .success :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 .ui.form .success :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .success :focus::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .success .ui.dropdown > input:focus ~ .default.text,
 .ui.form .success :focus::placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .success :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#067647, #75e0a7) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 
 /*------------------
@@ -1283,7 +1283,7 @@
 .ui.form .field.success .ui.dropdown > .text,
 .ui.form .field.success .ui.dropdown .item {
   background: light-dark(#ecfdf3, #0c2a1c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.success .field .ui.dropdown,
 .ui.form .field.success .ui.dropdown {
@@ -1300,7 +1300,7 @@
 .ui.form .fields.success .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.success .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#abefc6, #1b5e3c) 60%, var(--theme-surface));
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Hover */
@@ -1327,7 +1327,7 @@
 
 .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label,
 .ui.form .field.success .checkbox:not(.toggle):not(.slider) label {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.success .checkbox:not(.toggle):not(.slider) label::before {
@@ -1336,14 +1336,14 @@
 }
 .ui.form .fields.success .field .checkbox label::after,
 .ui.form .field.success .checkbox label::after {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
            el checkbox marcado y el resto de controles del campo (D48) */
 .ui.form .fields.success .field .ui.toggle.checkbox input:checked ~ label::before,
 .ui.form .field.success .ui.toggle.checkbox input:checked ~ label::before {
-  background-color: light-dark(#067647, #75e0a7);
+  background-color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
@@ -1352,7 +1352,7 @@
 .ui.inverted.form .fields.success .field label,
 .ui.inverted.form .fields.success > label,
 .ui.inverted.form .success.field label {
-  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label::before {
@@ -1360,15 +1360,15 @@
 }
 .ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label::after,
 .ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label::after {
-  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.success .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.success .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.success) > label {
-    color: oklch(from light-dark(#067647, #75e0a7) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
   }
 }
 
@@ -1403,11 +1403,11 @@
 .ui.ui.form .field.warning .ui.label:not(.corner),
 .ui.ui.form .fields.warning .field .input,
 .ui.ui.form .field.warning .input {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 @supports selector(:has(.f)) {
   .ui.form .fields:has(.warning) > label {
-    color: light-dark(#b54708, #fdb022);
+    color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
   }
 }
 .ui.form .fields.warning .field .ui.label,
@@ -1423,11 +1423,11 @@
 }
 .ui.form .fields.warning .field .corner.label,
 .ui.form .field.warning .corner.label {
-  border-color: light-dark(#b54708, #fdb022);
+  border-color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
   
 /* Fork: el asterisco según el triángulo (D36); en oscuro el estado es claro y el
                blanco fijo no se leía */
-  color: color(from light-dark(#b54708, #fdb022) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.form .fields.warning .field textarea,
 .ui.form .fields.warning .field select,
@@ -1463,7 +1463,7 @@
 .ui.form .field.warning input[type="file"],
 .ui.form .field.warning input[type="url"],
 .ui.form .field.warning input[type="week"] {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#fffaeb, #2e2108);
   border-color: #f79009;
   border-radius: "";
@@ -1491,7 +1491,7 @@
 .ui.form .field.warning input[type="week"]:focus {
   background: light-dark(#fffaeb, #2e2108);
   border-color: #f79009;
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: 0 0 0 3px color-mix(in srgb, #f79009 22%, transparent);
 }
 .ui.form .field.warning > textarea:hover:not(:focus),
@@ -1515,7 +1515,7 @@
 .ui.form .field.warning input.transparent,
 .ui.form .field.warning textarea.transparent {
   background-color: light-dark(#fffaeb, #2e2108) !important;
-  color: light-dark(#b54708, #fdb022) !important;
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) !important;
 }
 
 /* Autofilled */
@@ -1526,30 +1526,30 @@
 
 /* Placeholder */
 .ui.form .warning :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .warning ::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .warning .ui.dropdown > .default.text,
 .ui.form .warning ::placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .warning :-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 .ui.form .warning :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .warning :focus::-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .warning .ui.dropdown > input:focus ~ .default.text,
 .ui.form .warning :focus::placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface));
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface));
 }
 .ui.form .warning :focus:-ms-input-placeholder {
-  color: color-mix(in srgb, light-dark(#b54708, #fdb022) 55%, var(--theme-surface)) !important;
+  color: color-mix(in srgb, light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) 55%, var(--theme-surface)) !important;
 }
 
 /*------------------
@@ -1562,7 +1562,7 @@
 .ui.form .field.warning .ui.dropdown > .text,
 .ui.form .field.warning .ui.dropdown .item {
   background: light-dark(#fffaeb, #2e2108);
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.warning .field .ui.dropdown,
 .ui.form .field.warning .ui.dropdown {
@@ -1579,7 +1579,7 @@
 .ui.form .fields.warning .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.warning .ui.multiple.selection.dropdown > .label {
   background-color: color-mix(in srgb, light-dark(#fedf89, #6b4a10) 60%, var(--theme-surface));
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Hover */
@@ -1606,7 +1606,7 @@
 
 .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label,
 .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label::before {
@@ -1615,14 +1615,14 @@
 }
 .ui.form .fields.warning .field .checkbox label::after,
 .ui.form .field.warning .checkbox label::after {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: toggle marcado en un campo con estado: el carril toma el color del estado, como
            el checkbox marcado y el resto de controles del campo (D48) */
 .ui.form .fields.warning .field .ui.toggle.checkbox input:checked ~ label::before,
 .ui.form .field.warning .ui.toggle.checkbox input:checked ~ label::before {
-  background-color: light-dark(#b54708, #fdb022);
+  background-color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Fork: sobre inverted, la rama clara de la tinta del estado (D36). Sale del color del estado y no del
@@ -1631,7 +1631,7 @@
 .ui.inverted.form .fields.warning .field label,
 .ui.inverted.form .fields.warning > label,
 .ui.inverted.form .warning.field label {
-  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label::before {
@@ -1639,15 +1639,15 @@
 }
 .ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::after,
 .ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label::after {
-  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label,
 .ui.inverted.form .field.warning .checkbox:not(.toggle):not(.slider) label {
-  color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 @supports selector(:has(.f)) {
   .ui.inverted.form .fields:has(.warning) > label {
-    color: oklch(from light-dark(#b54708, #fdb022) max(l, 0.8) min(c, 0.14) h);
+    color: oklch(from light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) max(l, 0.8) min(c, 0.14) h);
   }
 }
 

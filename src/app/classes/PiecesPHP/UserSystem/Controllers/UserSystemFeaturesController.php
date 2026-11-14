@@ -94,6 +94,16 @@ class UserSystemFeaturesController extends AdminPanelController
         $resultOperation->setValue('user', $username);
         $resultOperation->setSuccessOnSingleOperation(false);
 
+        //La espera mínima y el tope por hora de los envíos, por usuario: su nombre y su correo cuentan juntos. Con el
+        //límite no se genera ni se envía, y se responde como un envío (en los dos modos): no dice nada nuevo.
+        $sendTarget = OTPHandler::getUserDataByUsername($username);
+        if ($sendTarget !== null && OTPRateLimiter::sendLimitReached([(string) $sendTarget->username, (string) $sendTarget->email])) {
+            $resultOperation->setSuccessOnSingleOperation(true);
+            $resultOperation->setMessage(OTPRateLimiter::uniformOTPMessage());
+            OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, __(self::LANG_GROUP, 'Límite de envíos del código alcanzado.'));
+            return $response->withJson($resultOperation);
+        }
+
         try {
             OTPHandler::generateOTP($this, $username);
             $resultOperation->setSuccessOnSingleOperation(true);

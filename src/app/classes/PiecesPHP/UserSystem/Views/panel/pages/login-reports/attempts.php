@@ -111,7 +111,7 @@ $chips = [
                     <th><?= __($langGroup, 'Usuario ingresado'); ?></th>
                     <th><?= __($langGroup, 'Información'); ?></th>
                     <th><?= __($langGroup, 'Vía'); ?></th>
-                    <th><?= __($langGroup, 'IP'); ?></th>
+                    <th class-name="collapsing"><?= __($langGroup, 'IP'); ?></th>
                     <th><?= __($langGroup, 'Fecha'); ?></th>
                 </tr>
             </thead>

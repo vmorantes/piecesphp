@@ -3,7 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Here you customize how the platform looks and how it is presented. To get there, use the gear button in the top bar, <strong>“System settings”</strong>. Brand
-images, Login backgrounds and Colors are in the <strong>“Appearance”</strong> group; Identity and SEO and
+images, Login backgrounds, Colors and Accessibility are in the <strong>“Appearance”</strong> group; Identity and SEO and
 Files for search engines are in <strong>“SEO and scripts”</strong>.</p>
 <div class="ui styled fluid accordion" data-section-accordion>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-brand-images'])): ?>
@@ -117,6 +117,41 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 </tr>
 </tbody>
 </table>
+</div>
+<?php endif; ?>
+<?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-accessibility'])): ?>
+<h2 class="title" id="accessibility"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accessibility-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accessibility</span></h2>
+<div class="content" id="accessibility-contenido">
+<p>Go to <strong>“Accessibility”</strong>. Here you choose how the panel looks for anyone who has not chosen their own in the menu
+under their name (see “Your account”, “Text size and color mode”).</p>
+<p><img class="ui image" alt="Accessibility" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
+<p>At the end, <strong>“Cancel”</strong> or <strong>“Save”</strong>.</p>
+<table class="ui celled table">
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Default text size</td>
+<td>No</td>
+<td><strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>. Large and Larger add 2 and 4 pixels to the “Base size” in Colors.</td>
+</tr>
+<tr>
+<td>Default color mode</td>
+<td>No</td>
+<td><strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (whatever each person's device uses).</td>
+</tr>
+</tbody>
+</table>
+<div class="ui info message">
+<div class="header">For now</div>
+<p>Anyone who has already chosen their text size or color mode in their menu keeps their choice even if you change
+this, and does not yet have a button to go back to the site's setting.</p>
+</div>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-seo'])): ?>

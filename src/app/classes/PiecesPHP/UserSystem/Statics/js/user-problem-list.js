@@ -170,31 +170,31 @@ $(document).ready(function (e) {
 				title: _i18n("userProblems", "ERROR CORREO NO REGISTRADO"),
 				message: _i18n(
 					"userProblems",
-					"El correo ingresado no esta asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta."
+					"El correo ingresado no esta asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta."
 				),
 				options: `<div class="actions support">
-                        <a class="btn support" href="${OTHER_PROBLEMS_FORM}">Solicitar soporte</a>
+                        <a class="btn support" href="${OTHER_PROBLEMS_FORM}">${_i18n("userProblems", "Solicitar soporte")}</a>
                     </div>`,
 			},
 			EXPIRED_OR_NOT_EXIST_CODE: {
 				title: _i18n("userProblems", "ERROR CÓDIGO INCORRECTO"),
 				message: _i18n(
 					"userProblems",
-					"El código ingresado esta errado, por favor vuelva a ingresar el código, solicite uno nuevo o puede crear una solicitud de soporte para informar del error."
+					"El código ingresado esta errado, por favor vuelva a ingresar el código, solicite uno nuevo o puede crear una solicitud de soporte para informar del error."
 				),
 				options: `<div class="actions code-error">
-                        <a class="btn support gray" href="${OTHER_PROBLEMS_FORM}">Solicitar soporte</a>
-                        <a class="btn support green" other-code>Nuevo Código</a>
+                        <a class="btn support gray" href="${OTHER_PROBLEMS_FORM}">${_i18n("userProblems", "Solicitar soporte")}</a>
+                        <a class="btn support green" other-code>${_i18n("userProblems", "Nuevo Código")}</a>
                     </div>`,
 			},
 			SUCCESS_PASSWORD_CHANGE: {
 				title: _i18n("userProblems", "SU CONTRASEÑA HA SIDO CAMBIADA"),
 				message: _i18n(
 					"userProblems",
-					"Ingrese con su usuario y la nueva contraseña"
+					"Ingrese con su usuario y la nueva contraseña"
 				),
 				options: `<div class="actions login">
-                        <a class="btn support" href="${USER_FORM_LOGIN}">Iniciar Sesión</a>
+                        <a class="btn support" href="${USER_FORM_LOGIN}">${_i18n("userProblems", "Iniciar Sesión")}</a>
                     </div>`,
 			},
 		}

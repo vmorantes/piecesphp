@@ -24,6 +24,13 @@ the manual does not appear for you, your user type does not have it.</p>
 <div class="header">If you cannot log in</div>
 <p>On the login screen, the help link lets you recover your password or username, or report another problem.</p>
 </div>
+<h2 class="ui header" id="text-size-and-color-mode">Text size and color mode</h2>
+<p>Open the menu under your name, at the top right:</p>
+<ul>
+<li><strong>“Color mode”</strong>: <strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (your device's).</li>
+<li><strong>“Text size”</strong>: <strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>.</li>
+</ul>
+<p>It applies at once and is saved in your account. Until you choose, you see whatever the site's administrator chose.</p>
 <h2 class="ui header" id="help">Help</h2>
 <p>The question mark icon in the top bar opens the <strong>help center</strong>: this manual and, if your organization has it
 configured, the form to <strong>contact support</strong>.</p>

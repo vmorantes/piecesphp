@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Transition
+ * # Fomantic-UI 0.11.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1211,34 +1211,34 @@
 
 /* Variantes pulsating de los colores que son variables CSS (ver @coreVarColors). */
 .primary.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 50%, transparent);
 }
 .primary.inverted.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 70%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 70%, transparent);
 }
 .secondary.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-2, #7a5af8) 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 50%, transparent);
 }
 .secondary.inverted.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 70%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 70%, transparent);
 }
 .accent-1.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 50%, transparent);
 }
 .accent-1.inverted.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 70%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 70%, transparent);
 }
 .accent-2.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-2, #7a5af8) 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 50%, transparent);
 }
 .accent-2.inverted.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 70%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 70%, transparent);
 }
 .accent-3.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-3, #c11574) 50%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 50%, transparent);
 }
 .accent-3.inverted.pulsating.transition {
-  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 70%, transparent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 70%, transparent);
 }
 
 /* Fork: `glow` parte de la superficie del tema y no de un casi blanco fijo: en oscuro era un destello

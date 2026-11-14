@@ -5991,6 +5991,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * toast de Fomantic con botones (la clave de las acciones dentro de la llamada al toast) en src/app ni src/statics (sin vendor,
      * plugins de terceros ni .min.js). Este archivo escribe esas formas partidas para no casar consigo mismo. Se pregunta
      * con confirmAction() y se avisa con successMessage()/errorMessage(). Lo permitido, por archivo y con su número exacto.
+     * Las vistas de src/app/classes/MySpace/Views/manual/ quedan fuera: las genera bin/manual desde la prosa, que puede
+     * nombrar un diálogo sin llamarlo; lo que se corrige es el .md, nunca la vista.
      *
      * @return string[]
      */
@@ -6022,10 +6024,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         $archivos = 0;
+        $vistasDelManual = 0;
         $encontrados = [];
         foreach (self::nulSeparated('git -C ' . escapeshellarg($root) . ' -c core.quotePath=false ls-files -z --cached --others --exclude-standard -- src/app src/statics') as $relativo) {
             if (preg_match('/\.(js|php|ts)$/', $relativo) !== 1 || str_starts_with($relativo, 'src/vendor/') || str_starts_with($relativo, 'src/statics/plugins/')
                 || str_ends_with($relativo, '.min.js') || str_contains($relativo, '/node_modules/') || !is_file($root . '/' . $relativo)) {
+                continue;
+            }
+            if (str_starts_with($relativo, 'src/app/classes/MySpace/Views/manual/')) {
+                $vistasDelManual++;
                 continue;
             }
             $archivos++;
@@ -6051,7 +6058,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         if (count($failures) === 0) {
             echoTerminal("\e[94mINFO:\e[39m diálogos del navegador: {$archivos} archivo(s) .js/.php/.ts en src/app y src/statics (sin vendor, plugins de terceros ni .min.js); "
-                . array_sum($encontrados) . ' aparición(es) en ' . count($encontrados) . ' archivo(s), todas declaradas.');
+                . array_sum($encontrados) . ' aparición(es) en ' . count($encontrados) . " archivo(s), todas declaradas, {$vistasDelManual} vista(s) generadas del manual fuera (las genera bin/manual desde la prosa).");
         }
         return $failures;
     }

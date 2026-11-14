@@ -778,6 +778,43 @@ $sessionRevocation = function (bool $revokeAllReal) {
         echoTerminal(' ');
 
         //─── K6 · Quién escribe la contraseña ───────────────────────────────────────────────────
+        echoTerminal('[I] Pasar a inactivo o a eliminado cierra sus sesiones; el bloqueo por intentos, no (D10-a)');
+        //El validador de los archivos protegidos (protectWithSession) solo pregunta jwtIsValid(): es lo que se mira aquí.
+        $abiertas = fn(int $id): int => count(array_filter($filas($id), fn($f) => $f['closedAt'] === null));
+        $cerradaPorRevocar = fn(array $fila): bool => $fila['closedAt'] !== null && $fila['closeReason'] === UserSessions::REASON_REVOKE_ALL_USER;
+        $edicionOtro = fn(int $id, string $sufijo, int $estado): array => ['id' => $id, 'username' => "{$prefijo}-{$sufijo}", 'email' => "{$prefijo}-{$sufijo}@example.com", 'firstname' => 'Zz', 'first_lastname' => 'Prueba', 'status' => $estado, 'organization' => OrganizationMapper::INITIAL_ID_GLOBAL];
+
+        //i1 · la edición de un administrador lo pasa a inactivo
+        $ids['inInactivo'] = $crear('in-inactivo', UsersModel::TYPE_USER_GENERAL);
+        $jwtInactivo = $token($ids['inInactivo']);
+        $check(UserSessions::jwtIsValid($jwtInactivo), 'i0 CANARIO: antes de cambiar el estado, su sesión vale para los archivos protegidos');
+        $r = $pedir('POST', $editar, $token($ids['admin']), $edicionOtro($ids['inInactivo'], 'in-inactivo', UsersModel::STATUS_USER_INACTIVE));
+        $i1 = $filas($ids['inInactivo']);
+        $check(($r['json']['success'] ?? null) === true && $abiertas($ids['inInactivo']) === 0 && $i1 !== [] && $cerradaPorRevocar($i1[0]) && !UserSessions::jwtIsValid($jwtInactivo),
+            'i1 DISCRIMINANTE: pasar a inactivo por la edición cierra su sesión y los archivos protegidos la rechazan', "HTTP {$r['status']} " . $describe($i1));
+
+        //i2 · la baja de la propia cuenta
+        $ids['inBaja'] = $crear('in-baja', UsersModel::TYPE_USER_GENERAL);
+        $jwtBaja = $token($ids['inBaja']);
+        $token($ids['inBaja']);
+        $r = $pedir('POST', (string) $ruta('users-delete-account-request'), $jwtBaja, []);
+        $i2 = $filas($ids['inBaja']);
+        $check(($r['json']['success'] ?? null) === true && $abiertas($ids['inBaja']) === 0 && count($i2) === 2 && !UserSessions::jwtIsValid($jwtBaja),
+            'i2 DISCRIMINANTE: darse de baja cierra todas sus sesiones', "HTTP {$r['status']} " . $describe($i2));
+
+        //i3 · el bloqueo por intentos lo provoca un tercero: no echa a nadie
+        $ids['inBloqueo'] = $crear('in-bloqueo', UsersModel::TYPE_USER_GENERAL);
+        $jwtBloqueo = $token($ids['inBloqueo']);
+        (new UsersModel())->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $ids['inBloqueo']);
+        $check($abiertas($ids['inBloqueo']) === 1 && UserSessions::jwtIsValid($jwtBloqueo), 'i3 el bloqueo por intentos NO cierra su sesión', $describe($filas($ids['inBloqueo'])));
+
+        //i4 · CANARIO: una edición que lo deja activo no toca su sesión
+        $ids['inActivo'] = $crear('in-activo', UsersModel::TYPE_USER_GENERAL);
+        $jwtActivo = $token($ids['inActivo']);
+        $r = $pedir('POST', $editar, $token($ids['admin']), $edicionOtro($ids['inActivo'], 'in-activo', UsersModel::STATUS_USER_ACTIVE));
+        $check(($r['json']['success'] ?? null) === true && $abiertas($ids['inActivo']) === 1 && UserSessions::jwtIsValid($jwtActivo), 'i4 CANARIO: quien sigue activo conserva su sesión', "HTTP {$r['status']} " . $describe($filas($ids['inActivo'])));
+        echoTerminal(' ');
+
         echoTerminal('[K6] Los sitios que escriben la contraseña de un usuario son los declarados');
         //Cada sitio, con su clase: un camino nuevo que cambie la contraseña tiene que llamar a closeAfterPasswordChange().
         $declarados = [

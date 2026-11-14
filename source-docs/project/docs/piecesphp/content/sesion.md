@@ -28,6 +28,10 @@ consume el framework sin el panel, en [Despliegue, «Consumir el framework sin e
 4. Comprueba la contraseña con `password_verify()`. **El código de un uso va en el mismo campo `password`**: si coincide
    con el código vigente del usuario (`OTPHandler`), entra y el código se invalida. El código lo pide
    `user-system-features-generate-otp` y caduca a los `oneUseCodeMinutes` (20 por omisión).
+   Esa ruta no envía más de un código cada 45 s ni más de 5 por hora a la misma cuenta, la pidan por su nombre o por su
+   correo (`OTPRateLimiter::SEND_MIN_SECONDS_BETWEEN` y `SEND_MAX_PER_HOUR`, fijos; los 45 s son los del botón
+   «Reenviar código» de `login.js`): pasado el límite responde igual que un envío, no envía, y lo anota como un fallo
+   que cuenta para el freno.
 5. Si el usuario tiene el segundo factor activo, exige `twoFactor` (el código de la aplicación o uno de seguridad).
 6. Rechaza al usuario cuyo tipo ya no es un rol, al que el modo mantenimiento deja fuera, al de una organización
    inactiva y al bloqueado, pendiente o inactivo.
@@ -97,8 +101,8 @@ En el código, el usuario actual es `getLoggedFrameworkUser()` (`UserDataPackage
 | Cerrar todas las de todos | `bin/cli sessions-revoke-all` | Mueve la marca global y cierra todas las filas |
 
 Las filas guardan quién cerró y por qué (`logout`, `closed-by-user`, `closed-by-admin`, `revoke-all-user`,
-`revoke-all-global`, `invalid-type`, `password-changed`), y las cerradas o caducadas se purgan a los 30 días. Desactivar un usuario o su
-organización echa la sesión en la petición siguiente (paso 8), sin cerrar la fila. **Cambiar la contraseña cierra las demás sesiones** de ese usuario: si la cambia él mismo, conserva la actual; si la cambia otro o llega por la recuperación, se cierran todas (`UserSessions::closeAfterPasswordChange()`, que llaman la edición y la recuperación). Las sesiones se ven en Registros ›
+`revoke-all-global`, `invalid-type`, `password-changed`), y las cerradas o caducadas se purgan a los 30 días. Pasar un usuario a inactivo, o
+que dé de baja su cuenta, **cierra sus sesiones** (`UsersModel::closeSessionsIfInactivated()`, con el motivo `revoke-all-user`), porque los archivos protegidos solo miran la sesión; el bloqueo por intentos no las cierra (lo puede provocar un tercero). Desactivar su organización, o dejarlo pendiente o rechazado, la echa o la restringe en la petición siguiente (paso 8), sin cerrar la fila. **Cambiar la contraseña cierra las demás sesiones** de ese usuario: si la cambia él mismo, conserva la actual; si la cambia otro o llega por la recuperación, se cierran todas (`UserSessions::closeAfterPasswordChange()`, que llaman la edición y la recuperación). Las sesiones se ven en Registros ›
 Sesiones abiertas y en la ficha de cada usuario.
 
 En el navegador, la dirección de salida va en `<meta name="logout-url">`, y `PiecesPHPSystemUserHelper.logoutOnServer()`

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Label
+ * # Fomantic-UI 0.11.0 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -21,7 +21,7 @@
   background-color: light-dark(#eef1f5, #262b36);
   background-image: none;
   padding: 0.41666667em 0.66666667em;
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   text-transform: none;
   font-weight: 400;
   border: 0 solid transparent;
@@ -617,7 +617,7 @@ a.ui.active.label:hover::before {
 .ui.basic.label {
   background: none var(--theme-surface);
   border: 1px solid light-dark(#d8dde5, #3a4150);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: none;
   padding-top: calc(0.4166666666666667em - 1px);
   padding-bottom: calc(0.4166666666666667em - 1px);
@@ -686,7 +686,7 @@ a.ui.basic.label:hover {
   background: #1f2430;
 }
 .ui.inverted.basic.label:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: avatar de iniciales (D52). Color por defecto antes de los colores con nombre, para que
@@ -701,85 +701,85 @@ a.ui.basic.label:hover {
 -------------------- */
 .ui.primary.labels .label,
 .ui.ui.ui.primary.label {
-  background-color: var(--accent-1, var(--accent, #356dca));
-  border-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1-text, color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.primary.labels a.label:hover,
 a.ui.ui.ui.primary.label:hover {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  color: var(--accent-1-text, color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.primary.ribbon.label {
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 75%, black);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 75%, black);
 }
 
 /* Basic */
 .ui.basic.labels .primary.label,
 .ui.ui.ui.basic.primary.label {
   background: none var(--theme-surface);
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.primary.label:hover,
 a.ui.ui.ui.basic.primary.label:hover {
   background: none var(--theme-surface);
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 
 /* Inverted */
 .ui.inverted.labels .primary.label,
 .ui.ui.ui.inverted.primary.label {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.primary.label:hover,
 a.ui.ui.ui.inverted.primary.label:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.primary.ribbon.label {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 75%, black);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .primary.label,
 .ui.ui.ui.inverted.basic.primary.label {
   background-color: #1f2430;
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.primary.label:hover,
 a.ui.ui.ui.inverted.basic.primary.label:hover {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .primary.label,
 .ui.ui.ui.inverted.primary.basic.tag.label {
-  border: 1px solid color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  border: 1px solid color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 .ui.inverted.basic.tag.labels .primary.label::before,
 .ui.ui.ui.inverted.primary.basic.tag.label::before {
@@ -791,85 +791,85 @@ a.ui.ui.ui.inverted.basic.primary.label:hover {
 }
 .ui.secondary.labels .label,
 .ui.ui.ui.secondary.label {
-  background-color: var(--accent-2, #7a5af8);
-  border-color: var(--accent-2, #7a5af8);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  border-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  color: var(--accent-2-text, color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.secondary.labels a.label:hover,
 a.ui.ui.ui.secondary.label:hover {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  color: var(--accent-2-text, color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.secondary.ribbon.label {
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 75%, black);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 75%, black);
 }
 
 /* Basic */
 .ui.basic.labels .secondary.label,
 .ui.ui.ui.basic.secondary.label {
   background: none var(--theme-surface);
-  border-color: var(--accent-2, #7a5af8);
+  border-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.secondary.label:hover,
 a.ui.ui.ui.basic.secondary.label:hover {
   background: none var(--theme-surface);
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 
 /* Inverted */
 .ui.inverted.labels .secondary.label,
 .ui.ui.ui.inverted.secondary.label {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.secondary.label:hover,
 a.ui.ui.ui.inverted.secondary.label:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.secondary.ribbon.label {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 75%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 75%, black);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .secondary.label,
 .ui.ui.ui.inverted.basic.secondary.label {
   background-color: #1f2430;
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.secondary.label:hover,
 a.ui.ui.ui.inverted.basic.secondary.label:hover {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .secondary.label,
 .ui.ui.ui.inverted.secondary.basic.tag.label {
-  border: 1px solid color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  border: 1px solid color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 .ui.inverted.basic.tag.labels .secondary.label::before,
 .ui.ui.ui.inverted.secondary.basic.tag.label::before {
@@ -881,85 +881,85 @@ a.ui.ui.ui.inverted.basic.secondary.label:hover {
 }
 .ui.accent-1.labels .label,
 .ui.ui.ui.accent-1.label {
-  background-color: var(--accent-1, var(--accent, #356dca));
-  border-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
+  color: var(--accent-1-text, color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.accent-1.labels a.label:hover,
 a.ui.ui.ui.accent-1.label:hover {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  color: var(--accent-1-text, color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.accent-1.ribbon.label {
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 75%, black);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 75%, black);
 }
 
 /* Basic */
 .ui.basic.labels .accent-1.label,
 .ui.ui.ui.basic.accent-1.label {
   background: none var(--theme-surface);
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-1.label:hover,
 a.ui.ui.ui.basic.accent-1.label:hover {
   background: none var(--theme-surface);
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
 }
 
 /* Inverted */
 .ui.inverted.labels .accent-1.label,
 .ui.ui.ui.inverted.accent-1.label {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.accent-1.label:hover,
 a.ui.ui.ui.inverted.accent-1.label:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.accent-1.ribbon.label {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 75%, black);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .accent-1.label,
 .ui.ui.ui.inverted.basic.accent-1.label {
   background-color: #1f2430;
-  border-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.accent-1.label:hover,
 a.ui.ui.ui.inverted.basic.accent-1.label:hover {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .accent-1.label,
 .ui.ui.ui.inverted.accent-1.basic.tag.label {
-  border: 1px solid color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
+  border: 1px solid color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
 }
 .ui.inverted.basic.tag.labels .accent-1.label::before,
 .ui.ui.ui.inverted.accent-1.basic.tag.label::before {
@@ -971,85 +971,85 @@ a.ui.ui.ui.inverted.basic.accent-1.label:hover {
 }
 .ui.accent-2.labels .label,
 .ui.ui.ui.accent-2.label {
-  background-color: var(--accent-2, #7a5af8);
-  border-color: var(--accent-2, #7a5af8);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  border-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
+  color: var(--accent-2-text, color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.accent-2.labels a.label:hover,
 a.ui.ui.ui.accent-2.label:hover {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  color: var(--accent-2-text, color(from var(--accent-2-fill, var(--accent-2, #7a5af8)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.accent-2.ribbon.label {
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 75%, black);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 75%, black);
 }
 
 /* Basic */
 .ui.basic.labels .accent-2.label,
 .ui.ui.ui.basic.accent-2.label {
   background: none var(--theme-surface);
-  border-color: var(--accent-2, #7a5af8);
+  border-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-2.label:hover,
 a.ui.ui.ui.basic.accent-2.label:hover {
   background: none var(--theme-surface);
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
 }
 
 /* Inverted */
 .ui.inverted.labels .accent-2.label,
 .ui.ui.ui.inverted.accent-2.label {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.accent-2.label:hover,
 a.ui.ui.ui.inverted.accent-2.label:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.accent-2.ribbon.label {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 75%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 75%, black);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .accent-2.label,
 .ui.ui.ui.inverted.basic.accent-2.label {
   background-color: #1f2430;
-  border-color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.accent-2.label:hover,
 a.ui.ui.ui.inverted.basic.accent-2.label:hover {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .accent-2.label,
 .ui.ui.ui.inverted.accent-2.basic.tag.label {
-  border: 1px solid color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
+  border: 1px solid color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
 }
 .ui.inverted.basic.tag.labels .accent-2.label::before,
 .ui.ui.ui.inverted.accent-2.basic.tag.label::before {
@@ -1061,85 +1061,85 @@ a.ui.ui.ui.inverted.basic.accent-2.label:hover {
 }
 .ui.accent-3.labels .label,
 .ui.ui.ui.accent-3.label {
-  background-color: var(--accent-3, #c11574);
-  border-color: var(--accent-3, #c11574);
-  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-3-fill, var(--accent-3, #c11574));
+  border-color: var(--accent-3-fill, var(--accent-3, #c11574));
+  color: var(--accent-3-text, color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.accent-3.labels a.label:hover,
 a.ui.ui.ui.accent-3.label:hover {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
-  border-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
-  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  color: var(--accent-3-text, color(from var(--accent-3-fill, var(--accent-3, #c11574)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.accent-3.ribbon.label {
-  border-color: color-mix(in oklab, var(--accent-3, #c11574) 75%, black);
+  border-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 75%, black);
 }
 
 /* Basic */
 .ui.basic.labels .accent-3.label,
 .ui.ui.ui.basic.accent-3.label {
   background: none var(--theme-surface);
-  border-color: var(--accent-3, #c11574);
+  border-color: var(--accent-3-fill, var(--accent-3, #c11574));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-3.label:hover,
 a.ui.ui.ui.basic.accent-3.label:hover {
   background: none var(--theme-surface);
-  border-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
-  color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  border-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
+  color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
 }
 
 /* Inverted */
 .ui.inverted.labels .accent-3.label,
 .ui.ui.ui.inverted.accent-3.label {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
-  border-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.accent-3.label:hover,
 a.ui.ui.ui.inverted.accent-3.label:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.accent-3.ribbon.label {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 75%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 75%, black);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .accent-3.label,
 .ui.ui.ui.inverted.basic.accent-3.label {
   background-color: #1f2430;
-  border-color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  border-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.accent-3.label:hover,
 a.ui.ui.ui.inverted.basic.accent-3.label:hover {
-  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
+  border-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
   background-color: #1f2430;
-  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .accent-3.label,
 .ui.ui.ui.inverted.accent-3.basic.tag.label {
-  border: 1px solid color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
+  border: 1px solid color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
 }
 .ui.inverted.basic.tag.labels .accent-3.label::before,
 .ui.ui.ui.inverted.accent-3.basic.tag.label::before {
@@ -1176,7 +1176,7 @@ a.ui.ui.ui.red.label:hover {
   border-color: #f04438;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.red.label:hover,
 a.ui.ui.ui.basic.red.label:hover {
@@ -1266,7 +1266,7 @@ a.ui.ui.ui.orange.label:hover {
   border-color: #ef6820;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.orange.label:hover,
 a.ui.ui.ui.basic.orange.label:hover {
@@ -1356,7 +1356,7 @@ a.ui.ui.ui.yellow.label:hover {
   border-color: #f79009;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.yellow.label:hover,
 a.ui.ui.ui.basic.yellow.label:hover {
@@ -1446,7 +1446,7 @@ a.ui.ui.ui.olive.label:hover {
   border-color: #84a11b;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.olive.label:hover,
 a.ui.ui.ui.basic.olive.label:hover {
@@ -1536,7 +1536,7 @@ a.ui.ui.ui.green.label:hover {
   border-color: #17b26a;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.green.label:hover,
 a.ui.ui.ui.basic.green.label:hover {
@@ -1626,7 +1626,7 @@ a.ui.ui.ui.teal.label:hover {
   border-color: #06aed4;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.teal.label:hover,
 a.ui.ui.ui.basic.teal.label:hover {
@@ -1716,7 +1716,7 @@ a.ui.ui.ui.blue.label:hover {
   border-color: #2e90fa;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.blue.label:hover,
 a.ui.ui.ui.basic.blue.label:hover {
@@ -1806,7 +1806,7 @@ a.ui.ui.ui.violet.label:hover {
   border-color: #7a5af8;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.violet.label:hover,
 a.ui.ui.ui.basic.violet.label:hover {
@@ -1896,7 +1896,7 @@ a.ui.ui.ui.purple.label:hover {
   border-color: #9e4cc9;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.purple.label:hover,
 a.ui.ui.ui.basic.purple.label:hover {
@@ -1986,7 +1986,7 @@ a.ui.ui.ui.pink.label:hover {
   border-color: #c11574;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.pink.label:hover,
 a.ui.ui.ui.basic.pink.label:hover {
@@ -2076,7 +2076,7 @@ a.ui.ui.ui.brown.label:hover {
   border-color: #6e4a2e;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.brown.label:hover,
 a.ui.ui.ui.basic.brown.label:hover {
@@ -2166,7 +2166,7 @@ a.ui.ui.ui.grey.label:hover {
   border-color: #687181;
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.grey.label:hover,
 a.ui.ui.ui.basic.grey.label:hover {
@@ -2558,13 +2558,13 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
 .ui.chip.labels > .active.label:hover,
 .ui.active.chip.label,
 .ui.active.chip.label:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
-  background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 10%, transparent);
-  border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 45%, transparent);
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 10%, transparent);
+  border-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 45%, transparent);
 }
 .ui.chip.labels > .label:focus-visible,
 .ui.chip.label:focus-visible {
-  outline: 2px solid var(--accent-1, var(--accent, #356dca));
+  outline: 2px solid var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   outline-offset: 2px;
 }
 .ui.chip.labels > .label > .detail,
@@ -2759,90 +2759,90 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
    En oscuro se mezclan con la superficie oscura. */
 .ui.basic.labels .primary.label,
 .ui.ui.ui.basic.primary.label {
-  background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.primary.label:hover,
 a.ui.ui.ui.basic.primary.label:hover {
-  background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.primary.label > i.circle.icon {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.basic.labels .secondary.label,
 .ui.ui.ui.basic.secondary.label {
-  background: color-mix(in srgb, var(--accent-2, #7a5af8) 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.secondary.label:hover,
 a.ui.ui.ui.basic.secondary.label:hover {
-  background: color-mix(in srgb, var(--accent-2, #7a5af8) 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.secondary.label > i.circle.icon {
-  background-color: var(--accent-2, #7a5af8);
+  background-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.basic.labels .accent-1.label,
 .ui.ui.ui.basic.accent-1.label {
-  background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-1.label:hover,
 a.ui.ui.ui.basic.accent-1.label:hover {
-  background: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.accent-1.label > i.circle.icon {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.basic.labels .accent-2.label,
 .ui.ui.ui.basic.accent-2.label {
-  background: color-mix(in srgb, var(--accent-2, #7a5af8) 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-2.label:hover,
 a.ui.ui.ui.basic.accent-2.label:hover {
-  background: color-mix(in srgb, var(--accent-2, #7a5af8) 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-2, #7a5af8) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-2-fill, var(--accent-2, #7a5af8)) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.accent-2.label > i.circle.icon {
-  background-color: var(--accent-2, #7a5af8);
+  background-color: var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.basic.labels .accent-3.label,
 .ui.ui.ui.basic.accent-3.label {
-  background: color-mix(in srgb, var(--accent-3, #c11574) 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-3, #c11574) 35%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.accent-3.label:hover,
 a.ui.ui.ui.basic.accent-3.label:hover {
-  background: color-mix(in srgb, var(--accent-3, #c11574) 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, var(--accent-3, #c11574) 55%, var(--theme-surface));
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--accent-3-fill, var(--accent-3, #c11574)) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.accent-3.label > i.circle.icon {
-  background-color: var(--accent-3, #c11574);
+  background-color: var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.basic.labels .red.label,
 .ui.ui.ui.basic.red.label {
   background: color-mix(in srgb, #f04438 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #f04438 35%, var(--theme-surface));
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.red.label:hover,
 a.ui.ui.ui.basic.red.label:hover {
   background: color-mix(in srgb, #f04438 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #f04438 55%, var(--theme-surface));
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.ui.ui.basic.red.label > i.circle.icon {
   background-color: #f04438;
@@ -2851,13 +2851,13 @@ a.ui.ui.ui.basic.red.label:hover {
 .ui.ui.ui.basic.orange.label {
   background: color-mix(in srgb, #ef6820 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #ef6820 35%, var(--theme-surface));
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.orange.label:hover,
 a.ui.ui.ui.basic.orange.label:hover {
   background: color-mix(in srgb, #ef6820 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #ef6820 55%, var(--theme-surface));
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.ui.ui.basic.orange.label > i.circle.icon {
   background-color: #ef6820;
@@ -2866,13 +2866,13 @@ a.ui.ui.ui.basic.orange.label:hover {
 .ui.ui.ui.basic.yellow.label {
   background: color-mix(in srgb, #f79009 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #f79009 35%, var(--theme-surface));
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.yellow.label:hover,
 a.ui.ui.ui.basic.yellow.label:hover {
   background: color-mix(in srgb, #f79009 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #f79009 55%, var(--theme-surface));
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.ui.ui.basic.yellow.label > i.circle.icon {
   background-color: #f79009;
@@ -2881,13 +2881,13 @@ a.ui.ui.ui.basic.yellow.label:hover {
 .ui.ui.ui.basic.olive.label {
   background: color-mix(in srgb, #84a11b 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #84a11b 35%, var(--theme-surface));
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.olive.label:hover,
 a.ui.ui.ui.basic.olive.label:hover {
   background: color-mix(in srgb, #84a11b 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #84a11b 55%, var(--theme-surface));
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.olive.label > i.circle.icon {
   background-color: #84a11b;
@@ -2896,13 +2896,13 @@ a.ui.ui.ui.basic.olive.label:hover {
 .ui.ui.ui.basic.green.label {
   background: color-mix(in srgb, #17b26a 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #17b26a 35%, var(--theme-surface));
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.green.label:hover,
 a.ui.ui.ui.basic.green.label:hover {
   background: color-mix(in srgb, #17b26a 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #17b26a 55%, var(--theme-surface));
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.green.label > i.circle.icon {
   background-color: #17b26a;
@@ -2911,13 +2911,13 @@ a.ui.ui.ui.basic.green.label:hover {
 .ui.ui.ui.basic.teal.label {
   background: color-mix(in srgb, #06aed4 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #06aed4 35%, var(--theme-surface));
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.teal.label:hover,
 a.ui.ui.ui.basic.teal.label:hover {
   background: color-mix(in srgb, #06aed4 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #06aed4 55%, var(--theme-surface));
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.teal.label > i.circle.icon {
   background-color: #06aed4;
@@ -2926,13 +2926,13 @@ a.ui.ui.ui.basic.teal.label:hover {
 .ui.ui.ui.basic.blue.label {
   background: color-mix(in srgb, #2e90fa 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #2e90fa 35%, var(--theme-surface));
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.blue.label:hover,
 a.ui.ui.ui.basic.blue.label:hover {
   background: color-mix(in srgb, #2e90fa 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #2e90fa 55%, var(--theme-surface));
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.blue.label > i.circle.icon {
   background-color: #2e90fa;
@@ -2941,13 +2941,13 @@ a.ui.ui.ui.basic.blue.label:hover {
 .ui.ui.ui.basic.violet.label {
   background: color-mix(in srgb, #7a5af8 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #7a5af8 35%, var(--theme-surface));
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.violet.label:hover,
 a.ui.ui.ui.basic.violet.label:hover {
   background: color-mix(in srgb, #7a5af8 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #7a5af8 55%, var(--theme-surface));
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.violet.label > i.circle.icon {
   background-color: #7a5af8;
@@ -2956,13 +2956,13 @@ a.ui.ui.ui.basic.violet.label:hover {
 .ui.ui.ui.basic.purple.label {
   background: color-mix(in srgb, #9e4cc9 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #9e4cc9 35%, var(--theme-surface));
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.purple.label:hover,
 a.ui.ui.ui.basic.purple.label:hover {
   background: color-mix(in srgb, #9e4cc9 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #9e4cc9 55%, var(--theme-surface));
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.purple.label > i.circle.icon {
   background-color: #9e4cc9;
@@ -2971,13 +2971,13 @@ a.ui.ui.ui.basic.purple.label:hover {
 .ui.ui.ui.basic.pink.label {
   background: color-mix(in srgb, #c11574 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #c11574 35%, var(--theme-surface));
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.pink.label:hover,
 a.ui.ui.ui.basic.pink.label:hover {
   background: color-mix(in srgb, #c11574 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #c11574 55%, var(--theme-surface));
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.pink.label > i.circle.icon {
   background-color: #c11574;
@@ -2986,13 +2986,13 @@ a.ui.ui.ui.basic.pink.label:hover {
 .ui.ui.ui.basic.brown.label {
   background: color-mix(in srgb, #6e4a2e 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #6e4a2e 35%, var(--theme-surface));
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.brown.label:hover,
 a.ui.ui.ui.basic.brown.label:hover {
   background: color-mix(in srgb, #6e4a2e 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #6e4a2e 55%, var(--theme-surface));
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.brown.label > i.circle.icon {
   background-color: #6e4a2e;
@@ -3001,13 +3001,13 @@ a.ui.ui.ui.basic.brown.label:hover {
 .ui.ui.ui.basic.grey.label {
   background: color-mix(in srgb, #687181 8%, var(--theme-surface));
   border-color: color-mix(in srgb, #687181 35%, var(--theme-surface));
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.grey.label:hover,
 a.ui.ui.ui.basic.grey.label:hover {
   background: color-mix(in srgb, #687181 14%, var(--theme-surface));
   border-color: color-mix(in srgb, #687181 55%, var(--theme-surface));
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.grey.label > i.circle.icon {
   background-color: #687181;
@@ -3036,7 +3036,7 @@ a.ui.ui.ui.basic.black.label:hover {
 a.ui.ui.ui.basic.green.label:hover {
   background: light-dark(#ecfdf3, #0c2a1c);
   border-color: light-dark(#abefc6, #1b5e3c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.basic.labels .yellow.label,
 .ui.ui.ui.basic.yellow.label,
@@ -3044,7 +3044,7 @@ a.ui.ui.ui.basic.green.label:hover {
 a.ui.ui.ui.basic.yellow.label:hover {
   background: light-dark(#fffaeb, #2e2108);
   border-color: light-dark(#fedf89, #6b4a10);
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.basic.labels .red.label,
 .ui.ui.ui.basic.red.label,
@@ -3052,7 +3052,7 @@ a.ui.ui.ui.basic.yellow.label:hover {
 a.ui.ui.ui.basic.red.label:hover {
   background: light-dark(#fef3f2, #351513);
   border-color: light-dark(#fecdca, #7a271a);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.basic.labels .teal.label,
 .ui.ui.ui.basic.teal.label,
@@ -3060,7 +3060,7 @@ a.ui.ui.ui.basic.red.label:hover {
 a.ui.ui.ui.basic.teal.label:hover {
   background: light-dark(#ecfdff, #0a2a33);
   border-color: light-dark(#a5f0fc, #155b75);
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* -------------------

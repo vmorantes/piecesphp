@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Tab
+ * # Fomantic-UI 0.11.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

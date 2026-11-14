@@ -1,12 +1,12 @@
 ---
 titulo: Configuración de la apariencia
-rutas: [configurations-appearance-brand-images, configurations-appearance-backgrounds, configurations-appearance-colors, configurations-appearance-seo, configurations-appearance-site-files]
+rutas: [configurations-appearance-brand-images, configurations-appearance-backgrounds, configurations-appearance-colors, configurations-appearance-accessibility, configurations-appearance-seo, configurations-appearance-site-files]
 ---
 
 # Configuración de la apariencia
 
 Aquí personalizas cómo se ve y cómo se presenta la plataforma. Se llega por el botón de engranajes de la barra superior, **«Configuración del sistema»**. Imágenes de
-marca, Fondos del inicio de sesión y Colores están en el grupo **«Apariencia»**; Identidad y SEO y
+marca, Fondos del inicio de sesión, Colores y Accesibilidad están en el grupo **«Apariencia»**; Identidad y SEO y
 Archivos para buscadores, en **«SEO y Scripts»**.
 
 ## Imágenes de marca
@@ -69,6 +69,25 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 | Fuente | No | La tipografía del panel. |
 | Tamaño base | No | El tamaño base del texto. |
 | Radio | No | Lo redondeadas que salen las esquinas en todo el panel. |
+
+## Accesibilidad
+<!-- ve: configurations-appearance-accessibility -->
+
+Entra por **«Accesibilidad»**. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en el menú de su
+nombre (ver «Tu cuenta», «Tamaño de letra y modo de color»).
+
+![Accesibilidad](img/configurations-appearance-accessibility.webp)
+
+Al final, **«Cancelar»** o **«Guardar»**.
+
+| Campo | Obligatorio | Para qué |
+| --- | --- | --- |
+| Tamaño de letra por omisión | No | **«Normal»**, **«Grande»** o **«Más grande»**. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de Colores. |
+| Modo de color por omisión | No | **«Claro»**, **«Oscuro»** o **«Sistema»** (el que tenga el dispositivo de cada persona). |
+
+!!! note "Por ahora"
+    Quien ya eligió su tamaño de letra o su modo de color en su menú sigue con lo suyo aunque cambies esto, y todavía
+    no tiene un botón para volver a lo del sitio.
 
 ## Identidad y SEO
 <!-- ve: configurations-appearance-seo -->

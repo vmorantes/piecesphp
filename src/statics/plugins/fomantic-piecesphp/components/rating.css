@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Rating
+ * # Fomantic-UI 0.11.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -58,12 +58,12 @@
 /* Active Icon */
 .ui.rating .active.icon {
   background: transparent;
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Partially Active Icon */
 .ui.rating .icon.partial.active {
-  background: linear-gradient(to right, var(--accent-1, var(--accent, #356dca)) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
+  background: linear-gradient(to right, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
 }
 
 /* central override for colors */
@@ -79,7 +79,7 @@
 .ui.rating .icon.selected.active,
 .ui.rating .icon.selected.partial.active {
   background: transparent;
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
   background-clip: unset;
 }
 
@@ -89,97 +89,97 @@
 
 /* Fork: black en oscuro, relleno con su indicador casi blanco (el gris claro se perdía en la superficie) */
 .ui.primary.rating .active.icon {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
-  text-shadow: 0 -1px 0 var(--accent-1, var(--accent, #356dca)), -1px 0 0 var(--accent-1, var(--accent, #356dca)), 0 1px 0 var(--accent-1, var(--accent, #356dca)), 1px 0 0 var(--accent-1, var(--accent, #356dca));
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
+  text-shadow: 0 -1px 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), -1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), 0 1px 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), 1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.primary.rating .icon.selected,
 .ui.primary.rating .icon.selected.active,
 .ui.primary.rating .icon.selected.partial.active {
   background: inherit;
-  color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
   -webkit-text-stroke: unset;
   background-clip: unset;
 }
 .ui.primary.rating .icon.partial.active {
-  background: linear-gradient(to right, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
-  -webkit-text-stroke: var(--accent-1, var(--accent, #356dca)) 0.78px;
+  background: linear-gradient(to right, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
+  -webkit-text-stroke: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 0.78px;
 }
 
 /* Fork: black en oscuro, relleno con su indicador casi blanco (el gris claro se perdía en la superficie) */
 .ui.secondary.rating .active.icon {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
-  text-shadow: 0 -1px 0 var(--accent-2, #7a5af8), -1px 0 0 var(--accent-2, #7a5af8), 0 1px 0 var(--accent-2, #7a5af8), 1px 0 0 var(--accent-2, #7a5af8);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
+  text-shadow: 0 -1px 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), -1px 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), 0 1px 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), 1px 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.secondary.rating .icon.selected,
 .ui.secondary.rating .icon.selected.active,
 .ui.secondary.rating .icon.selected.partial.active {
   background: inherit;
-  color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
   -webkit-text-stroke: unset;
   background-clip: unset;
 }
 .ui.secondary.rating .icon.partial.active {
-  background: linear-gradient(to right, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
-  -webkit-text-stroke: var(--accent-2, #7a5af8) 0.78px;
+  background: linear-gradient(to right, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
+  -webkit-text-stroke: var(--accent-2-fill, var(--accent-2, #7a5af8)) 0.78px;
 }
 
 /* Fork: black en oscuro, relleno con su indicador casi blanco (el gris claro se perdía en la superficie) */
 .ui.accent-1.rating .active.icon {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white);
-  text-shadow: 0 -1px 0 var(--accent-1, var(--accent, #356dca)), -1px 0 0 var(--accent-1, var(--accent, #356dca)), 0 1px 0 var(--accent-1, var(--accent, #356dca)), 1px 0 0 var(--accent-1, var(--accent, #356dca));
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white);
+  text-shadow: 0 -1px 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), -1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), 0 1px 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))), 1px 0 0 var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 .ui.accent-1.rating .icon.selected,
 .ui.accent-1.rating .icon.selected.active,
 .ui.accent-1.rating .icon.selected.partial.active {
   background: inherit;
-  color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: color-mix(in oklab, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 90%, black);
+  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 88%, black);
   -webkit-text-stroke: unset;
   background-clip: unset;
 }
 .ui.accent-1.rating .icon.partial.active {
-  background: linear-gradient(to right, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
-  -webkit-text-stroke: var(--accent-1, var(--accent, #356dca)) 0.78px;
+  background: linear-gradient(to right, color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
+  -webkit-text-stroke: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 0.78px;
 }
 
 /* Fork: black en oscuro, relleno con su indicador casi blanco (el gris claro se perdía en la superficie) */
 .ui.accent-2.rating .active.icon {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white);
-  text-shadow: 0 -1px 0 var(--accent-2, #7a5af8), -1px 0 0 var(--accent-2, #7a5af8), 0 1px 0 var(--accent-2, #7a5af8), 1px 0 0 var(--accent-2, #7a5af8);
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white);
+  text-shadow: 0 -1px 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), -1px 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), 0 1px 0 var(--accent-2-fill, var(--accent-2, #7a5af8)), 1px 0 0 var(--accent-2-fill, var(--accent-2, #7a5af8));
 }
 .ui.accent-2.rating .icon.selected,
 .ui.accent-2.rating .icon.selected.active,
 .ui.accent-2.rating .icon.selected.partial.active {
   background: inherit;
-  color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: color-mix(in oklab, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 90%, black);
+  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 88%, black);
   -webkit-text-stroke: unset;
   background-clip: unset;
 }
 .ui.accent-2.rating .icon.partial.active {
-  background: linear-gradient(to right, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
-  -webkit-text-stroke: var(--accent-2, #7a5af8) 0.78px;
+  background: linear-gradient(to right, color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
+  -webkit-text-stroke: var(--accent-2-fill, var(--accent-2, #7a5af8)) 0.78px;
 }
 
 /* Fork: black en oscuro, relleno con su indicador casi blanco (el gris claro se perdía en la superficie) */
 .ui.accent-3.rating .active.icon {
-  color: color-mix(in oklab, var(--accent-3, #c11574) 72%, white);
-  text-shadow: 0 -1px 0 var(--accent-3, #c11574), -1px 0 0 var(--accent-3, #c11574), 0 1px 0 var(--accent-3, #c11574), 1px 0 0 var(--accent-3, #c11574);
+  color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white);
+  text-shadow: 0 -1px 0 var(--accent-3-fill, var(--accent-3, #c11574)), -1px 0 0 var(--accent-3-fill, var(--accent-3, #c11574)), 0 1px 0 var(--accent-3-fill, var(--accent-3, #c11574)), 1px 0 0 var(--accent-3-fill, var(--accent-3, #c11574));
 }
 .ui.accent-3.rating .icon.selected,
 .ui.accent-3.rating .icon.selected.active,
 .ui.accent-3.rating .icon.selected.partial.active {
   background: inherit;
-  color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
-  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-3, #c11574) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-3, #c11574) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-3, #c11574) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  color: color-mix(in oklab, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 90%, black);
+  text-shadow: 0 -1px 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black), -1px 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black), 0 1px 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black), 1px 0 0 color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 88%, black);
   -webkit-text-stroke: unset;
   background-clip: unset;
 }
 .ui.accent-3.rating .icon.partial.active {
-  background: linear-gradient(to right, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
-  -webkit-text-stroke: var(--accent-3, #c11574) 0.78px;
+  background: linear-gradient(to right, color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) 0% var(--full), light-dark(#cfd5de, #3a4150) var(--full) 100%);
+  -webkit-text-stroke: var(--accent-3-fill, var(--accent-3, #c11574)) 0.78px;
 }
 
 /* Fork: black en oscuro, relleno con su indicador casi blanco (el gris claro se perdía en la superficie) */

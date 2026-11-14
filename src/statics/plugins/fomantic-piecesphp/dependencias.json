@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "e1bc25ba",
+  "commit": "fb28cefd",
   "fuenteSinCambios": true,
-  "generado": "2026-11-12T01:11:43.621Z",
+  "generado": "2026-11-12T16:17:43.359Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -4707,10 +4707,10 @@
             "font-family": 51,
             "-webkit-font-smoothing": 51,
             "box-sizing": 46,
-            "border-block-start-color": 26,
-            "border-inline-start-color": 26,
-            "border-left-color": 26,
-            "border-top-color": 26
+            "perspective-origin": 35,
+            "transform-origin": 35,
+            "inline-size": 34,
+            "width": 34
           },
           "muestras": [
             "div.ui.shell en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
@@ -4719,14 +4719,14 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 42,
+          "piezas": 48,
           "propiedades": {
             "font-size": 37,
             "line-height": 37,
-            "perspective-origin": 22,
-            "transform-origin": 22,
-            "inline-size": 21,
-            "width": 21,
+            "inline-size": 36,
+            "width": 36,
+            "perspective-origin": 35,
+            "transform-origin": 35,
             "block-size": 19,
             "height": 19,
             "column-gap": 13,
@@ -4735,9 +4735,9 @@
             "padding-inline-start": 11
           },
           "muestras": [
+            "nav.navigation en div.ui.shell: inline-size 256px → 292.562px",
             "div.brand en nav.navigation: column-gap 12px → 13.7143px",
-            "span.name en div.brand: block-size 24px → 54.8438px",
-            "button.toggle en nav.navigation: font-size 12px → 13.7143px"
+            "span.name en div.brand: block-size 24px → 27.4219px"
           ]
         },
         "sueltoBaseUiMismoRem": {

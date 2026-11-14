@@ -244,6 +244,12 @@ class SettingsController extends AdminPanelController
     const THEME_RADII = [0, 4, 6, 8, 12];
     const THEME_RADIUS_FACTORY = 8;
     /**
+     * Lo que ve quien no ha elegido lo suyo en el menú de su nombre (Apariencia › Accesibilidad): un nivel de
+     * AdminPanelController::TEXT_SIZES y un modo de AdminPanelController::THEME_MODES.
+     */
+    const ACCESSIBILITY_TEXT_SIZE_CONFIG = 'accessibility_text_size';
+    const ACCESSIBILITY_THEME_MODE_CONFIG = 'accessibility_theme_mode';
+    /**
      * La configuración SMTP, cifrada, y las de osTicket.
      */
     const MAIL_CONFIG = 'mail';
@@ -2583,6 +2589,7 @@ class SettingsController extends AdminPanelController
                 $own('appearance-brand-images', __($langGroup, 'Imágenes de marca'), 'image'),
                 $own('appearance-backgrounds', __($langGroup, 'Fondos del inicio de sesión'), 'images'),
                 $own('appearance-colors', __($langGroup, 'Colores'), 'fill drip'),
+                $own('appearance-accessibility', __($langGroup, 'Accesibilidad'), 'universal access'),
             ]],
             __($langGroup, 'SEO y Scripts') => ['globe', [
                 $own('appearance-seo', __($langGroup, 'Identidad y SEO'), 'cog'),
@@ -2799,6 +2806,106 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * La pantalla Accesibilidad: el tamaño de letra y el modo de color de quien no ha elegido los suyos.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function accessibilityView(Request $req, Response $res)
+    {
+        $langGroup = self::LANG_GROUP;
+        set_title(__($langGroup, 'Accesibilidad'));
+
+        set_custom_assets([
+            SettingsRoutes::staticRoute('js/accessibility.js'),
+        ], 'js');
+
+        $data = $this->sectionHeader(__($langGroup, 'Accesibilidad'), __($langGroup, 'Cómo se ve el panel para quien no elige lo suyo en el menú de su nombre.')) + [
+            'langGroup' => $langGroup,
+            'actionURL' => self::routeName('appearance-accessibility-save'),
+            'textSize' => self::accessibilityTextSize(),
+            'themeMode' => self::accessibilityThemeMode(),
+        ];
+
+        $this->render('panel/layout/header');
+        $this->settingsViews->render('panel/pages/app_configurations/accessibility', $data);
+        $this->render('panel/layout/footer');
+
+        return $res;
+    }
+
+    /**
+     * Guarda la pantalla Accesibilidad de una vez: un valor fuera de su lista no cambia ninguna de las dos opciones.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function saveAccessibilityAction(Request $req, Response $res)
+    {
+        $langGroup = self::LANG_GROUP;
+        $inList = fn (array $allowed): callable => fn ($value): bool => is_string($value) && in_array($value, $allowed, true);
+
+        $expectedParameters = new Parameters([
+            new Parameter(self::ACCESSIBILITY_TEXT_SIZE_CONFIG, null, $inList(AdminPanelController::TEXT_SIZES)),
+            new Parameter(self::ACCESSIBILITY_THEME_MODE_CONFIG, null, $inList(AdminPanelController::THEME_MODES)),
+        ]);
+
+        $inputData = $req->getParsedBody();
+        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+        $resultOperation = new ResultOperations([], __($langGroup, 'Accesibilidad'));
+        $resultOperation->setSingleOperation(true);
+        $resultOperation->setSuccessOnSingleOperation(false);
+        $pdo = null;
+
+        try {
+
+            $expectedParameters->validate();
+
+            $options = [
+                self::ACCESSIBILITY_TEXT_SIZE_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_TEXT_SIZE_CONFIG),
+                self::ACCESSIBILITY_THEME_MODE_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_THEME_MODE_CONFIG),
+            ];
+
+            //Las dos juntas: una que falle no deja la otra cambiada.
+            $pdo = SettingsModel::model()->getDatabase();
+            //Null solo sin conexión, que el arranque ya exige: aquí sería un fallo de verdad, y el catch lo registra.
+            if ($pdo === null) {
+                throw new \Exception('Sin conexión a la base de datos al guardar la accesibilidad.');
+            }
+            $pdo->beginTransaction();
+            $success = true;
+            foreach ($options as $name => $value) {
+                $success = $success && SettingsModel::setConfigValue($name, $value);
+            }
+            if ($success) {
+                $pdo->commit();
+                $resultOperation->setMessage(__($langGroup, 'Datos guardados.'));
+                $resultOperation->setSuccessOnSingleOperation(true);
+            } else {
+                $pdo->rollBack();
+                $resultOperation->setMessage(__($langGroup, 'Ha ocurrido un error desconocido, intente más tarde.'));
+            }
+
+        } catch (MissingRequiredParameterException|InvalidParameterValueException|ParsedValueException $e) {
+
+            $resultOperation->setMessage($e->getMessage());
+
+        } catch (\Exception $e) {
+
+            if ($pdo !== null && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage(log_exception($e)));
+
+        }
+
+        return $res->withJson($resultOperation);
+    }
+
+    /**
      * Los tokens del contrato del tema que escribe la instalación, sin los dos guiones: nombre de la variable => valor.
      * Lo que no se aparta de lo de fábrica no se publica, y manda el tema; un valor guardado que no vale cae a fábrica,
      * nunca se publica crudo.
@@ -2825,7 +2932,7 @@ class SettingsController extends AdminPanelController
         }
         $fontSize = self::themeFontSize();
         if ($fontSize !== self::THEME_FONT_SIZE_FACTORY) {
-            $tokens['font-size-base'] = "{$fontSize}px";
+            $tokens['font-size-site'] = "{$fontSize}px";
         }
         $radius = self::themeRadius();
         if ($radius !== self::THEME_RADIUS_FACTORY) {
@@ -2872,6 +2979,24 @@ class SettingsController extends AdminPanelController
     public static function themeRadius(): int
     {
         return self::configFromList('theme_radius', self::THEME_RADII, self::THEME_RADIUS_FACTORY);
+    }
+
+    /**
+     * @return string El tamaño de letra del sitio, de AdminPanelController::TEXT_SIZES; si lo guardado no vale, normal
+     */
+    public static function accessibilityTextSize(): string
+    {
+        $size = get_config(self::ACCESSIBILITY_TEXT_SIZE_CONFIG);
+        return is_string($size) && in_array($size, AdminPanelController::TEXT_SIZES, true) ? $size : AdminPanelController::TEXT_SIZE_NORMAL;
+    }
+
+    /**
+     * @return string El modo de color del sitio, de AdminPanelController::THEME_MODES; si lo guardado no vale, auto
+     */
+    public static function accessibilityThemeMode(): string
+    {
+        $mode = get_config(self::ACCESSIBILITY_THEME_MODE_CONFIG);
+        return is_string($mode) && in_array($mode, AdminPanelController::THEME_MODES, true) ? $mode : AdminPanelController::THEME_MODE_AUTO;
     }
 
     /**
@@ -3316,6 +3441,16 @@ class SettingsController extends AdminPanelController
                 null,
                 self::ROLES_VIEW_CONFIGURATIONS_VIEW
             ),
+            //Accesibilidad
+            new Route(
+                "{$startRoute}appearance/accessibility[/]",
+                $classname . ':accessibilityView',
+                self::$baseRouteName . '-' . 'appearance-accessibility',
+                'GET',
+                true,
+                null,
+                self::ROLES_VIEW_CONFIGURATIONS_VIEW
+            ),
             //Archivos para buscadores
             new Route(
                 "{$startRoute}appearance/site-files[/]",
@@ -3363,6 +3498,16 @@ class SettingsController extends AdminPanelController
                 "{$startRoute}appearance/colors/save[/]",
                 $classname . ':saveColorsAction',
                 self::$baseRouteName . '-' . 'appearance-colors-save',
+                'POST',
+                true,
+                null,
+                self::ROLES_SAVE_COLORS
+            ),
+            //Guardar la accesibilidad
+            new Route(
+                "{$startRoute}appearance/accessibility/save[/]",
+                $classname . ':saveAccessibilityAction',
+                self::$baseRouteName . '-' . 'appearance-accessibility-save',
                 'POST',
                 true,
                 null,

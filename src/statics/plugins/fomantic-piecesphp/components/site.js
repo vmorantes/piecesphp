@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Site
+ * # Fomantic-UI 0.11.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

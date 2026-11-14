@@ -82,4 +82,5 @@ return [
     "Cuenta" => "Account",
     "Lo que los demás ven de ti en el Directorio y en el mapa." => "What others see about you in the Directory and on the map.",
     "La verificación en dos pasos de tu cuenta y los dispositivos donde has iniciado sesión." => "Two-step verification for your account and the devices where you are signed in.",
+    "Límite de envíos del código alcanzado." => "Code sending limit reached.",
 ];

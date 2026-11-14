@@ -28,6 +28,15 @@ nombra el manual no te aparece, tu tipo de usuario no la tiene.
     En la pantalla de acceso, el enlace de ayuda te deja recuperar la contraseña o el usuario, o avisar de otro
     problema.
 
+## Tamaño de letra y modo de color
+
+Abre el menú de tu nombre, arriba a la derecha:
+
+- **«Modo de color»**: **«Claro»**, **«Oscuro»** o **«Sistema»** (el de tu dispositivo).
+- **«Tamaño de letra»**: **«Normal»**, **«Grande»** o **«Más grande»**.
+
+Se aplica al momento y se guarda en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra el sitio.
+
 ## La ayuda
 
 El icono de interrogación de la barra superior abre el **centro de ayuda**: este manual y, si tu organización lo

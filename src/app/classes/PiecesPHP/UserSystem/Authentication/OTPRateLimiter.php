@@ -50,6 +50,13 @@ class OTPRateLimiter
     const LANG_GROUP = UserSystemFeaturesLang::LANG_GROUP;
 
     /**
+     * Espera mínima y tope por hora del envío del código de un uso, por usuario (nombre o correo).
+     * 45 s es RESEND_SECONDS de UserSystem/Statics/js/login.js: si cambia uno, cambia el otro.
+     */
+    const SEND_MIN_SECONDS_BETWEEN = 45;
+    const SEND_MAX_PER_HOUR = 5;
+
+    /**
      * La configuración, con el valor por defecto donde falte o no sea válido.
      *
      * @return array{maxFailuresPerUser: int, maxFailuresPerIP: int, windowMinutes: int, lockMinutes: int, uniformResponse: bool, oneUseCodeMinutes: int, loginMaxFailuresPerIP: int, loginAccountDistinctIPs: int, loginAccountWindowMinutes: int}
@@ -356,6 +363,75 @@ class OTPRateLimiter
             }
         }
         return count($ips);
+    }
+
+    /**
+     * Si un usuario ya no puede recibir otro código de un uso: el último envío con éxito tiene menos de
+     * SEND_MIN_SECONDS_BETWEEN, o hay SEND_MAX_PER_HOUR en la última hora.
+     *
+     * @param string[] $names Su nombre y su correo: generate-otp acepta los dos, y cada uno sería un contador aparte
+     * @param \DateTimeInterface|null $now Null: la hora de la base, la misma con la que se guardan los intentos
+     * @return bool
+     */
+    public static function sendLimitReached(array $names, ?\DateTimeInterface $now = null): bool
+    {
+        $names = array_values(array_filter($names, fn ($name): bool => is_string($name) && $name !== ''));
+        if ($names === []) {
+            return false;
+        }
+        $database = self::databaseOrFail();
+        $now = $now ?? self::databaseNow($database);
+        $since = date('Y-m-d H:i:s', $now->getTimestamp() - 3600);
+        //Una consulta por nombre, POR MARCADOR: el nombre se escribió sin sesión.
+        $statement = $database->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE success = ? AND date >= ? AND usernameAttempt = ?');
+        $rows = [];
+        foreach (array_unique($names) as $name) {
+            $statement->execute([LoginAttemptsModel::SUCCESS_ATTEMPT, $since, $name]);
+            foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+                $rows[(string) ($row['id'] ?? count($rows))] = $row;
+            }
+        }
+        return self::sendLimitReachedFromRows(array_values($rows), $names, $now);
+    }
+
+    /**
+     * La decisión de sendLimitReached(), sobre filas ya leídas: cuentan los éxitos de VIA_GENERATE_OTP de cualquiera de
+     * los nombres, sin distinguir mayúsculas, de la última hora. Una fila del futuro cuenta como reciente: falla cerrado.
+     *
+     * @param array<mixed> $rows Filas con usernameAttempt, success, date (Y-m-d H:i:s) y, si la columna existe, extraData
+     * @param string[] $names
+     * @param \DateTimeInterface $now
+     * @return bool
+     */
+    public static function sendLimitReachedFromRows(array $rows, array $names, \DateTimeInterface $now): bool
+    {
+        $wanted = array_map(fn ($name): string => mb_strtolower((string) $name), $names);
+        $nowTime = $now->getTimestamp();
+        $times = [];
+        foreach ($rows as $row) {
+            if (!is_array($row) || (int) ($row['success'] ?? LoginAttemptsModel::FAIL_ATTEMPT) !== LoginAttemptsModel::SUCCESS_ATTEMPT) {
+                continue;
+            }
+            if (!in_array(mb_strtolower((string) ($row['usernameAttempt'] ?? '')), $wanted, true)) {
+                continue;
+            }
+            //SIN LA COLUMNA extraData no se sabe la vía: cuenta. Falla cerrado, como countsAsFailure().
+            if (array_key_exists('extraData', $row)) {
+                $extraData = is_string($row['extraData']) ? json_decode($row['extraData'], true) : $row['extraData'];
+                if (!is_array($extraData) || ($extraData[self::EXTRA_DATA_VIA] ?? null) !== self::VIA_GENERATE_OTP) {
+                    continue;
+                }
+            }
+            $time = strtotime((string) ($row['date'] ?? ''));
+            if ($time === false || $time < $nowTime - 3600) {
+                continue;
+            }
+            $times[] = $time;
+        }
+        if ($times === []) {
+            return false;
+        }
+        return $nowTime - max($times) < self::SEND_MIN_SECONDS_BETWEEN || count($times) >= self::SEND_MAX_PER_HOUR;
     }
 
     /**

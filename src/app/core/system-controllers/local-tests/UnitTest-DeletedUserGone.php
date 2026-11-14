@@ -201,6 +201,12 @@ CliActions::make('unit-tests:core/deleted-user-gone', function ($args) {
         $r = $pedir($editarOrganizacion, $jwt['root'], $edicion($borrado));
         $check(($r['json']['success'] ?? false) === true && $encargadoDe($organizacionID) === $borrado, 'a11 se puede poner de encargado (edición de la organización)', mb_substr($r['body'], 0, 200));
         $ponerEncargado($organizacionID, $encargado);
+        //G1-d, el segundo camino: la edición desde la administración tampoco acepta a alguien de otra organización.
+        $r = $pedir($editarOrganizacion, $jwt['root'], $edicion($otro));
+        $check(($r['json']['success'] ?? null) === false && ($r['json']['message'] ?? null) === __(OrganizationsController::LANG_GROUP, 'El usuario seleccionado como encargado no pertenece a esta organización') && $encargadoDe($organizacionID) === $encargado,
+            'a12 DISCRIMINANTE: la edición rechaza un encargado de otra organización, con su mensaje', mb_substr($r['body'], 0, 200));
+        $r = $pedir($editarOrganizacion, $jwt['root'], $edicion($encargado));
+        $check(($r['json']['success'] ?? false) === true && $encargadoDe($organizacionID) === $encargado, 'a13 CANARIO: y acepta uno de la misma', mb_substr($r['body'], 0, 200));
 
         //─── d · Eliminado: deja de existir en la práctica ────────────────────────────────────────
         echoTerminal('');

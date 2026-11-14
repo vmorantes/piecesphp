@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Message
+ * # Fomantic-UI 0.11.0 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -278,7 +278,7 @@
 /* Colors */
 .ui.positive.message {
   background-color: light-dark(#ecfdf3, #0c2a1c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.positive.message,
 .ui.attached.positive.message {
@@ -288,7 +288,7 @@
   box-shadow: 0 0 0 1px light-dark(#abefc6, #1b5e3c) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.positive.message .header {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.inverted.positive.message,
 .ui.inverted.positive.message .header {
@@ -305,7 +305,7 @@
 }
 .ui.negative.message {
   background-color: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.negative.message,
 .ui.attached.negative.message {
@@ -315,7 +315,7 @@
   box-shadow: 0 0 0 1px light-dark(#fecdca, #7a271a) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.negative.message .header {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.inverted.negative.message,
 .ui.inverted.negative.message .header {
@@ -332,7 +332,7 @@
 }
 .ui.error.message {
   background-color: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.error.message,
 .ui.attached.error.message {
@@ -342,7 +342,7 @@
   box-shadow: 0 0 0 1px light-dark(#fecdca, #7a271a) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.error.message .header {
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.inverted.error.message,
 .ui.inverted.error.message .header {
@@ -359,7 +359,7 @@
 }
 .ui.info.message {
   background-color: light-dark(#ecfdff, #0a2a33);
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.info.message,
 .ui.attached.info.message {
@@ -369,7 +369,7 @@
   box-shadow: 0 0 0 1px light-dark(#a5f0fc, #155b75) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.info.message .header {
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.inverted.info.message,
 .ui.inverted.info.message .header {
@@ -386,7 +386,7 @@
 }
 .ui.success.message {
   background-color: light-dark(#ecfdf3, #0c2a1c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.success.message,
 .ui.attached.success.message {
@@ -396,7 +396,7 @@
   box-shadow: 0 0 0 1px light-dark(#abefc6, #1b5e3c) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.success.message .header {
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.inverted.success.message,
 .ui.inverted.success.message .header {
@@ -413,7 +413,7 @@
 }
 .ui.warning.message {
   background-color: light-dark(#fffaeb, #2e2108);
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.warning.message,
 .ui.attached.warning.message {
@@ -423,7 +423,7 @@
   box-shadow: 0 0 0 1px light-dark(#fedf89, #6b4a10) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.warning.message .header {
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.inverted.warning.message,
 .ui.inverted.warning.message .header {
@@ -439,160 +439,160 @@
   box-shadow: 0 0 0 1px oklch(from light-dark(#fedf89, #6b4a10) max(l, 0.7) max(c, 0.1) h) inset;
 }
 .ui.primary.message {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 14%, transparent);
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 14%, transparent);
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.primary.message,
 .ui.attached.primary.message {
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset, 0 0 0 0 transparent;
+  box-shadow: 0 0 0 1px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset, 0 0 0 0 transparent;
 }
 .ui.floating.primary.message {
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.primary.message .header {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 75%, var(--theme-text, black));
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 75%, var(--theme-text, black));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.primary.message,
 .ui.primary.message .header {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
            mensaje claro; ahora el color claro del mapa (D36) */
 .ui.inverted.primary.message .header {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.secondary.message {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 14%, transparent);
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 14%, transparent);
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.secondary.message,
 .ui.attached.secondary.message {
-  box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset, 0 0 0 0 transparent;
+  box-shadow: 0 0 0 1px var(--accent-2-fill, var(--accent-2, #7a5af8)) inset, 0 0 0 0 transparent;
 }
 .ui.floating.secondary.message {
-  box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--accent-2-fill, var(--accent-2, #7a5af8)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.secondary.message .header {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 75%, var(--theme-text, black));
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 75%, var(--theme-text, black));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.secondary.message,
 .ui.secondary.message .header {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
            mensaje claro; ahora el color claro del mapa (D36) */
 .ui.inverted.secondary.message .header {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.accent-1.message {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 14%, transparent);
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  background-color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 14%, transparent);
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.accent-1.message,
 .ui.attached.accent-1.message {
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset, 0 0 0 0 transparent;
+  box-shadow: 0 0 0 1px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset, 0 0 0 0 transparent;
 }
 .ui.floating.accent-1.message {
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.accent-1.message .header {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 75%, var(--theme-text, black));
+  color: color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 75%, var(--theme-text, black));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.accent-1.message,
 .ui.accent-1.message .header {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
            mensaje claro; ahora el color claro del mapa (D36) */
 .ui.inverted.accent-1.message .header {
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.accent-2.message {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 14%, transparent);
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  background-color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 14%, transparent);
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.accent-2.message,
 .ui.attached.accent-2.message {
-  box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset, 0 0 0 0 transparent;
+  box-shadow: 0 0 0 1px var(--accent-2-fill, var(--accent-2, #7a5af8)) inset, 0 0 0 0 transparent;
 }
 .ui.floating.accent-2.message {
-  box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--accent-2-fill, var(--accent-2, #7a5af8)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.accent-2.message .header {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 75%, var(--theme-text, black));
+  color: color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 75%, var(--theme-text, black));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.accent-2.message,
 .ui.accent-2.message .header {
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, 0.42) c h), oklch(from var(--accent-2, #7a5af8) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2-fill, var(--accent-2, #7a5af8)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
            mensaje claro; ahora el color claro del mapa (D36) */
 .ui.inverted.accent-2.message .header {
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-2-fill, var(--accent-2, #7a5af8)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.accent-3.message {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 14%, transparent);
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  background-color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 14%, transparent);
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.accent-3.message,
 .ui.attached.accent-3.message {
-  box-shadow: 0 0 0 1px var(--accent-3, #c11574) inset, 0 0 0 0 transparent;
+  box-shadow: 0 0 0 1px var(--accent-3-fill, var(--accent-3, #c11574)) inset, 0 0 0 0 transparent;
 }
 .ui.floating.accent-3.message {
-  box-shadow: 0 0 0 1px var(--accent-3, #c11574) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--accent-3-fill, var(--accent-3, #c11574)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.accent-3.message .header {
-  color: color-mix(in oklab, var(--accent-3, #c11574) 75%, var(--theme-text, black));
+  color: color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 75%, var(--theme-text, black));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.accent-3.message,
 .ui.accent-3.message .header {
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, 0.42) c h), oklch(from var(--accent-3, #c11574) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3-fill, var(--accent-3, #c11574)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
            mensaje claro; ahora el color claro del mapa (D36) */
 .ui.inverted.accent-3.message .header {
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from color-mix(in oklab, var(--accent-3-fill, var(--accent-3, #c11574)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.red.message {
   background-color: light-dark(#fef3f2, #351513);
-  color: light-dark(#b42318, #fda29b);
+  color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.red.message,
 .ui.attached.red.message {
   box-shadow: 0 0 0 1px light-dark(#fecdca, #7a271a) inset;
 }
 .ui.floating.red.message {
-  box-shadow: 0 0 0 1px light-dark(#b42318, #fda29b) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.red.message .header {
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.red.message,
 .ui.red.message .header {
-  color: light-dark(#c4281c, oklch(from #f04438 max(l, 0.78) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -602,24 +602,24 @@
 }
 .ui.orange.message {
   background-color: color-mix(in oklab, #ef6820 14%, var(--theme-surface));
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.orange.message,
 .ui.attached.orange.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #ef6820 35%, var(--theme-surface)) inset;
 }
 .ui.floating.orange.message {
-  box-shadow: 0 0 0 1px light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.orange.message .header {
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.orange.message,
 .ui.orange.message .header {
-  color: light-dark(#b93d0b, oklch(from #ef6820 max(l, 0.78) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -629,24 +629,24 @@
 }
 .ui.yellow.message {
   background-color: light-dark(#fffaeb, #2e2108);
-  color: light-dark(#b54708, #fdb022);
+  color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.yellow.message,
 .ui.attached.yellow.message {
   box-shadow: 0 0 0 1px light-dark(#fedf89, #6b4a10) inset;
 }
 .ui.floating.yellow.message {
-  box-shadow: 0 0 0 1px light-dark(#b54708, #fdb022) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.yellow.message .header {
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.yellow.message,
 .ui.yellow.message .header {
-  color: light-dark(#8a6400, oklch(from #f79009 max(l, 0.78) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -656,24 +656,24 @@
 }
 .ui.olive.message {
   background-color: color-mix(in oklab, #84a11b 14%, var(--theme-surface));
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.olive.message,
 .ui.attached.olive.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #84a11b 35%, var(--theme-surface)) inset;
 }
 .ui.floating.olive.message {
-  box-shadow: 0 0 0 1px light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.olive.message .header {
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.olive.message,
 .ui.olive.message .header {
-  color: light-dark(oklch(from #84a11b min(l, 0.42) c h), oklch(from #84a11b max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -683,24 +683,24 @@
 }
 .ui.green.message {
   background-color: light-dark(#ecfdf3, #0c2a1c);
-  color: light-dark(#067647, #75e0a7);
+  color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.green.message,
 .ui.attached.green.message {
   box-shadow: 0 0 0 1px light-dark(#abefc6, #1b5e3c) inset;
 }
 .ui.floating.green.message {
-  box-shadow: 0 0 0 1px light-dark(#067647, #75e0a7) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.green.message .header {
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.green.message,
 .ui.green.message .header {
-  color: light-dark(oklch(from #17b26a min(l, 0.42) c h), oklch(from #17b26a max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -710,24 +710,24 @@
 }
 .ui.teal.message {
   background-color: light-dark(#ecfdff, #0a2a33);
-  color: light-dark(#0e7090, #67e3f9);
+  color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 .ui.teal.message,
 .ui.attached.teal.message {
   box-shadow: 0 0 0 1px light-dark(#a5f0fc, #155b75) inset;
 }
 .ui.floating.teal.message {
-  box-shadow: 0 0 0 1px light-dark(#0e7090, #67e3f9) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.teal.message .header {
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.teal.message,
 .ui.teal.message .header {
-  color: light-dark(oklch(from #06aed4 min(l, 0.42) c h), oklch(from #06aed4 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -737,24 +737,24 @@
 }
 .ui.blue.message {
   background-color: color-mix(in oklab, #2e90fa 14%, var(--theme-surface));
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.blue.message,
 .ui.attached.blue.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #2e90fa 35%, var(--theme-surface)) inset;
 }
 .ui.floating.blue.message {
-  box-shadow: 0 0 0 1px light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.blue.message .header {
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.blue.message,
 .ui.blue.message .header {
-  color: light-dark(oklch(from #2e90fa min(l, 0.42) c h), oklch(from #2e90fa max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -764,24 +764,24 @@
 }
 .ui.violet.message {
   background-color: color-mix(in oklab, #7a5af8 14%, var(--theme-surface));
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.violet.message,
 .ui.attached.violet.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #7a5af8 35%, var(--theme-surface)) inset;
 }
 .ui.floating.violet.message {
-  box-shadow: 0 0 0 1px light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.violet.message .header {
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.violet.message,
 .ui.violet.message .header {
-  color: light-dark(oklch(from #7a5af8 min(l, 0.42) c h), oklch(from #7a5af8 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -791,24 +791,24 @@
 }
 .ui.purple.message {
   background-color: color-mix(in oklab, #9e4cc9 14%, var(--theme-surface));
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.purple.message,
 .ui.attached.purple.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #9e4cc9 35%, var(--theme-surface)) inset;
 }
 .ui.floating.purple.message {
-  box-shadow: 0 0 0 1px light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.purple.message .header {
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.purple.message,
 .ui.purple.message .header {
-  color: light-dark(oklch(from #9e4cc9 min(l, 0.42) c h), oklch(from #9e4cc9 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -818,24 +818,24 @@
 }
 .ui.pink.message {
   background-color: color-mix(in oklab, #c11574 14%, var(--theme-surface));
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.pink.message,
 .ui.attached.pink.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #c11574 35%, var(--theme-surface)) inset;
 }
 .ui.floating.pink.message {
-  box-shadow: 0 0 0 1px light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.pink.message .header {
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.pink.message,
 .ui.pink.message .header {
-  color: light-dark(oklch(from #c11574 min(l, 0.42) c h), oklch(from #c11574 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -845,24 +845,24 @@
 }
 .ui.brown.message {
   background-color: color-mix(in oklab, #6e4a2e 14%, var(--theme-surface));
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.brown.message,
 .ui.attached.brown.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #6e4a2e 35%, var(--theme-surface)) inset;
 }
 .ui.floating.brown.message {
-  box-shadow: 0 0 0 1px light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.brown.message .header {
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.brown.message,
 .ui.brown.message .header {
-  color: light-dark(oklch(from #6e4a2e min(l, 0.42) c h), oklch(from #6e4a2e max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -872,24 +872,24 @@
 }
 .ui.grey.message {
   background-color: color-mix(in oklab, #687181 14%, var(--theme-surface));
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.grey.message,
 .ui.attached.grey.message {
   box-shadow: 0 0 0 1px color-mix(in oklab, #687181 35%, var(--theme-surface)) inset;
 }
 .ui.floating.grey.message {
-  box-shadow: 0 0 0 1px light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h)) inset, var(--shadow-md, 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.grey.message .header {
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: con la capa común, texto y cabecera con la tinta del mapa (`ink`), que sigue al
            modo; los `@<color>TextColor` fijos de un tema no la anulan (D35/D36). */
 .ui.grey.message,
 .ui.grey.message .header {
-  color: light-dark(oklch(from #687181 min(l, 0.42) c h), oklch(from #687181 max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en inverted (fondo oscuro) la cabecera de color usaba el color oscuro del
@@ -958,7 +958,7 @@
 /* Texto del mensaje neutro en --text-2 (los de estado y color pisan este color con más
    especificidad) */
 .ui.message {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }
 
 /* Cabecera con el interlineado del cuerpo; la del mensaje con ícono (dentro de .content) en peso

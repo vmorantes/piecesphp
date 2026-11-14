@@ -250,6 +250,9 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $marco = $marco[0] ?? '';
         $check($marco !== '' && str_contains($marco, 'sandbox=""') && !str_contains($marco, 'allow-scripts'), 'c1 la aprobación pinta el contenido en un iframe sandbox sin allow-scripts', "HTTP {$aprobacion['status']}, iframe " . var_export($marco !== '', true));
         $check(str_contains($marco, $escapar($contenido)) && !str_contains($aprobacion['body'], '<script>zzScript()'), 'c2 y dentro de srcdoc va escapado: el script no entra en la página', "HTTP {$aprobacion['status']}");
+        //G3-h: la política va al principio del srcdoc, antes del contenido, y solo deja imágenes del sitio y data:.
+        $politica = $escapar('<meta http-equiv="Content-Security-Policy" content="img-src \'self\' data:">');
+        $check(str_starts_with((string) (preg_match('#srcdoc="([^"]*)"#', $marco, $srcdoc) === 1 ? $srcdoc[1] : ''), $politica), 'c2b el srcdoc empieza por la política de imágenes (solo del sitio y data:)', mb_substr($marco, 0, 200));
         $edicion = $pedir($camino(\Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $idPublicacion], true)), $jwtRoot, null, false, false);
         //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
         preg_match('#<textarea name="content"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);

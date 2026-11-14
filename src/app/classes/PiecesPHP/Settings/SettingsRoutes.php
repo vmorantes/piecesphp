@@ -104,6 +104,9 @@ class SettingsRoutes
         $declare(SettingsController::COLOR_OPTIONS, $owner, ConfigOptions::SHAPE_COLOR);
         $declare(['theme_font'], $owner, ConfigOptions::SHAPE_TEXT);
         $declare(['theme_font_size', 'theme_radius'], $owner, ConfigOptions::SHAPE_INTEGER);
+
+        //Accesibilidad: lo que ve quien no ha elegido lo suyo.
+        $declare([SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG], $owner, ConfigOptions::SHAPE_TEXT);
     }
 
     /**

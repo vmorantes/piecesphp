@@ -1,12 +1,12 @@
 ---
 titulo: Appearance settings
-rutas: [configurations-appearance-brand-images, configurations-appearance-backgrounds, configurations-appearance-colors, configurations-appearance-seo, configurations-appearance-site-files]
+rutas: [configurations-appearance-brand-images, configurations-appearance-backgrounds, configurations-appearance-colors, configurations-appearance-accessibility, configurations-appearance-seo, configurations-appearance-site-files]
 ---
 
 # Appearance settings
 
 Here you customize how the platform looks and how it is presented. To get there, use the gear button in the top bar, **“System settings”**. Brand
-images, Login backgrounds and Colors are in the **“Appearance”** group; Identity and SEO and
+images, Login backgrounds, Colors and Accessibility are in the **“Appearance”** group; Identity and SEO and
 Files for search engines are in **“SEO and scripts”**.
 
 ## Brand images
@@ -69,6 +69,25 @@ the accent and the palette will look in the panel. At the end, **“Cancel”** 
 | Font | No | The panel's typeface. |
 | Base size | No | The base size of the text. |
 | Radius | No | How rounded the corners are across the whole panel. |
+
+## Accessibility
+<!-- ve: configurations-appearance-accessibility -->
+
+Go to **“Accessibility”**. Here you choose how the panel looks for anyone who has not chosen their own in the menu
+under their name (see “Your account”, “Text size and color mode”).
+
+![Accessibility](img/configurations-appearance-accessibility.webp)
+
+At the end, **“Cancel”** or **“Save”**.
+
+| Field | Required | Purpose |
+| --- | --- | --- |
+| Default text size | No | **“Normal”**, **“Large”** or **“Larger”**. Large and Larger add 2 and 4 pixels to the “Base size” in Colors. |
+| Default color mode | No | **“Light”**, **“Dark”** or **“System”** (whatever each person's device uses). |
+
+!!! note "For now"
+    Anyone who has already chosen their text size or color mode in their menu keeps their choice even if you change
+    this, and does not yet have a button to go back to the site's setting.
 
 ## Identity and SEO
 <!-- ve: configurations-appearance-seo -->

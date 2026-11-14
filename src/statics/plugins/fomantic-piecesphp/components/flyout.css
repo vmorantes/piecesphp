@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Flyout
+ * # Fomantic-UI 0.11.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -687,7 +687,7 @@ body.pushable > .pusher {
   background: var(--accent-50);
   border-radius: var(--r-md, 8px);
   box-shadow: 0 0 0 1px var(--accent-100) inset;
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Banda fija sobre el contenido desplazable (colocación en la definición, Fork; el buscador del

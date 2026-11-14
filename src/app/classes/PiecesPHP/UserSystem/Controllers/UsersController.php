@@ -1412,8 +1412,13 @@ class UsersController extends AdminPanelController
         ];
         if ($currentUser !== null) {
             $mapper = $currentUser->getMapper();
+            $statusBefore = (int) $mapper->status;
             $mapper->status = UsersModel::STATUS_USER_DELETED;
             $result['success'] = $mapper->update();
+            if ($result['success']) {
+                //RETORNO-IGNORADO: la baja ya está hecha; cerrar sus sesiones no cambia la respuesta.
+                UsersModel::closeSessionsIfInactivated((int) $mapper->id, $statusBefore, UsersModel::STATUS_USER_DELETED);
+            }
         }
         return $response->withJSON($result);
     }
@@ -2136,6 +2141,7 @@ class UsersController extends AdminPanelController
                     if ($second_lastname !== null) {
                         $userMapper->secondLastname = $second_lastname;
                     }
+                    $statusBefore = (int) $userMapper->status;
                     if ($status !== null) {
                         $userMapper->status = $status;
                     }
@@ -2151,6 +2157,9 @@ class UsersController extends AdminPanelController
                     $success = $userMapper->update();
 
                     if ($success) {
+
+                        //RETORNO-IGNORADO: cerrar sus sesiones no cambia la respuesta de la edición.
+                        UsersModel::closeSessionsIfInactivated((int) $userMapper->id, $statusBefore, (int) $userMapper->status);
 
                         if ($change_password) {
                             //RETORNO-IGNORADO: cuántas se cerraron no cambia la respuesta de la edición.

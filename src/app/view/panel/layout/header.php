@@ -1,11 +1,13 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); ?>
 <?php
-//El modo de color del usuario, en <html> antes de pintar nada: sin parpadeo. Sin elegir, el del sistema (auto).
+//El modo de color y el tamaño de letra del usuario, en <html> antes de pintar nada: sin parpadeo. Sin elegir, o sin
+//sesión, los del sitio (Apariencia › Accesibilidad). El tema traduce data-text-size a partir de --font-size-site.
 $themeUser = getLoggedFrameworkUser();
-$themeMode = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::themeModeOf((int) $themeUser->id) : \PiecesPHP\AdminPanel\Controllers\AdminPanelController::THEME_MODE_AUTO;
+$themeMode = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::themeModeOf((int) $themeUser->id) : \PiecesPHP\Settings\Controllers\SettingsController::accessibilityThemeMode();
+$textSize = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::textSizeOf((int) $themeUser->id) : \PiecesPHP\Settings\Controllers\SettingsController::accessibilityTextSize();
 ?>
 <!DOCTYPE html>
-<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>"<?= ' data-theme="' . escape_html($themeMode) . '"'; ?>>
+<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>"<?= ' data-theme="' . escape_html($themeMode) . '" data-text-size="' . escape_html($textSize) . '"'; ?>>
 
 <head>
     <meta charset="UTF-8">

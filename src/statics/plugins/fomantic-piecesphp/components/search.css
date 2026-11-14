@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Search
+ * # Fomantic-UI 0.11.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -168,7 +168,7 @@
 }
 .ui.search > .results .result.active .icon.image {
   border-color: var(--accent-200);
-  color: var(--accent-1, var(--accent, #356dca));
+  color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
 }
 
 /* Fork: pie de los resultados (ajuste `footer` del JS), p. ej. atajos de teclado. Los elementos van en línea; `.right`
@@ -232,7 +232,7 @@
        Focus
 --------------------- */
 .ui.search > .prompt:focus {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   background: var(--theme-surface);
   color: var(--theme-text);
 }
@@ -611,7 +611,7 @@
    cuando el prompt va dentro de un ui input */
 .ui.search > .prompt:focus,
 .ui.search > .ui.input > .prompt:focus {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1-fill, var(--accent-1, var(--accent, #356dca)));
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
@@ -641,5 +641,5 @@
 
 /* Descripción del resultado activo: sobre el tinte del acento, text-3 no llega a 4,5:1 */
 .ui.search > .results .result.active .description {
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
 }

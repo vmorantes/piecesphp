@@ -61,6 +61,8 @@ $config['data_color_5'] = "";
 $config['theme_font'] = "inter";
 $config['theme_font_size'] = 14;
 $config['theme_radius'] = 8;
+$config['accessibility_text_size'] = 'normal';
+$config['accessibility_theme_mode'] = 'auto';
 
 //Varios
 $config['osTicketAPI'] = "";

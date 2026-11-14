@@ -75,7 +75,8 @@ $escape = fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | 
             <div class="ui tiny header base-title"><?= __($langGroup, 'Descripción'); ?></div>
             <?php //HTML del editor, que NADA limpia al guardar: se lee aislado, en un iframe sandbox SIN allow-scripts (pendientes.md 396). ?>
             <?php //Es la vista previa de lo público: fondo blanco también en oscuro, pero con la letra del panel y su color de texto, que un srcdoc no hereda. ?>
-            <?php $previewStyle = '<style>body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2430;}</style>'; ?>
+            <?php //Solo imágenes del sitio y data:: una de fuera serviría de baliza (quién aprueba y cuándo). Va antes del contenido, que no puede relajarla. ?>
+            <?php $previewStyle = '<meta http-equiv="Content-Security-Policy" content="img-src \'self\' data:">' . '<style>body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2430;}</style>'; ?>
             <iframe class="base-text ui segment approval-content-preview" sandbox="" referrerpolicy="no-referrer" title="<?= $escape(__($langGroup, 'Descripción')); ?>" srcdoc="<?= $escape($previewStyle . (string) $mapper->currentLangData('content')); ?>"></iframe>
 
             <div class="ui hidden divider base-horizontal-space"></div>

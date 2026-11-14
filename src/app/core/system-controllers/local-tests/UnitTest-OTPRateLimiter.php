@@ -61,7 +61,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     };
 
     //──── 1. La configuración ──────────────────────────────────────────────────────────────────
-    echoTerminal('[1/5] config(): la de config.php, con las cinco vías que cuentan');
+    echoTerminal('[1/6] config(): la de config.php, con las cinco vías que cuentan');
 
     $check(OTPRateLimiter::config() === $config, 'otp_security de config.php: 5 por usuario, 20 por IP, 15 de ventana, 15 de bloqueo, uniforme, 20 del código y las tres del login (core/login-ip-throttle)',
         json_encode(OTPRateLimiter::config(), JSON_THROW_ON_ERROR));
@@ -69,7 +69,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 2. Por usuario ───────────────────────────────────────────────────────────────────────
-    echoTerminal('[2/5] Por usuario: el tope dentro de la ventana, y el bloqueo cuenta desde el fallo que lo completa');
+    echoTerminal('[2/6] Por usuario: el tope dentro de la ventana, y el bloqueo cuenta desde el fallo que lo completa');
 
     $check($segundos($fallos([4, 3, 2, 1])) === 0, 'debajo del tope: 4 fallos, sin bloqueo');
     $check($segundos($fallos([4, 3, 2, 1, 0])) === 900, 'DISCRIMINANTE: en el tope, 5 fallos, bloquea 15 minutos desde el quinto');
@@ -82,7 +82,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 3. Por IP ────────────────────────────────────────────────────────────────────────────
-    echoTerminal('[3/5] Por IP: muchos usuarios distintos desde la misma IP');
+    echoTerminal('[3/6] Por IP: muchos usuarios distintos desde la misma IP');
 
     $desdeLaIP = static function (int $cuantos) use ($fila): array {
         $filas = [];
@@ -97,7 +97,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 4. Qué filas cuentan ─────────────────────────────────────────────────────────────────
-    echoTerminal('[4/5] Qué filas cuentan: fallos de las vías del OTP, y las bloqueadas no alargan el bloqueo');
+    echoTerminal('[4/6] Qué filas cuentan: fallos de las vías del OTP, y las bloqueadas no alargan el bloqueo');
 
     $exitos = array_map(fn (int $m): array => $fila('ana', '10.0.0.1', $m, ['otpVia' => OTPRateLimiter::VIA_CHECK_TOTP], 1), [4, 3, 2, 1, 0]);
     $check($segundos($exitos) === 0, 'los intentos correctos no cuentan');
@@ -119,7 +119,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal(' ');
 
     //──── 5. La IP como grupo ────────────────────────────────────────────────────────────────────
-    echoTerminal('[5/5] La IP se compara por grupo: una IPv6 por su /64; una IPv4, tal cual');
+    echoTerminal('[5/6] La IP se compara por grupo: una IPv6 por su /64; una IPv4, tal cual');
 
     $grupos = [
         '203.0.113.7' => '203.0.113.7',
@@ -158,6 +158,43 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $vecinas = ['10.0.0.1', '10.0.0.2', '10.0.0.3', '10.0.0.4', '10.0.0.5'];
     $check($frenoLogin($loginDesde($vecinas), '10.0.0.1') === 0 && $frenoLogin($loginDesde(array_fill(0, 5, '10.0.0.1')), '10.0.0.1') > 0 && $distintas($loginDesde(array_slice($vecinas, 0, 3))) === 3,
         'i5 CANARIO: IPv4 como antes: cinco vecinas no se agrupan, la misma cinco veces frena, y tres son tres');
+    echoTerminal(' ');
+
+    //──── 6. El envío del código de un uso ──────────────────────────────────────────────────────
+    echoTerminal('[6/6] El envío del código: una espera mínima de 45 s y un tope de 5 por hora, por nombre o correo');
+
+    $nombres = ['ana', 'ana@ejemplo.com'];
+    $envio = static function (string $usuario, int $segundosAtras, array $extra = ['otpVia' => OTPRateLimiter::VIA_GENERATE_OTP], int $exito = 1) use ($ahora): array {
+        return [
+            'usernameAttempt' => $usuario,
+            'ip' => '10.0.0.1',
+            'success' => $exito,
+            'date' => (clone $ahora)->modify("-{$segundosAtras} seconds")->format('Y-m-d H:i:s'),
+            'extraData' => json_encode($extra),
+        ];
+    };
+    $limite = static fn (array $filas, array $de = ['ana', 'ana@ejemplo.com']): bool => OTPRateLimiter::sendLimitReachedFromRows($filas, $de, $ahora);
+    $hora = [60, 600, 1200, 1800, 2400];
+
+    $loginJS = (string) @file_get_contents(basepath('app/classes/PiecesPHP/UserSystem/Statics/js/login.js'));
+    $boton = preg_match('/\bRESEND_SECONDS\s*=\s*(\d+)/', $loginJS, $m) === 1 ? (int) $m[1] : -1;
+    $check(OTPRateLimiter::SEND_MIN_SECONDS_BETWEEN === $boton && OTPRateLimiter::SEND_MAX_PER_HOUR === 5, 'u0 la espera del servidor es la del botón (RESEND_SECONDS de login.js) y el tope, 5 por hora', "servidor " . OTPRateLimiter::SEND_MIN_SECONDS_BETWEEN . " s, botón {$boton} s");
+    $check(!$limite([]), 'u1 sin envíos previos, no hay límite');
+    $check($limite([$envio('ana', 10)]), 'u2 DISCRIMINANTE: un envío con éxito hace 10 s, límite');
+    $check(!$limite([$envio('ana', 50)]), 'u3 uno hace 50 s, no');
+    $check($limite(array_map(fn (int $s): array => $envio('ana', $s), $hora)), 'u4 DISCRIMINANTE: cinco en la última hora, límite (aunque el último tenga más de 45 s)');
+    $check(!$limite(array_map(fn (int $s): array => $envio('ana', $s), array_slice($hora, 0, 4))), 'u4 CANARIO: cuatro, no');
+    $check(!$limite(array_map(fn (int $s): array => $envio('ana', $s + 3600), $hora)), 'u5 cinco de hace más de una hora, no');
+    $fallos6 = array_map(fn (int $s): array => $envio('ana', $s, ['otpVia' => OTPRateLimiter::VIA_GENERATE_OTP], 0), [10, 60, 600, 1200, 1800]);
+    $otraVia = array_map(fn (int $s): array => $envio('ana', $s, ['otpVia' => OTPRateLimiter::VIA_CHECK_TOTP]), [10, 60, 600, 1200, 1800]);
+    $otroUsuario = array_map(fn (int $s): array => $envio('beto', $s), [10, 60, 600, 1200, 1800]);
+    $check(!$limite($fallos6) && !$limite($otraVia) && !$limite($otroUsuario) && !$limite(array_merge($fallos6, $otraVia, $otroUsuario)),
+        'u6 los fallos, otra vía y otro usuario no cuentan (ni sueltos ni juntos)');
+    $alterna = array_merge([$envio('ana', 600), $envio('ana', 1200)], [$envio('ana@ejemplo.com', 1800), $envio('ana@ejemplo.com', 2400), $envio('ANA@ejemplo.com', 3000)]);
+    $check($limite($alterna), 'u9 DISCRIMINANTE: alternar nombre y correo (y mayúsculas) comparte un solo contador: 2 por nombre + 3 por correo, límite');
+    $check(!$limite($alterna, ['ana']) && !$limite($alterna, ['ana@ejemplo.com']), 'u9 CANARIO: contados por separado serían 2 y 3, sin límite: el agujero que cierra contar los dos');
+    $check($limite([$envio('Ana', 5)], ['ana']), 'u9 sin distinguir mayúsculas: «Ana» cuenta para «ana»');
+    $check($limite([$envio('ana', -30)]), 'u10 un envío con fecha del futuro cuenta como reciente: falla cerrado');
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────────────

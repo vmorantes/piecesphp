@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.10.1 - Site
+ * # Fomantic-UI 0.11.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -114,11 +114,11 @@ p:last-child {
         Links
 -------------------- */
 a {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 a:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, 0.42) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.78) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 
@@ -263,7 +263,10 @@ html {
   --accent-3: #c11574;
   --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-heading: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-size-base: 14px;
+  
+/* Base del sitio (D95): el proyecto la cambia aquí; --font-size-base sale de ella y data-text-size le suma */
+  --font-size-site: 14px;
+  --font-size-base: var(--font-size-site);
 }
 
 /* Tintes del acento y serie de datos: las vistas los usan como variables, y sin definir un `fill` cae a
@@ -326,7 +329,7 @@ select[size]:not([size="1"]) optgroup {
    oscura: el inverted de algunos temas es un gris medio (el cristal de glass-ios, 3,5:1 con 0,78). */
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
+  color: oklch(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) max(l, 0.86) c h);
 }
 
 /* `small` en rem: anidado o dentro de un texto pequeño bajaba hasta 9–10px */
@@ -343,6 +346,954 @@ mark {
   padding: 0 1px;
 }
 
+
+/*******************************
+    Accesibilidad (D95)
+*******************************/
+
+
+/* Capacidades que el host activa con atributos en <html> y que sirven con cualquier tema. `auto` sigue al
+   sistema; sin atributo, el tema tal cual (lo decide el implementador, como data-theme, D25). Los nombres siguen
+   la propuesta enviada a PiecesPHP, pendientes de su confirmación. */
+
+/* Tamaño de texto, relativo a la base del sitio (--font-size-site, la que elige el proyecto): `large` suma 2px y
+   `larger` 4px. Fomantic dimensiona en rem, así que todo escala con --font-size-base. `normal` o sin atributo, la base
+   tal cual */
+:root[data-text-size="large"] {
+  --font-size-base: calc(var(--font-size-site) + 2px);
+}
+:root[data-text-size="larger"] {
+  --font-size-base: calc(var(--font-size-site) + 4px);
+}
+
+/* Contraste reforzado: el texto secundario y los bordes salen del texto del modo, no de grises propios del tema,
+   para que el apagado llegue a AAA (7:1) y los bordes a 3:1 sobre la superficie */
+:root[data-contrast="more"] {
+  --theme-text-muted: color-mix(in srgb, var(--theme-text) 88%, transparent);
+  --theme-border: color-mix(in srgb, var(--theme-text) 55%, transparent);
+  
+/* Tinta de color (enlaces, texto de los colores con nombre, etiquetas basic): L 0,42 da unos 7:1 sobre blanco,
+       pero no sobre un tinte; 0,34 y 0,86 llegan a 7:1 también sobre los fondos teñidos */
+  --ink-light-max: 0.34;
+  --ink-dark-min: 0.86;
+  
+/* Rellenos de marca (D95, decisión de PiecesPHP: leer manda sobre la fidelidad al color): el acento que elija el
+       sitio, con luminosidad OKLCH ≤ 0,42 y croma ≤ 0,13 (sin el tope de croma, un verde saturado cae fuera de sRGB y el recorte lo aclara a 6,5:1), da al menos 7:1 con texto blanco: medido de 7,35 (#00c2a8) a 8,99 (#ff0000) con acentos claros y saturados.
+       Un acento ya más oscuro no cambia. Tono y croma se conservan */
+  --accent-1-fill: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-2-fill: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-3-fill: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-solid: var(--accent-1-fill);
+  --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 62%, #000), color-mix(in oklab, var(--accent-1) 40%, #fff));
+  --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 52%, #000), color-mix(in oklab, var(--accent-1) 32%, #fff));
+  --accent-text: light-dark(color-mix(in oklab, var(--accent-1) 52%, #000), color-mix(in oklab, var(--accent-1) 32%, #fff));
+}
+@media (prefers-contrast: more) {
+  :root[data-contrast="auto"] {
+    --theme-text-muted: color-mix(in srgb, var(--theme-text) 88%, transparent);
+    --theme-border: color-mix(in srgb, var(--theme-text) 55%, transparent);
+    
+/* Tinta de color (enlaces, texto de los colores con nombre, etiquetas basic): L 0,42 da unos 7:1 sobre blanco,
+       pero no sobre un tinte; 0,34 y 0,86 llegan a 7:1 también sobre los fondos teñidos */
+    --ink-light-max: 0.34;
+    --ink-dark-min: 0.86;
+    
+/* Rellenos de marca (D95, decisión de PiecesPHP: leer manda sobre la fidelidad al color): el acento que elija el
+       sitio, con luminosidad OKLCH ≤ 0,42 y croma ≤ 0,13 (sin el tope de croma, un verde saturado cae fuera de sRGB y el recorte lo aclara a 6,5:1), da al menos 7:1 con texto blanco: medido de 7,35 (#00c2a8) a 8,99 (#ff0000) con acentos claros y saturados.
+       Un acento ya más oscuro no cambia. Tono y croma se conservan */
+    --accent-1-fill: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+    --accent-2-fill: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+    --accent-3-fill: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+    --accent-solid: var(--accent-1-fill);
+    --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 62%, #000), color-mix(in oklab, var(--accent-1) 40%, #fff));
+    --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 52%, #000), color-mix(in oklab, var(--accent-1) 32%, #fff));
+    --accent-text: light-dark(color-mix(in oklab, var(--accent-1) 52%, #000), color-mix(in oklab, var(--accent-1) 32%, #fff));
+  }
+}
+
+/* Movimiento reducido: ninguna animación ni transición, desplazamiento sin suavizado */
+:root[data-motion="reduce"],
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-motion="auto"],
+  :root[data-motion="auto"] *,
+  :root[data-motion="auto"] *::before,
+  :root[data-motion="auto"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Foco reforzado: anillo grueso y desplazado, en el texto del modo (contraste propio en claro y oscuro) y con un
+   halo de la superficie para separarlo de cualquier relleno de color */
+:root[data-focus="strong"] :focus-visible {
+  outline: 3px solid var(--theme-text) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px var(--theme-surface) !important;
+}
+
+/* Colores forzados (alto contraste de Windows): el sistema quita fondos y sombras; los controles que solo se
+   distinguían por el relleno recuperan su borde y el foco se ve siempre */
+@media (forced-colors: active) {
+  .ui.button,
+  .ui.label,
+  .ui.checkbox label::before,
+  .ui.toggle.checkbox label::before,
+  .ui.progress,
+  .ui.menu .active.item,
+  .ui.selection.dropdown {
+    border: 1px solid ButtonText;
+  }
+  .ui.progress .bar {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+  .ui.checkbox input:checked ~ label::after {
+    color: Highlight;
+  }
+  :focus-visible {
+    outline: 2px solid Highlight !important;
+    outline-offset: 2px;
+  }
+}
+
+/* Rellenos de los colores con nombre con contraste reforzado (D95): como los de los acentos, luminosidad OKLCH ≤ 0,42 y
+   croma ≤ 0,13 con texto blanco (≥ 7:1 medido con cualquier tono). En reglas aparte y no en @red… del mapa: los derivados
+   de Fomantic (hover, down, active con darken() e iscolor()) dejarían de funcionar en todos los temas. Hover y activo
+   se distinguen con un velo oscuro encima del relleno (uno claro bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.red.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.red.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.red.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.red.table,
+:root[data-contrast="more"] .ui.inverted.table tr.red,
+:root[data-contrast="more"] .ui.inverted.table tr > .red,
+:root[data-contrast="more"] .ui.inverted.table thead.red th,
+:root[data-contrast="more"] .ui.inverted.red.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.red.card,
+:root[data-contrast="more"] .ui.inverted.red.cards > .card {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.red.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.red.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.red.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.red.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.red.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.red.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.red.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.red.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.orange.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.orange.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.orange.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.orange.table,
+:root[data-contrast="more"] .ui.inverted.table tr.orange,
+:root[data-contrast="more"] .ui.inverted.table tr > .orange,
+:root[data-contrast="more"] .ui.inverted.table thead.orange th,
+:root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.orange.card,
+:root[data-contrast="more"] .ui.inverted.orange.cards > .card {
+  background-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.orange.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.orange.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.orange.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #ef6820 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.orange.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.orange.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.orange.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.orange.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.orange.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.yellow.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.yellow.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.yellow.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.yellow.table,
+:root[data-contrast="more"] .ui.inverted.table tr.yellow,
+:root[data-contrast="more"] .ui.inverted.table tr > .yellow,
+:root[data-contrast="more"] .ui.inverted.table thead.yellow th,
+:root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.yellow.card,
+:root[data-contrast="more"] .ui.inverted.yellow.cards > .card {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.yellow.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.yellow.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.yellow.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.yellow.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.yellow.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.yellow.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.yellow.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.yellow.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.olive.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.olive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.olive.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.olive.table,
+:root[data-contrast="more"] .ui.inverted.table tr.olive,
+:root[data-contrast="more"] .ui.inverted.table tr > .olive,
+:root[data-contrast="more"] .ui.inverted.table thead.olive th,
+:root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.olive.card,
+:root[data-contrast="more"] .ui.inverted.olive.cards > .card {
+  background-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.olive.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.olive.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.olive.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #84a11b min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.olive.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.olive.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.olive.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.olive.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.olive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.green.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.green.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.green.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.green.table,
+:root[data-contrast="more"] .ui.inverted.table tr.green,
+:root[data-contrast="more"] .ui.inverted.table tr > .green,
+:root[data-contrast="more"] .ui.inverted.table thead.green th,
+:root[data-contrast="more"] .ui.inverted.green.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.green.card,
+:root[data-contrast="more"] .ui.inverted.green.cards > .card {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.green.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.green.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.green.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.green.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.green.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.green.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.green.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.green.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.teal.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.teal.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.teal.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.teal.table,
+:root[data-contrast="more"] .ui.inverted.table tr.teal,
+:root[data-contrast="more"] .ui.inverted.table tr > .teal,
+:root[data-contrast="more"] .ui.inverted.table thead.teal th,
+:root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.teal.card,
+:root[data-contrast="more"] .ui.inverted.teal.cards > .card {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.teal.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.teal.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.teal.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.teal.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.teal.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.teal.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.teal.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.teal.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.blue.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.blue.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.blue.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.blue.table,
+:root[data-contrast="more"] .ui.inverted.table tr.blue,
+:root[data-contrast="more"] .ui.inverted.table tr > .blue,
+:root[data-contrast="more"] .ui.inverted.table thead.blue th,
+:root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.blue.card,
+:root[data-contrast="more"] .ui.inverted.blue.cards > .card {
+  background-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.blue.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.blue.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.blue.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #2e90fa min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.blue.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.blue.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.blue.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.blue.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.blue.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.violet.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.violet.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.violet.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.violet.table,
+:root[data-contrast="more"] .ui.inverted.table tr.violet,
+:root[data-contrast="more"] .ui.inverted.table tr > .violet,
+:root[data-contrast="more"] .ui.inverted.table thead.violet th,
+:root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.violet.card,
+:root[data-contrast="more"] .ui.inverted.violet.cards > .card {
+  background-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.violet.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.violet.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.violet.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #7a5af8 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.violet.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.violet.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.violet.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.violet.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.violet.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.purple.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.purple.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.purple.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.purple.table,
+:root[data-contrast="more"] .ui.inverted.table tr.purple,
+:root[data-contrast="more"] .ui.inverted.table tr > .purple,
+:root[data-contrast="more"] .ui.inverted.table thead.purple th,
+:root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.purple.card,
+:root[data-contrast="more"] .ui.inverted.purple.cards > .card {
+  background-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.purple.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.purple.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.purple.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #9e4cc9 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.purple.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.purple.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.purple.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.purple.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.purple.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.pink.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.pink.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.pink.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.pink.table,
+:root[data-contrast="more"] .ui.inverted.table tr.pink,
+:root[data-contrast="more"] .ui.inverted.table tr > .pink,
+:root[data-contrast="more"] .ui.inverted.table thead.pink th,
+:root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.pink.card,
+:root[data-contrast="more"] .ui.inverted.pink.cards > .card {
+  background-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.pink.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.pink.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.pink.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #c11574 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.pink.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.pink.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.pink.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.pink.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.pink.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.brown.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.brown.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.brown.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.brown.table,
+:root[data-contrast="more"] .ui.inverted.table tr.brown,
+:root[data-contrast="more"] .ui.inverted.table tr > .brown,
+:root[data-contrast="more"] .ui.inverted.table thead.brown th,
+:root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.brown.card,
+:root[data-contrast="more"] .ui.inverted.brown.cards > .card {
+  background-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.brown.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.brown.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.brown.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #6e4a2e min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.brown.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.brown.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.brown.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.brown.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.brown.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.grey.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.grey.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.grey.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.grey.table,
+:root[data-contrast="more"] .ui.inverted.table tr.grey,
+:root[data-contrast="more"] .ui.inverted.table tr > .grey,
+:root[data-contrast="more"] .ui.inverted.table thead.grey th,
+:root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.grey.card,
+:root[data-contrast="more"] .ui.inverted.grey.cards > .card {
+  background-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.grey.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.grey.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.grey.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #687181 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.grey.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.grey.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.grey.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.grey.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.grey.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.black.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.black.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.black.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.black.table,
+:root[data-contrast="more"] .ui.inverted.table tr.black,
+:root[data-contrast="more"] .ui.inverted.table tr > .black,
+:root[data-contrast="more"] .ui.inverted.table thead.black th,
+:root[data-contrast="more"] .ui.inverted.black.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.black.card,
+:root[data-contrast="more"] .ui.inverted.black.cards > .card {
+  background-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.black.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.black.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.black.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #1f2430 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.black.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.black.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.black.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.black.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.black.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
+/* Estados (positive, negative…): su color sale de @<estado>Color */
+:root[data-contrast="more"] .ui.positive.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.positive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.positive.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.positive.table,
+:root[data-contrast="more"] .ui.inverted.table tr.positive,
+:root[data-contrast="more"] .ui.inverted.table tr > .positive,
+:root[data-contrast="more"] .ui.inverted.table thead.positive th,
+:root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.positive.card,
+:root[data-contrast="more"] .ui.inverted.positive.cards > .card {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.positive.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.positive.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.positive.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.positive.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.positive.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.positive.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.positive.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.positive.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.negative.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.negative.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.negative.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.negative.table,
+:root[data-contrast="more"] .ui.inverted.table tr.negative,
+:root[data-contrast="more"] .ui.inverted.table tr > .negative,
+:root[data-contrast="more"] .ui.inverted.table thead.negative th,
+:root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.negative.card,
+:root[data-contrast="more"] .ui.inverted.negative.cards > .card {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.negative.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.negative.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.negative.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.negative.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.negative.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.negative.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.negative.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.negative.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.success.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.success.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.success.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.success.table,
+:root[data-contrast="more"] .ui.inverted.table tr.success,
+:root[data-contrast="more"] .ui.inverted.table tr > .success,
+:root[data-contrast="more"] .ui.inverted.table thead.success th,
+:root[data-contrast="more"] .ui.inverted.success.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.success.card,
+:root[data-contrast="more"] .ui.inverted.success.cards > .card {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.success.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.success.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.success.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #17b26a min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.success.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.success.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.success.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.success.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.success.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.error.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.error.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.error.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.error.table,
+:root[data-contrast="more"] .ui.inverted.table tr.error,
+:root[data-contrast="more"] .ui.inverted.table tr > .error,
+:root[data-contrast="more"] .ui.inverted.table thead.error th,
+:root[data-contrast="more"] .ui.inverted.error.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.error.card,
+:root[data-contrast="more"] .ui.inverted.error.cards > .card {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.error.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.error.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.error.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #f04438 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.error.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.error.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.error.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.error.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.error.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.warning.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.warning.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.warning.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.warning.table,
+:root[data-contrast="more"] .ui.inverted.table tr.warning,
+:root[data-contrast="more"] .ui.inverted.table tr > .warning,
+:root[data-contrast="more"] .ui.inverted.table thead.warning th,
+:root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.warning.card,
+:root[data-contrast="more"] .ui.inverted.warning.cards > .card {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.warning.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.warning.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.warning.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #f79009 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.warning.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.warning.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.warning.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.warning.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.warning.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+:root[data-contrast="more"] .ui.info.button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.info.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted),
+:root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.info.labels:not(.basic):not(.inverted) .label:not(.basic):not(.inverted),
+:root[data-contrast="more"] .ui.inverted.info.table,
+:root[data-contrast="more"] .ui.inverted.table tr.info,
+:root[data-contrast="more"] .ui.inverted.table tr > .info,
+:root[data-contrast="more"] .ui.inverted.table thead.info th,
+:root[data-contrast="more"] .ui.inverted.info.segment:not(.basic),
+:root[data-contrast="more"] .ui.inverted.info.card,
+:root[data-contrast="more"] .ui.inverted.info.cards > .card {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  color: #fff !important;
+}
+
+/* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
+:root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted):not(.corner),
+:root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted)::before {
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.info.label:not(.basic):not(.inverted)::before {
+  background-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+:root[data-contrast="more"] .ui.info.corner.label:not(.basic):not(.inverted) {
+  background-color: transparent !important;
+  border-color: oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+}
+
+/* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
+:root[data-contrast="more"] .ui.inverted.info.striped.table > tbody > tr:nth-child(2n) {
+  background-color: color-mix(in oklab, oklch(from #06aed4 min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+}
+
+/* Las celdas, encabezados y textos de dentro traen su propio color */
+:root[data-contrast="more"] .ui.inverted.info.table :is(th, td),
+:root[data-contrast="more"] .ui.inverted.info.segment:not(.basic) .ui.header,
+:root[data-contrast="more"] .ui.inverted.info.card :is(.header, .meta, .description) {
+  color: #fff !important;
+}
+:root[data-contrast="more"] .ui.info.button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active),
+:root[data-contrast="more"] .ui.info.buttons:not(.basic):not(.tertiary):not(.inverted) .button:not(.basic):not(.tertiary):not(.inverted):is(:hover, :focus-visible, .active, :active) {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)) !important;
+}
+
 /* Tokens del diseño publicados como variables CSS (tokens.md §1, §2, §5, §10). En html y no en
    :root, como los acentos de la capa común: si el host entrega los tonos precalculados en
    :root { --accent-25: … }, ganan los suyos (README del diseño, contrato de entrada).
@@ -350,7 +1301,7 @@ mark {
    superficie oscura (inferido). */
 html {
   --accent-solid: var(--accent-1);
-  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  --accent-contrast: var(--accent-1-text, color(from var(--accent-1-fill, var(--accent-1, var(--accent, #356dca))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
   --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
   --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));
@@ -460,7 +1411,7 @@ code {
   border: 1px solid var(--theme-border);
   border-radius: 5px;
   background: light-dark(#f5f7fa, #20242d);
-  color: light-dark(#4b5363, #cfd5de);
+  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
   overflow-wrap: break-word;
   -webkit-box-decoration-break: clone;
           box-decoration-break: clone;
