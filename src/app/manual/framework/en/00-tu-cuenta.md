@@ -28,12 +28,12 @@ the manual does not appear for you, your user type does not have it.
 
 ## Text size and color mode
 
-Open the menu under your name, at the top right:
+- **Color mode**: open the menu under your name, at the top right, and choose under **“Color mode”**: **“Light”**,
+  **“Dark”** or **“System”** (your device's).
+- **Text size**: in that same menu, **“Preferences”** takes you to the **“Preferences”** tab of **“My account”**.
+  Under **“Text size”**, choose **“Normal”**, **“Large”** or **“Larger”**.
 
-- **“Color mode”**: **“Light”**, **“Dark”** or **“System”** (your device's).
-- **“Text size”**: **“Normal”**, **“Large”** or **“Larger”**.
-
-It applies at once and is saved in your account. Until you choose, you see whatever the site's administrator chose.
+Both apply at once and are saved in your account. Until you choose, you see whatever the site's administrator chose.
 
 ## Help
 

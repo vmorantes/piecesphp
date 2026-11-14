@@ -102,7 +102,7 @@ Cómo está montado, por si lo tocas:
 - la organización global (`OrganizationMapper::INITIAL_ID_GLOBAL`, `-10`) **no es el comodín de «no hay organización»**:
   solo es el valor por defecto de los tipos de usuario que no requieren organización.
 
-La documentación para quien consume la API, con los parámetros exactos y el ejemplo, está en la documentación de la API (`source-docs/api/docs/modules/Usuarios.md`), que se publica aparte.
+La documentación para quien consume la API, con los parámetros exactos y el ejemplo, está en la documentación de la API, que se publica aparte: su fuente es `source-docs/api/openapi.json` (OpenAPI 3.1, que también se puede importar en Postman o Insomnia) y la página de usuarios, `source-docs/api/docs/usuarios.md`, se genera desde ella con `bin/api-docs`.
 
 ### Consumir el framework sin el panel (headless)
 

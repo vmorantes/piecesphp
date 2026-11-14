@@ -34,6 +34,7 @@ CliActions::make('unit-tests:core/fomantic-components', function ($args) {
         'invalid' => 'app/cache/zz-prueba-fomantic-map-invalido.json',
         'format' => 'app/cache/zz-prueba-fomantic-map-formato.json',
         'traversal' => 'app/cache/zz-prueba-fomantic-map-ruta.json',
+        'nocargar' => 'app/cache/zz-prueba-fomantic-map-sin-cargar.json',
     ];
     //Cada caso parte de una página sin assets ni librerías importadas, y mide lo que añade.
     $empty = function (): void {
@@ -105,10 +106,11 @@ CliActions::make('unit-tests:core/fomantic-components', function ($args) {
             file_put_contents(basepath($brokenFiles['invalid']), '{"formato": 1, "componentes": '),
             file_put_contents(basepath($brokenFiles['format']), $mapOf(2, ['toast'])),
             file_put_contents(basepath($brokenFiles['traversal']), $mapOf(1, ['toast', '../../x'])),
+            file_put_contents(basepath($brokenFiles['nocargar']), json_encode(['formato' => 1, 'base' => ['css' => ['reset', 'site'], 'suelta' => []], 'componentes' => ['toast' => ['depende' => []]]]) ?: ''),
         ];
         //Sin las copias, f1b-f1d caerían en el caso «falta» y pasarían sin probar lo suyo.
         $check(!in_array(false, $written, true), 'f0 las copias rotas del mapa se escribieron en app/cache/', json_encode($written) ?: '');
-        foreach (['f1a falta' => 'app/cache/zz-prueba-fomantic-map-no-existe.json', 'f1b no es JSON' => $brokenFiles['invalid'], 'f1c formato 2' => $brokenFiles['format'], 'f1d el mapa nombra ../../x' => $brokenFiles['traversal']] as $case => $path) {
+        foreach (['f1a falta' => 'app/cache/zz-prueba-fomantic-map-no-existe.json', 'f1b no es JSON' => $brokenFiles['invalid'], 'f1c formato 2' => $brokenFiles['format'], 'f1d el mapa nombra ../../x' => $brokenFiles['traversal'], 'f1e DISCRIMINANTE: el mapa tiene toast sin su cargar (mapa roto, no «no es un componente»)' => $brokenFiles['nocargar']] as $case => $path) {
             $empty();
             set_config('fomantic_components_map', $path);
             $message = '';

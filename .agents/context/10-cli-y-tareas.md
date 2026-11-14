@@ -45,7 +45,7 @@ Implementadas en `src/app/classes/Terminal/Tasks/`:
 | `scheme-drop` | `SchemeDropTask` | `module=<Nombre>\|all`, `output=` | **Emite** el `DROP TABLE`, ordenado hijas → padres. No ejecuta |
 | `snapshot` | `SnapshotTask` | `label=`, `compare=a,b`, `dir=` | Foto de la base y del árbol de `src/`, y su diff. La usa `bin/walk-attribute` ruta a ruta |
 | `verify-integrity` | `VerifyIntegrityTask` | `update-snapshot`, `list-narrative` | Veintinueve comprobaciones estructurales sobre el repositorio (`21-pruebas-y-puertas.md`) |
-| `gates` | `GatesTask` | `only=<trozo>`, `with=external` | Corre todas las suites de `local-tests/`; falla si alguna no imprimió balance |
+| `gates` | `GatesTask` | `only=<trozo>`, `with=external`, `changed-since=<commit>`, `areas changed-since=<commit>` (solo imprime el reparto), `leftovers=rebase motivo="…"`, `help` | Corre todas las suites de `local-tests/` (o las del área tocada, ADR 0062); falla si alguna no imprimió balance. `help` imprime la ayuda y no corre nada |
 | `route-inventory` | `RouteInventoryTask` | `output=` | Rutas registradas en JSON. Solo lectura |
 | `cronjobs-status` | `CronjobsStatusTask` | — | Estado de cada cronjob. Solo lectura |
 | `scan-invalid-utf8` | `ScanInvalidUtf8Task` | `table`, `limit` | UTF-8 inválido en columnas de texto. Solo lectura |

@@ -123,7 +123,7 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <h2 class="title" id="accessibility"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accessibility-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accessibility</span></h2>
 <div class="content" id="accessibility-contenido">
 <p>Go to <strong>“Accessibility”</strong>. Here you choose how the panel looks for anyone who has not chosen their own in the menu
-under their name (see “Your account”, “Text size and color mode”).</p>
+under their name or in “My account” › “Preferences” (see “Your account”, “Text size and color mode”).</p>
 <p><img class="ui image" alt="Accessibility" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
 <p>At the end, <strong>“Cancel”</strong> or <strong>“Save”</strong>.</p>
 <table class="ui celled table">

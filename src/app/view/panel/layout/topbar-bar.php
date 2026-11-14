@@ -6,6 +6,7 @@ use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use SystemApprovals\SystemApprovalsRoutes;
@@ -13,7 +14,6 @@ use SystemApprovals\SystemApprovalsRoutes;
 require __DIR__ . '/topbar-data.php';
 $fullName = $currentUser->firstname . ' ' . $currentUser->firstLastname;
 $themeMode = AdminPanelController::themeModeOf((int) $currentUser->id);
-$textSize = AdminPanelController::textSizeOf((int) $currentUser->id);
 //El mismo criterio que el acceso (activado y confirmado), del TOTPData que el usuario ya trae cargado: sin consulta nueva.
 $twoFactorData = $currentUser->TOTPData;
 $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === OTPSecretsUsersMapper::TWOAF_STATUS_ENABLED && (int) $twoFactorData->twoAuthFactorQRViewed === 1;
@@ -63,6 +63,10 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
         <div class="divider"></div>
         <a class="item" href="#" edit-account><i class="user icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar Cuenta'); ?></a>
         <a class="item" href="#" change-password><i class="key icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar contraseña'); ?></a>
+        <?php //El tamaño de letra salió del menú a la pestaña «Preferencias» del perfil (H252): el menú se abarrotaba. ?>
+        <?php if (UsersController::allowedRoute('form-profile')): ?>
+        <a class="item" href="<?= escape_html(UsersController::profileTabURL(UsersController::PROFILE_PREFERENCES_TAB)); ?>"><i class="sliders horizontal icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Preferencias'); ?></a>
+        <?php endif; ?>
         <?php //El nombre del enlace con el estado AL FINAL: la descripción va antes en el DOM y se leería «Activa Seguridad…». ?>
         <a class="item" href="<?= MySpaceController::routeName('user-security'); ?>" aria-label="<?= escape_html($twoFactorActive ? __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad. Verificación en dos pasos: activa') : __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad. Verificación en dos pasos: inactiva')); ?>"><span class="description"><?= $twoFactorActive ? StatusLabel::html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Activa'), StatusLabel::POSITIVE) : StatusLabel::neutral(__(AdminPanelController::ADMIN_LANG_GROUP, 'Inactiva')); ?></span><i class="shield alternate icon" aria-hidden="true"></i><span class="ui inline vertical left aligned fitted flex"><span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad'); ?></span><small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Verificación en dos pasos'); ?></small></span></a>
         <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::ENABLE): ?>
@@ -86,13 +90,6 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
             <div class="ui fluid three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Modo de color')); ?>" theme-mode-selector data-url="<?= escape_html(AdminPanelController::routeName('theme-mode')); ?>">
                 <?php foreach (['light' => ['Claro', 'sun'], 'dark' => ['Oscuro', 'moon'], 'auto' => ['Sistema', 'adjust']] as $themeOption => [$themeOptionName, $themeOptionIcon]) : ?>
                 <button type="button" class="ui button<?= $themeMode === $themeOption ? ' active' : ''; ?>" role="radio" aria-checked="<?= $themeMode === $themeOption ? 'true' : 'false'; ?>" tabindex="<?= $themeMode === $themeOption ? '0' : '-1'; ?>" data-theme-mode="<?= $themeOption; ?>"><i class="<?= $themeOptionIcon; ?> icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, $themeOptionName); ?></button>
-                <?php endforeach; ?>
-            </div>
-            <?php //El tamaño de letra, con la misma forma; lo guarda pcsAdminTopbars() y lo aplica en <html>. ?>
-            <small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra'); ?></small>
-            <div class="ui fluid three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra')); ?>" text-size-selector data-url="<?= escape_html(AdminPanelController::routeName('text-size')); ?>">
-                <?php foreach (['normal' => 'Normal', 'large' => 'Grande', 'larger' => 'Más grande'] as $textSizeOption => $textSizeOptionName) : ?>
-                <button type="button" class="ui button<?= $textSize === $textSizeOption ? ' active' : ''; ?>" role="radio" aria-checked="<?= $textSize === $textSizeOption ? 'true' : 'false'; ?>" tabindex="<?= $textSize === $textSizeOption ? '0' : '-1'; ?>" data-text-size="<?= $textSizeOption; ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, $textSizeOptionName); ?></button>
                 <?php endforeach; ?>
             </div>
         </div>

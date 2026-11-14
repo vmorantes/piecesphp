@@ -16,7 +16,9 @@
 #   SOBRESCRITURA      también la declara el CSS de un tercero (Fomantic, plugins): la pisamos, y su HTML lo genera la
 #                      biblioteca. NUNCA es candidata, aparezca o no en nuestro código;
 #   NO VERIFICABLE     empieza por un prefijo que algún sitio completa concatenando ('btn-' + x, "icon-{$x}"): desde el
-#                      texto no se puede saber si se usa.
+#                      texto no se puede saber si se usa;
+#   GENERADA POR TERCEROS  sin uso en lo nuestro, pero es token del JS de un tercero (src/statics/plugins/: CKEditor pone
+#                      ck-editor o image-style-align-*): no es candidata (H169). Solo nombres con - o _.
 #
 # Lo que NO hace, y se dice para que una cifra no engañe (LEY 15):
 #   - no borra nada, y no prueba que algo se pueda borrar: eso lo prueba comparar el CSS compilado antes y después;
@@ -430,6 +432,12 @@ def main():
             for name in classes_of(selector):
                 third.setdefault(name, set()).add(path)
 
+    #El JS de terceros: una clase que solo aparece ahí la pinta la biblioteca (H169).
+    third_js_files = sorted(p for p in git_files(THIRD_PARTY_DIR) if p.endswith('.js'))
+    third_js_tokens = set()
+    for path in third_js_files:
+        third_js_tokens.update(re.findall(f'[{TOKEN_CHARS}]+', open(path, encoding='utf-8', errors='replace').read()))
+
     #Uso.
     files = usage_files()
     tokens = set()
@@ -495,6 +503,9 @@ def main():
         hits = [p for p in prefixes if name.startswith(p)]
         if hits:
             return 'NO VERIFICABLE'
+        #Solo nombres compuestos: una palabra suelta («upper») sale en cualquier JS y taparía una candidata de verdad.
+        if re.search('[-_]', name) and name in third_js_tokens:
+            return 'GENERADA POR TERCEROS'
         return 'SIN USO LITERAL'
 
     #Canario (LEY 16): una clase usada a sabiendas sale viva, y una inventada no.
@@ -569,7 +580,7 @@ def main():
                               'dead_rules': rules_here, 'unused_classes': names, 'lines_strict_list': lines,
                               'lines_never_match_list': lines_dead}
 
-    counts = {b: sum(1 for v in buckets.values() if v == b) for b in ['VIVA', 'SIN USO LITERAL', 'SOBRESCRITURA', 'NO VERIFICABLE']}
+    counts = {b: sum(1 for v in buckets.values() if v == b) for b in ['VIVA', 'SIN USO LITERAL', 'SOBRESCRITURA', 'NO VERIFICABLE', 'GENERADA POR TERCEROS']}
     substring_too = sorted(n for n in candidates if any(n in text for text in texts.values()))
 
     #Salida legible.
@@ -577,7 +588,7 @@ def main():
     print(f'hojas .scss versionadas: {len(scss_all)} ({len(roots)} raíces, {len(scss_all) - len(roots)} parciales); fuentes vistas en los mapas: {len(sources_seen)}')
     not_seen = sorted(set(scss_all) - sources_seen)
     print(f'.scss que no aparece en ningún mapa: {len(not_seen)}' + (': ' + ', '.join(not_seen) if not_seen else ''))
-    print(f'.css propios leídos: {len(sheets)} · .css de terceros leídos: {len(third_files)} (en {THIRD_PARTY_DIR})')
+    print(f'.css propios leídos: {len(sheets)} · .css de terceros leídos: {len(third_files)} · .js de terceros leídos: {len(third_js_files)} (en {THIRD_PARTY_DIR})')
     print(f'archivos de uso: {len(files)} — src/app (.php .js .ts .html .json, sin logs/ ni .min.js), src/index.php, '
           'y src/statics (.js .ts, sin plugins/, vendor/, node_modules ni .min.js)')
     print('excluido del uso: los .scss y .css, src/vendor/, src/statics/plugins/, node_modules, *.min.js, src/app/logs/')
@@ -616,7 +627,7 @@ def main():
     result = {
         '_doc': 'Censo del SCSS por selectores compilados (bin/censo-scss --help). Clases distintas, uso por token literal. Candidata no es muerta: la poda la prueba la comparación del CSS compilado.',
         'universe': {
-            'scss': len(scss_all), 'scss_roots': len(roots), 'css_own': len(sheets), 'css_third_party': len(third_files),
+            'scss': len(scss_all), 'scss_roots': len(roots), 'css_own': len(sheets), 'css_third_party': len(third_files), 'js_third_party': len(third_js_files),
             'usage_files': len(files), 'scss_not_in_any_map': not_seen,
         },
         'canary': {'live': CANARY_LIVE, 'invented': CANARY_INVENTED},

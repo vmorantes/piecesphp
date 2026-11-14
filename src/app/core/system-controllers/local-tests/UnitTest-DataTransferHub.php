@@ -113,7 +113,7 @@ CliActions::make('unit-tests:core/data-transfer-hub', function ($args) {
         $html = $pintar();
         $check(str_contains($html, 'Carga datos desde una hoja de cálculo, o descarga los del sistema con los filtros que elijas.') && !str_contains($html, 'Elige qué quieres importar.'), 'a1 subtítulo exacto');
         $check(str_contains($html, 'class="ui secondary pointing menu tabs-controls content-tabs"') && str_contains($html, 'data-tab="importar"') && str_contains($html, 'data-tab="exportar"') && substr_count($html, 'class="ui tab tab-element') === 2, 'a2 pestañas Importar y Exportar con la pieza del panel (las del tema, con tabs-controls de gancho)');
-        $check(str_contains($html, 'Descarga la plantilla, llénala y súbela. Puedes validarla antes de guardar.') && str_contains($html, 'Elige los filtros y el formato, y descarga el archivo.'), 'a3 la línea de cada pestaña');
+        $check(str_contains($html, 'Descarga la plantilla, llénala y súbela. Puedes validarla antes de guardar.') && str_contains($html, 'Elige qué exportar y en qué formato, y descarga el archivo.'), 'a3 la línea de cada pestaña');
         $check(str_contains($html, 'data-transfer-row="import-users"') && str_contains($html, 'data-transfer-row="export-users"') && str_contains($html, htmlspecialchars((new UsersImportDefinition())->description(), ENT_QUOTES)), 'a4 una fila por entidad, con su descripción');
         $filaUsers = DataTransferController::importerHubRow('users', new UsersImportDefinition(), true);
         $filaEjemplo = DataTransferController::importerHubRow('example-user-names', new ExampleUserNamesImportDefinition(), true);

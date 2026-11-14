@@ -123,7 +123,7 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 <h2 class="title" id="accesibilidad"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accesibilidad-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accesibilidad</span></h2>
 <div class="content" id="accesibilidad-contenido">
 <p>Entra por <strong>«Accesibilidad»</strong>. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en el menú de su
-nombre (ver «Tu cuenta», «Tamaño de letra y modo de color»).</p>
+nombre o en «Mi cuenta» › «Preferencias» (ver «Tu cuenta», «Tamaño de letra y modo de color»).</p>
 <p><img class="ui image" alt="Accesibilidad" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
 <p>Al final, <strong>«Cancelar»</strong> o <strong>«Guardar»</strong>.</p>
 <table class="ui celled table">

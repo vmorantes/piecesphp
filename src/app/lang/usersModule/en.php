@@ -126,6 +126,8 @@ $lang = [
     'Selecciona una organización' => 'Select an organization',
     'Sin foto' => 'No photo',
     'Expulsa a este usuario de todos los dispositivos de una sola vez, en lugar de cerrarlas una a una. Tendrá que volver a iniciar sesión en cada uno.' => 'Signs this user out of every device at once, instead of closing them one by one. They will have to log in again on each one.',
+    'Preferencias' => 'Preferences',
+    'Se aplica al momento y se guarda en tu cuenta.' => 'It applies at once and is saved in your account.',
 ];
 
 return $lang;

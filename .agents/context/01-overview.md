@@ -107,7 +107,7 @@ tener las ramas que quieran. Ver `.agents/rules/30-protocolo-coder.md`, «Ramas�
   database-exporter, unit-testing).
 - `CHANGELOG.md` — historial detallado por versión. **Es la mejor fuente para
   saber qué cambió recientemente.**
-- `source-docs/api/` — documentación y colección Postman de la API (hasta el 2026-09-14 en
+- `source-docs/api/` — documentación de la API, generada desde `openapi.json` con `bin/api-docs` (la colección de Postman salió el 2026-11-12) (hasta el 2026-09-14 en
   `files/API/`; ADR 0006).
 - `.agents/context/21-pruebas-y-puertas.md` — pruebas unitarias/de desarrollo (antes
   `files/dev/tests.md`).

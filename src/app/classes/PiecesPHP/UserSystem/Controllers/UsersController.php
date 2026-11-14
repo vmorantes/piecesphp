@@ -179,6 +179,23 @@ class UsersController extends AdminPanelController
 
     const LANG_GROUP = UserDataPackage::LANG_GROUP;
 
+    /** El parámetro de /admin/users/profile/ que elige la pestaña activa, desde el servidor (H252). */
+    const PROFILE_TAB_PARAM = 'tab';
+
+    /** La pestaña de las preferencias de cada persona en su perfil: el tamaño de letra (H252). */
+    const PROFILE_PREFERENCES_TAB = 'preferencias';
+
+    /**
+     * La dirección del perfil propio con una pestaña abierta.
+     *
+     * @param string $tab El data-tab de una pestaña de usuarios/form.php
+     * @return string
+     */
+    public static function profileTabURL(string $tab): string
+    {
+        return self::routeName('form-profile') . '?' . http_build_query([self::PROFILE_TAB_PARAM => $tab]);
+    }
+
     /** @ignore */
     public function __construct()
     {
@@ -951,6 +968,11 @@ class UsersController extends AdminPanelController
             $data['create'] = false;
             $data['onlyProfile'] = $onlyProfile;
             $data['onlyImage'] = $onlyImage;
+            //Solo el perfil propio lleva «Preferencias»; la pestaña la elige ?tab= desde el servidor (usuarios/form.php).
+            $data['showPreferences'] = true;
+            $requestedTab = $req->getQueryParam(self::PROFILE_TAB_PARAM, '');
+            $data['requestedTab'] = is_string($requestedTab) ? $requestedTab : '';
+            $data['textSize'] = AdminPanelController::textSizeOf((int) $user->id);
             $data['pageTitle'] = __(self::LANG_GROUP, 'Mi cuenta');
             $data['pageDescription'] = trim("{$user->firstname} {$user->firstLastname}") . ' · ' . $data['typeName'];
             $data['breadcrumbs'] = [

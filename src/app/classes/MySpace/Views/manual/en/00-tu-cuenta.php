@@ -25,12 +25,13 @@ the manual does not appear for you, your user type does not have it.</p>
 <p>On the login screen, the help link lets you recover your password or username, or report another problem.</p>
 </div>
 <h2 class="ui header" id="text-size-and-color-mode">Text size and color mode</h2>
-<p>Open the menu under your name, at the top right:</p>
 <ul>
-<li><strong>“Color mode”</strong>: <strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (your device's).</li>
-<li><strong>“Text size”</strong>: <strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>.</li>
+<li><strong>Color mode</strong>: open the menu under your name, at the top right, and choose under <strong>“Color mode”</strong>: <strong>“Light”</strong>,
+  <strong>“Dark”</strong> or <strong>“System”</strong> (your device's).</li>
+<li><strong>Text size</strong>: in that same menu, <strong>“Preferences”</strong> takes you to the <strong>“Preferences”</strong> tab of <strong>“My account”</strong>.
+  Under <strong>“Text size”</strong>, choose <strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>.</li>
 </ul>
-<p>It applies at once and is saved in your account. Until you choose, you see whatever the site's administrator chose.</p>
+<p>Both apply at once and are saved in your account. Until you choose, you see whatever the site's administrator chose.</p>
 <h2 class="ui header" id="help">Help</h2>
 <p>The question mark icon in the top bar opens the <strong>help center</strong>: this manual and, if your organization has it
 configured, the form to <strong>contact support</strong>.</p>

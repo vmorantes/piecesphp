@@ -8,6 +8,8 @@ use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -79,7 +81,23 @@ CliActions::make('unit-tests:core/theme-mode', function ($args) {
     $prefijo = 'zz-agente-tema-' . bin2hex(random_bytes(3));
     $ids = [];
 
+    //«Sin elegir» sigue al modo del sitio (Apariencia › Accesibilidad): se fija en auto y se repone en crudo al terminar.
+    $opcionSitio = SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG;
+    $tablaOpciones = (new SettingsModel())->getModel()->getTable();
+    $crudoSitio = function () use ($database, $tablaOpciones, $opcionSitio): ?string {
+        $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
+        $consulta->execute([$opcionSitio]);
+        $valor = $consulta->fetchColumn();
+        return $valor === false ? null : (string) $valor;
+    };
+    $sitioAntes = $crudoSitio();
+    $memoriaSitio = get_config($opcionSitio);
+
     try {
+        if (!SettingsModel::setConfigValue($opcionSitio, AdminPanelController::THEME_MODE_AUTO)) {
+            throw new \RuntimeException('No se pudo fijar el modo del sitio para la prueba.');
+        }
+        set_config($opcionSitio, AdminPanelController::THEME_MODE_AUTO);
         $u = new UsersModel();
         $u->username = $prefijo;
         $u->email = "{$prefijo}@example.invalid";
@@ -135,6 +153,13 @@ CliActions::make('unit-tests:core/theme-mode', function ($args) {
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');
+        if ($sitioAntes === null) {
+            $database->prepare("DELETE FROM `{$tablaOpciones}` WHERE BINARY name = ?")->execute([$opcionSitio]);
+        } else {
+            $database->prepare("UPDATE `{$tablaOpciones}` SET value = ? WHERE BINARY name = ?")->execute([$sitioAntes, $opcionSitio]);
+        }
+        set_config($opcionSitio, $memoriaSitio);
+        $check($crudoSitio() === $sitioAntes, 'z2 el modo del sitio queda con su valor crudo de antes', var_export($crudoSitio(), true) . ' / ' . var_export($sitioAntes, true));
         $referencias = $database->query("SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME = '" . UsersModel::TABLE . "' AND REFERENCED_COLUMN_NAME = 'id'")->fetchAll(\PDO::FETCH_NUM);
         foreach ($ids as $id) {
             foreach ($referencias as [$tabla, $columna]) {

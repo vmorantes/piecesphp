@@ -4,6 +4,7 @@
 //Con la base limpia puede que ningún actor vea menos que root: la igualdad no discrimina, y la suite lo dice sin fallar.
 //@areas nucleo
 
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
@@ -58,8 +59,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         return $balance();
     }
     $tabla = UsersModel::TABLE;
-    //El de organización, con una si la hay: sin ella no hay nada que separar.
-    $consulta = $database->prepare("SELECT id, type, organization FROM {$tabla} WHERE type = :type AND status != :deleted ORDER BY (organization IS NULL), id LIMIT 1");
+    //Cada actor, de una organización que no sea la global si la hay (H42): con todos en la global, una regla por
+    //organización rota en el conteo no se vería.
+    $global = OrganizationMapper::INITIAL_ID_GLOBAL;
+    $consulta = $database->prepare("SELECT id, type, organization FROM {$tabla} WHERE type = :type AND status != :deleted ORDER BY (organization IS NULL), (organization = {$global}), id LIMIT 1");
     $actores = [];
     foreach (array_keys(UsersModel::TYPES_USERS) as $tipo) {
         $consulta->execute([':type' => $tipo, ':deleted' => UsersModel::STATUS_USER_DELETED]);

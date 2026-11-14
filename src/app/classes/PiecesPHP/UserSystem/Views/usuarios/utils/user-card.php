@@ -42,7 +42,7 @@ $organizationName = $canModifyAll && $organizationMapper !== null && ORGANIZATIO
             <?php if ($avatar): ?>
             <img class="ui avatar image" src="<?= $avatar; ?>" alt="">
             <?php endif; ?>
-            <h2 class="fluid ui small header" title="<?= escape_html($fullName); ?>"><span class="ui truncated text"><?= escape_html($fullName); ?></span></h2>
+            <h2 class="fluid ui small header" title="<?= escape_html($fullName); ?>"><?= escape_html($fullName); ?></h2>
             <?php if ($editURL !== ''): ?>
             <a class="ui icon button" href="<?= $editURL; ?>" aria-label="<?= escape_html($editText . ': ' . $fullName); ?>" data-tooltip="<?= escape_html($editText); ?>" data-position="top center" data-inverted=""><i class="pencil alternate icon" aria-hidden="true"></i></a>
             <?php endif; ?>

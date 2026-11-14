@@ -11,7 +11,6 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @property {String} [textareaTargetSelector=[rich-editor-adapter-component] + textarea[target]]
 	 * @property {String} [fileManagerConfigURL]
 	 * @property {String} [fileManagerUIURL]
-	 * @property {String} [fileManagerBaseURLStatics]
 	 * @property {Function} [onChange]
 	 */
 	adapterOptions
@@ -108,11 +107,6 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @property {String}
 	 */
 	let fileManagerUIURL = ''
-
-	/**
-	 * @property {String}
-	 */
-	let fileManagerBaseURLStatics = ''
 
 	/**
 	 * @property {Object}
@@ -350,12 +344,6 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			fileManagerUIURL = adapterOptions.fileManagerUIURL
 		} else {
 			fileManagerUIURL = typeof fromServer.explorer == 'string' ? fromServer.explorer : ''
-		}
-
-		if (typeof adapterOptions.fileManagerBaseURLStatics == 'string' && adapterOptions.fileManagerBaseURLStatics.length > 0) {
-			fileManagerBaseURLStatics = adapterOptions.fileManagerBaseURLStatics
-		} else {
-			fileManagerBaseURLStatics = `${pcsphpGlobals.baseURL.replace(/\/$/, '')}/statics/plugins/elfinder`
 		}
 
 	}

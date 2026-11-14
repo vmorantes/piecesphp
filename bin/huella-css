@@ -11,7 +11,8 @@
 #   bin/huella-css --guardar                 compila y guarda la huella
 #   bin/huella-css --comparar                compila y la compara con la guardada: 0 si es idéntica, 1 si no
 #   bin/huella-css --comparar --esperado <f> como --comparar, pero las DESAPARICIONES de los selectores listados en <f>
-#                                            (uno por línea) no cuentan: sale 0 si son las únicas diferencias
+#                                            (uno por línea) no cuentan: sale 0 si son las únicas diferencias; vale
+#                                            también para una hoja borrada entera si lista todos sus selectores
 #   bin/huella-css --sin-compilar …          usa el CSS que ya haya en disco
 #
 # Las diferencias salen por hoja y en cuatro grupos: reglas que DESAPARECEN, reglas NUEVAS, reglas cuyas DECLARACIONES
@@ -276,9 +277,17 @@ def main():
         print(f'PARA: no hay huella guardada en {OUT}: primero bin/huella-css --guardar.')
         return 2
     saved = json.load(open(OUT, encoding='utf-8'))
-    if saved.get('sheets_count') != len(sheets) or set(saved.get('sheets', {})) != set(sheets):
-        gone = sorted(set(saved.get('sheets', {})) - set(sheets))
-        born = sorted(set(sheets) - set(saved.get('sheets', {})))
+    red, expected_hits = 0, set()
+    gone = sorted(set(saved.get('sheets', {})) - set(sheets))
+    born = sorted(set(sheets) - set(saved.get('sheets', {})))
+    #Una hoja borrada entera cuenta como prevista si --esperado lista todos sus selectores (H135); una nueva, nunca.
+    if gone and not born and expected and all(set(rule[1]) <= expected for name in gone for rule in saved['sheets'][name]):
+        for name in gone:
+            print(f'\n== {name} (la hoja ya no está, PREVISTA)')
+            for rule in saved['sheets'][name]:
+                print(f'  desaparece, PREVISTA: {describe(rule)}')
+                expected_hits.update(rule[1])
+    elif gone or born:
         #Antes de parar se enseña lo que se va con cada hoja (y lo que trae cada nueva), como cualquier otra diferencia.
         for name in gone:
             print(f'\n== {name} (la hoja ya no está)')
@@ -292,7 +301,6 @@ def main():
               + (f' Faltan: {", ".join(gone)}.' if gone else '') + (f' Nuevas: {", ".join(born)}.' if born else ''))
         return 2
 
-    red, expected_hits = 0, set()
     for name in sorted(sheets):
         result = diff_sheet(saved['sheets'][name], sheets[name])
         allowed = [r for r in result['desaparecen'] if expected and set(r[1]) <= expected]

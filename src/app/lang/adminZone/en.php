@@ -368,6 +368,7 @@ $lang = [
     'Normal' => 'Normal',
     'Grande' => 'Large',
     'Más grande' => 'Larger',
+    'Preferencias' => 'Preferences',
 ];
 
 return $lang;

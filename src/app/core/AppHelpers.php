@@ -2039,8 +2039,8 @@ function import_fomantic(array $plugins = [], bool $all = false)
  * - jQuery (import_jquery()) solo si se añade algún JS: `button`, que no tiene, no lo carga.
  * Los opcionales del mapa (`api` en el desplegable, `icon` en el toast…) NO entran solos: se piden como un nombre más,
  * `['dropdown', 'api']`. Lo que va dentro del componente (`contenido`) lo carga quien lo pinta.
- * Límite medido por el tema: lo que mide en rem depende del font-size del html de la página; con el del tema, 40 de 56
- * componentes quedan idénticos al CSS completo (toast y message, sin diferencias).
+ * Límite medido por el tema: lo que mide en rem depende del font-size del html de la página; cuántos quedan idénticos al CSS
+ * completo lo dice el mapa, en comprobacion.sueltoBaseUiMismoRem (la cifra cambia con cada versión del tema).
  * Idempotente: add_global_asset() no repite un archivo. Con el tema entero en la página (import_fomantic()) no añade nada:
  * el entero ya trae todos los componentes, y cargar los dos duplicaría las reglas. Llama a una u otra, no a las dos.
  * Las pruebas cambian la ruta del mapa con set_config('fomantic_components_map', <ruta relativa a basepath()>).
@@ -2048,7 +2048,7 @@ function import_fomantic(array $plugins = [], bool $all = false)
  * @param string[] $components Nombres del tema: claves de `componentes` en dependencias.json (toast, button, dropdown…).
  * @return void
  * @throws \InvalidArgumentException Si un nombre no es un componente del tema (no se añade nada, tampoco los buenos).
- * @throws \RuntimeException Si el mapa falta, no es JSON o no es del formato 1 (no se añade nada).
+ * @throws \RuntimeException Si el mapa falta, no es JSON, no es del formato 1 o nombra un componente sin su `cargar` (no se añade nada).
  */
 function import_fomantic_components(array $components): void
 {
@@ -2090,9 +2090,13 @@ function import_fomantic_components(array $components): void
     };
     //Primero se comprueban todos: un nombre malo no deja la página a medio cargar.
     foreach ($components as $name) {
-        if (!is_string($name) || preg_match($nameShape, $name) !== 1 || !is_array($map['componentes'][$name]['cargar'] ?? null)) {
+        if (!is_string($name) || preg_match($nameShape, $name) !== 1 || !array_key_exists($name, $map['componentes'])) {
             $shown = is_string($name) ? $name : gettype($name);
             throw new \InvalidArgumentException("import_fomantic_components(): «{$shown}» no es un componente del tema (no está en {$mapPath}).");
+        }
+        //Está en el mapa pero sin lo que se carga: el mapa está roto, no el nombre (H211).
+        if (!is_array($map['componentes'][$name]['cargar'] ?? null)) {
+            throw new \RuntimeException("import_fomantic_components(): el mapa del tema {$mapPath} tiene «{$name}» sin su «cargar»; lo trae bin/traer-tema.");
         }
     }
     //reset y site no se cargan nunca: son las que estilizan la página entera; la base de los sueltos es base.suelta.

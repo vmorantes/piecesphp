@@ -245,7 +245,7 @@ ciego.**
 | 24 `HelperController.php` triviales — copia y pega | **`src/statics/wf/`** (20 KB) — css, js, fuentes e imágenes del kit |
 | ~~`scssphp/scssphp`~~ — fuera en la 9.2.0 (P227) | **`files/Webflow/`** (32 KB) — export base, «Pedazos» reutilizables y su `Intrucciones.md` |
 | `PDFManager` + `mpdf/mpdf` | **`Components/Views/sample/components.php`** (16 líneas) — **no es *lorem ipsum* de relleno: es la referencia del formato `<components>`/`<component>`** que `ComponentProvider` consume |
-| El módulo `Components` en sí — decisión aparte | `source-docs/api/` (antes `files/API/`) — documentación mkdocs y una colección de Postman |
+| El módulo `Components` en sí — decisión aparte | `source-docs/api/` (antes `files/API/`) — documentación mkdocs generada desde `openapi.json` (`bin/api-docs`; sin Postman desde el 2026-11-12) |
 | | `files/CliScripts/` — dos guiones sueltos que se lanzan a mano |
 | | `.agents/docs/roadmap-posterior/` (antes `files/dev/roadmap`), `IGNORE.md` — notas del autor |
 | | `source-docs/` (320 KB) — documentación de producto |

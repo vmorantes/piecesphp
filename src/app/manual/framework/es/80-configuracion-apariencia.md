@@ -74,7 +74,7 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 <!-- ve: configurations-appearance-accessibility -->
 
 Entra por **«Accesibilidad»**. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en el menú de su
-nombre (ver «Tu cuenta», «Tamaño de letra y modo de color»).
+nombre o en «Mi cuenta» › «Preferencias» (ver «Tu cuenta», «Tamaño de letra y modo de color»).
 
 ![Accesibilidad](img/configurations-appearance-accessibility.webp)
 

@@ -1,12 +1,21 @@
+# generado por bin/api-docs desde openapi.json: no se edita
 site_name: Framework API
 nav:
-    - ./modules/Publications.md
-    - ./modules/News.md
-    - ./modules/Usuarios.md
-    - ./modules/Ubicaciones.md
-    - ./modules/Traducciones.md
-    - ./modules/Reportes.md
-    - ./modules/CronJobs.md
+    - index.md
+    - "Publicaciones": publicaciones.md
+    - "Noticias": noticias.md
+    - "Traducciones": traducciones.md
+    - "Reportes": reportes.md
+    - "Tareas programadas": tareas-programadas.md
+    - "Usuarios": usuarios.md
+    - "Sesión": sesion.md
+    - "Ubicaciones": ubicaciones.md
+    - "Archivos del sitio": archivos-del-sitio.md
+    - "Banners": banners.md
+    - "Contacto": contacto.md
+    - "Boletín": boletin.md
+    - "Segundo factor": segundo-factor.md
+    - "Recuperación y desbloqueo": recuperacion-y-desbloqueo.md
 theme:
     name: readthedocs
     language: es
@@ -15,6 +24,3 @@ theme:
         primary: black
         accent: red
 site_dir: ./docs-dist
-
-
-

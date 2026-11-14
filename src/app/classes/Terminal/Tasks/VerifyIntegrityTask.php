@@ -244,7 +244,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         60 => [self::PUBLIC_SECURITY_DOC_ALLOWED_RELATIVE_PATH],
         62 => ['.git'],
         63 => [self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH],
+        65 => ['files/dev/route-inventory.json', self::API_SPEC_RELATIVE_PATH, self::API_EXCLUSIONS_RELATIVE_PATH, 'bin/api-docs'],
     ];
+
+    /** La especificación OpenAPI de la API, fuente de su documentación (comprobación 65). */
+    const API_SPEC_RELATIVE_PATH = 'source-docs/api/openapi.json';
+
+    /** Las rutas sin sesión o con /api/ que no se documentan, cada una con su motivo (comprobación 65). */
+    const API_EXCLUSIONS_RELATIVE_PATH = 'files/dev/api-exclusions.json';
 
     /** El archivo que define APP_VERSION y APP_VERSION_DATE, relativo a la raíz (comprobación 62). */
     const VERSION_DEFINES_RELATIVE_PATH = 'src/app/core/bootstrap.php';
@@ -529,6 +536,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 64. El jsconfig y el tsconfig son JSON válido y ningún JS lleva /// <reference path> ─
         $editorFailures = self::checkEditorConfigs();
 
+        //──── 65. Toda ruta pública está en la documentación de la API o excluida con su motivo ─
+        $apiDocFailures = Distribution::applies('65', self::DISTRIBUTION_REQUIREMENTS[65]) ? self::checkApiDocumentation() : [];
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -554,7 +564,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
-         + count($editorFailures);
+         + count($editorFailures) + count($apiDocFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -642,6 +652,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($editorFailures as $line) {
             echoTerminal("\e[31mEDITOR:\e[39m {$line}");
+        }
+        foreach ($apiDocFailures as $line) {
+            echoTerminal("\e[31mAPI:\e[39m {$line}");
         }
         foreach ($versionDateFailures as $line) {
             echoTerminal("\e[31mFECHA DE VERSIÓN:\e[39m {$line}");
@@ -4779,6 +4792,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             foreach ($salida as $linea) {
                 if (str_starts_with(trim($linea), 'documentos leidos')
                     || str_starts_with(trim($linea), 'rutas comprobables')
+                    || str_starts_with(trim($linea), 'rutas de subidas')
                     || str_starts_with(trim($linea), 'eximidas por declaracion')
                     || str_starts_with(trim($linea), 'declaradas sin aparecer')) {
                     echoTerminal("\e[94mINFO:\e[39m documentación: " . trim($linea));
@@ -6619,6 +6633,136 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         return $failures;
     }
+    /**
+     * 65. La documentación de la API cubre lo público (orden del PO, D12): (1) cada `x-piecesphp-ruta` de openapi.json es una
+     * ruta del inventario y su método casa; (2) toda ruta sin sesión y toda ruta con /api/ en el patrón está en openapi.json o en
+     * files/dev/api-exclusions.json con su motivo, y la lista no guarda nombres que ya no existen o que ya se documentan; (3) las
+     * páginas generadas son las que da `bin/api-docs` (su --check).
+     *
+     * @return string[]
+     */
+    protected static function checkApiDocumentation(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $leer = static function (string $relative) use ($root): mixed {
+            $text = @file_get_contents($root . '/' . $relative);
+            return is_string($text) ? json_decode($text, true) : null;
+        };
+        $inventory = $leer('files/dev/route-inventory.json');
+        $spec = $leer(self::API_SPEC_RELATIVE_PATH);
+        $exclusions = $leer(self::API_EXCLUSIONS_RELATIVE_PATH);
+        if (!is_array($inventory) || !is_array($spec) || !is_array($exclusions) || !is_array($exclusions['excluidas'] ?? null)) {
+            return ['no se pueden leer el inventario, openapi.json o la lista de excluidas como JSON: la comprobación no miró nada.'];
+        }
+
+        //Canario: una ruta sin sesión sin documentar, una x-piecesphp-ruta inventada, un método que no casa y una exclusión
+        //que sobra, sobre datos sembrados; cada una tiene que caer, y la que está bien, no.
+        $sembrado = self::apiCoverage(
+            [
+                ['name' => 'zz-doc', 'method' => 'GET', 'pattern' => '/zz-doc[/]', 'requireLogin' => false],
+                ['name' => 'zz-sin-doc', 'method' => 'GET', 'pattern' => '/zz-sin-doc[/]', 'requireLogin' => false],
+                ['name' => 'zz-api', 'method' => 'POST', 'pattern' => '/core/api/zz[/]', 'requireLogin' => true],
+                ['name' => 'zz-panel', 'method' => 'GET', 'pattern' => '/admin/zz[/]', 'requireLogin' => true],
+            ],
+            ['paths' => ['/zz-doc/' => ['get' => ['x-piecesphp-ruta' => 'zz-doc']], '/zz-inventada/' => ['get' => ['x-piecesphp-ruta' => 'zz-inventada']], '/core/api/zz/' => ['get' => ['x-piecesphp-ruta' => 'zz-api']]]],
+            ['zz-panel' => 'sobra']
+        );
+        $esperado = ['zz-inventada', 'zz-api', 'zz-sin-doc', 'zz-panel'];
+        $cazadas = array_values(array_filter($esperado, static fn (string $n): bool => count(array_filter($sembrado['failures'], static fn (string $f): bool => str_contains($f, "«{$n}»"))) === 1));
+        if ($cazadas !== $esperado || count($sembrado['failures']) !== 4) {
+            return ['canario muerto: sobre datos sembrados no caen exactamente las cuatro rutas malas (' . implode('; ', $sembrado['failures']) . '): la comprobación no miró nada.'];
+        }
+
+        $result = self::apiCoverage($inventory, $spec, $exclusions['excluidas']);
+        $failures = $result['failures'];
+
+        $output = [];
+        $code = 0;
+        //RETORNO-IGNORADO: lo que cuenta es $code y las líneas de $output, y se comprueban.
+        exec(escapeshellarg($root . '/bin/api-docs') . ' --check 2>&1', $output, $code);
+        if ($code !== 0) {
+            $failures[] = 'bin/api-docs --check (código ' . $code . '): ' . implode(' · ', array_map('trim', $output));
+        }
+
+        if ($failures === []) {
+            echoTerminal("\e[94mINFO:\e[39m documentación de la API: {$result['documented']} operación(es) con su ruta, "
+                . "{$result['public']} ruta(s) sin sesión o con /api/ ({$result['excluded']} excluidas con motivo) y las páginas al día (bin/api-docs --check).");
+        }
+        return $failures;
+    }
+
+    /**
+     * La parte de datos de la comprobación 65, sin disco: el inventario, la especificación y las excluidas (nombre => motivo).
+     *
+     * @param array<int,mixed> $inventory
+     * @param array<string,mixed> $spec
+     * @param array<string,mixed> $exclusions
+     * @return array{failures:string[],documented:int,public:int,excluded:int}
+     */
+    public static function apiCoverage(array $inventory, array $spec, array $exclusions): array
+    {
+        $routes = [];
+        foreach ($inventory as $route) {
+            if (is_array($route) && is_string($route['name'] ?? null)) {
+                $routes[$route['name']] = $route;
+            }
+        }
+        $failures = [];
+        $documented = [];
+        $operations = 0;
+        foreach (is_array($spec['paths'] ?? null) ? $spec['paths'] : [] as $path => $item) {
+            foreach (is_array($item) ? $item : [] as $method => $operation) {
+                if (!is_array($operation) || !in_array($method, ['get', 'post', 'put', 'patch', 'delete'], true)) {
+                    continue;
+                }
+                $operations++;
+                $name = $operation['x-piecesphp-ruta'] ?? null;
+                if (!is_string($name) || $name === '') {
+                    $failures[] = "la operación " . strtoupper($method) . " {$path} no lleva x-piecesphp-ruta.";
+                    continue;
+                }
+                $documented[$name] = true;
+                if (!isset($routes[$name])) {
+                    $failures[] = "la operación " . strtoupper($method) . " {$path} cita la ruta «{$name}», que no existe en el inventario.";
+                    continue;
+                }
+                $methods = explode('|', (string) ($routes[$name]['method'] ?? ''));
+                if (!in_array(strtoupper($method), $methods, true)) {
+                    $failures[] = "la operación " . strtoupper($method) . " {$path} cita la ruta «{$name}», que es " . implode('|', $methods) . '.';
+                }
+            }
+        }
+        $public = 0;
+        $excluded = 0;
+        foreach ($routes as $name => $route) {
+            $isPublic = ($route['requireLogin'] ?? true) === false || str_contains((string) ($route['pattern'] ?? ''), '/api/');
+            if (!$isPublic) {
+                continue;
+            }
+            $public++;
+            if (isset($documented[$name])) {
+                continue;
+            }
+            if (array_key_exists($name, $exclusions)) {
+                $excluded++;
+                if (!is_string($exclusions[$name]) || trim($exclusions[$name]) === '') {
+                    $failures[] = "la ruta «{$name}» está excluida sin motivo en " . self::API_EXCLUSIONS_RELATIVE_PATH . '.';
+                }
+                continue;
+            }
+            $failures[] = "la ruta «{$name}» (" . ($route['method'] ?? '') . ' ' . ($route['pattern'] ?? '') . ') es pública o de /api/ y no está en '
+                . self::API_SPEC_RELATIVE_PATH . ' ni excluida con su motivo en ' . self::API_EXCLUSIONS_RELATIVE_PATH . '.';
+        }
+        foreach ($exclusions as $name => $reason) {
+            $route = $routes[$name] ?? null;
+            $stillPublic = is_array($route) && (($route['requireLogin'] ?? true) === false || str_contains((string) ($route['pattern'] ?? ''), '/api/'));
+            if (!$stillPublic || isset($documented[$name])) {
+                $failures[] = "la exclusión «{$name}» sobra: " . (isset($documented[$name]) ? 'ya está documentada.' : 'no es una ruta pública ni de /api/ del inventario.');
+            }
+        }
+        return ['failures' => $failures, 'documented' => $operations, 'public' => $public, 'excluded' => $excluded];
+    }
+
     /**
      * 64. El editor y el compilador leen JSON válido, y ningún JS propio vuelve a las referencias `/// <reference path>`
      * (decisión del PO, 2026-11-06). jsconfig.json y src/statics/core/ts/tsconfig.json se leen con json_decode estricto:

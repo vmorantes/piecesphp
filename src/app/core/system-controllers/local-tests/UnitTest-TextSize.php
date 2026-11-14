@@ -12,6 +12,7 @@ use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 
 CliActions::make('unit-tests:core/text-size', function ($args) {
@@ -226,6 +227,60 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
         $r = $peticion($inicio, $jwtRoot, null);
         $etiqueta = $html($r['body']);
         $check($r['status'] === 200 && str_contains($etiqueta, 'data-text-size="normal"') && !str_contains($etiqueta, 'style='), 't6c normal: data-text-size y sin style', "HTTP {$r['status']}, {$etiqueta}");
+        echoTerminal(' ');
+
+        //──── [f] Preferencias: el tamaño de letra sale del menú a una pestaña del perfil ──────
+        echoTerminal('[f] Preferencias, una pestaña del perfil (?tab= desde el servidor)');
+        $dom = function (string $cuerpo): \DOMXPath {
+            $documento = new \DOMDocument();
+            //RETORNO-IGNORADO: el HTML del panel no es XML estricto; lo que cuenta son las consultas de abajo.
+            @$documento->loadHTML('<?xml encoding="utf-8"?>' . $cuerpo);
+            return new \DOMXPath($documento);
+        };
+        //La pestaña activa: el ítem de la barra y su `ui tab`, los dos con `active` (o solo el tab si no hay barra).
+        $pestanas = function (string $cuerpo) use ($dom): array {
+            $x = $dom($cuerpo);
+            $items = [];
+            foreach ($x->query('//*[contains(concat(" ", normalize-space(@class), " "), " user-form-component ")]/*[contains(concat(" ", normalize-space(@class), " "), " menu ")]/a[@data-tab]') ?: [] as $a) {
+                if ($a instanceof \DOMElement) {
+                    $items[$a->getAttribute('data-tab')] = str_contains(' ' . $a->getAttribute('class') . ' ', ' active ');
+                }
+            }
+            $activos = [];
+            foreach ($x->query('//*[contains(concat(" ", normalize-space(@class), " "), " user-form-component ")]/*[contains(concat(" ", normalize-space(@class), " "), " ui ") and contains(concat(" ", normalize-space(@class), " "), " tab ") and contains(concat(" ", normalize-space(@class), " "), " active ")]') ?: [] as $t) {
+                if ($t instanceof \DOMElement) {
+                    $activos[] = $t->getAttribute('data-tab');
+                }
+            }
+            return ['items' => $items, 'activos' => $activos];
+        };
+        $perfil = $relativa(UsersController::routeName('form-profile', [], true));
+        $r = $peticion($inicio, $jwtRoot, null);
+        $x = $dom($r['body']);
+        $enMenu = $x->query('//*[@user-options-dropdown]//*[@text-size-selector]');
+        $enlace = $x->query('//*[@user-options-dropdown]//a[contains(@href, "' . UsersController::PROFILE_TAB_PARAM . '=' . UsersController::PROFILE_PREFERENCES_TAB . '")]');
+        $check($r['status'] === 200 && $enMenu !== false && $enMenu->length === 0, 'f1 DISCRIMINANTE: el menú de usuario ya no tiene el grupo del tamaño de letra', "HTTP {$r['status']}");
+        $check($enlace !== false && $enlace->length === 1 && str_ends_with((string) parse_url((string) ($enlace->item(0) instanceof \DOMElement ? $enlace->item(0)->getAttribute('href') : ''), \PHP_URL_PATH), (string) parse_url($perfil, \PHP_URL_PATH)), 'f2 y sí el enlace «Preferencias» a ?tab=preferencias del perfil');
+        foreach ([
+            'f3 ?tab=preferencias abre Preferencias' => ['?tab=preferencias', $jwtRoot, 'preferencias'],
+            'f4 sin parámetro: Cuenta' => ['', $jwtRoot, 'form-container'],
+            'f5 ?tab=form-container: Cuenta' => ['?tab=form-container', $jwtRoot, 'form-container'],
+            'f6 DISCRIMINANTE: una pestaña que no existe cae en Cuenta' => ['?tab=zz-no-existe', $jwtRoot, 'form-container'],
+            'f7 ?tab=sessions-container, quien puede verla: Sesiones' => ['?tab=sessions-container', $jwtRoot, 'sessions-container'],
+            'f8 DISCRIMINANTE: ?tab=sessions-container, un usuario general (no la ve): Cuenta' => ['?tab=sessions-container', UserSessions::issueToken($idGeneral), 'form-container'],
+        ] as $caso => [$consulta, $jwt, $esperada]) {
+            $r = $peticion($perfil . $consulta, $jwt, null);
+            $vistas = $pestanas($r['body']);
+            $soloEsa = array_keys(array_filter($vistas['items'])) === [$esperada] && $vistas['activos'] === [$esperada];
+            $check($r['status'] === 200 && $soloEsa && array_key_last($vistas['items']) === UsersController::PROFILE_PREFERENCES_TAB, $caso . ' (y Preferencias es la última)', "HTTP {$r['status']}, " . json_encode($vistas));
+        }
+        $r = $peticion($perfil . '?tab=preferencias', $jwtRoot, null);
+        $grupo = $dom($r['body'])->query('//*[@data-tab="' . UsersController::PROFILE_PREFERENCES_TAB . '" and contains(@class, "tab")]//*[@text-size-selector]');
+        $url = $grupo !== false && $grupo->item(0) instanceof \DOMElement ? $grupo->item(0)->getAttribute('data-url') : '';
+        $check($grupo !== false && $grupo->length === 1 && $relativa($url) === $tamano, 'f9 el grupo del tamaño de letra está en la pestaña, con su ruta', $url);
+        $r = $peticion($relativa(UsersController::routeName('form-edit', ['id' => $idGeneral], true)) . '?tab=preferencias', $jwtRoot, null);
+        $vistas = $pestanas($r['body']);
+        $check($r['status'] === 200 && $vistas['items'] !== [] && !array_key_exists(UsersController::PROFILE_PREFERENCES_TAB, $vistas['items']) && $vistas['activos'] === ['form-container'], 'f10 DISCRIMINANTE: editar a otro no tiene Preferencias, aunque se pida', "HTTP {$r['status']}, " . json_encode($vistas));
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

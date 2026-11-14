@@ -1,5 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\Controllers\UserSessionsController;
 $langGroup = UsersController::LANG_GROUP;
@@ -7,6 +8,18 @@ $onlyProfile = isset($onlyProfile) ? $onlyProfile : false;
 $onlyImage = isset($onlyImage) ? $onlyImage : false;
 //Misma regla que la ruta: solo root o administrador general, y a un root solo lo cierra otro root.
 $canRevokeSessions = !$create && !$onlyProfile && isset($edit_user) && UsersController::canRevokeSessionsOf((int) $edit_user->type);
+//«Preferencias» solo la pide el perfil propio (formProfileByType); crear y editar a otro no la pasan.
+$showPreferences = isset($showPreferences) && $showPreferences === true;
+$visibleTabs = array_keys(array_filter([
+    'form-container' => !$onlyImage,
+    'avatar-photo-container' => !$create && !$onlyProfile,
+    'sessions-container' => $canRevokeSessions,
+    UsersController::PROFILE_PREFERENCES_TAB => $showPreferences,
+]));
+//La activa la decide el servidor (?tab=): una que no está visible cae en la de siempre.
+$requestedTab = isset($requestedTab) && is_string($requestedTab) ? $requestedTab : '';
+$activeTab = in_array($requestedTab, $visibleTabs, true) ? $requestedTab : ($onlyImage ? 'avatar-photo-container' : 'form-container');
+$activeClass = fn(string $tab): string => $activeTab === $tab ? ' active' : '';
 ?>
 <section class="module-view-container">
 
@@ -26,31 +39,34 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
     <?php
         //Con una sola pestaña (crear) no hay barra (vistas-referencia.md §3.44). Los iconos, los del prototipo (§3.46).
-        $tabsCount = (!$onlyImage ? 1 : 0) + (!$create && !$onlyProfile ? 1 : 0) + ($canRevokeSessions ? 1 : 0);
+        $tabsCount = count($visibleTabs);
     ?>
     <?php if ($tabsCount > 1): ?>
     <div class="ui pointing secondary menu">
         <?php if (!$onlyImage): ?>
-        <a class="item active" data-tab="form-container"><i class="user icon" aria-hidden="true"></i><?= __($langGroup, 'Cuenta'); ?></a>
+        <a class="item<?= $activeClass('form-container'); ?>" data-tab="form-container"><i class="user icon" aria-hidden="true"></i><?= __($langGroup, 'Cuenta'); ?></a>
         <?php endif;?>
         <?php if (!$create && !$onlyProfile): ?>
-        <a class="item<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container"><i class="image icon" aria-hidden="true"></i><?= __($langGroup, 'Foto de perfil'); ?></a>
+        <a class="item<?= $activeClass('avatar-photo-container'); ?>" data-tab="avatar-photo-container"><i class="image icon" aria-hidden="true"></i><?= __($langGroup, 'Foto de perfil'); ?></a>
         <?php endif;?>
         <?php if ($canRevokeSessions): ?>
-        <a class="item" data-tab="sessions-container"><i class="desktop icon" aria-hidden="true"></i><?= __($langGroup, 'Sesiones'); ?></a>
+        <a class="item<?= $activeClass('sessions-container'); ?>" data-tab="sessions-container"><i class="desktop icon" aria-hidden="true"></i><?= __($langGroup, 'Sesiones'); ?></a>
+        <?php endif;?>
+        <?php if ($showPreferences): ?>
+        <a class="item<?= $activeClass(UsersController::PROFILE_PREFERENCES_TAB); ?>" data-tab="<?= UsersController::PROFILE_PREFERENCES_TAB; ?>"><i class="sliders horizontal icon" aria-hidden="true"></i><?= __($langGroup, 'Preferencias'); ?></a>
         <?php endif;?>
     </div>
     <?php endif; ?>
 
     <?php if (!$onlyImage): ?>
-    <div class="ui tab active" data-tab="form-container">
+    <div class="ui tab<?= $activeClass('form-container'); ?>" data-tab="form-container">
         <?= $form; ?>
     </div>
     <?php endif;?>
 
     <?php if (!$create && !$onlyProfile): ?>
 
-    <div class="ui tab<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container">
+    <div class="ui tab<?= $activeClass('avatar-photo-container'); ?>" data-tab="avatar-photo-container">
 
         <section class="ui segment" aria-labelledby="user-photo-title" data-user-avatar="<?= (int) $edit_user->id; ?>" data-user-avatar-url="<?= escape_html(get_route('push-avatars')); ?>">
             <?php
@@ -87,7 +103,7 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
     <?php if ($canRevokeSessions): ?>
 
-    <div class="ui tab" data-tab="sessions-container">
+    <div class="ui tab<?= $activeClass('sessions-container'); ?>" data-tab="sessions-container">
 
         <?php //Primero cerrar todas, luego la tabla (vistas-referencia.md §3.46). ?>
         <section class="ui segment" aria-labelledby="user-sessions-title">
@@ -105,6 +121,31 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
             <div class="ui section divider"></div>
 
             <?= UserSessionsController::userSessionsTableHTML((int) $edit_user->id); ?>
+        </section>
+
+    </div>
+
+    <?php endif;?>
+
+    <?php if ($showPreferences): ?>
+
+    <div class="ui tab<?= $activeClass(UsersController::PROFILE_PREFERENCES_TAB); ?>" data-tab="<?= UsersController::PROFILE_PREFERENCES_TAB; ?>">
+
+        <section class="ui segment" aria-labelledby="user-preferences-title">
+            <?php
+                $this->helpController->_render('panel/built-in/content/section-header.php', [
+                    'id' => 'user-preferences-title',
+                    'title' => __($langGroup, 'Preferencias'),
+                ]);
+            ?>
+            <?php //El mismo grupo que tenía el menú de usuario: lo guarda y lo aplica el manejador de configurations.js. ?>
+            <small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra'); ?></small>
+            <div class="ui three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra')); ?>" aria-describedby="user-preferences-text-size-help" text-size-selector data-url="<?= escape_html(AdminPanelController::routeName('text-size')); ?>">
+                <?php foreach (['normal' => 'Normal', 'large' => 'Grande', 'larger' => 'Más grande'] as $textSizeOption => $textSizeOptionName) : ?>
+                <button type="button" class="ui button<?= ($textSize ?? '') === $textSizeOption ? ' active' : ''; ?>" role="radio" aria-checked="<?= ($textSize ?? '') === $textSizeOption ? 'true' : 'false'; ?>" tabindex="<?= ($textSize ?? '') === $textSizeOption ? '0' : '-1'; ?>" data-text-size="<?= $textSizeOption; ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, $textSizeOptionName); ?></button>
+                <?php endforeach; ?>
+            </div>
+            <p class="ui muted text" id="user-preferences-text-size-help"><?= __($langGroup, 'Se aplica al momento y se guarda en tu cuenta.'); ?></p>
         </section>
 
     </div>

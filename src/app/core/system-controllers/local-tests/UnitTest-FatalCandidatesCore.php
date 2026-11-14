@@ -175,7 +175,20 @@ CliActions::make('unit-tests:core/fatal-candidates-core', function ($args) {
     $check($envolver->invoke(new SqlFormat(), $rutina) === "CREATE PROCEDURE `p`(IN `a` INT, OUT `b` VARCHAR(10), `c` INT)\nBEGIN\nEND",
         'e1 CANARIO: los parámetros se envuelven en acentos graves como siempre');
     $check($envolver->invoke(new SqlFormat(), "CREATE FUNCTION f() RETURNS INT RETURN 1") === "CREATE FUNCTION `f`() RETURNS INT RETURN 1", 'e2 y una lista vacía sale intacta');
-    echoTerminal('   (el preg_split() en false no se provoca: con pcre.backtrack_limit bajo falla antes el preg_replace_callback de fuera)');
+    $limite = (string) ini_get('pcre.backtrack_limit');
+    try {
+        //RETORNO-IGNORADO: el valor anterior ya está en $limite, y se repone en el finally.
+        ini_set('pcre.backtrack_limit', '1');
+        $salida = null;
+        [$clase] = $lanza(function () use ($envolver, $rutina, &$salida): void {
+            $salida = $envolver->invoke(new SqlFormat(), $rutina);
+        });
+    } finally {
+        //RETORNO-IGNORADO: reponer el límite; si no se pudiera, lo vería e1 en la pasada siguiente.
+        ini_set('pcre.backtrack_limit', $limite);
+    }
+    $check($clase === '' && $salida === $rutina, 'e3 DISCRIMINANTE: si PCRE falla (pcre.backtrack_limit en 1), la definición sale intacta, sin TypeError', $clase . ' ' . var_export($salida, true));
+    echoTerminal('   (el preg_split() en false no se provoca: con pcre.backtrack_limit bajo falla antes el preg_replace_callback de fuera, que es e3)');
     echoTerminal(' ');
 
     //──── f. El arranque: index.php ────────────────────────────────────────────────────────────

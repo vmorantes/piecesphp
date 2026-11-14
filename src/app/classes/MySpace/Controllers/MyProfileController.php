@@ -76,7 +76,7 @@ class MyProfileController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function myProfileView(Request $request, Response $response)
     {
@@ -113,6 +113,7 @@ class MyProfileController extends AdminPanelController
         }
         $this->helpController->render('panel/layout/footer');
 
+        return $response;
     }
 
     /**

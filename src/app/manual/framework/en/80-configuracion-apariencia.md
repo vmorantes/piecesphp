@@ -74,7 +74,7 @@ the accent and the palette will look in the panel. At the end, **“Cancel”** 
 <!-- ve: configurations-appearance-accessibility -->
 
 Go to **“Accessibility”**. Here you choose how the panel looks for anyone who has not chosen their own in the menu
-under their name (see “Your account”, “Text size and color mode”).
+under their name or in “My account” › “Preferences” (see “Your account”, “Text size and color mode”).
 
 ![Accessibility](img/configurations-appearance-accessibility.webp)
 

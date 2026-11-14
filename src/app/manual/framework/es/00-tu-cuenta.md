@@ -30,12 +30,13 @@ nombra el manual no te aparece, tu tipo de usuario no la tiene.
 
 ## Tamaño de letra y modo de color
 
-Abre el menú de tu nombre, arriba a la derecha:
+- **El modo de color**: abre el menú de tu nombre, arriba a la derecha, y elige en **«Modo de color»**: **«Claro»**,
+  **«Oscuro»** o **«Sistema»** (el de tu dispositivo).
+- **El tamaño de letra**: en ese mismo menú, **«Preferencias»** te lleva a la pestaña **«Preferencias»** de
+  **«Mi cuenta»**. En **«Tamaño de letra»**, elige **«Normal»**, **«Grande»** o **«Más grande»**.
 
-- **«Modo de color»**: **«Claro»**, **«Oscuro»** o **«Sistema»** (el de tu dispositivo).
-- **«Tamaño de letra»**: **«Normal»**, **«Grande»** o **«Más grande»**.
-
-Se aplica al momento y se guarda en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra el sitio.
+Los dos se aplican al momento y se guardan en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra
+el sitio.
 
 ## La ayuda
 

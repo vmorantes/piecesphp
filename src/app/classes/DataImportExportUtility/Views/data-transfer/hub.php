@@ -82,7 +82,7 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
         </div>
 
         <div class="ui tab tab-element" data-tab="exportar">
-            <p><?= __($langGroup, 'Elige los filtros y el formato, y descarga el archivo.'); ?></p>
+            <p><?= __($langGroup, 'Elige qué exportar y en qué formato, y descarga el archivo.'); ?></p>
             <?php if (count($exporters) === 0): ?>
             <p><?= __($langGroup, 'No hay exportadores disponibles para tu usuario.'); ?></p>
             <?php else: ?>

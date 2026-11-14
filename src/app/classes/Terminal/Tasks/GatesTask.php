@@ -130,6 +130,21 @@ class GatesTask extends TerminalTaskAbstract
     const PERMISSIONS_MATRIX = 'files/dev/permissions-matrix.json';
     const BASE_URL_VARIABLE = 'PCSPHP_WALK_BASE';
 
+    /**
+     * La ayuda: la lista de `help` y la que imprime `gates help` sin correr nada (H207).
+     */
+    const HELP_LINES = [
+        "Corre todas las suites y FALLA si alguna no corrió.\r\n",
+        "\tParámetros:\r\n",
+        "\t  only=<trozo>   corre solo las suites cuyo nombre lo contenga. Por defecto: todas\r\n",
+        "\t  with=external  incluye las que declaran salida a la red o envío de correo\r\n",
+        "\t  changed-since=<commit>  solo las suites del área tocada desde ese commit (ADR 0062)\r\n",
+        "\t  areas changed-since=<commit>  no corre nada: imprime un JSON con el núcleo tocado, los módulos tocados y el módulo de cada ruta\r\n",
+        "\t    unchanged=<json>  (con areas) {archivo: hash de git hash-object o null}: lo que sigue igual no cuenta como cambio\r\n",
+        "\t  leftovers=rebase motivo=\"...\"  reescribe la línea base de los restos de prueba\r\n",
+        "\t  help           imprime esta ayuda y no corre nada\r\n",
+    ];
+
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
     {
         $lastIsBar = last_char($startRoute) == '/';
@@ -139,14 +154,7 @@ class GatesTask extends TerminalTaskAbstract
             $startRoute = mb_substr($startRoute, 0, mb_strlen($startRoute) - 1);
         }
 
-        $this->description = new StringArray([
-            "Corre todas las suites y FALLA si alguna no corrió.\r\n",
-            "\tParámetros:\r\n",
-            "\t  only=<trozo>   corre solo las suites cuyo nombre lo contenga. Por defecto: todas\r\n",
-            "\t  with=external  incluye las que declaran salida a la red o envío de correo\r\n",
-            "\t  areas changed-since=<commit>  no corre nada: imprime un JSON con el núcleo tocado, los módulos tocados y el módulo de cada ruta\r\n",
-            "\t    unchanged=<json>  (con areas) {archivo: hash de git hash-object o null}: lo que sigue igual no cuenta como cambio\r\n",
-        ]);
+        $this->description = new StringArray(self::HELP_LINES);
         $this->route = "{$startRoute}/gates[/]";
         $this->controller = self::class . '::main';
         $this->name = ($namePrefix !== null ? $namePrefix . '-' : '') . 'gates';
@@ -164,6 +172,10 @@ class GatesTask extends TerminalTaskAbstract
         $arguments = \PiecesPHP\TerminalData::instance()->arguments();
         if (is_array($arguments) && array_key_exists('areas', $arguments)) {
             exit(self::printAreas());
+        }
+        if (is_array($arguments) && array_key_exists('help', $arguments)) {
+            echoTerminal(rtrim(str_replace("\r\n", "\n", implode('', self::HELP_LINES))));
+            exit(0);
         }
 
         $titleTask = 'Corredor de puertas';
@@ -757,7 +769,8 @@ class GatesTask extends TerminalTaskAbstract
      */
     protected static function changedFiles(string $repoRoot, string $commit): ?array
     {
-        $git = 'git -C ' . escapeshellarg($repoRoot) . ' ';
+        //core.quotePath=false: un nombre no ASCII sale tal cual, no entre comillas y en octal, y casa con su área (H41).
+        $git = 'git -C ' . escapeshellarg($repoRoot) . ' -c core.quotePath=false ';
         $output = [];
         $status = 0;
         //RETORNO-IGNORADO: lo que cuenta es el código de salida y la primera línea, y se comprueban.

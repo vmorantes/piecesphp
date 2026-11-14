@@ -350,7 +350,8 @@ class SqlFormat implements FormatPluginInterface
      */
     protected function wrapRoutineParameters(string $sql): string
     {
-        $sql = preg_replace('~^(CREATE\s+(?:PROCEDURE|FUNCTION)\s+)([^`(\s]+)(\s*\()~i', '$1`$2`$3', $sql);
+        //Si PCRE falla (null, p. ej. por pcre.backtrack_limit), la definición sigue tal cual: nunca un 500 en el volcado.
+        $sql = preg_replace('~^(CREATE\s+(?:PROCEDURE|FUNCTION)\s+)([^`(\s]+)(\s*\()~i', '$1`$2`$3', $sql) ?? $sql;
         return preg_replace_callback('~\((.*)\)\s+(?:RETURNS|BEGIN|LANGUAGE)~isU', function ($m) {
             $params_list = $m[1];
             if (trim($params_list) === '') {
@@ -382,6 +383,6 @@ class SqlFormat implements FormatPluginInterface
             }
             $new_params = implode(', ', $parts);
             return str_replace($m[1], $new_params, $m[0]);
-        }, $sql);
+        }, $sql) ?? $sql;
     }
 }
