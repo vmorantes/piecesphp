@@ -12,6 +12,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use PiecesPHP\AI\AICapability;
 use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\AI\AIGateway;
+use PiecesPHP\AI\Providers\AIProviderCatalog;
+use PiecesPHP\AI\Providers\AIProviderRegistry;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 ?>
@@ -33,11 +35,8 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
             AICapability::PERIOD_EVERY_MONTHS => __($langGroup, 'Cada N meses'),
         ];
         $resetURL = SettingsController::allowedRoute('integrations-ai-usage-reset') ? (string) SettingsController::routeName('integrations-ai-usage-reset') : '';
-        //La que define el archivo de claves, sin placeholder: está deshabilitada y su texto lo dice (P318).
-        $keyPlaceholder = fn(string $option): string => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option) ? '' : (mb_strlen((string) get_config($option)) > 0 ? __($langGroup, 'Clave guardada: vacío la conserva') : __($langGroup, 'Pega aquí la API key del proveedor'));
         //Una clave que da el archivo de claves manda (P318): el campo no se edita y lo dice.
         $fixedByFile = fn(string $option): bool => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option);
-        $keyAttributes = fn(string $option): string => $fixedByFile($option) ? ' disabled aria-describedby="ai-fixed-' . escape_html($option) . '"' : '';
         //«Quitar la guardada» (P317): solo si hay una guardada; marcada, se guarda vacía. La del archivo, en su lugar, el aviso.
         $clearSaved = fn(string $option, string $id): string => $fixedByFile($option)
             ? '<p class="ui muted text" id="ai-fixed-' . escape_html($option) . '" data-fixed-by-file>' . escape_html(__($langGroup, 'La define el archivo de claves.')) . '</p>'
@@ -73,40 +72,74 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 
         <div class="ui section divider"></div>
 
-        <section aria-labelledby="ai-provider-title">
+        <section aria-labelledby="ai-provider-title" data-ai-providers data-test-url="<?= escape_html(SettingsController::allowedRoute('integrations-ai-provider-test') ? (string) SettingsController::routeName('integrations-ai-provider-test') : ''); ?>">
             <?php
                 $helpController->_render('panel/built-in/content/section-header.php', [
                     'id' => 'ai-provider-title',
-                    'title' => __($langGroup, 'Proveedores y claves'),
+                    'title' => __($langGroup, 'Proveedores'),
+                    'description' => __($langGroup, 'Cada proveedor con su sobrenombre y su clave; cada función elige el suyo abajo. La clave no se vuelve a enseñar.'),
                 ]);
+                $records = AIProviderRegistry::all();
+                $savedKeys = AIProviderRegistry::keys();
+                $typeOptions = array_map(fn(array $type): string => $type['name'], AIProviderCatalog::TYPES);
+                $typeOptions[AIProviderCatalog::TYPE_CUSTOM] = __($langGroup, 'Personalizado');
+                $legacyOrigin = fn(string $option): string => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option) ? __($langGroup, 'Del archivo de claves') : __($langGroup, 'De la configuración anterior');
+                $legacyRows = [
+                    AIProviderRegistry::LEGACY_OPENAI => ['name' => 'OpenAI', 'option' => 'OpenAIApiKey', 'keyId' => 'ai-key-openai', 'keyLabel' => __($langGroup, 'API Key OpenAI'), 'model' => 'modelOpenAI', 'models' => AI_MODELS[AI_OPENAI], 'clear' => 'ai-clear-openai'],
+                    AIProviderRegistry::LEGACY_MISTRAL => ['name' => 'Mistral', 'option' => 'MistralAIApiKey', 'keyId' => 'ai-key-mistral', 'keyLabel' => __($langGroup, 'API Key Mistral'), 'model' => 'modelMistral', 'models' => AI_MODELS[AI_MISTRAL], 'clear' => 'ai-clear-mistral'],
+                    AIProviderRegistry::LEGACY_GROQ => ['name' => 'Groq', 'option' => 'GroqAPIKey', 'keyId' => '', 'keyLabel' => '', 'model' => null, 'models' => [], 'clear' => null],
+                ];
             ?>
-            <div class="two fields">
-                <div class="field">
-                    <label for="ai-model-openai"><?= __($langGroup, 'Modelo OpenAI'); ?></label>
-                    <select id="ai-model-openai" name="modelOpenAI" class="ui fluid selection dropdown">
-                        <?= array_to_html_options(AI_MODELS[AI_OPENAI], get_config('modelOpenAI')); ?>
-                    </select>
+            <?php foreach ($legacyRows as $legacyId => $legacy): ?>
+            <?php $legacyExists = isset($records[$legacyId]); ?>
+            <?php if (!$legacyExists && $legacy['model'] === null): ?>
+            <?php continue; ?>
+            <?php endif; ?>
+            <?php //OpenAI y Mistral se ven siempre: la traducción usa su clave y su modelo hasta la ronda 3 del ADR 0077. ?>
+            <div class="ui secondary segment" data-ai-provider-legacy="<?= escape_html($legacyId); ?>">
+                <h4 class="ui header"><?= escape_html($legacy['name']); ?>
+                    <div class="sub header"><?= $legacyExists ? escape_html($legacyOrigin($legacy['option'])) . ' · ' : ''; ?><?= $legacy['model'] !== null ? __($langGroup, 'La usa la traducción') : __($langGroup, 'Heredado: no se edita aquí'); ?></div>
+                </h4>
+                <?php if ($legacy['model'] !== null): ?>
+                <div class="two fields">
+                    <div class="field">
+                        <label for="ai-<?= escape_html($legacy['model']); ?>"><?= escape_html(strReplaceTemplate(__($langGroup, 'Modelo %name%'), ['%name%' => $legacy['name']])); ?></label>
+                        <select id="ai-<?= escape_html($legacy['model']); ?>" name="<?= escape_html($legacy['model']); ?>" class="ui fluid selection dropdown">
+                            <?= array_to_html_options($legacy['models'], get_config($legacy['model'])); ?>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="<?= escape_html($legacy['keyId']); ?>"><?= escape_html($legacy['keyLabel']); ?></label>
+                        <?php if (!$fixedByFile($legacy['option'])): ?>
+                        <?php //La clave no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
+                        <input type="text" id="<?= escape_html($legacy['keyId']); ?>" name="<?= escape_html($legacy['option']); ?>" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html(mb_strlen((string) get_config($legacy['option'])) > 0 ? __($langGroup, 'Clave guardada: vacío la conserva') : __($langGroup, 'Pega aquí la API key del proveedor')); ?>">
+                        <?php endif; ?>
+                        <?= $clearSaved($legacy['option'], (string) $legacy['clear']); ?>
+                    </div>
                 </div>
-                <div class="field">
-                    <label for="ai-key-openai"><?= __($langGroup, 'API Key OpenAI'); ?></label>
-                    <?php //La clave no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
-                    <input type="text" id="ai-key-openai" name="OpenAIApiKey" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html($keyPlaceholder('OpenAIApiKey')); ?>"<?= $keyAttributes('OpenAIApiKey'); ?>>
-                    <?= $clearSaved('OpenAIApiKey', 'ai-clear-openai'); ?>
-                </div>
+                <?php else: ?>
+                <p class="ui text"><?= __($langGroup, 'Solo voz a texto: no se ofrece a las funciones de chat.'); ?></p>
+                <?php endif; ?>
             </div>
-            <div class="two fields">
-                <div class="field">
-                    <label for="ai-model-mistral"><?= __($langGroup, 'Modelo Mistral'); ?></label>
-                    <select id="ai-model-mistral" name="modelMistral" class="ui fluid selection dropdown">
-                        <?= array_to_html_options(AI_MODELS[AI_MISTRAL], get_config('modelMistral')); ?>
-                    </select>
-                </div>
-                <div class="field">
-                    <label for="ai-key-mistral"><?= __($langGroup, 'API Key Mistral'); ?></label>
-                    <input type="text" id="ai-key-mistral" name="MistralAIApiKey" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html($keyPlaceholder('MistralAIApiKey')); ?>"<?= $keyAttributes('MistralAIApiKey'); ?>>
-                    <?= $clearSaved('MistralAIApiKey', 'ai-clear-mistral'); ?>
-                </div>
+            <?php endforeach; ?>
+
+            <input type="hidden" name="<?= escape_html(AIGateway::CONFIG_NAME); ?>[providers_sent]" value="1">
+            <div data-ai-providers-list>
+                <?php $savedProviders = array_values(array_filter($records, fn($record) => !str_starts_with($record->id(), AIProviderRegistry::LEGACY_PREFIX))); ?>
+                <?php $savedEntries = SettingsController::aiProviderEntries(); ?>
+                <?php foreach ($savedProviders as $position => $record): ?>
+                <?php $entry = $savedEntries[$record->id()] ?? ['id' => $record->id(), 'type' => $record->type(), 'alias' => $record->alias()]; ?>
+                <?php $index = (string) $position; ?>
+                <?php include __DIR__ . '/ai-provider-row.php'; ?>
+                <?php endforeach; ?>
             </div>
+            <?php if ($savedProviders === []): ?>
+            <p class="ui muted text" data-ai-providers-empty><?= __($langGroup, 'Todavía no hay proveedores guardados.'); ?></p>
+            <?php endif; ?>
+            <?php $entry = []; ?>
+            <?php $index = '__INDEX__'; ?>
+            <template data-ai-provider-template><?php include __DIR__ . '/ai-provider-row.php'; ?></template>
+            <button type="button" class="ui basic button" data-ai-provider-add data-next-index="<?= count($savedProviders); ?>"><i class="plus icon" aria-hidden="true"></i><?= __($langGroup, 'Añadir proveedor'); ?></button>
         </section>
 
         <div class="ui section divider"></div>
@@ -169,8 +202,44 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                             <?= array_to_html_options(TRANSLATION_AI_LIST, get_config('translationAI')); ?>
                         </select>
                     </div>
+                    <?php else: ?>
+                    <?php
+                        $selection = AIGateway::providerSelectionFor($capabilityKey);
+                        //Los que saben lo que pide la función: chat y, si usa herramientas, herramientas. Los heredados, primero.
+                        $choices = ['' => __($langGroup, 'El de «IA para traducciones»')];
+                        $suggestions = [];
+                        foreach ($records as $record) {
+                            if ($record->supports(AIProviderCatalog::CAPABILITY_CHAT) && (!$capability->usesTools() || $record->supports(AIProviderCatalog::CAPABILITY_TOOLS))) {
+                                $choices[$record->id()] = $record->alias() . ' (' . ($record->type() === AIProviderCatalog::TYPE_CUSTOM ? __($langGroup, 'Personalizado') : AIProviderCatalog::TYPES[$record->type()]['name']) . ')';
+                                $suggestions[$record->id()] = $record->models();
+                            }
+                        }
+                    ?>
+                    <div class="field">
+                        <label for="<?= escape_html($idBase); ?>-provider"><?= __($langGroup, 'Proveedor'); ?></label>
+                        <select id="<?= escape_html($idBase); ?>-provider" name="<?= escape_html($field); ?>[provider]" class="ui fluid selection dropdown" data-ai-capability-provider<?= ($selection['provider'] ?? null) === null ? ' aria-describedby="' . escape_html($idBase) . '-provider-description"' : ''; ?>>
+                            <?= array_to_html_options($choices, $selection['provider'] ?? ''); ?>
+                        </select>
+                        <?php if (($selection['provider'] ?? null) === null): ?>
+                        <div class="description" id="<?= escape_html($idBase); ?>-provider-description"><?= __($langGroup, 'Usa el proveedor de la traducción hasta que elijas otro.'); ?></div>
+                        <?php endif; ?>
+                    </div>
                     <?php endif; ?>
                 </div>
+                <?php if ($capabilityKey !== 'translation'): ?>
+                <div class="two fields">
+                    <div class="field">
+                        <label for="<?= escape_html($idBase); ?>-model"><?= __($langGroup, 'Modelo'); ?></label>
+                        <input type="text" id="<?= escape_html($idBase); ?>-model" name="<?= escape_html($field); ?>[model]" value="<?= escape_html($selection['model'] ?? ''); ?>" list="<?= escape_html($idBase); ?>-models" autocomplete="off" spellcheck="false" aria-describedby="<?= escape_html($idBase); ?>-model-description">
+                        <datalist id="<?= escape_html($idBase); ?>-models">
+                            <?php foreach (array_unique(array_merge(...array_values($suggestions + ['' => []]))) as $suggestion): ?>
+                            <option value="<?= escape_html($suggestion); ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                        <div class="description" id="<?= escape_html($idBase); ?>-model-description"><?= __($langGroup, 'Obligatorio si eliges un proveedor.'); ?></div>
+                    </div>
+                </div>
+                <?php endif; ?>
                 <div class="three fields">
                     <div class="field">
                         <label for="<?= escape_html($idBase); ?>-quota"><?= __($langGroup, 'Cuota (tokens)'); ?></label>

@@ -13,8 +13,8 @@ scripts”**. All of them end with **“Cancel”** and **“Save”**.
 <!-- ve: configurations-integrations-ai -->
 
 Go to **“Artificial intelligence”**. It is the control center for all of the platform's artificial intelligence: here you
-turn it on or off, choose the providers and their keys, and decide, feature by feature, who uses it and how much it can
-spend.
+turn it on or off, save your providers with their keys, and decide, feature by feature, which provider and model it
+works with, who uses it and how much it can spend.
 
 ![Artificial intelligence](img/configurations-integrations-ai.webp)
 
@@ -24,14 +24,31 @@ spend.
 | --- | --- | --- |
 | AI enabled | No | The main switch. When off, no artificial intelligence feature calls a provider. |
 
-**Providers and keys**
+**Providers**: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
+further down. You can have several of the same provider (for example, two OpenAI ones with keys for different purposes).
+
+- **OpenAI** and **Mistral**, at the top, are the ones from the previous configuration: translation uses them. In each one
+  you choose its **model** and type its **key**; if the keys file defines the key, it cannot be changed and it says so; if
+  it is saved, **“Remove the saved one”** deletes it. **Groq**, if it appears, is only for speech to text.
+- **“+ Add provider”** adds a new one. With none, the section says “There are no saved providers yet”.
+
+Each added provider has these fields:
 
 | Field | Required | Purpose |
 | --- | --- | --- |
-| OpenAI Model | No | The OpenAI model that is used. |
-| OpenAI API Key | No | The access key for OpenAI. If the keys file defines it, the field cannot be changed and says so. |
-| Mistral Model | No | The Mistral model that is used. |
-| Mistral API Key | No | The access key for Mistral, with the same rule. |
+| Type | Yes | The provider: OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter or **Custom** (any other that speaks the OpenAI format). |
+| Nickname | Yes | How you recognize it in the features, for example “Main OpenAI”. It cannot be repeated. |
+| Key | No | The access key. **Once saved it is never shown again**: the field says “Saved” with its last four characters. Empty when saving, it keeps the one there was; **“Remove the saved one”** deletes it. |
+| Base URL | Yes, for Custom | The service address: `https://`, or `http://localhost` or `http://127.0.0.1` for a model installed on your own computer. |
+| Key header | No, for Custom | If the provider wants the key in another header. Empty, it is sent as `Authorization: Bearer`. |
+| Quota (tokens) | No | How much that provider can spend in each period, **adding up all the features that use it**. **0 = no limit.** |
+| Period | No | As in the features: Cumulative, Monthly, Every N days or Every N months. |
+| Model to test with | No | The model “Test” uses. |
+
+Below each one, its **usage this period**. **“Test”** checks the key and the model with a minimal call, without saving
+anything or spending quota, and says next to it whether it works or why not (the key rejected, a model that does not exist,
+no connection). **“Remove”** takes it out when saving; if a feature is using it, saving is refused and it tells you which
+one: first choose another provider for that feature.
 
 **Features**: one section for each artificial intelligence feature the platform has (for example, “Translation with
 AI”), with these fields:
@@ -40,7 +57,9 @@ AI”), with these fields:
 | --- | --- | --- |
 | Enabled | No | Turns that feature on or off. |
 | Who uses it | No | Which user types can use it. The main user (Root) always can. |
-| AI for translations | No | Only in “Translation with AI”: which provider translates. |
+| AI for translations | No | Only in “Translation with AI”: which provider translates (OpenAI or Mistral, the ones above). |
+| Provider | No | In the other features: which of your providers it uses. If none is chosen, it uses the “AI for translations” one. |
+| Model | Yes, if you choose a provider | The model of that provider the feature uses. |
 | Quota (tokens) | No | How much the feature can spend in each period. **0 = no limit.** When the quota is reached, the feature stops calling the provider and says so, until the next period or until you reset the counter. |
 | Period | No | How often the quota starts counting again: **Cumulative** (it never does), **Monthly**, **Every N days** or **Every N months**. With the last two, the **“N”** field appears. |
 

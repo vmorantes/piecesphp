@@ -52,7 +52,7 @@ class McpRoutes
             //El asistente, en el centro de mando de la IA (ADR 0074): apagado hasta que alguien lo encienda en Configuración › IA,
             //y con cuota: sin ella, una pregunta podría gastar sin límite.
             if (AICapabilityRegistry::get(Assistant::CAPABILITY) === null) {
-                AICapabilityRegistry::register(new AICapability(Assistant::CAPABILITY, fn(): string => __(McpLang::LANG_GROUP, 'Asistente del panel'), AICapability::PROVIDER_CHAT, false, [], self::ASSISTANT_DEFAULT_QUOTA, AICapability::PERIOD_MONTHLY));
+                AICapabilityRegistry::register(new AICapability(Assistant::CAPABILITY, fn(): string => __(McpLang::LANG_GROUP, 'Asistente del panel'), AICapability::PROVIDER_CHAT, false, [], self::ASSISTANT_DEFAULT_QUOTA, AICapability::PERIOD_MONTHLY, null, true));
             }
         }
         return $groupAdministration;

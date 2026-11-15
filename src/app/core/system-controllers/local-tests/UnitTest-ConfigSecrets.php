@@ -199,17 +199,20 @@ CliActions::make('unit-tests:core/config-secrets', function ($args) {
         SettingsModel::setConfigValue($f7, 'zz-en-claro-en-la-base');
         $cargar($f7);
         $check(get_config($f7) === 'zz-del-archivo' && $abrir($enBase($f7)) === 'zz-en-claro-en-la-base', 's7 fijada por el archivo con su fila en claro: no se aplica, y en la base queda sellada');
-        //La pantalla de IA: la que define el archivo, deshabilitada y con su aviso; sin la casilla de quitarla.
+        //La pantalla de IA: la que define el archivo, con su aviso y sin campo ni casilla; la otra, con su campo editable.
         $antesIa = get_config('OpenAIApiKey');
+        $antesMistral = get_config('MistralAIApiKey');
         try {
             ConfigOptions::markFixedByFile('OpenAIApiKey');
             set_config('OpenAIApiKey', 'zz-del-archivo');
+            set_config('MistralAIApiKey', 'zz-guardada-mistral');
             $ia = $pintar('ai', []);
-            $check(str_contains($ia, 'data-fixed-by-file') && preg_match('/name="OpenAIApiKey"[^>]*\sdisabled/', $ia) === 1 && !str_contains($ia, 'name="clear_OpenAIApiKey"'), 's5 la pantalla de IA: el campo deshabilitado, «La define el archivo de claves.» y sin la casilla');
-            $check(preg_match('/name="MistralAIApiKey"[^>]*\sdisabled/', $ia) === 0, 's6 la que no define el archivo, editable');
+            $check(str_contains($ia, 'data-fixed-by-file') && !str_contains($ia, 'name="OpenAIApiKey"') && !str_contains($ia, 'name="clear_OpenAIApiKey"'), 's5 la pantalla de IA: la que define el archivo, «La define el archivo de claves.», sin campo de clave ni casilla');
+            $check(preg_match('/name="MistralAIApiKey" value=""[^>]*>/', $ia, $campoMistral) === 1 && !str_contains($campoMistral[0], 'disabled') && str_contains($campoMistral[0], 'placeholder="' . __('appConfig', 'Clave guardada: vacío la conserva') . '"') && str_contains($ia, 'name="clear_MistralAIApiKey"') && !str_contains($ia, 'zz-guardada-mistral'), 's6 la que no define el archivo: su campo editable y vacío, «vacío la conserva», «Quitar la guardada», y la clave no está en la página');
             $check(preg_match('/name="OpenAIApiKey"[^>]*placeholder="[^"]+"/', $ia) === 0, 's8 la fijada no promete «vacío la conserva» (sin placeholder)');
         } finally {
             set_config('OpenAIApiKey', $antesIa);
+            set_config('MistralAIApiKey', $antesMistral);
             ConfigOptions::swapFixedByFileForTesting($fijadasAntes);
         }
     } catch (\Throwable $e) {

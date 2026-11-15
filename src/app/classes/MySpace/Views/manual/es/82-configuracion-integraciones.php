@@ -10,8 +10,8 @@ Scripts»</strong>. Todas terminan con <strong>«Cancelar»</strong> y <strong>�
 <h2 class="active title" id="inteligencia-artificial"><span role="button" tabindex="0" aria-expanded="true" aria-controls="inteligencia-artificial-contenido"><i class="dropdown icon" aria-hidden="true"></i>Inteligencia artificial</span></h2>
 <div class="active content" id="inteligencia-artificial-contenido">
 <p>Entra por <strong>«Inteligencia artificial»</strong>. Es el centro de mando de toda la inteligencia artificial de la plataforma: aquí
-la enciendes o la apagas, eliges los proveedores y sus claves, y decides, función por función, quién la usa y cuánto
-puede gastar.</p>
+la enciendes o la apagas, guardas tus proveedores con sus claves, y decides, función por función, con qué proveedor y
+modelo trabaja, quién la usa y cuánto puede gastar.</p>
 <p><img class="ui image" alt="Inteligencia artificial" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
 <p><strong>La inteligencia artificial</strong></p>
 <table class="ui celled table">
@@ -30,7 +30,15 @@ puede gastar.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Proveedores y claves</strong></p>
+<p><strong>Proveedores</strong>: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
+el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de OpenAI con claves para fines distintos).</p>
+<ul>
+<li><strong>OpenAI</strong> y <strong>Mistral</strong>, arriba, son los de la configuración anterior: la traducción los usa. En cada uno eliges su
+  <strong>modelo</strong> y escribes su <strong>clave</strong>; si la clave la define el archivo de claves, no se puede cambiar y lo dice; si está
+  guardada, <strong>«Quitar la guardada»</strong> la borra. <strong>Groq</strong>, si aparece, solo sirve para pasar voz a texto.</li>
+<li><strong>«+ Añadir proveedor»</strong> añade uno nuevo. Sin ninguno, la sección dice «Todavía no hay proveedores guardados».</li>
+</ul>
+<p>Cada proveedor añadido tiene estos campos:</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -41,27 +49,51 @@ puede gastar.</p>
 </thead>
 <tbody>
 <tr>
-<td>Modelo OpenAI</td>
-<td>No</td>
-<td>El modelo de OpenAI que se usa.</td>
+<td>Tipo</td>
+<td>Sí</td>
+<td>El proveedor: OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter o <strong>Personalizado</strong> (cualquier otro que hable el formato de OpenAI).</td>
 </tr>
 <tr>
-<td>API Key OpenAI</td>
-<td>No</td>
-<td>La clave de acceso a OpenAI. Si la define el archivo de claves, el campo no se puede cambiar y lo dice.</td>
+<td>Sobrenombre</td>
+<td>Sí</td>
+<td>Cómo lo reconoces en las funciones, por ejemplo «OpenAI principal». No se puede repetir.</td>
 </tr>
 <tr>
-<td>Modelo Mistral</td>
+<td>Clave</td>
 <td>No</td>
-<td>El modelo de Mistral que se usa.</td>
+<td>La clave de acceso. <strong>Una vez guardada no se vuelve a enseñar</strong>: el campo dice «Guardada» con sus cuatro últimos caracteres. Vacío al guardar, conserva la que había; <strong>«Quitar la guardada»</strong> la borra.</td>
 </tr>
 <tr>
-<td>API Key Mistral</td>
+<td>Dirección base</td>
+<td>Sí, en Personalizado</td>
+<td>La dirección del servicio: <code>https://</code>, o <code>http://localhost</code> o <code>http://127.0.0.1</code> para un modelo instalado en tu propio equipo.</td>
+</tr>
+<tr>
+<td>Cabecera de la clave</td>
+<td>No, en Personalizado</td>
+<td>Si el proveedor pide la clave en otra cabecera. Vacía, se manda como <code>Authorization: Bearer</code>.</td>
+</tr>
+<tr>
+<td>Cuota (tokens)</td>
 <td>No</td>
-<td>La clave de acceso a Mistral, con la misma regla.</td>
+<td>Cuánto puede gastar ese proveedor en cada periodo, <strong>sumando todas las funciones que lo usan</strong>. <strong>0 = sin límite.</strong></td>
+</tr>
+<tr>
+<td>Periodo</td>
+<td>No</td>
+<td>Como en las funciones: Acumulado, Mensual, Cada N días o Cada N meses.</td>
+</tr>
+<tr>
+<td>Modelo para probar</td>
+<td>No</td>
+<td>El modelo con el que lo prueba «Probar».</td>
 </tr>
 </tbody>
 </table>
+<p>Debajo de cada uno, su <strong>consumo de este periodo</strong>. <strong>«Probar»</strong> comprueba la clave y el modelo con una llamada mínima,
+sin guardar nada ni gastar cuota, y dice al lado si funciona o por qué no (la clave rechazada, un modelo que no existe,
+sin conexión). <strong>«Quitar»</strong> lo retira al guardar; si una función lo está usando, no deja guardar y te dice cuál:
+elige antes otro proveedor para esa función.</p>
 <p><strong>Funciones</strong>: una sección por cada función de inteligencia artificial que tenga la plataforma (por ejemplo, «Traducción
 con IA»), con estos campos:</p>
 <table class="ui celled table">
@@ -86,7 +118,17 @@ con IA»), con estos campos:</p>
 <tr>
 <td>IA para traducciones</td>
 <td>No</td>
-<td>Solo en «Traducción con IA»: qué proveedor traduce.</td>
+<td>Solo en «Traducción con IA»: qué proveedor traduce (OpenAI o Mistral, los de arriba).</td>
+</tr>
+<tr>
+<td>Proveedor</td>
+<td>No</td>
+<td>En las demás funciones: cuál de tus proveedores usa. Sin elegir, usa el de «IA para traducciones».</td>
+</tr>
+<tr>
+<td>Modelo</td>
+<td>Sí, si eliges proveedor</td>
+<td>El modelo de ese proveedor que usa la función.</td>
 </tr>
 <tr>
 <td>Cuota (tokens)</td>

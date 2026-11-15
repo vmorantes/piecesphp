@@ -8,11 +8,14 @@ namespace PiecesPHP\Settings;
 
 use API\Controllers\APIController;
 use PiecesPHP\AI\AIGateway;
+use PiecesPHP\AI\Providers\AIProviderRegistry;
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\ConfigHelpers\MailjetConfig;
+use PiecesPHP\Core\Crypto\EncryptedData;
+use PiecesPHP\Core\Crypto\EncryptedDataRegistry;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -104,6 +107,12 @@ class SettingsRoutes
         $declare(['translationAIEnable'], $owner, ConfigOptions::SHAPE_BOOL);
         $declare([APIController::TRANSLATION_AI_USER_TYPES_CONFIG], APIController::class, ConfigOptions::SHAPE_JSON);
         $declare([AIGateway::CONFIG_NAME], AIGateway::class, ConfigOptions::SHAPE_JSON);
+        //Las claves de los registros de proveedor (ADR 0077): un mapa sellado que solo abre su dueño, y su sitio en el registro
+        //de lo cifrado para que la rotación de la clave de la aplicación lo vuelva a sellar.
+        $declare([AIProviderRegistry::KEYS_CONFIG_NAME], AIProviderRegistry::class, ConfigOptions::SHAPE_SEALED);
+        if (!array_key_exists(AIProviderRegistry::SEAL_PURPOSE, EncryptedDataRegistry::all())) {
+            EncryptedDataRegistry::register(new EncryptedData(AIProviderRegistry::SEAL_PURPOSE, AIProviderRegistry::SEAL_PURPOSE, EncryptedData::KIND_OPTION, AIProviderRegistry::KEYS_CONFIG_NAME));
+        }
 
         //Colores, tipografía y forma: la pantalla Colores.
         $declare(SettingsController::COLOR_OPTIONS, $owner, ConfigOptions::SHAPE_COLOR);

@@ -102,6 +102,11 @@ final class AICapability
     private $legacySettings;
 
     /**
+     * @var bool
+     */
+    private $usesTools;
+
+    /**
      * @param string $key Solo minúsculas, cifras y guiones
      * @param callable():string $name Devuelve el nombre ya traducido: se llama al pintar, no al registrar
      * @param string $providerType PROVIDER_CHAT o PROVIDER_SPEECH
@@ -111,9 +116,10 @@ final class AICapability
      * @param string $defaultPeriod Uno de PERIODS
      * @param \Closure|null $legacySettings Los valores que el módulo guardaba antes del centro (un array parcial con las claves de
      *        AIGateway::settingsFor()); van entre los por omisión y lo guardado en ai_center, y se leen hasta la 11.0.0
+     * @param bool $usesTools Si conversa con herramientas: la puerta solo le da registros cuyo tipo las admite (ADR 0077 §2)
      * @throws \InvalidArgumentException si la key, el tipo de proveedor, la cuota o el periodo no valen
      */
-    public function __construct(string $key, callable $name, string $providerType, bool $enabledByDefault = true, array $defaultUserTypes = [], int $defaultQuota = 0, string $defaultPeriod = self::PERIOD_ACCUMULATED, ?\Closure $legacySettings = null)
+    public function __construct(string $key, callable $name, string $providerType, bool $enabledByDefault = true, array $defaultUserTypes = [], int $defaultQuota = 0, string $defaultPeriod = self::PERIOD_ACCUMULATED, ?\Closure $legacySettings = null, bool $usesTools = false)
     {
         if (preg_match(self::KEY_PATTERN, $key) !== 1) {
             throw new \InvalidArgumentException("La key de capacidad de IA «{$key}» no es válida.");
@@ -135,6 +141,7 @@ final class AICapability
         $this->defaultQuota = $defaultQuota;
         $this->defaultPeriod = $defaultPeriod;
         $this->legacySettings = $legacySettings;
+        $this->usesTools = $usesTools;
     }
 
     /**
@@ -207,5 +214,15 @@ final class AICapability
         }
         $settings = ($this->legacySettings)();
         return is_array($settings) ? $settings : [];
+    }
+
+    /**
+     * Si conversa con herramientas (el registro de su proveedor tiene que admitirlas).
+     *
+     * @return bool
+     */
+    public function usesTools(): bool
+    {
+        return $this->usesTools;
     }
 }

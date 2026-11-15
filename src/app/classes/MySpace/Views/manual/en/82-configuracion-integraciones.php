@@ -10,8 +10,8 @@ scripts”</strong>. All of them end with <strong>“Cancel”</strong> and <str
 <h2 class="active title" id="artificial-intelligence"><span role="button" tabindex="0" aria-expanded="true" aria-controls="artificial-intelligence-contenido"><i class="dropdown icon" aria-hidden="true"></i>Artificial intelligence</span></h2>
 <div class="active content" id="artificial-intelligence-contenido">
 <p>Go to <strong>“Artificial intelligence”</strong>. It is the control center for all of the platform's artificial intelligence: here you
-turn it on or off, choose the providers and their keys, and decide, feature by feature, who uses it and how much it can
-spend.</p>
+turn it on or off, save your providers with their keys, and decide, feature by feature, which provider and model it
+works with, who uses it and how much it can spend.</p>
 <p><img class="ui image" alt="Artificial intelligence" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
 <p><strong>Artificial intelligence</strong></p>
 <table class="ui celled table">
@@ -30,7 +30,15 @@ spend.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Providers and keys</strong></p>
+<p><strong>Providers</strong>: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
+further down. You can have several of the same provider (for example, two OpenAI ones with keys for different purposes).</p>
+<ul>
+<li><strong>OpenAI</strong> and <strong>Mistral</strong>, at the top, are the ones from the previous configuration: translation uses them. In each one
+  you choose its <strong>model</strong> and type its <strong>key</strong>; if the keys file defines the key, it cannot be changed and it says so; if
+  it is saved, <strong>“Remove the saved one”</strong> deletes it. <strong>Groq</strong>, if it appears, is only for speech to text.</li>
+<li><strong>“+ Add provider”</strong> adds a new one. With none, the section says “There are no saved providers yet”.</li>
+</ul>
+<p>Each added provider has these fields:</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -41,27 +49,51 @@ spend.</p>
 </thead>
 <tbody>
 <tr>
-<td>OpenAI Model</td>
-<td>No</td>
-<td>The OpenAI model that is used.</td>
+<td>Type</td>
+<td>Yes</td>
+<td>The provider: OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter or <strong>Custom</strong> (any other that speaks the OpenAI format).</td>
 </tr>
 <tr>
-<td>OpenAI API Key</td>
-<td>No</td>
-<td>The access key for OpenAI. If the keys file defines it, the field cannot be changed and says so.</td>
+<td>Nickname</td>
+<td>Yes</td>
+<td>How you recognize it in the features, for example “Main OpenAI”. It cannot be repeated.</td>
 </tr>
 <tr>
-<td>Mistral Model</td>
+<td>Key</td>
 <td>No</td>
-<td>The Mistral model that is used.</td>
+<td>The access key. <strong>Once saved it is never shown again</strong>: the field says “Saved” with its last four characters. Empty when saving, it keeps the one there was; <strong>“Remove the saved one”</strong> deletes it.</td>
 </tr>
 <tr>
-<td>Mistral API Key</td>
+<td>Base URL</td>
+<td>Yes, for Custom</td>
+<td>The service address: <code>https://</code>, or <code>http://localhost</code> or <code>http://127.0.0.1</code> for a model installed on your own computer.</td>
+</tr>
+<tr>
+<td>Key header</td>
+<td>No, for Custom</td>
+<td>If the provider wants the key in another header. Empty, it is sent as <code>Authorization: Bearer</code>.</td>
+</tr>
+<tr>
+<td>Quota (tokens)</td>
 <td>No</td>
-<td>The access key for Mistral, with the same rule.</td>
+<td>How much that provider can spend in each period, <strong>adding up all the features that use it</strong>. <strong>0 = no limit.</strong></td>
+</tr>
+<tr>
+<td>Period</td>
+<td>No</td>
+<td>As in the features: Cumulative, Monthly, Every N days or Every N months.</td>
+</tr>
+<tr>
+<td>Model to test with</td>
+<td>No</td>
+<td>The model “Test” uses.</td>
 </tr>
 </tbody>
 </table>
+<p>Below each one, its <strong>usage this period</strong>. <strong>“Test”</strong> checks the key and the model with a minimal call, without saving
+anything or spending quota, and says next to it whether it works or why not (the key rejected, a model that does not exist,
+no connection). <strong>“Remove”</strong> takes it out when saving; if a feature is using it, saving is refused and it tells you which
+one: first choose another provider for that feature.</p>
 <p><strong>Features</strong>: one section for each artificial intelligence feature the platform has (for example, “Translation with
 AI”), with these fields:</p>
 <table class="ui celled table">
@@ -86,7 +118,17 @@ AI”), with these fields:</p>
 <tr>
 <td>AI for translations</td>
 <td>No</td>
-<td>Only in “Translation with AI”: which provider translates.</td>
+<td>Only in “Translation with AI”: which provider translates (OpenAI or Mistral, the ones above).</td>
+</tr>
+<tr>
+<td>Provider</td>
+<td>No</td>
+<td>In the other features: which of your providers it uses. If none is chosen, it uses the “AI for translations” one.</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>Yes, if you choose a provider</td>
+<td>The model of that provider the feature uses.</td>
 </tr>
 <tr>
 <td>Quota (tokens)</td>

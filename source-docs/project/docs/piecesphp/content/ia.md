@@ -141,10 +141,54 @@ if ($handler === null) {
 - `recordUsage()` suma los tokens y una petición en la fila del periodo vigente de esa capacidad y ese proveedor, y
   también en el acumulado por proveedor que enseña Configuración › IA.
 
+## Los proveedores y `chatProvider()`
+
+!!! warning "Provisional"
+
+    La traducción sigue usando `chatHandler()` y los proveedores heredados (abajo) hasta una versión próxima; las
+    demás funciones ya eligen su registro en Configuración › IA.
+
+Un **registro de proveedor** es un tipo (OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter o «Personalizado»), un
+sobrenombre y una clave. Varios del mismo tipo pueden convivir. Cada función elige un registro y un modelo
+(`capabilities.<clave>.provider` y `.model` en `ai_center`). Las claves no van en `ai_center`: van selladas en la opción
+`ai_provider_keys`, que solo abre la puerta.
+
+```php
+use PiecesPHP\AI\AIGateway;
+use PiecesPHP\AI\AIUnavailableException;
+
+try {
+    $provider = AIGateway::chatProvider('invoice-summary');
+    $answer = $provider->chatWithTools([
+        ['role' => 'user', 'content' => 'Resume esta factura: …'],
+    ]);
+    AIGateway::recordUsage('invoice-summary', AIGateway::usageProviderName($provider), $answer['usage']);
+} catch (AIUnavailableException $e) {
+    //$e->getMessage(): el motivo, traducido (la función apagada, sin proveedor elegido, sin clave…).
+}
+```
+
+- `chatProvider()` resuelve la función → su registro → su modelo, y devuelve un `AIChatProvider`. Si la función no
+  eligió ninguno, usa el **heredado** de «IA para traducciones»: `legacy-openai` (la clave `OpenAIApiKey` y
+  `modelOpenAI`) o `legacy-mistral` (`MistralAIApiKey` y `modelMistral`). Un registro heredado solo existe si su clave
+  existe (en el archivo de claves o en la base).
+- Lanza `AIUnavailableException` con un motivo traducible si un control lo impide, si el registro no existe o no tiene
+  clave, o si su tipo no sabe hacer lo que la función necesita. Una función que use herramientas lo declara con el último
+  argumento de `AICapability` (`usesTools: true`), y entonces solo valen tipos con herramientas.
+- **Cuota por registro**: además de la de cada función, cada registro guardado tiene la suya (sumando todas las funciones
+  que lo usan); manda la primera que se alcance.
+- **Probar** (Configuración › IA) hace una llamada mínima con `AIGateway::testProvider()`, sin controles, sin consumo y sin
+  guardar nada.
+- `chatWithTools()` devuelve `content`, `toolCalls`, `usage`, `inputTokens` y `outputTokens`, con 30 segundos de tiempo
+  máximo. Un error del proveedor lanza `RuntimeException` sin la clave ni la respuesta del proveedor.
+- Como `chatHandler()`, cierra antes la conexión a la base.
+- El tipo «Personalizado» habla el formato de OpenAI con la dirección que se le dé: solo `https://`, o
+  `http://localhost` y `http://127.0.0.1` para un modelo local.
+
 ## Lo que se guarda
 
 `pcsphp_ai_usage` (`AIUsageMapper`): una fila por capacidad, proveedor y comienzo del periodo, con `tokens`,
-`requests`, `createdAt` y `updatedAt`. Cada periodo nuevo empieza en una fila nueva; el acumulado sin ancla propia empieza en
+`requests`, `createdAt` y `updatedAt`. Cada periodo nuevo empieza en una fila nueva. **El consumo de cada registro de proveedor guardado** va además en su propia fila, con `capability = '@provider'` (`AIGateway::PROVIDER_USAGE_ROW`, que ninguna capacidad puede llevar) y el periodo del registro, porque el de cada función puede ser otro; el acumulado sin ancla propia empieza en
 `AIUsageMapper::ACCUMULATED_PERIOD_START` (`2000-01-01 00:00:00`).
 
 Una instalación que ya existe crea la tabla con `bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes` (con un

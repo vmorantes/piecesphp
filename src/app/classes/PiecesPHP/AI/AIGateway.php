@@ -9,6 +9,10 @@ namespace PiecesPHP\AI;
 use API\Adapters\MistralHandlerAdapter;
 use API\Adapters\OpenAIHandlerAdapter;
 use PiecesPHP\AI\Mappers\AIUsageMapper;
+use PiecesPHP\AI\Providers\AIChatProvider;
+use PiecesPHP\AI\Providers\AIProviderCatalog;
+use PiecesPHP\AI\Providers\AIProviderRecord;
+use PiecesPHP\AI\Providers\AIProviderRegistry;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
@@ -31,11 +35,29 @@ use PiecesPHP\UserSystem\UserDataPackage;
 final class AIGateway
 {
     /**
-     * {"enabled": bool, "capabilities": {"<key>": {"enabled", "userTypes", "quota", "period", "periodLength", "periodAnchor"}}}
+     * {"enabled": bool, "capabilities": {"<key>": {"enabled", "userTypes", "quota", "period", "periodLength", "periodAnchor",
+     * "provider", "model"}}, "providers": [{"id", "type", "alias", "baseUrl", "keyHeader", "models"}]} (AIProviderRegistry)
      */
     const CONFIG_NAME = 'ai_center';
 
     const ANCHOR_FORMAT = 'Y-m-d H:i:s';
+
+    /**
+     * Los modelos de los heredados si modelOpenAI o modelMistral están vacíos: los por omisión de sus adaptadores.
+     */
+    const LEGACY_DEFAULT_MODEL_OPENAI = 'gpt-3.5-turbo-0125';
+    const LEGACY_DEFAULT_MODEL_MISTRAL = 'mistral-medium';
+
+    /**
+     * El tope de tokens de la respuesta de «Probar»: 16, el mínimo que OpenRouter documenta para algunos proveedores.
+     */
+    const TEST_MAX_TOKENS = 16;
+
+    /**
+     * La «capacidad» de la fila de consumo propia de cada registro de proveedor (providerUsage()). No casa con
+     * AICapability::KEY_PATTERN: ninguna capacidad registrada puede llamarse así.
+     */
+    const PROVIDER_USAGE_ROW = '@provider';
 
     /**
      * Los campos no válidos ya anotados en esta petición, por su ruta.
@@ -43,6 +65,13 @@ final class AIGateway
      * @var array<string,true>
      */
     private static $invalidLogged = [];
+
+    /**
+     * SOLO PARA PRUEBAS: el cliente HTTP de los proveedores.
+     *
+     * @var \Psr\Http\Client\ClientInterface|null
+     */
+    private static $providerHttpClient = null;
 
     /**
      * El manejador de chat configurado para esa capacidad (Configuración › IA: translationAI, modelOpenAI y
@@ -80,8 +109,146 @@ final class AIGateway
     }
 
     /**
+     * El proveedor de chat de esa capacidad (ADR 0077): primero los controles (denialReason()); después el registro y el
+     * modelo elegidos (capabilities.<clave>.provider y .model) o, sin registro elegido, el heredado de translationAI (OpenAI
+     * → legacy-openai con modelOpenAI, Mistral → legacy-mistral con modelMistral). Cierra la conexión a la base antes de
+     * devolverlo, como chatHandler(): las herramientas reconectan solas.
+     *
+     * @param string $capability
+     * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
+     * @return AIChatProvider
+     * @throws \InvalidArgumentException si la capacidad no está registrada o no es de chat
+     * @throws AIUnavailableException si los controles no dejan o el registro no sirve (el mensaje es el motivo, traducido)
+     */
+    public static function chatProvider(string $capability, UsersModel|UserDataPackage|null $user = null): AIChatProvider
+    {
+        $definition = self::capabilityOf($capability, AICapability::PROVIDER_CHAT);
+
+        $reason = self::denialReason($capability, $user);
+        if ($reason !== null) {
+            throw new AIUnavailableException($reason);
+        }
+
+        ['provider' => $recordId, 'model' => $model] = self::providerSelectionFor($capability);
+        $legacyModels = [AIProviderRegistry::LEGACY_OPENAI => [get_config('modelOpenAI'), self::LEGACY_DEFAULT_MODEL_OPENAI], AIProviderRegistry::LEGACY_MISTRAL => [get_config('modelMistral'), self::LEGACY_DEFAULT_MODEL_MISTRAL]];
+        if ($recordId === null) {
+            $recordId = match (get_config('translationAI')) {
+                AI_OPENAI => AIProviderRegistry::LEGACY_OPENAI,
+                AI_MISTRAL => AIProviderRegistry::LEGACY_MISTRAL,
+                default => null,
+            };
+            $model = null;
+        }
+        if ($recordId === null) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'No hay ningún proveedor de inteligencia artificial elegido para esta función.'));
+        }
+        $record = AIProviderRegistry::get($recordId);
+        if ($record === null) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido para esta función no existe.'));
+        }
+        if (!$record->hasKey()) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido para esta función no tiene clave.'));
+        }
+        if (!$record->supports(AIProviderCatalog::CAPABILITY_CHAT) || ($definition->usesTools() && !$record->supports(AIProviderCatalog::CAPABILITY_TOOLS))) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido no sabe hacer lo que necesita esta función.'));
+        }
+        if ($model === null && isset($legacyModels[$recordId])) {
+            [$configured, $default] = $legacyModels[$recordId];
+            $model = is_string($configured) && trim($configured) !== '' ? $configured : $default;
+        }
+        if ($model === null) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'Esta función de inteligencia artificial no tiene modelo elegido.'));
+        }
+
+        BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
+
+        return AIProviderCatalog::makeChatProvider($record, $model, self::$providerHttpClient);
+    }
+
+    /**
+     * El proveedor que se anota en el consumo: el id del registro; los heredados, con el nombre de antes (OpenAI, Mistral),
+     * para no partir la serie.
+     *
+     * @param AIChatProvider $provider
+     * @return string
+     */
+    public static function usageProviderName(AIChatProvider $provider): string
+    {
+        return match ($provider->recordId()) {
+            AIProviderRegistry::LEGACY_OPENAI => AI_OPENAI,
+            AIProviderRegistry::LEGACY_MISTRAL => AI_MISTRAL,
+            default => $provider->recordId(),
+        };
+    }
+
+    /**
+     * «Probar» un registro (ADR 0077 §5): UNA llamada mínima («Responde solo: ok», TEST_MAX_TOKENS, sin herramientas) con ese
+     * modelo. No pasa por los controles, no anota consumo y no guarda nada. El mensaje, traducido, nunca lleva la
+     * respuesta del proveedor ni la clave.
+     *
+     * @param AIProviderRecord $record
+     * @param string $model
+     * @return array{ok:bool,message:string}
+     */
+    public static function testProvider(AIProviderRecord $record, string $model): array
+    {
+        AILang::injectLang();
+        try {
+            AIProviderCatalog::makeChatProvider($record, $model, self::$providerHttpClient)->chatWithTools([['role' => 'user', 'content' => 'Responde solo: ok']], [], 0.0, self::TEST_MAX_TOKENS);
+        } catch (\RuntimeException $e) {
+            $message = match (true) {
+                in_array($e->getCode(), [401, 403], true) => __(AILang::LANG_GROUP, 'El proveedor rechazó la clave.'),
+                $e->getCode() === 404 => __(AILang::LANG_GROUP, 'El proveedor no encuentra ese modelo (o la dirección no es la de un proveedor compatible).'),
+                $e->getCode() === 0 => __(AILang::LANG_GROUP, 'Sin conexión con el proveedor, o se agotó el tiempo de espera.'),
+                default => strReplaceTemplate(__(AILang::LANG_GROUP, 'El proveedor respondió con un error (HTTP %status%).'), ['%status%' => (string) $e->getCode()]),
+            };
+            return ['ok' => false, 'message' => $message];
+        } catch (\InvalidArgumentException $e) {
+            return ['ok' => false, 'message' => __(AILang::LANG_GROUP, 'El proveedor necesita un modelo para probarlo.')];
+        }
+        return ['ok' => true, 'message' => __(AILang::LANG_GROUP, 'Funciona.')];
+    }
+
+    /**
+     * SOLO PARA PRUEBAS: el cliente HTTP con que hablan los proveedores que crea chatProvider(); null lo quita.
+     *
+     * @param \Psr\Http\Client\ClientInterface|null $httpClient
+     * @return void
+     */
+    public static function setProviderHttpClientForTesting(?\Psr\Http\Client\ClientInterface $httpClient): void
+    {
+        self::$providerHttpClient = $httpClient;
+    }
+
+    /**
+     * El registro y el modelo elegidos para la capacidad (capabilities.<clave>.provider y .model); null el que no esté o
+     * no valga (se anota).
+     *
+     * @param string $capability
+     * @return array{provider:?string,model:?string}
+     */
+    public static function providerSelectionFor(string $capability): array
+    {
+        $capabilities = self::center()['capabilities'] ?? [];
+        $saved = is_array($capabilities) && is_array($capabilities[$capability] ?? null) ? $capabilities[$capability] : [];
+        $selection = ['provider' => null, 'model' => null];
+        foreach (['provider', 'model'] as $field) {
+            if (!array_key_exists($field, $saved) || $saved[$field] === null) {
+                continue;
+            }
+            if (is_string($saved[$field]) && trim($saved[$field]) !== '') {
+                $selection[$field] = trim($saved[$field]);
+            } else {
+                self::logInvalid("capabilities.{$capability}.{$field}", 'un texto no vacío');
+            }
+        }
+        return $selection;
+    }
+
+    /**
      * Por qué no se puede usar la capacidad ahora, ya traducido, o null si se puede. El PRIMERO que falle: el interruptor
-     * general, el de la capacidad, quién la usa (root siempre puede; sin usuario, nadie) y la cuota del periodo.
+     * general, el de la capacidad, quién la usa (root siempre puede; sin usuario, nadie), la cuota del periodo y la del
+     * registro de proveedor que usa (ADR 0077 §7).
      *
      * @param string $capability
      * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
@@ -106,6 +273,13 @@ final class AIGateway
         }
         if ($settings['quota'] > 0 && self::usage($capability, null, $now) >= $settings['quota']) {
             return __(AILang::LANG_GROUP, 'Se ha alcanzado la cuota de esta función de inteligencia artificial en este periodo.');
+        }
+        //La del registro de proveedor que usa la función, sumando todas las que lo usan (ADR 0077 §7).
+        $recordId = self::providerSelectionFor($capability)['provider'];
+        $providerSettings = $recordId !== null ? self::providerSettings($recordId) : null;
+        if ($recordId !== null && $providerSettings !== null && $providerSettings['quota'] > 0 && self::providerUsage($recordId, $now) >= $providerSettings['quota']) {
+            $record = AIProviderRegistry::get($recordId);
+            return strReplaceTemplate(__(AILang::LANG_GROUP, 'Se alcanzó la cuota del proveedor «%alias%» en este periodo.'), ['%alias%' => $record !== null ? $record->alias() : $recordId]);
         }
         return null;
     }
@@ -179,7 +353,18 @@ final class AIGateway
      */
     public static function periodStart(string $capability, ?int $now = null): string
     {
-        $settings = self::settingsFor($capability);
+        return self::computePeriodStart(self::settingsFor($capability), $now);
+    }
+
+    /**
+     * El inicio del periodo vigente para unos ajustes de cuota (los de una capacidad o los de un registro de proveedor).
+     *
+     * @param array{period: string, periodLength: int, periodAnchor: string} $settings
+     * @param int|null $now Por omisión, ahora
+     * @return string Y-m-d H:i:s
+     */
+    private static function computePeriodStart(array $settings, ?int $now = null): string
+    {
         $moment = (new \DateTimeImmutable())->setTimestamp($now ?? time());
         $anchor = \DateTimeImmutable::createFromFormat('!' . self::ANCHOR_FORMAT, $settings['periodAnchor']);
         if ($anchor === false) {
@@ -249,6 +434,66 @@ final class AIGateway
     }
 
     /**
+     * La cuota de un registro de proveedor GUARDADO (ADR 0077 §7): quota, period, periodLength y periodAnchor de su
+     * entrada en ai_center.providers, con los por omisión (sin límite, acumulado); null si no es un registro guardado.
+     *
+     * @param string $recordId
+     * @return array{quota: int, period: string, periodLength: int, periodAnchor: string}|null
+     */
+    public static function providerSettings(string $recordId): ?array
+    {
+        $providers = self::center()['providers'] ?? [];
+        foreach (is_array($providers) ? $providers : [] as $entry) {
+            if (!is_array($entry) || ($entry['id'] ?? null) !== $recordId) {
+                continue;
+            }
+            $anchor = is_string($entry['periodAnchor'] ?? null) ? \DateTimeImmutable::createFromFormat('!' . self::ANCHOR_FORMAT, $entry['periodAnchor']) : false;
+            return [
+                'quota' => is_int($entry['quota'] ?? null) && $entry['quota'] >= 0 ? $entry['quota'] : 0,
+                'period' => is_string($entry['period'] ?? null) && in_array($entry['period'], AICapability::PERIODS, true) ? $entry['period'] : AICapability::PERIOD_ACCUMULATED,
+                'periodLength' => is_int($entry['periodLength'] ?? null) && $entry['periodLength'] >= 1 ? $entry['periodLength'] : 1,
+                'periodAnchor' => $anchor !== false ? $anchor->format(self::ANCHOR_FORMAT) : AIUsageMapper::ACCUMULATED_PERIOD_START,
+            ];
+        }
+        return null;
+    }
+
+    /**
+     * El inicio del periodo vigente de un registro de proveedor guardado; null si no lo es.
+     *
+     * @param string $recordId
+     * @param int|null $now
+     * @return string|null
+     */
+    public static function providerPeriodStart(string $recordId, ?int $now = null): ?string
+    {
+        $settings = self::providerSettings($recordId);
+        return $settings === null ? null : self::computePeriodStart($settings, $now);
+    }
+
+    /**
+     * Los tokens gastados con un registro de proveedor guardado en SU periodo, de todas las funciones que lo usan. Se
+     * mide en su propia fila (capability PROVIDER_USAGE_ROW, que recordUsage() lleva con el periodo del registro): las
+     * filas de las funciones van con el periodo de cada función y no se pueden partir por el del registro.
+     *
+     * @param string $recordId
+     * @param int|null $now
+     * @return int
+     */
+    public static function providerUsage(string $recordId, ?int $now = null): int
+    {
+        $periodStart = self::providerPeriodStart($recordId, $now);
+        if ($periodStart === null) {
+            return 0;
+        }
+        $database = (new BaseModel())->getDatabase() ?? throw new \RuntimeException('Sin conexión a la base para el consumo de la IA.');
+        $statement = $database->prepare('SELECT COALESCE(SUM(tokens), 0) FROM `' . AIUsageMapper::TABLE . '` WHERE capability = ? AND provider = ? AND periodStart = ?');
+        //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o lee o lanza. Lo que cuenta es el fetchColumn().
+        $statement->execute([self::PROVIDER_USAGE_ROW, $recordId, $periodStart]);
+        return (int) $statement->fetchColumn();
+    }
+
+    /**
      * Suma los tokens y una petición en la fila del periodo vigente de la capacidad y el proveedor y, como siempre, en el
      * acumulado por proveedor de CONTENT_TOKENS_USED (lo que enseña Configuración › IA). Sin la tabla no lanza: anota el
      * fallo y el acumulado sube igual.
@@ -269,6 +514,12 @@ final class AIGateway
             $statement = $database->prepare('INSERT INTO `' . AIUsageMapper::TABLE . '` (capability, provider, periodStart, tokens, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, requests = requests + 1, updatedAt = ?');
             //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
             $statement->execute([$capability, $provider, self::periodStart($capability), $tokens, $now, $now, $tokens, $now]);
+            //La del registro de proveedor guardado, con SU periodo (providerUsage()).
+            $providerPeriodStart = self::providerPeriodStart($provider);
+            if ($providerPeriodStart !== null) {
+                //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
+                $statement->execute([self::PROVIDER_USAGE_ROW, $provider, $providerPeriodStart, $tokens, $now, $now, $tokens, $now]);
+            }
         } catch (\Throwable $e) {
             log_exception($e);
         }

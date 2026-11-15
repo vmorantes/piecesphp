@@ -208,7 +208,12 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             }
             $check(!str_contains($pagina['body'], $enUso), "b1b la página no contiene la clave en uso de {$nombre} (comparada, no impresa)", "HTTP {$pagina['status']}");
         }
-        $check(str_contains($pagina['body'], 'name="OpenAIApiKey" value=""'), 'b2 y el campo de la clave va vacío', "HTTP {$pagina['status']}");
+        //La de OpenAI: con el archivo de claves, sin campo (P318); si no, su campo, vacío. Las de los proveedores, siempre vacías.
+        $campoOpenAI = \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile('OpenAIApiKey')
+            ? !str_contains($pagina['body'], 'name="OpenAIApiKey"') && str_contains($pagina['body'], 'data-fixed-by-file')
+            : str_contains($pagina['body'], 'name="OpenAIApiKey" value=""');
+        $valoresDeClave = preg_match_all('/\[key\]" value="([^"]*)"/', $pagina['body'], $encontrados) > 0 ? $encontrados[1] : [];
+        $check($campoOpenAI && $valoresDeClave !== [] && array_filter($valoresDeClave, fn(string $valor): bool => $valor !== '') === [], 'b2 y el campo de la clave va vacío (o, si la fija el archivo de claves, no hay campo); los de los proveedores, también vacíos', "HTTP {$pagina['status']}, fijada por el archivo: " . var_export(\PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile('OpenAIApiKey'), true));
         //El resto de los campos, con su valor de ahora: el guardado no debe cambiar nada más.
         $resto = [];
         foreach (['modelOpenAI', 'modelMistral', 'translationAI'] as $nombre) {

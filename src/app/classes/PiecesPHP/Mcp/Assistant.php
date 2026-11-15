@@ -8,6 +8,7 @@ namespace PiecesPHP\Mcp;
 
 use PiecesPHP\AI\AIGateway;
 use PiecesPHP\AI\AIUnavailableException;
+use PiecesPHP\AI\Providers\AIChatProvider;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Mcp\McpProtocol;
 use PiecesPHP\Core\Mcp\McpTool;
@@ -87,7 +88,7 @@ final class Assistant
             return self::failure($reason);
         }
         try {
-            $adapter = self::$adapterFactory !== null ? (self::$adapterFactory)() : AIGateway::chatHandler(self::CAPABILITY, $user);
+            $adapter = self::$adapterFactory !== null ? (self::$adapterFactory)() : AIGateway::chatProvider(self::CAPABILITY, $user);
         } catch (AIUnavailableException $e) {
             return self::failure($e->getMessage());
         }
@@ -110,7 +111,8 @@ final class Assistant
             ],
         ], McpToolRegistry::visibleFor((int) $user->type)));
 
-        $provider = (string) get_config('translationAI');
+        //Una fábrica de prueba puede dar cualquier objeto con chatWithTools: se anota como antes, con translationAI.
+        $provider = $adapter instanceof AIChatProvider ? AIGateway::usageProviderName($adapter) : (string) get_config('translationAI');
         $toolsUsed = [];
         $links = [];
         $requestID = 0;
@@ -218,7 +220,7 @@ final class Assistant
     }
 
     /**
-     * SOLO PARA PRUEBAS: la fábrica del adaptador (callable(): object con chatWithTools); null la quita.
+     * SOLO PARA PRUEBAS: la fábrica del adaptador (callable(): AIChatProvider u otro objeto con chatWithTools); null la quita.
      *
      * @internal
      * @param callable|null $factory

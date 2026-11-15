@@ -251,3 +251,12 @@ hace `require_login` con un POST), no 401. Guía: `source-docs/project/docs/piec
 herramientas reconectan solas (medido, caso 10a); **nunca se llama al proveedor real sin P335** (claves del PO): las pruebas usan
 `Assistant::setAdapterFactoryForTesting()` y `bin/cli assistant-bench fake=yes`; en la terminal `Config::set_lang()` no recarga los
 diccionarios, así que el banco sale con el texto de sistema en español aunque pida otro idioma (H310).
+
+**Los proveedores de IA** (ADR 0077, ronda 1, JKF `4bec71ba`-`d53d5f85`): `src/app/classes/PiecesPHP/AI/Providers/` (`AIChatProvider`,
+`AIProviderCatalog`, `AIProviderRecord`, `OpenAICompatibleChatProvider`, `AIProviderRegistry`) y `AIGateway::chatProvider()`. **Trampas**:
+el catálogo sale MEDIDO de la documentación oficial (fuente: `#2876` §7); Google fuera (no documenta el `usage`) y Anthropic fuera (su entrada
+compatible «no production-ready», y `guardia.py`/`menciones_ia.py` bloquean la palabra en un entregable: ronda 4 con su excepción); la clave de un
+registro vive en un `WeakMap` de `AIProviderRecord`, nunca en una propiedad (`var_export` ignora `__debugInfo`); `ai_provider_keys` es
+`SHAPE_SEALED` con su propósito en `EncryptedDataRegistry` (para que la rotación de la clave de la aplicación la vuelva a sellar; la cota de
+`core/app-key-crypto` f2 cuenta los propósitos); `AIProviderRecord` llama `$nickname` a su propiedad: `->alias = …` lo toma el detector de
+alias de ruta de `verify-integrity`; OpenAI marca `max_tokens` en desuso (serie o): ronda 2.

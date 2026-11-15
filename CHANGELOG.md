@@ -1,3 +1,15 @@
+# 10.27.0 (14-11-2026)
+
+- **Nuevo en Configuración › IA: tus proveedores de inteligencia artificial, con sobrenombre.** Guarda los que quieras
+  (OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter o un «Personalizado» que hable el formato de OpenAI, también un modelo
+  instalado en tu equipo), varios del mismo si hace falta, cada uno con su clave (que no se vuelve a enseñar), su cuota y
+  el botón «Probar», que comprueba la clave y el modelo sin gastar. Cada función elige el suyo y su modelo; la traducción
+  sigue con «IA para traducciones» y las claves de OpenAI y Mistral de siempre. Manual: «Configuración de las
+  integraciones».
+- **Para quien desarrolla: `AIGateway::chatProvider()`** devuelve el proveedor de una función (`AIChatProvider`) según el
+  registro y el modelo que eligió; los registros heredados de las claves de siempre siguen valiendo. Las claves de los
+  registros van selladas en `ai_provider_keys`. Guía «El centro de mando de la IA», «Los proveedores y `chatProvider()`».
+
 # 10.26.1 (14-11-2026)
 
 - **Para quien desarrolla: la tarea `gulp api-build` se retira.** Compilaba la API con MkDocs, que ya no se usa desde la
