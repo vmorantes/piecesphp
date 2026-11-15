@@ -48,11 +48,6 @@ Below, the **“Usage this period”** line shows what has been spent (and the q
 counter”** button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
 the reports.
 
-**“Panel assistant”** is the feature for the panel's chat assistant: it answers questions about the platform (where
-something is done, what you have pending) using only what the person asking can see. **It comes switched off**, with a quota of
-200,000 tokens a month: turn it on and choose who uses it before anyone sees it. For now only this section exists: the chat window arrives in an upcoming
-version.
-
 **Token quota**, the form at the bottom, with its own **“Save”**: the **“AI tokens limit”** (required) is only used by the
 usage report and **does not limit anything**. The quota that limits is the one of each feature.
 

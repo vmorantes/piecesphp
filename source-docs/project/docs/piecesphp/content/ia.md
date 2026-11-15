@@ -11,16 +11,11 @@ la usa, su cuota, su periodo, su consumo y «Reiniciar el contador».
     El «Límite de tokens de IA» del final de esa pantalla (`CONTENT_TOKENS_LIMIT`) solo lo usa el informe de consumo. La
     cuota que limita es la de cada capacidad, y una capacidad nueva empieza sin límite.
 
-**Las capacidades del framework**: `translation` («Traducción con IA», encendida por omisión, la del módulo de la API)
-y `assistant` («Asistente del panel», **apagada por omisión**: ver [Ofrecer herramientas al
-asistente](../new-features/herramientas-del-asistente.md), «El asistente»). Las dos usan el proveedor de «IA para
-traducciones».
-
 ## La regla
 
 - **En el producto, solo la puerta crea los adaptadores de los proveedores** (OpenAI, Mistral) y solo ella anota lo
   gastado. Un módulo pide un manejador a `AIGateway` en lugar de construir un `OpenAIHandlerAdapter` o un
-  `MistralHandlerAdapter` por su cuenta. Así los controles valen para todos sin tocar cada módulo.
+  `MistralHandlerAdapter` por su cuenta. Así, cuando lleguen los controles, valdrán para todos sin tocar cada módulo.
 - **Cada uso de la IA es una capacidad registrada**, con una clave estable. La puerta lanza
   `InvalidArgumentException` si se le pide una capacidad que no existe: es un error de programación, no de ejecución.
 - **Si la tabla del consumo falla, la operación sigue** (por ejemplo, porque una instalación vieja aún no la ha creado):

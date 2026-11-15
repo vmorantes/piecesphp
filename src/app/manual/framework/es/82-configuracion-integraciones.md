@@ -48,11 +48,6 @@ Debajo, la línea **«Consumo de este periodo»** dice lo gastado (y la cuota, s
 **«Reiniciar el contador»** pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
 conserva para los informes.
 
-**«Asistente del panel»** es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se
-hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. **Viene apagada**, con una cuota de 200.000 tokens
-al mes: enciéndela y elige quién la usa antes de que nadie la vea. Por ahora solo existe esta sección: la ventana del chat llega en una versión
-próxima.
-
 **Cuota de tokens**, el formulario de abajo, con su propio **«Guardar»**: el **«Límite de tokens de IA»** (obligatorio)
 solo sirve para el informe de consumo y **no limita nada**. La cuota que limita es la de cada función.
 

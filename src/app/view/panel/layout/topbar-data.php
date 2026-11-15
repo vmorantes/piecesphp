@@ -74,8 +74,26 @@ $userOptions = new MenuGroupCollection([
         ]),
     ],
 ]);
-//«Acerca de» y «Cerrar sesión»: el buscador de la barra lee lo mismo (PanelSearchSource).
-$userOptionsEnd = \PiecesPHP\AdminPanel\PanelSearchSource::accountMenuEnd((int) $currentUserType);
+$userOptionsEnd = new MenuGroupCollection([
+    'items' => [
+        new MenuGroup([
+            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Acerca de'),
+            'icon' => 'desktop',
+            'href' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('about-framework'),
+            'visible' => Roles::hasPermissions('admin-about-framework', $currentUserType),
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Cerrar sesión'),
+            'icon' => 'power off',
+            'href' => '#',
+            'attributes' => [
+                'pcsphp-users-logout' => '',
+            ],
+            'asLink' => true,
+        ]),
+    ],
+]);
 
 //Configuración, con los grupos del prototipo, sale de la misma fuente que el índice (ADR 0028; P255 a): también
 //Gestión de usuarios y Registros. Solo lleva a pantallas: un menú no ejecuta nada.
