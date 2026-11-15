@@ -1,3 +1,8 @@
+# 10.26.1 (14-11-2026)
+
+- **Para quien desarrolla: la tarea `gulp api-build` se retira.** Compilaba la API con MkDocs, que ya no se usa desde la
+  `10.26.0` (y fallaba). La documentación se compila con `bin/docs compilar`.
+
 # 10.26.0 (14-11-2026)
 
 - **La documentación se publica con Starlight** (antes, MkDocs): la guía y la API en un solo sitio, con el mismo menú y

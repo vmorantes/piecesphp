@@ -64,13 +64,11 @@ Las hojas de acceso y recuperación están en su módulo (`src/app/classes/Piece
 
 - `clean-cache` — Ejecuta `../bin/cli clean-cache`: fuerza que todos los visitantes descarguen los estáticos de nuevo
   (ver más abajo).
-- `api-build` — Genera la documentación de la API: `cd ../source-docs/api && mkdocs build --clean` (necesita
-  `mkdocs` instalado).
 
 **Conjuntos:**
 
-- `init-project` — Ejecuta en paralelo `ts-vendor`, `js-vendor` y `sass-all`. **No** incluye `clean-cache`,
-  `api-build` ni ninguna tarea `*:watch`.
+- `init-project` — Ejecuta en paralelo `ts-vendor`, `js-vendor` y `sass-all`. **No** incluye `clean-cache` ni ninguna
+  tarea `*:watch`. La documentación no se compila con gulp: `bin/docs compilar`.
 - `init-project:watch` — Ejecuta `init-project` y deja observando `sass-all:watch` y `js-vendor:watch`. **No**
   observa el TypeScript: para eso, `ts-vendor:watch` aparte.
 

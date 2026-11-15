@@ -566,14 +566,6 @@ task("init-project:watch", (done) => {
 	done()
 })
 
-//Compilar documentación de api
-task("api-build", (done) => {
-	//En estructura normal debe subir solo un directorio
-	exec('cd ../source-docs/api && mkdocs build --clean', (error, stdout, stderr) => {
-		done(error)
-	})
-})
-
 //Remover cache
 task("clean-cache", (done) => {
 	cleanCacheVerbose = true
