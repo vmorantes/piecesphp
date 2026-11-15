@@ -301,8 +301,10 @@ class SettingsController extends AdminPanelController
     const AI_CONFIG_KEYS = [
         'modelOpenAI',
         'modelMistral',
+        'modelGroq',
         'OpenAIApiKey',
         'MistralAIApiKey',
+        'GroqAPIKey',
         'translationAI',
         //El centro de mando (ADR 0074). translationAIEnable y translationAIUserTypes ya no se pintan: se leen como heredados.
         AIGateway::CONFIG_NAME,
@@ -315,12 +317,8 @@ class SettingsController extends AdminPanelController
     const AI_SECRET_CONFIG_KEYS = [
         'OpenAIApiKey',
         'MistralAIApiKey',
+        'GroqAPIKey',
     ];
-
-    /**
-     * La capacidad de la traducción: hasta la ronda 3 del ADR 0077 no elige proveedor (usa «IA para traducciones»).
-     */
-    const AI_TRANSLATION_CAPABILITY = 'translation';
 
     /**
      * Cuántos modelos recuerda cada registro de proveedor para sugerirlos (los últimos que eligió una función).
@@ -2327,6 +2325,28 @@ class SettingsController extends AdminPanelController
                         return $value;
                     }
                 ),
+                'modelGroq' => new Parameter(
+                    'modelGroq',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+                'GroqAPIKey' => new Parameter(
+                    'GroqAPIKey',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
                 'OpenAIApiKey' => new Parameter(
                     'OpenAIApiKey',
                     '',
@@ -2464,6 +2484,8 @@ class SettingsController extends AdminPanelController
                         'modelMistral' => __(self::LANG_GROUP, 'Modelo de Mistral actualizado'),
                         'OpenAIApiKey' => __(self::LANG_GROUP, 'API Key de OpenAI actualizada'),
                         'MistralAIApiKey' => __(self::LANG_GROUP, 'API Key de Mistral actualizada'),
+                        'modelGroq' => __(self::LANG_GROUP, 'Modelo de Groq actualizado'),
+                        'GroqAPIKey' => __(self::LANG_GROUP, 'API Key de Groq actualizada'),
                         'translationAI' => __(self::LANG_GROUP, 'IA para traducciones'),
                         'translationAIEnable' => __(self::LANG_GROUP, 'Configuración de traducción con IA actualizada'),
                         \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => __(self::LANG_GROUP, 'Quién puede traducir con IA actualizado'),
@@ -2473,6 +2495,7 @@ class SettingsController extends AdminPanelController
                     $messagesOnSaveLabels = [
                         'OpenAIApiKey' => __(self::LANG_GROUP, 'API Key OpenAI'),
                         'MistralAIApiKey' => __(self::LANG_GROUP, 'API Key Mistral'),
+                        'GroqAPIKey' => __(self::LANG_GROUP, 'API Key Groq'),
                     ];
 
                     $success = true;
@@ -3581,8 +3604,8 @@ class SettingsController extends AdminPanelController
             }
             $entry['periodLength'] = (int) $length;
 
-            //El proveedor y el modelo de la función (ADR 0077); la traducción todavía no (usa «IA para traducciones»).
-            if ($key !== self::AI_TRANSLATION_CAPABILITY && array_key_exists('provider', $fields)) {
+            //El proveedor y el modelo de la función (ADR 0077); sin elegir, el heredado de «IA para traducciones».
+            if (array_key_exists('provider', $fields)) {
                 $provider = is_string($fields['provider']) ? trim($fields['provider']) : null;
                 $model = is_string($fields['model'] ?? null) ? trim($fields['model']) : '';
                 if ($provider === null) {
@@ -3628,7 +3651,10 @@ class SettingsController extends AdminPanelController
                 throw new InvalidParameterValueException(strReplaceTemplate(__(self::LANG_GROUP, '«%capability%» lo usa: elige otro proveedor para «%capability%» antes de quitarlo.'), ['%capability%' => $name]));
             }
             $record = $legacy[$chosen] ?? new AIProviderRecord($chosen, (string) $byId[$chosen]['type'], (string) $byId[$chosen]['alias'], '', $byId[$chosen]['baseUrl'] ?? null, $byId[$chosen]['keyHeader'] ?? null);
-            if (!$record->supports(AIProviderCatalog::CAPABILITY_CHAT) || ($capability !== null && $capability->usesTools() && !$record->supports(AIProviderCatalog::CAPABILITY_TOOLS))) {
+            $fits = $capability !== null && $capability->providerType() === AICapability::PROVIDER_SPEECH
+                ? $record->supports(AIProviderCatalog::CAPABILITY_SPEECH)
+                : $record->supports(AIProviderCatalog::CAPABILITY_CHAT) && !($capability !== null && $capability->usesTools() && !$record->supports(AIProviderCatalog::CAPABILITY_TOOLS));
+            if (!$fits) {
                 $invalid($name, __(self::LANG_GROUP, 'Proveedor'));
             }
             if (isset($byId[$chosen]) && is_string($entry['model'] ?? null)) {

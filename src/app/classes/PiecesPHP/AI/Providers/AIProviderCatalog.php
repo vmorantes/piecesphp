@@ -32,8 +32,10 @@ final class AIProviderCatalog
     /**
      * keyHeader null = «Authorization: Bearer <clave>». maxTokensField: cómo se llama el tope de la respuesta en ese tipo
      * (OpenAI, Groq, xAI y OpenRouter marcan max_tokens en desuso en favor de max_completion_tokens; sin documentación, max_tokens).
+     * translation: lo que añade la traducción (AITranslator), sin tope; openai y mistral, lo de sus adaptadores de antes; json_object
+     * solo donde la documentación lo admite (Groq, DeepSeek, OpenRouter; xAI no lo documenta).
      *
-     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string}>
+     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string}>
      */
     const TYPES = [
         'openai' => [
@@ -41,6 +43,7 @@ final class AIProviderCatalog
             'baseUrl' => 'https://api.openai.com/v1',
             'keyHeader' => null,
             'maxTokensField' => 'max_completion_tokens',
+            'translation' => ['temperature' => null, 'responseFormat' => null],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS, self::CAPABILITY_SPEECH],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => ['https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml'],
@@ -51,6 +54,7 @@ final class AIProviderCatalog
             'baseUrl' => 'https://api.mistral.ai/v1',
             'keyHeader' => null,
             'maxTokensField' => 'max_tokens',
+            'translation' => ['temperature' => 0.0, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => ['https://docs.mistral.ai/api/', 'https://docs.mistral.ai/capabilities/function_calling/'],
@@ -61,6 +65,7 @@ final class AIProviderCatalog
             'baseUrl' => 'https://api.groq.com/openai/v1',
             'keyHeader' => null,
             'maxTokensField' => 'max_completion_tokens',
+            'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS, self::CAPABILITY_SPEECH],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => ['https://console.groq.com/docs/openai', 'https://console.groq.com/docs/tool-use'],
@@ -71,6 +76,7 @@ final class AIProviderCatalog
             'baseUrl' => 'https://api.deepseek.com',
             'keyHeader' => null,
             'maxTokensField' => 'max_tokens',
+            'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => ['https://api-docs.deepseek.com/api/create-chat-completion.md', 'https://api-docs.deepseek.com/quick_start/error_codes.md'],
@@ -81,6 +87,7 @@ final class AIProviderCatalog
             'baseUrl' => 'https://api.x.ai/v1',
             'keyHeader' => null,
             'maxTokensField' => 'max_completion_tokens',
+            'translation' => ['temperature' => null, 'responseFormat' => null],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => ['https://docs.x.ai/developers/rest-api-reference/inference/chat-completions.md', 'https://docs.x.ai/docs/guides/function-calling'],
@@ -91,6 +98,7 @@ final class AIProviderCatalog
             'baseUrl' => 'https://openrouter.ai/api/v1',
             'keyHeader' => null,
             'maxTokensField' => 'max_completion_tokens',
+            'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => ['https://openrouter.ai/docs/api-reference/overview', 'https://openrouter.ai/docs/api-reference/authentication', 'https://openrouter.ai/openapi.yaml'],
@@ -101,6 +109,7 @@ final class AIProviderCatalog
             'baseUrl' => null,
             'keyHeader' => null,
             'maxTokensField' => 'max_tokens',
+            'translation' => ['temperature' => null, 'responseFormat' => null],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => [],
@@ -110,7 +119,7 @@ final class AIProviderCatalog
 
     /**
      * @param string $type
-     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string}|null
+     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string}|null
      */
     public static function get(string $type): ?array
     {
@@ -152,21 +161,40 @@ final class AIProviderCatalog
     }
 
     /**
+     * El proveedor de voz a texto de ese registro con ese modelo (todos los tipos con speech hablan como OpenAI).
+     *
+     * @param AIProviderRecord $record
+     * @param string $model
+     * @param \Psr\Http\Client\ClientInterface|null $httpClient Solo las pruebas
+     * @param int|null $timeoutSeconds
+     * @return AISpeechProvider
+     * @throws \InvalidArgumentException si el tipo no sabe de voz
+     */
+    public static function makeSpeechProvider(AIProviderRecord $record, string $model, ?\Psr\Http\Client\ClientInterface $httpClient = null, ?int $timeoutSeconds = null): AISpeechProvider
+    {
+        if (!self::supports($record->type(), self::CAPABILITY_SPEECH)) {
+            throw new \InvalidArgumentException("El tipo de proveedor «{$record->type()}» no sabe pasar voz a texto.");
+        }
+        return new OpenAICompatibleSpeechProvider($record, $model, $httpClient, $timeoutSeconds);
+    }
+
+    /**
      * El proveedor de chat de ese registro con ese modelo, por la clase de su tipo.
      *
      * @param AIProviderRecord $record
      * @param string $model
      * @param \Psr\Http\Client\ClientInterface|null $httpClient Solo las pruebas; por omisión, el de la implementación
+     * @param int|null $timeoutSeconds El tiempo máximo de cada llamada; por omisión, el de la implementación
      * @return AIChatProvider
      * @throws \InvalidArgumentException si el tipo no está en el catálogo o no sabe conversar
      */
-    public static function makeChatProvider(AIProviderRecord $record, string $model, ?\Psr\Http\Client\ClientInterface $httpClient = null): AIChatProvider
+    public static function makeChatProvider(AIProviderRecord $record, string $model, ?\Psr\Http\Client\ClientInterface $httpClient = null, ?int $timeoutSeconds = null): AIChatProvider
     {
         $definition = self::get($record->type());
         if ($definition === null || !self::supports($record->type(), self::CAPABILITY_CHAT)) {
             throw new \InvalidArgumentException("El tipo de proveedor «{$record->type()}» no sabe conversar.");
         }
         $class = $definition['chatClass'];
-        return new $class($record, $model, $httpClient);
+        return new $class($record, $model, $httpClient, $timeoutSeconds);
     }
 }

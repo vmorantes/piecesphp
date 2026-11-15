@@ -13,6 +13,7 @@ use PiecesPHP\AI\Providers\AIChatProvider;
 use PiecesPHP\AI\Providers\AIProviderCatalog;
 use PiecesPHP\AI\Providers\AIProviderRecord;
 use PiecesPHP\AI\Providers\AIProviderRegistry;
+use PiecesPHP\AI\Providers\AISpeechProvider;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
@@ -43,15 +44,26 @@ final class AIGateway
     const ANCHOR_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * Los modelos de los heredados si modelOpenAI o modelMistral están vacíos: los por omisión de sus adaptadores.
+     * Los modelos de los heredados si modelOpenAI, modelMistral o modelGroq están vacíos: los por omisión de sus adaptadores.
      */
     const LEGACY_DEFAULT_MODEL_OPENAI = 'gpt-3.5-turbo-0125';
     const LEGACY_DEFAULT_MODEL_MISTRAL = 'mistral-medium';
+    const LEGACY_DEFAULT_MODEL_GROQ = 'whisper-large-v3-turbo';
+
+    /**
+     * La capacidad de la voz a texto (la registra APIRoutes).
+     */
+    const SPEECH_CAPABILITY = 'speech-to-text';
 
     /**
      * El tope de tokens de la respuesta de «Probar»: 16, el mínimo que OpenRouter documenta para algunos proveedores.
      */
     const TEST_MAX_TOKENS = 16;
+
+    /**
+     * La capacidad de la traducción con IA (la registra APIRoutes).
+     */
+    const TRANSLATION_CAPABILITY = 'translation';
 
     /**
      * La «capacidad» de la fila de consumo propia de cada registro de proveedor (providerUsage()). No casa con
@@ -74,6 +86,8 @@ final class AIGateway
     private static $providerHttpClient = null;
 
     /**
+     * EN DESUSO hasta la 11.0.0: usa chatProvider() o translator(). El framework ya no lo llama; un clon puede.
+     *
      * El manejador de chat configurado para esa capacidad (Configuración › IA: translationAI, modelOpenAI y
      * modelMistral), o null si no hay proveedor configurado. Antes, los controles: si alguno no deja, lanza sin crear nada.
      *
@@ -122,6 +136,82 @@ final class AIGateway
      */
     public static function chatProvider(string $capability, UsersModel|UserDataPackage|null $user = null): AIChatProvider
     {
+        return self::resolveChatProvider($capability, $user, null);
+    }
+
+    /**
+     * La traducción con IA (ADR 0077): el proveedor de la capacidad «translation», como chatProvider() (su registro y su
+     * modelo, o el heredado de translationAI), con 120 s por llamada y los parámetros de traducción de su tipo.
+     *
+     * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
+     * @return AITranslator
+     * @throws AIUnavailableException si los controles no dejan o el registro no sirve
+     */
+    public static function translator(UsersModel|UserDataPackage|null $user = null): AITranslator
+    {
+        $provider = self::resolveChatProvider(self::TRANSLATION_CAPABILITY, $user, AITranslator::TIMEOUT_SECONDS);
+        $type = AIProviderRegistry::get($provider->recordId())?->type() ?? AIProviderCatalog::TYPE_CUSTOM;
+        $parameters = AIProviderCatalog::get($type)['translation'] ?? ['temperature' => null, 'responseFormat' => null];
+        return new AITranslator($provider, $parameters);
+    }
+
+    /**
+     * El proveedor de voz a texto de esa capacidad (ADR 0077 §6), simétrico a chatProvider(): primero denialReason();
+     * después el registro y el modelo elegidos o, sin registro elegido, el heredado legacy-groq con modelGroq (por omisión
+     * LEGACY_DEFAULT_MODEL_GROQ). Cierra la conexión a la base antes de devolverlo.
+     *
+     * @param string $capability
+     * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
+     * @return AISpeechProvider
+     * @throws \InvalidArgumentException si la capacidad no está registrada o no es de voz
+     * @throws AIUnavailableException si los controles no dejan o el registro no sirve (el mensaje es el motivo, traducido)
+     */
+    public static function speechProvider(string $capability, UsersModel|UserDataPackage|null $user = null): AISpeechProvider
+    {
+        self::capabilityOf($capability, AICapability::PROVIDER_SPEECH);
+
+        $reason = self::denialReason($capability, $user);
+        if ($reason !== null) {
+            throw new AIUnavailableException($reason);
+        }
+
+        ['provider' => $recordId, 'model' => $model] = self::providerSelectionFor($capability);
+        if ($recordId === null) {
+            $recordId = AIProviderRegistry::LEGACY_GROQ;
+            $configured = get_config('modelGroq');
+            $model = is_string($configured) && trim($configured) !== '' ? $configured : self::LEGACY_DEFAULT_MODEL_GROQ;
+        }
+        $record = AIProviderRegistry::get($recordId);
+        if ($record === null) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido para esta función no existe.'));
+        }
+        if (!$record->hasKey()) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido para esta función no tiene clave.'));
+        }
+        if (!$record->supports(AIProviderCatalog::CAPABILITY_SPEECH)) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido no sabe hacer lo que necesita esta función.'));
+        }
+        if ($model === null) {
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'Esta función de inteligencia artificial no tiene modelo elegido.'));
+        }
+
+        BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
+
+        return AIProviderCatalog::makeSpeechProvider($record, $model, self::$providerHttpClient);
+    }
+
+    /**
+     * chatProvider() con un tiempo máximo propio (null, el de la implementación).
+     *
+     * @param string $capability
+     * @param UsersModel|UserDataPackage|null $user
+     * @param int|null $timeoutSeconds
+     * @return AIChatProvider
+     * @throws \InvalidArgumentException si la capacidad no está registrada o no es de chat
+     * @throws AIUnavailableException si los controles no dejan o el registro no sirve
+     */
+    private static function resolveChatProvider(string $capability, UsersModel|UserDataPackage|null $user, ?int $timeoutSeconds): AIChatProvider
+    {
         $definition = self::capabilityOf($capability, AICapability::PROVIDER_CHAT);
 
         $reason = self::denialReason($capability, $user);
@@ -162,7 +252,7 @@ final class AIGateway
 
         BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
 
-        return AIProviderCatalog::makeChatProvider($record, $model, self::$providerHttpClient);
+        return AIProviderCatalog::makeChatProvider($record, $model, self::$providerHttpClient, $timeoutSeconds);
     }
 
     /**
@@ -494,31 +584,35 @@ final class AIGateway
     }
 
     /**
-     * Suma los tokens y una petición en la fila del periodo vigente de la capacidad y el proveedor y, como siempre, en el
-     * acumulado por proveedor de CONTENT_TOKENS_USED (lo que enseña Configuración › IA). Sin la tabla no lanza: anota el
-     * fallo y el acumulado sube igual.
+     * Suma los tokens (el total, la entrada y la salida) y una petición en la fila del periodo vigente de la capacidad, el
+     * proveedor y el modelo y, como siempre, en el acumulado por proveedor de CONTENT_TOKENS_USED (lo que enseña
+     * Configuración › IA). Un registro de proveedor guardado suma además en su fila '@provider'. Sin la tabla (o sin la
+     * actualización del modelo) no lanza: anota el fallo y el acumulado sube igual.
      *
      * @param string $capability
      * @param string $provider
-     * @param int $tokens
+     * @param int $tokens El total
+     * @param int $inputTokens Los de entrada (0 si no se saben)
+     * @param int $outputTokens Los de salida (0 si no se saben)
+     * @param string $model El modelo ('' si no se sabe)
      * @return void
      * @throws \InvalidArgumentException si la capacidad no está registrada
      */
-    public static function recordUsage(string $capability, string $provider, int $tokens): void
+    public static function recordUsage(string $capability, string $provider, int $tokens, int $inputTokens = 0, int $outputTokens = 0, string $model = ''): void
     {
         self::capabilityOf($capability, null);
 
         try {
             $database = (new BaseModel())->getDatabase() ?? throw new \RuntimeException('Sin conexión a la base para el consumo de la IA.');
             $now = date('Y-m-d H:i:s');
-            $statement = $database->prepare('INSERT INTO `' . AIUsageMapper::TABLE . '` (capability, provider, periodStart, tokens, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, requests = requests + 1, updatedAt = ?');
+            $statement = $database->prepare('INSERT INTO `' . AIUsageMapper::TABLE . '` (capability, provider, model, periodStart, tokens, inputTokens, outputTokens, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, inputTokens = inputTokens + ?, outputTokens = outputTokens + ?, requests = requests + 1, updatedAt = ?');
             //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
-            $statement->execute([$capability, $provider, self::periodStart($capability), $tokens, $now, $now, $tokens, $now]);
+            $statement->execute([$capability, $provider, $model, self::periodStart($capability), $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now]);
             //La del registro de proveedor guardado, con SU periodo (providerUsage()).
             $providerPeriodStart = self::providerPeriodStart($provider);
             if ($providerPeriodStart !== null) {
                 //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
-                $statement->execute([self::PROVIDER_USAGE_ROW, $provider, $providerPeriodStart, $tokens, $now, $now, $tokens, $now]);
+                $statement->execute([self::PROVIDER_USAGE_ROW, $provider, $model, $providerPeriodStart, $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now]);
             }
         } catch (\Throwable $e) {
             log_exception($e);

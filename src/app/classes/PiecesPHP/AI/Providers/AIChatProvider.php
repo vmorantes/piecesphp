@@ -25,12 +25,20 @@ interface AIChatProvider
      *
      * @param array<int,array<string,mixed>> $messages
      * @param array<int,array<string,mixed>> $tools
-     * @param float $temperature
-     * @param int $maxTokens El tope de tokens de la respuesta (max_tokens)
+     * @param float|null $temperature null: no se manda
+     * @param int|null $maxTokens El tope de tokens de la respuesta, con el nombre de su tipo; null: no se manda
+     * @param array<string,mixed> $extraParameters Otros campos de la petición (response_format); no pisan model, messages ni tools
      * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int}
      * @throws \RuntimeException si el proveedor da error: el mensaje no lleva la clave, ni las cabeceras, ni el cuerpo del proveedor
      */
-    public function chatWithTools(array $messages, array $tools = [], float $temperature = 0.2, int $maxTokens = 800): array;
+    public function chatWithTools(array $messages, array $tools = [], ?float $temperature = 0.2, ?int $maxTokens = 800, array $extraParameters = []): array;
+
+    /**
+     * Lo último que respondió el proveedor, decodificado; [] si aún nada o si la última dio error. Nunca la petición ni la clave.
+     *
+     * @return array<mixed>
+     */
+    public function lastRawResponse(): array;
 
     /**
      * El identificador del registro de proveedor del que salió.

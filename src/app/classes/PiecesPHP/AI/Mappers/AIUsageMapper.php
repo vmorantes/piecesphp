@@ -9,8 +9,8 @@ namespace PiecesPHP\AI\Mappers;
 use PiecesPHP\Core\BaseEntityMapper;
 
 /**
- * AIUsageMapper - Lo gastado en IA por capacidad, proveedor y periodo (ADR 0074): una fila por (capability, provider,
- * periodStart), con sus tokens y sus peticiones. El periodo «acumulado» no tiene inicio: usa ACCUMULATED_PERIOD_START.
+ * AIUsageMapper - Lo gastado en IA por capacidad, proveedor, modelo y periodo (ADR 0074 y 0077): una fila por (capability,
+ * provider, model, periodStart), con sus tokens (el total, la entrada y la salida) y sus peticiones. El periodo «acumulado» no tiene inicio: usa ACCUMULATED_PERIOD_START.
  *
  * Lo lee y lo escribe AIGateway con sentencias preparadas: este mapper declara la tabla para `scheme-create` y la
  * siembra, no se hidrata fila a fila.
@@ -18,8 +18,11 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @property int|null $id
  * @property string $capability
  * @property string $provider
+ * @property string $model
  * @property string $periodStart
  * @property int $tokens
+ * @property int $inputTokens
+ * @property int $outputTokens
  * @property int $requests
  * @property string $createdAt
  * @property string $updatedAt
@@ -45,12 +48,17 @@ class AIUsageMapper extends BaseEntityMapper
     const UPDATE_FILE = 'databases/actualizaciones/2026-11-13-consumo-de-la-ia.sql';
 
     /**
+     * El que añade la entrada, la salida y el modelo (después de UPDATE_FILE).
+     */
+    const UPDATE_FILE_BY_MODEL = 'databases/actualizaciones/2026-11-14-consumo-de-la-ia-por-modelo.sql';
+
+    /**
      * @var string
      */
     protected $table = self::TABLE;
 
     /**
-     * El único (capability, provider, periodStart) no lo emite `scheme-create`: va a mano en el esquema y en el archivo
+     * El único (capability, provider, model, periodStart) no lo emite `scheme-create`: va a mano en el esquema y en el archivo
      * de actualización.
      *
      * @var array<string,array<string,mixed>>
@@ -68,11 +76,24 @@ class AIUsageMapper extends BaseEntityMapper
             'type' => 'varchar',
             'length' => 64,
         ],
+        'model' => [
+            'type' => 'varchar',
+            'length' => 128,
+            'default' => '',
+        ],
         'periodStart' => [
             'type' => 'datetime',
         ],
         'tokens' => [
             'type' => 'bigint',
+        ],
+        'inputTokens' => [
+            'type' => 'bigint',
+            'default' => 0,
+        ],
+        'outputTokens' => [
+            'type' => 'bigint',
+            'default' => 0,
         ],
         'requests' => [
             'type' => 'int',

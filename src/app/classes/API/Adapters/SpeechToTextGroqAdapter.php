@@ -14,6 +14,8 @@ use GuzzleHttp\Exception\RequestException;
 /**
  * SpeechToTextGroqAdapter.
  *
+ * EN DESUSO hasta la 11.0.0: usa AIGateway::speechProvider(). El framework no lo usa; un clon puede.
+ *
  * Adaptador para convertir audio a texto usando Groq API.
  *
  * @package     API\Adapters

@@ -27,9 +27,9 @@ modelo trabaja, quién la usa y cuánto puede gastar.
 **Proveedores**: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
 el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de OpenAI con claves para fines distintos).
 
-- **OpenAI** y **Mistral**, arriba, son los de la configuración anterior: la traducción los usa. En cada uno eliges su
+- **OpenAI**, **Mistral** y **Groq**, arriba, son los de la configuración anterior: la traducción usa los dos primeros. En cada uno eliges su
   **modelo** y escribes su **clave**; si la clave la define el archivo de claves, no se puede cambiar y lo dice; si está
-  guardada, **«Quitar la guardada»** la borra. **Groq**, si aparece, solo sirve para pasar voz a texto.
+  guardada, **«Quitar la guardada»** la borra. **Groq**, igual, es el de la voz a texto (su clave y su modelo).
 - **«+ Añadir proveedor»** añade uno nuevo. Sin ninguno, la sección dice «Todavía no hay proveedores guardados».
 
 Cada proveedor añadido tiene estos campos:
@@ -58,7 +58,7 @@ con IA»), con estos campos:
 | Activada | No | Enciende o apaga esa función. |
 | Quién la usa | No | Qué tipos de usuario pueden usarla. El usuario principal (Root) siempre puede. |
 | IA para traducciones | No | Solo en «Traducción con IA»: qué proveedor traduce (OpenAI o Mistral, los de arriba). |
-| Proveedor | No | En las demás funciones: cuál de tus proveedores usa. Sin elegir, usa el de «IA para traducciones». |
+| Proveedor | No | Cuál de tus proveedores usa la función. Sin elegir, la voz a texto usa Groq, y las demás, el de «IA para traducciones». |
 | Modelo | Sí, si eliges proveedor | El modelo de ese proveedor que usa la función. |
 | Cuota (tokens) | No | Cuánto puede gastar la función en cada periodo. **0 = sin límite.** Al llegar a la cuota, la función deja de llamar al proveedor y avisa de que se alcanzó, hasta el periodo siguiente o hasta que reinicies el contador. |
 | Periodo | No | Cada cuánto vuelve a contar la cuota: **Acumulado** (no vuelve a contar), **Mensual**, **Cada N días** o **Cada N meses**. Con los dos últimos aparece el campo **«N»**. |
@@ -66,6 +66,8 @@ con IA»), con estos campos:
 Debajo, la línea **«Consumo de este periodo»** dice lo gastado (y la cuota, si la hay) y desde cuándo. El botón
 **«Reiniciar el contador»** pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
 conserva para los informes.
+
+**«Voz a texto»** pasa una grabación a texto, para las funciones que la necesiten. **Viene apagada**; sin proveedor elegido usa la clave y el modelo de Groq.
 
 **«Asistente del panel»** es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. **Viene apagada**, con una cuota de 200.000 tokens

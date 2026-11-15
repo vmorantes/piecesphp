@@ -7,8 +7,6 @@
 namespace API\Controllers;
 
 use API\Adapters\APIExternalAdapterExample;
-use API\Adapters\MistralHandlerAdapter;
-use API\Adapters\OpenAIHandlerAdapter;
 use API\APILang;
 use API\APIRoutes;
 use EventsLog\Mappers\LogsMapper;
@@ -20,6 +18,7 @@ use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\AI\AIGateway;
+use PiecesPHP\AI\AITranslator;
 use PiecesPHP\AI\AIUnavailableException;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
@@ -620,7 +619,9 @@ class APIController extends AdminPanelController
                     $modelMistral = get_config('modelMistral');
                     $aiUnavailable = null;
                     try {
-                        $aiHandler = AIGateway::chatHandler('translation');
+                        $aiHandler = AIGateway::translator();
+                        //El que se anota y se devuelve: el registro (con el heredado, OpenAI o Mistral, como siempre).
+                        $translationAI = AIGateway::usageProviderName($aiHandler->provider());
                     } catch (AIUnavailableException $e) {
                         $aiHandler = null;
                         $aiUnavailable = $e->getMessage();
@@ -678,7 +679,7 @@ class APIController extends AdminPanelController
                         $responseJSON['AI']['tokensUsed'] = $tokensUsed;
 
                         //Actualizar el uso de tokens
-                        AIGateway::recordUsage('translation', (string) $translationAI, (int) $tokensUsed);
+                        AIGateway::recordUsage('translation', (string) $translationAI, (int) $tokensUsed, $aiHandler->getInputTokensUsed($lastUsage), $aiHandler->getOutputTokensUsed($lastUsage), $aiHandler->provider()->model());
 
                         if ($translation !== null) {
                             $responseJSON['success'] = true;
@@ -753,7 +754,8 @@ class APIController extends AdminPanelController
                         $translationAI = get_config('translationAI');
                         $aiUnavailable = null;
                         try {
-                            $aiHandler = AIGateway::chatHandler('translation');
+                            $aiHandler = AIGateway::translator();
+                            $translationAI = AIGateway::usageProviderName($aiHandler->provider());
                         } catch (AIUnavailableException $e) {
                             $aiHandler = null;
                             $aiUnavailable = $e->getMessage();
@@ -764,7 +766,7 @@ class APIController extends AdminPanelController
                         } else {
                             try {
                                 $aiResult = $this->translateWithAI($aiHandler, array_combine($pending, $pending), [], __('lang', Config::get_default_lang()), __('lang', $to));
-                                AIGateway::recordUsage('translation', (string) $translationAI, (int) $aiResult['tokensUsed']);
+                                AIGateway::recordUsage('translation', (string) $translationAI, (int) $aiResult['tokensUsed'], $aiHandler->getInputTokensUsed($aiResult['lastUsage']), $aiHandler->getOutputTokensUsed($aiResult['lastUsage']), $aiHandler->provider()->model());
                                 $filtered = DynamicTranslationsHelper::acceptTranslations($pending, $aiResult['translation'] ?? []);
                                 $responseJSON['saved'] = $this->saveDynamicTranslations($to, $group, $filtered['accepted']);
                                 $responseJSON['translation'] = [$group => $filtered['accepted']];
@@ -828,14 +830,14 @@ class APIController extends AdminPanelController
     /**
      * Traduce con la IA las entradas normales y las HTML segmentadas
      *
-     * @param OpenAIHandlerAdapter|MistralHandlerAdapter $aiHandler
+     * @param AITranslator $aiHandler
      * @param array<mixed> $text
      * @param array<mixed> $textSplitted
      * @param mixed $from
      * @param mixed $to
      * @return array{translation: array<mixed>|null, lastUsage: array<mixed>, lastAskToChatOriginalResponse: array<mixed>, tokensUsed: mixed}
      */
-    private function translateWithAI($aiHandler, array $text, array $textSplitted, $from, $to): array
+    private function translateWithAI(AITranslator $aiHandler, array $text, array $textSplitted, $from, $to): array
     {
         $lastUsage = [];
         $lastAskToChatOriginalResponse = [];

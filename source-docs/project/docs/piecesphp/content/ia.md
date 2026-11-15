@@ -145,8 +145,8 @@ if ($handler === null) {
 
 !!! warning "Provisional"
 
-    La traducción sigue usando `chatHandler()` y los proveedores heredados (abajo) hasta una versión próxima; las
-    demás funciones ya eligen su registro en Configuración › IA.
+    Lo que viene: los modelos como lista (la que dé el propio proveedor), el origen de cada clave (escrita o del archivo
+    de claves), sin proveedores fijos, y el coste estimado con su «Registro».
 
 Un **registro de proveedor** es un tipo (OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter o «Personalizado»), un
 sobrenombre y una clave. Varios del mismo tipo pueden convivir. Cada función elige un registro y un modelo
@@ -185,14 +185,32 @@ try {
 - El tipo «Personalizado» habla el formato de OpenAI con la dirección que se le dé: solo `https://`, o
   `http://localhost` y `http://127.0.0.1` para un modelo local.
 
+## Traducir con `translator()`
+
+`AIGateway::translator()` devuelve un `AITranslator` con el proveedor y el modelo de la función `translation` (o, sin
+elegir, el de «IA para traducciones»): `translate($input, $from, $to)`, `lastUsage()`, `getTokensUsed()` y
+`getLastAskToChatOriginalResponse()`, los mismos métodos que tenían los adaptadores. El texto de instrucciones es uno solo,
+`AITranslator::prompt()`; cada tipo manda los parámetros que admite (OpenAI, sin temperatura; Mistral, Groq, DeepSeek y
+OpenRouter, con respuesta JSON), y una traducción tiene 120 segundos de tiempo máximo. **`chatHandler()` queda en desuso
+hasta la `11.0.0`**: usa `chatProvider()` o `translator()`.
+
+## Voz a texto con `speechProvider()`
+
+`AIGateway::speechProvider('speech-to-text')` devuelve un `AISpeechProvider` (la función «Voz a texto», apagada por
+omisión; sin proveedor elegido, el de Groq): `transcribe($rutaDelAudio, $idioma)` devuelve `text` y, si el proveedor lo
+cuenta, el consumo (`usage`, `inputTokens`, `outputTokens`) o la duración (`seconds`). Groq no devuelve consumo. 120
+segundos de tiempo máximo. **`SpeechToTextGroqAdapter` queda en desuso hasta la `11.0.0`.**
+
 ## Lo que se guarda
 
-`pcsphp_ai_usage` (`AIUsageMapper`): una fila por capacidad, proveedor y comienzo del periodo, con `tokens`,
-`requests`, `createdAt` y `updatedAt`. Cada periodo nuevo empieza en una fila nueva. **El consumo de cada registro de proveedor guardado** va además en su propia fila, con `capability = '@provider'` (`AIGateway::PROVIDER_USAGE_ROW`, que ninguna capacidad puede llevar) y el periodo del registro, porque el de cada función puede ser otro; el acumulado sin ancla propia empieza en
+`pcsphp_ai_usage` (`AIUsageMapper`): una fila por capacidad, proveedor, **modelo** y comienzo del periodo, con `tokens`,
+`inputTokens`, `outputTokens`, `requests`, `createdAt` y `updatedAt`. `recordUsage($capacidad, $proveedor, $tokens,
+$entrada, $salida, $modelo)`: los tres últimos son opcionales. Cada periodo nuevo empieza en una fila nueva. **El consumo de cada registro de proveedor guardado** va además en su propia fila, con `capability = '@provider'` (`AIGateway::PROVIDER_USAGE_ROW`, que ninguna capacidad puede llevar) y el periodo del registro, porque el de cada función puede ser otro; el acumulado sin ancla propia empieza en
 `AIUsageMapper::ACCUMULATED_PERIOD_START` (`2000-01-01 00:00:00`).
 
-Una instalación que ya existe crea la tabla con `bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes` (con un
-`bin/cli db-backup` antes; ver [Terminal](terminal.md#10-db-update)).
+Una instalación que ya existe crea la tabla con `bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes` y le añade
+el modelo, la entrada y la salida con `bin/cli db-update file=2026-11-14-consumo-de-la-ia-por-modelo apply=yes` (las dos con
+un `bin/cli db-backup` antes; ver [Terminal](terminal.md#10-db-update)).
 
 ## Las pruebas
 

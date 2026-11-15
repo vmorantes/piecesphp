@@ -101,7 +101,7 @@ class SettingsRoutes
         $declare([SessionToken::INACTIVITY_CONFIG, SessionToken::CEILING_CONFIG], SessionToken::class, ConfigOptions::SHAPE_INTEGER);
 
         //Inteligencia artificial.
-        $declare(['modelOpenAI', 'modelMistral', 'translationAI'], $owner, ConfigOptions::SHAPE_TEXT);
+        $declare(['modelOpenAI', 'modelMistral', 'modelGroq', 'translationAI'], $owner, ConfigOptions::SHAPE_TEXT);
         //Las claves de API, selladas en la base y en claro en get_config() (P310 a).
         $declare(SettingsController::AI_SECRET_CONFIG_KEYS, $owner, ConfigOptions::SHAPE_SECRET);
         $declare(['translationAIEnable'], $owner, ConfigOptions::SHAPE_BOOL);

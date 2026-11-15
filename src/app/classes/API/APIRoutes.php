@@ -12,6 +12,7 @@ use API\Adapters\SpeechToTextGroqAdapter;
 use API\Controllers\APIController;
 use PiecesPHP\AI\AICapability;
 use PiecesPHP\AI\AICapabilityRegistry;
+use PiecesPHP\AI\AIGateway;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\MailCatalog\Definitions\ApiUserCreatedMail;
@@ -81,6 +82,17 @@ class APIRoutes
                     },
                 ));
             }
+
+            //La voz a texto, en el centro de mando de la IA (ADR 0077 §6): apagada, solo root y mensual hasta que se configure.
+            AICapabilityRegistry::register(new AICapability(
+                AIGateway::SPEECH_CAPABILITY,
+                fn(): string => __(APILang::LANG_GROUP, 'Voz a texto'),
+                AICapability::PROVIDER_SPEECH,
+                false,
+                [],
+                0,
+                AICapability::PERIOD_MONTHLY,
+            ));
 
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();

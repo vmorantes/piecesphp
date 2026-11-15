@@ -87,26 +87,27 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                 $legacyRows = [
                     AIProviderRegistry::LEGACY_OPENAI => ['name' => 'OpenAI', 'option' => 'OpenAIApiKey', 'keyId' => 'ai-key-openai', 'keyLabel' => __($langGroup, 'API Key OpenAI'), 'model' => 'modelOpenAI', 'models' => AI_MODELS[AI_OPENAI], 'clear' => 'ai-clear-openai'],
                     AIProviderRegistry::LEGACY_MISTRAL => ['name' => 'Mistral', 'option' => 'MistralAIApiKey', 'keyId' => 'ai-key-mistral', 'keyLabel' => __($langGroup, 'API Key Mistral'), 'model' => 'modelMistral', 'models' => AI_MODELS[AI_MISTRAL], 'clear' => 'ai-clear-mistral'],
-                    AIProviderRegistry::LEGACY_GROQ => ['name' => 'Groq', 'option' => 'GroqAPIKey', 'keyId' => '', 'keyLabel' => '', 'model' => null, 'models' => [], 'clear' => null],
+                    AIProviderRegistry::LEGACY_GROQ => ['name' => 'Groq', 'option' => 'GroqAPIKey', 'keyId' => 'ai-key-groq', 'keyLabel' => __($langGroup, 'API Key Groq'), 'model' => 'modelGroq', 'models' => [], 'clear' => 'ai-clear-groq'],
                 ];
             ?>
             <?php foreach ($legacyRows as $legacyId => $legacy): ?>
             <?php $legacyExists = isset($records[$legacyId]); ?>
-            <?php if (!$legacyExists && $legacy['model'] === null): ?>
-            <?php continue; ?>
-            <?php endif; ?>
-            <?php //OpenAI y Mistral se ven siempre: la traducción usa su clave y su modelo hasta la ronda 3 del ADR 0077. ?>
+            <?php //Los tres se ven siempre: la traducción usa la clave y el modelo de OpenAI y de Mistral, y la voz a texto los de Groq. ?>
             <div class="ui secondary segment" data-ai-provider-legacy="<?= escape_html($legacyId); ?>">
                 <h4 class="ui header"><?= escape_html($legacy['name']); ?>
-                    <div class="sub header"><?= $legacyExists ? escape_html($legacyOrigin($legacy['option'])) . ' · ' : ''; ?><?= $legacy['model'] !== null ? __($langGroup, 'La usa la traducción') : __($langGroup, 'Heredado: no se edita aquí'); ?></div>
+                    <div class="sub header"><?= $legacyExists ? escape_html($legacyOrigin($legacy['option'])) . ' · ' : ''; ?><?= $legacyId === AIProviderRegistry::LEGACY_GROQ ? __($langGroup, 'Para la voz a texto') : __($langGroup, 'La usa la traducción'); ?></div>
                 </h4>
                 <?php if ($legacy['model'] !== null): ?>
                 <div class="two fields">
                     <div class="field">
                         <label for="ai-<?= escape_html($legacy['model']); ?>"><?= escape_html(strReplaceTemplate(__($langGroup, 'Modelo %name%'), ['%name%' => $legacy['name']])); ?></label>
+                        <?php if ($legacy['models'] === []): ?>
+                        <input type="text" id="ai-<?= escape_html($legacy['model']); ?>" name="<?= escape_html($legacy['model']); ?>" value="<?= escape_html((string) (get_config($legacy['model']) ?: AIGateway::LEGACY_DEFAULT_MODEL_GROQ)); ?>" autocomplete="off" spellcheck="false">
+                        <?php else: ?>
                         <select id="ai-<?= escape_html($legacy['model']); ?>" name="<?= escape_html($legacy['model']); ?>" class="ui fluid selection dropdown">
                             <?= array_to_html_options($legacy['models'], get_config($legacy['model'])); ?>
                         </select>
+                        <?php endif; ?>
                     </div>
                     <div class="field">
                         <label for="<?= escape_html($legacy['keyId']); ?>"><?= escape_html($legacy['keyLabel']); ?></label>
@@ -202,32 +203,32 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                             <?= array_to_html_options(TRANSLATION_AI_LIST, get_config('translationAI')); ?>
                         </select>
                     </div>
-                    <?php else: ?>
-                    <?php
-                        $selection = AIGateway::providerSelectionFor($capabilityKey);
-                        //Los que saben lo que pide la función: chat y, si usa herramientas, herramientas. Los heredados, primero.
-                        $choices = ['' => __($langGroup, 'El de «IA para traducciones»')];
-                        $suggestions = [];
-                        foreach ($records as $record) {
-                            if ($record->supports(AIProviderCatalog::CAPABILITY_CHAT) && (!$capability->usesTools() || $record->supports(AIProviderCatalog::CAPABILITY_TOOLS))) {
-                                $choices[$record->id()] = $record->alias() . ' (' . ($record->type() === AIProviderCatalog::TYPE_CUSTOM ? __($langGroup, 'Personalizado') : AIProviderCatalog::TYPES[$record->type()]['name']) . ')';
-                                $suggestions[$record->id()] = $record->models();
-                            }
+                    <?php endif; ?>
+                </div>
+                <?php
+                    $selection = AIGateway::providerSelectionFor($capabilityKey);
+                    //Los que saben lo que pide la función: chat y, si usa herramientas, herramientas. Los heredados, primero.
+                    $isSpeech = $capability->providerType() === AICapability::PROVIDER_SPEECH;
+                    $choices = ['' => $isSpeech ? __($langGroup, 'El de Groq (arriba)') : __($langGroup, 'El de «IA para traducciones»')];
+                    $suggestions = [];
+                    foreach ($records as $record) {
+                        $fits = $isSpeech ? $record->supports(AIProviderCatalog::CAPABILITY_SPEECH) : $record->supports(AIProviderCatalog::CAPABILITY_CHAT) && (!$capability->usesTools() || $record->supports(AIProviderCatalog::CAPABILITY_TOOLS));
+                        if ($fits) {
+                            $choices[$record->id()] = $record->alias() . ' (' . ($record->type() === AIProviderCatalog::TYPE_CUSTOM ? __($langGroup, 'Personalizado') : AIProviderCatalog::TYPES[$record->type()]['name']) . ')';
+                            $suggestions[$record->id()] = $record->models();
                         }
-                    ?>
+                    }
+                ?>
+                <div class="two fields">
                     <div class="field">
                         <label for="<?= escape_html($idBase); ?>-provider"><?= __($langGroup, 'Proveedor'); ?></label>
                         <select id="<?= escape_html($idBase); ?>-provider" name="<?= escape_html($field); ?>[provider]" class="ui fluid selection dropdown" data-ai-capability-provider<?= ($selection['provider'] ?? null) === null ? ' aria-describedby="' . escape_html($idBase) . '-provider-description"' : ''; ?>>
                             <?= array_to_html_options($choices, $selection['provider'] ?? ''); ?>
                         </select>
                         <?php if (($selection['provider'] ?? null) === null): ?>
-                        <div class="description" id="<?= escape_html($idBase); ?>-provider-description"><?= __($langGroup, 'Usa el proveedor de la traducción hasta que elijas otro.'); ?></div>
+                        <div class="description" id="<?= escape_html($idBase); ?>-provider-description"><?= $capabilityKey === 'translation' ? __($langGroup, 'Usa el proveedor elegido en «IA para traducciones».') : ($isSpeech ? __($langGroup, 'Usa la clave y el modelo de Groq de arriba hasta que elijas otro.') : __($langGroup, 'Usa el proveedor de la traducción hasta que elijas otro.')); ?></div>
                         <?php endif; ?>
                     </div>
-                    <?php endif; ?>
-                </div>
-                <?php if ($capabilityKey !== 'translation'): ?>
-                <div class="two fields">
                     <div class="field">
                         <label for="<?= escape_html($idBase); ?>-model"><?= __($langGroup, 'Modelo'); ?></label>
                         <input type="text" id="<?= escape_html($idBase); ?>-model" name="<?= escape_html($field); ?>[model]" value="<?= escape_html($selection['model'] ?? ''); ?>" list="<?= escape_html($idBase); ?>-models" autocomplete="off" spellcheck="false" aria-describedby="<?= escape_html($idBase); ?>-model-description">
@@ -239,7 +240,6 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                         <div class="description" id="<?= escape_html($idBase); ?>-model-description"><?= __($langGroup, 'Obligatorio si eliges un proveedor.'); ?></div>
                     </div>
                 </div>
-                <?php endif; ?>
                 <div class="three fields">
                     <div class="field">
                         <label for="<?= escape_html($idBase); ?>-quota"><?= __($langGroup, 'Cuota (tokens)'); ?></label>

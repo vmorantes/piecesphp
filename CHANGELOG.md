@@ -1,3 +1,22 @@
+# 10.28.0 (14-11-2026)
+
+- **La traducción con IA puede usar cualquiera de tus proveedores**: en Configuración › IA, «Traducción con IA» elige su
+  proveedor y su modelo como las demás funciones; sin elegir, sigue con «IA para traducciones» y hace exactamente lo de
+  antes. Una traducción larga tiene ahora un tiempo máximo de 120 segundos.
+- **Arreglado**: con Mistral, una traducción de HTML troceado anotaba más tokens de los gastados (se sumaban de nuevo los
+  de los trozos anteriores). Y si el proveedor da un error, la respuesta ya no repite su mensaje, que podía llevar parte de
+  la clave.
+- **Nuevo en Configuración › IA: «Voz a texto»**, una función más del centro de IA (apagada), con su proveedor y su
+  modelo; sin elegir, usa la clave y el modelo de Groq, que ahora también se escriben en esa pantalla. Lo que gasta cada
+  función se anota ya con sus tokens de entrada y de salida y el modelo. **Al actualizar**: `bin/cli db-backup` y después
+  `bin/cli db-update file=2026-11-14-consumo-de-la-ia-por-modelo apply=yes` (sin ella, lo que no se pueda anotar queda en
+  el registro de errores y lo demás funciona).
+- **Para quien desarrolla: `AIGateway::speechProvider()`**, y **`SpeechToTextGroqAdapter` queda en desuso hasta la
+  `11.0.0`**. `AIGateway::recordUsage()` acepta, opcionales, los tokens de entrada y de salida y el modelo.
+- **Para quien desarrolla: `AIGateway::translator()`**, y **`AIGateway::chatHandler()` queda en desuso hasta la
+  `11.0.0`** (usa `chatProvider()` o `translator()`). `AIChatProvider::chatWithTools()` admite `null` en temperatura y
+  tope (no se mandan) y parámetros extra. Guía «El centro de mando de la IA», «Traducir con `translator()`».
+
 # 10.27.0 (14-11-2026)
 
 - **Nuevo en Configuración › IA: tus proveedores de inteligencia artificial, con sobrenombre.** Guarda los que quieras

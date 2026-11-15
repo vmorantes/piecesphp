@@ -304,13 +304,16 @@ CREATE TABLE `pcsphp_ai_usage` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `capability` varchar(64) NOT NULL,
   `provider` varchar(64) NOT NULL,
+  `model` varchar(128) NOT NULL DEFAULT '',
   `periodStart` datetime NOT NULL,
   `tokens` bigint(20) NOT NULL,
+  `inputTokens` bigint(20) NOT NULL DEFAULT 0,
+  `outputTokens` bigint(20) NOT NULL DEFAULT 0,
   `requests` int(11) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `capabilityProviderPeriod` (`capability`,`provider`,`periodStart`)
+  UNIQUE KEY `capabilityProviderModelPeriod` (`capability`,`provider`,`model`,`periodStart`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 

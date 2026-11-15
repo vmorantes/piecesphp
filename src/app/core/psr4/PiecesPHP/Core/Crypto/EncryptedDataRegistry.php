@@ -94,7 +94,7 @@ final class EncryptedDataRegistry
         }
 
         //Las claves de API de la configuración (ConfigOptions::SHAPE_SECRET). Antes de la 10.16 iban en claro: lo no sellado es la clave.
-        foreach (['config-secret-openai' => 'OpenAIApiKey', 'config-secret-mistral' => 'MistralAIApiKey', 'config-secret-osticket' => SettingsController::OS_TICKET_KEY_CONFIG] as $key => $option) {
+        foreach (['config-secret-openai' => 'OpenAIApiKey', 'config-secret-mistral' => 'MistralAIApiKey', 'config-secret-groq' => 'GroqAPIKey', 'config-secret-osticket' => SettingsController::OS_TICKET_KEY_CONFIG] as $key => $option) {
             self::register(new EncryptedData($key, Sealed::PURPOSE_CONFIG_SECRET, EncryptedData::KIND_OPTION, $option, null, 'id', static function (string $stored): ?string {
                 return $stored;
             }));

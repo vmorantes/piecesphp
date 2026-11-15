@@ -33,9 +33,9 @@ works with, who uses it and how much it can spend.</p>
 <p><strong>Providers</strong>: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
 further down. You can have several of the same provider (for example, two OpenAI ones with keys for different purposes).</p>
 <ul>
-<li><strong>OpenAI</strong> and <strong>Mistral</strong>, at the top, are the ones from the previous configuration: translation uses them. In each one
+<li><strong>OpenAI</strong>, <strong>Mistral</strong> and <strong>Groq</strong>, at the top, are the ones from the previous configuration: translation uses the first two. In each one
   you choose its <strong>model</strong> and type its <strong>key</strong>; if the keys file defines the key, it cannot be changed and it says so; if
-  it is saved, <strong>“Remove the saved one”</strong> deletes it. <strong>Groq</strong>, if it appears, is only for speech to text.</li>
+  it is saved, <strong>“Remove the saved one”</strong> deletes it. <strong>Groq</strong>, likewise, is the speech to text one (its key and its model).</li>
 <li><strong>“+ Add provider”</strong> adds a new one. With none, the section says “There are no saved providers yet”.</li>
 </ul>
 <p>Each added provider has these fields:</p>
@@ -123,7 +123,7 @@ AI”), with these fields:</p>
 <tr>
 <td>Provider</td>
 <td>No</td>
-<td>In the other features: which of your providers it uses. If none is chosen, it uses the “AI for translations” one.</td>
+<td>Which of your providers the feature uses. If none is chosen, speech to text uses Groq, and the rest, the “AI for translations” one.</td>
 </tr>
 <tr>
 <td>Model</td>
@@ -145,6 +145,7 @@ AI”), with these fields:</p>
 <p>Below, the <strong>“Usage this period”</strong> line shows what has been spent (and the quota, if any) and since when. The <strong>“Reset the
 counter”</strong> button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
 the reports.</p>
+<p><strong>“Speech to text”</strong> turns a recording into text, for the features that need it. <strong>It comes switched off</strong>; with no provider chosen it uses the Groq key and model.</p>
 <p><strong>“Panel assistant”</strong> is the feature for the panel's chat assistant: it answers questions about the platform (where
 something is done, what you have pending) using only what the person asking can see. <strong>It comes switched off</strong>, with a quota of
 200,000 tokens a month: turn it on and choose who uses it before anyone sees it. For now only this section exists: the chat window arrives in an upcoming

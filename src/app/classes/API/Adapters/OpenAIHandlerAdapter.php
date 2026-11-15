@@ -356,19 +356,6 @@ class OpenAIHandlerAdapter
      */
     protected static function buildTranslationPrompt(array $input, string $from, string $to): string
     {
-        $input = (object) $input;
-        $jsonPretty = json_encode($input, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        $prompt = [
-            "Haz una traducción siguiendo estos lineamientos:",
-            "- Traduce los solo los valores del JSON (no los nombres de las claves).",
-            "- Preserva todos los caracteres especiales (como saltos de línea, tabulaciones, entidades HTML, etc.)",
-            "- Idioma origen: {$from}",
-            "- Idioma destino: {$to}",
-            "- Tu respuesta debe ser un JSON bien formado con las claves intactas y los valores traducidos.",
-            "Este es el JSON original:",
-            $jsonPretty,
-        ];
-        $prompt = implode("\n", $prompt);
-        return $prompt;
+        return \PiecesPHP\AI\AITranslator::prompt($input, $from, $to);
     }
 }

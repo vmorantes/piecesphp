@@ -113,6 +113,7 @@ final class Assistant
 
         //Una fábrica de prueba puede dar cualquier objeto con chatWithTools: se anota como antes, con translationAI.
         $provider = $adapter instanceof AIChatProvider ? AIGateway::usageProviderName($adapter) : (string) get_config('translationAI');
+        $model = $adapter instanceof AIChatProvider ? $adapter->model() : '';
         $toolsUsed = [];
         $links = [];
         $requestID = 0;
@@ -133,7 +134,7 @@ final class Assistant
                     return self::failure($reason);
                 }
                 $turn = self::normalizeTurn(($chat)($messages, $tools, 0.2, self::MAX_ANSWER_TOKENS));
-                AIGateway::recordUsage(self::CAPABILITY, $provider, $turn['usage']);
+                AIGateway::recordUsage(self::CAPABILITY, $provider, $turn['usage'], $turn['inputTokens'], $turn['outputTokens'], $model);
                 if ($turn['toolCalls'] === []) {
                     return self::success($turn['content'], $links, $toolsUsed);
                 }
@@ -286,7 +287,7 @@ final class Assistant
      * Lo que devuelve un adaptador, en la forma de chatWithTools(), sin fiarse.
      *
      * @param mixed $turn
-     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int}
+     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int}
      */
     private static function normalizeTurn(mixed $turn): array
     {
@@ -301,6 +302,8 @@ final class Assistant
             'content' => is_string($turn['content'] ?? null) ? $turn['content'] : '',
             'toolCalls' => $calls,
             'usage' => is_int($turn['usage'] ?? null) ? max(0, $turn['usage']) : 0,
+            'inputTokens' => is_int($turn['inputTokens'] ?? null) ? max(0, $turn['inputTokens']) : 0,
+            'outputTokens' => is_int($turn['outputTokens'] ?? null) ? max(0, $turn['outputTokens']) : 0,
         ];
     }
 

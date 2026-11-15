@@ -42,12 +42,25 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
     private $httpClient;
 
     /**
+     * @var int
+     */
+    private $timeoutSeconds;
+
+    /**
+     * El cuerpo de la última respuesta, decodificado.
+     *
+     * @var array<mixed>
+     */
+    private $lastRawResponse = [];
+
+    /**
      * @param AIProviderRecord $record
      * @param string $model
      * @param \Psr\Http\Client\ClientInterface|null $httpClient Solo las pruebas; por omisión, Guzzle con los tiempos de arriba
+     * @param int|null $timeoutSeconds El tiempo máximo de cada llamada; por omisión TIMEOUT_SECONDS (la traducción pide más)
      * @throws \InvalidArgumentException sin modelo
      */
-    public function __construct(AIProviderRecord $record, string $model, ?\Psr\Http\Client\ClientInterface $httpClient = null)
+    public function __construct(AIProviderRecord $record, string $model, ?\Psr\Http\Client\ClientInterface $httpClient = null, ?int $timeoutSeconds = null)
     {
         if (trim($model) === '') {
             throw new \InvalidArgumentException("El proveedor «{$record->id()}» necesita un modelo.");
@@ -55,23 +68,46 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
         $this->record = $record;
         $this->model = $model;
         $this->httpClient = $httpClient;
+        $this->timeoutSeconds = $timeoutSeconds ?? self::TIMEOUT_SECONDS;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function chatWithTools(array $messages, array $tools = [], float $temperature = 0.2, int $maxTokens = 800): array
+    public function chatWithTools(array $messages, array $tools = [], ?float $temperature = 0.2, ?int $maxTokens = 800, array $extraParameters = []): array
     {
-        $parameters = [
-            'model' => $this->model,
-            'messages' => $messages,
-            'temperature' => $temperature,
-            (AIProviderCatalog::get($this->record->type())['maxTokensField'] ?? 'max_tokens') => $maxTokens,
-        ];
+        $parameters = ['model' => $this->model, 'messages' => $messages];
+        if ($temperature !== null) {
+            $parameters['temperature'] = $temperature;
+        }
+        if ($maxTokens !== null) {
+            $parameters[(AIProviderCatalog::get($this->record->type())['maxTokensField'] ?? 'max_tokens')] = $maxTokens;
+        }
         if ($tools !== []) {
             $parameters['tools'] = $tools;
         }
-        $factory = OpenAI::factory()->withBaseUri($this->record->baseUrl())->withHttpClient($this->httpClient ?? self::defaultHttpClient());
+        $parameters += $extraParameters;
+        $this->lastRawResponse = [];
+        //El cuerpo de la respuesta se guarda tal cual llega (lastRawResponse()); la petición, nunca.
+        /** @var \ArrayObject<string,string> $body */
+        $body = new \ArrayObject(['body' => '']);
+        $capture = new class ($this->httpClient ?? $this->defaultHttpClient(), $body) implements \Psr\Http\Client\ClientInterface {
+            /**
+             * @param \Psr\Http\Client\ClientInterface $inner
+             * @param \ArrayObject<string,string> $body
+             */
+            public function __construct(private \Psr\Http\Client\ClientInterface $inner, private \ArrayObject $body)
+            {
+            }
+
+            public function sendRequest(\Psr\Http\Message\RequestInterface $request): \Psr\Http\Message\ResponseInterface
+            {
+                $response = $this->inner->sendRequest($request);
+                $this->body['body'] = (string) $response->getBody();
+                return $response->withBody(\GuzzleHttp\Psr7\Utils::streamFor($this->body['body']));
+            }
+        };
+        $factory = OpenAI::factory()->withBaseUri($this->record->baseUrl())->withHttpClient($capture);
         $keyHeader = $this->record->keyHeader();
         $factory = $keyHeader === null ? $factory->withApiKey($this->record->key()) : $factory->withHttpHeader($keyHeader, $this->record->key());
         try {
@@ -81,7 +117,17 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
             $status = $e instanceof ErrorException ? $e->getStatusCode() : 0;
             throw new \RuntimeException("El proveedor de tipo «{$this->record->type()}» respondió con un error (HTTP {$status}, " . get_class($e) . ').', $status);
         }
+        $raw = json_decode((string) $body['body'], true);
+        $this->lastRawResponse = is_array($raw) ? $raw : $data;
         return self::parse($data);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function lastRawResponse(): array
+    {
+        return $this->lastRawResponse;
     }
 
     /**
@@ -137,8 +183,18 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
     /**
      * @return \Psr\Http\Client\ClientInterface
      */
-    private static function defaultHttpClient(): \Psr\Http\Client\ClientInterface
+    private function defaultHttpClient(): \Psr\Http\Client\ClientInterface
     {
-        return new \GuzzleHttp\Client(['timeout' => self::TIMEOUT_SECONDS, 'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS]);
+        return new \GuzzleHttp\Client(['timeout' => $this->timeoutSeconds, 'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS]);
+    }
+
+    /**
+     * El tiempo máximo de cada llamada, en segundos.
+     *
+     * @return int
+     */
+    public function timeoutSeconds(): int
+    {
+        return $this->timeoutSeconds;
     }
 }
