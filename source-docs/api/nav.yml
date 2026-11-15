@@ -1,5 +1,4 @@
 # generado por bin/api-docs desde openapi.json: no se edita
-site_name: Framework API
 nav:
     - index.md
     - "Publicaciones": publicaciones.md
@@ -16,11 +15,3 @@ nav:
     - "Boletín": boletin.md
     - "Segundo factor": segundo-factor.md
     - "Recuperación y desbloqueo": recuperacion-y-desbloqueo.md
-theme:
-    name: readthedocs
-    language: es
-    palette:
-        scheme: slate
-        primary: black
-        accent: red
-site_dir: ./docs-dist

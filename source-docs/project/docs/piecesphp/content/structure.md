@@ -10,8 +10,10 @@ PiecesPHP sigue una organización modular y profesional para separar la lógica 
 - **`databases/`**: Scripts SQL de vistas, funciones y datos iniciales. Las **tablas** no se escriben aquí a mano:
   salen de los mappers con `bin/cli scheme-create` (ver [Mappers](./mappers.md)).
 
-- **`docs/`**: Salida de `mkdocs build` de esta documentación (`site_dir` en `source-docs/project/mkdocs.yml`). No existe
-  hasta que se construye; no se versiona ni se edita a mano.
+- **`source-docs/`**: La documentación. La guía (`source-docs/project/docs/`) y la API (`source-docs/api/docs/`, que
+  genera `bin/api-docs` desde `source-docs/api/openapi.json`) son Markdown, y su menú sale de
+  `source-docs/project/nav.yml` y `source-docs/api/nav.yml`. El sitio se compila con Starlight (`source-docs/starlight/`)
+  mediante `bin/docs`; lo compilado no se versiona ni se edita a mano.
 
 - **`files/`**: Recursos auxiliares: `dev/` guarda datos de máquina de las herramientas de verificación (líneas base,
   firmas); también hay traducciones públicas e instrucciones de Webflow. La colección de Postman **no** está aquí,

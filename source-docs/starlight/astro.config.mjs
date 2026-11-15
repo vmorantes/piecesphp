@@ -6,28 +6,31 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const MKDOCS_YML = resolve(here, '../project/mkdocs.yml')
+const NAV_YML = resolve(here, '../project/nav.yml')
 const DOCS_ROOT = resolve(here, '../project/docs')
-//La API: su nav lo escribe bin/api-docs en su mkdocs.yml, y sus páginas van en /api/ (src/content.config.ts).
-const API_MKDOCS_YML = resolve(here, '../api/mkdocs.yml')
+//La API: su nav.yml lo escribe bin/api-docs, y sus páginas van en /api/ (src/content.config.ts).
+const API_NAV_YML = resolve(here, '../api/nav.yml')
 const API_DOCS_ROOT = resolve(here, '../api/docs')
+//Las guías de entorno: el segundo sitio, que no se publica.
+const ENTORNOS_NAV_YML = resolve(here, '../entornos/nav.yml')
+const ENTORNOS_DOCS_ROOT = resolve(here, '../entornos/docs')
 
 /**
- * El menú sale del `nav:` de un mkdocs.yml, la única fuente: mismos títulos, secciones y orden. Solo se lee ese bloque (el
- * resto lleva etiquetas !!python/), sin dependencias. Una ruta que no existe rompe la compilación con su línea.
+ * El menú sale del `nav:` de un nav.yml (el bloque que antes vivía en mkdocs.yml), la única fuente: mismos títulos,
+ * secciones y orden, sin dependencias. Una ruta que no existe rompe la compilación con la línea del nav.yml.
  *
- * @param {string} mkdocsYml El mkdocs.yml
+ * @param {string} navYml El nav.yml
  * @param {string} docsRoot La carpeta de sus páginas
  * @param {string} prefix Lo que va delante de sus rutas ('' la guía, 'api/' la API)
  * @returns {any[]}
  */
-function sidebarFromMkdocsNav(mkdocsYml, docsRoot, prefix) {
-	const lines = readFileSync(mkdocsYml, 'utf8').replace(/\r\n/g, '\n').split('\n')
+function sidebarFromNav(navYml, docsRoot, prefix) {
+	const lines = readFileSync(navYml, 'utf8').replace(/\r\n/g, '\n').split('\n')
 	const start = lines.findIndex((line) => /^nav:\s*$/.test(line))
 	if (start === -1) {
-		throw new Error(`${mkdocsYml}: no tiene un bloque «nav:».`)
+		throw new Error(`${navYml}: no tiene un bloque «nav:».`)
 	}
-	const yml = relative(resolve(here, '..'), mkdocsYml)
+	const yml = relative(resolve(here, '..'), navYml)
 	/** @type {{ indent: number, items: any[], group?: any }[]} */
 	const stack = [{ indent: -1, items: [] }]
 	for (let i = start + 1; i < lines.length; i++) {
@@ -75,17 +78,48 @@ function sidebarFromMkdocsNav(mkdocsYml, docsRoot, prefix) {
 	return stack[0].items
 }
 
-//El sitio público de la documentación (ADR 0076). La guía y la API se leen EN SU SITIO, source-docs/project/docs/ y
-//source-docs/api/docs/ (src/content.config.ts).
+/**
+ * Dos sitios en este proyecto, elegidos al compilar con DOCS_SITE (bin/docs): «guia», la guía y la API, que se publica; y
+ * «entornos», las guías de entorno, que no. Cada uno, su título, su menú, su base y su salida por omisión; DOCS_BASE y
+ * DOCS_OUT_DIR las cambian (bin/docs compila la guía también como copia local, con la base de Apache).
+ */
+const SITES = {
+	guia: {
+		title: 'PiecesPHP',
+		base: '/docs',
+		outDir: './dist',
+		//La API, al final y en su grupo, desde el nav.yml que escribe bin/api-docs.
+		sidebar: () => [...sidebarFromNav(NAV_YML, DOCS_ROOT, ''), { label: 'API', collapsed: true, items: sidebarFromNav(API_NAV_YML, API_DOCS_ROOT, 'api/') }],
+		processedDirs: ['../project/docs', '../api/docs'],
+	},
+	entornos: {
+		title: 'Entornos y herramientas',
+		base: '/docs-entornos',
+		outDir: '../../docs-entornos',
+		sidebar: () => sidebarFromNav(ENTORNOS_NAV_YML, ENTORNOS_DOCS_ROOT, ''),
+		processedDirs: ['../entornos/docs'],
+	},
+}
+const SITE_NAME = process.env.DOCS_SITE || 'guia'
+/** @type {(typeof SITES)['guia']} */
+const SITE = SITES[/** @type {'guia' | 'entornos'} */ (SITE_NAME)]
+if (SITE === undefined) {
+	throw new Error(`DOCS_SITE=«${SITE_NAME}» no es ningún sitio (guia o entornos).`)
+}
+
+//La documentación (ADR 0076). La guía y la API se leen EN SU SITIO, source-docs/project/docs/ y source-docs/api/docs/; las
+//guías de entorno, en source-docs/entornos/docs/ (src/content.config.ts).
 export default defineConfig({
-	//Donde se publica: la carpeta docs/ del sitio (bin/docs desplegar). Los enlaces y los estáticos salen con /docs/ delante.
+	//Donde se publica la guía: la carpeta docs/ del sitio (bin/docs desplegar). Los enlaces y los estáticos salen con la base delante.
 	site: 'https://piecesphp.bitbucket.io',
-	base: '/docs',
-	//La salida, dentro de esta carpeta e ignorada por git.
-	outDir: './dist',
+	base: process.env.DOCS_BASE || SITE.base,
+	//La salida: dist/ de esta carpeta o la de DOCS_OUT_DIR, siempre una carpeta que git ignora.
+	outDir: process.env.DOCS_OUT_DIR || SITE.outDir,
+	//La caché de compilación: bin/docs preparar la lleva a su temporal, para no escribir en los node_modules que toma prestados.
+	...(process.env.DOCS_CACHE_DIR ? { cacheDir: process.env.DOCS_CACHE_DIR } : {}),
 	integrations: [
 		starlight({
-			title: 'PiecesPHP',
+			title: SITE.title,
 			//El del panel (src/statics/images/favicon.png), copiado en public/: sin él, Starlight pide /favicon.svg y da 404.
 			favicon: '/favicon.png',
 			defaultLocale: 'root',
@@ -95,11 +129,10 @@ export default defineConfig({
 			//El acento del panel y el aspecto de los botones que vienen de MkDocs.
 			customCss: ['./src/styles/site.css'],
 			//Los grupos, plegados; Starlight abre siempre el que contiene la página actual.
-			//La API, al final y en su grupo, desde el nav que escribe bin/api-docs.
-			sidebar: [...sidebarFromMkdocsNav(MKDOCS_YML, DOCS_ROOT, ''), { label: 'API', collapsed: true, items: sidebarFromMkdocsNav(API_MKDOCS_YML, API_DOCS_ROOT, 'api/') }],
-			//Los avisos y las anclas de Starlight solo se aplican en su carpeta de contenido: la guía vive fuera.
-			markdown: { processedDirs: ['../project/docs', '../api/docs'] },
-			//El 404 lo da src/pages/404.astro: la guía vive fuera de src/content/docs y no tiene una entrada «404».
+			sidebar: SITE.sidebar(),
+			//Los avisos y las anclas de Starlight solo se aplican en su carpeta de contenido: el Markdown vive fuera.
+			markdown: { processedDirs: SITE.processedDirs },
+			//El 404 lo da src/pages/404.astro: el contenido vive fuera de src/content/docs y no tiene una entrada «404».
 			disable404Route: true,
 		}),
 	],

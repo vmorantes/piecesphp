@@ -1,3 +1,14 @@
+# 10.26.0 (14-11-2026)
+
+- **La documentación se publica con Starlight** (antes, MkDocs): la guía y la API en un solo sitio, con el mismo menú y
+  las mismas direcciones, buscador y modo oscuro. La portada de la guía es ahora una lista de capítulos con una línea de
+  qué es cada uno.
+- **Configuración › IA**: cada función queda separada de la siguiente (el botón «Reiniciar el contador» ya no se pega al
+  título de la función de abajo).
+- **Para quien mantiene la documentación**: `bin/docs preparar` y `desplegar` compilan con Starlight; desaparece
+  `--mkdocs`. El menú de la guía vive en `source-docs/project/nav.yml` y el de la API en `source-docs/api/nav.yml`, que
+  escribe `bin/api-docs`; los `mkdocs.yml` se retiran y MkDocs deja de hacer falta.
+
 # 10.25.0 (14-11-2026)
 
 - **Documentación, para quien la mantiene: `bin/docs ver` y `bin/docs compilar` usan Starlight** para la guía y la

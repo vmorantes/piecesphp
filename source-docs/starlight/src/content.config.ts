@@ -7,15 +7,26 @@ import { glob } from 'astro/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { i18nLoader } from '@astrojs/starlight/loaders'
 
-//La guía y la API de MkDocs se leen EN SU SITIO y se convierten AL COMPILAR, sin tocar los .md (ADR 0076): MkDocs las sigue
-//compilando. Un solo glob para las dos: dos sobre la misma colección se borrarían las entradas uno al otro.
+//El Markdown se lee EN SU SITIO y se convierte AL COMPILAR, sin tocar los .md (ADR 0076). Un solo glob para todas las
+//fuentes de un sitio: dos sobre la misma colección se borrarían las entradas uno al otro.
 const SOURCES_BASE = '..'
-//Cada fuente, su carpeta (relativa a source-docs/) y el prefijo de sus rutas: la API va en /api/, como en MkDocs.
-const SOURCES = [
-	{ dir: 'project/docs', prefix: '' },
-	{ dir: 'api/docs', prefix: 'api/' },
-]
-//La base de los fragmentos `--8<--`: la raíz del repositorio (source-docs/project/mkdocs.yml, pymdownx.snippets, base_path).
+//Dos sitios en este proyecto, elegidos al compilar con DOCS_SITE (astro.config.mjs): «guia», la guía y la API (la API va en
+///api/), y «entornos», las guías de entorno, que no se publican. Cada fuente, su carpeta (relativa a source-docs/) y el
+//prefijo de sus rutas.
+const SITES: Record<string, { dir: string; prefix: string }[]> = {
+	guia: [
+		{ dir: 'project/docs', prefix: '' },
+		{ dir: 'api/docs', prefix: 'api/' },
+	],
+	entornos: [{ dir: 'entornos/docs', prefix: '' }],
+}
+const SITE = process.env.DOCS_SITE || 'guia'
+if (SITES[SITE] === undefined) {
+	throw new Error(`DOCS_SITE=«${SITE}» no es ningún sitio (guia o entornos).`)
+}
+const SOURCES = SITES[SITE]
+//La base de los fragmentos `--8<--`: la raíz del repositorio. Los fragmentos se escriben con rutas desde ella
+//(«--8<-- "src/app/…"»); la heredaron de MkDocs (pymdownx.snippets, base_path) y es la única.
 const SNIPPETS_BASE = '../..'
 
 //El primer «# Título» de un .md: las páginas de MkDocs no llevan frontmatter y Starlight pide `title` y lo pinta él.
@@ -114,18 +125,41 @@ function convertAdmonitions(text: string, filePath: string): string {
  */
 function convertLinks(text: string, filePath: string, base: string): string {
 	const pageDir = dirname(filePath)
+	return outsideCode(text, (part, index) =>
+		part.replace(/\]\((?!https?:|mailto:|#|\/)([^)#\s]+\.md)(#[^)\s]*)?\)/g, (_match, target: string, anchor: string | undefined) => {
+			const absolute = resolve(pageDir, target)
+			const slug = existsSync(absolute) ? slugOf(absolute) : null
+			if (slug === null) {
+				throw new Error(`${relative(siteRoot, filePath)}:${index + 1}: el enlace a «${target}» no lleva a ninguna página de la documentación.`)
+			}
+			return `](${base}${slug === 'index' ? '' : slug + '/'}${anchor ?? ''})`
+		}),
+	)
+}
+
+/**
+ * Aplica una conversión solo FUERA del código: ni en los bloques ``` o ~~~ ni en el código en línea (`…`), donde un
+ * «](ruta.md)» es un ejemplo y no un enlace. La función recibe cada trozo de texto y el número de su línea (desde 0).
+ */
+function outsideCode(text: string, convert: (part: string, lineIndex: number) => string): string {
+	let fence: string | null = null
 	return text
 		.split('\n')
-		.map((line, index) =>
-			line.replace(/\]\((?!https?:|mailto:|#|\/)([^)#\s]+\.md)(#[^)\s]*)?\)/g, (_match, target: string, anchor: string | undefined) => {
-				const absolute = resolve(pageDir, target)
-				const slug = existsSync(absolute) ? slugOf(absolute) : null
-				if (slug === null) {
-					throw new Error(`${relative(siteRoot, filePath)}:${index + 1}: el enlace a «${target}» no lleva a ninguna página de la guía ni de la API.`)
-				}
-				return `](${base}${slug === 'index' ? '' : slug + '/'}${anchor ?? ''})`
-			}),
-		)
+		.map((line, index) => {
+			const fenceMatch = /^[ \t]*(```+|~~~+)/.exec(line)
+			if (fenceMatch) {
+				fence = fence === null ? fenceMatch[1] : line.trim().startsWith(fence) ? null : fence
+				return line
+			}
+			if (fence !== null) {
+				return line
+			}
+			//Los trozos impares del split son código en línea (con sus comillas): se dejan como están.
+			return line
+				.split(/(`+[^`]*?`+)/)
+				.map((part, i) => (i % 2 === 1 ? part : convert(part, index)))
+				.join('')
+		})
 		.join('\n')
 }
 
@@ -134,10 +168,10 @@ function convertLinks(text: string, filePath: string, base: string): string {
  * `sl-link-button not-content`, secundario o primario. Su aspecto lo da src/styles/site.css: el CSS del componente es local.
  */
 function convertButtons(text: string): string {
-	return text.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)\{[ \t]*\.md-button([ \t]+\.md-button--primary)?[ \t]*\}/g, (_match, label: string, href: string, primary: string | undefined) => {
+	return outsideCode(text, (part) => part.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)\{[ \t]*\.md-button([ \t]+\.md-button--primary)?[ \t]*\}/g, (_match, label: string, href: string, primary: string | undefined) => {
 		const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 		return `<a class="sl-link-button not-content ${primary ? 'primary' : 'secondary'}" href="${escape(href)}">${escape(label)}</a>`
-	})
+	}))
 }
 
 /**

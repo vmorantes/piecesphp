@@ -103,7 +103,7 @@ bin/verify              # la verificación de producto completa, en orden
 bin/verify --changed-since=<commit>  # la parcial: gates solo del área tocada (ADR 0062); nunca para cerrar
 bin/check-routes        # patrones de ruta; funciona aunque la aplicación no arranque
 bin/con-marca -- <orden> # una orden que no es suite: lo que escriba en los registros de errores se poda al salir
-bin/docs ver|compilar|preparar  # la documentación: ver y compilar con Starlight (--mkdocs, lo de antes); preparar, con MkDocs hasta que Starlight publique
+bin/docs ver|compilar|preparar  # la documentación con Starlight: verla, compilarla y preparar lo que se publica
 bin/paquete-revision <etiqueta>  # zip, SQL sin secretos y guía, para un servidor de pruebas; no viaja
 bin/cli <acción>        # CLI del framework (help lista las acciones)
 bin/phpstan             # análisis estático (nivel 8) -> PHPStanResult.Summary.txt

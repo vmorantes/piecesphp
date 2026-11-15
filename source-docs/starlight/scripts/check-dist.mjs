@@ -4,17 +4,25 @@
 //API tenga su HTML con tantos avisos como su fuente, y que la descarga de openapi.json sea la fuente. Solo Node.
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const dist = fileURLToPath(new URL('../dist/', import.meta.url))
+//El sitio que se compiló (DOCS_SITE, DOCS_BASE y DOCS_OUT_DIR, como astro.config.mjs): sus fuentes, su base y su salida.
+const SITES = {
+	guia: { sources: [{ dir: 'project/docs', prefix: '' }, { dir: 'api/docs', prefix: 'api/' }], base: '/docs', outDir: './dist', openapi: true },
+	entornos: { sources: [{ dir: 'entornos/docs', prefix: '' }], base: '/docs-entornos', outDir: '../../docs-entornos', openapi: false },
+}
+const SITE_NAME = process.env.DOCS_SITE || 'guia'
+const SITE = SITES[SITE_NAME]
+if (SITE === undefined) {
+	console.error(`check-dist: DOCS_SITE=«${SITE_NAME}» no es ningún sitio (guia o entornos).`)
+	process.exit(1)
+}
+const starlightRoot = fileURLToPath(new URL('../', import.meta.url))
+const dist = resolve(starlightRoot, process.env.DOCS_OUT_DIR || SITE.outDir) + '/'
 const sourcesRoot = fileURLToPath(new URL('../../', import.meta.url))
-//Las fuentes y el prefijo de sus rutas: lo mismo que src/content.config.ts.
-const SOURCES = [
-	{ dir: 'project/docs', prefix: '' },
-	{ dir: 'api/docs', prefix: 'api/' },
-]
-//La descarga de la API: dist/api/openapi.json, byte a byte source-docs/api/openapi.json.
+const SOURCES = SITE.sources
+//La descarga de la API, solo en la guía: api/openapi.json, byte a byte source-docs/api/openapi.json.
 const OPENAPI_SOURCE = join(sourcesRoot, 'api/openapi.json')
 const OPENAPI_DIST = join(dist, 'api/openapi.json')
 
@@ -41,8 +49,8 @@ const paintedAsides = (html) => {
 	return (content.match(/class="starlight-aside[ "]/g) ?? []).length + (content.match(/<details[\s>]/g) ?? []).length
 }
 const sha1 = (buffer) => createHash('sha1').update(buffer).digest('hex')
-//El favicon que nombra una página (<link rel="icon" href="…">), relativo a dist/: el sitio sale con base /docs.
-const SITE_BASE = '/docs/'
+//El favicon que nombra una página (<link rel="icon" href="…">), relativo a la salida: se le quita la base del sitio.
+const SITE_BASE = (process.env.DOCS_BASE || SITE.base).replace(/\/?$/, '/')
 const faviconOf = (html) => {
 	const link = /<link\b[^>]*\brel="(?:shortcut )?icon"[^>]*>/i.exec(html)?.[0] ?? ''
 	const href = /\bhref="([^"]+)"/i.exec(link)?.[1] ?? null
@@ -57,7 +65,7 @@ if (paintedAsides('<nav><details></details></nav><div class="sl-markdown-content
 	console.error('check-dist: el contador de avisos pintados no cuenta bien su canario (o cuenta los del menú): la puerta no miraría nada.')
 	process.exit(1)
 }
-if (faviconOf('<head><link rel="icon" href="/docs/favicon.png" type="image/png"></head>') !== 'favicon.png' || faviconOf('<head></head>') !== null) {
+if (faviconOf(`<head><link rel="icon" href="${SITE_BASE}favicon.png" type="image/png"></head>`) !== 'favicon.png' || faviconOf('<head></head>') !== null) {
 	console.error('check-dist: la regla del favicon no lee bien su canario: la puerta no miraría nada.')
 	process.exit(1)
 }
@@ -77,11 +85,19 @@ const checks = [
 
 //Atributos de MkDocs (attr_list) que quedaron en el TEXTO: se mira sin etiquetas, sin código y sin scripts ni estilos.
 const attributes = /\{:[^}\n]*\}|\{[ \t]*[.#][A-Za-z][\w-]*(?:[ \t]+[.#][A-Za-z][\w-]*|[ \t]+[\w-]+="[^"]*")*[ \t]*\}/
+//El HTML sin bloques ni trozos de código (<pre>, <code>), donde un ejemplo de MkDocs es texto y no un resto.
+const withoutCode = (html) => html.replace(/<(pre|code)\b[\s\S]*?<\/\1>/gi, ' ')
 const textOf = (html) =>
 	html
 		.replace(/<(script|style|pre|code)\b[\s\S]*?<\/\1>/gi, ' ')
 		.replace(/<[^>]*>/g, ' ')
 		.replace(/&quot;/g, '"')
+//El canario de las reglas de restos sobre el HTML sin código: el resto en un párrafo se ve; en <code>, no.
+if (!checks[0][1].test(withoutCode('<p><a href="otra.md">x</a></p>')) || checks[0][1].test(withoutCode('<p><code>href="otra.md"</code></p>'))
+	|| !checks[2][1].test(withoutCode('<p>--8&lt;-- "a"</p>')) || checks[2][1].test(withoutCode('<td><code>--8&lt;-- "a"</code></td>'))) {
+	console.error('check-dist: las reglas de restos no distinguen un resto de un ejemplo en <code>: la puerta no miraría nada o daría falsos.')
+	process.exit(1)
+}
 //El canario: si la regla deja de ver los dos casos de la guía, la puerta no mira nada y falla.
 for (const sample of ['<p><a href="/x/">Despliegue</a>{ .md-button }</p>', '<h2>Título {: #ancla }</h2>']) {
 	if (!attributes.test(textOf(sample))) {
@@ -145,7 +161,11 @@ for (const source of SOURCES) {
 	}
 	walkSource(join(sourcesRoot, source.dir))
 }
-if (!existsSync(OPENAPI_DIST)) {
+if (!SITE.openapi) {
+	if (existsSync(OPENAPI_DIST)) {
+		failures.push('api/openapi.json está en la salida de un sitio sin API.')
+	}
+} else if (!existsSync(OPENAPI_DIST)) {
 	failures.push('dist/api/openapi.json no existe: la descarga de la API no está en el sitio.')
 } else if (sha1(readFileSync(OPENAPI_DIST)) !== sha1(readFileSync(OPENAPI_SOURCE))) {
 	failures.push(`dist/api/openapi.json (${sha1(readFileSync(OPENAPI_DIST))}) no es source-docs/api/openapi.json (${sha1(readFileSync(OPENAPI_SOURCE))}).`)
@@ -161,11 +181,13 @@ for (const favicon of favicons) {
 }
 for (const file of files) {
 	const html = readFileSync(file, 'utf8')
+	//Sin el código: una página que EXPLICA la sintaxis de MkDocs la enseña en <code>, y eso no es un resto sin convertir.
+	const outsideCode = withoutCode(html)
 	for (const [name, pattern] of checks) {
-		const match = pattern.exec(html)
+		const match = pattern.exec(outsideCode)
 		if (match) {
 			const start = Math.max(0, match.index - 40)
-			failures.push(`${relative(dist, file)}: ${name}: …${html.slice(start, match.index + match[0].length + 40).replace(/\s+/g, ' ')}…`)
+			failures.push(`${relative(dist, file)}: ${name}: …${outsideCode.slice(start, match.index + match[0].length + 40).replace(/\s+/g, ' ')}…`)
 		}
 	}
 	const text = textOf(html)
@@ -187,4 +209,4 @@ if (failures.length > 0) {
 	}
 	process.exit(1)
 }
-console.log(`check-dist: ${files.length} página(s), ningún resto de MkDocs (enlaces a .md, avisos, fragmentos ni atributos); las ${sourcePages} de la guía y la API con su HTML y sus avisos; openapi.json igual a su fuente; el favicon (${[...favicons].join(', ')}) en la salida.`)
+console.log(`check-dist (${SITE_NAME}, ${relative(process.cwd(), dist) || '.'}/): ${files.length} página(s), ningún resto de MkDocs (enlaces a .md, avisos, fragmentos ni atributos); las ${sourcePages} de sus fuentes con su HTML y sus avisos; ${SITE.openapi ? 'openapi.json igual a su fuente' : 'sin openapi.json, como debe'}; el favicon (${[...favicons].join(', ')}) en la salida.`)

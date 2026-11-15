@@ -118,8 +118,13 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                     'title' => __($langGroup, 'Funciones'),
                 ]);
             ?>
+            <?php $firstCapability = true; ?>
             <?php foreach (AICapabilityRegistry::all() as $capabilityKey => $capability): ?>
+            <?php if (!$firstCapability): ?>
+            <div class="ui divider"></div>
+            <?php endif; ?>
             <?php
+                $firstCapability = false;
                 $settings = AIGateway::settingsFor($capabilityKey);
                 $field = AIGateway::CONFIG_NAME . '[capabilities][' . $capabilityKey . ']';
                 $idBase = 'ai-capability-' . $capabilityKey;
