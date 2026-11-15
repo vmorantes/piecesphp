@@ -19,6 +19,11 @@ use PiecesPHP\Core\Http\HttpClient;
 class MistralHandlerAdapter
 {
 
+    /**
+     * El tiempo máximo de chatWithTools(), en segundos.
+     */
+    const CHAT_TIMEOUT_SECONDS = 30;
+
     protected string $apiKey;
     protected string $model;
     protected ?HttpClient $httpClient = null;
@@ -109,6 +114,55 @@ class MistralHandlerAdapter
         //Intenta decodificar como JSON si es posible
         $decoded = json_decode($content, true);
         return $decoded ?? $content;
+    }
+
+    /**
+     * Una vuelta de conversación con herramientas, en el formato de OpenAI (que chat/completions de Mistral admite):
+     * mensajes, herramientas y la respuesta con sus tool_calls. Los arguments vuelven crudos. Un error HTTP lanza con su
+     * código y sin el cuerpo ni la cabecera.
+     *
+     * @param array<int,array<string,mixed>> $messages
+     * @param array<int,array<string,mixed>> $tools
+     * @param float $temperature
+     * @param int $maxTokens El tope de tokens de la respuesta (max_tokens)
+     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int}
+     * @throws \RuntimeException si el proveedor da error
+     */
+    public function chatWithTools(array $messages, array $tools, float $temperature = 0.2, int $maxTokens = 800): array
+    {
+        $client = $this->chatHttpClient();
+        $this->lastUsage = [];
+        $payload = [
+            'model' => $this->model,
+            'messages' => $messages,
+            'temperature' => $temperature,
+            'max_tokens' => $maxTokens,
+        ];
+        if ($tools !== []) {
+            $payload['tools'] = $tools;
+        }
+        $raw = $client->request('chat/completions', 'POST', $payload, [], false);
+        $status = (int) $client->getResponseStatus();
+        if ($raw === false || $status < 200 || $status >= 300) {
+            throw new \RuntimeException("Mistral respondió con un error (HTTP {$status}).");
+        }
+        $response = $client->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON_ASSOC);
+        $response = is_array($response) ? $response : [];
+        $this->lastAskToChatOriginalResponse = $response;
+        $this->addLastUsage($response['usage'] ?? null);
+        return OpenAIHandlerAdapter::parseChatWithTools($response);
+    }
+
+    /**
+     * El cliente HTTP de chatWithTools(): uno propio, con 30 s por llamada; el de askToChat() no lo tiene, y no se toca.
+     *
+     * @return HttpClient
+     */
+    protected function chatHttpClient(): HttpClient
+    {
+        $client = self::httpClientWithApiKeyHeader($this->apiKey);
+        $client->timeout(self::CHAT_TIMEOUT_SECONDS);
+        return $client;
     }
 
     /**

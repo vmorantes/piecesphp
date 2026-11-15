@@ -23,15 +23,15 @@ use Terminal\Tasks\RouteInventoryTask;
  */
 final class DevServer
 {
-    const PROTOCOL_VERSION = '2025-06-18';
-    const SUPPORTED_PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
+    const PROTOCOL_VERSION = McpProtocol::PROTOCOL_VERSION;
+    const SUPPORTED_PROTOCOL_VERSIONS = McpProtocol::SUPPORTED_PROTOCOL_VERSIONS;
     const SERVER_NAME = 'piecesphp-dev';
     const DOCS_SEARCH_LIMIT = 50;
 
-    const PARSE_ERROR = -32700;
-    const INVALID_REQUEST = -32600;
-    const METHOD_NOT_FOUND = -32601;
-    const INVALID_PARAMS = -32602;
+    const PARSE_ERROR = McpProtocol::PARSE_ERROR;
+    const INVALID_REQUEST = McpProtocol::INVALID_REQUEST;
+    const METHOD_NOT_FOUND = McpProtocol::METHOD_NOT_FOUND;
+    const INVALID_PARAMS = McpProtocol::INVALID_PARAMS;
 
     /**
      * La respuesta a un mensaje JSON-RPC 2.0; null si es una notificación (sin id), que no se responde.
@@ -41,23 +41,8 @@ final class DevServer
      */
     public static function handle(array $message): ?array
     {
-        $isNotification = !array_key_exists('id', $message);
-        $id = $message['id'] ?? null;
-        if (($message['jsonrpc'] ?? null) !== '2.0' || !is_string($message['method'] ?? null)) {
-            return $isNotification ? null : self::error($id, self::INVALID_REQUEST, 'Petición JSON-RPC 2.0 no válida.');
-        }
-        if ($isNotification) {
-            return null;
-        }
-        $params = $message['params'] ?? [];
-        $params = is_array($params) ? $params : [];
-        return match ($message['method']) {
-            'initialize' => self::result($id, self::initialize($params)),
-            'ping' => self::result($id, (object) []),
-            'tools/list' => self::result($id, ['tools' => self::toolList()]),
-            'tools/call' => self::call($id, $params),
-            default => self::error($id, self::METHOD_NOT_FOUND, "Método desconocido: {$message['method']}."),
-        };
+        $serverInfo = ['name' => self::SERVER_NAME, 'version' => defined('APP_VERSION') ? (string) APP_VERSION : ''];
+        return McpProtocol::handle($message, $serverInfo, [self::class, 'toolList'], [self::class, 'call']);
     }
 
     /**
@@ -67,7 +52,7 @@ final class DevServer
      */
     public static function parseError(): array
     {
-        return self::error(null, self::PARSE_ERROR, 'La línea no es JSON válido.');
+        return McpProtocol::parseError();
     }
 
     /**
@@ -102,33 +87,21 @@ final class DevServer
     }
 
     /**
-     * @param array<mixed> $params
-     * @return array<string,mixed>
-     */
-    private static function initialize(array $params): array
-    {
-        $requested = $params['protocolVersion'] ?? null;
-        return [
-            'protocolVersion' => is_string($requested) && in_array($requested, self::SUPPORTED_PROTOCOL_VERSIONS, true) ? $requested : self::PROTOCOL_VERSION,
-            'capabilities' => ['tools' => (object) []],
-            'serverInfo' => ['name' => self::SERVER_NAME, 'version' => defined('APP_VERSION') ? (string) APP_VERSION : ''],
-        ];
-    }
-
-    /**
+     * La respuesta de tools/call (la llama McpProtocol::handle()).
+     *
+     * @internal
      * @param mixed $id
-     * @param array<mixed> $params
+     * @param string $name
+     * @param array<mixed>|null $arguments
      * @return array<string,mixed>
      */
-    private static function call(mixed $id, array $params): array
+    public static function call(mixed $id, string $name, ?array $arguments): array
     {
-        $name = $params['name'] ?? null;
-        $arguments = $params['arguments'] ?? [];
-        if (!is_string($name) || !in_array($name, array_column(self::toolList(), 'name'), true)) {
-            return self::error($id, self::INVALID_PARAMS, 'Herramienta desconocida: ' . (is_string($name) ? $name : '(sin nombre)') . '.');
+        if (!in_array($name, array_column(self::toolList(), 'name'), true)) {
+            return McpProtocol::unknownTool($id, $name);
         }
-        if (!is_array($arguments)) {
-            return self::error($id, self::INVALID_PARAMS, 'Los argumentos tienen que ser un objeto.');
+        if ($arguments === null) {
+            return McpProtocol::badArguments($id);
         }
         try {
             $output = match ($name) {
@@ -139,12 +112,9 @@ final class DevServer
                 default => throw new \InvalidArgumentException("Herramienta desconocida: {$name}."),
             };
         } catch (\InvalidArgumentException $e) {
-            return self::error($id, self::INVALID_PARAMS, $e->getMessage());
+            return McpProtocol::error($id, self::INVALID_PARAMS, $e->getMessage());
         }
-        return self::result($id, [
-            'content' => [['type' => 'text', 'text' => (string) json_encode($output['data'], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE)]],
-            'isError' => $output['isError'],
-        ]);
+        return McpProtocol::toolResult($id, $output['data'], $output['isError']);
     }
 
     /**
@@ -306,26 +276,5 @@ final class DevServer
     private static function repositoryPath(string $relative): string
     {
         return dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/' . $relative;
-    }
-
-    /**
-     * @param mixed $id
-     * @param mixed $result
-     * @return array<string,mixed>
-     */
-    private static function result(mixed $id, mixed $result): array
-    {
-        return ['jsonrpc' => '2.0', 'id' => $id, 'result' => $result];
-    }
-
-    /**
-     * @param mixed $id
-     * @param int $code
-     * @param string $message
-     * @return array<string,mixed>
-     */
-    private static function error(mixed $id, int $code, string $message): array
-    {
-        return ['jsonrpc' => '2.0', 'id' => $id, 'error' => ['code' => $code, 'message' => $message]];
     }
 }

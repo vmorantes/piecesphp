@@ -6,6 +6,8 @@
 
 namespace PiecesPHP\Notifications;
 
+use PiecesPHP\Core\Mcp\McpTool;
+use PiecesPHP\Core\Mcp\McpToolRegistry;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -14,6 +16,7 @@ use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Notifications\Controllers\NotificationsController;
 use PiecesPHP\Notifications\Sources\NewsNotificationSource;
 use PiecesPHP\Notifications\Sources\TableNotificationSource;
+use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
  * NotificationsRoutes - El canal de notificaciones por usuario (ADR 0073): sus rutas en JSON y sus fuentes. La de
@@ -26,6 +29,11 @@ use PiecesPHP\Notifications\Sources\TableNotificationSource;
 class NotificationsRoutes
 {
     const ENABLE = true;
+
+    /**
+     * La herramienta MCP de las notificaciones de quien pregunta (ADR 0075).
+     */
+    const TOOL_NOTIFICATIONS_MINE = 'notifications_mine';
 
     /**
      * @param RouteGroup $groupAdministration
@@ -43,8 +51,34 @@ class NotificationsRoutes
             }
             $groupAdministration = NotificationsController::routes($groupAdministration);
             self::staticResolver($groupAdministration);
+            //Después de las fuentes: el enum de filtros sale de las que hay.
+            if (McpToolRegistry::get(self::TOOL_NOTIFICATIONS_MINE) === null) {
+                McpToolRegistry::register(self::notificationsMineTool());
+            }
         }
         return $groupAdministration;
+    }
+
+    /**
+     * @return McpTool
+     */
+    public static function notificationsMineTool(): McpTool
+    {
+        return new McpTool(
+            self::TOOL_NOTIFICATIONS_MINE,
+            __(NotificationsLang::LANG_GROUP, 'Mis notificaciones'),
+            __(NotificationsLang::LANG_GROUP, 'Devuelve las notificaciones del usuario que pregunta (los avisos del sistema y las noticias internas), de la más nueva a la más vieja, y cuántas tiene en cada filtro. Úsala cuando pregunte qué tiene pendiente o sin leer. Solo ve las suyas, nunca las de otra persona.'),
+            [
+                'type' => 'object',
+                'properties' => [
+                    'filter' => ['type' => 'string', 'enum' => Notifications::filters(), 'default' => Notifications::FILTER_UNREAD, 'description' => __(NotificationsLang::LANG_GROUP, 'Cuáles: todas, solo las no leídas, solo las leídas o, si hay noticias internas, solo esas; por omisión, las no leídas.')],
+                    'limit' => ['type' => 'integer', 'minimum' => 1, 'maximum' => Notifications::MAX_PER_PAGE, 'default' => 10, 'description' => __(NotificationsLang::LANG_GROUP, 'Cuántas como mucho; por omisión, 10.')],
+                ],
+                'additionalProperties' => false,
+            ],
+            'notifications-list',
+            fn(UserDataPackage $user, array $arguments): array => Notifications::page((int) $user->id, (string) ($arguments['filter'] ?? Notifications::FILTER_UNREAD), 1, (int) ($arguments['limit'] ?? 10))
+        );
     }
 
     /**

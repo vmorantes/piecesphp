@@ -21,4 +21,8 @@ return [
     'No se pudieron cargar las notificaciones.' => 'The notifications could not be loaded.',
     'Todas las notificaciones' => 'All notifications',
     'Lo que te concierne: los avisos del sistema y las noticias internas.' => 'What concerns you: system notices and internal news.',
+    'Mis notificaciones' => 'My notifications',
+    'Devuelve las notificaciones del usuario que pregunta (los avisos del sistema y las noticias internas), de la más nueva a la más vieja, y cuántas tiene en cada filtro. Úsala cuando pregunte qué tiene pendiente o sin leer. Solo ve las suyas, nunca las de otra persona.' => 'Returns the notifications of the user who asks (system notices and internal news), newest first, and how many there are in each filter. Use it when they ask what they have pending or unread. It only sees their own, never someone else\'s.',
+    'Cuáles: todas, solo las no leídas, solo las leídas o, si hay noticias internas, solo esas; por omisión, las no leídas.' => 'Which ones: all, only unread, only read or, if there is internal news, only that; unread by default.',
+    'Cuántas como mucho; por omisión, 10.' => 'The maximum number; 10 by default.',
 ];

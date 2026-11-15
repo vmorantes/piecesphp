@@ -7,8 +7,14 @@ import { glob } from 'astro/loaders'
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema'
 import { i18nLoader } from '@astrojs/starlight/loaders'
 
-//La guía de MkDocs se lee EN SU SITIO y se convierte AL COMPILAR, sin tocar los .md (ADR 0076): MkDocs la sigue compilando.
-const DOCS_BASE = '../project/docs'
+//La guía y la API de MkDocs se leen EN SU SITIO y se convierten AL COMPILAR, sin tocar los .md (ADR 0076): MkDocs las sigue
+//compilando. Un solo glob para las dos: dos sobre la misma colección se borrarían las entradas uno al otro.
+const SOURCES_BASE = '..'
+//Cada fuente, su carpeta (relativa a source-docs/) y el prefijo de sus rutas: la API va en /api/, como en MkDocs.
+const SOURCES = [
+	{ dir: 'project/docs', prefix: '' },
+	{ dir: 'api/docs', prefix: 'api/' },
+]
 //La base de los fragmentos `--8<--`: la raíz del repositorio (source-docs/project/mkdocs.yml, pymdownx.snippets, base_path).
 const SNIPPETS_BASE = '../..'
 
@@ -19,8 +25,23 @@ const firstHeading = /^#[ \t]+(.+?)[ \t]*#*[ \t]*$/m
 const ASIDE_TYPES: Record<string, string> = { note: 'note', info: 'note', tip: 'tip', warning: 'caution', danger: 'danger' }
 
 const siteRoot = dirname(fileURLToPath(import.meta.url)) + '/..'
-const docsRoot = resolve(siteRoot, DOCS_BASE)
+const sourcesRoot = resolve(siteRoot, SOURCES_BASE)
 const snippetsRoot = resolve(siteRoot, SNIPPETS_BASE)
+
+/**
+ * La ruta de una página: la de su fuente, sin .md, sin «index» final y en minúsculas (lo mismo que espera el menú de
+ * astro.config.mjs). null si el archivo no es de ninguna fuente.
+ */
+function slugOf(absolute: string): string | null {
+	for (const source of SOURCES) {
+		const fromSource = relative(resolve(sourcesRoot, source.dir), absolute)
+		if (!fromSource.startsWith('..')) {
+			const slug = (source.prefix + fromSource.replace(/\.md$/, '')).replace(/(^|\/)index$/, '').toLowerCase()
+			return slug === '' ? 'index' : slug
+		}
+	}
+	return null
+}
 
 /**
  * `--8<-- "archivo"` o `--8<-- "archivo:sección"`: el archivo entero, o lo que hay entre sus marcas
@@ -98,12 +119,11 @@ function convertLinks(text: string, filePath: string, base: string): string {
 		.map((line, index) =>
 			line.replace(/\]\((?!https?:|mailto:|#|\/)([^)#\s]+\.md)(#[^)\s]*)?\)/g, (_match, target: string, anchor: string | undefined) => {
 				const absolute = resolve(pageDir, target)
-				const fromDocs = relative(docsRoot, absolute)
-				if (!existsSync(absolute) || fromDocs.startsWith('..')) {
-					throw new Error(`${relative(siteRoot, filePath)}:${index + 1}: el enlace a «${target}» no lleva a ninguna página de la guía.`)
+				const slug = existsSync(absolute) ? slugOf(absolute) : null
+				if (slug === null) {
+					throw new Error(`${relative(siteRoot, filePath)}:${index + 1}: el enlace a «${target}» no lleva a ninguna página de la guía ni de la API.`)
 				}
-				const slug = fromDocs.replace(/\.md$/, '').replace(/(^|\/)index$/, '').toLowerCase()
-				return `](${base}${slug === '' ? '' : slug + '/'}${anchor ?? ''})`
+				return `](${base}${slug === 'index' ? '' : slug + '/'}${anchor ?? ''})`
 			}),
 		)
 		.join('\n')
@@ -121,12 +141,22 @@ function convertButtons(text: string): string {
 }
 
 /**
- * La guía de MkDocs leída en su sitio, sin mover ni tocar los .md: el título sale del primer «#» al cargar; y antes de
+ * La guía y la API de MkDocs leídas en su sitio, sin mover ni tocar los .md: el título sale del primer «#» al cargar; y antes de
  * pintar cada página, su texto se convierte (fragmentos, avisos, enlaces, botones) y pierde ese «#» para que no salga
  * dos veces.
  */
 function mkdocsLoader() {
-	const loader = glob({ base: DOCS_BASE, pattern: '**/[^_]*.md' })
+	const loader = glob({
+		base: SOURCES_BASE,
+		pattern: SOURCES.map((source) => `${source.dir}/**/[^_]*.md`),
+		generateId: ({ entry }) => {
+			const slug = slugOf(resolve(sourcesRoot, entry))
+			if (slug === null) {
+				throw new Error(`${entry}: no es de ninguna fuente de la documentación.`)
+			}
+			return slug
+		},
+	})
 	return {
 		name: 'piecesphp-mkdocs-loader',
 		load: async (context) => {

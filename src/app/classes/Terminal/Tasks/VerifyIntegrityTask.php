@@ -541,6 +541,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 65. Toda ruta pública está en la documentación de la API o excluida con su motivo ─
         $apiDocFailures = Distribution::applies('65', self::DISTRIBUTION_REQUIREMENTS[65]) ? self::checkApiDocumentation() : [];
 
+        //──── 66. Cada herramienta MCP del panel tiene una ruta de permiso que existe y un esquema válido ─
+        $mcpToolFailures = self::checkMcpTools();
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -566,7 +569,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
-         + count($editorFailures) + count($apiDocFailures);
+         + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -657,6 +660,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($apiDocFailures as $line) {
             echoTerminal("\e[31mAPI:\e[39m {$line}");
+        }
+        foreach ($mcpToolFailures as $line) {
+            echoTerminal("\e[31mHERRAMIENTA MCP:\e[39m {$line}");
         }
         foreach ($versionDateFailures as $line) {
             echoTerminal("\e[31mFECHA DE VERSIÓN:\e[39m {$line}");
@@ -6763,6 +6769,36 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
         return ['failures' => $failures, 'documented' => $operations, 'public' => $public, 'excluded' => $excluded];
+    }
+
+    /**
+     * 66. Cada herramienta del servidor MCP del panel (McpToolRegistry, ADR 0075 §6) exige el permiso de una ruta que
+     * existe, y su inputSchema está dentro del subconjunto que admite McpProtocol::schemaProblem(), la misma validación
+     * del constructor de McpTool. Una herramienta con la ruta mal escrita no la vería nadie y nadie lo notaría.
+     *
+     * @return string[]
+     */
+    protected static function checkMcpTools(): array
+    {
+        //Canario: la validación que se reutiliza rechaza lo que tiene que rechazar.
+        if (\PiecesPHP\Core\Mcp\McpProtocol::schemaProblem(['type' => 'object', 'properties' => ['zz' => ['type' => 'array']], 'additionalProperties' => false]) === null) {
+            return ['canario muerto: McpProtocol::schemaProblem() acepta una propiedad de tipo array: la comprobación no miró nada'];
+        }
+        $routes = get_routes();
+        $routes = is_array($routes) ? $routes : [];
+        $failures = [];
+        $tools = \PiecesPHP\Core\Mcp\McpToolRegistry::all();
+        foreach ($tools as $key => $tool) {
+            if (!array_key_exists($tool->permissionRoute(), $routes)) {
+                $failures[] = "«{$key}» exige el permiso de la ruta «{$tool->permissionRoute()}», que no está registrada: no la vería nadie";
+            }
+            $problem = \PiecesPHP\Core\Mcp\McpProtocol::schemaProblem($tool->inputSchema());
+            if ($problem !== null) {
+                $failures[] = "«{$key}»: su inputSchema no vale: {$problem}";
+            }
+        }
+        echoTerminal('INFO: 66 herramientas MCP del panel: ' . count($tools) . ' registrada(s) (' . implode(', ', array_keys($tools)) . '), contra ' . count($routes) . ' ruta(s); ' . count($failures) . ' fallo(s).');
+        return $failures;
     }
 
     /**

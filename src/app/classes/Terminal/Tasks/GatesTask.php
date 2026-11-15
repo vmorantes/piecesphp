@@ -115,6 +115,7 @@ class GatesTask extends TerminalTaskAbstract
         'src/app/classes/PiecesPHP/GoogleReCaptchaV3/',
         'src/app/classes/PiecesPHP/LocalizationSystem/',
         'src/app/classes/PiecesPHP/Logs/',
+        'src/app/classes/PiecesPHP/Mcp/',
         'src/app/classes/PiecesPHP/Notifications/',
         'src/app/classes/PiecesPHP/Settings/',
         'src/app/classes/PiecesPHP/SystemStatus/',
