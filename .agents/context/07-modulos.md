@@ -208,7 +208,7 @@ petición, y `UsersImportDefinition.php:201-205` se lo pone a los tipos que la r
 | `PiecesPHP/BuiltIn/Banner/` | Banners de inicio (`HOME_IMAGE_BANNER`) |
 | `PiecesPHP/BuiltIn/Helpers/` | Contenidos genéricos (`GenericContentController`, `GenericContentPseudoMapper`) |
 | `PiecesPHP/RoutingUtils/` | `DefaultAccessControlModules` — middleware de control de acceso por módulo |
-| `PiecesPHP/Mcp/` | La ruta del servidor MCP del panel (`POST admin/mcp/`, `mcp-panel-server`; JJX, ADR 0075) y la herramienta `panel_find`. El protocolo, el registro y el servidor están en el núcleo, `src/app/core/psr4/PiecesPHP/Core/Mcp/`. **No está en `GatesTask::AREA_MODULES`**: tocarlo fuerza todas las suites |
+| `PiecesPHP/Mcp/` | La ruta del servidor MCP del panel (`POST admin/mcp/`, `mcp-panel-server`; JJX, ADR 0075) y la herramienta `panel_find`, que lee `PanelSearchSource` (con el manual: su permiso es `allowedRoute('manual')`, porque `manual-page` sin `slug` da siempre falso; `find()` busca por palabras y se queda con la puntuación máxima). El protocolo, el registro y el servidor están en el núcleo, `src/app/core/psr4/PiecesPHP/Core/Mcp/`. **No está en `GatesTask::AREA_MODULES`**: tocarlo fuerza todas las suites |
 
 ## Módulos de sistema
 

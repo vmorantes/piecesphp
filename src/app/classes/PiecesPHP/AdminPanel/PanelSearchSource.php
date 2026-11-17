@@ -17,11 +17,12 @@ use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
- * PanelSearchSource - Lo que el buscador de la barra (Ctrl K) ofrece a un usuario: las pantallas que puede abrir. La usan
- * la vista `panel/layout/topbar-search.php` y la herramienta MCP `panel_find`.
+ * PanelSearchSource - Lo que el buscador de la barra (Ctrl K) ofrece a un usuario: las pantallas que puede abrir y el
+ * manual que ve. La usan la vista `panel/layout/topbar-search.php` y la herramienta MCP `panel_find`.
  *
- * Sale de las mismas fuentes que los menús, ya filtradas por permisos: el menú lateral, los grupos de Configuración y la
- * cuenta. El menú lateral y los permisos por ruta se calculan con el usuario de la SESIÓN: con otro usuario, lanza.
+ * Sale de las mismas fuentes que los menús, ya filtradas por permisos: el menú lateral, los grupos de Configuración, la
+ * cuenta y el manual que ve. El menú lateral y los permisos por ruta se calculan con el usuario de la SESIÓN: con otro
+ * usuario, lanza.
  *
  * @package     PiecesPHP\AdminPanel
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -29,8 +30,11 @@ use PiecesPHP\UserSystem\UserDataPackage;
  */
 final class PanelSearchSource
 {
+    /** Las palabras de relleno que find() no cuenta (las de menos de 3 letras ya no cuentan). */
+    const STOP_WORDS = ['del', 'las', 'los', 'una', 'uno', 'para', 'con', 'por', 'que', 'sobre', 'the', 'and', 'for', 'with'];
+
     /**
-     * Las entradas, en el orden del buscador: módulos, Configuración y cuenta.
+     * Las entradas, en el orden del buscador: módulos, Configuración, la cuenta y el manual que ve (capítulos y secciones).
      *
      * @param UserDataPackage $user El usuario de la sesión
      * @return list<array{category:string,title:string,url:string}>
@@ -81,11 +85,23 @@ final class PanelSearchSource
                 ($add)($categoryAccount, (string) $item->getName(), (string) $item->getHref());
             }
         }
+        //'manual' y no 'manual-page': la del capítulo pide slug y, sin él, allowedRoute() da false (los mismos roles).
+        if (MySpaceController::allowedRoute('manual')) {
+            $categoryManual = __($lang, 'Manual');
+            foreach (MySpaceController::manualChapters() as $chapter) {
+                $chapterUrl = (string) MySpaceController::routeName('manual-page', ['slug' => $chapter['slug']]);
+                ($add)($categoryManual, "{$categoryManual} › {$chapter['titulo']}", $chapterUrl);
+                foreach (MySpaceController::manualVisibleSections($chapter['secciones']) as $section) {
+                    ($add)($categoryManual, "{$categoryManual} › {$chapter['titulo']} › {$section['titulo']}", "{$chapterUrl}#{$section['id']}");
+                }
+            }
+        }
         return $entries;
     }
 
     /**
-     * Las entradas cuyo título o categoría contienen la consulta, sin distinguir mayúsculas ni tildes.
+     * Las entradas que casan con MÁS palabras distintas de la consulta (en título o categoría, sin mayúsculas ni tildes),
+     * si casan con alguna. Sin palabras útiles (todas cortas o de relleno), la consulta entera como subcadena.
      *
      * @param UserDataPackage $user
      * @param string $query
@@ -101,7 +117,21 @@ final class PanelSearchSource
         if ($needle === '') {
             return [];
         }
-        $found = array_filter(self::entries($user), fn(array $entry): bool => str_contains(StringManipulate::friendlyURLString($entry['title']), $needle) || str_contains(StringManipulate::friendlyURLString($entry['category']), $needle));
+        $entries = self::entries($user);
+        $words = array_values(array_unique(array_filter(explode('-', $needle), fn(string $word): bool => mb_strlen($word) >= 3 && !in_array($word, self::STOP_WORDS, true))));
+        if ($words === []) {
+            $found = array_filter($entries, fn(array $entry): bool => str_contains(StringManipulate::friendlyURLString($entry['title']), $needle) || str_contains(StringManipulate::friendlyURLString($entry['category']), $needle));
+            return array_slice(array_values($found), 0, max(0, $limit));
+        }
+        $scores = array_map(function (array $entry) use ($words): int {
+            $haystack = StringManipulate::friendlyURLString($entry['title']) . '-' . StringManipulate::friendlyURLString($entry['category']);
+            return count(array_filter($words, fn(string $word): bool => str_contains($haystack, $word)));
+        }, $entries);
+        $best = $scores === [] ? 0 : max($scores);
+        if ($best < 1) {
+            return [];
+        }
+        $found = array_filter($entries, fn(int $index): bool => $scores[$index] === $best, \ARRAY_FILTER_USE_KEY);
         return array_slice(array_values($found), 0, max(0, $limit));
     }
 

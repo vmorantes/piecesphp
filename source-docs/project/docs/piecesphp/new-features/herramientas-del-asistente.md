@@ -107,8 +107,8 @@ mismas defensas que el servidor MCP).
   derivada de la clave de la aplicación), y el cliente la devuelve con ese turno en el historial
   (`{role: 'assistant', content, signature}`). Un turno del asistente sin firma o con otra se descarta: así nadie puede
   inventarse lo que «dijo» el asistente para sacarlo de su terreno.
-- **Lo que devuelve**: `{ok, answer, signature, links: [{title, url}], toolsUsed, error}`. `links` son las pantallas
-  que encontró con `panel_find`.
+- **Lo que devuelve**: `{ok, answer, signature, links: [{title, url}], toolsUsed, error}`. `links` son las pantallas y
+  los capítulos del manual que encontró con `panel_find`.
 - **Al pintarlo** (la ventana del chat), `answer` y los títulos van como texto, nunca como HTML: pueden traer texto de
   terceros (una noticia, un motivo de rechazo). Los enlaces, solo los de `links`, que son del propio sitio.
 
@@ -138,13 +138,17 @@ móvil, un elemento del menú de usuario) y el diseño del panel (el contenedor 
 
 El banco (`bin/cli assistant-bench`) se corre con un proveedor simulado (`fake=yes`) o, en local, contra uno real con
 `provider=<id> model=<modelo> limit=<n>` (como mucho 8 preguntas, todo en memoria y el consumo repuesto al terminar: borra las filas nuevas y devuelve las que ya
-existían a sus cifras).
+existían a sus cifras). En ese modo real, la cuota en memoria es **lo ya gastado en el periodo más 20.000 tokens**: el
+presupuesto es del banco, no del mes, y un mes con consumo no lo deja sin sitio. `user=` es el id de un usuario que
+tenga el asistente (para root, el suyo) y `provider=`, el id del registro en Configuración › IA › Proveedores (los tres
+que se convirtieron de los de fábrica se llaman `openai`, `mistral` y `groq`); comprueba los dos con `fake=yes`, que no
+gasta.
 
 ## Las herramientas del framework
 
 | Herramienta | Permiso | Argumentos | Qué devuelve |
 | :-- | :-- | :-- | :-- |
-| `panel_find` | `admin` (el inicio del panel) | `query` (1-100 caracteres), `limit` (1-50, por omisión 20) | `{total, results: [{title, category, url}]}`: las pantallas que encuentra el buscador de la barra (Ctrl K) para ese usuario |
+| `panel_find` | `admin` (el inicio del panel) | `query` (1-100 caracteres: palabras clave), `limit` (1-50, por omisión 20) | `{total, results: [{title, category, url}]}`: lo que ofrece el buscador de la barra (Ctrl K) a ese usuario, con los capítulos y secciones del manual que ve (categoría «Manual», `url` con `#sección`). Busca por palabras (fuera las de menos de 3 letras y unas comunes, `PanelSearchSource::STOP_WORDS`) y devuelve las entradas que casan con más palabras; sin palabras útiles, la consulta entera como subcadena |
 | `notifications_mine` | `notifications-list` | `filter` (`all`, `unread`, `read` o, con noticias internas, `news`; por omisión `unread`), `limit` (1-50, por omisión 10) | Lo de `Notifications::page()`: `items`, `counts` y `hasMore` |
 
 Para quien desarrolla sobre el framework hay además otro servidor MCP, por la terminal: [Un MCP para

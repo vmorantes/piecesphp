@@ -5,7 +5,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <p>This manual explains the screens you can use with your account. You only see the chapters for what you are allowed to
 do: if your account type changes, the manual changes with it. The same applies inside each screen: if an action named in
 the manual does not appear for you, your user type does not have it.</p>
-<h2 class="ui header" id="logging-in-and-out">Logging in and out</h2>
+<div class="ui styled fluid accordion" data-section-accordion>
+<h2 class="active title" id="logging-in-and-out"><span role="button" tabindex="0" aria-expanded="true" aria-controls="logging-in-and-out-contenido"><i class="dropdown icon" aria-hidden="true"></i>Logging in and out</span></h2>
+<div class="active content" id="logging-in-and-out-contenido">
 <ol>
 <li>On the login screen, choose how to log in:<ul>
 <li><strong>“Password”</strong>: type your username or email and your password, then click <strong>“Log in”</strong>.</li>
@@ -24,7 +26,9 @@ the manual does not appear for you, your user type does not have it.</p>
 <div class="header">If you cannot log in</div>
 <p>On the login screen, the help link lets you recover your password or username, or report another problem.</p>
 </div>
-<h2 class="ui header" id="your-preferences">Your preferences</h2>
+</div>
+<h2 class="title" id="your-preferences"><span role="button" tabindex="0" aria-expanded="false" aria-controls="your-preferences-contenido"><i class="dropdown icon" aria-hidden="true"></i>Your preferences</span></h2>
+<div class="content" id="your-preferences-contenido">
 <p>In the menu under your name, at the top right, <strong>“Preferences”</strong> takes you to the <strong>“Preferences”</strong> tab of <strong>“My
 account”</strong>. It has two sections:</p>
 <ul>
@@ -40,13 +44,24 @@ account”</strong>. It has two sections:</p>
 <p>Everything applies at once and is saved in your account. Each group also has <strong>“Like the site”</strong>, which follows whatever
 the administrator chose and says next to it what that is (for example, “Like the site: More contrast”). It is what you
 have until you choose something else, and choosing it undoes your choice.</p>
-<h2 class="ui header" id="help">Help</h2>
+</div>
+<h2 class="title" id="the-search-box"><span role="button" tabindex="0" aria-expanded="false" aria-controls="the-search-box-contenido"><i class="dropdown icon" aria-hidden="true"></i>The search box</span></h2>
+<div class="content" id="the-search-box-contenido">
+<p>In the top bar, <strong>“Search features…”</strong> (or <strong>Ctrl K</strong>) searches what you can open: the module screens, the
+configuration, your account and, under <strong>“Manual”</strong>, the chapters and sections of this manual that apply to you. Type
+part of the name; it ignores case and accents. If nothing matches, it says <strong>“No results”</strong>.</p>
+</div>
+<h2 class="title" id="help"><span role="button" tabindex="0" aria-expanded="false" aria-controls="help-contenido"><i class="dropdown icon" aria-hidden="true"></i>Help</span></h2>
+<div class="content" id="help-contenido">
 <p>The question mark icon in the top bar opens the <strong>help center</strong>: this manual and, if your organization has it
 configured, the form to <strong>contact support</strong>.</p>
-<h2 class="ui header" id="the-assistant">The assistant</h2>
+</div>
+<h2 class="title" id="the-assistant"><span role="button" tabindex="0" aria-expanded="false" aria-controls="the-assistant-contenido"><i class="dropdown icon" aria-hidden="true"></i>The assistant</span></h2>
+<div class="content" id="the-assistant-contenido">
 <p>If the administrator has turned it on for you, next to the notifications bell you have the <strong>assistant</strong> button. On a
 phone it is in the menu under your name. It opens a window where you ask in plain language about the platform: where
-something is done (“Where do I create a new user?”), or what you have pending (“Do I have unread notifications?”).</p>
+something is done (“Where do I create a new user?”), where this manual explains it (“Where is the manual for
+publications?”) or what you have pending (“Do I have unread notifications?”).</p>
 <ul>
 <li>It answers <strong>only with what you can see</strong> on the platform, and below the answer it leaves buttons to go to the screens
   it names.</li>
@@ -59,3 +74,5 @@ something is done (“Where do I create a new user?”), or what you have pendin
 <li>If the assistant reached its usage limit, the window tells you so: when it renews or, if the limit does not renew on its
   own, that the administrator can reset it. If it is not available to you, the button does not appear.</li>
 </ul>
+</div>
+</div>

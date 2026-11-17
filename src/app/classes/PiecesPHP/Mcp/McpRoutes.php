@@ -71,11 +71,11 @@ class McpRoutes
         return new McpTool(
             self::TOOL_PANEL_FIND,
             __(McpLang::LANG_GROUP, 'Buscar en el panel'),
-            __(McpLang::LANG_GROUP, 'Busca pantallas del panel de administración por su nombre o su sección, igual que el buscador de la barra (Ctrl K). Úsala cuando haya que decir dónde se hace algo o dar el enlace a una pantalla. Devuelve, para cada coincidencia, el título, la sección (módulos, configuración o cuenta) y la dirección completa. Solo incluye las pantallas que el usuario que pregunta puede abrir.'),
+            __(McpLang::LANG_GROUP, 'Busca pantallas del panel de administración y capítulos del manual de uso por su nombre o su sección, igual que el buscador de la barra (Ctrl K). Úsala cuando haya que decir dónde se hace algo, cómo se usa una pantalla o dar el enlace a una pantalla o al manual. Busca con palabras clave, no con frases. Devuelve, para cada coincidencia, el título, la sección (módulos, configuración, cuenta o manual) y la dirección completa. Solo incluye lo que el usuario que pregunta puede ver.'),
             [
                 'type' => 'object',
                 'properties' => [
-                    'query' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 100, 'description' => __(McpLang::LANG_GROUP, 'El texto que buscar en el título o la sección; no distingue mayúsculas ni tildes.')],
+                    'query' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 100, 'description' => __(McpLang::LANG_GROUP, 'Palabras clave que buscar en el título o la sección; no distingue mayúsculas ni tildes.')],
                     'limit' => ['type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 20, 'description' => __(McpLang::LANG_GROUP, 'Cuántas coincidencias como mucho; por omisión, 20.')],
                 ],
                 'required' => ['query'],

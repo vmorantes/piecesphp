@@ -7,7 +7,9 @@
 //@areas src/app/classes/PiecesPHP/Notifications/
 
 use EventsLog\Mappers\LogsMapper;
+use MySpace\Controllers\MySpaceController;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\AdminPanel\PanelSearchSource;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -191,6 +193,43 @@ CliActions::make('unit-tests:core/mcp-panel-server', function ($args) {
         $deEseTitulo = array_map($clave, $datos($llamar($general, 'panel_find', ['query' => $buscado, 'limit' => 50]))['results'] ?? []);
         $check($soloRoot !== [] && !in_array($soloRoot[0], $deEseTitulo, true), '7c DISCRIMINANTE: el general no recibe una entrada que solo ve root, ni buscándola por su título', "«{$titulo}»; " . count($soloRoot) . ' solo de root');
         $check(array_filter($halladoRoot, fn(array $e): bool => !preg_match('#^[a-z]+://#', (string) $e['url'])) === [], '7d las direcciones son absolutas');
+        $como($idRoot, UsersModel::TYPE_USER_ROOT);
+        echoTerminal(' ');
+
+        //─── M · El manual en el buscador y en panel_find (H333) ───────────────────────────────────
+        echoTerminal('[M] El manual: capítulos y secciones que se ven, y panel_find por palabras');
+        $catManual = __(AdminPanelController::ADMIN_LANG_GROUP, 'Manual');
+        $catModulos = __(AdminPanelController::ADMIN_LANG_GROUP, 'Módulos');
+        $buscar = fn(UserDataPackage $u, string $q): array => $datos($llamar($u, 'panel_find', ['query' => $q, 'limit' => 50]))['results'] ?? [];
+        $capitulo = array_values(array_filter(MySpaceController::manualChapters(), fn(array $c): bool => $c['slug'] === '30-publicaciones'))[0] ?? null;
+        $tituloCapitulo = is_array($capitulo) ? $capitulo['titulo'] : 'zz-sin-capitulo';
+        $delCapitulo = fn(array $r): bool => $r['category'] === $catManual && str_starts_with($r['title'], "{$catManual} › ") && str_contains($r['title'], $tituloCapitulo);
+        $soloManualDelCapitulo = fn(array $rs): bool => array_filter($rs, $delCapitulo) !== [] && array_filter($rs, fn(array $r): bool => $r['category'] === $catModulos) === [];
+        $m1 = $buscar($root, 'manual de publicaciones');
+        $check($soloManualDelCapitulo($m1), 'm1 DISCRIMINANTE: «manual de publicaciones» da el capítulo de Publicaciones del manual y ninguna entrada de Módulos', implode(' | ', array_column($m1, 'title')));
+        //En proceso el menú lateral no trae Publicaciones (es del banco, no del código): módulo y manual, con Directorio.
+        $capituloDirectorio = array_values(array_filter(MySpaceController::manualChapters(), fn(array $c): bool => $c['slug'] === '56-directorio'))[0]['titulo'] ?? 'zz-sin-capitulo';
+        $delDirectorio = fn(array $r): bool => $r['category'] === $catManual && str_starts_with($r['title'], "{$catManual} › {$capituloDirectorio}");
+        $m2 = $buscar($root, 'directorio');
+        $check(array_filter($m2, fn(array $r): bool => $r['category'] === $catModulos) !== [] && array_filter($m2, $delDirectorio) !== [], 'm2 DISCRIMINANTE: «directorio» da el módulo y el manual', implode(' | ', array_column($m2, 'title')));
+        $m1b = $buscar($root, 'manual del directorio');
+        $check(array_filter($m1b, $delDirectorio) !== [] && array_filter($m1b, fn(array $r): bool => $r['category'] !== $catManual) === [], 'm1b DISCRIMINANTE: «manual del directorio» da solo el manual (dos palabras frente a una del módulo)', implode(' | ', array_column($m1b, 'title')));
+        $m3 = $buscar($root, 'manual de lo respectivo a publicaciones');
+        $check($soloManualDelCapitulo($m3), 'm3 «manual de lo respectivo a publicaciones», lo mismo que m1', implode(' | ', array_column($m3, 'title')));
+        $seccion = is_array($capitulo) ? (MySpaceController::manualVisibleSections($capitulo['secciones'])[0] ?? null) : null;
+        $deRootManual = array_values(array_filter(PanelSearchSource::entries($root), fn(array $e): bool => $e['category'] === $catManual));
+        $check(is_array($seccion) && array_filter($deRootManual, fn(array $e): bool => $e['title'] === "{$catManual} › {$tituloCapitulo} › {$seccion['titulo']}" && str_ends_with($e['url'], '#' . $seccion['id'])) !== [], 'm5 una sección: «Manual › capítulo › sección» con su ancla', is_array($seccion) ? $seccion['id'] : 'sin sección');
+        $needle = 'de-la';
+        $deHoy = array_values(array_filter(PanelSearchSource::entries($root), fn(array $e): bool => str_contains(\PiecesPHP\Core\StringManipulate::friendlyURLString($e['title']), $needle) || str_contains(\PiecesPHP\Core\StringManipulate::friendlyURLString($e['category']), $needle)));
+        $m6 = PanelSearchSource::find($root, 'de la', 50);
+        $check($m6 === $deHoy && $m6 !== [], 'm6 «de la» (solo palabras cortas): la consulta entera como subcadena, como antes', count($m6) . ' resultado(s)');
+        $check($deRootManual !== [], 'm7 entries() de root (lo que lee Ctrl K) trae la categoría Manual', count($deRootManual) . ' entrada(s) del manual');
+        $como($idGeneral, UsersModel::TYPE_USER_GENERAL);
+        $rutasCapitulo = is_array($capitulo) && is_array($capitulo['rutas']) ? $capitulo['rutas'] : [];
+        $generalSinPublicaciones = $rutasCapitulo !== [] && array_filter($rutasCapitulo, fn(string $ruta): bool => Roles::hasPermissions($ruta, UsersModel::TYPE_USER_GENERAL)) === [];
+        $m4 = $buscar($general, 'manual de publicaciones');
+        $manualGeneral = array_filter(PanelSearchSource::entries($general), fn(array $e): bool => $e['category'] === $catManual);
+        $check($generalSinPublicaciones && $manualGeneral !== [] && array_filter($m4, $delCapitulo) === [], 'm4 DISCRIMINANTE: el usuario general (ve el manual, sin las rutas de Publicaciones) no recibe ese capítulo', implode(' | ', array_column($m4, 'title')));
         $como($idRoot, UsersModel::TYPE_USER_ROOT);
         echoTerminal(' ');
 
@@ -416,4 +455,4 @@ CliActions::make('unit-tests:core/mcp-panel-server', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El servidor MCP del panel (ADR 0075): el registro de herramientas (key, esquema, remove/replace), tools/list y tools/call con los permisos de quien pregunta (sin permiso = no existe), los argumentos contra el esquema, el protocolo, una herramienta que lanza, panel_find contra Ctrl K y notifications_mine contra Notifications::page(); y la ruta por HTTP (sin sesión, 415, Origin ajeno 403, JSON roto, lote, notificación y tools/list). Crea y borra un usuario, sus sesiones y sus intentos de acceso.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('El servidor MCP del panel (ADR 0075): el registro de herramientas (key, esquema, remove/replace), tools/list y tools/call con los permisos de quien pregunta (sin permiso = no existe), los argumentos contra el esquema, el protocolo, una herramienta que lanza, panel_find contra Ctrl K, el manual en el buscador por permisos y panel_find por palabras, y notifications_mine contra Notifications::page(); y la ruta por HTTP (sin sesión, 415, Origin ajeno 403, JSON roto, lote, notificación y tools/list). Crea y borra un usuario, sus sesiones y sus intentos de acceso.')->setEffects([CliActions::EFFECT_DATABASE])->register();

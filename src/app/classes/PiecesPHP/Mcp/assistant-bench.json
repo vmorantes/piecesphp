@@ -148,5 +148,20 @@
         "lang": "en",
         "question": "Do I have unread notifications?",
         "expected": "answer"
+    },
+    {
+        "lang": "es",
+        "question": "¿Dónde está el manual de publicaciones?",
+        "expected": "answer"
+    },
+    {
+        "lang": "es",
+        "question": "¿Cómo se usa el gestor de archivos?",
+        "expected": "answer"
+    },
+    {
+        "lang": "en",
+        "question": "Where is the user manual for documents?",
+        "expected": "answer"
     }
 ]

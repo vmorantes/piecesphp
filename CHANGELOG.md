@@ -1,3 +1,13 @@
+# 10.40.0 (17-11-2026)
+
+- **El asistente y el buscador de la barra (Ctrl K) encuentran el manual de uso**: además de las pantallas, ofrecen los
+  capítulos y las secciones del manual, en la categoría «Manual», y solo los que cada persona puede ver. Antes, al
+  preguntarle al asistente «¿dónde está el manual de publicaciones?», contestaba que no lo encontraba.
+- **El asistente busca por palabras**: «manual de publicaciones» da el capítulo de Publicaciones y no la pantalla del
+  módulo; las palabras muy cortas o muy comunes («de», «la», «para») no cuentan.
+- **Para quien desarrolla**: el banco del asistente (`bin/cli assistant-bench`) en modo real tiene su propio
+  presupuesto, sumado a lo ya gastado en el mes: antes, con el mes gastado, no llegaba al proveedor.
+
 # 10.39.0 (17-11-2026)
 
 - **Nuevo en Configuración › Sistema › Seguridad: «Proxies de confianza»** (solo root). Si la plataforma está detrás de

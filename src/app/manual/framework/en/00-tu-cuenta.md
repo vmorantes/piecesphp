@@ -44,6 +44,12 @@ Everything applies at once and is saved in your account. Each group also has **�
 the administrator chose and says next to it what that is (for example, “Like the site: More contrast”). It is what you
 have until you choose something else, and choosing it undoes your choice.
 
+## The search box
+
+In the top bar, **“Search features…”** (or **Ctrl K**) searches what you can open: the module screens, the
+configuration, your account and, under **“Manual”**, the chapters and sections of this manual that apply to you. Type
+part of the name; it ignores case and accents. If nothing matches, it says **“No results”**.
+
 ## Help
 
 The question mark icon in the top bar opens the **help center**: this manual and, if your organization has it
@@ -53,7 +59,8 @@ configured, the form to **contact support**.
 
 If the administrator has turned it on for you, next to the notifications bell you have the **assistant** button. On a
 phone it is in the menu under your name. It opens a window where you ask in plain language about the platform: where
-something is done (“Where do I create a new user?”), or what you have pending (“Do I have unread notifications?”).
+something is done (“Where do I create a new user?”), where this manual explains it (“Where is the manual for
+publications?”) or what you have pending (“Do I have unread notifications?”).
 
 - It answers **only with what you can see** on the platform, and below the answer it leaves buttons to go to the screens
   it names.

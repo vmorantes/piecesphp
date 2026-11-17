@@ -46,6 +46,12 @@ Todo se aplica al momento y se guarda en tu cuenta. Cada grupo tiene además **�
 elegido quien administra y dice al lado cuál es (por ejemplo, «Como el sitio: Más contraste»). Es lo que tienes mientras
 no elijas otra cosa, y elegirla deshace tu elección.
 
+## El buscador
+
+En la barra superior, **«Buscar funcionalidad…»** (o **Ctrl K**) busca entre lo que tú puedes abrir: las pantallas de
+los módulos, la configuración, tu cuenta y, en **«Manual»**, los capítulos y las secciones de este manual que te tocan.
+Escribe parte del nombre; no distingue mayúsculas ni tildes. Si nada coincide, dice **«Sin resultados»**.
+
 ## La ayuda
 
 El icono de interrogación de la barra superior abre el **centro de ayuda**: este manual y, si tu organización lo
@@ -55,10 +61,11 @@ tiene configurado, el formulario para **contactar a soporte**.
 
 Si quien administra lo ha encendido para ti, junto a la campana de notificaciones tienes el botón del **asistente**. En
 el móvil está en el menú de tu nombre. Abre una ventana donde le preguntas en lenguaje normal sobre la plataforma: dónde
-se hace algo («¿Dónde creo un usuario nuevo?»), o lo que tienes pendiente («¿Tengo notificaciones sin leer?»).
+se hace algo («¿Dónde creo un usuario nuevo?»), dónde lo explica este manual («¿Dónde está el manual de
+publicaciones?») o lo que tienes pendiente («¿Tengo notificaciones sin leer?»).
 
 - Responde **solo con lo que tú puedes ver** en la plataforma, y debajo de la respuesta te deja botones para ir a las
-  pantallas que nombra.
+  pantallas o a los capítulos del manual que nombra.
 - **Solo atiende lo de la plataforma.** Si le preguntas otra cosa, te dice que no puede y te ofrece lo que sí sabe hacer.
 - **Enter** envía; **Mayús+Enter** salta de línea. Cada pregunta, como mucho 1.000 caracteres.
 - **La conversación se conserva** aunque cambies de pantalla o cierres el navegador, en ese mismo equipo y solo para ti.
