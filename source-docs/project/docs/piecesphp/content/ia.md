@@ -208,7 +208,7 @@ fijos.** Esa configuración se convierte en registros normales:
   la base sin tocar, para quien las lea, hasta la `11.0.0`.
   - Solo el formulario de esta versión pone la marca (manda `converted_sent`). Una pestaña abierta antes de actualizar
     guarda sin convertir.
-  - Quitar después un convertido, o «Quitar la guardada» en él, vacía también su opción de antes (`OpenAIApiKey`,
+  - Quitar un convertido (en el primer guardado o después), o «Quitar la guardada» en él, vacía también su opción de antes (`OpenAIApiKey`,
     `MistralAIApiKey` o `GroqAPIKey`). Así la clave no sigue viva en los caminos en desuso que todavía la leen.
 - **Los ids `legacy-openai`, `legacy-mistral` y `legacy-groq`** (`AIProviderRegistry::LEGACY_*`) quedan en desuso hasta la
   `11.0.0`. Una función guardada con uno de ellos se resuelve a su registro convertido.
@@ -247,6 +247,41 @@ escribirla. Así una clave no puede acabar en otro servicio sin que alguien la e
   nunca la respuesta del proveedor.
 - **En la pantalla**, cada proveedor guardado tiene «Actualizar modelos». El modelo de cada función y el de «Probar» se
   eligen de la lista, y «Otro…» deja escribir cualquiera: el servidor lo acepta como texto.
+
+## Enseñar una función solo si se puede usar
+
+Una pantalla que ofrece una función de IA (un botón, un campo) pregunta antes con `AIGateway::availability()`. Así no
+enseña lo que no se puede usar, y avisa con claridad cuando se alcanzó un límite.
+
+```php
+use PiecesPHP\AI\AIGateway;
+
+$ai = AIGateway::availability('invoice-summary');
+if ($ai['state'] === AIGateway::AVAILABILITY_HIDDEN) {
+    //No se pinta nada: ni el botón ni su hueco.
+} elseif ($ai['state'] === AIGateway::AVAILABILITY_LIMIT) {
+    //Se pinta desactivado, con $ai['message'] a la vista (no solo en un tooltip).
+} else {
+    //AIGateway::AVAILABILITY_AVAILABLE: como siempre.
+}
+```
+
+- **`hidden`**, oculta: la IA general o la función están apagadas; quien mira no tiene permiso; la capacidad no está
+  registrada; o no hay proveedor que sirva (ninguno elegido, no existe, sin clave, su tipo no sabe hacer lo que pide la
+  función, o sin modelo). `message` y `renewsAt` son `null`: el motivo no se le enseña a quien no puede usarla.
+- **`limit`**, en su límite: se alcanzó la cuota de la función o la del proveedor.
+  - `message` dice cuál, traducido, y cuándo se renueva.
+  - `renewsAt` es esa fecha (`Y-m-d H:i:s`), o `null` si el periodo es acumulado; entonces el mensaje dice que quien
+    administra puede reiniciar el contador.
+  - El fin del periodo también se puede pedir aparte, con `AIGateway::periodEnd()` y `AIGateway::providerPeriodEnd()`.
+- **`available`**, disponible.
+- **No llama a la red ni cierra la base**: se puede usar al pintar cualquier vista.
+- **Una sola fuente**: `denialReason()` usa la misma resolución, y es `null` si y solo si `availability()` da `available`.
+  `chatHandler()`, en desuso, conserva sus controles de antes y no mira el proveedor.
+
+El botón «Traducir» de Publicaciones es el ejemplo:
+- `src/app/classes/Publications/Views/publications/forms/inc/translation-button.php` recibe el resultado y no decide nada por su cuenta;
+- `edit.php` conserva sus condiciones de sitio (la traducción con IA activada en `constants.php`, `API_AI_TRANSLATIONS_ACTIVE`, que viene en `false`, y no ser el idioma base).
 
 ## Traducir con `translator()`
 

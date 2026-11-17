@@ -301,6 +301,58 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
         ConfigOptions::swapFixedByFileForTesting($fijadasPorArchivo);
         echoTerminal(' ');
 
+        //─── s10 · Las pestañas ─────────────────────────────────────────────────────────────────────────
+        echoTerminal('[s10] La pantalla en pestañas: General, Proveedores y Funciones dentro del formulario; la cuota, aparte');
+        $comoUsuario(1);
+        set_config(AIGateway::CONFIG_NAME, false);
+        $vista = (function (): string {
+            $langGroup = SettingsController::LANG_GROUP;
+            $title = 'zz';
+            $description = '';
+            $actionURL = '';
+            $indexLink = '';
+            $helpController = new \PiecesPHP\AdminPanel\Controllers\HelperController();
+            ob_start();
+            include basepath('app/classes/PiecesPHP/Settings/Views/panel/pages/app_configurations/ai.php');
+            return (string) ob_get_clean();
+        })();
+        $dom = new \DOMDocument();
+        //RETORNO-IGNORADO: el HTML del panel trae etiquetas que libxml no conoce; lo que cuenta es lo que se busca después.
+        @$dom->loadHTML('<?xml encoding="utf-8"?>' . $vista);
+        $xpath = new \DOMXPath($dom);
+        $cuenta = function (string $consulta) use ($xpath): int {
+            $nodos = $xpath->query($consulta);
+            return $nodos === false ? 0 : $nodos->length;
+        };
+        $pestanas = [];
+        foreach ($xpath->query('//*[@data-ai-tabs]//a[@data-tab]') ?: [] as $nodo) {
+            $pestanas[] = $nodo instanceof \DOMElement ? $nodo->getAttribute('data-tab') : '';
+        }
+        $panelesDentro = [];
+        foreach (['general', 'proveedores', 'funciones'] as $panel) {
+            $panelesDentro[$panel] = $cuenta("//form[contains(concat(' ', normalize-space(@class), ' '), ' ai ')]//div[contains(concat(' ', normalize-space(@class), ' '), ' tab ')][@data-tab='{$panel}']") === 1;
+        }
+        $cuota = $xpath->query('//form[@data-ai-quota]');
+        //libxml cierra solo un <form> al encontrar otro dentro: el anidamiento se mide en el HTML, por la profundidad de las etiquetas.
+        $profundidad = 0;
+        $cuotaDentro = 0;
+        //RETORNO-IGNORADO: lo que cuenta son las etiquetas que deja en $etiquetas; sin ninguna, s10c cae por la cuota.
+        preg_match_all('#<(/?)form\b([^>]*)>#i', $vista, $etiquetas, \PREG_SET_ORDER);
+        foreach ($etiquetas as $etiqueta) {
+            if ($etiqueta[1] === '/') {
+                $profundidad--;
+                continue;
+            }
+            $profundidad++;
+            if (str_contains($etiqueta[2], 'data-ai-quota') && $profundidad > 1) {
+                $cuotaDentro++;
+            }
+        }
+        $check($pestanas === ['general', 'proveedores', 'funciones'], 's10a las tres pestañas, con sus data-tab, en ese orden', (string) json_encode($pestanas));
+        $check($panelesDentro === ['general' => true, 'proveedores' => true, 'funciones' => true] && $cuenta("//form[contains(concat(' ', normalize-space(@class), ' '), ' ai ')]//*[@data-ai-providers]") === 1 && $cuenta("//form[contains(concat(' ', normalize-space(@class), ' '), ' ai ')]//*[@data-ai-capability]") > 0, 's10b los paneles (con los proveedores y las funciones) están DENTRO del formulario principal', (string) json_encode($panelesDentro));
+        $check($cuota !== false && $cuota->length === 1 && $cuotaDentro === 0, 's10c DISCRIMINANTE: el formulario de la cuota existe y NO está dentro del principal (nada anidado)', 'cuota: ' . ($cuota !== false ? $cuota->length : -1) . ', formularios dentro: ' . $cuotaDentro);
+        echoTerminal(' ');
+
         //─── s6 · Sin permiso ───────────────────────────────────────────────────────────────────────────
         echoTerminal('[s6] Permisos de las rutas (lo que index.php comprueba antes de llamar)');
         foreach (['configurations-integrations-ai', 'configurations-integrations-ai-usage-reset', 'configurations-integrations-ai-provider-models'] as $ruta) {

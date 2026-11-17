@@ -72,6 +72,13 @@ final class AIGateway
     const PROVIDER_USAGE_ROW = '@provider';
 
     /**
+     * Los estados de availability(): se ofrece, no se enseña, o se enseña desactivada con su aviso.
+     */
+    const AVAILABILITY_AVAILABLE = 'available';
+    const AVAILABILITY_HIDDEN = 'hidden';
+    const AVAILABILITY_LIMIT = 'limit';
+
+    /**
      * La caché de los modelos que dio cada proveedor (refreshProviderModels()): id → {models, fetchedAt} (SHAPE_JSON).
      */
     const MODELS_CONFIG_NAME = 'ai_provider_models';
@@ -120,7 +127,8 @@ final class AIGateway
     {
         self::capabilityOf($capability, AICapability::PROVIDER_CHAT);
 
-        $reason = self::denialReason($capability, $user);
+        //Solo los controles de antes: este camino en desuso no usa los registros de proveedor.
+        $reason = self::resolveAvailability($capability, $user, null, false)['reason'];
         if ($reason !== null) {
             throw new AIUnavailableException($reason);
         }
@@ -529,30 +537,174 @@ final class AIGateway
      */
     public static function denialReason(string $capability, UsersModel|UserDataPackage|null $user = null, ?int $now = null): ?string
     {
+        return self::resolveAvailability($capability, $user, $now)['reason'];
+    }
+
+    /**
+     * Si la función se ofrece en pantalla (ADR 0077, revisión del 14, punto 4): AVAILABILITY_HIDDEN si no tiene sentido
+     * enseñarla (IA o función apagadas, sin permiso, sin proveedor que sirva, o una capacidad no registrada),
+     * AVAILABILITY_LIMIT si llegó a una cuota (con el aviso y cuándo se renueva) y AVAILABILITY_AVAILABLE si no. Es la
+     * misma resolución que denialReason(); sin red y sin cerrar la base.
+     *
+     * @param string $capability
+     * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
+     * @param int|null $now Por omisión, ahora
+     * @return array{state:string,message:?string,renewsAt:?string}
+     */
+    public static function availability(string $capability, UsersModel|UserDataPackage|null $user = null, ?int $now = null): array
+    {
+        if (AICapabilityRegistry::get($capability) === null) {
+            return ['state' => self::AVAILABILITY_HIDDEN, 'message' => null, 'renewsAt' => null];
+        }
+        $resolution = self::resolveAvailability($capability, $user, $now);
+        if ($resolution['kind'] === null) {
+            return ['state' => self::AVAILABILITY_AVAILABLE, 'message' => null, 'renewsAt' => null];
+        }
+        if ($resolution['kind'] === self::AVAILABILITY_HIDDEN) {
+            return ['state' => self::AVAILABILITY_HIDDEN, 'message' => null, 'renewsAt' => null];
+        }
+        $byProvider = $resolution['limitOf'] === 'provider' && $resolution['recordId'] !== null;
+        if ($byProvider) {
+            $record = AIProviderRegistry::get((string) $resolution['recordId']);
+            $message = strReplaceTemplate(__(AILang::LANG_GROUP, 'Se alcanzó el límite de uso del proveedor «%alias%» en este periodo.'), ['%alias%' => $record !== null ? $record->alias() : (string) $resolution['recordId']]);
+            $renewsAt = self::providerPeriodEnd((string) $resolution['recordId'], $now);
+        } else {
+            $message = strReplaceTemplate(__(AILang::LANG_GROUP, 'Se alcanzó el límite de uso de «%función%» en este periodo.'), ['%función%' => self::capabilityOf($capability, null)->name()]);
+            $renewsAt = self::periodEnd($capability, $now);
+        }
+        $date = $renewsAt !== null ? \DateTimeImmutable::createFromFormat('!' . self::ANCHOR_FORMAT, $renewsAt) : false;
+        $message .= $date !== false
+            ? ' ' . strReplaceTemplate(__(AILang::LANG_GROUP, 'Se renueva el %fecha%.'), ['%fecha%' => $date->format('d-m-Y H:i')])
+            : ' ' . __(AILang::LANG_GROUP, 'Quien administra puede reiniciar el contador en Configuración › IA.');
+        return ['state' => self::AVAILABILITY_LIMIT, 'message' => $message, 'renewsAt' => $renewsAt];
+    }
+
+    /**
+     * La resolución que comparten denialReason() y availability(): el PRIMER fallo, con su clase (AVAILABILITY_HIDDEN o
+     * AVAILABILITY_LIMIT) y su motivo traducido; kind null si se puede. Primero el interruptor general, el de la función,
+     * quién la usa, su cuota y la del registro; después el proveedor (el mismo que resuelven resolveChatProvider() y
+     * speechProvider(), sin construirlo ni cerrar la base).
+     *
+     * @param string $capability
+     * @param UsersModel|UserDataPackage|null $user
+     * @param int|null $now
+     * @param bool $withProvider false: corta antes del proveedor (solo chatHandler(), en desuso)
+     * @return array{kind:?string,reason:?string,limitOf:?string,recordId:?string}
+     * @throws \InvalidArgumentException si la capacidad no está registrada
+     */
+    private static function resolveAvailability(string $capability, UsersModel|UserDataPackage|null $user, ?int $now, bool $withProvider = true): array
+    {
         $settings = self::settingsFor($capability);
+        $definition = self::capabilityOf($capability, null);
         AILang::injectLang();
+        $hidden = fn(string $reason): array => ['kind' => self::AVAILABILITY_HIDDEN, 'reason' => $reason, 'limitOf' => null, 'recordId' => null];
 
         if (!self::isEnabled()) {
-            return __(AILang::LANG_GROUP, 'La inteligencia artificial está apagada.');
+            return $hidden(__(AILang::LANG_GROUP, 'La inteligencia artificial está apagada.'));
         }
         if (!$settings['enabled']) {
-            return __(AILang::LANG_GROUP, 'Esta función de inteligencia artificial está apagada.');
+            return $hidden(__(AILang::LANG_GROUP, 'Esta función de inteligencia artificial está apagada.'));
         }
         $type = self::userTypeOf($user);
         if ($type === null || ($type !== UsersModel::TYPE_USER_ROOT && !in_array($type, $settings['userTypes'], true))) {
-            return __(AILang::LANG_GROUP, 'No tienes permiso para usar esta función de inteligencia artificial.');
+            return $hidden(__(AILang::LANG_GROUP, 'No tienes permiso para usar esta función de inteligencia artificial.'));
         }
         if ($settings['quota'] > 0 && self::usage($capability, null, $now) >= $settings['quota']) {
-            return __(AILang::LANG_GROUP, 'Se ha alcanzado la cuota de esta función de inteligencia artificial en este periodo.');
+            return ['kind' => self::AVAILABILITY_LIMIT, 'reason' => __(AILang::LANG_GROUP, 'Se ha alcanzado la cuota de esta función de inteligencia artificial en este periodo.'), 'limitOf' => 'capability', 'recordId' => null];
         }
         //La del registro de proveedor que usa la función, sumando todas las que lo usan (ADR 0077 §7).
-        $recordId = self::effectiveSelectionFor($capability)['provider'];
+        ['provider' => $recordId, 'model' => $model] = self::effectiveSelectionFor($capability);
         $providerSettings = $recordId !== null ? self::providerSettings($recordId) : null;
         if ($recordId !== null && $providerSettings !== null && $providerSettings['quota'] > 0 && self::providerUsage($recordId, $now) >= $providerSettings['quota']) {
             $record = AIProviderRegistry::get($recordId);
-            return strReplaceTemplate(__(AILang::LANG_GROUP, 'Se alcanzó la cuota del proveedor «%alias%» en este periodo.'), ['%alias%' => $record !== null ? $record->alias() : $recordId]);
+            return ['kind' => self::AVAILABILITY_LIMIT, 'reason' => strReplaceTemplate(__(AILang::LANG_GROUP, 'Se alcanzó la cuota del proveedor «%alias%» en este periodo.'), ['%alias%' => $record !== null ? $record->alias() : $recordId]), 'limitOf' => 'provider', 'recordId' => $recordId];
         }
-        return null;
+        //El proveedor, como lo resuelven resolveChatProvider() y speechProvider().
+        if (!$withProvider) {
+            return ['kind' => null, 'reason' => null, 'limitOf' => null, 'recordId' => $recordId];
+        }
+        if ($recordId === null) {
+            return $hidden(__(AILang::LANG_GROUP, 'No hay ningún proveedor de inteligencia artificial elegido para esta función.'));
+        }
+        $record = AIProviderRegistry::get($recordId);
+        if ($record === null) {
+            return $hidden(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido para esta función no existe.'));
+        }
+        if (!$record->hasKey()) {
+            return $hidden(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido para esta función no tiene clave.'));
+        }
+        $fits = $definition->providerType() === AICapability::PROVIDER_SPEECH
+            ? $record->supports(AIProviderCatalog::CAPABILITY_SPEECH)
+            : $record->supports(AIProviderCatalog::CAPABILITY_CHAT) && !($definition->usesTools() && !$record->supports(AIProviderCatalog::CAPABILITY_TOOLS));
+        if (!$fits) {
+            return $hidden(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido no sabe hacer lo que necesita esta función.'));
+        }
+        if ($model === null) {
+            return $hidden(__(AILang::LANG_GROUP, 'Esta función de inteligencia artificial no tiene modelo elegido.'));
+        }
+        return ['kind' => null, 'reason' => null, 'limitOf' => null, 'recordId' => $recordId];
+    }
+
+    /**
+     * El inicio del periodo SIGUIENTE de la capacidad (cuándo se renueva su cuota), con las reglas de periodStart(); null
+     * si es acumulado.
+     *
+     * @param string $capability
+     * @param int|null $now Por omisión, ahora
+     * @return string|null Y-m-d H:i:s
+     * @throws \InvalidArgumentException si no está registrada
+     */
+    public static function periodEnd(string $capability, ?int $now = null): ?string
+    {
+        return self::computePeriodEnd(self::settingsFor($capability), $now);
+    }
+
+    /**
+     * El inicio del periodo siguiente de un registro de proveedor guardado; null si es acumulado o no es un registro guardado.
+     *
+     * @param string $recordId
+     * @param int|null $now
+     * @return string|null Y-m-d H:i:s
+     */
+    public static function providerPeriodEnd(string $recordId, ?int $now = null): ?string
+    {
+        $settings = self::providerSettings($recordId);
+        return $settings === null ? null : self::computePeriodEnd($settings, $now);
+    }
+
+    /**
+     * El inicio del periodo siguiente al vigente, o null si es acumulado.
+     *
+     * @param array{period: string, periodLength: int, periodAnchor: string} $settings
+     * @param int|null $now
+     * @return string|null
+     */
+    private static function computePeriodEnd(array $settings, ?int $now = null): ?string
+    {
+        $start = \DateTimeImmutable::createFromFormat('!' . self::ANCHOR_FORMAT, self::computePeriodStart($settings, $now));
+        if ($start === false) {
+            return null;
+        }
+        $length = $settings['periodLength'];
+        switch ($settings['period']) {
+            case AICapability::PERIOD_MONTHLY:
+                $end = $start->setDate((int) $start->format('Y'), (int) $start->format('n'), 1)->setTime(0, 0, 0)->modify('+1 month');
+                break;
+            case AICapability::PERIOD_EVERY_DAYS:
+                $end = $start->modify('+' . $length . ' days');
+                break;
+            case AICapability::PERIOD_EVERY_MONTHS:
+                $anchor = \DateTimeImmutable::createFromFormat('!' . self::ANCHOR_FORMAT, $settings['periodAnchor']);
+                if ($anchor === false) {
+                    $anchor = new \DateTimeImmutable(AIUsageMapper::ACCUMULATED_PERIOD_START);
+                }
+                $months = ((int) $start->format('Y') - (int) $anchor->format('Y')) * 12 + ((int) $start->format('n') - (int) $anchor->format('n'));
+                $end = self::addMonthsFromAnchor($anchor, $months + $length);
+                break;
+            default:
+                return null;
+        }
+        return $end->format(self::ANCHOR_FORMAT);
     }
 
     /**

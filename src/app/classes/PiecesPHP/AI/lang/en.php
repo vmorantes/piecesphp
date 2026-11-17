@@ -24,4 +24,8 @@ return [
     '%count% modelos.' => '%count% models.',
     'No se pudo pedir la lista de modelos al proveedor.' => 'The list of models could not be requested from the provider.',
     'La lista de modelos del proveedor es demasiado grande.' => 'The provider list of models is too large.',
+    'Se alcanzó el límite de uso de «%función%» en este periodo.' => 'The usage limit of “%función%” has been reached for this period.',
+    'Se alcanzó el límite de uso del proveedor «%alias%» en este periodo.' => 'The usage limit of the provider “%alias%” has been reached for this period.',
+    'Se renueva el %fecha%.' => 'It renews on %fecha%.',
+    'Quien administra puede reiniciar el contador en Configuración › IA.' => 'An administrator can reset the counter in Settings › AI.',
 ];

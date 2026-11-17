@@ -63,7 +63,12 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
     $general = new UserDataPackage($idGeneral);
 
     //Lo que hace index.php en una petición con sesión: el usuario, su rol y su menú lateral (panel_find lo lee).
-    $previos = [get_config('current_user'), get_config('pcsphp_current_user_stored'), get_config('menus'), get_config(AIGateway::CONFIG_NAME), get_config('translationAI')];
+    $previos = [get_config('current_user'), get_config('pcsphp_current_user_stored'), get_config('menus'), get_config(AIGateway::CONFIG_NAME), get_config('translationAI'), get_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME)];
+    //Un registro con clave y modelo para el asistente: desde JKM, sin proveedor que sirva la puerta deniega antes del adaptador
+    //simulado (AIGateway::availability()). Nunca sale a la red: el adaptador lo pone la suite.
+    $proveedorAsistente = ['providers' => [['id' => 'zz-prov-asis', 'type' => 'deepseek', 'alias' => 'Zz asistente']]];
+    $seleccionAsistente = ['provider' => 'zz-prov-asis', 'model' => 'zz-modelo-asis'];
+    set_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME, \PiecesPHP\AI\Providers\AIProviderRegistry::sealKeys(['zz-prov-asis' => 'zz-clave-asis']));
     $rolActual = new \ReflectionProperty(Roles::class, 'currentRole');
     $rolAntes = $rolActual->getValue();
     $acumulado = GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
@@ -76,7 +81,7 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
         include basepath('app/config/menu.php');
         Roles::setSilentMode($silencio);
     };
-    $encender = fn() => set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [UsersModel::TYPE_USER_GENERAL]]]]);
+    $encender = fn() => set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [UsersModel::TYPE_USER_GENERAL]] + $seleccionAsistente]] + $proveedorAsistente);
 
     //El proveedor simulado: sigue un guion de turnos y guarda lo que recibe.
     $falso = new class {
@@ -345,7 +350,7 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
         $check(($peticionOpenAI['max_tokens'] ?? null) === 800 && $respuestaOpenAI['content'] === 'zz-openai' && ($peticionMistral['max_tokens'] ?? null) === 800 && $respuestaMistral['content'] === 'zz-mistral', 'A3 la petición de los dos adaptadores lleva max_tokens 800 (OpenAI: cliente PSR-18 simulado; Mistral: HttpClient simulado)', 'OpenAI ' . json_encode($peticionOpenAI['max_tokens'] ?? null) . ' · Mistral ' . json_encode($peticionMistral['max_tokens'] ?? null));
         //A4: la cuota se alcanza a mitad.
         $gastado = AIGateway::usage(Assistant::CAPABILITY);
-        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [UsersModel::TYPE_USER_GENERAL], 'quota' => $gastado + 500]]]);
+        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [UsersModel::TYPE_USER_GENERAL], 'quota' => $gastado + 500] + $seleccionAsistente]] + $proveedorAsistente);
         $falso->guion([['content' => '', 'toolCalls' => [$llamada('q1', 'zz_prueba_bandera', '{}')], 'usage' => 1000], ['content' => 'zz-no-debería', 'toolCalls' => [], 'usage' => 1]]);
         $cuota = Assistant::reply($root, 'zz');
         $motivoCuota = AIGateway::denialReason(Assistant::CAPABILITY, $root);
@@ -416,6 +421,7 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
         set_config('menus', $previos[2]);
         set_config(AIGateway::CONFIG_NAME, $previos[3]);
         set_config('translationAI', $previos[4]);
+        set_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME, $previos[5]);
         $rolActual->setValue(null, $rolAntes);
         $database = (new BaseModel())->getDatabase();
         $database?->prepare('DELETE FROM `' . AIUsageMapper::TABLE . '` WHERE capability = ? AND provider = ?')->execute([Assistant::CAPABILITY, 'zz-proveedor']);

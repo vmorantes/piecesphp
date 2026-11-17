@@ -389,6 +389,8 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
 
         //─── 10 · La cuota del registro y el tope por tipo ───────────────────────────────────────
         echoTerminal('[10] La cuota del registro deniega aunque la de la función no; el tope con el nombre de cada tipo');
+        //Con clave: desde JKM, denialReason() también mira el proveedor, y este caso mide solo la cuota.
+        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys(['zz-prov-a' => 'zz-clave-a']));
         set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz con cuota', 'quota' => 10, 'period' => 'monthly', 'periodLength' => 1]], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz-modelo']]]);
         $libre = AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage($idRoot));
         AIGateway::recordUsage(Assistant::CAPABILITY, 'zz-prov-a', 10);

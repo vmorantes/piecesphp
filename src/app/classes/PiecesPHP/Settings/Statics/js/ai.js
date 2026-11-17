@@ -33,6 +33,47 @@ window.addEventListener('load', () => {
 	form.find('.ui.checkbox').checkbox()
 	form.find('select.ui.dropdown').not('[data-ai-model-select]').dropdown()
 
+	//Las pestañas (General, Proveedores, Funciones): la activa vive en la URL (#general, #proveedores, #funciones), y la
+	//cuota de tokens, que es otro formulario, solo se ve con General.
+	const quotaForm = $('form[data-ai-quota]')
+	const tabItems = form.find('[data-ai-tabs] [data-tab]')
+	const tabs = tabItems.tab({
+		onVisible: function (tabName) {
+			//Sobre la dirección de la página: el panel lleva <base href>, y un «#…» suelto se resuelve contra la portada.
+			const url = new URL(window.location.href)
+			url.hash = tabName
+			history.replaceState(null, '', url)
+			quotaForm.prop('hidden', tabName !== 'general')
+		},
+	})
+	const tabFromURL = window.location.hash.replace('#', '')
+	if (tabFromURL !== '' && form.find('[data-ai-tabs] [data-tab="' + CSS.escape(tabFromURL) + '"]').length > 0) {
+		tabs.tab('change tab', tabFromURL)
+	}
+	quotaForm.prop('hidden', (form.find('[data-ai-tabs] .item.active').attr('data-tab') || 'general') !== 'general')
+	//Un campo que no vale en una pestaña oculta: antes del aviso, se abre su pestaña y se le da el foco. El foco va a la
+	//vuelta siguiente: genericFormHandler cancela el aviso del navegador (que no lo da) y pinta el suyo en el mismo turno.
+	const showInvalid = function () {
+		const invalid = form.get(0).querySelector('.ui.tab :invalid')
+		if (invalid === null) {
+			return
+		}
+		const panel = invalid.closest('.ui.tab[data-tab]')
+		if (panel !== null && !panel.classList.contains('active')) {
+			tabs.tab('change tab', panel.getAttribute('data-tab'))
+		}
+		setTimeout(function () {
+			invalid.focus()
+		}, 0)
+	}
+	form.on('click', 'button[type="submit"]', showInvalid)
+	form.get(0).addEventListener('invalid', function (event) {
+		const panel = event.target instanceof Element ? event.target.closest('.ui.tab[data-tab]') : null
+		if (panel !== null && !panel.classList.contains('active')) {
+			tabs.tab('change tab', panel.getAttribute('data-tab'))
+		}
+	}, true)
+
 	//Los modelos: lista cerrada con las listas que trae la página (por registro: las del proveedor o las de respaldo, y las
 	//recordadas), el valor actual y, al final, «Otro…», que enseña el campo para escribirlo. Cambiar de proveedor repuebla.
 	const OTHER = '__other__'

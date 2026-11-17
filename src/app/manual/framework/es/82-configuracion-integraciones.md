@@ -18,13 +18,17 @@ modelo trabaja, quién la usa y cuánto puede gastar.
 
 ![Inteligencia artificial](img/configurations-integrations-ai.webp)
 
-**La inteligencia artificial**
+La pantalla tiene tres pestañas: **General**, **Proveedores** y **Funciones**. Un solo **«Guardar»**, debajo, guarda lo
+de las tres; la cuota de tokens de **General** tiene el suyo. Si algo no es válido en otra pestaña, la pantalla salta a
+ella y lo señala.
+
+**General**
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | IA activada | No | El interruptor general. Apagado, ninguna función de inteligencia artificial llama a un proveedor. |
 
-**Proveedores**: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
+**Proveedores**, la segunda pestaña: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
 el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de OpenAI con claves para fines distintos).
 
 - Si la plataforma ya usaba **OpenAI**, **Mistral** o **Groq**, aparecen aquí como proveedores normales, con su clave y su
@@ -57,7 +61,7 @@ sin guardar nada ni gastar cuota, y dice al lado si funciona o por qué no (la c
 sin conexión). **«Quitar»** lo retira al guardar; si una función lo está usando, no deja guardar y te dice cuál:
 elige antes otro proveedor para esa función.
 
-**Funciones**: una sección por cada función de inteligencia artificial que tenga la plataforma (por ejemplo, «Traducción
+**Funciones**, la tercera pestaña: una sección por cada función de inteligencia artificial que tenga la plataforma (por ejemplo, «Traducción
 con IA»), con estos campos:
 
 | Campo | Obligatorio | Para qué |
@@ -80,7 +84,7 @@ hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver.
 al mes: enciéndela y elige quién la usa antes de que nadie la vea. Por ahora solo existe esta sección: la ventana del chat llega en una versión
 próxima.
 
-**Cuota de tokens**, el formulario de abajo, con su propio **«Guardar»**: el **«Límite de tokens de IA»** (obligatorio)
+**Cuota de tokens**, en **General**, con su propio **«Guardar»**: el **«Límite de tokens de IA»** (obligatorio)
 solo sirve para el informe de consumo y **no limita nada**. La cuota que limita es la de cada función.
 
 ## Correo

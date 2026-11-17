@@ -13,7 +13,10 @@ Scripts»</strong>. Todas terminan con <strong>«Cancelar»</strong> y <strong>�
 la enciendes o la apagas, guardas tus proveedores con sus claves, y decides, función por función, con qué proveedor y
 modelo trabaja, quién la usa y cuánto puede gastar.</p>
 <p><img class="ui image" alt="Inteligencia artificial" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
-<p><strong>La inteligencia artificial</strong></p>
+<p>La pantalla tiene tres pestañas: <strong>General</strong>, <strong>Proveedores</strong> y <strong>Funciones</strong>. Un solo <strong>«Guardar»</strong>, debajo, guarda lo
+de las tres; la cuota de tokens de <strong>General</strong> tiene el suyo. Si algo no es válido en otra pestaña, la pantalla salta a
+ella y lo señala.</p>
+<p><strong>General</strong></p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -30,7 +33,7 @@ modelo trabaja, quién la usa y cuánto puede gastar.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Proveedores</strong>: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
+<p><strong>Proveedores</strong>, la segunda pestaña: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
 el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de OpenAI con claves para fines distintos).</p>
 <ul>
 <li>Si la plataforma ya usaba <strong>OpenAI</strong>, <strong>Mistral</strong> o <strong>Groq</strong>, aparecen aquí como proveedores normales, con su clave y su
@@ -108,7 +111,7 @@ escríbelo. Un proveedor recién añadido solo ofrece «Otro…» hasta que lo g
 sin guardar nada ni gastar cuota, y dice al lado si funciona o por qué no (la clave rechazada, un modelo que no existe,
 sin conexión). <strong>«Quitar»</strong> lo retira al guardar; si una función lo está usando, no deja guardar y te dice cuál:
 elige antes otro proveedor para esa función.</p>
-<p><strong>Funciones</strong>: una sección por cada función de inteligencia artificial que tenga la plataforma (por ejemplo, «Traducción
+<p><strong>Funciones</strong>, la tercera pestaña: una sección por cada función de inteligencia artificial que tenga la plataforma (por ejemplo, «Traducción
 con IA»), con estos campos:</p>
 <table class="ui celled table">
 <thead>
@@ -159,7 +162,7 @@ conserva para los informes.</p>
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. <strong>Viene apagada</strong>, con una cuota de 200.000 tokens
 al mes: enciéndela y elige quién la usa antes de que nadie la vea. Por ahora solo existe esta sección: la ventana del chat llega en una versión
 próxima.</p>
-<p><strong>Cuota de tokens</strong>, el formulario de abajo, con su propio <strong>«Guardar»</strong>: el <strong>«Límite de tokens de IA»</strong> (obligatorio)
+<p><strong>Cuota de tokens</strong>, en <strong>General</strong>, con su propio <strong>«Guardar»</strong>: el <strong>«Límite de tokens de IA»</strong> (obligatorio)
 solo sirve para el informe de consumo y <strong>no limita nada</strong>. La cuota que limita es la de cada función.</p>
 </div>
 <?php endif; ?>

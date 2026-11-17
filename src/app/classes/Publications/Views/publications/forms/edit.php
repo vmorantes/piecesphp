@@ -29,6 +29,8 @@ $allowedManyLangs = count($langs) > 1;
 $translationAvailable = API_AI_TRANSLATIONS_ACTIVE && API_TRANSLATION_MODULE && $allowedManyLangs;
 //La traducción gasta créditos: el botón y su URL, solo para quien tiene la ruta (P202).
 $translationURL = APIController::allowedRoute('translations-actions') && APIController::currentUserCanTranslate() ? (string) APIController::routeName('translations-actions') : '';
+//La traducción con IA en pantalla (ADR 0077): oculta si no sirve; en su límite, desactivada y con el aviso a la vista.
+$aiTranslation = \PiecesPHP\AI\AIGateway::availability(\PiecesPHP\AI\AIGateway::TRANSLATION_CAPABILITY);
 
 //== Ordenar con el idioma base primero ==
 //==Se agrega el idioma base
@@ -103,6 +105,11 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
         <?php $switchFieldsLang($langCode); ?>
         <div class="ui<?= $activeLang ? ' active' : ''; ?> tab" data-tab="<?= $langCode; ?>" lang-container="<?= $langCode; ?>">
 
+            <?php //La acción de traducir, en su propia fila (no en la de pestañas, que en el móvil se desliza y la escondía). ?>
+            <?php if(!$isBaseLang && APIRoutes::ENABLE_TRANSLATIONS && $translationAvailable && $translationURL !== ''):?>
+            <?php include __DIR__ . '/inc/translation-button.php'; ?>
+            <?php endif; ?>
+
             <div class="ui secondary pointing menu tabs-controls content-tabs">
                 <div class="active item" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
                 <div class="item" data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
@@ -113,13 +120,6 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                 <div class="item" data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
                 <?php endif; ?>
                 <div class="item" data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
-                <?php if(!$isBaseLang && APIRoutes::ENABLE_TRANSLATIONS && APIController::translationAIAvailable() && $translationAvailable && $translationURL !== ''):?>
-                <div class="right menu actions-buttons">
-                    <button class="ui right labeled icon primary button" do-translation from-lang="<?= $baseLang; ?>" to-lang="<?= $langCode; ?>">
-                        <?= __($langGroup, 'Traducir'); ?><i class="language icon"></i>
-                    </button>
-                </div>
-                <?php endif; ?>
             </div>
 
             <form method='POST' action="<?= $action; ?>" class="ui form initial publications" data-content-form>

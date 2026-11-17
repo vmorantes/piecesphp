@@ -45,6 +45,14 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 
     <form action="<?= $actionURL; ?>" method="POST" class="ui form initial ai segment" data-content-form>
 
+        <?php //Tres pestañas dentro del formulario: un solo «Guardar» debajo guarda lo de las tres (ai.js salta a la del campo que falla). ?>
+        <div class="ui secondary pointing menu tabs-controls content-tabs" data-ai-tabs>
+            <a class="active item" data-tab="general"><i class="power off icon" aria-hidden="true"></i><?= __($langGroup, 'General'); ?></a>
+            <a class="item" data-tab="proveedores"><i class="plug icon" aria-hidden="true"></i><?= __($langGroup, 'Proveedores'); ?></a>
+            <a class="item" data-tab="funciones"><i class="th list icon" aria-hidden="true"></i><?= __($langGroup, 'Funciones'); ?></a>
+        </div>
+
+        <div class="ui active tab" data-tab="general">
         <section aria-labelledby="ai-center-title">
             <?php
                 $helpController->_render('panel/built-in/content/section-header.php', [
@@ -61,9 +69,9 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                 ]);
             ?>
         </section>
+        </div>
 
-        <div class="ui section divider"></div>
-
+        <div class="ui tab" data-tab="proveedores">
         <?php
             $records = AIProviderRegistry::all();
             $pendingConverted = AIProviderRegistry::convertedPending();
@@ -121,9 +129,9 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
             <template data-ai-provider-template><?php include __DIR__ . '/ai-provider-row.php'; ?></template>
             <button type="button" class="ui basic button" data-ai-provider-add data-next-index="<?= count($savedProviders); ?>"><i class="plus icon" aria-hidden="true"></i><?= __($langGroup, 'Añadir proveedor'); ?></button>
         </section>
+        </div>
 
-        <div class="ui section divider"></div>
-
+        <div class="ui tab" data-tab="funciones">
         <section aria-labelledby="ai-capabilities-title">
             <?php
                 $helpController->_render('panel/built-in/content/section-header.php', [
@@ -237,9 +245,10 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
             </section>
             <?php endforeach; ?>
         </section>
+        </div>
 
         <?php
-            //La barra al final del formulario (§2.3).
+            //La barra al final del formulario (§2.3), fuera de las pestañas: siempre a la vista.
             $helpController->_render('panel/built-in/content/form-action-bar.php', [
                 'saveText' => __($langGroup, 'Guardar'),
                 'secondaryActions' => [['text' => __($langGroup, 'Cancelar'), 'url' => $indexLink, 'icon' => 'times']],
@@ -250,7 +259,8 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 
     <?php if ($tokensLimitAction !== ''): ?>
     <?php //Un formulario aparte, dentro no cabe: guarda en su propia ruta (GenericContentController). ?>
-    <form action="<?= escape_html($tokensLimitAction); ?>" method="POST" class="ui form initial tokens-limit segment" aria-labelledby="ai-quota-title" data-content-form>
+    <?php //Solo con «General» activa (ai.js lo enseña u oculta al cambiar de pestaña). ?>
+    <form action="<?= escape_html($tokensLimitAction); ?>" method="POST" class="ui form initial tokens-limit segment" aria-labelledby="ai-quota-title" data-content-form data-ai-quota>
         <?php
             $helpController->_render('panel/built-in/content/section-header.php', [
                 'id' => 'ai-quota-title',

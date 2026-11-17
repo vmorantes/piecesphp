@@ -436,4 +436,5 @@ return [
     'El del tipo (openai, mistral o groq, solo en esos tres) o ai-<tipo>-…, por ejemplo ai-openai-marketing.' => 'The type itself (openai, mistral or groq, only for those three) or ai-<type>-…, for example ai-openai-marketing.',
     'Guarda el proveedor para probarlo con la clave del archivo.' => 'Save the provider to test it with the key from the file.',
     'El modelo no vale: como mucho 128 caracteres.' => 'The model is not valid: 128 characters at most.',
+    'General' => 'General',
 ];

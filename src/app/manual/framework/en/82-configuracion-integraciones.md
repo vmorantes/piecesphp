@@ -18,13 +18,17 @@ works with, who uses it and how much it can spend.
 
 ![Artificial intelligence](img/configurations-integrations-ai.webp)
 
-**Artificial intelligence**
+The screen has three tabs: **General**, **Providers** and **Features**. A single **“Save”**, below, saves what is in the
+three; the token quota in **General** has its own. If something is not valid in another tab, the screen jumps to it and
+points it out.
+
+**General**
 
 | Field | Required | Purpose |
 | --- | --- | --- |
 | AI enabled | No | The main switch. When off, no artificial intelligence feature calls a provider. |
 
-**Providers**: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
+**Providers**, the second tab: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
 further down. You can have several of the same provider (for example, two OpenAI ones with keys for different purposes).
 
 - If the platform already used **OpenAI**, **Mistral** or **Groq**, they appear here as normal providers, with their usual
@@ -57,7 +61,7 @@ anything or spending quota, and says next to it whether it works or why not (the
 no connection). **“Remove”** takes it out when saving; if a feature is using it, saving is refused and it tells you which
 one: first choose another provider for that feature.
 
-**Features**: one section for each artificial intelligence feature the platform has (for example, “Translation with
+**Features**, the third tab: one section for each artificial intelligence feature the platform has (for example, “Translation with
 AI”), with these fields:
 
 | Field | Required | Purpose |
@@ -80,7 +84,7 @@ something is done, what you have pending) using only what the person asking can 
 200,000 tokens a month: turn it on and choose who uses it before anyone sees it. For now only this section exists: the chat window arrives in an upcoming
 version.
 
-**Token quota**, the form at the bottom, with its own **“Save”**: the **“AI tokens limit”** (required) is only used by the
+**Token quota**, in **General**, with its own **“Save”**: the **“AI tokens limit”** (required) is only used by the
 usage report and **does not limit anything**. The quota that limits is the one of each feature.
 
 ## Mail

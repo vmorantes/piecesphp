@@ -13,7 +13,10 @@ scripts”</strong>. All of them end with <strong>“Cancel”</strong> and <str
 turn it on or off, save your providers with their keys, and decide, feature by feature, which provider and model it
 works with, who uses it and how much it can spend.</p>
 <p><img class="ui image" alt="Artificial intelligence" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
-<p><strong>Artificial intelligence</strong></p>
+<p>The screen has three tabs: <strong>General</strong>, <strong>Providers</strong> and <strong>Features</strong>. A single <strong>“Save”</strong>, below, saves what is in the
+three; the token quota in <strong>General</strong> has its own. If something is not valid in another tab, the screen jumps to it and
+points it out.</p>
+<p><strong>General</strong></p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -30,7 +33,7 @@ works with, who uses it and how much it can spend.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Providers</strong>: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
+<p><strong>Providers</strong>, the second tab: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
 further down. You can have several of the same provider (for example, two OpenAI ones with keys for different purposes).</p>
 <ul>
 <li>If the platform already used <strong>OpenAI</strong>, <strong>Mistral</strong> or <strong>Groq</strong>, they appear here as normal providers, with their usual
@@ -108,7 +111,7 @@ choose <strong>“Other…”</strong> and type it. A provider you just added on
 anything or spending quota, and says next to it whether it works or why not (the key rejected, a model that does not exist,
 no connection). <strong>“Remove”</strong> takes it out when saving; if a feature is using it, saving is refused and it tells you which
 one: first choose another provider for that feature.</p>
-<p><strong>Features</strong>: one section for each artificial intelligence feature the platform has (for example, “Translation with
+<p><strong>Features</strong>, the third tab: one section for each artificial intelligence feature the platform has (for example, “Translation with
 AI”), with these fields:</p>
 <table class="ui celled table">
 <thead>
@@ -159,7 +162,7 @@ the reports.</p>
 something is done, what you have pending) using only what the person asking can see. <strong>It comes switched off</strong>, with a quota of
 200,000 tokens a month: turn it on and choose who uses it before anyone sees it. For now only this section exists: the chat window arrives in an upcoming
 version.</p>
-<p><strong>Token quota</strong>, the form at the bottom, with its own <strong>“Save”</strong>: the <strong>“AI tokens limit”</strong> (required) is only used by the
+<p><strong>Token quota</strong>, in <strong>General</strong>, with its own <strong>“Save”</strong>: the <strong>“AI tokens limit”</strong> (required) is only used by the
 usage report and <strong>does not limit anything</strong>. The quota that limits is the one of each feature.</p>
 </div>
 <?php endif; ?>

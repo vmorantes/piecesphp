@@ -1,3 +1,17 @@
+# 10.30.0 (16-11-2026)
+
+- **Las funciones de inteligencia artificial que no se pueden usar ya no se enseñan.** Por ejemplo, la IA o la función
+  están apagadas, no tienes permiso o no hay proveedor con clave. Si se alcanzó un límite de uso, la función se ve
+  desactivada, con un aviso que dice cuál y cuándo se renueva. Hoy lo usa el botón «Traducir» de Publicaciones (que
+  aparece solo si activas `API_AI_TRANSLATIONS_ACTIVE` en `constants.php`).
+- **Configuración › IA, en pestañas**: General (el interruptor y la cuota de tokens), Proveedores y Funciones, con un
+  solo «Guardar». Si algo no es válido en otra pestaña, salta a ella. Manual: «Configuración de las integraciones».
+- **El botón «Traducir» de Publicaciones sale fuera de las pestañas de la edición**: en el móvil se ve, y el aviso de
+  límite queda a la vista.
+- **Para quien desarrolla: `AIGateway::availability()`**: disponible, oculta o en su límite, con su mensaje y la fecha de
+  renovación; sin red. Y `AIGateway::periodEnd()` y `providerPeriodEnd()`. Guía «El centro de mando de la IA», «Enseñar
+  una función solo si se puede usar».
+
 # 10.29.0 (16-11-2026)
 
 - **Configuración › IA ya no tiene proveedores fijos.** Si usabas OpenAI, Mistral o Groq, pasan a ser proveedores normales
