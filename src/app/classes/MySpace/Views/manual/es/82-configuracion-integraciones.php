@@ -13,8 +13,8 @@ Scripts»</strong>. Todas terminan con <strong>«Cancelar»</strong> y <strong>�
 la enciendes o la apagas, guardas tus proveedores con sus claves, y decides, función por función, con qué proveedor y
 modelo trabaja, quién la usa y cuánto puede gastar.</p>
 <p><img class="ui image" alt="Inteligencia artificial" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
-<p>La pantalla tiene tres pestañas: <strong>General</strong>, <strong>Proveedores</strong> y <strong>Funciones</strong>. Un solo <strong>«Guardar»</strong>, debajo, guarda lo
-de las tres; la cuota de tokens de <strong>General</strong> tiene el suyo. Si algo no es válido en otra pestaña, la pantalla salta a
+<p>La pantalla tiene cuatro pestañas: <strong>General</strong>, <strong>Proveedores</strong>, <strong>Funciones</strong> y <strong>Registro</strong>. Un solo <strong>«Guardar»</strong>,
+debajo, guarda lo de las tres primeras; la cuota de tokens de <strong>General</strong> tiene el suyo, y <strong>Registro</strong> solo se consulta. Si algo no es válido en otra pestaña, la pantalla salta a
 ella y lo señala.</p>
 <p><strong>General</strong></p>
 <table class="ui celled table">
@@ -101,6 +101,11 @@ el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de
 <td>No</td>
 <td>El modelo con el que lo prueba «Probar». Se elige de la lista, como el de las funciones.</td>
 </tr>
+<tr>
+<td>Precios</td>
+<td>No</td>
+<td>Solo en un proveedor guardado: lo que cuesta cada modelo, en <strong>dólares por millón de tokens</strong> de <strong>entrada</strong> y de <strong>salida</strong>, como lo publica el proveedor. Sirven para estimar el coste en <strong>Registro</strong>; <strong>no limitan nada</strong>. <strong>«+ Añadir precio»</strong> añade otro modelo.</td>
+</tr>
 </tbody>
 </table>
 <p><strong>La lista de modelos</strong> es la que da el propio proveedor. <strong>«Actualizar modelos»</strong> se la pide con su clave y la recuerda;
@@ -164,6 +169,16 @@ al mes: enciéndela y elige quién la usa antes de que nadie la vea. Elige tambi
 admita herramientas) y la <strong>«Posición de la ventana»</strong>: <strong>«Derecha»</strong> (por omisión), <strong>«Izquierda»</strong>, <strong>«Flotante abajo a la
 derecha»</strong> o <strong>«Flotante abajo a la izquierda»</strong>; en el móvil ocupa siempre la pantalla entera. Quien puede usarla ve el botón
 del asistente junto a la campana (ver «Tu cuenta», «El asistente»).</p>
+<p><strong>Registro</strong>, la cuarta pestaña: lo que ha gastado la inteligencia artificial, para consultarlo.</p>
+<ul>
+<li><strong>«Agrupar por»</strong>: <strong>Función</strong>, <strong>Proveedor</strong> o <strong>Modelo</strong>. <strong>«Desde»</strong>: los últimos 3, 6 o 12 meses, o <strong>Todo</strong>.</li>
+<li>Cada fila dice el <strong>periodo</strong>, las <strong>llamadas</strong>, los <strong>tokens de entrada</strong>, <strong>de salida</strong> y el <strong>total</strong>, y el <strong>coste
+  aproximado en dólares</strong>. Debajo, la fila de <strong>Total</strong>.</li>
+<li>El coste sale de los <strong>precios</strong> que pongas a cada modelo en <strong>Proveedores</strong>, o del que da el propio proveedor si lo
+  devuelve (OpenRouter lo hace). Sin precio, sale <strong>«—»</strong>; si solo una parte tiene precio, el total dice <strong>«parcial»</strong>.</li>
+<li><strong>Es una estimación</strong>: lo que cobra el proveedor puede ser otra cosa.</li>
+<li>Las funciones con periodo <strong>acumulado</strong> tienen una sola fila, que no se parte por meses.</li>
+</ul>
 <p><strong>Cuota de tokens</strong>, en <strong>General</strong>, con su propio <strong>«Guardar»</strong>: el <strong>«Límite de tokens de IA»</strong> (obligatorio)
 solo sirve para el informe de consumo y <strong>no limita nada</strong>. La cuota que limita es la de cada función.</p>
 </div>

@@ -348,7 +348,7 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
                 $cuotaDentro++;
             }
         }
-        $check($pestanas === ['general', 'proveedores', 'funciones'], 's10a las tres pestañas, con sus data-tab, en ese orden', (string) json_encode($pestanas));
+        $check($pestanas === ['general', 'proveedores', 'funciones', 'registro'], 's10a las cuatro pestañas (con «Registro»), con sus data-tab, en ese orden', (string) json_encode($pestanas));
         $check($panelesDentro === ['general' => true, 'proveedores' => true, 'funciones' => true] && $cuenta("//form[contains(concat(' ', normalize-space(@class), ' '), ' ai ')]//*[@data-ai-providers]") === 1 && $cuenta("//form[contains(concat(' ', normalize-space(@class), ' '), ' ai ')]//*[@data-ai-capability]") > 0, 's10b los paneles (con los proveedores y las funciones) están DENTRO del formulario principal', (string) json_encode($panelesDentro));
         $check($cuota !== false && $cuota->length === 1 && $cuotaDentro === 0, 's10c DISCRIMINANTE: el formulario de la cuota existe y NO está dentro del principal (nada anidado)', 'cuota: ' . ($cuota !== false ? $cuota->length : -1) . ', formularios dentro: ' . $cuotaDentro);
         echoTerminal(' ');

@@ -50,6 +50,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
             <a class="active item" data-tab="general"><i class="power off icon" aria-hidden="true"></i><?= __($langGroup, 'General'); ?></a>
             <a class="item" data-tab="proveedores"><i class="plug icon" aria-hidden="true"></i><?= __($langGroup, 'Proveedores'); ?></a>
             <a class="item" data-tab="funciones"><i class="th list icon" aria-hidden="true"></i><?= __($langGroup, 'Funciones'); ?></a>
+            <a class="item" data-tab="registro"><i class="list alternate outline icon" aria-hidden="true"></i><?= __($langGroup, 'Registro'); ?></a>
         </div>
 
         <div class="ui active tab" data-tab="general">
@@ -114,6 +115,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
             <div data-ai-providers-list>
                 <?php //Los convertidos de la configuración de antes salen como filas normales: guardar los escribe. ?>
                 <?php $savedProviders = array_values($records); ?>
+                <?php $savedProviderIds = array_keys(SettingsController::aiProviderEntries()); ?>
                 <?php $savedEntries = SettingsController::aiProviderEntries() + array_map(fn(array $converted): array => $converted['entry'], $pendingConverted); ?>
                 <?php foreach ($savedProviders as $position => $record): ?>
                 <?php $entry = $savedEntries[$record->id()] ?? ['id' => $record->id(), 'type' => $record->type(), 'alias' => $record->alias()]; ?>
@@ -125,6 +127,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
             <p class="ui muted text" data-ai-providers-empty><?= __($langGroup, 'Todavía no hay proveedores guardados.'); ?></p>
             <?php endif; ?>
             <?php $entry = []; ?>
+            <?php $savedProviderIds = $savedProviderIds ?? []; ?>
             <?php $index = '__INDEX__'; ?>
             <template data-ai-provider-template><?php include __DIR__ . '/ai-provider-row.php'; ?></template>
             <button type="button" class="ui basic button" data-ai-provider-add data-next-index="<?= count($savedProviders); ?>"><i class="plus icon" aria-hidden="true"></i><?= __($langGroup, 'Añadir proveedor'); ?></button>
@@ -253,6 +256,104 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                 </div>
             </section>
             <?php endforeach; ?>
+        </section>
+        </div>
+
+        <div class="ui tab" data-tab="registro">
+        <?php //El «Registro» (ADR 0077 §8): lo rinde el servidor; sus filtros son enlaces (GET), no un formulario dentro de este. ?>
+        <section aria-labelledby="ai-usage-report-title">
+            <?php
+                $helpController->_render('panel/built-in/content/section-header.php', [
+                    'id' => 'ai-usage-report-title',
+                    'title' => __($langGroup, 'Registro'),
+                    'description' => __($langGroup, 'Lo que ha gastado cada función, cada proveedor y cada modelo, por periodo, con su coste aproximado.'),
+                ]);
+                $reportGroup = (string) ($usageReportGroup ?? \PiecesPHP\AI\AIUsageReport::GROUP_CAPABILITY);
+                $reportSince = (int) ($usageReportSince ?? \PiecesPHP\AI\AIUsageReport::SINCE_ALL);
+                $reportGroups = [
+                    \PiecesPHP\AI\AIUsageReport::GROUP_CAPABILITY => __($langGroup, 'Función'),
+                    \PiecesPHP\AI\AIUsageReport::GROUP_PROVIDER => __($langGroup, 'Proveedor'),
+                    \PiecesPHP\AI\AIUsageReport::GROUP_MODEL => __($langGroup, 'Modelo'),
+                ];
+                $reportSinces = [3 => __($langGroup, 'Últimos 3 meses'), 6 => __($langGroup, 'Últimos 6 meses'), 12 => __($langGroup, 'Últimos 12 meses'), \PiecesPHP\AI\AIUsageReport::SINCE_ALL => __($langGroup, 'Todo')];
+                $reportNumber = fn(int $value): string => number_format($value, 0, ',', '.');
+                //La cifra sola (la columna ya dice «≈ USD»), y «parcial» debajo: a 390 no cabe en la misma línea.
+                $reportCost = function (?float $cost, bool $partial) use ($langGroup): string {
+                    if ($cost === null) {
+                        return '—';
+                    }
+                    $text = escape_html(number_format($cost, 4, ',', '.'));
+                    return $partial ? $text . '<br><small class="ui muted text">' . escape_html(__($langGroup, 'parcial')) . '</small>' : $text;
+                };
+                $reportPeriod = fn(string $start): string => $start === \PiecesPHP\AI\Mappers\AIUsageMapper::ACCUMULATED_PERIOD_START
+                    ? __($langGroup, 'Acumulado')
+                    : (($date = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $start)) !== false ? $date->format('d-m-Y') : $start);
+            ?>
+            <div class="ui vertical flex">
+                <small class="ui muted text" id="ai-usage-report-group-label"><?= __($langGroup, 'Agrupar por'); ?></small>
+                <div class="ui fluid mini stackable buttons" role="group" aria-labelledby="ai-usage-report-group-label">
+                    <?php foreach ($reportGroups as $reportGroupValue => $reportGroupName): ?>
+                    <a class="ui button<?= $reportGroup === $reportGroupValue ? ' active primary' : ''; ?>" href="<?= escape_html(SettingsController::aiUsageReportURL($reportGroupValue, $reportSince)); ?>"<?= $reportGroup === $reportGroupValue ? ' aria-current="true"' : ''; ?>><?= escape_html($reportGroupName); ?></a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="ui hidden divider"></div>
+            <div class="ui vertical flex">
+                <small class="ui muted text" id="ai-usage-report-since-label"><?= __($langGroup, 'Desde'); ?></small>
+                <div class="ui fluid mini stackable buttons" role="group" aria-labelledby="ai-usage-report-since-label">
+                    <?php foreach ($reportSinces as $reportSinceValue => $reportSinceName): ?>
+                    <a class="ui button<?= $reportSince === $reportSinceValue ? ' active primary' : ''; ?>" href="<?= escape_html(SettingsController::aiUsageReportURL($reportGroup, $reportSinceValue)); ?>"<?= $reportSince === $reportSinceValue ? ' aria-current="true"' : ''; ?>><?= escape_html($reportSinceName); ?></a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php if (is_array($usageReport ?? null) && $usageReport['providerCostMissing']): ?>
+            <p class="ui text" data-ai-usage-report-cost-missing><?= __($langGroup, 'Falta la actualización 2026-11-16-coste-de-la-ia: el coste del proveedor no se cuenta.'); ?></p>
+            <?php endif; ?>
+            <?php if (!is_array($usageReport ?? null)): ?>
+            <p class="ui text" data-ai-usage-report-error><?= __($langGroup, 'El consumo no está disponible.'); ?></p>
+            <?php elseif ($usageReport['rows'] === []): ?>
+            <p class="ui muted text" data-ai-usage-report-empty><?= __($langGroup, 'Todavía no hay consumo anotado en ese periodo.'); ?></p>
+            <?php else: ?>
+            <?php //En el móvil caben el grupo (con su periodo y su total debajo) y el coste: el resto, en el escritorio. ?>
+            <table class="ui very basic very compact unstackable table" data-ai-usage-report>
+                <thead>
+                    <tr>
+                        <th scope="col"><?= escape_html($reportGroups[$reportGroup]); ?></th>
+                        <th scope="col" class="mobile hidden"><?= __($langGroup, 'Periodo'); ?></th>
+                        <th scope="col" class="mobile hidden right aligned"><?= __($langGroup, 'Llamadas'); ?></th>
+                        <th scope="col" class="mobile hidden right aligned"><?= __($langGroup, 'Tokens de entrada'); ?></th>
+                        <th scope="col" class="mobile hidden right aligned"><?= __($langGroup, 'Tokens de salida'); ?></th>
+                        <th scope="col" class="mobile hidden right aligned"><?= __($langGroup, 'Total'); ?></th>
+                        <th scope="col" class="right aligned"><?= __($langGroup, '≈ USD'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($usageReport['rows'] as $reportRow): ?>
+                    <tr data-ai-usage-report-row>
+                        <td><?= escape_html($reportRow['label'] !== '' ? $reportRow['label'] : '—'); ?><br class="mobile only"><small class="ui muted mobile only text"><?= escape_html($reportPeriod($reportRow['periodStart']) . ' · ' . strReplaceTemplate(__($langGroup, '%n% tokens'), ['%n%' => $reportNumber($reportRow['total'])])); ?></small></td>
+                        <td class="mobile hidden"><?= escape_html($reportPeriod($reportRow['periodStart'])); ?></td>
+                        <td class="mobile hidden right aligned"><?= $reportNumber($reportRow['requests']); ?></td>
+                        <td class="mobile hidden right aligned"><?= $reportNumber($reportRow['input']); ?></td>
+                        <td class="mobile hidden right aligned"><?= $reportNumber($reportRow['output']); ?></td>
+                        <td class="mobile hidden right aligned"><?= $reportNumber($reportRow['total']); ?></td>
+                        <td class="right aligned"><?= $reportCost($reportRow['cost'], $reportRow['partial']); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+                <tfoot>
+                    <tr data-ai-usage-report-totals>
+                        <th scope="row"><?= __($langGroup, 'Total'); ?><br class="mobile only"><small class="ui muted mobile only text"><?= escape_html(strReplaceTemplate(__($langGroup, '%n% tokens'), ['%n%' => $reportNumber($usageReport['totals']['total'])])); ?></small></th>
+                        <th class="mobile hidden"></th>
+                        <th class="mobile hidden right aligned"><?= $reportNumber($usageReport['totals']['requests']); ?></th>
+                        <th class="mobile hidden right aligned"><?= $reportNumber($usageReport['totals']['input']); ?></th>
+                        <th class="mobile hidden right aligned"><?= $reportNumber($usageReport['totals']['output']); ?></th>
+                        <th class="mobile hidden right aligned"><?= $reportNumber($usageReport['totals']['total']); ?></th>
+                        <th class="right aligned"><?= $reportCost($usageReport['totals']['cost'], $usageReport['totals']['partial']); ?></th>
+                    </tr>
+                </tfoot>
+            </table>
+            <?php endif; ?>
+            <p class="ui muted text" data-ai-usage-report-note><?= __($langGroup, 'El coste es aproximado: tokens por el precio que pongas a cada modelo, o el que da el proveedor. Lo que cobra el proveedor puede ser otra cosa. Las funciones con periodo acumulado tienen una sola fila: no se parten por meses.'); ?></p>
         </section>
         </div>
 

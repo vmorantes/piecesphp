@@ -160,7 +160,7 @@ final class Assistant
                 }
                 $turn = self::normalizeTurn(($chat)($messages, $tools, 0.2, self::MAX_ANSWER_TOKENS, $reasoning));
                 self::$lastTurn = ['finishReason' => $turn['finishReason'], 'reasoningTokens' => $turn['reasoningTokens'], 'outputTokens' => $turn['outputTokens']];
-                AIGateway::recordUsage(self::CAPABILITY, $provider, $turn['usage'], $turn['inputTokens'], $turn['outputTokens'], $model, $recordId);
+                AIGateway::recordUsage(self::CAPABILITY, $provider, $turn['usage'], $turn['inputTokens'], $turn['outputTokens'], $model, $recordId, $turn['reportedCostUsd']);
                 if ($turn['toolCalls'] === []) {
                     //Ni cortada ni vacía se da por buena: el modelo puede gastarse el tope pensando y no escribir nada.
                     if ($turn['finishReason'] === 'length') {
@@ -359,7 +359,7 @@ final class Assistant
      * Lo que devuelve un adaptador, en la forma de chatWithTools(), sin fiarse.
      *
      * @param mixed $turn
-     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int,finishReason:?string,reasoningTokens:int}
+     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int,finishReason:?string,reasoningTokens:int,reportedCostUsd:float}
      */
     private static function normalizeTurn(mixed $turn): array
     {
@@ -378,6 +378,7 @@ final class Assistant
             'outputTokens' => is_int($turn['outputTokens'] ?? null) ? max(0, $turn['outputTokens']) : 0,
             'finishReason' => is_string($turn['finishReason'] ?? null) ? $turn['finishReason'] : null,
             'reasoningTokens' => is_int($turn['reasoningTokens'] ?? null) ? max(0, $turn['reasoningTokens']) : 0,
+            'reportedCostUsd' => is_float($turn['reportedCostUsd'] ?? null) || is_int($turn['reportedCostUsd'] ?? null) ? max(0.0, (float) $turn['reportedCostUsd']) : 0.0,
         ];
     }
 

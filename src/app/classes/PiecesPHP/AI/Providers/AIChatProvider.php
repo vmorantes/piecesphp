@@ -28,7 +28,7 @@ interface AIChatProvider
      * @param float|null $temperature null: no se manda
      * @param int|null $maxTokens El tope de tokens de la respuesta, con el nombre de su tipo; null: no se manda
      * @param array<string,mixed> $extraParameters Otros campos de la petición (response_format); no pisan model, messages ni tools
-     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int,finishReason?:?string,reasoningTokens?:int}
+     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int,finishReason?:?string,reasoningTokens?:int,reportedCostUsd?:float}
      * @throws \RuntimeException si el proveedor da error: el mensaje no lleva la clave, ni las cabeceras, ni el cuerpo del proveedor
      */
     public function chatWithTools(array $messages, array $tools = [], ?float $temperature = 0.2, ?int $maxTokens = 800, array $extraParameters = []): array;

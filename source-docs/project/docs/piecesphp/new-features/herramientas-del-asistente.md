@@ -133,7 +133,8 @@ móvil, un elemento del menú de usuario) y el diseño del panel (el contenedor 
   - `error`: lo demás.
 
 El banco (`bin/cli assistant-bench`) se corre con un proveedor simulado (`fake=yes`) o, en local, contra uno real con
-`provider=<id> model=<modelo> limit=<n>` (como mucho 8 preguntas, todo en memoria y el consumo borrado al terminar).
+`provider=<id> model=<modelo> limit=<n>` (como mucho 8 preguntas, todo en memoria y el consumo repuesto al terminar: borra las filas nuevas y devuelve las que ya
+existían a sus cifras).
 
 ## Las herramientas del framework
 

@@ -23,6 +23,7 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @property int $tokens
  * @property int $inputTokens
  * @property int $outputTokens
+ * @property float $reportedCostUsd
  * @property int $requests
  * @property string $createdAt
  * @property string $updatedAt
@@ -93,6 +94,11 @@ class AIUsageMapper extends BaseEntityMapper
         ],
         'outputTokens' => [
             'type' => 'bigint',
+            'default' => 0,
+        ],
+        //El coste que da el proveedor en su respuesta (solo los tipos que lo documentan, AIProviderCatalog), en USD.
+        'reportedCostUsd' => [
+            'type' => 'double',
             'default' => 0,
         ],
         'requests' => [

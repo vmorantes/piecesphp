@@ -112,6 +112,30 @@ final class AIGateway
     private static $providerHttpClient = null;
 
     /**
+     * Los escalones de recordUsage() (writeUsageRow()): la tabla al día, sin reportedCostUsd o la de 2026-11-13.
+     */
+    const USAGE_STEP_CURRENT = 0;
+    const USAGE_STEP_WITHOUT_COST = 1;
+    const USAGE_STEP_OLDEST = 2;
+
+    /**
+     * @var int|null El escalón que funcionó en esta petición
+     */
+    private static $usageStep = null;
+
+    /**
+     * @var array<int,true> Los escalones ya avisados en esta petición
+     */
+    private static $usageStepWarned = [];
+
+    /**
+     * SOLO PARA PRUEBAS: otra tabla para el consumo (una copia zz- con un esquema viejo).
+     *
+     * @var string|null
+     */
+    private static $usageTableForTesting = null;
+
+    /**
      * EN DESUSO hasta la 11.0.0: usa chatProvider() o translator(). El framework ya no lo llama; un clon puede.
      *
      * El manejador de chat configurado para esa capacidad (Configuración › IA: translationAI, modelOpenAI y
@@ -844,7 +868,7 @@ final class AIGateway
     {
         $periodStart = self::periodStart($capability, $now);
         $database = (new BaseModel())->getDatabase() ?? throw new \RuntimeException('Sin conexión a la base para el consumo de la IA.');
-        $sql = 'SELECT COALESCE(SUM(tokens), 0) FROM `' . AIUsageMapper::TABLE . '` WHERE capability = ? AND periodStart = ?';
+        $sql = 'SELECT COALESCE(SUM(tokens), 0) FROM `' . self::usageTable() . '` WHERE capability = ? AND periodStart = ?';
         $parameters = [$capability, $periodStart];
         if ($provider !== null) {
             $sql .= ' AND provider = ?';
@@ -910,7 +934,7 @@ final class AIGateway
             return 0;
         }
         $database = (new BaseModel())->getDatabase() ?? throw new \RuntimeException('Sin conexión a la base para el consumo de la IA.');
-        $statement = $database->prepare('SELECT COALESCE(SUM(tokens), 0) FROM `' . AIUsageMapper::TABLE . '` WHERE capability = ? AND provider = ? AND periodStart = ?');
+        $statement = $database->prepare('SELECT COALESCE(SUM(tokens), 0) FROM `' . self::usageTable() . '` WHERE capability = ? AND provider = ? AND periodStart = ?');
         //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o lee o lanza. Lo que cuenta es el fetchColumn().
         $statement->execute([self::PROVIDER_USAGE_ROW, $recordId, $periodStart]);
         return (int) $statement->fetchColumn();
@@ -929,25 +953,24 @@ final class AIGateway
      * @param int $outputTokens Los de salida (0 si no se saben)
      * @param string $model El modelo ('' si no se sabe)
      * @param string|null $recordId El id del registro de proveedor, para su fila '@provider' y su cuota; null, $provider
+     * @param float $reportedCostUsd El coste que dio el proveedor en su respuesta, en USD (0 si no lo da): se suma, no limita
      * @return void
      * @throws \InvalidArgumentException si la capacidad no está registrada
      */
-    public static function recordUsage(string $capability, string $provider, int $tokens, int $inputTokens = 0, int $outputTokens = 0, string $model = '', ?string $recordId = null): void
+    public static function recordUsage(string $capability, string $provider, int $tokens, int $inputTokens = 0, int $outputTokens = 0, string $model = '', ?string $recordId = null, float $reportedCostUsd = 0.0): void
     {
         self::capabilityOf($capability, null);
 
         try {
             $database = (new BaseModel())->getDatabase() ?? throw new \RuntimeException('Sin conexión a la base para el consumo de la IA.');
             $now = date('Y-m-d H:i:s');
-            $statement = $database->prepare('INSERT INTO `' . AIUsageMapper::TABLE . '` (capability, provider, model, periodStart, tokens, inputTokens, outputTokens, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, inputTokens = inputTokens + ?, outputTokens = outputTokens + ?, requests = requests + 1, updatedAt = ?');
-            //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
-            $statement->execute([$capability, $provider, $model, self::periodStart($capability), $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now]);
+            $reportedCostUsd = max(0.0, $reportedCostUsd);
+            self::writeUsageRow($database, $capability, $provider, $model, self::periodStart($capability), $tokens, $inputTokens, $outputTokens, $reportedCostUsd, $now);
             //La del registro de proveedor guardado, con SU periodo (providerUsage()), por su id: «OpenAI» es la serie, no el registro.
             $usageRecord = $recordId ?? $provider;
             $providerPeriodStart = self::providerPeriodStart($usageRecord);
             if ($providerPeriodStart !== null) {
-                //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
-                $statement->execute([self::PROVIDER_USAGE_ROW, $usageRecord, $model, $providerPeriodStart, $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now]);
+                self::writeUsageRow($database, self::PROVIDER_USAGE_ROW, $usageRecord, $model, $providerPeriodStart, $tokens, $inputTokens, $outputTokens, $reportedCostUsd, $now);
             }
         } catch (\Throwable $e) {
             log_exception($e);
@@ -956,6 +979,99 @@ final class AIGateway
         $accumulated = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
         $accumulated[$provider] = (int) ($accumulated[$provider] ?? 0) + $tokens;
         GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $accumulated);
+    }
+
+    /**
+     * Una fila del consumo, por escalones: si la tabla no tiene una columna (le falta una actualización), repite sin ella,
+     * con el ON DUPLICATE KEY del índice único de esa versión, para que las cuotas sigan contando. Cada escalón que se usa
+     * deja UN aviso por petición, con la actualización que falta. Un fallo que no sea de columna, lanza.
+     *
+     * @param \PDO $database
+     * @param string $capability
+     * @param string $provider
+     * @param string $model
+     * @param string $periodStart
+     * @param int $tokens
+     * @param int $inputTokens
+     * @param int $outputTokens
+     * @param float $reportedCostUsd
+     * @param string $now
+     * @return void
+     */
+    private static function writeUsageRow(\PDO $database, string $capability, string $provider, string $model, string $periodStart, int $tokens, int $inputTokens, int $outputTokens, float $reportedCostUsd, string $now): void
+    {
+        $table = self::usageTable();
+        $steps = [
+            self::USAGE_STEP_CURRENT => [
+                "INSERT INTO `{$table}` (capability, provider, model, periodStart, tokens, inputTokens, outputTokens, reportedCostUsd, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, inputTokens = inputTokens + ?, outputTokens = outputTokens + ?, reportedCostUsd = reportedCostUsd + ?, requests = requests + 1, updatedAt = ?",
+                [$capability, $provider, $model, $periodStart, $tokens, $inputTokens, $outputTokens, $reportedCostUsd, $now, $now, $tokens, $inputTokens, $outputTokens, $reportedCostUsd, $now],
+            ],
+            //Con 2026-11-14 (índice único capability, provider, model, periodStart) y sin 2026-11-16.
+            self::USAGE_STEP_WITHOUT_COST => [
+                "INSERT INTO `{$table}` (capability, provider, model, periodStart, tokens, inputTokens, outputTokens, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, inputTokens = inputTokens + ?, outputTokens = outputTokens + ?, requests = requests + 1, updatedAt = ?",
+                [$capability, $provider, $model, $periodStart, $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now],
+            ],
+            //Solo con 2026-11-13 (índice único capability, provider, periodStart).
+            self::USAGE_STEP_OLDEST => [
+                "INSERT INTO `{$table}` (capability, provider, periodStart, tokens, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, requests = requests + 1, updatedAt = ?",
+                [$capability, $provider, $periodStart, $tokens, $now, $now, $tokens, $now],
+            ],
+        ];
+        for ($step = self::$usageStep ?? self::USAGE_STEP_CURRENT; $step <= self::USAGE_STEP_OLDEST; $step++) {
+            try {
+                //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza.
+                $database->prepare($steps[$step][0])->execute($steps[$step][1]);
+            } catch (\PDOException $e) {
+                $unknownColumn = $e->getCode() === '42S22' || (int) ($e->errorInfo[1] ?? 0) === 1054;
+                if (!$unknownColumn || $step === self::USAGE_STEP_OLDEST) {
+                    throw $e;
+                }
+                continue;
+            }
+            self::$usageStep = $step;
+            if ($step !== self::USAGE_STEP_CURRENT && !isset(self::$usageStepWarned[$step])) {
+                self::$usageStepWarned[$step] = true;
+                log_exception(new \RuntimeException($step === self::USAGE_STEP_WITHOUT_COST
+                    ? 'Falta la actualización de la base 2026-11-16-coste-de-la-ia: el consumo de la IA se anota sin el coste del proveedor.'
+                    : 'Faltan las actualizaciones de la base 2026-11-14-consumo-de-la-ia-por-modelo y 2026-11-16-coste-de-la-ia: el consumo de la IA se anota sin modelo, sin tokens de entrada y salida y sin el coste del proveedor.'));
+            }
+            return;
+        }
+    }
+
+    /**
+     * La tabla del consumo: AIUsageMapper::TABLE, salvo en una prueba que la sustituya.
+     *
+     * @return string
+     */
+    public static function usageTable(): string
+    {
+        return self::$usageTableForTesting ?? AIUsageMapper::TABLE;
+    }
+
+    /**
+     * SOLO PARA PRUEBAS: otra tabla para el consumo (null, la de siempre). Olvida el escalón y los avisos de la petición.
+     *
+     * @param string|null $table
+     * @return string|null La que había
+     */
+    public static function swapUsageTableForTesting(?string $table): ?string
+    {
+        $previous = self::$usageTableForTesting;
+        self::$usageTableForTesting = $table;
+        self::$usageStep = null;
+        self::$usageStepWarned = [];
+        return $previous;
+    }
+
+    /**
+     * El escalón de recordUsage() que funcionó en esta petición (USAGE_STEP_*), o null si aún no escribió.
+     *
+     * @return int|null
+     */
+    public static function usageStep(): ?int
+    {
+        return self::$usageStep;
     }
 
     /**

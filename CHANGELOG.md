@@ -1,3 +1,18 @@
+# 10.33.0 (16-11-2026)
+
+- **Nuevo en Configuración › IA: el coste aproximado y la pestaña «Registro».**
+  - Cada modelo de un proveedor guardado puede llevar su **precio**, en dólares por millón de tokens de entrada y de salida
+    (opcional).
+  - **«Registro»** enseña lo gastado por función, por proveedor o por modelo, en cada periodo: llamadas, tokens y el coste
+    aproximado. Lo calcula con esos precios o, si el proveedor lo devuelve (OpenRouter), con el suyo.
+  - **Solo cuenta: no limita nada.** Manual: «Configuración de las integraciones».
+- **Al actualizar**: `bin/cli db-backup` y después `bin/cli db-update file=2026-11-16-coste-de-la-ia apply=yes` (una
+  columna nueva en el consumo de la IA). Mientras no la apliques, el consumo y las cuotas siguen contando, pero el coste
+  que da el proveedor no se anota (queda un aviso en el registro de errores) y el «Registro» lo calcula solo con tus
+  precios, avisando de que falta la actualización.
+- **Para quien desarrolla**: `AIGateway::recordUsage()` acepta al final, opcional, el coste que da el proveedor;
+  `PiecesPHP\AI\AIUsageReport` arma el Registro. Guía «El centro de mando de la IA», «El coste estimado y el Registro».
+
 # 10.32.0 (16-11-2026)
 
 - **Nuevo: la ventana del asistente del panel.** Quien lo tenga encendido ve su botón junto a la campana de
@@ -12,7 +27,9 @@
 - **«Como el sitio» en «Mi cuenta › Preferencias»**: cada grupo puede volver a seguir lo que eligió quien administra, y
   dice cuál es.
 - **Arreglado**: con algunos proveedores compatibles con OpenAI (Groq, con modelos que razonan), la respuesta de la IA
-  fallaba al leerla si faltaba un dato opcional del consumo.
+  fallaba al leerla si faltaba un dato opcional del consumo. Y el asistente ya no da por buena una respuesta vacía o
+  cortada (avisa y propone preguntarlo de otra forma), responde en texto plano y dice bien el total de notificaciones sin
+  leer; con los `gpt-oss` de Groq pide el razonamiento más ligero.
 - **Para quien desarrolla**:
   - **la ruta del asistente se llama ahora `mcp-assistant-ask`** (antes `assistant-ask`); la dirección, los roles y sus
     defensas no cambian, pero si tu clon nombra el permiso, cámbialo;

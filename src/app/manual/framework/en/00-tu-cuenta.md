@@ -60,6 +60,6 @@ something is done (“Where do I create a new user?”), or what you have pendin
 - **It only handles the platform.** If you ask it something else, it says it cannot and offers what it can do.
 - **Enter** sends; **Shift+Enter** adds a line break. Each question, at most 1,000 characters.
 - **“New conversation”**, at the top of the window, empties it. **Esc** or the **×** close it.
-- If the assistant reached its usage limit, the window tells you so and when it renews. If it is not available to you,
-  the button does not appear.
+- If the assistant reached its usage limit, the window tells you so: when it renews or, if the limit does not renew on its
+  own, that the administrator can reset it. If it is not available to you, the button does not appear.
 

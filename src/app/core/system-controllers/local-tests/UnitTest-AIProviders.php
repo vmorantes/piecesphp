@@ -139,7 +139,7 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
 
         //─── 2 · La petición que sale y la respuesta ─────────────────────────────────────────────
         echoTerminal('[2] Por tipo: la petición (dirección, cabecera de la clave, max_tokens) y la respuesta');
-        $esperada = ['content' => 'zz-respuesta', 'toolCalls' => [['id' => 'zz-llamada-1', 'name' => 'zz_herramienta', 'arguments' => '{"a":1}']], 'usage' => 18, 'inputTokens' => 11, 'outputTokens' => 7, 'finishReason' => 'tool_calls', 'reasoningTokens' => 0];
+        $esperada = ['content' => 'zz-respuesta', 'toolCalls' => [['id' => 'zz-llamada-1', 'name' => 'zz_herramienta', 'arguments' => '{"a":1}']], 'usage' => 18, 'inputTokens' => 11, 'outputTokens' => 7, 'finishReason' => 'tool_calls', 'reasoningTokens' => 0, 'reportedCostUsd' => 0.0];
         $peticionCorrecta = function (array $vista, AIProviderRecord $registro, int $tope): bool {
             $cabeceras = is_array($vista['headers'] ?? null) ? $vista['headers'] : [];
             $clave = $registro->keyHeader() === null
@@ -194,6 +194,14 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
             $razonadaError = get_class($e) . ': ' . $e->getMessage();
         }
         $check($razonada !== null && $razonada['content'] === 'zz-razonada' && $razonada['usage'] === 18 && $razonada['inputTokens'] === 11 && $razonada['outputTokens'] === 7 && ($razonada['finishReason'] ?? null) === 'stop' && ($razonada['reasoningTokens'] ?? null) === 5, '2d un 200 con completion_tokens_details solo con reasoning_tokens (Groq con gpt-oss): se lee, con sus tokens, su finish_reason y sus reasoning_tokens', (string) ($razonadaError ?? json_encode($razonada)));
+        //El coste que da el proveedor (ADR 0077 §8): solo OpenRouter lo documenta (usage.cost, en créditos de base USD).
+        $cliente->status = 200;
+        $cliente->body = (string) json_encode(['id' => 'zz', 'object' => 'chat.completion', 'created' => 1, 'model' => 'zz', 'choices' => [['index' => 0, 'message' => ['role' => 'assistant', 'content' => 'zz-con-coste'], 'finish_reason' => 'stop']], 'usage' => ['prompt_tokens' => 10, 'completion_tokens' => 5, 'total_tokens' => 15, 'cost' => 0.0123]]);
+        $costes = [];
+        foreach (['openrouter', 'groq'] as $tipoCoste) {
+            $costes[$tipoCoste] = (new OpenAICompatibleChatProvider(new AIProviderRecord("zz-coste-{$tipoCoste}", $tipoCoste, "Zz {$tipoCoste}", 'zz-clave'), 'zz-modelo', $cliente))->chatWithTools([['role' => 'user', 'content' => 'zz']])['reportedCostUsd'] ?? null;
+        }
+        $check($costes === ['openrouter' => 0.0123, 'groq' => 0.0] && AIProviderCatalog::reportedCostUsd('openrouter', ['cost' => -1]) === 0.0 && AIProviderCatalog::reportedCostUsd('openrouter', ['cost' => '0.5']) === 0.0, '2e usage.cost: OpenRouter lo da (0.0123); otro tipo, aunque lo traiga, 0; uno negativo o en texto, 0', (string) json_encode($costes));
         echoTerminal(' ');
 
         //─── 3 · Los errores del proveedor ───────────────────────────────────────────────────────
@@ -322,6 +330,17 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
         $respuesta = Assistant::reply(new UserDataPackage($idRoot), 'zz');
         $despues = AIGateway::usage(Assistant::CAPABILITY, 'zz-prov-a');
         $check($respuesta['ok'] && !array_key_exists('reasoning_effort', (array) ($captura['cuerpo'] ?? [])) && $respuesta['answer'] === 'zz-respuesta-del-asistente' && ($captura['url'] ?? null) === 'https://api.deepseek.com/chat/completions' && ($captura['cuerpo']['model'] ?? null) === 'zz-modelo-elegido' && $despues - $antes === 5, '7a reply() por chatProvider(): el registro elegido (DeepSeek), su modelo, la respuesta y 5 tokens anotados como «zz-prov-a»; sin reasoning_effort', (string) json_encode(['ok' => $respuesta['ok'], 'url' => $captura['url'] ?? null, 'tokens' => $despues - $antes, 'error' => $respuesta['error']]));
+        //El coste del proveedor se suma en la fila del consumo (OpenRouter, usage.cost).
+        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'openrouter', 'alias' => 'Zz O']], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz-modelo']]]);
+        $cliente->body = (string) json_encode(['id' => 'zz', 'object' => 'chat.completion', 'created' => 1, 'model' => 'zz', 'choices' => [['index' => 0, 'message' => ['role' => 'assistant', 'content' => 'zz-con-coste'], 'finish_reason' => 'stop']], 'usage' => ['prompt_tokens' => 10, 'completion_tokens' => 5, 'total_tokens' => 15, 'cost' => 0.25]]);
+        $costeDe = function () use ($database): float {
+            $consulta = $database->prepare('SELECT COALESCE(SUM(reportedCostUsd), 0) FROM `' . AIUsageMapper::TABLE . '` WHERE capability = ? AND provider = ?');
+            $consulta->execute([Assistant::CAPABILITY, 'zz-prov-a']);
+            return (float) $consulta->fetchColumn();
+        };
+        $costeAntes = $costeDe();
+        $dos = [Assistant::reply(new UserDataPackage($idRoot), 'zz')['ok'], Assistant::reply(new UserDataPackage($idRoot), 'zz')['ok']];
+        $check($dos === [true, true] && abs($costeDe() - $costeAntes - 0.5) < 1e-9, '7c dos respuestas de OpenRouter con cost 0.25: la fila del consumo suma 0.5 en reportedCostUsd', (string) ($costeDe() - $costeAntes));
         //Groq con gpt-oss: el esfuerzo más bajo documentado (https://console.groq.com/docs/reasoning); con otro modelo, nada.
         $esfuerzos = [];
         foreach (['openai/gpt-oss-20b', 'llama-3.3-70b-versatile'] as $modeloGroq) {

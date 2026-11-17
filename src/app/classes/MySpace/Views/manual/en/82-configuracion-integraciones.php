@@ -13,8 +13,8 @@ scripts”</strong>. All of them end with <strong>“Cancel”</strong> and <str
 turn it on or off, save your providers with their keys, and decide, feature by feature, which provider and model it
 works with, who uses it and how much it can spend.</p>
 <p><img class="ui image" alt="Artificial intelligence" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-integrations-ai.webp')); ?>"></p>
-<p>The screen has three tabs: <strong>General</strong>, <strong>Providers</strong> and <strong>Features</strong>. A single <strong>“Save”</strong>, below, saves what is in the
-three; the token quota in <strong>General</strong> has its own. If something is not valid in another tab, the screen jumps to it and
+<p>The screen has four tabs: <strong>General</strong>, <strong>Providers</strong>, <strong>Features</strong> and <strong>Log</strong>. A single <strong>“Save”</strong>, below, saves what is
+in the first three; the token quota in <strong>General</strong> has its own, and <strong>Log</strong> is only for looking up. If something is not valid in another tab, the screen jumps to it and
 points it out.</p>
 <p><strong>General</strong></p>
 <table class="ui celled table">
@@ -101,6 +101,11 @@ further down. You can have several of the same provider (for example, two OpenAI
 <td>No</td>
 <td>The model “Test” uses. It is chosen from the list, like the features' one.</td>
 </tr>
+<tr>
+<td>Prices</td>
+<td>No</td>
+<td>Only on a saved provider: what each model costs, in <strong>dollars per million tokens</strong> of <strong>input</strong> and <strong>output</strong>, as the provider publishes it. They are used to estimate the cost in <strong>Log</strong>; <strong>they do not limit anything</strong>. <strong>“+ Add price”</strong> adds another model.</td>
+</tr>
 </tbody>
 </table>
 <p><strong>The list of models</strong> is the one the provider itself gives. <strong>“Refresh models”</strong> asks for it with its key and remembers
@@ -164,6 +169,16 @@ something is done, what you have pending) using only what the person asking can 
 that supports tools) and the <strong>“Window position”</strong>: <strong>“Right”</strong> (the default), <strong>“Left”</strong>, <strong>“Floating bottom right”</strong> or
 <strong>“Floating bottom left”</strong>; on a phone it always takes the whole screen. Whoever can use it sees the assistant button next to the
 bell (see “Your account”, “The assistant”).</p>
+<p><strong>Log</strong>, the fourth tab: what artificial intelligence has spent, to look it up.</p>
+<ul>
+<li><strong>“Group by”</strong>: <strong>Feature</strong>, <strong>Provider</strong> or <strong>Model</strong>. <strong>“Since”</strong>: the last 3, 6 or 12 months, or <strong>All</strong>.</li>
+<li>Each row gives the <strong>period</strong>, the <strong>calls</strong>, the <strong>input tokens</strong>, <strong>output tokens</strong> and the <strong>total</strong>, and the
+  <strong>approximate cost in dollars</strong>. Below, the <strong>Total</strong> row.</li>
+<li>The cost comes from the <strong>prices</strong> you set on each model in <strong>Providers</strong>, or from the one the provider itself returns
+  (OpenRouter does). Without a price it shows <strong>“—”</strong>; if only part has a price, the total says <strong>“partial”</strong>.</li>
+<li><strong>It is an estimate</strong>: what the provider charges may be something else.</li>
+<li>Features with a <strong>cumulative</strong> period have a single row, which is not split by month.</li>
+</ul>
 <p><strong>Token quota</strong>, in <strong>General</strong>, with its own <strong>“Save”</strong>: the <strong>“AI tokens limit”</strong> (required) is only used by the
 usage report and <strong>does not limit anything</strong>. The quota that limits is the one of each feature.</p>
 </div>

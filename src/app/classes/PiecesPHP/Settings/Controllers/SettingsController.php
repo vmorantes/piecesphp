@@ -12,6 +12,7 @@ use PiecesPHP\AdminPanel\Controllers\HelperController;
 use PiecesPHP\AI\AICapability;
 use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\AI\AIGateway;
+use PiecesPHP\AI\AIUsageReport;
 use PiecesPHP\AI\Providers\AIProviderCatalog;
 use PiecesPHP\AI\Providers\AIProviderRecord;
 use PiecesPHP\AI\Providers\AIProviderRegistry;
@@ -327,6 +328,11 @@ class SettingsController extends AdminPanelController
      * Cuántos modelos recuerda cada registro de proveedor para sugerirlos (los últimos que eligió una función).
      */
     const AI_PROVIDER_MODELS_REMEMBERED = 10;
+
+    /**
+     * El precio más alto que admite un modelo en Configuración › IA: USD por millón de tokens (ADR 0077 §8).
+     */
+    const MAX_AI_PRICE = 10000;
 
     const SEO_OPTION_TITLE_APP = 'title_app';
     const SEO_OPTION_OWNER = 'owner';
@@ -1878,7 +1884,34 @@ class SettingsController extends AdminPanelController
     {
         $title = __(self::LANG_GROUP, 'Inteligencia artificial');
         $header = $this->sectionHeader($title, __(self::LANG_GROUP, 'El centro de mando de la inteligencia artificial: encenderla, sus proveedores y claves, y quién usa cada función y cuánto puede gastar.'));
-        return $this->securityOrAI($req, $res, 'integrations-ai', $title, 'ai', self::AI_CONFIG_KEYS, $header);
+        //El «Registro» (ADR 0077 §8): sus dos filtros llegan por GET; lo que no está en su lista cae en el valor por omisión.
+        $group = $req->getQueryParam('group', AIUsageReport::GROUP_CAPABILITY);
+        $group = is_string($group) && in_array($group, AIUsageReport::GROUPS, true) ? $group : AIUsageReport::GROUP_CAPABILITY;
+        $since = $req->getQueryParam('since', (string) AIUsageReport::SINCE_ALL);
+        $since = is_string($since) && in_array((int) $since, AIUsageReport::SINCE_MONTHS, true) && preg_match('/^\d+$/', $since) === 1 ? (int) $since : AIUsageReport::SINCE_ALL;
+        $extra = [];
+        if ($req->getMethod() === 'GET') {
+            try {
+                $report = AIUsageReport::report($group, $since);
+            } catch (\Throwable $e) {
+                log_exception($e);
+                $report = null;
+            }
+            $extra = ['usageReport' => $report, 'usageReportGroup' => $group, 'usageReportSince' => $since];
+        }
+        return $this->securityOrAI($req, $res, 'integrations-ai', $title, 'ai', self::AI_CONFIG_KEYS, $header, $extra);
+    }
+
+    /**
+     * La dirección del «Registro» de Configuración › IA con sus dos filtros, en su pestaña (#registro).
+     *
+     * @param string $group Uno de AIUsageReport::GROUPS
+     * @param int $since Uno de AIUsageReport::SINCE_MONTHS
+     * @return string
+     */
+    public static function aiUsageReportURL(string $group, int $since): string
+    {
+        return self::routeName('integrations-ai') . '?' . http_build_query(['group' => $group, 'since' => $since]) . '#registro';
     }
 
     /**
@@ -2225,9 +2258,10 @@ class SettingsController extends AdminPanelController
      * @param string $asset El nombre de su vista, su hoja y su script.
      * @param string[] $keys Las configuraciones que esta pantalla valida y escribe.
      * @param array<string,mixed> $header La cabecera de su grupo (sectionHeader()); vacía, la vista no la pinta.
+     * @param array<string,mixed> $extra Más datos para la vista (el «Registro» de la IA)
      * @return Response
      */
-    private function securityOrAI(Request $req, Response $res, string $routeSuffix, string $title, string $asset, array $keys, array $header = [])
+    private function securityOrAI(Request $req, Response $res, string $routeSuffix, string $title, string $asset, array $keys, array $header = [], array $extra = [])
     {
         $langGroup = self::LANG_GROUP;
 
@@ -2246,7 +2280,7 @@ class SettingsController extends AdminPanelController
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
-            ] + $header;
+            ] + $header + $extra;
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
@@ -3752,6 +3786,14 @@ class SettingsController extends AdminPanelController
             if (is_string($previous['periodAnchor'] ?? null)) {
                 $entry['periodAnchor'] = $previous['periodAnchor'];
             }
+            //Los precios, solo en un registro GUARDADO (ADR 0077 §8): si la fila los manda, los suyos; si no, los que tenía.
+            $prices = isset($savedById[$id]) && is_array($previous['prices'] ?? null) ? $previous['prices'] : [];
+            if (isset($savedById[$id]) && ($row['prices_sent'] ?? null) === '1') {
+                $prices = self::aiPricesFromInput($row['prices'] ?? [], fn() => $invalid(__(self::LANG_GROUP, 'Precios')));
+            }
+            if ($prices !== []) {
+                $entry['prices'] = $prices;
+            }
             try {
                 new AIProviderRecord($id, $type, $alias, '', $baseUrl, $keyHeader, $entry['models'], null, $keySource, $keyFile);
             } catch (\InvalidArgumentException $e) {
@@ -3761,6 +3803,49 @@ class SettingsController extends AdminPanelController
             $aliases[] = mb_strtolower($alias);
         }
         return array_values($providers);
+    }
+
+    /**
+     * Los precios de un registro (ADR 0077 §8): por modelo, USD por millón de tokens de entrada y de salida. Una fila sin
+     * modelo ni precios, o con el modelo y los dos precios vacíos, no cuenta; un precio vacío vale 0. Cada precio, ≥ 0, con
+     * hasta 4 decimales y como mucho MAX_AI_PRICE; el modelo, como el de una función, y sin repetirse.
+     *
+     * @param mixed $rows
+     * @param callable():never $invalid
+     * @return array<string,array{input:float,output:float}>
+     */
+    public static function aiPricesFromInput($rows, callable $invalid): array
+    {
+        $prices = [];
+        foreach (is_array($rows) ? $rows : [] as $row) {
+            $row = is_array($row) ? $row : [];
+            $text = fn($value): ?string => is_string($value) ? trim($value) : (is_int($value) || is_float($value) ? (string) $value : null);
+            $model = $text($row['model'] ?? '');
+            $input = $text($row['input'] ?? '');
+            $output = $text($row['output'] ?? '');
+            if ($model === null || $input === null || $output === null) {
+                $invalid();
+            }
+            if ($input === '' && $output === '') {
+                continue;
+            }
+            if ($model === '' || $model === '__other__' || mb_strlen($model) > AIGateway::MODEL_ID_MAX_LENGTH || isset($prices[$model])) {
+                $invalid();
+            }
+            $amounts = [];
+            foreach (['input' => $input, 'output' => $output] as $field => $amount) {
+                if ($amount === '') {
+                    $amounts[$field] = 0.0;
+                    continue;
+                }
+                if (preg_match('/^\d{1,5}(?:\.\d{1,4})?$/', $amount) !== 1 || (float) $amount > self::MAX_AI_PRICE) {
+                    $invalid();
+                }
+                $amounts[$field] = (float) $amount;
+            }
+            $prices[$model] = ['input' => $amounts['input'], 'output' => $amounts['output']];
+        }
+        return $prices;
     }
 
     /**

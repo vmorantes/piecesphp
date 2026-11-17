@@ -166,10 +166,10 @@ CliActions::make('unit-tests:core/ai-speech', function ($args) {
         echoTerminal(' ');
 
         //─── 6 · La actualización aplicada ───────────────────────────────────────────────────────
-        echoTerminal('[6] La tabla, con la actualización del 2026-11-14 aplicada');
+        echoTerminal('[6] La tabla, con las actualizaciones del 2026-11-14 y del 2026-11-16 (el coste) aplicadas');
         $columnas = $database?->query("SELECT GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . AIUsageMapper::TABLE . "'")->fetchColumn();
         $indice = $database?->query("SELECT GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '" . AIUsageMapper::TABLE . "' AND INDEX_NAME = 'capabilityProviderModelPeriod'")->fetchColumn();
-        $check($columnas === 'id,capability,provider,model,periodStart,tokens,inputTokens,outputTokens,requests,createdAt,updatedAt' && $indice === 'capability,provider,model,periodStart', '6a las columnas y el índice único (capability, provider, model, periodStart) de ' . AIUsageMapper::UPDATE_FILE_BY_MODEL, "{$columnas} · {$indice}");
+        $check($columnas === 'id,capability,provider,model,periodStart,tokens,inputTokens,outputTokens,reportedCostUsd,requests,createdAt,updatedAt' && $indice === 'capability,provider,model,periodStart', '6a las columnas y el índice único (capability, provider, model, periodStart) de ' . AIUsageMapper::UPDATE_FILE_BY_MODEL, "{$columnas} · {$indice}");
         echoTerminal(' ');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . $e->getLine());

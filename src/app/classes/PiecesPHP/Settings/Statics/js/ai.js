@@ -33,7 +33,7 @@ window.addEventListener('load', () => {
 	form.find('.ui.checkbox').checkbox()
 	form.find('select.ui.dropdown').not('[data-ai-model-select]').dropdown()
 
-	//Las pestañas (General, Proveedores, Funciones): la activa vive en la URL (#general, #proveedores, #funciones), y la
+	//Las pestañas (General, Proveedores, Funciones, Registro): la activa vive en la URL (#general… #registro), y la
 	//cuota de tokens, que es otro formulario, solo se ve con General.
 	const quotaForm = $('form[data-ai-quota]')
 	const tabItems = form.find('[data-ai-tabs] [data-tab]')
@@ -44,6 +44,8 @@ window.addEventListener('load', () => {
 			url.hash = tabName
 			history.replaceState(null, '', url)
 			quotaForm.prop('hidden', tabName !== 'general')
+			//«Registro» solo se lee: sin la barra de guardar.
+			form.find('.form-action-bar').prop('hidden', tabName === 'registro')
 		},
 	})
 	const tabFromURL = window.location.hash.replace('#', '')
@@ -51,6 +53,7 @@ window.addEventListener('load', () => {
 		tabs.tab('change tab', tabFromURL)
 	}
 	quotaForm.prop('hidden', (form.find('[data-ai-tabs] .item.active').attr('data-tab') || 'general') !== 'general')
+	form.find('.form-action-bar').prop('hidden', form.find('[data-ai-tabs] .item.active').attr('data-tab') === 'registro')
 	//Un campo que no vale en una pestaña oculta: antes del aviso, se abre su pestaña y se le da el foco. El foco va a la
 	//vuelta siguiente: genericFormHandler cancela el aviso del navegador (que no lo da) y pinta el suyo en el mismo turno.
 	const showInvalid = function () {
@@ -124,6 +127,23 @@ window.addEventListener('load', () => {
 	form.on('change', 'select[data-ai-capability-provider]', function () {
 		const select = $(this).closest('[data-ai-capability]').find('select[data-ai-model-select]')
 		fillModels(select, String($(this).val() || ''), '')
+	})
+
+	//«Añadir precio» (ADR 0077 §8): una fila más con el modelo de la lista cerrada del registro, o «Otro…».
+	form.on('click', '[data-ai-price-add]', function () {
+		const button = $(this)
+		const prices = button.closest('[data-ai-prices]')
+		const template = prices.find('template[data-ai-price-template]').get(0)
+		if (template === undefined) {
+			return
+		}
+		const index = parseInt(String(button.attr('data-next-index') || '0'), 10) || 0
+		button.attr('data-next-index', String(index + 1))
+		const row = $(template.innerHTML.replaceAll('__PRICE__', `new${index}`))
+		prices.find('[data-ai-prices-list]').append(row)
+		const select = row.find('select[data-ai-model-select]')
+		fillModels(select, String(select.attr('data-ai-model-provider') || ''), '')
+		select.parent().find('input.search').trigger('focus')
 	})
 
 	//«N» solo cuenta con «Cada N días» y «Cada N meses». Sin JS se ve siempre, y no hace daño.

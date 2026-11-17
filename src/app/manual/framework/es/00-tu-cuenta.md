@@ -62,6 +62,6 @@ se hace algo («¿Dónde creo un usuario nuevo?»), o lo que tienes pendiente (�
 - **Solo atiende lo de la plataforma.** Si le preguntas otra cosa, te dice que no puede y te ofrece lo que sí sabe hacer.
 - **Enter** envía; **Mayús+Enter** salta de línea. Cada pregunta, como mucho 1.000 caracteres.
 - **«Nueva conversación»**, arriba en la ventana, la vacía. **Esc** o la **×** la cierran.
-- Si el asistente llegó a su límite de uso, la ventana te lo dice y cuándo se renueva. Si no está disponible para ti, el
-  botón no aparece.
+- Si el asistente llegó a su límite de uso, la ventana te lo dice: cuándo se renueva o, si el límite no se renueva solo,
+  que quien administra puede reiniciarlo. Si no está disponible para ti, el botón no aparece.
 

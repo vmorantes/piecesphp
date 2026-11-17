@@ -309,6 +309,7 @@ CREATE TABLE `pcsphp_ai_usage` (
   `tokens` bigint(20) NOT NULL,
   `inputTokens` bigint(20) NOT NULL DEFAULT 0,
   `outputTokens` bigint(20) NOT NULL DEFAULT 0,
+  `reportedCostUsd` double NOT NULL DEFAULT 0,
   `requests` int(11) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,

@@ -39,7 +39,7 @@ final class AIProviderCatalog
      * (como mucho 8, sin los marcados en desuso), medida en su documentación en fallbackMeasured; OpenRouter no publica una
      * lista recomendada, así que va vacía.
      *
-     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},reasoningEffort?:array{field:string,lowest:string,models:list<string>},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}>
+     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},reasoningEffort?:array{field:string,lowest:string,models:list<string>},reportsCost?:bool,capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}>
      */
     const TYPES = [
         'openai' => [
@@ -120,6 +120,8 @@ final class AIProviderCatalog
             'keyHeader' => null,
             'maxTokensField' => 'max_completion_tokens',
             'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
+            //usage.cost en cada respuesta, sin pedirlo, en créditos de base USD (docs/use-cases/usage-accounting y docs/faq).
+            'reportsCost' => true,
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => ['https://openrouter.ai/docs/api-reference/overview', 'https://openrouter.ai/docs/api-reference/authentication', 'https://openrouter.ai/openapi.yaml', 'https://openrouter.ai/docs/api-reference/models/get-models'],
@@ -198,8 +200,25 @@ final class AIProviderCatalog
     }
 
     /**
+     * El coste que da el proveedor en el usage de una respuesta, en USD, si su tipo lo documenta (reportsCost); 0 si no, o
+     * si no es un número mayor o igual que 0.
+     *
      * @param string $type
-     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},reasoningEffort?:array{field:string,lowest:string,models:list<string>},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}|null
+     * @param mixed $usage
+     * @return float
+     */
+    public static function reportedCostUsd(string $type, $usage): float
+    {
+        $cost = is_array($usage) ? ($usage['cost'] ?? null) : null;
+        if ((self::get($type)['reportsCost'] ?? false) !== true || !(is_int($cost) || is_float($cost)) || $cost < 0) {
+            return 0.0;
+        }
+        return (float) $cost;
+    }
+
+    /**
+     * @param string $type
+     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},reasoningEffort?:array{field:string,lowest:string,models:list<string>},reportsCost?:bool,capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}|null
      */
     public static function get(string $type): ?array
     {

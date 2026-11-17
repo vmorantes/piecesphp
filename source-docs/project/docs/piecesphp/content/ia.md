@@ -302,13 +302,28 @@ segundos de tiempo máximo. **`SpeechToTextGroqAdapter` queda en desuso hasta la
 ## Lo que se guarda
 
 `pcsphp_ai_usage` (`AIUsageMapper`): una fila por capacidad, proveedor, **modelo** y comienzo del periodo, con `tokens`,
-`inputTokens`, `outputTokens`, `requests`, `createdAt` y `updatedAt`. `recordUsage($capacidad, $proveedor, $tokens,
-$entrada, $salida, $modelo)`: los tres últimos son opcionales. Cada periodo nuevo empieza en una fila nueva. **El consumo de cada registro de proveedor guardado** va además en su propia fila, con `capability = '@provider'` (`AIGateway::PROVIDER_USAGE_ROW`, que ninguna capacidad puede llevar) y el periodo del registro, porque el de cada función puede ser otro; el acumulado sin ancla propia empieza en
+`inputTokens`, `outputTokens`, `reportedCostUsd`, `requests`, `createdAt` y `updatedAt`. `recordUsage($capacidad,
+$proveedor, $tokens, $entrada, $salida, $modelo, $idDelRegistro, $costeDelProveedor)`: desde `$entrada`, todos opcionales.
+`reportedCostUsd` suma el coste que devuelve el propio proveedor en cada respuesta, en dólares según su documentación:
+hoy, solo OpenRouter (`usage.cost`; el catálogo lo marca con `reportsCost`). Cada periodo nuevo empieza en una fila nueva. **El consumo de cada registro de proveedor guardado** va además en su propia fila, con `capability = '@provider'` (`AIGateway::PROVIDER_USAGE_ROW`, que ninguna capacidad puede llevar) y el periodo del registro, porque el de cada función puede ser otro; el acumulado sin ancla propia empieza en
 `AIUsageMapper::ACCUMULATED_PERIOD_START` (`2000-01-01 00:00:00`).
 
 Una instalación que ya existe crea la tabla con `bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes` y le añade
 el modelo, la entrada y la salida con `bin/cli db-update file=2026-11-14-consumo-de-la-ia-por-modelo apply=yes` (las dos con
-un `bin/cli db-backup` antes; ver [Terminal](terminal.md#10-db-update)).
+un `bin/cli db-backup` antes; ver [Terminal](terminal.md#10-db-update)), y la columna del coste del proveedor con
+`bin/cli db-update file=2026-11-16-coste-de-la-ia apply=yes`.
+
+## El coste estimado y el Registro
+
+- **Los precios** son opcionales y van en cada registro guardado: `ai_center.providers[].prices`, un mapa modelo →
+  `{input, output}` en dólares por millón de tokens. Los escribe quien administra en Configuración › IA › Proveedores. No
+  hay tabla de precios en el código: se pudriría.
+- **El coste de una fila**: su `reportedCostUsd` si es mayor que cero; si no, `inputTokens × entrada + outputTokens × salida`,
+  entre un millón, con el precio de ese modelo en ese registro; sin precio, o en una fila antigua sin entrada ni salida,
+  no hay coste.
+- **`PiecesPHP\AI\AIUsageReport`** arma la pestaña «Registro»: agrupa por función, proveedor o modelo y por el periodo
+  con que se anotó, filtra por la última vez que se anotó cada fila (`updatedAt`) y deja fuera las filas `@provider`.
+- **Solo cuenta y muestra: no limita nada.** Las cuotas siguen siendo de tokens.
 
 ## Las pruebas
 

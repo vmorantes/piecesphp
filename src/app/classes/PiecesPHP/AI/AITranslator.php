@@ -7,6 +7,8 @@
 namespace PiecesPHP\AI;
 
 use PiecesPHP\AI\Providers\AIChatProvider;
+use PiecesPHP\AI\Providers\AIProviderCatalog;
+use PiecesPHP\AI\Providers\AIProviderRegistry;
 
 /**
  * AITranslator - La traducción con IA (ADR 0077): el prompt, en un solo sitio, y la traducción sobre un AIChatProvider
@@ -117,6 +119,23 @@ final class AITranslator
             }
         }
         return $tokensUsed;
+    }
+
+    /**
+     * El coste que dio el proveedor en esos usage (por omisión, los de la última traducción), en USD: solo los tipos que lo
+     * documentan (AIProviderCatalog::reportedCostUsd()); 0 si no.
+     *
+     * @param array<mixed>|null $lastUsageData
+     * @return float
+     */
+    public function reportedCostUsd(?array $lastUsageData = null): float
+    {
+        $type = AIProviderRegistry::get($this->provider->recordId())?->type() ?? AIProviderCatalog::TYPE_CUSTOM;
+        $cost = 0.0;
+        foreach ($lastUsageData ?? $this->lastUsage as $usage) {
+            $cost += AIProviderCatalog::reportedCostUsd($type, $usage);
+        }
+        return $cost;
     }
 
     /**

@@ -15,8 +15,10 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $usageQuotaTemplate
  * @var array<string,array<string,mixed>> $modelLists Por id: las listas de modelos que pinta la pantalla
  * @var callable(array<string,mixed>):string $modelsSourceText
+ * @var list<string> $savedProviderIds Los ids de los registros GUARDADOS: solo ellos llevan precios
  */
 use PiecesPHP\AI\AICapability;
+use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\AI\AIGateway;
 use PiecesPHP\AI\Providers\AIProviderCatalog;
 use PiecesPHP\AI\Providers\AIProviderRecord;
@@ -38,6 +40,40 @@ $keySourceOptions = [
 ];
 $testModels = $id !== '' && isset($modelLists[$id]) ? $modelLists[$id] : null;
 $testModel = is_array($entry['models'] ?? null) && $entry['models'] !== [] ? (string) end($entry['models']) : '';
+//Los precios (ADR 0077 §8), solo en un registro guardado: los que ya tiene, los modelos que recuerda y los de las funciones
+//que lo usan.
+$isSaved = $id !== '' && in_array($id, $savedProviderIds ?? [], true);
+$prices = $isSaved && is_array($entry['prices'] ?? null) ? $entry['prices'] : [];
+$priceModels = array_keys($prices);
+if ($isSaved) {
+    foreach (is_array($entry['models'] ?? null) ? $entry['models'] : [] as $rememberedModel) {
+        $priceModels[] = (string) $rememberedModel;
+    }
+    foreach (array_keys(AICapabilityRegistry::all()) as $capabilityKey) {
+        $selection = AIGateway::effectiveSelectionFor($capabilityKey);
+        if (($selection['provider'] ?? null) === $id && is_string($selection['model'] ?? null) && $selection['model'] !== '') {
+            $priceModels[] = $selection['model'];
+        }
+    }
+}
+$priceModels = array_values(array_unique(array_filter($priceModels, fn(string $model): bool => $model !== '')));
+$priceBase = $base . '[prices]';
+$priceRow = function (string $priceIndex, ?string $model, ?array $price) use ($priceBase, $domId, $langGroup, $id): string {
+    $name = escape_html("{$priceBase}[{$priceIndex}]");
+    $rowId = escape_html("{$domId}-price-{$priceIndex}");
+    $amount = fn(?float $value): string => $value === null ? '' : rtrim(rtrim(number_format($value, 4, '.', ''), '0'), '.');
+    $label = fn(string $text): string => escape_html($model !== null ? "{$text} ({$model})" : $text);
+    $html = '<div class="three fields" data-ai-price>';
+    if ($model !== null) {
+        $html .= '<div class="field"><label for="' . $rowId . '-model">' . escape_html(__($langGroup, 'Modelo')) . '</label><input type="text" id="' . $rowId . '-model" name="' . $name . '[model]" value="' . escape_html($model) . '" readonly></div>';
+    } else {
+        $html .= '<div class="field"><label for="' . $rowId . '-model">' . escape_html(__($langGroup, 'Modelo')) . '</label><select id="' . $rowId . '-model" name="' . $name . '[model]" class="ui fluid search selection dropdown" data-ai-model-select data-ai-model-capability="' . escape_html(AIProviderCatalog::CAPABILITY_CHAT) . '" data-ai-model-provider="' . escape_html($id) . '" data-current=""></select><input type="text" value="" autocomplete="off" spellcheck="false" aria-label="' . escape_html(__($langGroup, 'Otro modelo')) . '" placeholder="' . escape_html(__($langGroup, 'Escribe el modelo')) . '" data-ai-model-other hidden></div>';
+    }
+    foreach (['input' => 'Entrada', 'output' => 'Salida'] as $field => $text) {
+        $html .= '<div class="field"><label for="' . $rowId . '-' . $field . '">' . escape_html(__($langGroup, $text)) . '</label><input type="number" id="' . $rowId . '-' . $field . '" name="' . $name . '[' . $field . ']" min="0" max="' . SettingsController::MAX_AI_PRICE . '" step="0.0001" inputmode="decimal" value="' . $amount(isset($price[$field]) ? (float) $price[$field] : null) . '" aria-label="' . $label(__($langGroup, $text)) . '"></div>';
+    }
+    return $html . '</div>';
+};
 ?>
 <div class="ui segment" data-ai-provider data-ai-provider-id="<?= escape_html($id); ?>">
     <input type="hidden" name="<?= escape_html($base); ?>[id]" value="<?= escape_html($id); ?>">
@@ -142,6 +178,21 @@ $testModel = is_array($entry['models'] ?? null) && $entry['models'] !== [] ? (st
             <button type="button" class="ui basic button" data-ai-provider-models-refresh><i class="sync alternate icon" aria-hidden="true"></i><?= __($langGroup, 'Actualizar modelos'); ?></button>
             <p class="ui muted text" data-ai-models-source><?= $testModels !== null ? escape_html($modelsSourceText($testModels)) : ''; ?></p>
         </div>
+        <?php endif; ?>
+    </div>
+    <div class="field" data-ai-prices>
+        <h4 class="ui header" id="<?= escape_html($domId); ?>-prices-title"><?= __($langGroup, 'Precios (USD por millón de tokens, opcional)'); ?></h4>
+        <?php if ($isSaved): ?>
+        <input type="hidden" name="<?= escape_html($base); ?>[prices_sent]" value="1">
+        <div data-ai-prices-list>
+            <?php foreach ($priceModels as $priceIndex => $priceModel): ?>
+            <?= $priceRow((string) $priceIndex, $priceModel, $prices[$priceModel] ?? null); ?>
+            <?php endforeach; ?>
+        </div>
+        <template data-ai-price-template><?= $priceRow('__PRICE__', null, null); ?></template>
+        <button type="button" class="ui basic button" data-ai-price-add data-next-index="<?= count($priceModels); ?>"><i class="plus icon" aria-hidden="true"></i><?= __($langGroup, 'Añadir precio'); ?></button>
+        <?php else: ?>
+        <p class="ui muted text"><?= __($langGroup, 'Guarda el proveedor para ponerle precios.'); ?></p>
         <?php endif; ?>
     </div>
     <div class="field">

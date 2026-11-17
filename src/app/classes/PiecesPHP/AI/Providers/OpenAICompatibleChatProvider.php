@@ -127,7 +127,7 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
             throw new \RuntimeException("El proveedor de tipo «{$this->record->type()}» respondió con un error (HTTP {$status}, " . ($error !== null ? get_class($error) : 'sin respuesta legible') . ').', $status);
         }
         $this->lastRawResponse = $raw;
-        return self::parse($raw);
+        return self::parse($raw) + ['reportedCostUsd' => AIProviderCatalog::reportedCostUsd($this->record->type(), $raw['usage'] ?? null)];
     }
 
     /**

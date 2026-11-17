@@ -18,8 +18,8 @@ modelo trabaja, quién la usa y cuánto puede gastar.
 
 ![Inteligencia artificial](img/configurations-integrations-ai.webp)
 
-La pantalla tiene tres pestañas: **General**, **Proveedores** y **Funciones**. Un solo **«Guardar»**, debajo, guarda lo
-de las tres; la cuota de tokens de **General** tiene el suyo. Si algo no es válido en otra pestaña, la pantalla salta a
+La pantalla tiene cuatro pestañas: **General**, **Proveedores**, **Funciones** y **Registro**. Un solo **«Guardar»**,
+debajo, guarda lo de las tres primeras; la cuota de tokens de **General** tiene el suyo, y **Registro** solo se consulta. Si algo no es válido en otra pestaña, la pantalla salta a
 ella y lo señala.
 
 **General**
@@ -50,6 +50,7 @@ Cada proveedor tiene estos campos:
 | Cuota (tokens) | No | Cuánto puede gastar ese proveedor en cada periodo, **sumando todas las funciones que lo usan**. **0 = sin límite.** |
 | Periodo | No | Como en las funciones: Acumulado, Mensual, Cada N días o Cada N meses. |
 | Modelo para probar | No | El modelo con el que lo prueba «Probar». Se elige de la lista, como el de las funciones. |
+| Precios | No | Solo en un proveedor guardado: lo que cuesta cada modelo, en **dólares por millón de tokens** de **entrada** y de **salida**, como lo publica el proveedor. Sirven para estimar el coste en **Registro**; **no limitan nada**. **«+ Añadir precio»** añade otro modelo. |
 
 **La lista de modelos** es la que da el propio proveedor. **«Actualizar modelos»** se la pide con su clave y la recuerda;
 al lado dice de dónde sale: «Lista del proveedor, actualizada el…» o, si todavía no se ha pedido o no se pudo, «Lista de
@@ -85,6 +86,16 @@ al mes: enciéndela y elige quién la usa antes de que nadie la vea. Elige tambi
 admita herramientas) y la **«Posición de la ventana»**: **«Derecha»** (por omisión), **«Izquierda»**, **«Flotante abajo a la
 derecha»** o **«Flotante abajo a la izquierda»**; en el móvil ocupa siempre la pantalla entera. Quien puede usarla ve el botón
 del asistente junto a la campana (ver «Tu cuenta», «El asistente»).
+
+**Registro**, la cuarta pestaña: lo que ha gastado la inteligencia artificial, para consultarlo.
+
+- **«Agrupar por»**: **Función**, **Proveedor** o **Modelo**. **«Desde»**: los últimos 3, 6 o 12 meses, o **Todo**.
+- Cada fila dice el **periodo**, las **llamadas**, los **tokens de entrada**, **de salida** y el **total**, y el **coste
+  aproximado en dólares**. Debajo, la fila de **Total**.
+- El coste sale de los **precios** que pongas a cada modelo en **Proveedores**, o del que da el propio proveedor si lo
+  devuelve (OpenRouter lo hace). Sin precio, sale **«—»**; si solo una parte tiene precio, el total dice **«parcial»**.
+- **Es una estimación**: lo que cobra el proveedor puede ser otra cosa.
+- Las funciones con periodo **acumulado** tienen una sola fila, que no se parte por meses.
 
 **Cuota de tokens**, en **General**, con su propio **«Guardar»**: el **«Límite de tokens de IA»** (obligatorio)
 solo sirve para el informe de consumo y **no limita nada**. La cuota que limita es la de cada función.

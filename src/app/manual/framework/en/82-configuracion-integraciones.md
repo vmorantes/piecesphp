@@ -18,8 +18,8 @@ works with, who uses it and how much it can spend.
 
 ![Artificial intelligence](img/configurations-integrations-ai.webp)
 
-The screen has three tabs: **General**, **Providers** and **Features**. A single **“Save”**, below, saves what is in the
-three; the token quota in **General** has its own. If something is not valid in another tab, the screen jumps to it and
+The screen has four tabs: **General**, **Providers**, **Features** and **Log**. A single **“Save”**, below, saves what is
+in the first three; the token quota in **General** has its own, and **Log** is only for looking up. If something is not valid in another tab, the screen jumps to it and
 points it out.
 
 **General**
@@ -50,6 +50,7 @@ Each provider has these fields:
 | Quota (tokens) | No | How much that provider can spend in each period, **adding up all the features that use it**. **0 = no limit.** |
 | Period | No | As in the features: Cumulative, Monthly, Every N days or Every N months. |
 | Model to test with | No | The model “Test” uses. It is chosen from the list, like the features' one. |
+| Prices | No | Only on a saved provider: what each model costs, in **dollars per million tokens** of **input** and **output**, as the provider publishes it. They are used to estimate the cost in **Log**; **they do not limit anything**. **“+ Add price”** adds another model. |
 
 **The list of models** is the one the provider itself gives. **“Refresh models”** asks for it with its key and remembers
 it; next to it, it says where it comes from: “Provider list, refreshed on…” or, if it has not been asked for yet or it
@@ -85,6 +86,16 @@ something is done, what you have pending) using only what the person asking can 
 that supports tools) and the **“Window position”**: **“Right”** (the default), **“Left”**, **“Floating bottom right”** or
 **“Floating bottom left”**; on a phone it always takes the whole screen. Whoever can use it sees the assistant button next to the
 bell (see “Your account”, “The assistant”).
+
+**Log**, the fourth tab: what artificial intelligence has spent, to look it up.
+
+- **“Group by”**: **Feature**, **Provider** or **Model**. **“Since”**: the last 3, 6 or 12 months, or **All**.
+- Each row gives the **period**, the **calls**, the **input tokens**, **output tokens** and the **total**, and the
+  **approximate cost in dollars**. Below, the **Total** row.
+- The cost comes from the **prices** you set on each model in **Providers**, or from the one the provider itself returns
+  (OpenRouter does). Without a price it shows **“—”**; if only part has a price, the total says **“partial”**.
+- **It is an estimate**: what the provider charges may be something else.
+- Features with a **cumulative** period have a single row, which is not split by month.
 
 **Token quota**, in **General**, with its own **“Save”**: the **“AI tokens limit”** (required) is only used by the
 usage report and **does not limit anything**. The quota that limits is the one of each feature.
