@@ -84,7 +84,8 @@ conserva para los informes.
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. **Viene apagada**, con una cuota de 200.000 tokens
 al mes: enciéndela y elige quién la usa antes de que nadie la vea. Elige también su **proveedor** y su **modelo** (uno que
 admita herramientas) y la **«Posición de la ventana»**: **«Derecha»** (por omisión), **«Izquierda»**, **«Flotante abajo a la
-derecha»** o **«Flotante abajo a la izquierda»**; en el móvil ocupa siempre la pantalla entera. Quien puede usarla ve el botón
+derecha»** o **«Flotante abajo a la izquierda»**; en el móvil ocupa siempre la pantalla entera. **«Olvidar la conversación tras»**: los minutos
+sin usar el chat tras los que cada navegador borra la conversación guardada (60 por omisión; de 5 a 1.440). Quien puede usarla ve el botón
 del asistente junto a la campana (ver «Tu cuenta», «El asistente»).
 
 **Registro**, la cuarta pestaña: lo que ha gastado la inteligencia artificial, para consultarlo.
@@ -93,7 +94,7 @@ del asistente junto a la campana (ver «Tu cuenta», «El asistente»).
 - Cada fila dice el **periodo**, las **llamadas**, los **tokens de entrada**, **de salida** y el **total**, y el **coste
   aproximado en dólares**. Debajo, la fila de **Total**.
 - El coste sale de los **precios** que pongas a cada modelo en **Proveedores**, o del que da el propio proveedor si lo
-  devuelve (OpenRouter lo hace). Sin precio, sale **«—»**; si solo una parte tiene precio, el total dice **«parcial»**.
+  devuelve (OpenRouter lo hace). Sin precio, sale **«—»**; si solo una parte tiene precio, esa fila y el total dicen **«parcial»**.
 - **Es una estimación**: lo que cobra el proveedor puede ser otra cosa.
 - Las funciones con periodo **acumulado** tienen una sola fila, que no se parte por meses.
 

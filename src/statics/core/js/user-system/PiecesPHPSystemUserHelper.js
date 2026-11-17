@@ -350,6 +350,9 @@ class PiecesPHPSystemUserHelper {
 	 */
 	deleteSession(reload = true) {
 
+		//La conversación del asistente guardada en este navegador (H329): fuera al salir, haya o no datos de sesión.
+		PiecesPHPSystemUserHelper.forgetAssistantConversations()
+
 		const hadSession = this.getUserData() !== null || this.hasLegacyToken()
 
 		if (hadSession) {
@@ -363,6 +366,25 @@ class PiecesPHPSystemUserHelper {
 			}
 		}
 
+	}
+
+	/**
+	 * Borra las conversaciones del asistente guardadas en este navegador (claves pcsphp-assistant-*). Sin almacenamiento,
+	 * no hace nada.
+	 */
+	static forgetAssistantConversations() {
+		try {
+			const keys = []
+			for (let index = 0; index < localStorage.length; index++) {
+				const key = localStorage.key(index)
+				if (typeof key === 'string' && key.startsWith('pcsphp-assistant-')) {
+					keys.push(key)
+				}
+			}
+			keys.forEach((key) => localStorage.removeItem(key))
+		} catch (e) {
+			//Navegador privado o almacenamiento bloqueado: no hay nada guardado.
+		}
 	}
 
 	getCookies() {

@@ -65,6 +65,13 @@ final class Assistant
     const POSITIONS = [self::POSITION_RIGHT, 'left', 'floating right', 'floating left'];
 
     /**
+     * La conversación se guarda en el navegador y se olvida tras estos minutos sin uso (H329): por omisión y sus límites.
+     */
+    const FORGET_AFTER_MINUTES_DEFAULT = 60;
+    const FORGET_AFTER_MINUTES_MIN = 5;
+    const FORGET_AFTER_MINUTES_MAX = 1440;
+
+    /**
      * SOLO PARA PRUEBAS: sustituye al adaptador del proveedor.
      *
      * @var \Closure():object|null
@@ -232,12 +239,25 @@ final class Assistant
     }
 
     /**
+     * Los minutos sin uso tras los que el navegador olvida la conversación: los guardados en Configuración › IA
+     * (capabilities.assistant.forgetAfterMinutes) si son un entero entre FORGET_AFTER_MINUTES_MIN y _MAX; si no, el de omisión.
+     *
+     * @return int
+     */
+    public static function forgetAfterMinutes(): int
+    {
+        $center = AIGateway::normalizeCenter(get_config(AIGateway::CONFIG_NAME));
+        $minutes = is_array($center) ? ($center['capabilities'][self::CAPABILITY]['forgetAfterMinutes'] ?? null) : null;
+        return is_int($minutes) && $minutes >= self::FORGET_AFTER_MINUTES_MIN && $minutes <= self::FORGET_AFTER_MINUTES_MAX ? $minutes : self::FORGET_AFTER_MINUTES_DEFAULT;
+    }
+
+    /**
      * Lo que necesita la ventana del panel, o null si no se pinta (ni lanzador, ni contenedor, ni JS): la función no se
      * ofrece a este usuario (AIGateway::availability() da AVAILABILITY_HIDDEN). Con la cuota alcanzada sí se pinta, con
      * su aviso en limitMessage. Un fallo al leer la disponibilidad no tumba la barra: se anota y no se pinta.
      *
      * @param UserDataPackage $user
-     * @return array{position:string,limitMessage:?string}|null
+     * @return array{position:string,limitMessage:?string,forgetAfterMinutes:int}|null
      */
     public static function panelWindow(UserDataPackage $user): ?array
     {
@@ -253,6 +273,7 @@ final class Assistant
         return [
             'position' => self::position(),
             'limitMessage' => $availability['state'] === AIGateway::AVAILABILITY_LIMIT ? $availability['message'] : null,
+            'forgetAfterMinutes' => self::forgetAfterMinutes(),
         ];
     }
 

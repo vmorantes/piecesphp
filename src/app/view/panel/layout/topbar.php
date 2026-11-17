@@ -69,7 +69,7 @@ $assistantSuggestions = [
     __($assistantLang, '¿Dónde se crean las publicaciones?'),
 ];
 ?>
-<div class="ui chat" id="panel-assistant" aria-label="<?= escape_html(__($assistantLang, 'Asistente')); ?>" hidden panel-assistant data-position="<?= escape_html($assistantWindow['position']); ?>" data-url="<?= escape_html(\PiecesPHP\Mcp\Controllers\McpController::routeName('assistant-ask')); ?>" data-text="<?= escape_html((string) json_encode($assistantText, \JSON_UNESCAPED_UNICODE)); ?>" data-suggestions="<?= escape_html((string) json_encode($assistantSuggestions, \JSON_UNESCAPED_UNICODE)); ?>"<?= $assistantWindow['limitMessage'] !== null ? ' data-limit-message="' . escape_html($assistantWindow['limitMessage']) . '"' : ''; ?>></div>
+<div class="ui chat" id="panel-assistant" aria-label="<?= escape_html(__($assistantLang, 'Asistente')); ?>" hidden panel-assistant data-position="<?= escape_html($assistantWindow['position']); ?>" data-forget-after-minutes="<?= (int) $assistantWindow['forgetAfterMinutes']; ?>" data-user-id="<?= (int) $currentUserID; ?>" data-url="<?= escape_html(\PiecesPHP\Mcp\Controllers\McpController::routeName('assistant-ask')); ?>" data-text="<?= escape_html((string) json_encode($assistantText, \JSON_UNESCAPED_UNICODE)); ?>" data-suggestions="<?= escape_html((string) json_encode($assistantSuggestions, \JSON_UNESCAPED_UNICODE)); ?>"<?= $assistantWindow['limitMessage'] !== null ? ' data-limit-message="' . escape_html($assistantWindow['limitMessage']) . '"' : ''; ?>></div>
 <?php endif; ?>
 
 <?php if ($withAdminOptions) : ?>

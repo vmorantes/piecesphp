@@ -52,7 +52,10 @@ something is done (“Where do I create a new user?”), or what you have pendin
   it names.</li>
 <li><strong>It only handles the platform.</strong> If you ask it something else, it says it cannot and offers what it can do.</li>
 <li><strong>Enter</strong> sends; <strong>Shift+Enter</strong> adds a line break. Each question, at most 1,000 characters.</li>
-<li><strong>“New conversation”</strong>, at the top of the window, empties it. <strong>Esc</strong> or the <strong>×</strong> close it.</li>
+<li><strong>The conversation is kept</strong> even if you change screen or close the browser, on that same computer and only for you.
+  It is erased on its own after a while without using the chat (one hour, unless the administrator sets another time),
+  when you log out, and with <strong>“New conversation”</strong>, at the top of the window. <strong>Esc</strong> or the <strong>×</strong> close it without
+  erasing it.</li>
 <li>If the assistant reached its usage limit, the window tells you so: when it renews or, if the limit does not renew on its
   own, that the administrator can reset it. If it is not available to you, the button does not appear.</li>
 </ul>

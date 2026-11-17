@@ -474,4 +474,6 @@ return [
     'El coste es aproximado: tokens por el precio que pongas a cada modelo, o el que da el proveedor. Lo que cobra el proveedor puede ser otra cosa. Las funciones con periodo acumulado tienen una sola fila: no se parten por meses.' => 'The cost is approximate: tokens times the price you set for each model, or the one the provider gives. What the provider charges may be something else. Functions with an accumulated period have a single row: they are not split by month.',
     '%n% tokens' => '%n% tokens',
     'Falta la actualización 2026-11-16-coste-de-la-ia: el coste del proveedor no se cuenta.' => 'The 2026-11-16-coste-de-la-ia database update is missing: the provider cost is not counted.',
+    'Olvidar la conversación tras (minutos)' => 'Forget the conversation after (minutes)',
+    'La conversación se guarda en el navegador de cada persona y se olvida tras ese tiempo sin usarla.' => 'The conversation is saved in each person\'s browser and is forgotten after that time without using it.',
 ];

@@ -1,3 +1,10 @@
+# 10.34.0 (16-11-2026)
+
+- **La conversación del asistente se conserva** aunque cambies de pantalla, recargues o cierres el navegador: se guarda
+  en ese navegador, solo para esa persona. Se borra sola tras un tiempo sin usar el chat (60 minutos por omisión; se
+  cambia en Configuración › IA › «Asistente del panel»), al salir de la sesión y con «Nueva conversación».
+  Manual: «Tu cuenta», «El asistente».
+
 # 10.33.0 (16-11-2026)
 
 - **Nuevo en Configuración › IA: el coste aproximado y la pestaña «Registro».**

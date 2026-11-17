@@ -84,7 +84,8 @@ the reports.
 something is done, what you have pending) using only what the person asking can see. **It comes switched off**, with a quota of
 200,000 tokens a month: turn it on and choose who uses it before anyone sees it. Also choose its **provider** and its **model** (one
 that supports tools) and the **“Window position”**: **“Right”** (the default), **“Left”**, **“Floating bottom right”** or
-**“Floating bottom left”**; on a phone it always takes the whole screen. Whoever can use it sees the assistant button next to the
+**“Floating bottom left”**; on a phone it always takes the whole screen. **“Forget the conversation after”**: the
+minutes without using the chat after which each browser erases the saved conversation (60 by default; from 5 to 1,440). Whoever can use it sees the assistant button next to the
 bell (see “Your account”, “The assistant”).
 
 **Log**, the fourth tab: what artificial intelligence has spent, to look it up.
@@ -93,7 +94,7 @@ bell (see “Your account”, “The assistant”).
 - Each row gives the **period**, the **calls**, the **input tokens**, **output tokens** and the **total**, and the
   **approximate cost in dollars**. Below, the **Total** row.
 - The cost comes from the **prices** you set on each model in **Providers**, or from the one the provider itself returns
-  (OpenRouter does). Without a price it shows **“—”**; if only part has a price, the total says **“partial”**.
+  (OpenRouter does). Without a price it shows **“—”**; if only part has a price, that row and the total say **“partial”**.
 - **It is an estimate**: what the provider charges may be something else.
 - Features with a **cumulative** period have a single row, which is not split by month.
 

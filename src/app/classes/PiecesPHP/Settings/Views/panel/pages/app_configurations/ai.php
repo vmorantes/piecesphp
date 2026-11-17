@@ -194,6 +194,11 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                             <?= array_to_html_options(SettingsController::aiAssistantPositionOptions(), \PiecesPHP\Mcp\Assistant::position()); ?>
                         </select>
                     </div>
+                    <div class="field">
+                        <label for="<?= escape_html($idBase); ?>-forget"><?= __($langGroup, 'Olvidar la conversación tras (minutos)'); ?></label>
+                        <input type="number" id="<?= escape_html($idBase); ?>-forget" name="<?= escape_html($field); ?>[forgetAfterMinutes]" min="<?= \PiecesPHP\Mcp\Assistant::FORGET_AFTER_MINUTES_MIN; ?>" max="<?= \PiecesPHP\Mcp\Assistant::FORGET_AFTER_MINUTES_MAX; ?>" step="1" value="<?= \PiecesPHP\Mcp\Assistant::forgetAfterMinutes(); ?>" aria-describedby="<?= escape_html($idBase); ?>-forget-description">
+                        <div class="description" id="<?= escape_html($idBase); ?>-forget-description"><?= __($langGroup, 'La conversación se guarda en el navegador de cada persona y se olvida tras ese tiempo sin usarla.'); ?></div>
+                    </div>
                     <?php endif; ?>
                 </div>
                 <?php

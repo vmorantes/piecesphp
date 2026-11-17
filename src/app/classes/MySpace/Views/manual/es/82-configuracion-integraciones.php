@@ -167,7 +167,8 @@ conserva para los informes.</p>
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. <strong>Viene apagada</strong>, con una cuota de 200.000 tokens
 al mes: enciéndela y elige quién la usa antes de que nadie la vea. Elige también su <strong>proveedor</strong> y su <strong>modelo</strong> (uno que
 admita herramientas) y la <strong>«Posición de la ventana»</strong>: <strong>«Derecha»</strong> (por omisión), <strong>«Izquierda»</strong>, <strong>«Flotante abajo a la
-derecha»</strong> o <strong>«Flotante abajo a la izquierda»</strong>; en el móvil ocupa siempre la pantalla entera. Quien puede usarla ve el botón
+derecha»</strong> o <strong>«Flotante abajo a la izquierda»</strong>; en el móvil ocupa siempre la pantalla entera. <strong>«Olvidar la conversación tras»</strong>: los minutos
+sin usar el chat tras los que cada navegador borra la conversación guardada (60 por omisión; de 5 a 1.440). Quien puede usarla ve el botón
 del asistente junto a la campana (ver «Tu cuenta», «El asistente»).</p>
 <p><strong>Registro</strong>, la cuarta pestaña: lo que ha gastado la inteligencia artificial, para consultarlo.</p>
 <ul>
@@ -175,7 +176,7 @@ del asistente junto a la campana (ver «Tu cuenta», «El asistente»).</p>
 <li>Cada fila dice el <strong>periodo</strong>, las <strong>llamadas</strong>, los <strong>tokens de entrada</strong>, <strong>de salida</strong> y el <strong>total</strong>, y el <strong>coste
   aproximado en dólares</strong>. Debajo, la fila de <strong>Total</strong>.</li>
 <li>El coste sale de los <strong>precios</strong> que pongas a cada modelo en <strong>Proveedores</strong>, o del que da el propio proveedor si lo
-  devuelve (OpenRouter lo hace). Sin precio, sale <strong>«—»</strong>; si solo una parte tiene precio, el total dice <strong>«parcial»</strong>.</li>
+  devuelve (OpenRouter lo hace). Sin precio, sale <strong>«—»</strong>; si solo una parte tiene precio, esa fila y el total dicen <strong>«parcial»</strong>.</li>
 <li><strong>Es una estimación</strong>: lo que cobra el proveedor puede ser otra cosa.</li>
 <li>Las funciones con periodo <strong>acumulado</strong> tienen una sola fila, que no se parte por meses.</li>
 </ul>

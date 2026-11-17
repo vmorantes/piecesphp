@@ -262,6 +262,33 @@ CliActions::make('unit-tests:core/assistant-window', function ($args) {
         $borrarConsumo();
         $check($limpia['ok'] === true && $limpia['answer'] === $plano && $limpia['signature'] === Assistant::sign($plano), '5c reply() devuelve el texto limpio, y la firma es la del texto limpio', (string) json_encode(['answer' => $limpia['answer']]));
         $check(str_contains(Assistant::instructions(), 'sin Markdown') || str_contains(Assistant::instructions(), 'without Markdown'), '5d las instrucciones piden texto plano, sin Markdown');
+        echoTerminal(' ');
+
+        //─── 6 · Olvidar la conversación (H329) ────────────────────────────────────────────────────
+        echoTerminal('[6] Los minutos tras los que el navegador olvida la conversación');
+        $olvidos = [];
+        foreach ([null, 5, 90, 1440, 4, 1441, '90', 0] as $guardadoOlvido) {
+            set_config(AIGateway::CONFIG_NAME, $centro($guardadoOlvido === null ? [] : ['forgetAfterMinutes' => $guardadoOlvido]));
+            $olvidos[] = Assistant::forgetAfterMinutes();
+        }
+        $check($olvidos === [60, 5, 90, 1440, 60, 60, 60, 60], '6a guardado: 5 a 1440 tal cual; sin guardar, fuera de rango o en texto, 60', (string) json_encode($olvidos));
+        $entradaOlvido = fn($valor): array => ['enabled' => '1', 'capabilities' => [Assistant::CAPABILITY => ['enabled' => '1', 'userTypes' => [''], 'quota' => '0', 'period' => 'accumulated', 'periodLength' => '1', 'forgetAfterMinutes' => $valor]]];
+        $aceptados = [];
+        foreach (['5', '1440', '', ' 30 '] as $valorOlvido) {
+            $aceptados[] = SettingsController::aiCenterFromInput($entradaOlvido($valorOlvido), $centro())['capabilities'][Assistant::CAPABILITY]['forgetAfterMinutes'] ?? null;
+        }
+        $rechazosOlvido = 0;
+        foreach (['4', '1441', 'texto', '12.5', '-10'] as $valorOlvido) {
+            try {
+                SettingsController::aiCenterFromInput($entradaOlvido($valorOlvido), $centro());
+            } catch (InvalidParameterValueException $e) {
+                $rechazosOlvido++;
+            }
+        }
+        $check($aceptados === [5, 1440, 60, 30] && $rechazosOlvido === 5, '6b el guardado: 5 y 1440 entran, vacío vale 60; 4, 1441, texto, decimales o negativo, rechazo', (string) json_encode(['aceptados' => $aceptados, 'rechazos' => $rechazosOlvido]));
+        set_config(AIGateway::CONFIG_NAME, $centro(['forgetAfterMinutes' => 90]));
+        $nodo = $contenedores($pintar()['flotante'])[0] ?? null;
+        $check($nodo !== null && $nodo->getAttribute('data-forget-after-minutes') === '90' && $nodo->getAttribute('data-user-id') === (string) $idRoot, '6c el contenedor lleva los minutos (data-forget-after-minutes) y el usuario de la clave (data-user-id)', $nodo !== null ? $nodo->getAttribute('data-forget-after-minutes') . ' / ' . $nodo->getAttribute('data-user-id') : 'sin nodo');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());
     } finally {

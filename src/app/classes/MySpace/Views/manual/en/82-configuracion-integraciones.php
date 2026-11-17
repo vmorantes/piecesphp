@@ -167,7 +167,8 @@ the reports.</p>
 something is done, what you have pending) using only what the person asking can see. <strong>It comes switched off</strong>, with a quota of
 200,000 tokens a month: turn it on and choose who uses it before anyone sees it. Also choose its <strong>provider</strong> and its <strong>model</strong> (one
 that supports tools) and the <strong>“Window position”</strong>: <strong>“Right”</strong> (the default), <strong>“Left”</strong>, <strong>“Floating bottom right”</strong> or
-<strong>“Floating bottom left”</strong>; on a phone it always takes the whole screen. Whoever can use it sees the assistant button next to the
+<strong>“Floating bottom left”</strong>; on a phone it always takes the whole screen. <strong>“Forget the conversation after”</strong>: the
+minutes without using the chat after which each browser erases the saved conversation (60 by default; from 5 to 1,440). Whoever can use it sees the assistant button next to the
 bell (see “Your account”, “The assistant”).</p>
 <p><strong>Log</strong>, the fourth tab: what artificial intelligence has spent, to look it up.</p>
 <ul>
@@ -175,7 +176,7 @@ bell (see “Your account”, “The assistant”).</p>
 <li>Each row gives the <strong>period</strong>, the <strong>calls</strong>, the <strong>input tokens</strong>, <strong>output tokens</strong> and the <strong>total</strong>, and the
   <strong>approximate cost in dollars</strong>. Below, the <strong>Total</strong> row.</li>
 <li>The cost comes from the <strong>prices</strong> you set on each model in <strong>Providers</strong>, or from the one the provider itself returns
-  (OpenRouter does). Without a price it shows <strong>“—”</strong>; if only part has a price, the total says <strong>“partial”</strong>.</li>
+  (OpenRouter does). Without a price it shows <strong>“—”</strong>; if only part has a price, that row and the total say <strong>“partial”</strong>.</li>
 <li><strong>It is an estimate</strong>: what the provider charges may be something else.</li>
 <li>Features with a <strong>cumulative</strong> period have a single row, which is not split by month.</li>
 </ul>

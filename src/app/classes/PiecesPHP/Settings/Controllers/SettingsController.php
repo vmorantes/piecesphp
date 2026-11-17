@@ -3615,6 +3615,18 @@ class SettingsController extends AdminPanelController
                 }
                 $entry['position'] = $fields['position'];
             }
+            //Los minutos sin uso tras los que el navegador olvida la conversación (H329): vacío, el de omisión.
+            if ($key === Assistant::CAPABILITY && array_key_exists('forgetAfterMinutes', $fields)) {
+                $forget = $fields['forgetAfterMinutes'];
+                $forget = is_string($forget) ? trim($forget) : $forget;
+                if ($forget === '' || $forget === null) {
+                    $forget = Assistant::FORGET_AFTER_MINUTES_DEFAULT;
+                }
+                if (!(is_int($forget) || (is_string($forget) && preg_match('/^\d+$/', $forget) === 1)) || (int) $forget < Assistant::FORGET_AFTER_MINUTES_MIN || (int) $forget > Assistant::FORGET_AFTER_MINUTES_MAX) {
+                    $invalid($name, __(self::LANG_GROUP, 'Olvidar la conversación tras (minutos)'));
+                }
+                $entry['forgetAfterMinutes'] = (int) $forget;
+            }
 
             //El proveedor y el modelo de la función (ADR 0077); un id heredado (EN DESUSO) se guarda como su convertido.
             if (array_key_exists('provider', $fields)) {

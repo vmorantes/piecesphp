@@ -128,6 +128,10 @@ móvil, un elemento del menú de usuario) y el diseño del panel (el contenedor 
   `floating left`).
 - Manda `{question, history}` a la ruta, con la firma de cada turno del asistente (`get history` del componente).
 - Pinta la respuesta **como texto**, y los `links` como botones, **solo si son del mismo origen**.
+- **La conversación se guarda en `localStorage`**, con una clave por usuario y la hora de la última actividad. Al abrir, si
+  pasó el tiempo de «Olvidar la conversación tras» (`ai_center.capabilities.assistant.forgetAfterMinutes`, 60 por
+  omisión), se borra. También se borra al salir de la sesión, en la página de acceso y con «Nueva conversación». Guarda las
+  últimas 20 intervenciones. El servidor no se fía de lo guardado: verifica la firma de cada turno del asistente.
 - Los fallos van como aviso del componente, según el `kind` que devuelve `reply()`:
   - `unavailable`: la IA o la función apagadas, sin permiso, sin proveedor o sin cuota;
   - `error`: lo demás.

@@ -61,7 +61,9 @@ se hace algo («¿Dónde creo un usuario nuevo?»), o lo que tienes pendiente (�
   pantallas que nombra.
 - **Solo atiende lo de la plataforma.** Si le preguntas otra cosa, te dice que no puede y te ofrece lo que sí sabe hacer.
 - **Enter** envía; **Mayús+Enter** salta de línea. Cada pregunta, como mucho 1.000 caracteres.
-- **«Nueva conversación»**, arriba en la ventana, la vacía. **Esc** o la **×** la cierran.
+- **La conversación se conserva** aunque cambies de pantalla o cierres el navegador, en ese mismo equipo y solo para ti.
+  Se borra sola tras un rato sin usar el chat (una hora, salvo que quien administra ponga otro tiempo), al salir de tu
+  sesión y con **«Nueva conversación»**, arriba en la ventana. **Esc** o la **×** la cierran sin borrarla.
 - Si el asistente llegó a su límite de uso, la ventana te lo dice: cuándo se renueva o, si el límite no se renueva solo,
   que quien administra puede reiniciarlo. Si no está disponible para ti, el botón no aparece.
 
