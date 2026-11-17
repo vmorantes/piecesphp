@@ -24,7 +24,7 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>" class="no-js">
+<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>" class="no-js"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
 
 <head>
     <meta charset="UTF-8" />

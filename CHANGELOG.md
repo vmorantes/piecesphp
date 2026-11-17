@@ -1,3 +1,12 @@
+# 10.31.1 (16-11-2026)
+
+- **En «Mi cuenta › Preferencias», la opción elegida se marca con el color principal**: en claro se distingue bien,
+  también con «Más contraste»; en oscuro todavía poco, y se arreglará con una versión próxima del tema. La pestaña ya no
+  repite su título.
+- **Arreglado: el acceso, las páginas de problemas de acceso, la de los enlaces con token y la página de error no
+  seguían el modo de color ni la accesibilidad del sitio.** Ahora usan los del sitio, o los de la persona si tiene
+  sesión.
+
 # 10.31.0 (16-11-2026)
 
 - **Más accesibilidad en el panel: contraste, movimiento y foco.** Cada persona elige en «Mi cuenta › Preferencias»:

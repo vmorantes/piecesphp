@@ -803,8 +803,8 @@ function pcsAdminTopbars() {
 			if (response.success) {
 				document.documentElement.setAttribute('data-theme', mode)
 				//El menú de tu nombre y «Preferencias» dicen lo mismo: la opción se marca en todos los grupos.
-				themeSelector.find('[data-theme-mode]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
-				themeSelector.find('[data-theme-mode="' + mode + '"]').addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
+				themeSelector.find('[data-theme-mode]').removeClass('active primary').attr({ 'aria-checked': 'false', tabindex: '-1' })
+				themeSelector.find('[data-theme-mode="' + mode + '"]').addClass('active primary').attr({ 'aria-checked': 'true', tabindex: '0' })
 			}
 		})
 	})
@@ -819,8 +819,8 @@ function pcsAdminTopbars() {
 		postRequest(textSizeSelector.data('url'), { size: size }).done(function (response) {
 			if (response.success) {
 				document.documentElement.setAttribute('data-text-size', response.size)
-				textSizeSelector.find('[data-text-size]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
-				option.addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
+				textSizeSelector.find('[data-text-size]').removeClass('active primary').attr({ 'aria-checked': 'false', tabindex: '-1' })
+				option.addClass('active primary').attr({ 'aria-checked': 'true', tabindex: '0' })
 			}
 		})
 	})
@@ -837,8 +837,8 @@ function pcsAdminTopbars() {
 			postRequest(group.data('url'), { preference: preference, value: String(option.data('value')) }).done(function (response) {
 				if (response.success) {
 					document.documentElement.setAttribute('data-' + preference, response.value)
-					group.find('[data-value]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
-					option.addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
+					group.find('[data-value]').removeClass('active primary').attr({ 'aria-checked': 'false', tabindex: '-1' })
+					option.addClass('active primary').attr({ 'aria-checked': 'true', tabindex: '0' })
 				}
 			})
 		})

@@ -1,17 +1,7 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); ?>
-<?php
-//El modo de color y el tamaño de letra del usuario, como en header.php: sin ellos, el gestor que abre el editor sale
-//siempre en claro y a tamaño normal.
-$themeUser = getLoggedFrameworkUser();
-$themeMode = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::themeModeOf((int) $themeUser->id) : \PiecesPHP\Settings\Controllers\SettingsController::accessibilityThemeMode();
-$textSize = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::textSizeOf((int) $themeUser->id) : \PiecesPHP\Settings\Controllers\SettingsController::accessibilityTextSize();
-//Contraste, movimiento y foco (H252, fase 2): los traduce el tema, sin CSS propio.
-$contrast = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::contrastOf((int) $themeUser->id) : \PiecesPHP\Settings\Controllers\SettingsController::accessibilityContrast();
-$motion = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::motionOf((int) $themeUser->id) : \PiecesPHP\Settings\Controllers\SettingsController::accessibilityMotion();
-$focus = $themeUser !== null ? \PiecesPHP\AdminPanel\Controllers\AdminPanelController::focusOf((int) $themeUser->id) : \PiecesPHP\Settings\Controllers\SettingsController::accessibilityFocus();
-?>
+<?php //Los cinco de apariencia y accesibilidad, en <html> antes de pintar nada (sin parpadeo): AdminPanelController. ?>
 <!DOCTYPE html>
-<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>"<?= ' data-theme="' . escape_html($themeMode) . '" data-text-size="' . escape_html($textSize) . '" data-contrast="' . escape_html($contrast) . '" data-motion="' . escape_html($motion) . '" data-focus="' . escape_html($focus) . '"'; ?>>
+<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
 
 <head>
     <meta charset="UTF-8">

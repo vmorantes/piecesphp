@@ -227,8 +227,12 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
             'movimiento' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='motion'][@role='radiogroup']//*[@data-value]"),
             'foco' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='focus'][@role='radiogroup']//*[@data-value]"),
             'contraste activo more' => $cuenta($xpath, "//*[@data-preference='contrast']//*[@data-value='more'][contains(@class,'active')][@aria-checked='true']"),
+            //La elegida, con primary (a 3:1 de las demás, H326): una por grupo, y solo la elegida.
+            'elegidas con primary' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='true']"),
+            'primary sin elegir' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='false']"),
+            'título repetido' => $cuenta($xpath, "//*[@id='user-preferences-title']"),
         ];
-        $check($r['status'] === 200 && $preferencias === ['apariencia' => 1, 'accesibilidad' => 1, 'modo' => 3, 'tamaño' => 3, 'contraste' => 2, 'movimiento' => 2, 'foco' => 2, 'contraste activo more' => 1], 'v1 «Preferencias»: Apariencia (modo, 3) y Accesibilidad (tamaño 3; contraste, movimiento y foco 2 cada uno), con lo guardado marcado', "HTTP {$r['status']}, " . json_encode($preferencias, \JSON_UNESCAPED_UNICODE));
+        $check($r['status'] === 200 && $preferencias === ['apariencia' => 1, 'accesibilidad' => 1, 'modo' => 3, 'tamaño' => 3, 'contraste' => 2, 'movimiento' => 2, 'foco' => 2, 'contraste activo more' => 1, 'elegidas con primary' => 5, 'primary sin elegir' => 0, 'título repetido' => 0], 'v1 «Preferencias»: Apariencia (modo, 3) y Accesibilidad (tamaño 3; contraste, movimiento y foco 2 cada uno), con lo guardado marcado; la elegida de cada uno de los cinco grupos con primary, y sin el título repetido', "HTTP {$r['status']}, " . json_encode($preferencias, \JSON_UNESCAPED_UNICODE));
         $r = $peticion($relativa(SettingsController::routeName('appearance-accessibility', [], true)), $jwtRoot, null);
         $xpath = $dom($r['body']);
         $sitio = [
@@ -239,6 +243,33 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
             $sitio[$opcion] = $cuenta($xpath, "//form[@accessibility-form]//select[@name='{$opcion}']");
         }
         $check($r['status'] === 200 && array_unique(array_values($sitio)) === [1] && $cuenta($xpath, "//select[@name='accessibility_contrast']/option[@value='more'][@selected]") === 1, 'v2 Configuración › Accesibilidad: sus dos secciones y los cinco campos en un solo formulario, con lo guardado elegido', "HTTP {$r['status']}, " . json_encode($sitio));
+        echoTerminal(' ');
+
+        //──── [p] Las páginas del panel con <html> propio (H325) ─────────────────────────────
+        echoTerminal('[p] El acceso y los problemas de acceso, sin sesión, con los cinco del sitio');
+        //El sitio quedó en g1 con normal, auto, more, reduce y strong.
+        $delSitio = ['data-theme="auto"', 'data-text-size="normal"', 'data-contrast="more"', 'data-motion="reduce"', 'data-focus="strong"'];
+        set_config('current_user', null);
+        set_config('pcsphp_current_user_stored', null);
+        $memoriaSitio = [];
+        foreach ($validos as $opcion => $valor) {
+            $memoriaSitio[$opcion] = get_config($opcion);
+            set_config($opcion, $valor);
+        }
+        $atributos = AdminPanelController::htmlPreferenceAttributes();
+        foreach ($memoriaSitio as $opcion => $valor) {
+            set_config($opcion, $valor);
+        }
+        $check(count(array_filter($delSitio, fn(string $atributo): bool => str_contains($atributos, $atributo))) === 5 && substr_count($atributos, 'data-') === 5, 'p1 htmlPreferenceAttributes() sin sesión: los cinco del sitio, escapados', $atributos);
+        $paginas = [
+            'p2 la página de acceso' => $relativa(UsersController::routeName('form-login', [], true)),
+            'p3 la lista de problemas de acceso' => $relativa(UsersController::routeName('problems-list', [], true)),
+        ];
+        foreach ($paginas as $caso => $camino) {
+            $r = $peticion($camino, null, null);
+            $etiqueta = $html($r['body']);
+            $check($r['status'] === 200 && count(array_filter($delSitio, fn(string $atributo): bool => str_contains($etiqueta, $atributo))) === 5, "{$caso}, sin sesión: los cinco del sitio en <html>", "HTTP {$r['status']}, {$etiqueta}");
+        }
         echoTerminal(' ');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));

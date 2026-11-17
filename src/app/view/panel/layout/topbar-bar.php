@@ -89,7 +89,7 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
             <small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Modo de color'); ?></small>
             <div class="ui fluid three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Modo de color')); ?>" theme-mode-selector data-url="<?= escape_html(AdminPanelController::routeName('theme-mode')); ?>">
                 <?php foreach (['light' => ['Claro', 'sun'], 'dark' => ['Oscuro', 'moon'], 'auto' => ['Sistema', 'adjust']] as $themeOption => [$themeOptionName, $themeOptionIcon]) : ?>
-                <button type="button" class="ui button<?= $themeMode === $themeOption ? ' active' : ''; ?>" role="radio" aria-checked="<?= $themeMode === $themeOption ? 'true' : 'false'; ?>" tabindex="<?= $themeMode === $themeOption ? '0' : '-1'; ?>" data-theme-mode="<?= $themeOption; ?>"><i class="<?= $themeOptionIcon; ?> icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, $themeOptionName); ?></button>
+                <button type="button" class="ui button<?= $themeMode === $themeOption ? ' active primary' : ''; ?>" role="radio" aria-checked="<?= $themeMode === $themeOption ? 'true' : 'false'; ?>" tabindex="<?= $themeMode === $themeOption ? '0' : '-1'; ?>" data-theme-mode="<?= $themeOption; ?>"><i class="<?= $themeOptionIcon; ?> icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, $themeOptionName); ?></button>
                 <?php endforeach; ?>
             </div>
         </div>

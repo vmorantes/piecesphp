@@ -131,12 +131,9 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
 
     <div class="ui tab<?= $activeClass(UsersController::PROFILE_PREFERENCES_TAB); ?>" data-tab="<?= UsersController::PROFILE_PREFERENCES_TAB; ?>">
 
-        <section class="ui segment" aria-labelledby="user-preferences-title">
+        <?php //Sin título propio: la pestaña ya se llama «Preferencias»; las secciones empiezan por «Apariencia». ?>
+        <section class="ui segment" aria-label="<?= escape_html(__($langGroup, 'Preferencias')); ?>">
             <?php
-                $this->helpController->_render('panel/built-in/content/section-header.php', [
-                    'id' => 'user-preferences-title',
-                    'title' => __($langGroup, 'Preferencias'),
-                ]);
                 $preferenceAdmin = AdminPanelController::ADMIN_LANG_GROUP;
                 //Un grupo de botones como el del tamaño: lo guarda y lo aplica configurations.js al momento.
                 $preferenceGroup = function (string $label, string $id, array $options, string $current, string $attributes) use ($preferenceAdmin): string {
@@ -144,7 +141,8 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
                     $html .= '<div class="ui ' . (count($options) === 3 ? 'three' : 'two') . ' mini buttons" role="radiogroup" aria-labelledby="' . $id . '-label" ' . $attributes . '>';
                     foreach ($options as $value => [$name, $dataAttribute]) {
                         $active = $current === $value;
-                        $html .= '<button type="button" class="ui button' . ($active ? ' active' : '') . '" role="radio" aria-checked="' . ($active ? 'true' : 'false') . '" tabindex="' . ($active ? '0' : '-1') . '" ' . $dataAttribute . '="' . escape_html($value) . '">' . escape_html(__($preferenceAdmin, $name)) . '</button>';
+                        //La elegida, con primary: a 3:1 de las demás (WCAG 1.4.11), también con «Más contraste».
+                        $html .= '<button type="button" class="ui button' . ($active ? ' active primary' : '') . '" role="radio" aria-checked="' . ($active ? 'true' : 'false') . '" tabindex="' . ($active ? '0' : '-1') . '" ' . $dataAttribute . '="' . escape_html($value) . '">' . escape_html(__($preferenceAdmin, $name)) . '</button>';
                     }
                     return $html . '</div></div>';
                 };
@@ -160,7 +158,7 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
                 <small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra'); ?></small>
                 <div class="ui three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra')); ?>" aria-describedby="user-preferences-text-size-help" text-size-selector data-url="<?= escape_html(AdminPanelController::routeName('text-size')); ?>">
                     <?php foreach (['normal' => 'Normal', 'large' => 'Grande', 'larger' => 'Más grande'] as $textSizeOption => $textSizeOptionName) : ?>
-                    <button type="button" class="ui button<?= ($textSize ?? '') === $textSizeOption ? ' active' : ''; ?>" role="radio" aria-checked="<?= ($textSize ?? '') === $textSizeOption ? 'true' : 'false'; ?>" tabindex="<?= ($textSize ?? '') === $textSizeOption ? '0' : '-1'; ?>" data-text-size="<?= $textSizeOption; ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, $textSizeOptionName); ?></button>
+                    <button type="button" class="ui button<?= ($textSize ?? '') === $textSizeOption ? ' active primary' : ''; ?>" role="radio" aria-checked="<?= ($textSize ?? '') === $textSizeOption ? 'true' : 'false'; ?>" tabindex="<?= ($textSize ?? '') === $textSizeOption ? '0' : '-1'; ?>" data-text-size="<?= $textSizeOption; ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, $textSizeOptionName); ?></button>
                     <?php endforeach; ?>
                 </div>
             </div>

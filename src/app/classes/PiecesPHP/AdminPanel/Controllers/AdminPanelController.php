@@ -299,6 +299,42 @@ class AdminPanelController extends BaseController
     }
 
     /**
+     * Los cinco atributos de apariencia y accesibilidad del `<html>` del panel (data-theme, data-text-size, data-contrast,
+     * data-motion y data-focus), ya escapados y con un espacio delante: los de la persona si hay sesión, los del sitio si
+     * no. Los usan los encabezados del panel y las páginas con `<html>` propio (el acceso, sus problemas, los tokens, el error).
+     *
+     * @return string
+     */
+    public static function htmlPreferenceAttributes(): string
+    {
+        $site = [
+            'data-theme' => SettingsController::accessibilityThemeMode(),
+            'data-text-size' => SettingsController::accessibilityTextSize(),
+            'data-contrast' => SettingsController::accessibilityContrast(),
+            'data-motion' => SettingsController::accessibilityMotion(),
+            'data-focus' => SettingsController::accessibilityFocus(),
+        ];
+        //La página de error también la usa, y puede pintarse con la base caída: sin la persona, los del sitio.
+        try {
+            $user = getLoggedFrameworkUser();
+            $values = $user === null ? $site : [
+                'data-theme' => self::themeModeOf((int) $user->id),
+                'data-text-size' => self::textSizeOf((int) $user->id),
+                'data-contrast' => self::contrastOf((int) $user->id),
+                'data-motion' => self::motionOf((int) $user->id),
+                'data-focus' => self::focusOf((int) $user->id),
+            ];
+        } catch (\Throwable $e) {
+            $values = $site;
+        }
+        $attributes = '';
+        foreach ($values as $name => $value) {
+            $attributes .= ' ' . $name . '="' . escape_html($value) . '"';
+        }
+        return $attributes;
+    }
+
+    /**
      * El contraste guardado de un usuario; sin guardar o con un valor que ya no vale, el del sitio.
      *
      * @param int $userID
