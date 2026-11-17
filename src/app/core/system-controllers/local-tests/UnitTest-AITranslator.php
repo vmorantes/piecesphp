@@ -140,7 +140,7 @@ CliActions::make('unit-tests:core/ai-translator', function ($args) {
         $check($elegido->provider()->recordId() === 'zz-prov-tr' && $elegido->provider()->model() === 'zz-modelo-tr' && ($captura['url'] ?? null) === 'https://api.deepseek.com/chat/completions' && ($cuerpoElegido['response_format'] ?? null) === ['type' => 'json_object'] && !array_key_exists('temperature', $cuerpoElegido), '6a con provider y model: ese registro (DeepSeek), su modelo y sus parámetros de traducción (json_object, sin temperature)', (string) json_encode(array_keys($cuerpoElegido)));
         set_config('translationAI', AI_OPENAI);
         set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'capabilities' => [AIGateway::TRANSLATION_CAPABILITY => $encendida, Assistant::CAPABILITY => $encendida]]);
-        $check(AIGateway::translator($root)->provider()->recordId() === AIProviderRegistry::LEGACY_OPENAI, '6b sin ellos: el heredado de «IA para traducciones»');
+        $check(AIGateway::translator($root)->provider()->recordId() === AIProviderRegistry::CONVERTED_OPENAI, '6b sin ellos: el convertido de «IA para traducciones» (sin la conversión escrita)');
         $traductor = AIGateway::translator($root)->provider();
         $chat = AIGateway::chatProvider(Assistant::CAPABILITY, $root);
         $check($traductor instanceof OpenAICompatibleChatProvider && $chat instanceof OpenAICompatibleChatProvider && $traductor->timeoutSeconds() === 120 && $chat->timeoutSeconds() === 30, '7a el tiempo máximo de la traducción es 120 s y el del chat sigue en 30');

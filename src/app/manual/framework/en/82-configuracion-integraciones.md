@@ -27,23 +27,30 @@ works with, who uses it and how much it can spend.
 **Providers**: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
 further down. You can have several of the same provider (for example, two OpenAI ones with keys for different purposes).
 
-- **OpenAI**, **Mistral** and **Groq**, at the top, are the ones from the previous configuration: translation uses the first two. In each one
-  you choose its **model** and type its **key**; if the keys file defines the key, it cannot be changed and it says so; if
-  it is saved, **“Remove the saved one”** deletes it. **Groq**, likewise, is the speech to text one (its key and its model).
+- If the platform already used **OpenAI**, **Mistral** or **Groq**, they appear here as normal providers, with their usual
+  key and model. They are edited and removed like any other. Until you save this screen for the first time, everything
+  works exactly as before; when you save, they are stored like the rest.
 - **“+ Add provider”** adds a new one. With none, the section says “There are no saved providers yet”.
 
-Each added provider has these fields:
+Each provider has these fields:
 
 | Field | Required | Purpose |
 | --- | --- | --- |
 | Type | Yes | The provider: OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter or **Custom** (any other that speaks the OpenAI format). |
 | Nickname | Yes | How you recognize it in the features, for example “Main OpenAI”. It cannot be repeated. |
-| Key | No | The access key. **Once saved it is never shown again**: the field says “Saved” with its last four characters. Empty when saving, it keeps the one there was; **“Remove the saved one”** deletes it. |
+| Key source | No | **“Write it here”** (the default) or **“From the keys file”**, if the key is stored on the server, in the keys folder. |
+| Key | No | With “Write it here”: the access key. **Once saved it is never shown again**: the field says “Saved” with its last four characters. Empty when saving, it keeps the one there was; **“Remove the saved one”** deletes it. If you change the type, the base URL or the header, you have to type it again. |
+| Name in the file | Yes, with “From the keys file” | The exact name of the key's file: the type's own (`openai`, `mistral` or `groq`, only for those three types) or `ai-<type>-…`, for example `ai-openai-marketing` or `ai-custom-local`. “Test” with a key from the file needs the provider saved first. Next to it, it says **“It is in the file”** or **“It is not in the file”**, without showing the key. |
 | Base URL | Yes, for Custom | The service address: `https://`, or `http://localhost` or `http://127.0.0.1` for a model installed on your own computer. |
 | Key header | No, for Custom | If the provider wants the key in another header. Empty, it is sent as `Authorization: Bearer`. |
 | Quota (tokens) | No | How much that provider can spend in each period, **adding up all the features that use it**. **0 = no limit.** |
 | Period | No | As in the features: Cumulative, Monthly, Every N days or Every N months. |
-| Model to test with | No | The model “Test” uses. |
+| Model to test with | No | The model “Test” uses. It is chosen from the list, like the features' one. |
+
+**The list of models** is the one the provider itself gives. **“Refresh models”** asks for it with its key and remembers
+it; next to it, it says where it comes from: “Provider list, refreshed on…” or, if it has not been asked for yet or it
+could not be, “Fallback list”, with the date of the documentation it comes from. If the model you want is not there,
+choose **“Other…”** and type it. A provider you just added only offers “Other…” until you save it.
 
 Below each one, its **usage this period**. **“Test”** checks the key and the model with a minimal call, without saving
 anything or spending quota, and says next to it whether it works or why not (the key rejected, a model that does not exist,
@@ -57,9 +64,8 @@ AI”), with these fields:
 | --- | --- | --- |
 | Enabled | No | Turns that feature on or off. |
 | Who uses it | No | Which user types can use it. The main user (Root) always can. |
-| AI for translations | No | Only in “Translation with AI”: which provider translates (OpenAI or Mistral, the ones above). |
-| Provider | No | Which of your providers the feature uses. If none is chosen, speech to text uses Groq, and the rest, the “AI for translations” one. |
-| Model | Yes, if you choose a provider | The model of that provider the feature uses. |
+| Provider | No | Which of your providers the feature uses. **With no provider, the feature is not available.** |
+| Model | Yes, if you choose a provider | The model of that provider the feature uses, from its list or with “Other…”. |
 | Quota (tokens) | No | How much the feature can spend in each period. **0 = no limit.** When the quota is reached, the feature stops calling the provider and says so, until the next period or until you reset the counter. |
 | Period | No | How often the quota starts counting again: **Cumulative** (it never does), **Monthly**, **Every N days** or **Every N months**. With the last two, the **“N”** field appears. |
 
@@ -67,7 +73,7 @@ Below, the **“Usage this period”** line shows what has been spent (and the q
 counter”** button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
 the reports.
 
-**“Speech to text”** turns a recording into text, for the features that need it. **It comes switched off**; with no provider chosen it uses the Groq key and model.
+**“Speech to text”** turns a recording into text, for the features that need it. **It comes switched off**, and like the others it needs its provider and its model (Groq or OpenAI can turn speech into text).
 
 **“Panel assistant”** is the feature for the panel's chat assistant: it answers questions about the platform (where
 something is done, what you have pending) using only what the person asking can see. **It comes switched off**, with a quota of

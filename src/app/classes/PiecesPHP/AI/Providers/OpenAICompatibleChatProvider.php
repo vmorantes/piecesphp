@@ -185,7 +185,7 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
      */
     private function defaultHttpClient(): \Psr\Http\Client\ClientInterface
     {
-        return new \GuzzleHttp\Client(['timeout' => $this->timeoutSeconds, 'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS]);
+        return AIProviderCatalog::defaultHttpClient(['timeout' => $this->timeoutSeconds, 'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS]);
     }
 
     /**

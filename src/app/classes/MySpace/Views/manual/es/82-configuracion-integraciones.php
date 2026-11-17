@@ -33,12 +33,12 @@ modelo trabaja, quién la usa y cuánto puede gastar.</p>
 <p><strong>Proveedores</strong>: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
 el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de OpenAI con claves para fines distintos).</p>
 <ul>
-<li><strong>OpenAI</strong>, <strong>Mistral</strong> y <strong>Groq</strong>, arriba, son los de la configuración anterior: la traducción usa los dos primeros. En cada uno eliges su
-  <strong>modelo</strong> y escribes su <strong>clave</strong>; si la clave la define el archivo de claves, no se puede cambiar y lo dice; si está
-  guardada, <strong>«Quitar la guardada»</strong> la borra. <strong>Groq</strong>, igual, es el de la voz a texto (su clave y su modelo).</li>
+<li>Si la plataforma ya usaba <strong>OpenAI</strong>, <strong>Mistral</strong> o <strong>Groq</strong>, aparecen aquí como proveedores normales, con su clave y su
+  modelo de siempre. Se editan y se quitan como cualquier otro. Hasta que guardes esta pantalla por primera vez, todo
+  funciona exactamente como antes; al guardar, quedan guardados como el resto.</li>
 <li><strong>«+ Añadir proveedor»</strong> añade uno nuevo. Sin ninguno, la sección dice «Todavía no hay proveedores guardados».</li>
 </ul>
-<p>Cada proveedor añadido tiene estos campos:</p>
+<p>Cada proveedor tiene estos campos:</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -59,9 +59,19 @@ el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de
 <td>Cómo lo reconoces en las funciones, por ejemplo «OpenAI principal». No se puede repetir.</td>
 </tr>
 <tr>
+<td>Origen de la clave</td>
+<td>No</td>
+<td><strong>«Escribirla aquí»</strong> (por omisión) o <strong>«Del archivo de claves»</strong>, si la clave está guardada en el servidor, en la carpeta de llaves.</td>
+</tr>
+<tr>
 <td>Clave</td>
 <td>No</td>
-<td>La clave de acceso. <strong>Una vez guardada no se vuelve a enseñar</strong>: el campo dice «Guardada» con sus cuatro últimos caracteres. Vacío al guardar, conserva la que había; <strong>«Quitar la guardada»</strong> la borra.</td>
+<td>Con «Escribirla aquí»: la clave de acceso. <strong>Una vez guardada no se vuelve a enseñar</strong>: el campo dice «Guardada» con sus cuatro últimos caracteres. Vacío al guardar, conserva la que había; <strong>«Quitar la guardada»</strong> la borra. Si cambias el tipo, la dirección base o la cabecera, hay que volver a escribirla.</td>
+</tr>
+<tr>
+<td>Nombre en el archivo</td>
+<td>Sí, con «Del archivo de claves»</td>
+<td>El nombre exacto del archivo de la clave: el del tipo (<code>openai</code>, <code>mistral</code> o <code>groq</code>, solo en esos tres tipos) o <code>ai-&lt;tipo&gt;-…</code>, por ejemplo <code>ai-openai-marketing</code> o <code>ai-custom-local</code>. «Probar» con una clave del archivo pide guardar antes el proveedor. Al lado dice <strong>«Está en el archivo»</strong> o <strong>«No está en el archivo»</strong>, sin enseñar la clave.</td>
 </tr>
 <tr>
 <td>Dirección base</td>
@@ -86,10 +96,14 @@ el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de
 <tr>
 <td>Modelo para probar</td>
 <td>No</td>
-<td>El modelo con el que lo prueba «Probar».</td>
+<td>El modelo con el que lo prueba «Probar». Se elige de la lista, como el de las funciones.</td>
 </tr>
 </tbody>
 </table>
+<p><strong>La lista de modelos</strong> es la que da el propio proveedor. <strong>«Actualizar modelos»</strong> se la pide con su clave y la recuerda;
+al lado dice de dónde sale: «Lista del proveedor, actualizada el…» o, si todavía no se ha pedido o no se pudo, «Lista de
+respaldo», con la fecha de la documentación de la que sale. Si el modelo que buscas no está, elige <strong>«Otro…»</strong> y
+escríbelo. Un proveedor recién añadido solo ofrece «Otro…» hasta que lo guardas.</p>
 <p>Debajo de cada uno, su <strong>consumo de este periodo</strong>. <strong>«Probar»</strong> comprueba la clave y el modelo con una llamada mínima,
 sin guardar nada ni gastar cuota, y dice al lado si funciona o por qué no (la clave rechazada, un modelo que no existe,
 sin conexión). <strong>«Quitar»</strong> lo retira al guardar; si una función lo está usando, no deja guardar y te dice cuál:
@@ -116,19 +130,14 @@ con IA»), con estos campos:</p>
 <td>Qué tipos de usuario pueden usarla. El usuario principal (Root) siempre puede.</td>
 </tr>
 <tr>
-<td>IA para traducciones</td>
-<td>No</td>
-<td>Solo en «Traducción con IA»: qué proveedor traduce (OpenAI o Mistral, los de arriba).</td>
-</tr>
-<tr>
 <td>Proveedor</td>
 <td>No</td>
-<td>Cuál de tus proveedores usa la función. Sin elegir, la voz a texto usa Groq, y las demás, el de «IA para traducciones».</td>
+<td>Cuál de tus proveedores usa la función. <strong>Sin proveedor, la función no está disponible.</strong></td>
 </tr>
 <tr>
 <td>Modelo</td>
 <td>Sí, si eliges proveedor</td>
-<td>El modelo de ese proveedor que usa la función.</td>
+<td>El modelo de ese proveedor que usa la función, de su lista o con «Otro…».</td>
 </tr>
 <tr>
 <td>Cuota (tokens)</td>
@@ -145,7 +154,7 @@ con IA»), con estos campos:</p>
 <p>Debajo, la línea <strong>«Consumo de este periodo»</strong> dice lo gastado (y la cuota, si la hay) y desde cuándo. El botón
 <strong>«Reiniciar el contador»</strong> pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
 conserva para los informes.</p>
-<p><strong>«Voz a texto»</strong> pasa una grabación a texto, para las funciones que la necesiten. <strong>Viene apagada</strong>; sin proveedor elegido usa la clave y el modelo de Groq.</p>
+<p><strong>«Voz a texto»</strong> pasa una grabación a texto, para las funciones que la necesiten. <strong>Viene apagada</strong>, y como las demás necesita su proveedor y su modelo (Groq u OpenAI saben pasar voz a texto).</p>
 <p><strong>«Asistente del panel»</strong> es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. <strong>Viene apagada</strong>, con una cuota de 200.000 tokens
 al mes: enciéndela y elige quién la usa antes de que nadie la vea. Por ahora solo existe esta sección: la ventana del chat llega en una versión

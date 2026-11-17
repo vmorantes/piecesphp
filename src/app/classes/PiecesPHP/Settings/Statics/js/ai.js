@@ -15,6 +15,12 @@ window.addEventListener('load', () => {
 				formData.append(this.name, '')
 			}
 		})
+		//«Otro…» manda lo escrito en su campo.
+		form.find('select[data-ai-model-select][name]').each(function () {
+			if ($(this).val() === OTHER) {
+				formData.set(this.name, String($(this).closest('.field').find('[data-ai-model-other]').val() || '').trim())
+			}
+		})
 		return formData
 	}
 	genericFormHandler(`form.tokens-limit`)
@@ -25,7 +31,59 @@ window.addEventListener('load', () => {
 	})
 
 	form.find('.ui.checkbox').checkbox()
-	form.find('select.ui.dropdown').dropdown()
+	form.find('select.ui.dropdown').not('[data-ai-model-select]').dropdown()
+
+	//Los modelos: lista cerrada con las listas que trae la página (por registro: las del proveedor o las de respaldo, y las
+	//recordadas), el valor actual y, al final, «Otro…», que enseña el campo para escribirlo. Cambiar de proveedor repuebla.
+	const OTHER = '__other__'
+	const providers = form.find('[data-ai-providers]')
+	let modelLists = {}
+	try {
+		modelLists = JSON.parse(String(providers.attr('data-ai-models') || '{}')) || {}
+	} catch (error) {
+		modelLists = {}
+	}
+	const otherText = String(providers.attr('data-other-text') || '…')
+	const fillModels = function (select, providerID, current) {
+		const capability = String(select.attr('data-ai-model-capability') || 'chat')
+		const list = modelLists[providerID] || {}
+		const names = []
+		const add = (name) => {
+			if (typeof name === 'string' && name !== '' && !names.includes(name)) {
+				names.push(name)
+			}
+		}
+		const offered = Array.isArray(list[capability]) ? list[capability] : []
+		const remembered = Array.isArray(list.remembered) ? list.remembered : []
+		offered.forEach(add)
+		remembered.forEach(add)
+		add(current)
+		const other = select.closest('.field').find('[data-ai-model-other]')
+		select.empty()
+		names.forEach((name) => select.append($('<option></option>').val(name).text(name)))
+		select.append($('<option></option>').val(OTHER).text(otherText))
+		select.val(current !== '' ? current : (names[0] || OTHER))
+		select.attr('data-ai-model-provider', providerID)
+		if (select.parent().hasClass('dropdown')) {
+			select.dropdown('destroy')
+		}
+		select.dropdown({
+			fullTextSearch: true,
+			onChange: function (value) {
+				other.prop('hidden', value !== OTHER)
+			},
+		})
+		select.dropdown('set selected', select.val())
+		other.prop('hidden', select.val() !== OTHER)
+	}
+	form.find('select[data-ai-model-select]').each(function () {
+		const select = $(this)
+		fillModels(select, String(select.attr('data-ai-model-provider') || ''), String(select.attr('data-current') || ''))
+	})
+	form.on('change', 'select[data-ai-capability-provider]', function () {
+		const select = $(this).closest('[data-ai-capability]').find('select[data-ai-model-select]')
+		fillModels(select, String($(this).val() || ''), '')
+	})
 
 	//«N» solo cuenta con «Cada N días» y «Cada N meses». Sin JS se ve siempre, y no hace daño.
 	const showLength = function (select) {
@@ -47,6 +105,13 @@ window.addEventListener('load', () => {
 	form.on('change', 'select[data-ai-provider-type]', function () {
 		showCustom(this)
 	})
+	//El origen de la clave: escrita (campo y «Quitar la guardada») o del archivo (su nombre).
+	form.on('change', 'select[data-ai-key-source]', function () {
+		const row = $(this).closest('[data-ai-provider]')
+		const fromFile = $(this).val() === 'file'
+		row.find('[data-ai-key-stored]').prop('hidden', fromFile)
+		row.find('[data-ai-key-file]').prop('hidden', !fromFile)
+	})
 	const list = form.find('[data-ai-providers-list]')
 	const addButton = form.find('[data-ai-provider-add]')
 	const template = form.find('template[data-ai-provider-template]').get(0)
@@ -56,7 +121,10 @@ window.addEventListener('load', () => {
 		const row = $(template.innerHTML.replaceAll('__INDEX__', `new${index}`))
 		list.append(row)
 		form.find('[data-ai-providers-empty]').remove()
-		row.find('select.ui.dropdown').dropdown()
+		row.find('select.ui.dropdown').not('[data-ai-model-select]').dropdown()
+		row.find('select[data-ai-model-select]').each(function () {
+			fillModels($(this), '', '')
+		})
 		row.find('.ui.checkbox').checkbox()
 		row.find('select[data-ai-period]').each(function () {
 			showLength(this)
@@ -84,7 +152,10 @@ window.addEventListener('load', () => {
 		data.set('key', field('key'))
 		data.set('baseUrl', field('baseUrl'))
 		data.set('keyHeader', field('keyHeader'))
-		data.set('model', String(row.find('[data-ai-provider-test-model]').val() || ''))
+		data.set('keySource', field('keySource'))
+		data.set('keyFile', field('keyFile'))
+		const testSelect = row.find('select[data-ai-provider-test-model]')
+		data.set('model', testSelect.val() === OTHER ? String(row.find('[data-ai-model-other]').val() || '').trim() : String(testSelect.val() || ''))
 		button.addClass('loading disabled')
 		result.text('')
 		postRequest(testURL, data)
@@ -95,6 +166,54 @@ window.addEventListener('load', () => {
 			.fail(function (jqXHR) {
 				const response = jqXHR.responseJSON || {}
 				result.text(typeof response.message === 'string' ? response.message : '').addClass('red').removeClass('green')
+			})
+			.always(function () {
+				button.removeClass('loading disabled')
+			})
+	})
+
+	//«Actualizar modelos»: pide la lista al proveedor de la fila guardada y repuebla los desplegables que lo usan.
+	const modelsURL = String(providers.attr('data-models-url') || '')
+	if (modelsURL === '') {
+		form.find('[data-ai-provider-models-refresh]').remove()
+	}
+	form.on('click', '[data-ai-provider-models-refresh]', function () {
+		const button = $(this)
+		const row = button.closest('[data-ai-provider]')
+		const providerID = String(row.attr('data-ai-provider-id') || '')
+		const source = row.find('[data-ai-models-source]')
+		const data = new FormData()
+		data.set('id', providerID)
+		button.addClass('loading disabled')
+		postRequest(modelsURL, data)
+			.done(function (response) {
+				const message = typeof response.message === 'string' ? response.message : ''
+				if (response.ok === true && Array.isArray(response.models)) {
+					const list = modelLists[providerID] || {}
+					list.chat = response.models
+					list.speech = response.models
+					list.source = 'provider'
+					list.fetchedAt = response.fetchedAt
+					modelLists[providerID] = list
+					//Y-m-d H:i:s → d-m-Y H:i, como SettingsController::aiPeriodStartText() en la vista.
+					const at = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/.exec(String(response.fetchedAt))
+					const atText = at ? `${at[3]}-${at[2]}-${at[1]} ${at[4]}` : String(response.fetchedAt)
+					source.text(String(providers.attr('data-provider-list-template') || '').replace('%fecha%', atText))
+					form.find('select[data-ai-model-select]').each(function () {
+						const select = $(this)
+						if (String(select.attr('data-ai-model-provider') || '') === providerID) {
+							const current = select.val() === OTHER ? '' : String(select.val() || '')
+							fillModels(select, providerID, current)
+						}
+					})
+					successMessage(typeof response.name === 'string' ? response.name : '', message)
+				} else {
+					errorMessage(typeof response.name === 'string' ? response.name : '', message)
+				}
+			})
+			.fail(function (jqXHR) {
+				const response = jqXHR.responseJSON || {}
+				errorMessage(typeof response.name === 'string' ? response.name : '', typeof response.message === 'string' ? response.message : '')
 			})
 			.always(function () {
 				button.removeClass('loading disabled')

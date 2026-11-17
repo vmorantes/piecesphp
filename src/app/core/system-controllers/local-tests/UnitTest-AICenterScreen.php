@@ -1,7 +1,7 @@
 <?php
 
-//Configuración › IA como centro de mando (ADR 0074, ronda 3): guardar ai_center, lo que la traducción obedece, el rechazo de lo
-//inválido, «Reiniciar el contador» y los permisos de las dos rutas. Repone las opciones que toca y retira sus usuarios zz-.
+//Configuración › IA (ADR 0074 y 0077): guardar ai_center, la conversión del primer guardado, «Reiniciar el contador» y permisos.
+//Deja las filas de las opciones de IA como las encontró (H318, por sha1) y retira sus usuarios zz-.
 //@areas src/app/classes/PiecesPHP/Settings/
 //@areas src/app/classes/API/
 
@@ -11,8 +11,10 @@ use PiecesPHP\AI\AICapability;
 use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\AI\AIGateway;
 use PiecesPHP\AI\Mappers\AIUsageMapper;
+use PiecesPHP\AI\Providers\AIProviderRegistry;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
@@ -56,7 +58,10 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
     $prefijo = 'zz-prueba-centro-ia-' . bin2hex(random_bytes(3));
     $tablaUsuarios = UsersModel::TABLE;
     $usuarios = [];
-    $opciones = [AIGateway::CONFIG_NAME, 'modelOpenAI', 'modelMistral', 'translationAI'];
+    //Todas las de IA que un guardado podría tocar: el centro, las claves y la caché de modelos, y las siete de antes (que no
+    //se tocan nunca: H318 era modelGroq vaciado por esta suite).
+    $opciones = [AIGateway::CONFIG_NAME, AIProviderRegistry::KEYS_CONFIG_NAME, AIGateway::MODELS_CONFIG_NAME, 'OpenAIApiKey', 'MistralAIApiKey', 'GroqAPIKey', 'modelOpenAI', 'modelMistral', 'modelGroq', 'translationAI'];
+    $viejas = ['OpenAIApiKey', 'MistralAIApiKey', 'GroqAPIKey', 'modelOpenAI', 'modelMistral', 'modelGroq', 'translationAI'];
     $tablaOpciones = (new SettingsModel())->getModel()->getTable();
     $fila = function (string $nombre) use ($database, $tablaOpciones): ?array {
         $consulta = $database->prepare("SELECT * FROM `{$tablaOpciones}` WHERE BINARY name = ?");
@@ -66,6 +71,9 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
         return $leida === false ? null : $leida;
     };
     $filasPrevias = array_combine($opciones, array_map($fila, $opciones));
+    $huella = fn(): string => sha1((string) json_encode(array_combine($opciones, array_map($fila, $opciones))));
+    $huellaAntes = $huella();
+    $fijadasPorArchivo = ConfigOptions::fixedByFile();
     $valoresPrevios = array_combine($opciones, array_map(fn(string $nombre): mixed => get_config($nombre), $opciones));
     $usuarioPrevio = get_config('current_user');
     $guardadoPrevio = get_config('pcsphp_current_user_stored');
@@ -87,16 +95,11 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
     $peticion = fn(array $cuerpo): RequestRoute => (new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/zz-prueba-centro-ia'), new Headers(), [], [], (new StreamFactory())->createStream('')))
         ->withParsedBody($cuerpo)
         ->withAttribute('route', null);
-    //El formulario entero: los modelos y el proveedor con lo de ahora (un campo que no llega se guardaría vacío).
+    //El formulario: solo el centro (las opciones de antes ya no viajan, ADR 0077).
     $guardar = function (array $centro) use ($peticion): array {
-        $respuesta = (new SettingsController())->ai($peticion([
-            'modelOpenAI' => (string) get_config('modelOpenAI'),
-            'modelMistral' => (string) get_config('modelMistral'),
-            'translationAI' => (string) get_config('translationAI'),
-            'OpenAIApiKey' => '',
-            'MistralAIApiKey' => '',
+        $respuesta = (new SettingsController())->ai($peticion(SettingsController::aiAssignProviderIds([
             AIGateway::CONFIG_NAME => $centro,
-        ]), new ResponseRoute());
+        ])), new ResponseRoute());
         $cuerpo = json_decode((string) $respuesta->getBody(), true);
         return is_array($cuerpo) ? $cuerpo : [];
     };
@@ -217,9 +220,90 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
         $check($noExiste->getStatusCode() === 400, 's5d una clave no registrada: 400', (string) $noExiste->getStatusCode());
         echoTerminal(' ');
 
+        //─── s7 · El primer guardado escribe la conversión ──────────────────────────────────────────────
+        echoTerminal('[s7] Guardar la pantalla escribe los convertidos y la marca, y no toca las opciones de antes');
+        set_config(AIGateway::CONFIG_NAME, false);
+        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, false);
+        set_config('OpenAIApiKey', 'zz-clave-openai-s7');
+        set_config('MistralAIApiKey', '');
+        set_config('GroqAPIKey', 'zz-clave-groq-s7');
+        set_config('translationAI', AI_OPENAI);
+        set_config('modelOpenAI', 'zz-modelo-s7');
+        set_config('modelGroq', '');
+        ConfigOptions::swapFixedByFileForTesting(['GroqAPIKey']);
+        $viejasAntes = sha1((string) json_encode(array_map($fila, $viejas)));
+        //Lo que manda la pantalla: cada convertido como una fila, y cada función con su selección efectiva ya rellena.
+        $filasConvertidas = [];
+        foreach (array_values(AIProviderRegistry::convertedPending()) as $convertido) {
+            $filasConvertidas[] = array_merge(array_map(fn($valor) => $valor === null ? '' : (is_array($valor) ? $valor : (string) $valor), array_diff_key($convertido['entry'], ['models' => true])), ['key' => '']);
+        }
+        $funciones = [];
+        foreach (['translation', AIGateway::SPEECH_CAPABILITY] as $capacidad) {
+            $efectiva = AIGateway::effectiveSelectionFor($capacidad);
+            $funciones[$capacidad] = $traduccion([]) + ['provider' => (string) $efectiva['provider'], 'model' => (string) $efectiva['model']];
+        }
+        $tablaAntes = array_map(fn(string $capacidad): array => AIGateway::effectiveSelectionFor($capacidad), array_combine(array_keys($funciones), array_keys($funciones)));
+        //B4: un formulario de antes (sin converted_sent) guarda sin convertir; el de esta versión lo manda.
+        $deAntes = $guardar(['enabled' => '1', 'providers_sent' => '1', 'providers' => [], 'capabilities' => array_map(fn(array $f): array => array_merge($f, ['provider' => '', 'model' => '']), $funciones)]);
+        $recargar();
+        $sinMarca = $centroGuardado() ?? [];
+        $check(($deAntes['success'] ?? null) === true && !array_key_exists(AIProviderRegistry::CONVERTED_FLAG, $sinMarca) && array_keys(AIProviderRegistry::convertedPending()) === ['openai', 'groq'], 's7f un guardado con providers_sent y sin converted_sent (una pestaña de antes) NO pone la marca: los convertidos siguen en memoria', (string) json_encode([$deAntes['message'] ?? null, array_keys($sinMarca)], \JSON_UNESCAPED_UNICODE));
+        $respuesta = $guardar(['enabled' => '1', 'providers_sent' => '1', 'converted_sent' => '1', 'providers' => $filasConvertidas, 'capabilities' => $funciones]);
+        $recargar();
+        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, SettingsModel::getConfigurations()[AIProviderRegistry::KEYS_CONFIG_NAME] ?? false);
+        $guardado = $centroGuardado() ?? [];
+        $ids = array_map(fn($entrada) => $entrada['id'] ?? null, $guardado['providers'] ?? []);
+        $claves = AIProviderRegistry::keys();
+        $check(($respuesta['success'] ?? null) === true && ($guardado[AIProviderRegistry::CONVERTED_FLAG] ?? null) === true && $ids === ['openai', 'groq'], 's7a la marca puesta y los convertidos escritos como registros (openai y groq; Mistral, sin clave, no)', (string) json_encode([$respuesta['message'] ?? null, $ids], \JSON_UNESCAPED_UNICODE));
+        $check(($claves['openai'] ?? null) === 'zz-clave-openai-s7' && !isset($claves['groq']) && ($guardado['providers'][1]['keySource'] ?? null) === 'file' && ($guardado['providers'][1]['keyFile'] ?? null) === 'groq', 's7b la clave «stored» del convertido pasa a ai_provider_keys; la de Groq, «del archivo», no se escribe');
+        $tablaDespues = array_map(fn(string $capacidad): array => AIGateway::effectiveSelectionFor($capacidad), array_combine(array_keys($funciones), array_keys($funciones)));
+        $check($tablaDespues === $tablaAntes && ($guardado['capabilities']['translation']['provider'] ?? null) === 'openai' && ($guardado['capabilities']['translation']['model'] ?? null) === 'zz-modelo-s7', 's7c cada función queda con su proveedor y su modelo explícitos, los mismos que antes', (string) json_encode(['antes' => $tablaAntes, 'despues' => $tablaDespues]));
+        $check(sha1((string) json_encode(array_map($fila, $viejas))) === $viejasAntes, 's7d las siete opciones de antes, idénticas en la base (sha1)');
+        set_config('OpenAIApiKey', 'zz-clave-cambiada-s7');
+        set_config('translationAI', AI_MISTRAL);
+        $check(AIProviderRegistry::get('openai')?->key() === 'zz-clave-openai-s7' && AIGateway::effectiveSelectionFor('translation') === $tablaDespues['translation'] && AIProviderRegistry::convertedPending() === [], 's7e DISCRIMINANTE: después, cambiar OpenAIApiKey o translationAI en memoria no cambia nada');
+        ConfigOptions::swapFixedByFileForTesting($fijadasPorArchivo);
+        echoTerminal(' ');
+
+        //─── s8 · Cambiar el destino de un registro guardado ────────────────────────────────────────────
+        echoTerminal('[s8] Cambiar la dirección de un registro guardado borra su clave escrita y su lista de modelos');
+        $registrosS8 = [
+            ['id' => 'zz-prov-d', 'type' => 'custom', 'alias' => 'Zz destino', 'baseUrl' => 'https://zz-a.example/v1', 'keyHeader' => null, 'models' => [], 'quota' => 0, 'period' => 'accumulated', 'periodLength' => 1, 'keySource' => 'stored', 'keyFile' => null],
+            ['id' => 'zz-prov-e', 'type' => 'custom', 'alias' => 'Zz queda', 'baseUrl' => 'https://zz-e.example/v1', 'keyHeader' => null, 'models' => [], 'quota' => 0, 'period' => 'accumulated', 'periodLength' => 1, 'keySource' => 'stored', 'keyFile' => null],
+        ];
+        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, AIProviderRegistry::CONVERTED_FLAG => true, 'providers' => $registrosS8, 'capabilities' => []]);
+        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys(['zz-prov-d' => 'zz-clave-d', 'zz-prov-e' => 'zz-clave-e']));
+        set_config(AIGateway::MODELS_CONFIG_NAME, ['zz-prov-d' => ['models' => ['zz-m'], 'fetchedAt' => '2026-11-16 10:00:00'], 'zz-prov-e' => ['models' => ['zz-m'], 'fetchedAt' => '2026-11-16 10:00:00']]);
+        $filaS8 = fn(array $registro, array $cambios): array => array_merge(array_map(fn($valor) => $valor === null ? '' : (is_array($valor) ? $valor : (string) $valor), array_diff_key($registro, ['models' => true])), ['key' => ''], $cambios);
+        $respuestaS8 = $guardar(['enabled' => '1', 'providers_sent' => '1', 'converted_sent' => '1', 'providers' => [$filaS8($registrosS8[0], ['baseUrl' => 'https://zz-b.example/v1']), $filaS8($registrosS8[1], ['alias' => 'Zz queda renombrado'])], 'capabilities' => []]);
+        $configuraciones = SettingsModel::getConfigurations();
+        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, $configuraciones[AIProviderRegistry::KEYS_CONFIG_NAME] ?? false);
+        set_config(AIGateway::MODELS_CONFIG_NAME, $configuraciones[AIGateway::MODELS_CONFIG_NAME] ?? false);
+        $clavesS8 = AIProviderRegistry::keys();
+        $cacheS8 = AIGateway::modelsCache();
+        $check(($respuestaS8['success'] ?? null) === true && !isset($clavesS8['zz-prov-d']) && ($clavesS8['zz-prov-e'] ?? null) === 'zz-clave-e' && !isset($cacheS8['zz-prov-d']) && isset($cacheS8['zz-prov-e']), 's8a la dirección nueva sin clave nueva: su clave sale de ai_provider_keys y su lista de ai_provider_models; el que solo cambió de sobrenombre conserva las dos', (string) json_encode([array_keys($clavesS8), array_keys($cacheS8), $respuestaS8['message'] ?? null], \JSON_UNESCAPED_UNICODE));
+        echoTerminal(' ');
+
+        //─── s9 · Quitar un convertido vacía su opción de antes ─────────────────────────────────────────
+        echoTerminal('[s9] Con la marca, quitar un convertido «stored» vacía su opción de antes; la que fija el archivo, no');
+        set_config('MistralAIApiKey', 'zz-clave-mistral-s9');
+        set_config('OpenAIApiKey', 'zz-clave-openai-archivo-s9');
+        ConfigOptions::swapFixedByFileForTesting(['OpenAIApiKey']);
+        $convertidosS9 = [
+            ['id' => 'mistral', 'type' => 'mistral', 'alias' => 'Mistral', 'baseUrl' => null, 'keyHeader' => null, 'models' => [], 'quota' => 0, 'period' => 'accumulated', 'periodLength' => 1, 'keySource' => 'stored', 'keyFile' => null],
+            ['id' => 'openai', 'type' => 'openai', 'alias' => 'OpenAI', 'baseUrl' => null, 'keyHeader' => null, 'models' => [], 'quota' => 0, 'period' => 'accumulated', 'periodLength' => 1, 'keySource' => 'file', 'keyFile' => 'openai'],
+        ];
+        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, AIProviderRegistry::CONVERTED_FLAG => true, 'providers' => $convertidosS9, 'capabilities' => []]);
+        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys(['mistral' => 'zz-clave-mistral-s9']));
+        $respuestaS9 = $guardar(['enabled' => '1', 'providers_sent' => '1', 'converted_sent' => '1', 'providers' => [], 'capabilities' => []]);
+        $mistralEnBase = $fila('MistralAIApiKey');
+        $check(($respuestaS9['success'] ?? null) === true && get_config('MistralAIApiKey') === '' && ($mistralEnBase === null || (string) $mistralEnBase['value'] === '') && get_config('OpenAIApiKey') === 'zz-clave-openai-archivo-s9', 's9a quitar mistral vacía MistralAIApiKey; quitar openai, que fija el archivo, no toca OpenAIApiKey', (string) json_encode([$respuestaS9['message'] ?? null, get_config('MistralAIApiKey')], \JSON_UNESCAPED_UNICODE));
+        ConfigOptions::swapFixedByFileForTesting($fijadasPorArchivo);
+        echoTerminal(' ');
+
         //─── s6 · Sin permiso ───────────────────────────────────────────────────────────────────────────
-        echoTerminal('[s6] Permisos de las dos rutas (lo que index.php comprueba antes de llamar)');
-        foreach (['configurations-integrations-ai', 'configurations-integrations-ai-usage-reset'] as $ruta) {
+        echoTerminal('[s6] Permisos de las rutas (lo que index.php comprueba antes de llamar)');
+        foreach (['configurations-integrations-ai', 'configurations-integrations-ai-usage-reset', 'configurations-integrations-ai-provider-models'] as $ruta) {
             $info = get_route_info($ruta);
             $check(is_array($info) && ($info['require_login'] ?? false) === true, "s6a {$ruta} existe y pide sesión: sin ella, 403");
             $check(!Roles::hasPermissions($ruta, UsersModel::TYPE_USER_GENERAL, true) && !Roles::hasPermissions($ruta, UsersModel::TYPE_USER_COMUNICACIONES, true) && Roles::hasPermissions($ruta, UsersModel::TYPE_USER_ROOT, true) && Roles::hasPermissions($ruta, UsersModel::TYPE_USER_ADMIN_GRAL, true), "s6b {$ruta}: 403 a general y comunicaciones; root y administrador general, sí");
@@ -228,6 +312,7 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . basename($e->getFile()) . ':' . $e->getLine());
     } finally {
+        ConfigOptions::swapFixedByFileForTesting($fijadasPorArchivo);
         AICapabilityRegistry::swapForTesting($registroPrevio);
         GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, array_filter($acumuladoPrevio, fn($clave) => !str_starts_with((string) $clave, 'zz-'), \ARRAY_FILTER_USE_KEY));
         set_config('current_user', $usuarioPrevio);
@@ -274,7 +359,9 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
 
     $acumulado = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
     $check(count(array_filter(array_keys($acumulado), fn($clave) => str_starts_with((string) $clave, 'zz-'))) === 0, 'z3 el acumulado de siempre no conserva ninguna clave zz-', (string) json_encode(array_keys($acumulado)));
-    $check(array_combine($opciones, array_map($fila, $opciones)) === $filasPrevias, 'z1 las opciones quedan como estaban (ai_center, los modelos y el proveedor), con su fila o sin ninguna');
+    $huellaDespues = $huella();
+    echoTerminal("   medido: sha1 de las filas de IA antes {$huellaAntes}, después {$huellaDespues}; modelGroq en la base: " . json_encode($filasPrevias['modelGroq']['value'] ?? null));
+    $check(array_combine($opciones, array_map($fila, $opciones)) === $filasPrevias && $huellaDespues === $huellaAntes, 'z1 las opciones de IA quedan como estaban (ai_center, ai_provider_keys, ai_provider_models y las siete de antes), con su fila o sin ninguna (sha1)');
     $quedan = (int) $database->query("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE " . $database->quote("{$prefijo}%"))->fetchColumn();
     $check($quedan === 0, 'z2 no queda ningún usuario de la prueba', "quedan {$quedan}");
 
@@ -286,4 +373,4 @@ CliActions::make('unit-tests:core/ai-center-screen', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('Configuración › IA (ADR 0074, ronda 3): guardar ai_center (capacidad apagada → 404 de la traducción, quién la usa → currentUserCanTranslate()), rechazo de lo inválido sin guardar a medias, lo que el formulario no trae se conserva, «Reiniciar el contador» (periodo nuevo, filas viejas intactas, 400 sin clave registrada) y permisos de las dos rutas.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Configuración › IA (ADR 0074, ronda 3, y la revisión del ADR 0077): el primer guardado escribe la conversión (marca, convertidos, la clave «stored» en ai_provider_keys, la selección explícita y las opciones de antes intactas); guardar ai_center (capacidad apagada → 404 de la traducción, quién la usa → currentUserCanTranslate()), rechazo de lo inválido sin guardar a medias, lo que el formulario no trae se conserva, «Reiniciar el contador» (periodo nuevo, filas viejas intactas, 400 sin clave registrada) y permisos de las dos rutas.')->setEffects([CliActions::EFFECT_DATABASE])->register();

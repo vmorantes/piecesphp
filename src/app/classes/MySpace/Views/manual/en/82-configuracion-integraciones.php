@@ -33,12 +33,12 @@ works with, who uses it and how much it can spend.</p>
 <p><strong>Providers</strong>: each artificial intelligence provider you use, with its nickname and its key. Each feature chooses its own
 further down. You can have several of the same provider (for example, two OpenAI ones with keys for different purposes).</p>
 <ul>
-<li><strong>OpenAI</strong>, <strong>Mistral</strong> and <strong>Groq</strong>, at the top, are the ones from the previous configuration: translation uses the first two. In each one
-  you choose its <strong>model</strong> and type its <strong>key</strong>; if the keys file defines the key, it cannot be changed and it says so; if
-  it is saved, <strong>“Remove the saved one”</strong> deletes it. <strong>Groq</strong>, likewise, is the speech to text one (its key and its model).</li>
+<li>If the platform already used <strong>OpenAI</strong>, <strong>Mistral</strong> or <strong>Groq</strong>, they appear here as normal providers, with their usual
+  key and model. They are edited and removed like any other. Until you save this screen for the first time, everything
+  works exactly as before; when you save, they are stored like the rest.</li>
 <li><strong>“+ Add provider”</strong> adds a new one. With none, the section says “There are no saved providers yet”.</li>
 </ul>
-<p>Each added provider has these fields:</p>
+<p>Each provider has these fields:</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -59,9 +59,19 @@ further down. You can have several of the same provider (for example, two OpenAI
 <td>How you recognize it in the features, for example “Main OpenAI”. It cannot be repeated.</td>
 </tr>
 <tr>
+<td>Key source</td>
+<td>No</td>
+<td><strong>“Write it here”</strong> (the default) or <strong>“From the keys file”</strong>, if the key is stored on the server, in the keys folder.</td>
+</tr>
+<tr>
 <td>Key</td>
 <td>No</td>
-<td>The access key. <strong>Once saved it is never shown again</strong>: the field says “Saved” with its last four characters. Empty when saving, it keeps the one there was; <strong>“Remove the saved one”</strong> deletes it.</td>
+<td>With “Write it here”: the access key. <strong>Once saved it is never shown again</strong>: the field says “Saved” with its last four characters. Empty when saving, it keeps the one there was; <strong>“Remove the saved one”</strong> deletes it. If you change the type, the base URL or the header, you have to type it again.</td>
+</tr>
+<tr>
+<td>Name in the file</td>
+<td>Yes, with “From the keys file”</td>
+<td>The exact name of the key's file: the type's own (<code>openai</code>, <code>mistral</code> or <code>groq</code>, only for those three types) or <code>ai-&lt;type&gt;-…</code>, for example <code>ai-openai-marketing</code> or <code>ai-custom-local</code>. “Test” with a key from the file needs the provider saved first. Next to it, it says <strong>“It is in the file”</strong> or <strong>“It is not in the file”</strong>, without showing the key.</td>
 </tr>
 <tr>
 <td>Base URL</td>
@@ -86,10 +96,14 @@ further down. You can have several of the same provider (for example, two OpenAI
 <tr>
 <td>Model to test with</td>
 <td>No</td>
-<td>The model “Test” uses.</td>
+<td>The model “Test” uses. It is chosen from the list, like the features' one.</td>
 </tr>
 </tbody>
 </table>
+<p><strong>The list of models</strong> is the one the provider itself gives. <strong>“Refresh models”</strong> asks for it with its key and remembers
+it; next to it, it says where it comes from: “Provider list, refreshed on…” or, if it has not been asked for yet or it
+could not be, “Fallback list”, with the date of the documentation it comes from. If the model you want is not there,
+choose <strong>“Other…”</strong> and type it. A provider you just added only offers “Other…” until you save it.</p>
 <p>Below each one, its <strong>usage this period</strong>. <strong>“Test”</strong> checks the key and the model with a minimal call, without saving
 anything or spending quota, and says next to it whether it works or why not (the key rejected, a model that does not exist,
 no connection). <strong>“Remove”</strong> takes it out when saving; if a feature is using it, saving is refused and it tells you which
@@ -116,19 +130,14 @@ AI”), with these fields:</p>
 <td>Which user types can use it. The main user (Root) always can.</td>
 </tr>
 <tr>
-<td>AI for translations</td>
-<td>No</td>
-<td>Only in “Translation with AI”: which provider translates (OpenAI or Mistral, the ones above).</td>
-</tr>
-<tr>
 <td>Provider</td>
 <td>No</td>
-<td>Which of your providers the feature uses. If none is chosen, speech to text uses Groq, and the rest, the “AI for translations” one.</td>
+<td>Which of your providers the feature uses. <strong>With no provider, the feature is not available.</strong></td>
 </tr>
 <tr>
 <td>Model</td>
 <td>Yes, if you choose a provider</td>
-<td>The model of that provider the feature uses.</td>
+<td>The model of that provider the feature uses, from its list or with “Other…”.</td>
 </tr>
 <tr>
 <td>Quota (tokens)</td>
@@ -145,7 +154,7 @@ AI”), with these fields:</p>
 <p>Below, the <strong>“Usage this period”</strong> line shows what has been spent (and the quota, if any) and since when. The <strong>“Reset the
 counter”</strong> button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
 the reports.</p>
-<p><strong>“Speech to text”</strong> turns a recording into text, for the features that need it. <strong>It comes switched off</strong>; with no provider chosen it uses the Groq key and model.</p>
+<p><strong>“Speech to text”</strong> turns a recording into text, for the features that need it. <strong>It comes switched off</strong>, and like the others it needs its provider and its model (Groq or OpenAI can turn speech into text).</p>
 <p><strong>“Panel assistant”</strong> is the feature for the panel's chat assistant: it answers questions about the platform (where
 something is done, what you have pending) using only what the person asking can see. <strong>It comes switched off</strong>, with a quota of
 200,000 tokens a month: turn it on and choose who uses it before anyone sees it. For now only this section exists: the chat window arrives in an upcoming

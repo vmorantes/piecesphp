@@ -121,6 +121,9 @@ try {
 
 ## Usar la puerta
 
+**`chatHandler()` está en desuso hasta la `11.0.0`** y lee la configuración de antes. Para lo nuevo, usa
+`chatProvider()` o `translator()` (más abajo).
+
 ```php
 use PiecesPHP\AI\AIGateway;
 
@@ -168,10 +171,9 @@ try {
 }
 ```
 
-- `chatProvider()` resuelve la función → su registro → su modelo, y devuelve un `AIChatProvider`. Si la función no
-  eligió ninguno, usa el **heredado** de «IA para traducciones»: `legacy-openai` (la clave `OpenAIApiKey` y
-  `modelOpenAI`) o `legacy-mistral` (`MistralAIApiKey` y `modelMistral`). Un registro heredado solo existe si su clave
-  existe (en el archivo de claves o en la base).
+- `chatProvider()` resuelve la función → su registro → su modelo, y devuelve un `AIChatProvider`. Una función sin
+  registro elegido no está disponible. La excepción es una instalación que viene de antes y todavía no ha guardado
+  Configuración › IA: ahí la función usa el proveedor de «IA para traducciones», como antes (ver «Los proveedores de antes»).
 - Lanza `AIUnavailableException` con un motivo traducible si un control lo impide, si el registro no existe o no tiene
   clave, o si su tipo no sabe hacer lo que la función necesita. Una función que use herramientas lo declara con el último
   argumento de `AICapability` (`usesTools: true`), y entonces solo valen tipos con herramientas.
@@ -185,10 +187,71 @@ try {
 - El tipo «Personalizado» habla el formato de OpenAI con la dirección que se le dé: solo `https://`, o
   `http://localhost` y `http://127.0.0.1` para un modelo local.
 
+### Los proveedores de antes
+
+Hasta la `10.28.0`, OpenAI, Mistral y Groq eran fijos, con sus opciones sueltas: `OpenAIApiKey`, `MistralAIApiKey`,
+`GroqAPIKey`, `modelOpenAI`, `modelMistral`, `modelGroq` y `translationAI`. **Desde la `10.29.0` no hay proveedores
+fijos.** Esa configuración se convierte en registros normales:
+
+- **En memoria, hasta el primer guardado.** Mientras `ai_center.legacyConverted` no es `true`
+  (`AIProviderRegistry::CONVERTED_FLAG`), `AIProviderRegistry::all()` añade un registro por cada uno de los tres que tenga
+  clave, sin escribir nada:
+  - ids `openai`, `mistral` y `groq` (`AIProviderRegistry::CONVERTED_*`);
+  - sobrenombres «OpenAI», «Mistral» y «Groq»;
+  - su modelo suelto como modelo;
+  - la clave del archivo de claves si la fija, o la de la base.
+
+  Una función sin registro elegido usa el de `translationAI` (las de chat) o Groq (la de voz), con el modelo de antes. Hace
+  exactamente lo mismo que antes.
+- **El primer guardado de Configuración › IA** escribe esos registros como cualquier otro, deja cada función con su
+  registro y su modelo, y pone la marca. Desde ahí, ni el registro ni la puerta leen las siete opciones de antes. Siguen en
+  la base sin tocar, para quien las lea, hasta la `11.0.0`.
+  - Solo el formulario de esta versión pone la marca (manda `converted_sent`). Una pestaña abierta antes de actualizar
+    guarda sin convertir.
+  - Quitar después un convertido, o «Quitar la guardada» en él, vacía también su opción de antes (`OpenAIApiKey`,
+    `MistralAIApiKey` o `GroqAPIKey`). Así la clave no sigue viva en los caminos en desuso que todavía la leen.
+- **Los ids `legacy-openai`, `legacy-mistral` y `legacy-groq`** (`AIProviderRegistry::LEGACY_*`) quedan en desuso hasta la
+  `11.0.0`. Una función guardada con uno de ellos se resuelve a su registro convertido.
+- `usageProviderName()` sigue anotando «OpenAI» y «Mistral» para los convertidos en la fila de cada función, para no
+  partir la serie del consumo. La cuota del registro se cuenta por su id.
+
+### De dónde sale la clave
+
+Cada registro dice de dónde sale su clave (`keySource`):
+
+- **`stored`**, por omisión: escrita en Configuración › IA, sellada en `ai_provider_keys` y de solo escritura.
+- **`file`**: del archivo de claves, por su nombre (`keyFile`).
+  - **El nombre va atado al tipo del registro** (`AIProviderRecord::isValidKeyFile($nombre, $tipo)`):
+    - el nombre del propio tipo, solo para OpenAI, Mistral y Groq (`openai`, `mistral`, `groq`: los de siempre);
+    - o `ai-<tipo>-<lo que quieras>`, en minúsculas, cifras y guiones; por ejemplo, `ai-openai-marketing`,
+      `ai-deepseek-pruebas` o `ai-custom-local`.
+  - El límite existe porque un «Personalizado» manda la clave a la dirección que se le escriba. Sin él, quien administra
+    podría mandar a otra dirección la clave de OpenAI del servidor, u otra llave del archivo.
+  - «Probar» con una clave del archivo solo funciona con el proveedor ya guardado.
+  - La pantalla dice si ese nombre está en el archivo, sin enseñar nada de la clave.
+
+Para que un registro use una clave del archivo, guárdala en la carpeta de llaves con un nombre de esos y elige «Del
+archivo de claves» en su fila.
+
+**Cambiar el tipo, la dirección base o la cabecera de un proveedor guardado borra su clave escrita**: hay que volver a
+escribirla. Así una clave no puede acabar en otro servicio sin que alguien la escriba de nuevo.
+
+### La lista de modelos
+
+- **`AIGateway::providerModels($record, $capability)`** da la lista que enseña la pantalla, sin llamar a la red:
+  - la del proveedor, si alguna vez se pidió (guardada en la opción `ai_provider_models`, `AIGateway::MODELS_CONFIG_NAME`);
+  - si no, la de respaldo del catálogo (`fallbackModels` de `AIProviderCatalog`), medida en la documentación oficial y
+    fechada en `fallbackMeasured`.
+- **`AIGateway::refreshProviderModels($record)`** la pide al proveedor y la guarda: un `GET` a la dirección base más
+  `modelsPath`, con la clave del registro y 10 segundos de tiempo máximo. Un error deja la lista anterior y da el motivo,
+  nunca la respuesta del proveedor.
+- **En la pantalla**, cada proveedor guardado tiene «Actualizar modelos». El modelo de cada función y el de «Probar» se
+  eligen de la lista, y «Otro…» deja escribir cualquiera: el servidor lo acepta como texto.
+
 ## Traducir con `translator()`
 
-`AIGateway::translator()` devuelve un `AITranslator` con el proveedor y el modelo de la función `translation` (o, sin
-elegir, el de «IA para traducciones»): `translate($input, $from, $to)`, `lastUsage()`, `getTokensUsed()` y
+`AIGateway::translator()` devuelve un `AITranslator` con el proveedor y el modelo de la función `translation` (sin
+elegir, ver «Los proveedores de antes»): `translate($input, $from, $to)`, `lastUsage()`, `getTokensUsed()` y
 `getLastAskToChatOriginalResponse()`, los mismos métodos que tenían los adaptadores. El texto de instrucciones es uno solo,
 `AITranslator::prompt()`; cada tipo manda los parámetros que admite (OpenAI, sin temperatura; Mistral, Groq, DeepSeek y
 OpenRouter, con respuesta JSON), y una traducción tiene 120 segundos de tiempo máximo. **`chatHandler()` queda en desuso
@@ -197,7 +260,7 @@ hasta la `11.0.0`**: usa `chatProvider()` o `translator()`.
 ## Voz a texto con `speechProvider()`
 
 `AIGateway::speechProvider('speech-to-text')` devuelve un `AISpeechProvider` (la función «Voz a texto», apagada por
-omisión; sin proveedor elegido, el de Groq): `transcribe($rutaDelAudio, $idioma)` devuelve `text` y, si el proveedor lo
+omisión; sin proveedor elegido, el Groq de antes mientras la conversión no se haya guardado): `transcribe($rutaDelAudio, $idioma)` devuelve `text` y, si el proveedor lo
 cuenta, el consumo (`usage`, `inputTokens`, `outputTokens`) o la duración (`seconds`). Groq no devuelve consumo. 120
 segundos de tiempo máximo. **`SpeechToTextGroqAdapter` queda en desuso hasta la `11.0.0`.**
 
@@ -219,3 +282,11 @@ proveedor real), las tres capas de los ajustes, los cuatro periodos con relojes 
 un control, cambia `ai_center` con `set_config()` en memoria y repónlo al terminar.
 Para registrar capacidades de prueba sin dejar rastro, `AICapabilityRegistry::swapForTesting()` guarda el registro y lo
 repone después.
+
+**Ninguna prueba puede llegar a un proveedor real.**
+- `AIProviderCatalog::defaultHttpClient()` es el único sitio que crea el cliente HTTP de verdad (chat, voz, «Probar» y la
+  lista de modelos). Lanza `LogicException` si `AIProviderCatalog::inTestRun()`, es decir, dentro de `gates`, de
+  `bin/con-marca` o de una acción `unit-tests:`.
+- Una suite pone su cliente simulado con `AIGateway::setProviderHttpClientForTesting()` y lo quita al terminar.
+- Los adaptadores en desuso (`OpenAIHandlerAdapter`, `MistralHandlerAdapter`, `SpeechToTextGroqAdapter`) no pasan por esta
+  guarda: no los uses en una suite.

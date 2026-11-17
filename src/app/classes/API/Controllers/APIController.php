@@ -679,7 +679,7 @@ class APIController extends AdminPanelController
                         $responseJSON['AI']['tokensUsed'] = $tokensUsed;
 
                         //Actualizar el uso de tokens
-                        AIGateway::recordUsage('translation', (string) $translationAI, (int) $tokensUsed, $aiHandler->getInputTokensUsed($lastUsage), $aiHandler->getOutputTokensUsed($lastUsage), $aiHandler->provider()->model());
+                        AIGateway::recordUsage('translation', (string) $translationAI, (int) $tokensUsed, $aiHandler->getInputTokensUsed($lastUsage), $aiHandler->getOutputTokensUsed($lastUsage), $aiHandler->provider()->model(), $aiHandler->provider()->recordId());
 
                         if ($translation !== null) {
                             $responseJSON['success'] = true;
@@ -766,7 +766,7 @@ class APIController extends AdminPanelController
                         } else {
                             try {
                                 $aiResult = $this->translateWithAI($aiHandler, array_combine($pending, $pending), [], __('lang', Config::get_default_lang()), __('lang', $to));
-                                AIGateway::recordUsage('translation', (string) $translationAI, (int) $aiResult['tokensUsed'], $aiHandler->getInputTokensUsed($aiResult['lastUsage']), $aiHandler->getOutputTokensUsed($aiResult['lastUsage']), $aiHandler->provider()->model());
+                                AIGateway::recordUsage('translation', (string) $translationAI, (int) $aiResult['tokensUsed'], $aiHandler->getInputTokensUsed($aiResult['lastUsage']), $aiHandler->getOutputTokensUsed($aiResult['lastUsage']), $aiHandler->provider()->model(), $aiHandler->provider()->recordId());
                                 $filtered = DynamicTranslationsHelper::acceptTranslations($pending, $aiResult['translation'] ?? []);
                                 $responseJSON['saved'] = $this->saveDynamicTranslations($to, $group, $filtered['accepted']);
                                 $responseJSON['translation'] = [$group => $filtered['accepted']];

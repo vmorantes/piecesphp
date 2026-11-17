@@ -1,3 +1,29 @@
+# 10.29.0 (16-11-2026)
+
+- **Configuración › IA ya no tiene proveedores fijos.** Si usabas OpenAI, Mistral o Groq, pasan a ser proveedores normales
+  de la lista, con su clave y su modelo de siempre, y se editan y se quitan como cualquier otro. «IA para traducciones» y
+  los modelos sueltos salen de la pantalla: la traducción elige su proveedor y su modelo como las demás funciones, y una
+  función sin proveedor no está disponible.
+  - **Hasta que guardes esa pantalla, todo funciona exactamente como antes**; al guardarla, la conversión queda escrita.
+  - Las opciones de antes (`OpenAIApiKey`, `MistralAIApiKey`, `GroqAPIKey`, `modelOpenAI`, `modelMistral`, `modelGroq`,
+    `translationAI`) no se borran y se pueden leer hasta la `11.0.0`, pero desde ese primer guardado ya no deciden nada.
+  - **Al actualizar**: entra en Configuración › IA, comprueba que cada función tiene su proveedor y su modelo, y guarda.
+  - **Si tu clon sobrescribe la vista de Configuración › IA**, los tres bloques fijos y «IA para traducciones» ya no
+    existen.
+- **Cada proveedor dice de dónde sale su clave**: escrita en la pantalla, o del archivo de claves por su nombre, que va
+  atado a su tipo (`openai`, `mistral` o `groq` en esos tres tipos, o `ai-<tipo>-…`, como `ai-openai-marketing`). La
+  pantalla dice si ese nombre está en el archivo, sin enseñar la clave. Cambiar el tipo, la dirección o la cabecera de un
+  proveedor guardado borra su clave escrita: hay que escribirla de nuevo.
+- **Los modelos se eligen de una lista**: la del propio proveedor, con «Actualizar modelos», o una de respaldo sacada de su
+  documentación. «Otro…» deja escribir cualquiera. Manual: «Configuración de las integraciones».
+- **Para quien desarrolla**:
+  - `AIGateway::providerModels()` y `AIGateway::refreshProviderModels()`.
+  - Los ids `legacy-openai`, `legacy-mistral` y `legacy-groq` (`AIProviderRegistry::LEGACY_*`) quedan en desuso hasta la
+    `11.0.0`; una función guardada con uno de ellos usa su proveedor convertido.
+  - En las pruebas, ningún proveedor de IA puede salir a la red: pon el cliente simulado con
+    `AIGateway::setProviderHttpClientForTesting()`.
+  - Guía «El centro de mando de la IA», «Los proveedores de antes».
+
 # 10.28.0 (14-11-2026)
 
 - **La traducción con IA puede usar cualquiera de tus proveedores**: en Configuración › IA, «Traducción con IA» elige su

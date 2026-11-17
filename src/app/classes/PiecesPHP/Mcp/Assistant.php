@@ -114,6 +114,7 @@ final class Assistant
         //Una fábrica de prueba puede dar cualquier objeto con chatWithTools: se anota como antes, con translationAI.
         $provider = $adapter instanceof AIChatProvider ? AIGateway::usageProviderName($adapter) : (string) get_config('translationAI');
         $model = $adapter instanceof AIChatProvider ? $adapter->model() : '';
+        $recordId = $adapter instanceof AIChatProvider ? $adapter->recordId() : null;
         $toolsUsed = [];
         $links = [];
         $requestID = 0;
@@ -134,7 +135,7 @@ final class Assistant
                     return self::failure($reason);
                 }
                 $turn = self::normalizeTurn(($chat)($messages, $tools, 0.2, self::MAX_ANSWER_TOKENS));
-                AIGateway::recordUsage(self::CAPABILITY, $provider, $turn['usage'], $turn['inputTokens'], $turn['outputTokens'], $model);
+                AIGateway::recordUsage(self::CAPABILITY, $provider, $turn['usage'], $turn['inputTokens'], $turn['outputTokens'], $model, $recordId);
                 if ($turn['toolCalls'] === []) {
                     return self::success($turn['content'], $links, $toolsUsed);
                 }

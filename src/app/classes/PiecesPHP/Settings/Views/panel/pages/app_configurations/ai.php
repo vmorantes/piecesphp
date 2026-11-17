@@ -35,14 +35,6 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
             AICapability::PERIOD_EVERY_MONTHS => __($langGroup, 'Cada N meses'),
         ];
         $resetURL = SettingsController::allowedRoute('integrations-ai-usage-reset') ? (string) SettingsController::routeName('integrations-ai-usage-reset') : '';
-        //Una clave que da el archivo de claves manda (P318): el campo no se edita y lo dice.
-        $fixedByFile = fn(string $option): bool => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option);
-        //«Quitar la guardada» (P317): solo si hay una guardada; marcada, se guarda vacía. La del archivo, en su lugar, el aviso.
-        $clearSaved = fn(string $option, string $id): string => $fixedByFile($option)
-            ? '<p class="ui muted text" id="ai-fixed-' . escape_html($option) . '" data-fixed-by-file>' . escape_html(__($langGroup, 'La define el archivo de claves.')) . '</p>'
-            : (mb_strlen((string) get_config($option)) > 0
-                ? '<div class="field"><div class="ui checkbox"><input type="checkbox" id="' . $id . '" name="clear_' . $option . '" value="1" data-clear-saved><label for="' . $id . '">' . escape_html(__($langGroup, 'Quitar la guardada')) . '</label></div></div>'
-                : '');
         $tokensLimitElement = new \PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper(\PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
         $tokensLimitName = $tokensLimitElement->userSetContentName();
         $tokensLimitAction = \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::allowedRoute('actions-edit') ? (string) \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('actions-edit') : '';
@@ -72,62 +64,49 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 
         <div class="ui section divider"></div>
 
-        <section aria-labelledby="ai-provider-title" data-ai-providers data-test-url="<?= escape_html(SettingsController::allowedRoute('integrations-ai-provider-test') ? (string) SettingsController::routeName('integrations-ai-provider-test') : ''); ?>">
+        <?php
+            $records = AIProviderRegistry::all();
+            $pendingConverted = AIProviderRegistry::convertedPending();
+            //Las claves escritas: las guardadas y, sin la conversión escrita, las de antes de los convertidos (solo sus 4 últimos).
+            $savedKeys = AIProviderRegistry::keys() + array_filter(array_map(fn(array $converted): string => $converted['key'], $pendingConverted), fn(string $key): bool => $key !== '');
+            $typeOptions = array_map(fn(array $type): string => $type['name'], AIProviderCatalog::TYPES);
+            $typeOptions[AIProviderCatalog::TYPE_CUSTOM] = __($langGroup, 'Personalizado');
+            //Las listas de modelos de cada registro, para el desplegable de cada función y de «Probar» (ai.js, sin pedir nada).
+            $modelLists = [];
+            foreach ($records as $record) {
+                $chatModels = AIGateway::providerModels($record, AIProviderCatalog::CAPABILITY_CHAT);
+                $modelLists[$record->id()] = [
+                    'chat' => $chatModels['models'],
+                    'speech' => AIGateway::providerModels($record, AIProviderCatalog::CAPABILITY_SPEECH)['models'],
+                    'remembered' => $record->models(),
+                    'source' => $chatModels['source'],
+                    'fetchedAt' => $chatModels['fetchedAt'],
+                    'fallbackMeasured' => (string) (AIProviderCatalog::get($record->type())['fallbackMeasured'] ?? ''),
+                ];
+            }
+            $providerListTemplate = __($langGroup, 'Lista del proveedor, actualizada el %fecha%');
+            $fallbackListTemplate = __($langGroup, 'Lista de respaldo (documentación del %fecha%)');
+            $modelsSourceText = fn(array $list): string => $list['source'] === 'provider'
+                ? strReplaceTemplate($providerListTemplate, ['%fecha%' => SettingsController::aiPeriodStartText((string) $list['fetchedAt'])])
+                : strReplaceTemplate($fallbackListTemplate, ['%fecha%' => SettingsController::aiPeriodStartText($list['fallbackMeasured'] . ' 00:00:00')]);
+            $modelsURL = SettingsController::allowedRoute('integrations-ai-provider-models') ? (string) SettingsController::routeName('integrations-ai-provider-models') : '';
+        ?>
+        <section aria-labelledby="ai-provider-title" data-ai-providers data-test-url="<?= escape_html(SettingsController::allowedRoute('integrations-ai-provider-test') ? (string) SettingsController::routeName('integrations-ai-provider-test') : ''); ?>" data-models-url="<?= escape_html($modelsURL); ?>" data-ai-models="<?= escape_html((string) json_encode($modelLists, \JSON_UNESCAPED_UNICODE)); ?>" data-other-text="<?= escape_html(__($langGroup, 'Otro…')); ?>" data-provider-list-template="<?= escape_html($providerListTemplate); ?>">
             <?php
                 $helpController->_render('panel/built-in/content/section-header.php', [
                     'id' => 'ai-provider-title',
                     'title' => __($langGroup, 'Proveedores'),
-                    'description' => __($langGroup, 'Cada proveedor con su sobrenombre y su clave; cada función elige el suyo abajo. La clave no se vuelve a enseñar.'),
+                    'description' => __($langGroup, 'Cada proveedor con su sobrenombre y de dónde sale su clave; cada función elige el suyo abajo. La clave escrita no se vuelve a enseñar.'),
                 ]);
-                $records = AIProviderRegistry::all();
-                $savedKeys = AIProviderRegistry::keys();
-                $typeOptions = array_map(fn(array $type): string => $type['name'], AIProviderCatalog::TYPES);
-                $typeOptions[AIProviderCatalog::TYPE_CUSTOM] = __($langGroup, 'Personalizado');
-                $legacyOrigin = fn(string $option): string => \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile($option) ? __($langGroup, 'Del archivo de claves') : __($langGroup, 'De la configuración anterior');
-                $legacyRows = [
-                    AIProviderRegistry::LEGACY_OPENAI => ['name' => 'OpenAI', 'option' => 'OpenAIApiKey', 'keyId' => 'ai-key-openai', 'keyLabel' => __($langGroup, 'API Key OpenAI'), 'model' => 'modelOpenAI', 'models' => AI_MODELS[AI_OPENAI], 'clear' => 'ai-clear-openai'],
-                    AIProviderRegistry::LEGACY_MISTRAL => ['name' => 'Mistral', 'option' => 'MistralAIApiKey', 'keyId' => 'ai-key-mistral', 'keyLabel' => __($langGroup, 'API Key Mistral'), 'model' => 'modelMistral', 'models' => AI_MODELS[AI_MISTRAL], 'clear' => 'ai-clear-mistral'],
-                    AIProviderRegistry::LEGACY_GROQ => ['name' => 'Groq', 'option' => 'GroqAPIKey', 'keyId' => 'ai-key-groq', 'keyLabel' => __($langGroup, 'API Key Groq'), 'model' => 'modelGroq', 'models' => [], 'clear' => 'ai-clear-groq'],
-                ];
             ?>
-            <?php foreach ($legacyRows as $legacyId => $legacy): ?>
-            <?php $legacyExists = isset($records[$legacyId]); ?>
-            <?php //Los tres se ven siempre: la traducción usa la clave y el modelo de OpenAI y de Mistral, y la voz a texto los de Groq. ?>
-            <div class="ui secondary segment" data-ai-provider-legacy="<?= escape_html($legacyId); ?>">
-                <h4 class="ui header"><?= escape_html($legacy['name']); ?>
-                    <div class="sub header"><?= $legacyExists ? escape_html($legacyOrigin($legacy['option'])) . ' · ' : ''; ?><?= $legacyId === AIProviderRegistry::LEGACY_GROQ ? __($langGroup, 'Para la voz a texto') : __($langGroup, 'La usa la traducción'); ?></div>
-                </h4>
-                <?php if ($legacy['model'] !== null): ?>
-                <div class="two fields">
-                    <div class="field">
-                        <label for="ai-<?= escape_html($legacy['model']); ?>"><?= escape_html(strReplaceTemplate(__($langGroup, 'Modelo %name%'), ['%name%' => $legacy['name']])); ?></label>
-                        <?php if ($legacy['models'] === []): ?>
-                        <input type="text" id="ai-<?= escape_html($legacy['model']); ?>" name="<?= escape_html($legacy['model']); ?>" value="<?= escape_html((string) (get_config($legacy['model']) ?: AIGateway::LEGACY_DEFAULT_MODEL_GROQ)); ?>" autocomplete="off" spellcheck="false">
-                        <?php else: ?>
-                        <select id="ai-<?= escape_html($legacy['model']); ?>" name="<?= escape_html($legacy['model']); ?>" class="ui fluid selection dropdown">
-                            <?= array_to_html_options($legacy['models'], get_config($legacy['model'])); ?>
-                        </select>
-                        <?php endif; ?>
-                    </div>
-                    <div class="field">
-                        <label for="<?= escape_html($legacy['keyId']); ?>"><?= escape_html($legacy['keyLabel']); ?></label>
-                        <?php if (!$fixedByFile($legacy['option'])): ?>
-                        <?php //La clave no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
-                        <input type="text" id="<?= escape_html($legacy['keyId']); ?>" name="<?= escape_html($legacy['option']); ?>" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html(mb_strlen((string) get_config($legacy['option'])) > 0 ? __($langGroup, 'Clave guardada: vacío la conserva') : __($langGroup, 'Pega aquí la API key del proveedor')); ?>">
-                        <?php endif; ?>
-                        <?= $clearSaved($legacy['option'], (string) $legacy['clear']); ?>
-                    </div>
-                </div>
-                <?php else: ?>
-                <p class="ui text"><?= __($langGroup, 'Solo voz a texto: no se ofrece a las funciones de chat.'); ?></p>
-                <?php endif; ?>
-            </div>
-            <?php endforeach; ?>
 
             <input type="hidden" name="<?= escape_html(AIGateway::CONFIG_NAME); ?>[providers_sent]" value="1">
+            <?php //Solo este formulario escribe la conversión: uno de una versión anterior no manda converted_sent. ?>
+            <input type="hidden" name="<?= escape_html(AIGateway::CONFIG_NAME); ?>[converted_sent]" value="1">
             <div data-ai-providers-list>
-                <?php $savedProviders = array_values(array_filter($records, fn($record) => !str_starts_with($record->id(), AIProviderRegistry::LEGACY_PREFIX))); ?>
-                <?php $savedEntries = SettingsController::aiProviderEntries(); ?>
+                <?php //Los convertidos de la configuración de antes salen como filas normales: guardar los escribe. ?>
+                <?php $savedProviders = array_values($records); ?>
+                <?php $savedEntries = SettingsController::aiProviderEntries() + array_map(fn(array $converted): array => $converted['entry'], $pendingConverted); ?>
                 <?php foreach ($savedProviders as $position => $record): ?>
                 <?php $entry = $savedEntries[$record->id()] ?? ['id' => $record->id(), 'type' => $record->type(), 'alias' => $record->alias()]; ?>
                 <?php $index = (string) $position; ?>
@@ -196,47 +175,37 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                         </select>
                         <div class="description"><?= __($langGroup, 'Root siempre puede.'); ?></div>
                     </div>
-                    <?php if ($capabilityKey === 'translation'): ?>
-                    <div class="field">
-                        <label for="ai-translation-provider"><?= __($langGroup, 'IA para traducciones'); ?></label>
-                        <select id="ai-translation-provider" name="translationAI" class="ui fluid selection dropdown">
-                            <?= array_to_html_options(TRANSLATION_AI_LIST, get_config('translationAI')); ?>
-                        </select>
-                    </div>
-                    <?php endif; ?>
                 </div>
                 <?php
-                    $selection = AIGateway::providerSelectionFor($capabilityKey);
-                    //Los que saben lo que pide la función: chat y, si usa herramientas, herramientas. Los heredados, primero.
+                    //La selección EFECTIVA: sin la conversión escrita, la de antes ya rellena (guardar la deja explícita).
+                    $selection = AIGateway::effectiveSelectionFor($capabilityKey);
+                    //Los que saben lo que pide la función: chat y, si usa herramientas, herramientas.
                     $isSpeech = $capability->providerType() === AICapability::PROVIDER_SPEECH;
-                    $choices = ['' => $isSpeech ? __($langGroup, 'El de Groq (arriba)') : __($langGroup, 'El de «IA para traducciones»')];
-                    $suggestions = [];
+                    $choices = ['' => __($langGroup, 'Ninguno (la función no está disponible)')];
                     foreach ($records as $record) {
                         $fits = $isSpeech ? $record->supports(AIProviderCatalog::CAPABILITY_SPEECH) : $record->supports(AIProviderCatalog::CAPABILITY_CHAT) && (!$capability->usesTools() || $record->supports(AIProviderCatalog::CAPABILITY_TOOLS));
                         if ($fits) {
                             $choices[$record->id()] = $record->alias() . ' (' . ($record->type() === AIProviderCatalog::TYPE_CUSTOM ? __($langGroup, 'Personalizado') : AIProviderCatalog::TYPES[$record->type()]['name']) . ')';
-                            $suggestions[$record->id()] = $record->models();
                         }
                     }
+                    $currentModel = (string) ($selection['model'] ?? '');
                 ?>
                 <div class="two fields">
                     <div class="field">
                         <label for="<?= escape_html($idBase); ?>-provider"><?= __($langGroup, 'Proveedor'); ?></label>
-                        <select id="<?= escape_html($idBase); ?>-provider" name="<?= escape_html($field); ?>[provider]" class="ui fluid selection dropdown" data-ai-capability-provider<?= ($selection['provider'] ?? null) === null ? ' aria-describedby="' . escape_html($idBase) . '-provider-description"' : ''; ?>>
+                        <select id="<?= escape_html($idBase); ?>-provider" name="<?= escape_html($field); ?>[provider]" class="ui fluid selection dropdown" data-ai-capability-provider>
                             <?= array_to_html_options($choices, $selection['provider'] ?? ''); ?>
                         </select>
-                        <?php if (($selection['provider'] ?? null) === null): ?>
-                        <div class="description" id="<?= escape_html($idBase); ?>-provider-description"><?= $capabilityKey === 'translation' ? __($langGroup, 'Usa el proveedor elegido en «IA para traducciones».') : ($isSpeech ? __($langGroup, 'Usa la clave y el modelo de Groq de arriba hasta que elijas otro.') : __($langGroup, 'Usa el proveedor de la traducción hasta que elijas otro.')); ?></div>
-                        <?php endif; ?>
                     </div>
                     <div class="field">
                         <label for="<?= escape_html($idBase); ?>-model"><?= __($langGroup, 'Modelo'); ?></label>
-                        <input type="text" id="<?= escape_html($idBase); ?>-model" name="<?= escape_html($field); ?>[model]" value="<?= escape_html($selection['model'] ?? ''); ?>" list="<?= escape_html($idBase); ?>-models" autocomplete="off" spellcheck="false" aria-describedby="<?= escape_html($idBase); ?>-model-description">
-                        <datalist id="<?= escape_html($idBase); ?>-models">
-                            <?php foreach (array_unique(array_merge(...array_values($suggestions + ['' => []]))) as $suggestion): ?>
-                            <option value="<?= escape_html($suggestion); ?>"></option>
-                            <?php endforeach; ?>
-                        </datalist>
+                        <?php //Las opciones las pone ai.js con las listas de la página; «Otro…» enseña el campo de texto. ?>
+                        <select id="<?= escape_html($idBase); ?>-model" name="<?= escape_html($field); ?>[model]" class="ui fluid search selection dropdown" data-ai-model-select data-ai-model-capability="<?= escape_html($isSpeech ? AIProviderCatalog::CAPABILITY_SPEECH : AIProviderCatalog::CAPABILITY_CHAT); ?>" data-ai-model-provider="<?= escape_html((string) ($selection['provider'] ?? '')); ?>" data-current="<?= escape_html($currentModel); ?>" aria-describedby="<?= escape_html($idBase); ?>-model-description">
+                            <?php if ($currentModel !== ''): ?>
+                            <option value="<?= escape_html($currentModel); ?>" selected><?= escape_html($currentModel); ?></option>
+                            <?php endif; ?>
+                        </select>
+                        <input type="text" value="" autocomplete="off" spellcheck="false" aria-label="<?= escape_html(__($langGroup, 'Otro modelo')); ?>" placeholder="<?= escape_html(__($langGroup, 'Escribe el modelo')); ?>" data-ai-model-other hidden>
                         <div class="description" id="<?= escape_html($idBase); ?>-model-description"><?= __($langGroup, 'Obligatorio si eliges un proveedor.'); ?></div>
                     </div>
                 </div>

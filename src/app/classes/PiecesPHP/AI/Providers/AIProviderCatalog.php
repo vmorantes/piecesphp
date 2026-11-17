@@ -34,8 +34,12 @@ final class AIProviderCatalog
      * (OpenAI, Groq, xAI y OpenRouter marcan max_tokens en desuso en favor de max_completion_tokens; sin documentación, max_tokens).
      * translation: lo que añade la traducción (AITranslator), sin tope; openai y mistral, lo de sus adaptadores de antes; json_object
      * solo donde la documentación lo admite (Groq, DeepSeek, OpenRouter; xAI no lo documenta).
+     * modelsPath: la ruta, relativa a baseUrl, del listado de modelos ({"data": [{"id"}]}); null si no está documentada (en
+     * «Personalizado», '/models' por convención: si falla, queda «Otro…»). fallbackModels: la lista de respaldo por capacidad
+     * (como mucho 8, sin los marcados en desuso), medida en su documentación en fallbackMeasured; OpenRouter no publica una
+     * lista recomendada, así que va vacía.
      *
-     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string}>
+     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}>
      */
     const TYPES = [
         'openai' => [
@@ -46,8 +50,11 @@ final class AIProviderCatalog
             'translation' => ['temperature' => null, 'responseFormat' => null],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS, self::CAPABILITY_SPEECH],
             'chatClass' => OpenAICompatibleChatProvider::class,
-            'docs' => ['https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml'],
+            'docs' => ['https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml', 'https://developers.openai.com/api/docs/models'],
             'measured' => '2026-11-14',
+            'modelsPath' => '/models',
+            'fallbackModels' => ['chat' => ['gpt-6-astra', 'gpt-6.1-sol', 'gpt-6.1-terra', 'gpt-6-luna'], 'speech' => ['gpt-transcribe']],
+            'fallbackMeasured' => '2026-11-16',
         ],
         'mistral' => [
             'name' => 'Mistral',
@@ -57,8 +64,11 @@ final class AIProviderCatalog
             'translation' => ['temperature' => 0.0, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
-            'docs' => ['https://docs.mistral.ai/api/', 'https://docs.mistral.ai/capabilities/function_calling/'],
+            'docs' => ['https://docs.mistral.ai/api/', 'https://docs.mistral.ai/capabilities/function_calling/', 'https://docs.mistral.ai/api/endpoint/models', 'https://docs.mistral.ai/models/mistral-large-4'],
             'measured' => '2026-11-14',
+            'modelsPath' => '/models',
+            'fallbackModels' => ['chat' => ['mistral-large-latest', 'mistral-small-latest', 'ministral-14b-2512', 'ministral-8b-2512', 'ministral-3b-2512', 'zai-glm-5-3', 'zai-glm-5-3-flash'], 'speech' => []],
+            'fallbackMeasured' => '2026-11-16',
         ],
         'groq' => [
             'name' => 'Groq',
@@ -68,8 +78,11 @@ final class AIProviderCatalog
             'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS, self::CAPABILITY_SPEECH],
             'chatClass' => OpenAICompatibleChatProvider::class,
-            'docs' => ['https://console.groq.com/docs/openai', 'https://console.groq.com/docs/tool-use'],
+            'docs' => ['https://console.groq.com/docs/openai', 'https://console.groq.com/docs/tool-use', 'https://console.groq.com/docs/api-reference', 'https://console.groq.com/docs/models', 'https://console.groq.com/docs/speech-to-text'],
             'measured' => '2026-11-14',
+            'modelsPath' => '/models',
+            'fallbackModels' => ['chat' => ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'], 'speech' => ['whisper-large-v3', 'whisper-large-v3-turbo']],
+            'fallbackMeasured' => '2026-11-16',
         ],
         'deepseek' => [
             'name' => 'DeepSeek',
@@ -79,8 +92,11 @@ final class AIProviderCatalog
             'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
-            'docs' => ['https://api-docs.deepseek.com/api/create-chat-completion.md', 'https://api-docs.deepseek.com/quick_start/error_codes.md'],
+            'docs' => ['https://api-docs.deepseek.com/api/create-chat-completion.md', 'https://api-docs.deepseek.com/quick_start/error_codes.md', 'https://api-docs.deepseek.com/api/list-models', 'https://api-docs.deepseek.com/quick_start/pricing'],
             'measured' => '2026-11-14',
+            'modelsPath' => '/models',
+            'fallbackModels' => ['chat' => ['deepseek-flash', 'deepseek-v4-pro'], 'speech' => []],
+            'fallbackMeasured' => '2026-11-16',
         ],
         'xai' => [
             'name' => 'xAI',
@@ -90,8 +106,11 @@ final class AIProviderCatalog
             'translation' => ['temperature' => null, 'responseFormat' => null],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
-            'docs' => ['https://docs.x.ai/developers/rest-api-reference/inference/chat-completions.md', 'https://docs.x.ai/docs/guides/function-calling'],
+            'docs' => ['https://docs.x.ai/developers/rest-api-reference/inference/chat-completions.md', 'https://docs.x.ai/docs/guides/function-calling', 'https://docs.x.ai/developers/rest-api-reference/inference/models', 'https://docs.x.ai/developers/models'],
             'measured' => '2026-11-14',
+            'modelsPath' => '/models',
+            'fallbackModels' => ['chat' => ['grok-4.7', 'grok-4.6', 'grok-4.5', 'grok-4.3', 'grok-4.20-0309-reasoning', 'grok-4.20-0309-non-reasoning', 'grok-build-0.1', 'grok-4.20-multi-agent-0309'], 'speech' => []],
+            'fallbackMeasured' => '2026-11-16',
         ],
         'openrouter' => [
             'name' => 'OpenRouter',
@@ -101,8 +120,11 @@ final class AIProviderCatalog
             'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS],
             'chatClass' => OpenAICompatibleChatProvider::class,
-            'docs' => ['https://openrouter.ai/docs/api-reference/overview', 'https://openrouter.ai/docs/api-reference/authentication', 'https://openrouter.ai/openapi.yaml'],
+            'docs' => ['https://openrouter.ai/docs/api-reference/overview', 'https://openrouter.ai/docs/api-reference/authentication', 'https://openrouter.ai/openapi.yaml', 'https://openrouter.ai/docs/api-reference/models/get-models'],
             'measured' => '2026-11-14',
+            'modelsPath' => '/models',
+            'fallbackModels' => ['chat' => [], 'speech' => []],
+            'fallbackMeasured' => '2026-11-16',
         ],
         self::TYPE_CUSTOM => [
             'name' => 'Personalizado',
@@ -114,12 +136,68 @@ final class AIProviderCatalog
             'chatClass' => OpenAICompatibleChatProvider::class,
             'docs' => [],
             'measured' => '2026-11-14',
+            'modelsPath' => '/models',
+            'fallbackModels' => ['chat' => [], 'speech' => []],
+            'fallbackMeasured' => '2026-11-16',
         ],
     ];
 
     /**
+     * SOLO PARA PRUEBAS: quien construye el cliente HTTP real (defaultHttpClient()); null, Guzzle.
+     *
+     * @var (callable(array<string,mixed>):\Psr\Http\Client\ClientInterface)|null
+     */
+    private static $realHttpClientFactory = null;
+
+    /**
+     * El cliente HTTP real de los proveedores de IA (chat, voz, «Probar» y «Actualizar modelos»): el ÚNICO sitio donde se
+     * crea. En una prueba no hay cliente real: falla cerrado, sin petición, para que ninguna suite llegue a un proveedor de
+     * verdad con una clave del archivo (#2892).
+     *
+     * @param array<string,mixed> $options Las de Guzzle (timeout, connect_timeout…)
+     * @return \Psr\Http\Client\ClientInterface
+     * @throws \LogicException en una prueba (inTestRun())
+     */
+    public static function defaultHttpClient(array $options): \Psr\Http\Client\ClientInterface
+    {
+        if (self::inTestRun()) {
+            throw new \LogicException('En una prueba ningún proveedor de IA sale a la red: pon el cliente simulado (AIGateway::setProviderHttpClientForTesting() o el del constructor).');
+        }
+        return self::$realHttpClientFactory !== null ? (self::$realHttpClientFactory)($options) : new \GuzzleHttp\Client($options);
+    }
+
+    /**
+     * Si corre una prueba: una corrida marcada (GenericHandler::testRun(): gates y bin/con-marca la ponen en el entorno) o,
+     * en la terminal, una acción unit-tests: entre los argumentos (un bin/cli suelto no lleva la marca).
+     *
+     * @return bool
+     */
+    public static function inTestRun(): bool
+    {
+        if (\PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::testRun() !== null) {
+            return true;
+        }
+        $arguments = \PHP_SAPI === 'cli' && is_array($_SERVER['argv'] ?? null) ? $_SERVER['argv'] : [];
+        return count(array_filter($arguments, fn($argument): bool => is_string($argument) && str_starts_with($argument, 'unit-tests:'))) > 0;
+    }
+
+    /**
+     * SOLO PARA PRUEBAS: cambia quien construye el cliente real y devuelve el de antes. Sirve para provocar la guarda de
+     * defaultHttpClient() sin red: sin la guarda, la petición iría a este cliente, nunca a un proveedor.
+     *
+     * @param (callable(array<string,mixed>):\Psr\Http\Client\ClientInterface)|null $factory
+     * @return (callable(array<string,mixed>):\Psr\Http\Client\ClientInterface)|null
+     */
+    public static function swapRealHttpClientFactoryForTesting(?callable $factory): ?callable
+    {
+        $previous = self::$realHttpClientFactory;
+        self::$realHttpClientFactory = $factory;
+        return $previous;
+    }
+
+    /**
      * @param string $type
-     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string}|null
+     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}|null
      */
     public static function get(string $type): ?array
     {

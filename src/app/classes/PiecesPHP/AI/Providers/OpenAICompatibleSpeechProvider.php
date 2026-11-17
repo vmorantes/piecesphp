@@ -80,12 +80,20 @@ final class OpenAICompatibleSpeechProvider implements AISpeechProvider
         }
         $body = new \GuzzleHttp\Psr7\MultipartStream($parts);
         $keyHeader = $this->record->keyHeader();
-        $request = new \GuzzleHttp\Psr7\Request('POST', $this->record->baseUrl() . '/audio/transcriptions', [
-            'Content-Type' => 'multipart/form-data; boundary=' . $body->getBoundary(),
-            $keyHeader ?? 'Authorization' => $keyHeader === null ? 'Bearer ' . $this->record->key() : $this->record->key(),
-        ], $body);
+        //Fuera del try: en una prueba sin cliente simulado tiene que salir la \LogicException, no un «no respondió».
+        $client = $this->httpClient ?? $this->defaultHttpClient();
         try {
-            $response = ($this->httpClient ?? $this->defaultHttpClient())->sendRequest($request);
+            //Dentro del try: una clave con un carácter de control hace lanzar a psr7 con la cabecera en el mensaje.
+            $request = new \GuzzleHttp\Psr7\Request('POST', $this->record->baseUrl() . '/audio/transcriptions', [
+                'Content-Type' => 'multipart/form-data; boundary=' . $body->getBoundary(),
+                $keyHeader ?? 'Authorization' => $keyHeader === null ? 'Bearer ' . $this->record->key() : $this->record->key(),
+            ], $body);
+        } catch (\Throwable $e) {
+            //Una excepción NUEVA y sin encadenar: la original puede llevar la clave.
+            throw new \RuntimeException("No se pudo preparar la petición al proveedor de tipo «{$this->record->type()}» (" . get_class($e) . ').', 0);
+        }
+        try {
+            $response = $client->sendRequest($request);
         } catch (\Throwable $e) {
             throw new \RuntimeException("El proveedor de tipo «{$this->record->type()}» no respondió (" . get_class($e) . ').', 0);
         }
@@ -150,6 +158,6 @@ final class OpenAICompatibleSpeechProvider implements AISpeechProvider
      */
     private function defaultHttpClient(): \Psr\Http\Client\ClientInterface
     {
-        return new \GuzzleHttp\Client(['timeout' => $this->timeoutSeconds, 'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS]);
+        return AIProviderCatalog::defaultHttpClient(['timeout' => $this->timeoutSeconds, 'connect_timeout' => self::CONNECT_TIMEOUT_SECONDS]);
     }
 }

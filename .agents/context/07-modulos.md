@@ -260,3 +260,17 @@ registro vive en un `WeakMap` de `AIProviderRecord`, nunca en una propiedad (`va
 `SHAPE_SEALED` con su propósito en `EncryptedDataRegistry` (para que la rotación de la clave de la aplicación la vuelva a sellar; la cota de
 `core/app-key-crypto` f2 cuenta los propósitos); `AIProviderRecord` llama `$nickname` a su propiedad: `->alias = …` lo toma el detector de
 alias de ruta de `verify-integrity`; OpenAI marca `max_tokens` en desuso (serie o): ronda 2.
+**Desde la revisión (JKK, `c43f2405`)**:
+- **No hay proveedores fijos.** Mientras `ai_center.legacyConverted` no es `true`, `AIProviderRegistry::all()` inventa en
+  memoria los convertidos `openai`/`mistral`/`groq` desde las opciones viejas. Una suite que guarde Configuración › IA pone
+  la marca: tiene que reponer `ai_center`, `ai_provider_keys` y `ai_provider_models` (`core/ai-center-screen` z1 lo
+  comprueba por sha1; P7 de JKK dejó la base local convertida por quitar esa reposición sin `db-backup`).
+- **`keyFile` va atado al tipo** (`isValidKeyFile($nombre, $tipo)`: `<tipo>` solo en openai/mistral/groq, o
+  `ai-<tipo>-…`), «Probar» con `file` exige el registro guardado, y cambiar tipo, `baseUrl` o `keyHeader` borra la clave
+  escrita (auditoría de JKK, M1). No lo relajes: un «Personalizado» mandaría fuera la clave del servidor.
+- **La fila `@provider` y `denialReason()` van por el id del registro**, no por `usageProviderName()` («OpenAI»); si no,
+  la cuota de los convertidos no cuenta nunca (auditoría de JKK, M2).
+- **Ninguna suite puede crear un cliente HTTP real.** `AIProviderCatalog::defaultHttpClient()` lanza dentro de una prueba;
+  usa `AIGateway::setProviderHttpClientForTesting()`. Los adaptadores en desuso no pasan por esa guarda.
+- **Recortar una entrada puede convertir un caso de rechazo en una clave real**: `"openai\n"` recortado es `openai`, que
+  existe en el archivo de esta instalación. Así salió a la red la sección 13 de JKK.

@@ -23,6 +23,19 @@ final class AIProviderRecord
     const KEY_HEADER_PATTERN = '/^[A-Za-z0-9-]{1,64}$/';
 
     /**
+     * De dónde sale la clave (ADR 0077, revisión del 14): escrita en Configuración › IA (sellada en ai_provider_keys) o del
+     * archivo de claves por su nombre (getKeyFromSecureKeys()).
+     */
+    const KEY_SOURCE_STORED = 'stored';
+    const KEY_SOURCE_FILE = 'file';
+    const KEY_SOURCES = [self::KEY_SOURCE_STORED, self::KEY_SOURCE_FILE];
+
+    /**
+     * Los tipos cuyo nombre en el archivo puede ser el propio tipo (los de api-keys.php).
+     */
+    const KEY_FILE_OWN_TYPES = ['openai', 'mistral', 'groq'];
+
+    /**
      * Las claves de cada registro.
      *
      * @var \WeakMap<AIProviderRecord,string>|null
@@ -67,6 +80,16 @@ final class AIProviderRecord
     private $onlyFor;
 
     /**
+     * @var string Una de KEY_SOURCES
+     */
+    private $keySource;
+
+    /**
+     * @var string|null El nombre en el archivo de claves; solo con KEY_SOURCE_FILE
+     */
+    private $keyFile;
+
+    /**
      * @param string $id Minúsculas, cifras y guiones
      * @param string $type Un tipo de AIProviderCatalog
      * @param string $alias El sobrenombre; no vacío
@@ -74,10 +97,12 @@ final class AIProviderRecord
      * @param string|null $baseUrl Solo «Personalizado», y obligatoria en él (AIProviderCatalog::isValidCustomBaseUrl())
      * @param string|null $keyHeader Solo «Personalizado»: la cabecera que lleva la clave; null = Authorization: Bearer
      * @param list<string> $models Los modelos que se conocen de él (informativo)
-     * @param list<string>|null $onlyFor Las capacidades del catálogo a las que se limita (un heredado de solo voz); null, las de su tipo
+     * @param list<string>|null $onlyFor Las capacidades del catálogo a las que se limita; null, las de su tipo
+     * @param string $keySource Una de KEY_SOURCES
+     * @param string|null $keyFile El nombre en el archivo de claves (isValidKeyFile() con su tipo); obligatorio con KEY_SOURCE_FILE y null con la otra
      * @throws \InvalidArgumentException si algo no vale; el mensaje nunca lleva la clave
      */
-    public function __construct(string $id, string $type, string $alias, #[\SensitiveParameter] string $key, ?string $baseUrl = null, ?string $keyHeader = null, array $models = [], ?array $onlyFor = null)
+    public function __construct(string $id, string $type, string $alias, #[\SensitiveParameter] string $key, ?string $baseUrl = null, ?string $keyHeader = null, array $models = [], ?array $onlyFor = null, string $keySource = self::KEY_SOURCE_STORED, ?string $keyFile = null)
     {
         if (preg_match(self::ID_PATTERN, $id) !== 1 || strlen($id) > 64) {
             throw new \InvalidArgumentException("El identificador de proveedor «{$id}» no es válido.");
@@ -103,6 +128,12 @@ final class AIProviderRecord
                 throw new \InvalidArgumentException("El proveedor «{$id}» tiene un modelo que no es un texto.");
             }
         }
+        if (!in_array($keySource, self::KEY_SOURCES, true)) {
+            throw new \InvalidArgumentException("El proveedor «{$id}» tiene un origen de la clave que no vale.");
+        }
+        if ($keySource === self::KEY_SOURCE_FILE ? ($keyFile === null || !self::isValidKeyFile($keyFile, $type)) : $keyFile !== null) {
+            throw new \InvalidArgumentException("El proveedor «{$id}» tiene un nombre en el archivo de claves que no vale para su tipo: el del tipo (openai, mistral o groq) o ai-<tipo>-….");
+        }
         $this->id = $id;
         $this->type = $type;
         $this->nickname = trim($alias);
@@ -110,6 +141,8 @@ final class AIProviderRecord
         $this->keyHeader = $keyHeader;
         $this->models = array_values($models);
         $this->onlyFor = $onlyFor !== null ? array_values($onlyFor) : null;
+        $this->keySource = $keySource;
+        $this->keyFile = $keyFile;
         self::$keys ??= new \WeakMap();
         self::$keys[$this] = $key;
     }
@@ -167,6 +200,43 @@ final class AIProviderRecord
     }
 
     /**
+     * De dónde sale la clave: una de KEY_SOURCES.
+     *
+     * @return string
+     */
+    public function keySource(): string
+    {
+        return $this->keySource;
+    }
+
+    /**
+     * El nombre en el archivo de claves; null si la clave está escrita.
+     *
+     * @return string|null
+     */
+    public function keyFile(): ?string
+    {
+        return $this->keyFile;
+    }
+
+    /**
+     * Si un registro de ese tipo puede pedir ese nombre al archivo de claves: el del propio tipo (solo openai, mistral y
+     * groq) o ai-<tipo>-…, en minúsculas, cifras y guiones. Un tipo que no está en el catálogo no vale.
+     *
+     * @param string $name
+     * @param string $type
+     * @return bool
+     */
+    public static function isValidKeyFile(string $name, string $type): bool
+    {
+        if (AIProviderCatalog::get($type) === null) {
+            return false;
+        }
+        //Atado al tipo: un «Personalizado» no puede pedir la llave de OpenAI (ni otra del archivo) y mandarla a su dirección.
+        return ($name === $type && in_array($type, self::KEY_FILE_OWN_TYPES, true)) || preg_match('/^ai-' . preg_quote($type, '/') . '-[a-z0-9][a-z0-9-]{0,40}\z/', $name) === 1;
+    }
+
+    /**
      * @return string
      */
     public function key(): string
@@ -200,7 +270,7 @@ final class AIProviderRecord
      */
     public function __debugInfo(): array
     {
-        return ['id' => $this->id, 'type' => $this->type, 'alias' => $this->nickname, 'baseUrl' => $this->baseUrl(), 'keyHeader' => $this->keyHeader(), 'hasKey' => $this->hasKey(), 'models' => $this->models, 'onlyFor' => $this->onlyFor];
+        return ['id' => $this->id, 'type' => $this->type, 'alias' => $this->nickname, 'baseUrl' => $this->baseUrl(), 'keyHeader' => $this->keyHeader(), 'hasKey' => $this->hasKey(), 'models' => $this->models, 'onlyFor' => $this->onlyFor, 'keySource' => $this->keySource, 'keyFile' => $this->keyFile];
     }
 
     /**

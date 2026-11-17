@@ -208,12 +208,16 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             }
             $check(!str_contains($pagina['body'], $enUso), "b1b la página no contiene la clave en uso de {$nombre} (comparada, no impresa)", "HTTP {$pagina['status']}");
         }
-        //La de OpenAI: con el archivo de claves, sin campo (P318); si no, su campo, vacío. Las de los proveedores, siempre vacías.
-        $campoOpenAI = \PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile('OpenAIApiKey')
-            ? !str_contains($pagina['body'], 'name="OpenAIApiKey"') && str_contains($pagina['body'], 'data-fixed-by-file')
-            : str_contains($pagina['body'], 'name="OpenAIApiKey" value=""');
+        //La de OpenAI (ADR 0077, revisión del 14): su fila de registro convertido, con el archivo de claves «del archivo» y sin
+        //casilla; si no, su campo de clave, vacío. Los campos de clave de todos los registros, siempre vacíos.
+        $inicioOpenAI = mb_strpos($pagina['body'], 'data-ai-provider-id="openai"');
+        $filaOpenAI = $inicioOpenAI === false ? '' : mb_substr($pagina['body'], $inicioOpenAI, 6000);
+        $filaOpenAI = mb_substr($filaOpenAI, 0, (int) (mb_strpos($filaOpenAI, 'data-ai-provider-remove') ?: mb_strlen($filaOpenAI)));
+        $campoOpenAI = $inicioOpenAI === false || (\PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile('OpenAIApiKey')
+            ? str_contains($filaOpenAI, "<option selected value='file'>") && !str_contains($filaOpenAI, '[clear_key]')
+            : preg_match('/\[key\]" value=""/', $filaOpenAI) === 1);
         $valoresDeClave = preg_match_all('/\[key\]" value="([^"]*)"/', $pagina['body'], $encontrados) > 0 ? $encontrados[1] : [];
-        $check($campoOpenAI && $valoresDeClave !== [] && array_filter($valoresDeClave, fn(string $valor): bool => $valor !== '') === [], 'b2 y el campo de la clave va vacío (o, si la fija el archivo de claves, no hay campo); los de los proveedores, también vacíos', "HTTP {$pagina['status']}, fijada por el archivo: " . var_export(\PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile('OpenAIApiKey'), true));
+        $check($campoOpenAI && $valoresDeClave !== [] && array_filter($valoresDeClave, fn(string $valor): bool => $valor !== '') === [], 'b2 la fila de OpenAI: si la fija el archivo de claves, «del archivo» y sin casilla; si no, su campo vacío; los campos de clave de todos los registros, vacíos', "HTTP {$pagina['status']}, fijada por el archivo: " . var_export(\PiecesPHP\Core\ConfigHelpers\ConfigOptions::isFixedByFile('OpenAIApiKey'), true));
         //El resto de los campos, con su valor de ahora: el guardado no debe cambiar nada más.
         $resto = [];
         foreach (['modelOpenAI', 'modelMistral', 'translationAI'] as $nombre) {
@@ -223,17 +227,18 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         if ($traduccion === true || $traduccion === 1 || $traduccion === '1') {
             $resto['translationAIEnable'] = 1;
         }
+        //Configuración › IA ya no escribe las opciones de antes (ADR 0077, revisión del 14): un POST con los campos viejos no
+        //escribe NADA, ni en ellas ni en las de los registros (sin providers_sent no hay conversión).
+        $filasIA = function () use ($database): string {
+            $consulta = $database->prepare('SELECT `name`, `value` FROM `pcsphp_app_config` WHERE `name` IN (?, ?, ?) ORDER BY `name`');
+            $consulta->execute([\PiecesPHP\AI\AIGateway::CONFIG_NAME, \PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME, \PiecesPHP\AI\AIGateway::MODELS_CONFIG_NAME]);
+            return sha1((string) json_encode($consulta->fetchAll(\PDO::FETCH_ASSOC)));
+        };
+        $filasIAAntes = $filasIA();
         $guardar = $pedir($rutaIA, $jwtRoot, $resto + ['OpenAIApiKey' => '', 'MistralAIApiKey' => '']);
-        $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b3 guardar con las claves vacías las conserva (selladas en la base)', "HTTP {$guardar['status']}");
-        $guardar = $pedir($rutaIA, $jwtRoot, $resto + ['OpenAIApiKey' => "{$falsa}-nueva", 'MistralAIApiKey' => '']);
-        //Con archivo de claves, la de OpenAI la define él (P318) y la pantalla no la cambia, y lo dice; sin él, cambia. Se mide
-        //lo que pase aquí: la respuesta trae el aviso o no.
-        $definidaPorArchivo = str_contains($guardar['body'], 'la define el archivo de claves');
-        if ($definidaPorArchivo) {
-            $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b4 CANARIO (con archivo de claves): guardar otra clave no cambia la fila, sellada, y la respuesta lo avisa', "HTTP {$guardar['status']}");
-        } else {
-            $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-nueva" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey", 'b4 CANARIO (sin archivo de claves): guardar otra clave la cambia, sellada (y la vacía sigue igual)', "HTTP {$guardar['status']}");
-        }
+        $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey" && $filasIA() === $filasIAAntes, 'b3 un POST con las claves de antes vacías: OpenAIApiKey y MistralAIApiKey idénticas (selladas), y ai_center, ai_provider_keys y ai_provider_models idénticas (sha1)', "HTTP {$guardar['status']}");
+        $guardar = $pedir($rutaIA, $jwtRoot, $resto + ['OpenAIApiKey' => "{$falsa}-nueva", 'MistralAIApiKey' => "{$falsa}-nueva"]);
+        $check($guardadaAbierta('OpenAIApiKey') === "{$falsa}-OpenAIApiKey" && $guardadaAbierta('MistralAIApiKey') === "{$falsa}-MistralAIApiKey" && $filasIA() === $filasIAAntes, 'b4 CANARIO: un POST con otras claves en los campos de antes no escribe nada: las dos opciones y las tres de los registros, idénticas', "HTTP {$guardar['status']}");
 
         //──── [c] El contenido de una publicación, en su aprobación y en su edición ──────────
         echoTerminal('');

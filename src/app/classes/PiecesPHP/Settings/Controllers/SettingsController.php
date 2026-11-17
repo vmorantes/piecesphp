@@ -298,21 +298,17 @@ class SettingsController extends AdminPanelController
         \PiecesPHP\Core\SessionToken::INACTIVITY_CONFIG,
         \PiecesPHP\Core\SessionToken::CEILING_CONFIG,
     ];
+    /**
+     * Solo el centro de mando (ADR 0074 y 0077): las opciones de antes (claves, modelos y translationAI) ya no se escriben
+     * desde aquí; se leen hasta la 11.0.0 como los registros convertidos (AIProviderRegistry).
+     */
     const AI_CONFIG_KEYS = [
-        'modelOpenAI',
-        'modelMistral',
-        'modelGroq',
-        'OpenAIApiKey',
-        'MistralAIApiKey',
-        'GroqAPIKey',
-        'translationAI',
-        //El centro de mando (ADR 0074). translationAIEnable y translationAIUserTypes ya no se pintan: se leen como heredados.
         AIGateway::CONFIG_NAME,
     ];
 
     /**
-     * De AI_CONFIG_KEYS, los secretos: el formulario no los pinta.
-     * Responde QUÉ no se pinta; el catálogo de opciones es ConfigOptions (ADR 0055).
+     * Las claves de API de antes: selladas en la base (SettingsRoutes las declara SHAPE_SECRET). Ya no las escribe
+     * Configuración › IA.
      */
     const AI_SECRET_CONFIG_KEYS = [
         'OpenAIApiKey',
@@ -2303,83 +2299,6 @@ class SettingsController extends AdminPanelController
                         return (int) $value * 86400;
                     }
                 ),
-                'modelOpenAI' => new Parameter(
-                    'modelOpenAI',
-                    '',
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-                'modelMistral' => new Parameter(
-                    'modelMistral',
-                    '',
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-                'modelGroq' => new Parameter(
-                    'modelGroq',
-                    '',
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-                'GroqAPIKey' => new Parameter(
-                    'GroqAPIKey',
-                    '',
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-                'OpenAIApiKey' => new Parameter(
-                    'OpenAIApiKey',
-                    '',
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-                'MistralAIApiKey' => new Parameter(
-                    'MistralAIApiKey',
-                    '',
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-                'translationAI' => new Parameter(
-                    'translationAI',
-                    '',
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
                 \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => new Parameter(
                     \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG,
                     null,
@@ -2416,21 +2335,6 @@ class SettingsController extends AdminPanelController
                     }
                 ),
             ];
-            //«Quitar la guardada» (P317), una casilla por clave de IA que esta pantalla escribe.
-            foreach (array_intersect($keys, self::AI_SECRET_CONFIG_KEYS) as $secretKey) {
-                $definitions["clear_{$secretKey}"] = new Parameter(
-                    "clear_{$secretKey}",
-                    false,
-                    function ($value) {
-                        return Validator::isInteger($value) || is_bool($value);
-                    },
-                    true,
-                    function ($value) {
-                        return $value === 1 || $value == '1' || $value === true;
-                    }
-                );
-                $keys[] = "clear_{$secretKey}";
-            }
             $expectedParameters = new Parameters(array_values(array_intersect_key($definitions, array_flip($keys))));
 
             //Obtención de datos (los registros de proveedor nuevos reciben aquí su id, del servidor)
@@ -2462,9 +2366,6 @@ class SettingsController extends AdminPanelController
 
                     $configurationsToSave = [];
                     foreach ($keys as $key) {
-                        if (str_starts_with($key, 'clear_')) {
-                            continue;
-                        }
                         $configurationsToSave[$key] = $expectedParameters->getValue($key);
                     }
                     $messagesOnSave = [
@@ -2480,47 +2381,21 @@ class SettingsController extends AdminPanelController
                         \PiecesPHP\Core\SessionToken::CEILING_CONFIG => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
                             '%s' => __(self::LANG_GROUP, 'Días desde que se abrió que la cierran (tope)'),
                         ]),
-                        'modelOpenAI' => __(self::LANG_GROUP, 'Modelo de OpenAI actualizado'),
-                        'modelMistral' => __(self::LANG_GROUP, 'Modelo de Mistral actualizado'),
-                        'OpenAIApiKey' => __(self::LANG_GROUP, 'API Key de OpenAI actualizada'),
-                        'MistralAIApiKey' => __(self::LANG_GROUP, 'API Key de Mistral actualizada'),
-                        'modelGroq' => __(self::LANG_GROUP, 'Modelo de Groq actualizado'),
-                        'GroqAPIKey' => __(self::LANG_GROUP, 'API Key de Groq actualizada'),
-                        'translationAI' => __(self::LANG_GROUP, 'IA para traducciones'),
                         'translationAIEnable' => __(self::LANG_GROUP, 'Configuración de traducción con IA actualizada'),
                         \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => __(self::LANG_GROUP, 'Quién puede traducir con IA actualizado'),
                         AIGateway::CONFIG_NAME => __(self::LANG_GROUP, 'Las funciones de inteligencia artificial, actualizadas'),
-                    ];
-
-                    $messagesOnSaveLabels = [
-                        'OpenAIApiKey' => __(self::LANG_GROUP, 'API Key OpenAI'),
-                        'MistralAIApiKey' => __(self::LANG_GROUP, 'API Key Mistral'),
-                        'GroqAPIKey' => __(self::LANG_GROUP, 'API Key Groq'),
                     ];
 
                     $success = true;
                     $successMessage = __(self::LANG_GROUP, 'No ha habido ninguna modificación.');
                     $changesMessages = [];
 
+                    //Las claves de los convertidos en memoria y las entradas de antes se toman ANTES de guardar ai_center (con la
+                    //marca, los convertidos ya no existen).
+                    $convertedKeys = array_filter(array_map(fn(array $converted): string => $converted['key'], AIProviderRegistry::convertedPending()), fn(string $key): bool => $key !== '');
+                    $previousEntries = self::aiProviderEntriesBeforeSave();
+
                     foreach ($configurationsToSave as $configName => $configValue) {
-
-                        //La que define el archivo de claves manda (P318): lo que llegue no se guarda ni se borra, y se dice.
-                        if (ConfigOptions::isFixedByFile($configName)) {
-                            if ((is_string($configValue) && $configValue !== '') || $expectedParameters->getValue("clear_{$configName}") === true) {
-                                $changesMessages[] = strReplaceTemplate(__(self::LANG_GROUP, '"%s" la define el archivo de claves: no se cambió.'), [
-                                    '%s' => $messagesOnSaveLabels[$configName] ?? $configName,
-                                ]);
-                            }
-                            continue;
-                        }
-
-                        //Las claves de API no se pintan en el formulario: llega vacía si no se cambia, y vacía la conserva.
-                        if (in_array($configName, self::AI_SECRET_CONFIG_KEYS, true)) {
-                            $configValue = self::secretToSave(is_string($configValue) ? $configValue : '', $expectedParameters->getValue("clear_{$configName}") === true);
-                            if ($configValue === null) {
-                                continue;
-                            }
-                        }
 
                         if ($configValue !== null) {
 
@@ -2557,7 +2432,7 @@ class SettingsController extends AdminPanelController
                     if ($success && in_array(AIGateway::CONFIG_NAME, $keys, true)) {
                         $savedCenter = $expectedParameters->getValue(AIGateway::CONFIG_NAME);
                         $savedKeys = AIProviderRegistry::keys();
-                        $providerKeys = self::aiProviderKeysFromInput($inputData, is_array($savedCenter) && is_array($savedCenter['providers'] ?? null) ? $savedCenter['providers'] : [], $savedKeys);
+                        $providerKeys = self::aiProviderKeysFromInput($inputData, is_array($savedCenter) && is_array($savedCenter['providers'] ?? null) ? $savedCenter['providers'] : [], $savedKeys + $convertedKeys, $previousEntries);
                         if ($providerKeys !== $savedKeys) {
                             $keysOption = new SettingsModel(AIProviderRegistry::KEYS_CONFIG_NAME);
                             $keysOption->value = AIProviderRegistry::sealKeys($providerKeys);
@@ -2573,6 +2448,58 @@ class SettingsController extends AdminPanelController
                                 $changesMessages[] = __(self::LANG_GROUP, 'Las claves de los proveedores, actualizadas');
                             } else {
                                 $unknowErrorMessage = $errorSomesOptions;
+                            }
+                        }
+                        //La caché de modelos, sin los registros que ya no están (solo si el formulario mandó la lista: sin ella, un
+                        //convertido aún en memoria parecería quitado).
+                        $providersSent = is_array($inputData) && in_array($inputData[AIGateway::CONFIG_NAME]['providers_sent'] ?? null, [true, 1, '1', 'on'], true);
+                        $savedProviders = is_array($savedCenter) && is_array($savedCenter['providers'] ?? null) ? $savedCenter['providers'] : [];
+                        $converted = is_array($savedCenter) && ($savedCenter[AIProviderRegistry::CONVERTED_FLAG] ?? null) === true;
+                        //Los que siguen y no cambiaron de destino ni de nombre en el archivo; sin la marca, también los convertidos en memoria.
+                        $remaining = $converted ? [] : array_keys(array_diff_key($previousEntries, self::aiProviderEntries()));
+                        foreach ($savedProviders as $entry) {
+                            if (!is_array($entry) || !is_string($entry['id'] ?? null)) {
+                                continue;
+                            }
+                            $before = $previousEntries[$entry['id']] ?? null;
+                            if ($before === null || (!self::aiProviderDestinationChanged($before, $entry) && ($before['keyFile'] ?? null) === ($entry['keyFile'] ?? null))) {
+                                $remaining[] = $entry['id'];
+                            }
+                        }
+                        if ($providersSent && !AIGateway::pruneModelsCache($remaining)) {
+                            $success = false;
+                            $unknowErrorMessage = $errorSomesOptions;
+                        }
+                        //Quitar un convertido, o «Quitar la guardada» en él, vacía también su opción de antes, que siguen leyendo
+                        //los caminos en desuso. Solo con la conversión escrita, y nunca la que fija el archivo.
+                        if ($providersSent && $converted) {
+                            $savedById = array_column(array_filter($savedProviders, 'is_array'), null, 'id');
+                            $rows = is_array($inputData) && is_array($inputData[AIGateway::CONFIG_NAME]['providers'] ?? null) ? $inputData[AIGateway::CONFIG_NAME]['providers'] : [];
+                            $cleared = [];
+                            foreach ($rows as $row) {
+                                if (is_array($row) && is_string($row['id'] ?? null) && in_array($row['clear_key'] ?? null, [true, 1, '1', 'on'], true)) {
+                                    $cleared[trim($row['id'])] = true;
+                                }
+                            }
+                            foreach (AIProviderRegistry::CONVERTED as $convertedId => $definition) {
+                                $removed = isset($previousEntries[$convertedId]) && !isset($savedById[$convertedId]);
+                                if (!$removed && !isset($cleared[$convertedId])) {
+                                    continue;
+                                }
+                                $option = $definition['keyOption'];
+                                $current = get_config($option);
+                                if (ConfigOptions::isFixedByFile($option) || !is_string($current) || $current === '') {
+                                    continue;
+                                }
+                                $oldOption = new SettingsModel($option);
+                                $oldOption->value = ConfigOptions::valueToStore($option, '');
+                                $oldSaved = $oldOption->id !== null ? $oldOption->update() : true;
+                                if ($oldSaved) {
+                                    set_config($option, '');
+                                } else {
+                                    $success = false;
+                                    $unknowErrorMessage = $errorSomesOptions;
+                                }
                             }
                         }
                     }
@@ -3604,9 +3531,9 @@ class SettingsController extends AdminPanelController
             }
             $entry['periodLength'] = (int) $length;
 
-            //El proveedor y el modelo de la función (ADR 0077); sin elegir, el heredado de «IA para traducciones».
+            //El proveedor y el modelo de la función (ADR 0077); un id heredado (EN DESUSO) se guarda como su convertido.
             if (array_key_exists('provider', $fields)) {
-                $provider = is_string($fields['provider']) ? trim($fields['provider']) : null;
+                $provider = is_string($fields['provider']) ? AIProviderRegistry::resolveId(trim($fields['provider'])) : null;
                 $model = is_string($fields['model'] ?? null) ? trim($fields['model']) : '';
                 if ($provider === null) {
                     $invalid($name, __(self::LANG_GROUP, 'Proveedor'));
@@ -3615,7 +3542,8 @@ class SettingsController extends AdminPanelController
                     unset($entry['provider'], $entry['model']);
                 } else {
                     $entry['provider'] = $provider;
-                    if ($model === '') {
+                    //'__other__' es la opción «Otro…» del desplegable: llegar así es que no se escribió el modelo.
+                    if ($model === '' || $model === '__other__' || mb_strlen($model) > AIGateway::MODEL_ID_MAX_LENGTH) {
                         $invalid($name, __(self::LANG_GROUP, 'Modelo'));
                     }
                     $entry['model'] = $model;
@@ -3627,9 +3555,15 @@ class SettingsController extends AdminPanelController
 
         $center['capabilities'] = $capabilities;
 
-        //Los registros de proveedor: solo si el formulario los mandó (providers_sent); si no, se conservan los guardados.
+        //Los registros de proveedor: solo si el formulario los mandó (providers_sent); si no, se conservan los guardados. La
+        //marca de la conversión solo la pone el formulario de esta versión (converted_sent): uno de antes guarda sin convertir.
+        $pending = AIProviderRegistry::isConverted() ? [] : AIProviderRegistry::convertedPending();
         if ($truthy($input['providers_sent'] ?? false)) {
             $center['providers'] = self::aiProvidersFromInput(is_array($input['providers'] ?? null) ? $input['providers'] : [], is_array($center['providers'] ?? null) ? $center['providers'] : []);
+            if ($truthy($input['converted_sent'] ?? false)) {
+                $center[AIProviderRegistry::CONVERTED_FLAG] = true;
+                $pending = [];
+            }
         }
         $providers = is_array($center['providers'] ?? null) ? $center['providers'] : [];
         $byId = [];
@@ -3637,9 +3571,8 @@ class SettingsController extends AdminPanelController
             $byId[(string) $entry['id']] = $entry;
         }
 
-        //Cada función con proveedor: que exista (guardado o heredado), que sepa lo que pide y, si es guardado, su modelo
-        //entra en las sugerencias del registro. Y no se quita un registro que una función usa.
-        $legacy = array_filter(AIProviderRegistry::all(), fn(AIProviderRecord $record): bool => str_starts_with($record->id(), AIProviderRegistry::LEGACY_PREFIX));
+        //Cada función con proveedor: que exista (guardado o, sin guardar la conversión, convertido), que sepa lo que pide y,
+        //si es guardado, su modelo entra en las sugerencias del registro. Y no se quita un registro que una función usa.
         foreach ($capabilities as $key => $entry) {
             $chosen = is_array($entry) && is_string($entry['provider'] ?? null) ? $entry['provider'] : null;
             if ($chosen === null) {
@@ -3647,10 +3580,11 @@ class SettingsController extends AdminPanelController
             }
             $capability = AICapabilityRegistry::get((string) $key);
             $name = $capability !== null ? $capability->name() : (string) $key;
-            if (!isset($byId[$chosen]) && !isset($legacy[$chosen])) {
+            $chosen = AIProviderRegistry::resolveId($chosen);
+            if (!isset($byId[$chosen]) && !isset($pending[$chosen])) {
                 throw new InvalidParameterValueException(strReplaceTemplate(__(self::LANG_GROUP, '«%capability%» lo usa: elige otro proveedor para «%capability%» antes de quitarlo.'), ['%capability%' => $name]));
             }
-            $record = $legacy[$chosen] ?? new AIProviderRecord($chosen, (string) $byId[$chosen]['type'], (string) $byId[$chosen]['alias'], '', $byId[$chosen]['baseUrl'] ?? null, $byId[$chosen]['keyHeader'] ?? null);
+            $record = isset($byId[$chosen]) ? new AIProviderRecord($chosen, (string) $byId[$chosen]['type'], (string) $byId[$chosen]['alias'], '', $byId[$chosen]['baseUrl'] ?? null, $byId[$chosen]['keyHeader'] ?? null) : $pending[$chosen]['record'];
             $fits = $capability !== null && $capability->providerType() === AICapability::PROVIDER_SPEECH
                 ? $record->supports(AIProviderCatalog::CAPABILITY_SPEECH)
                 : $record->supports(AIProviderCatalog::CAPABILITY_CHAT) && !($capability !== null && $capability->usesTools() && !$record->supports(AIProviderCatalog::CAPABILITY_TOOLS));
@@ -3673,8 +3607,8 @@ class SettingsController extends AdminPanelController
 
     /**
      * Los registros de proveedor tal como se guardan en ai_center.providers (SIN clave), a partir de las filas del
-     * formulario. Cada fila trae su id (uno guardado) o el _newId que puso el servidor (aiAssignProviderIds()): el
-     * cliente nunca elige uno. Lo que no vale lanza con el campo y el registro.
+     * formulario. Cada fila trae su id (uno guardado o, sin la conversión escrita, uno convertido) o el _newId que puso el
+     * servidor (aiAssignProviderIds()): el cliente nunca elige uno. Lo que no vale lanza con el campo y el registro.
      *
      * @param array<mixed> $rows
      * @param array<mixed> $saved Los guardados
@@ -3689,7 +3623,8 @@ class SettingsController extends AdminPanelController
                 $savedById[$entry['id']] = $entry;
             }
         }
-        $aliases = array_map(fn(AIProviderRecord $record): string => mb_strtolower($record->alias()), array_filter(AIProviderRegistry::all(), fn(AIProviderRecord $record): bool => str_starts_with($record->id(), AIProviderRegistry::LEGACY_PREFIX)));
+        $converted = AIProviderRegistry::isConverted() ? [] : array_map(fn(array $pending): array => $pending['entry'], AIProviderRegistry::convertedPending());
+        $aliases = [];
         $providers = [];
         $position = 0;
         foreach ($rows as $row) {
@@ -3701,7 +3636,7 @@ class SettingsController extends AdminPanelController
                 throw new InvalidParameterValueException(strReplaceTemplate(__(self::LANG_GROUP, 'Inteligencia artificial: el campo «%field%» del proveedor «%provider%» no es válido.'), ['%field%' => $field, '%provider%' => $label]));
             };
             $sentId = is_string($row['id'] ?? null) ? trim($row['id']) : '';
-            if ($sentId !== '' && !isset($savedById[$sentId])) {
+            if ($sentId !== '' && !isset($savedById[$sentId]) && !isset($converted[$sentId])) {
                 $invalid('id');
             }
             $id = $sentId !== '' ? $sentId : (is_string($row['_newId'] ?? null) ? $row['_newId'] : '');
@@ -3738,7 +3673,18 @@ class SettingsController extends AdminPanelController
             if (!(is_int($length) || (is_string($length) && preg_match('/^\d+$/', trim($length)) === 1)) || (int) $length < 1) {
                 $invalid('N');
             }
-            $previous = $savedById[$id] ?? [];
+            $keySource = is_string($row['keySource'] ?? null) && $row['keySource'] !== '' ? $row['keySource'] : AIProviderRecord::KEY_SOURCE_STORED;
+            if (!in_array($keySource, AIProviderRecord::KEY_SOURCES, true)) {
+                $invalid(__(self::LANG_GROUP, 'Origen de la clave'));
+            }
+            $keyFile = null;
+            if ($keySource === AIProviderRecord::KEY_SOURCE_FILE) {
+                $keyFile = is_string($row['keyFile'] ?? null) ? trim($row['keyFile']) : '';
+                if (!AIProviderRecord::isValidKeyFile($keyFile, $type)) {
+                    $invalid(__(self::LANG_GROUP, 'Nombre en el archivo'));
+                }
+            }
+            $previous = $savedById[$id] ?? $converted[$id] ?? [];
             $entry = [
                 'id' => $id,
                 'type' => $type,
@@ -3749,12 +3695,14 @@ class SettingsController extends AdminPanelController
                 'quota' => (int) $quota,
                 'period' => $period,
                 'periodLength' => (int) $length,
+                'keySource' => $keySource,
+                'keyFile' => $keyFile,
             ];
             if (is_string($previous['periodAnchor'] ?? null)) {
                 $entry['periodAnchor'] = $previous['periodAnchor'];
             }
             try {
-                new AIProviderRecord($id, $type, $alias, '', $baseUrl, $keyHeader, $entry['models']);
+                new AIProviderRecord($id, $type, $alias, '', $baseUrl, $keyHeader, $entry['models'], null, $keySource, $keyFile);
             } catch (\InvalidArgumentException $e) {
                 $invalid(__(self::LANG_GROUP, 'Tipo'));
             }
@@ -3808,14 +3756,16 @@ class SettingsController extends AdminPanelController
 
     /**
      * Las claves de los registros tras el guardado: la escrita, o la guardada si llega vacía; «Quitar la guardada» la
-     * borra; la de un registro que ya no está, fuera.
+     * borra; la de un registro que ya no está, o cuya clave sale del archivo, fuera. Y la guardada de un registro que cambia
+     * de destino (aiProviderDestinationChanged()) también sale, salvo que llegue una nueva.
      *
      * @param mixed $input El cuerpo de la petición, ya con los _newId
      * @param array<mixed> $providers Los registros guardados en ai_center
      * @param array<string,string> $savedKeys
+     * @param array<string,array<string,mixed>> $previous Las entradas de antes de este guardado, por id (guardadas o convertidas)
      * @return array<string,string>
      */
-    public static function aiProviderKeysFromInput($input, array $providers, array $savedKeys): array
+    public static function aiProviderKeysFromInput($input, array $providers, array $savedKeys, array $previous = []): array
     {
         $rows = is_array($input) && is_array($input[AIGateway::CONFIG_NAME]['providers'] ?? null) ? $input[AIGateway::CONFIG_NAME]['providers'] : [];
         $sent = [];
@@ -3832,16 +3782,55 @@ class SettingsController extends AdminPanelController
                 continue;
             }
             $id = $entry['id'];
+            if (($entry['keySource'] ?? AIProviderRecord::KEY_SOURCE_STORED) === AIProviderRecord::KEY_SOURCE_FILE) {
+                continue;
+            }
             $row = $sent[$id] ?? [];
             $written = is_string($row['key'] ?? null) ? trim($row['key']) : '';
             $clear = in_array($row['clear_key'] ?? null, [true, 1, '1', 'on'], true);
+            //Otro tipo, dirección o cabecera: la clave escrita no viaja a otro destino sin que alguien la escriba de nuevo.
+            $moved = isset($previous[$id]) && self::aiProviderDestinationChanged($previous[$id], $entry);
             if ($written !== '') {
                 $keys[$id] = $written;
-            } elseif (!$clear && isset($savedKeys[$id])) {
+            } elseif (!$clear && !$moved && isset($savedKeys[$id])) {
                 $keys[$id] = $savedKeys[$id];
             }
         }
         return $keys;
+    }
+
+    /**
+     * Si entre dos entradas de un registro cambia adónde va su clave: el tipo, la dirección base o la cabecera.
+     *
+     * @param array<string,mixed> $before
+     * @param array<string,mixed> $after
+     * @return bool
+     */
+    public static function aiProviderDestinationChanged(array $before, array $after): bool
+    {
+        foreach (['type', 'baseUrl', 'keyHeader'] as $field) {
+            $old = is_string($before[$field] ?? null) && $before[$field] !== '' ? $before[$field] : null;
+            $new = is_string($after[$field] ?? null) && $after[$field] !== '' ? $after[$field] : null;
+            if ($field === 'baseUrl') {
+                $old = $old !== null ? rtrim($old, '/') : null;
+                $new = $new !== null ? rtrim($new, '/') : null;
+            }
+            if ($old !== $new) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Las entradas que hay ANTES de un guardado de Configuración › IA, por id: las guardadas y, sin la conversión escrita,
+     * las de los convertidos en memoria.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    public static function aiProviderEntriesBeforeSave(): array
+    {
+        return self::aiProviderEntries() + array_map(fn(array $converted): array => $converted['entry'], AIProviderRegistry::isConverted() ? [] : AIProviderRegistry::convertedPending());
     }
 
     /**
@@ -3896,8 +3885,9 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * «Probar» un proveedor desde su fila de Configuración › IA (ADR 0077 §5): uno guardado por su id (con la clave
-     * escrita o, si llega vacía, la guardada) o uno sin guardar por sus campos, y un modelo. Una llamada mínima por
+     * «Probar» un proveedor desde su fila de Configuración › IA (ADR 0077 §5): uno guardado (o convertido) por su id, con
+     * su origen de la clave (la del archivo, por SU nombre) o la escrita si llega; o uno sin guardar por sus campos y con
+     * la clave escrita, nunca con la del archivo. Y un modelo. Una llamada mínima por
      * AIGateway::testProvider(): no guarda nada ni anota consumo. Responde 200 con {ok, message}.
      *
      * @param Request $req
@@ -3915,11 +3905,16 @@ class SettingsController extends AdminPanelController
         if ($model === '') {
             return $answer(false, __(self::LANG_GROUP, 'Escribe el modelo con que probarlo.'));
         }
+        if (mb_strlen($model) > AIGateway::MODEL_ID_MAX_LENGTH) {
+            return $answer(false, __(self::LANG_GROUP, 'El modelo no vale: como mucho 128 caracteres.'));
+        }
         $id = $text('id');
         $key = $text('key');
+        $saved = null;
         if ($id !== '') {
+            //Un guardado o, sin la conversión escrita, un convertido (AIProviderRegistry::all()).
             $saved = AIProviderRegistry::get($id);
-            if ($saved === null || str_starts_with($id, AIProviderRegistry::LEGACY_PREFIX)) {
+            if ($saved === null) {
                 return $answer(false, __(self::LANG_GROUP, 'Ese proveedor no está guardado.'));
             }
             $type = $saved->type();
@@ -3937,16 +3932,55 @@ class SettingsController extends AdminPanelController
         if ($type === AIProviderCatalog::TYPE_CUSTOM && ($baseUrl === null || !AIProviderCatalog::isValidCustomBaseUrl($baseUrl))) {
             return $answer(false, __(self::LANG_GROUP, 'La dirección base no vale: https://, o http://localhost o http://127.0.0.1.'));
         }
+        //La clave del archivo, solo la de un registro guardado y con SU origen y SU nombre: los de la petición no cuentan, o
+        //un «Personalizado» sin guardar mandaría a su dirección una llave del servidor.
+        $keySource = AIProviderRecord::KEY_SOURCE_STORED;
+        $keyFile = null;
+        if ($saved !== null) {
+            $keySource = $saved->keySource();
+            $keyFile = $saved->keyFile();
+            if ($keySource === AIProviderRecord::KEY_SOURCE_FILE) {
+                $key = $saved->key();
+                if ($key === '') {
+                    return $answer(false, __(self::LANG_GROUP, 'No está en el archivo de claves.'));
+                }
+            }
+        } elseif ($text('keySource') === AIProviderRecord::KEY_SOURCE_FILE) {
+            return $answer(false, __(self::LANG_GROUP, 'Guarda el proveedor para probarlo con la clave del archivo.'));
+        } elseif ($text('keySource') !== '' && $text('keySource') !== AIProviderRecord::KEY_SOURCE_STORED) {
+            return $answer(false, __(self::LANG_GROUP, 'Elige de dónde sale la clave.'));
+        }
         if ($key === '') {
             return $answer(false, __(self::LANG_GROUP, 'Escribe la clave para probarlo.'));
         }
         try {
-            $record = new AIProviderRecord($id !== '' ? $id : 'prueba', $type, $text('alias') !== '' ? $text('alias') : 'prueba', $key, $baseUrl, $keyHeader);
+            $record = new AIProviderRecord($id !== '' ? $id : 'prueba', $type, $text('alias') !== '' ? $text('alias') : 'prueba', $key, $baseUrl, $keyHeader, [], null, $keySource, $keyFile);
         } catch (\InvalidArgumentException $e) {
             return $answer(false, __(self::LANG_GROUP, 'Los datos del proveedor no valen: revisa la cabecera de la clave.'));
         }
         $result = AIGateway::testProvider($record, $model);
         return $answer($result['ok'], $result['message']);
+    }
+
+    /**
+     * «Actualizar modelos» de un registro guardado (o, sin la conversión escrita, convertido) por su id: pide la lista al
+     * proveedor (AIGateway::refreshProviderModels()) y la guarda en la caché. Responde 200 con {ok, name, message, models,
+     * fetchedAt}.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function aiProviderModels(Request $req, Response $res)
+    {
+        $body = $req->getParsedBody();
+        $id = is_array($body) && is_string($body['id'] ?? null) ? trim($body['id']) : '';
+        $answer = fn(array $result): Response => $res->withJson(['ok' => $result['ok'], 'name' => __(self::LANG_GROUP, 'Actualizar modelos'), 'message' => $result['message'], 'models' => $result['models'], 'fetchedAt' => $result['fetchedAt']]);
+        $record = $id !== '' ? AIProviderRegistry::get($id) : null;
+        if ($record === null) {
+            return $answer(['ok' => false, 'message' => __(self::LANG_GROUP, 'Guarda el proveedor para actualizar sus modelos.'), 'models' => [], 'fetchedAt' => null]);
+        }
+        return $answer(AIGateway::refreshProviderModels($record));
     }
 
     /**
@@ -4260,6 +4294,15 @@ class SettingsController extends AdminPanelController
                 "{$startRoute}/integrations/ai/provider-test[/]",
                 $classname . ':aiProviderTest',
                 self::$baseRouteName . '-' . 'integrations-ai-provider-test',
+                'POST',
+                true,
+                null,
+                self::ROLES_SECURITY_AND_AI
+            ),
+            new Route(
+                "{$startRoute}/integrations/ai/provider-models[/]",
+                $classname . ':aiProviderModels',
+                self::$baseRouteName . '-' . 'integrations-ai-provider-models',
                 'POST',
                 true,
                 null,

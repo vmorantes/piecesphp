@@ -157,14 +157,29 @@ CliActions::make('unit-tests:core/config-secrets', function ($args) {
         $correo = fn (string $guardada): string => $pintar('email', ['element' => (new \PiecesPHP\Core\ConfigHelpers\MailConfig())->password($guardada), 'probeURL' => '', 'testSendURL' => '', 'currentEmail' => '', 'mailProtocols' => [], 'mailProtocolSaved' => '']);
         $check(str_contains($correo('zz-guardada'), 'name="clear_password"'), 'v1 correo con contraseña guardada: la casilla está');
         $check(!str_contains($correo(''), 'name="clear_password"'), 'v2 correo sin contraseña guardada: no está');
-        $antes = ['OpenAIApiKey' => get_config('OpenAIApiKey'), 'MistralAIApiKey' => get_config('MistralAIApiKey')];
-        //Como una instalación sin archivo de claves: si esta lo tiene, sus claves salen deshabilitadas y sin casilla.
+        //La pantalla de IA pinta la configuración de antes como registros convertidos (ADR 0077, revisión del 14), solo en
+        //memoria mientras no se guarda: se pinta sin la conversión escrita y sin claves de registro.
+        $antes = ['OpenAIApiKey' => get_config('OpenAIApiKey'), 'MistralAIApiKey' => get_config('MistralAIApiKey'), \PiecesPHP\AI\AIGateway::CONFIG_NAME => get_config(\PiecesPHP\AI\AIGateway::CONFIG_NAME), \PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME => get_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME)];
+        //El trozo de la página de la fila de un registro: desde su data-ai-provider-id hasta la fila siguiente o la plantilla.
+        $filaDe = function (string $pagina, string $id): string {
+            $inicio = mb_strpos($pagina, 'data-ai-provider-id="' . $id . '"');
+            if ($inicio === false) {
+                return '';
+            }
+            $resto = mb_substr($pagina, $inicio + 1);
+            $fin = min(array_filter([mb_strpos($resto, 'data-ai-provider-id='), mb_strpos($resto, '<template'), mb_strlen($resto)], fn($posicion) => $posicion !== false));
+            return mb_substr($resto, 0, $fin);
+        };
+        //Como una instalación sin archivo de claves: si esta lo tiene, sus claves salen del archivo y sin casilla.
         $fijadasV = ConfigOptions::swapFixedByFileForTesting([]);
         try {
+            set_config(\PiecesPHP\AI\AIGateway::CONFIG_NAME, false);
+            set_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME, false);
             set_config('OpenAIApiKey', 'zz-guardada');
             set_config('MistralAIApiKey', '');
             $ia = $pintar('ai', []);
-            $check(str_contains($ia, 'name="clear_OpenAIApiKey"') && !str_contains($ia, 'name="clear_MistralAIApiKey"'), 'v3 IA: la casilla, solo junto a la clave guardada');
+            //Antes: name="clear_OpenAIApiKey" solo junto a la guardada. Ahora la casilla de la fila del convertido.
+            $check(str_contains($filaDe($ia, 'openai'), '[clear_key]') && $filaDe($ia, 'mistral') === '', 'v3 IA: la casilla «Quitar la guardada» en la fila del convertido «stored» con clave (openai); Mistral, sin clave, no tiene fila');
         } finally {
             foreach ($antes as $opcion => $valor) {
                 set_config($opcion, $valor);
@@ -199,20 +214,32 @@ CliActions::make('unit-tests:core/config-secrets', function ($args) {
         SettingsModel::setConfigValue($f7, 'zz-en-claro-en-la-base');
         $cargar($f7);
         $check(get_config($f7) === 'zz-del-archivo' && $abrir($enBase($f7)) === 'zz-en-claro-en-la-base', 's7 fijada por el archivo con su fila en claro: no se aplica, y en la base queda sellada');
-        //La pantalla de IA: la que define el archivo, con su aviso y sin campo ni casilla; la otra, con su campo editable.
+        //La pantalla de IA: el convertido que define el archivo sale «del archivo», sin campo ni casilla a la vista y con su
+        //estado; el otro, con su campo editable y vacío.
         $antesIa = get_config('OpenAIApiKey');
         $antesMistral = get_config('MistralAIApiKey');
+        $antesCentro = get_config(\PiecesPHP\AI\AIGateway::CONFIG_NAME);
+        $antesClaves = get_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME);
         try {
+            set_config(\PiecesPHP\AI\AIGateway::CONFIG_NAME, false);
+            set_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME, false);
             ConfigOptions::markFixedByFile('OpenAIApiKey');
             set_config('OpenAIApiKey', 'zz-del-archivo');
             set_config('MistralAIApiKey', 'zz-guardada-mistral');
             $ia = $pintar('ai', []);
-            $check(str_contains($ia, 'data-fixed-by-file') && !str_contains($ia, 'name="OpenAIApiKey"') && !str_contains($ia, 'name="clear_OpenAIApiKey"'), 's5 la pantalla de IA: la que define el archivo, «La define el archivo de claves.», sin campo de clave ni casilla');
-            $check(preg_match('/name="MistralAIApiKey" value=""[^>]*>/', $ia, $campoMistral) === 1 && !str_contains($campoMistral[0], 'disabled') && str_contains($campoMistral[0], 'placeholder="' . __('appConfig', 'Clave guardada: vacío la conserva') . '"') && str_contains($ia, 'name="clear_MistralAIApiKey"') && !str_contains($ia, 'zz-guardada-mistral'), 's6 la que no define el archivo: su campo editable y vacío, «vacío la conserva», «Quitar la guardada», y la clave no está en la página');
-            $check(preg_match('/name="OpenAIApiKey"[^>]*placeholder="[^"]+"/', $ia) === 0, 's8 la fijada no promete «vacío la conserva» (sin placeholder)');
+            $delArchivo = $filaDe($ia, 'openai');
+            $estado = \PiecesPHP\AI\Providers\AIProviderRegistry::fileKey('openai', 'openai') !== '' ? __('appConfig', 'Está en el archivo') : __('appConfig', 'No está en el archivo');
+            //Antes: data-fixed-by-file y sin name="OpenAIApiKey". Ahora la fila del convertido, con origen «file».
+            $check(str_contains($delArchivo, "<option selected value='file'>") && preg_match('/data-ai-key-stored hidden/', $delArchivo) === 1 && !str_contains($delArchivo, '[clear_key]') && preg_match('/\[key\]" value=""/', $delArchivo) === 1 && str_contains($delArchivo, 'data-ai-key-file-status>' . $estado) && str_contains($delArchivo, 'name="ai_center[providers][0][keyFile]" value="openai"'), 's5 la pantalla de IA: el convertido que define el archivo, con origen «Del archivo de claves», su nombre, su estado, el campo de la clave oculto y vacío, y sin casilla', $estado);
+            $mistral = $filaDe($ia, 'mistral');
+            $check(str_contains($mistral, "<option selected value='stored'>") && preg_match('/name="[^"]*\[key\]" value=""[^>]*placeholder="([^"]*)"/', $mistral, $campoMistral) === 1 && $campoMistral[1] === strReplaceTemplate(__('appConfig', 'Guardada (…%last%)'), ['%last%' => 'tral']) && str_contains($mistral, '[clear_key]') && !str_contains($ia, 'zz-guardada-mistral'), 's6 el convertido que no define el archivo: su campo de clave editable y vacío, «Guardada (…tral)», «Quitar la guardada», y la clave no está en la página');
+            //Antes: la fijada no prometía «vacío la conserva». Ahora: el campo de la del archivo no lleva «Guardada (…)».
+            $check(preg_match('/\[key\]" value=""[^>]*placeholder="([^"]*)"/', $delArchivo, $marcador) === 1 && !str_contains($marcador[1], '…') && !str_contains($ia, 'zz-del-archivo'), 's8 la del archivo no promete «Guardada (…)» ni enseña la clave');
         } finally {
             set_config('OpenAIApiKey', $antesIa);
             set_config('MistralAIApiKey', $antesMistral);
+            set_config(\PiecesPHP\AI\AIGateway::CONFIG_NAME, $antesCentro);
+            set_config(\PiecesPHP\AI\Providers\AIProviderRegistry::KEYS_CONFIG_NAME, $antesClaves);
             ConfigOptions::swapFixedByFileForTesting($fijadasAntes);
         }
     } catch (\Throwable $e) {

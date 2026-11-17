@@ -130,7 +130,7 @@ CliActions::make('unit-tests:core/ai-speech', function ($args) {
         $elegido = AIGateway::speechProvider(AIGateway::SPEECH_CAPABILITY, $root);
         set_config(AIGateway::CONFIG_NAME, $centro([]));
         $heredado = AIGateway::speechProvider(AIGateway::SPEECH_CAPABILITY, $root);
-        $check($elegido->recordId() === 'zz-prov-sp' && $elegido->model() === 'zz-whisper-elegido' && $heredado->recordId() === AIProviderRegistry::LEGACY_GROQ && $heredado->model() === 'zz-whisper-heredado' && $heredado instanceof OpenAICompatibleSpeechProvider && $heredado->timeoutSeconds() === 120, '3a con provider y model, ese registro; sin ellos, legacy-groq con modelGroq; 120 s', $elegido->recordId() . ' · ' . $heredado->recordId());
+        $check($elegido->recordId() === 'zz-prov-sp' && $elegido->model() === 'zz-whisper-elegido' && $heredado->recordId() === AIProviderRegistry::CONVERTED_GROQ && $heredado->model() === 'zz-whisper-heredado' && $heredado instanceof OpenAICompatibleSpeechProvider && $heredado->timeoutSeconds() === 120, '3a con provider y model, ese registro; sin ellos, el convertido groq con modelGroq (sin la conversión escrita); 120 s', $elegido->recordId() . ' · ' . $heredado->recordId());
         set_config(AIGateway::CONFIG_NAME, $centro(['provider' => 'zz-prov-chat', 'model' => 'zz']));
         $motivo = '';
         try {
@@ -194,4 +194,4 @@ CliActions::make('unit-tests:core/ai-speech', function ($args) {
         : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('La voz a texto por el centro de IA (ADR 0077) y el consumo por modelo, sin red: la petición multipart de /audio/transcriptions y su respuesta (por tokens, por duración y solo texto), un 401 sin la clave, speechProvider() con su registro, el heredado legacy-groq y el motivo de un registro sin voz, GroqAPIKey sellada, recordUsage con entrada, salida y modelo en filas por modelo, usage() con la suma de siempre y la actualización de la tabla aplicada. Anota consumo zz-prov-sp y lo borra.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('La voz a texto por el centro de IA (ADR 0077) y el consumo por modelo, sin red: la petición multipart de /audio/transcriptions y su respuesta (por tokens, por duración y solo texto), un 401 sin la clave, speechProvider() con su registro, el convertido groq y el motivo de un registro sin voz, GroqAPIKey sellada, recordUsage con entrada, salida y modelo en filas por modelo, usage() con la suma de siempre y la actualización de la tabla aplicada. Anota consumo zz-prov-sp y lo borra.')->setEffects([CliActions::EFFECT_DATABASE])->register();

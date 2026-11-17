@@ -107,6 +107,8 @@ class SettingsRoutes
         $declare(['translationAIEnable'], $owner, ConfigOptions::SHAPE_BOOL);
         $declare([APIController::TRANSLATION_AI_USER_TYPES_CONFIG], APIController::class, ConfigOptions::SHAPE_JSON);
         $declare([AIGateway::CONFIG_NAME], AIGateway::class, ConfigOptions::SHAPE_JSON);
+        //La caché de los modelos que dio cada proveedor («Actualizar modelos», ADR 0077).
+        $declare([AIGateway::MODELS_CONFIG_NAME], AIGateway::class, ConfigOptions::SHAPE_JSON);
         //Las claves de los registros de proveedor (ADR 0077): un mapa sellado que solo abre su dueño, y su sitio en el registro
         //de lo cifrado para que la rotación de la clave de la aplicación lo vuelva a sellar.
         $declare([AIProviderRegistry::KEYS_CONFIG_NAME], AIProviderRegistry::class, ConfigOptions::SHAPE_SEALED);

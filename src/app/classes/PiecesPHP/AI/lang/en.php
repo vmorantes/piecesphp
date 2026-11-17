@@ -17,4 +17,11 @@ return [
     'El proveedor necesita un modelo para probarlo.' => 'The provider needs a model to test it.',
     'Funciona.' => 'It works.',
     'Se alcanzó la cuota del proveedor «%alias%» en este periodo.' => 'The quota of the provider “%alias%” has been reached for this period.',
+    'Este proveedor no publica su lista de modelos.' => 'This provider does not publish its list of models.',
+    'Sin clave no se puede pedir la lista.' => 'Without a key the list cannot be requested.',
+    'El proveedor no devolvió una lista de modelos que se pueda leer.' => 'The provider did not return a readable list of models.',
+    'No se pudo guardar la lista de modelos.' => 'The list of models could not be saved.',
+    '%count% modelos.' => '%count% models.',
+    'No se pudo pedir la lista de modelos al proveedor.' => 'The list of models could not be requested from the provider.',
+    'La lista de modelos del proveedor es demasiado grande.' => 'The provider list of models is too large.',
 ];

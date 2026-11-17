@@ -36,15 +36,15 @@ use PiecesPHP\UserSystem\UserDataPackage;
 final class AIGateway
 {
     /**
-     * {"enabled": bool, "capabilities": {"<key>": {"enabled", "userTypes", "quota", "period", "periodLength", "periodAnchor",
-     * "provider", "model"}}, "providers": [{"id", "type", "alias", "baseUrl", "keyHeader", "models"}]} (AIProviderRegistry)
+     * {"enabled", "capabilities": {"<key>": {"enabled", "userTypes", "quota", "period", "periodLength", "periodAnchor", "provider",
+     * "model"}}, "providers": [{"id", "type", "alias", …, "keySource", "keyFile"}], "legacyConverted"} (AIProviderRegistry)
      */
     const CONFIG_NAME = 'ai_center';
 
     const ANCHOR_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * Los modelos de los heredados si modelOpenAI, modelMistral o modelGroq están vacíos: los por omisión de sus adaptadores.
+     * Los modelos de los convertidos si modelOpenAI, modelMistral o modelGroq están vacíos: los por omisión de sus adaptadores.
      */
     const LEGACY_DEFAULT_MODEL_OPENAI = 'gpt-3.5-turbo-0125';
     const LEGACY_DEFAULT_MODEL_MISTRAL = 'mistral-medium';
@@ -70,6 +70,25 @@ final class AIGateway
      * AICapability::KEY_PATTERN: ninguna capacidad registrada puede llamarse así.
      */
     const PROVIDER_USAGE_ROW = '@provider';
+
+    /**
+     * La caché de los modelos que dio cada proveedor (refreshProviderModels()): id → {models, fetchedAt} (SHAPE_JSON).
+     */
+    const MODELS_CONFIG_NAME = 'ai_provider_models';
+
+    /**
+     * El tiempo máximo de «Actualizar modelos», y los topes de lo que se guarda.
+     */
+    const MODELS_TIMEOUT_SECONDS = 10;
+    const MODELS_MAX = 500;
+    const MODELS_MAX_BYTES = 2097152;
+
+    /**
+     * El largo máximo de un modelo, el de la columna model de AIUsageMapper (varchar(128)); y los caracteres de un id que
+     * llegue del proveedor.
+     */
+    const MODEL_ID_MAX_LENGTH = 128;
+    const MODEL_ID_PATTERN = '/^[A-Za-z0-9._:\/@+-]{1,128}\z/';
 
     /**
      * Los campos no válidos ya anotados en esta petición, por su ruta.
@@ -124,9 +143,8 @@ final class AIGateway
 
     /**
      * El proveedor de chat de esa capacidad (ADR 0077): primero los controles (denialReason()); después el registro y el
-     * modelo elegidos (capabilities.<clave>.provider y .model) o, sin registro elegido, el heredado de translationAI (OpenAI
-     * → legacy-openai con modelOpenAI, Mistral → legacy-mistral con modelMistral). Cierra la conexión a la base antes de
-     * devolverlo, como chatHandler(): las herramientas reconectan solas.
+     * modelo de effectiveSelectionFor(). Cierra la conexión a la base antes de devolverlo, como chatHandler(): las
+     * herramientas reconectan solas.
      *
      * @param string $capability
      * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
@@ -140,8 +158,8 @@ final class AIGateway
     }
 
     /**
-     * La traducción con IA (ADR 0077): el proveedor de la capacidad «translation», como chatProvider() (su registro y su
-     * modelo, o el heredado de translationAI), con 120 s por llamada y los parámetros de traducción de su tipo.
+     * La traducción con IA (ADR 0077): el proveedor de la capacidad «translation», como chatProvider(), con 120 s por
+     * llamada y los parámetros de traducción de su tipo.
      *
      * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
      * @return AITranslator
@@ -157,8 +175,7 @@ final class AIGateway
 
     /**
      * El proveedor de voz a texto de esa capacidad (ADR 0077 §6), simétrico a chatProvider(): primero denialReason();
-     * después el registro y el modelo elegidos o, sin registro elegido, el heredado legacy-groq con modelGroq (por omisión
-     * LEGACY_DEFAULT_MODEL_GROQ). Cierra la conexión a la base antes de devolverlo.
+     * después el registro y el modelo de effectiveSelectionFor(). Cierra la conexión a la base antes de devolverlo.
      *
      * @param string $capability
      * @param UsersModel|UserDataPackage|null $user Por omisión, el conectado
@@ -175,11 +192,9 @@ final class AIGateway
             throw new AIUnavailableException($reason);
         }
 
-        ['provider' => $recordId, 'model' => $model] = self::providerSelectionFor($capability);
+        ['provider' => $recordId, 'model' => $model] = self::effectiveSelectionFor($capability);
         if ($recordId === null) {
-            $recordId = AIProviderRegistry::LEGACY_GROQ;
-            $configured = get_config('modelGroq');
-            $model = is_string($configured) && trim($configured) !== '' ? $configured : self::LEGACY_DEFAULT_MODEL_GROQ;
+            throw new AIUnavailableException(__(AILang::LANG_GROUP, 'No hay ningún proveedor de inteligencia artificial elegido para esta función.'));
         }
         $record = AIProviderRegistry::get($recordId);
         if ($record === null) {
@@ -219,16 +234,7 @@ final class AIGateway
             throw new AIUnavailableException($reason);
         }
 
-        ['provider' => $recordId, 'model' => $model] = self::providerSelectionFor($capability);
-        $legacyModels = [AIProviderRegistry::LEGACY_OPENAI => [get_config('modelOpenAI'), self::LEGACY_DEFAULT_MODEL_OPENAI], AIProviderRegistry::LEGACY_MISTRAL => [get_config('modelMistral'), self::LEGACY_DEFAULT_MODEL_MISTRAL]];
-        if ($recordId === null) {
-            $recordId = match (get_config('translationAI')) {
-                AI_OPENAI => AIProviderRegistry::LEGACY_OPENAI,
-                AI_MISTRAL => AIProviderRegistry::LEGACY_MISTRAL,
-                default => null,
-            };
-            $model = null;
-        }
+        ['provider' => $recordId, 'model' => $model] = self::effectiveSelectionFor($capability);
         if ($recordId === null) {
             throw new AIUnavailableException(__(AILang::LANG_GROUP, 'No hay ningún proveedor de inteligencia artificial elegido para esta función.'));
         }
@@ -242,10 +248,6 @@ final class AIGateway
         if (!$record->supports(AIProviderCatalog::CAPABILITY_CHAT) || ($definition->usesTools() && !$record->supports(AIProviderCatalog::CAPABILITY_TOOLS))) {
             throw new AIUnavailableException(__(AILang::LANG_GROUP, 'El proveedor de inteligencia artificial elegido no sabe hacer lo que necesita esta función.'));
         }
-        if ($model === null && isset($legacyModels[$recordId])) {
-            [$configured, $default] = $legacyModels[$recordId];
-            $model = is_string($configured) && trim($configured) !== '' ? $configured : $default;
-        }
         if ($model === null) {
             throw new AIUnavailableException(__(AILang::LANG_GROUP, 'Esta función de inteligencia artificial no tiene modelo elegido.'));
         }
@@ -256,19 +258,55 @@ final class AIGateway
     }
 
     /**
-     * El proveedor que se anota en el consumo: el id del registro; los heredados, con el nombre de antes (OpenAI, Mistral),
-     * para no partir la serie.
+     * El proveedor que se anota en el consumo: el id del registro; los convertidos de OpenAI y Mistral (y sus heredados),
+     * con el nombre de antes (OpenAI, Mistral), para no partir la serie.
      *
      * @param AIChatProvider $provider
      * @return string
      */
     public static function usageProviderName(AIChatProvider $provider): string
     {
-        return match ($provider->recordId()) {
-            AIProviderRegistry::LEGACY_OPENAI => AI_OPENAI,
-            AIProviderRegistry::LEGACY_MISTRAL => AI_MISTRAL,
+        return match (AIProviderRegistry::resolveId($provider->recordId())) {
+            AIProviderRegistry::CONVERTED_OPENAI => AI_OPENAI,
+            AIProviderRegistry::CONVERTED_MISTRAL => AI_MISTRAL,
             default => $provider->recordId(),
         };
+    }
+
+    /**
+     * El registro y el modelo que usa de verdad la capacidad. Los elegidos (providerSelectionFor(), con un id heredado
+     * pasado a su convertido) y, mientras la conversión no está escrita (AIProviderRegistry::isConverted()), lo de antes:
+     * sin registro elegido, una función de chat usa el convertido de translationAI (OpenAI → openai, Mistral → mistral) y
+     * una de voz el de Groq; sin modelo, el de su opción de antes o el por omisión. Con la marca, nada de eso.
+     *
+     * @param string $capability
+     * @return array{provider:?string,model:?string}
+     * @throws \InvalidArgumentException si la capacidad no está registrada
+     */
+    public static function effectiveSelectionFor(string $capability): array
+    {
+        $definition = self::capabilityOf($capability, null);
+        ['provider' => $recordId, 'model' => $model] = self::providerSelectionFor($capability);
+        $recordId = $recordId !== null ? AIProviderRegistry::resolveId($recordId) : null;
+        if (AIProviderRegistry::isConverted()) {
+            return ['provider' => $recordId, 'model' => $model];
+        }
+        if ($recordId === null) {
+            $model = null;
+            $recordId = $definition->providerType() === AICapability::PROVIDER_SPEECH
+                ? AIProviderRegistry::CONVERTED_GROQ
+                : match (get_config('translationAI')) {
+                AI_OPENAI => AIProviderRegistry::CONVERTED_OPENAI,
+                AI_MISTRAL => AIProviderRegistry::CONVERTED_MISTRAL,
+                default => null,
+            };
+        }
+        $converted = $recordId !== null ? (AIProviderRegistry::CONVERTED[$recordId] ?? null) : null;
+        if ($model === null && $converted !== null) {
+            $configured = get_config($converted['modelOption']);
+            $model = is_string($configured) && trim($configured) !== '' ? $configured : $converted['defaultModel'];
+        }
+        return ['provider' => $recordId, 'model' => $model];
     }
 
     /**
@@ -297,6 +335,149 @@ final class AIGateway
             return ['ok' => false, 'message' => __(AILang::LANG_GROUP, 'El proveedor necesita un modelo para probarlo.')];
         }
         return ['ok' => true, 'message' => __(AILang::LANG_GROUP, 'Funciona.')];
+    }
+
+    /**
+     * Los modelos que se ofrecen para un registro y una capacidad: los de la caché si el proveedor ya los dio ('provider'),
+     * o los de respaldo de su tipo para esa capacidad ('fallback'). No llama a la red.
+     *
+     * @param AIProviderRecord $record
+     * @param string $capability AIProviderCatalog::CAPABILITY_CHAT o CAPABILITY_SPEECH
+     * @return array{models:list<string>,source:string,fetchedAt:?string}
+     */
+    public static function providerModels(AIProviderRecord $record, string $capability): array
+    {
+        $cached = self::modelsCache()[$record->id()] ?? null;
+        if ($cached !== null) {
+            return ['models' => $cached['models'], 'source' => 'provider', 'fetchedAt' => $cached['fetchedAt']];
+        }
+        $fallback = AIProviderCatalog::get($record->type())['fallbackModels'][$capability] ?? [];
+        return ['models' => array_values($fallback), 'source' => 'fallback', 'fetchedAt' => null];
+    }
+
+    /**
+     * «Actualizar modelos»: pide al proveedor su lista (GET baseUrl + modelsPath, con la clave del registro y
+     * MODELS_TIMEOUT_SECONDS), se queda con los data[].id válidos y la guarda en MODELS_CONFIG_NAME. Un fallo deja la caché
+     * como estaba y da el motivo traducido, nunca el cuerpo del proveedor.
+     *
+     * @param AIProviderRecord $record
+     * @return array{ok:bool,message:string,models:list<string>,fetchedAt:?string}
+     */
+    public static function refreshProviderModels(AIProviderRecord $record): array
+    {
+        AILang::injectLang();
+        $fail = fn(string $message): array => ['ok' => false, 'message' => $message, 'models' => [], 'fetchedAt' => null];
+        $path = AIProviderCatalog::get($record->type())['modelsPath'] ?? null;
+        if (!is_string($path) || $path === '') {
+            return $fail(__(AILang::LANG_GROUP, 'Este proveedor no publica su lista de modelos.'));
+        }
+        if (!$record->hasKey()) {
+            return $fail(__(AILang::LANG_GROUP, 'Sin clave no se puede pedir la lista.'));
+        }
+        $keyHeader = $record->keyHeader();
+        $client = self::$providerHttpClient ?? AIProviderCatalog::defaultHttpClient(['timeout' => self::MODELS_TIMEOUT_SECONDS, 'connect_timeout' => self::MODELS_TIMEOUT_SECONDS, 'http_errors' => false]);
+        try {
+            //Dentro del try: una clave con un carácter de control hace lanzar a psr7 con la cabecera en el mensaje.
+            $request = new \GuzzleHttp\Psr7\Request('GET', $record->baseUrl() . $path, [
+                $keyHeader ?? 'Authorization' => $keyHeader === null ? 'Bearer ' . $record->key() : $record->key(),
+                'Accept' => 'application/json',
+            ]);
+            $response = $client->sendRequest($request);
+        } catch (\Psr\Http\Client\ClientExceptionInterface $e) {
+            return $fail(__(AILang::LANG_GROUP, 'Sin conexión con el proveedor, o se agotó el tiempo de espera.'));
+        } catch (\Throwable $e) {
+            //Una excepción NUEVA: la original puede llevar la clave.
+            log_exception(new \RuntimeException("No se pudo pedir la lista de modelos al proveedor de tipo «{$record->type()}» (" . get_class($e) . ').'));
+            return $fail(__(AILang::LANG_GROUP, 'No se pudo pedir la lista de modelos al proveedor.'));
+        }
+        $status = $response->getStatusCode();
+        if (in_array($status, [401, 403], true)) {
+            return $fail(__(AILang::LANG_GROUP, 'El proveedor rechazó la clave.'));
+        }
+        if ($status < 200 || $status >= 300) {
+            return $fail(strReplaceTemplate(__(AILang::LANG_GROUP, 'El proveedor respondió con un error (HTTP %status%).'), ['%status%' => (string) $status]));
+        }
+        $stream = $response->getBody();
+        $raw = '';
+        while (!$stream->eof() && strlen($raw) <= self::MODELS_MAX_BYTES) {
+            $raw .= $stream->read(65536);
+        }
+        if (strlen($raw) > self::MODELS_MAX_BYTES) {
+            return $fail(__(AILang::LANG_GROUP, 'La lista de modelos del proveedor es demasiado grande.'));
+        }
+        $body = json_decode($raw, true);
+        $data = is_array($body) && is_array($body['data'] ?? null) ? $body['data'] : null;
+        if ($data === null) {
+            return $fail(__(AILang::LANG_GROUP, 'El proveedor no devolvió una lista de modelos que se pueda leer.'));
+        }
+        $models = [];
+        foreach ($data as $item) {
+            $modelId = is_array($item) && is_string($item['id'] ?? null) ? trim($item['id']) : '';
+            if (preg_match(self::MODEL_ID_PATTERN, $modelId) === 1) {
+                $models[$modelId] = true;
+            }
+        }
+        $models = array_keys($models);
+        sort($models, \SORT_STRING);
+        $models = array_slice(array_map('strval', $models), 0, self::MODELS_MAX);
+        $fetchedAt = date(self::ANCHOR_FORMAT);
+        $cache = self::modelsCache();
+        $cache[$record->id()] = ['models' => $models, 'fetchedAt' => $fetchedAt];
+        if (!self::saveModelsCache($cache)) {
+            return $fail(__(AILang::LANG_GROUP, 'No se pudo guardar la lista de modelos.'));
+        }
+        return ['ok' => true, 'message' => strReplaceTemplate(__(AILang::LANG_GROUP, '%count% modelos.'), ['%count%' => (string) count($models)]), 'models' => $models, 'fetchedAt' => $fetchedAt];
+    }
+
+    /**
+     * Quita de la caché de modelos las entradas de los ids que ya no existen. Lo llama el guardado de Configuración › IA.
+     *
+     * @param list<string> $ids Los ids que quedan
+     * @return bool false si había que escribir y no se pudo
+     */
+    public static function pruneModelsCache(array $ids): bool
+    {
+        $cache = self::modelsCache();
+        $kept = array_intersect_key($cache, array_flip($ids));
+        return $kept === $cache ? true : self::saveModelsCache($kept);
+    }
+
+    /**
+     * La caché de modelos, por id; lo que no vale se ignora. La fila llega de la base como OBJETO (H304).
+     *
+     * @return array<string,array{models:list<string>,fetchedAt:string}>
+     */
+    public static function modelsCache(): array
+    {
+        $stored = self::normalizeCenter(get_config(self::MODELS_CONFIG_NAME));
+        $cache = [];
+        foreach (is_array($stored) ? $stored : [] as $id => $entry) {
+            $models = is_array($entry) && is_array($entry['models'] ?? null) ? array_values(array_filter($entry['models'], fn($model): bool => is_string($model) && $model !== '')) : null;
+            if (is_string($id) && $models !== null && is_string($entry['fetchedAt'] ?? null)) {
+                $cache[$id] = ['models' => $models, 'fetchedAt' => $entry['fetchedAt']];
+            }
+        }
+        return $cache;
+    }
+
+    /**
+     * @param array<string,array{models:list<string>,fetchedAt:string}> $cache
+     * @return bool
+     */
+    private static function saveModelsCache(array $cache): bool
+    {
+        $option = new \PiecesPHP\Settings\ORM\SettingsModel(self::MODELS_CONFIG_NAME);
+        $option->value = \PiecesPHP\Core\ConfigHelpers\ConfigOptions::valueToStore(self::MODELS_CONFIG_NAME, $cache);
+        if ($option->id !== null) {
+            $saved = $option->update();
+        } else {
+            $option->name = self::MODELS_CONFIG_NAME;
+            $saved = $option->save();
+        }
+        if ($saved) {
+            set_config(self::MODELS_CONFIG_NAME, $cache);
+        }
+        return (bool) $saved;
     }
 
     /**
@@ -365,7 +546,7 @@ final class AIGateway
             return __(AILang::LANG_GROUP, 'Se ha alcanzado la cuota de esta función de inteligencia artificial en este periodo.');
         }
         //La del registro de proveedor que usa la función, sumando todas las que lo usan (ADR 0077 §7).
-        $recordId = self::providerSelectionFor($capability)['provider'];
+        $recordId = self::effectiveSelectionFor($capability)['provider'];
         $providerSettings = $recordId !== null ? self::providerSettings($recordId) : null;
         if ($recordId !== null && $providerSettings !== null && $providerSettings['quota'] > 0 && self::providerUsage($recordId, $now) >= $providerSettings['quota']) {
             $record = AIProviderRegistry::get($recordId);
@@ -595,10 +776,11 @@ final class AIGateway
      * @param int $inputTokens Los de entrada (0 si no se saben)
      * @param int $outputTokens Los de salida (0 si no se saben)
      * @param string $model El modelo ('' si no se sabe)
+     * @param string|null $recordId El id del registro de proveedor, para su fila '@provider' y su cuota; null, $provider
      * @return void
      * @throws \InvalidArgumentException si la capacidad no está registrada
      */
-    public static function recordUsage(string $capability, string $provider, int $tokens, int $inputTokens = 0, int $outputTokens = 0, string $model = ''): void
+    public static function recordUsage(string $capability, string $provider, int $tokens, int $inputTokens = 0, int $outputTokens = 0, string $model = '', ?string $recordId = null): void
     {
         self::capabilityOf($capability, null);
 
@@ -608,11 +790,12 @@ final class AIGateway
             $statement = $database->prepare('INSERT INTO `' . AIUsageMapper::TABLE . '` (capability, provider, model, periodStart, tokens, inputTokens, outputTokens, requests, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?) ON DUPLICATE KEY UPDATE tokens = tokens + ?, inputTokens = inputTokens + ?, outputTokens = outputTokens + ?, requests = requests + 1, updatedAt = ?');
             //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
             $statement->execute([$capability, $provider, $model, self::periodStart($capability), $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now]);
-            //La del registro de proveedor guardado, con SU periodo (providerUsage()).
-            $providerPeriodStart = self::providerPeriodStart($provider);
+            //La del registro de proveedor guardado, con SU periodo (providerUsage()), por su id: «OpenAI» es la serie, no el registro.
+            $usageRecord = $recordId ?? $provider;
+            $providerPeriodStart = self::providerPeriodStart($usageRecord);
             if ($providerPeriodStart !== null) {
                 //RETORNO-IGNORADO: PDO va en ERRMODE_EXCEPTION: o escribe o lanza, y el catch lo anota.
-                $statement->execute([self::PROVIDER_USAGE_ROW, $provider, $model, $providerPeriodStart, $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now]);
+                $statement->execute([self::PROVIDER_USAGE_ROW, $usageRecord, $model, $providerPeriodStart, $tokens, $inputTokens, $outputTokens, $now, $now, $tokens, $inputTokens, $outputTokens, $now]);
             }
         } catch (\Throwable $e) {
             log_exception($e);

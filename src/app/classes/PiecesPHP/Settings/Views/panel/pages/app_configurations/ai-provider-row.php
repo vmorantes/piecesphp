@@ -2,7 +2,8 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
 /**
- * Una fila de proveedor guardado de Configuración › IA (o la plantilla de «Añadir proveedor», con __INDEX__).
+ * Una fila de proveedor de Configuración › IA: guardado, convertido de la configuración de antes (solo en memoria hasta el
+ * primer guardado) o la plantilla de «Añadir proveedor», con __INDEX__.
  *
  * @var string $langGroup
  * @var array<string,mixed> $entry Lo guardado del registro, sin clave ([] en la plantilla)
@@ -12,10 +13,14 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var array<string,string> $savedKeys
  * @var string $usageTemplate
  * @var string $usageQuotaTemplate
+ * @var array<string,array<string,mixed>> $modelLists Por id: las listas de modelos que pinta la pantalla
+ * @var callable(array<string,mixed>):string $modelsSourceText
  */
 use PiecesPHP\AI\AICapability;
 use PiecesPHP\AI\AIGateway;
 use PiecesPHP\AI\Providers\AIProviderCatalog;
+use PiecesPHP\AI\Providers\AIProviderRecord;
+use PiecesPHP\AI\Providers\AIProviderRegistry;
 use PiecesPHP\Settings\Controllers\SettingsController;
 
 $id = (string) ($entry['id'] ?? '');
@@ -24,10 +29,19 @@ $domId = 'ai-provider-' . $index;
 $type = (string) ($entry['type'] ?? 'openai');
 $savedKey = $savedKeys[$id] ?? '';
 $isCustom = $type === AIProviderCatalog::TYPE_CUSTOM;
+$keySource = ($entry['keySource'] ?? null) === AIProviderRecord::KEY_SOURCE_FILE ? AIProviderRecord::KEY_SOURCE_FILE : AIProviderRecord::KEY_SOURCE_STORED;
+$fromFile = $keySource === AIProviderRecord::KEY_SOURCE_FILE;
+$keyFile = is_string($entry['keyFile'] ?? null) ? $entry['keyFile'] : '';
+$keySourceOptions = [
+    AIProviderRecord::KEY_SOURCE_STORED => __($langGroup, 'Escribirla aquí'),
+    AIProviderRecord::KEY_SOURCE_FILE => __($langGroup, 'Del archivo de claves'),
+];
+$testModels = $id !== '' && isset($modelLists[$id]) ? $modelLists[$id] : null;
+$testModel = is_array($entry['models'] ?? null) && $entry['models'] !== [] ? (string) end($entry['models']) : '';
 ?>
 <div class="ui segment" data-ai-provider data-ai-provider-id="<?= escape_html($id); ?>">
     <input type="hidden" name="<?= escape_html($base); ?>[id]" value="<?= escape_html($id); ?>">
-    <div class="three fields">
+    <div class="two fields">
         <div class="field">
             <label for="<?= escape_html($domId); ?>-type"><?= __($langGroup, 'Tipo'); ?></label>
             <select id="<?= escape_html($domId); ?>-type" name="<?= escape_html($base); ?>[type]" class="ui fluid selection dropdown" data-ai-provider-type>
@@ -38,12 +52,29 @@ $isCustom = $type === AIProviderCatalog::TYPE_CUSTOM;
             <label for="<?= escape_html($domId); ?>-alias"><?= __($langGroup, 'Sobrenombre'); ?></label>
             <input type="text" id="<?= escape_html($domId); ?>-alias" name="<?= escape_html($base); ?>[alias]" value="<?= escape_html((string) ($entry['alias'] ?? '')); ?>" maxlength="80" required>
         </div>
+    </div>
+    <div class="two fields">
         <div class="field">
+            <label for="<?= escape_html($domId); ?>-key-source"><?= __($langGroup, 'Origen de la clave'); ?></label>
+            <select id="<?= escape_html($domId); ?>-key-source" name="<?= escape_html($base); ?>[keySource]" class="ui fluid selection dropdown" data-ai-key-source>
+                <?= array_to_html_options($keySourceOptions, $keySource); ?>
+            </select>
+        </div>
+        <div class="field" data-ai-key-stored<?= $fromFile ? ' hidden' : ''; ?>>
             <label for="<?= escape_html($domId); ?>-key"><?= __($langGroup, 'Clave'); ?></label>
             <?php //La clave no viaja al HTML: el campo va vacío y, vacío, al guardar la conserva. ?>
             <input type="text" id="<?= escape_html($domId); ?>-key" name="<?= escape_html($base); ?>[key]" value="" autocomplete="off" spellcheck="false" placeholder="<?= escape_html($savedKey !== '' ? strReplaceTemplate(__($langGroup, 'Guardada (…%last%)'), ['%last%' => mb_substr($savedKey, -4)]) : __($langGroup, 'Pega aquí la API key del proveedor')); ?>">
             <?php if ($savedKey !== ''): ?>
             <div class="field"><div class="ui checkbox"><input type="checkbox" id="<?= escape_html($domId); ?>-clear" name="<?= escape_html($base); ?>[clear_key]" value="1" data-clear-saved><label for="<?= escape_html($domId); ?>-clear"><?= __($langGroup, 'Quitar la guardada'); ?></label></div></div>
+            <?php endif; ?>
+        </div>
+        <div class="field" data-ai-key-file<?= $fromFile ? '' : ' hidden'; ?>>
+            <label for="<?= escape_html($domId); ?>-key-file"><?= __($langGroup, 'Nombre en el archivo'); ?></label>
+            <input type="text" id="<?= escape_html($domId); ?>-key-file" name="<?= escape_html($base); ?>[keyFile]" value="<?= escape_html($keyFile); ?>" maxlength="61" autocomplete="off" spellcheck="false" aria-describedby="<?= escape_html($domId); ?>-key-file-description">
+            <div class="description" id="<?= escape_html($domId); ?>-key-file-description"><?= escape_html(__($langGroup, 'El del tipo (openai, mistral o groq, solo en esos tres) o ai-<tipo>-…, por ejemplo ai-openai-marketing.')); ?></div>
+            <?php if ($fromFile && $keyFile !== '' && $id !== ''): ?>
+            <?php //Solo si está o no: ningún carácter de la clave. ?>
+            <p class="ui text" data-ai-key-file-status><?= AIProviderRegistry::fileKey($keyFile, $type) !== '' ? __($langGroup, 'Está en el archivo') : __($langGroup, 'No está en el archivo'); ?></p>
             <?php endif; ?>
         </div>
     </div>
@@ -97,8 +128,21 @@ $isCustom = $type === AIProviderCatalog::TYPE_CUSTOM;
     <div class="two fields">
         <div class="field">
             <label for="<?= escape_html($domId); ?>-test-model"><?= __($langGroup, 'Modelo para probar'); ?></label>
-            <input type="text" id="<?= escape_html($domId); ?>-test-model" value="<?= escape_html((string) (is_array($entry['models'] ?? null) && $entry['models'] !== [] ? end($entry['models']) : '')); ?>" autocomplete="off" spellcheck="false" data-ai-provider-test-model>
+            <?php //Sin name: «Probar» lo lee de aquí y no se guarda. Las opciones las pone ai.js con las listas de la página. ?>
+            <select id="<?= escape_html($domId); ?>-test-model" class="ui fluid search selection dropdown" data-ai-model-select data-ai-model-capability="<?= escape_html(AIProviderCatalog::CAPABILITY_CHAT); ?>" data-ai-model-provider="<?= escape_html($id); ?>" data-ai-provider-test-model data-current="<?= escape_html($testModel); ?>">
+                <?php if ($testModel !== ''): ?>
+                <option value="<?= escape_html($testModel); ?>" selected><?= escape_html($testModel); ?></option>
+                <?php endif; ?>
+            </select>
+            <input type="text" value="" autocomplete="off" spellcheck="false" aria-label="<?= escape_html(__($langGroup, 'Otro modelo')); ?>" placeholder="<?= escape_html(__($langGroup, 'Escribe el modelo')); ?>" data-ai-model-other hidden>
         </div>
+        <?php if ($id !== ''): ?>
+        <div class="field">
+            <label>&nbsp;</label>
+            <button type="button" class="ui basic button" data-ai-provider-models-refresh><i class="sync alternate icon" aria-hidden="true"></i><?= __($langGroup, 'Actualizar modelos'); ?></button>
+            <p class="ui muted text" data-ai-models-source><?= $testModels !== null ? escape_html($modelsSourceText($testModels)) : ''; ?></p>
+        </div>
+        <?php endif; ?>
     </div>
     <div class="field">
         <button type="button" class="ui basic button" data-ai-provider-test><i class="plug icon" aria-hidden="true"></i><?= __($langGroup, 'Probar'); ?></button>

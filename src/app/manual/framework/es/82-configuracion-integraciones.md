@@ -27,23 +27,30 @@ modelo trabaja, quién la usa y cuánto puede gastar.
 **Proveedores**: cada proveedor de inteligencia artificial que uses, con su sobrenombre y su clave. Cada función elige
 el suyo más abajo. Puedes tener varios del mismo proveedor (por ejemplo, dos de OpenAI con claves para fines distintos).
 
-- **OpenAI**, **Mistral** y **Groq**, arriba, son los de la configuración anterior: la traducción usa los dos primeros. En cada uno eliges su
-  **modelo** y escribes su **clave**; si la clave la define el archivo de claves, no se puede cambiar y lo dice; si está
-  guardada, **«Quitar la guardada»** la borra. **Groq**, igual, es el de la voz a texto (su clave y su modelo).
+- Si la plataforma ya usaba **OpenAI**, **Mistral** o **Groq**, aparecen aquí como proveedores normales, con su clave y su
+  modelo de siempre. Se editan y se quitan como cualquier otro. Hasta que guardes esta pantalla por primera vez, todo
+  funciona exactamente como antes; al guardar, quedan guardados como el resto.
 - **«+ Añadir proveedor»** añade uno nuevo. Sin ninguno, la sección dice «Todavía no hay proveedores guardados».
 
-Cada proveedor añadido tiene estos campos:
+Cada proveedor tiene estos campos:
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Tipo | Sí | El proveedor: OpenAI, Mistral, Groq, DeepSeek, xAI, OpenRouter o **Personalizado** (cualquier otro que hable el formato de OpenAI). |
 | Sobrenombre | Sí | Cómo lo reconoces en las funciones, por ejemplo «OpenAI principal». No se puede repetir. |
-| Clave | No | La clave de acceso. **Una vez guardada no se vuelve a enseñar**: el campo dice «Guardada» con sus cuatro últimos caracteres. Vacío al guardar, conserva la que había; **«Quitar la guardada»** la borra. |
+| Origen de la clave | No | **«Escribirla aquí»** (por omisión) o **«Del archivo de claves»**, si la clave está guardada en el servidor, en la carpeta de llaves. |
+| Clave | No | Con «Escribirla aquí»: la clave de acceso. **Una vez guardada no se vuelve a enseñar**: el campo dice «Guardada» con sus cuatro últimos caracteres. Vacío al guardar, conserva la que había; **«Quitar la guardada»** la borra. Si cambias el tipo, la dirección base o la cabecera, hay que volver a escribirla. |
+| Nombre en el archivo | Sí, con «Del archivo de claves» | El nombre exacto del archivo de la clave: el del tipo (`openai`, `mistral` o `groq`, solo en esos tres tipos) o `ai-<tipo>-…`, por ejemplo `ai-openai-marketing` o `ai-custom-local`. «Probar» con una clave del archivo pide guardar antes el proveedor. Al lado dice **«Está en el archivo»** o **«No está en el archivo»**, sin enseñar la clave. |
 | Dirección base | Sí, en Personalizado | La dirección del servicio: `https://`, o `http://localhost` o `http://127.0.0.1` para un modelo instalado en tu propio equipo. |
 | Cabecera de la clave | No, en Personalizado | Si el proveedor pide la clave en otra cabecera. Vacía, se manda como `Authorization: Bearer`. |
 | Cuota (tokens) | No | Cuánto puede gastar ese proveedor en cada periodo, **sumando todas las funciones que lo usan**. **0 = sin límite.** |
 | Periodo | No | Como en las funciones: Acumulado, Mensual, Cada N días o Cada N meses. |
-| Modelo para probar | No | El modelo con el que lo prueba «Probar». |
+| Modelo para probar | No | El modelo con el que lo prueba «Probar». Se elige de la lista, como el de las funciones. |
+
+**La lista de modelos** es la que da el propio proveedor. **«Actualizar modelos»** se la pide con su clave y la recuerda;
+al lado dice de dónde sale: «Lista del proveedor, actualizada el…» o, si todavía no se ha pedido o no se pudo, «Lista de
+respaldo», con la fecha de la documentación de la que sale. Si el modelo que buscas no está, elige **«Otro…»** y
+escríbelo. Un proveedor recién añadido solo ofrece «Otro…» hasta que lo guardas.
 
 Debajo de cada uno, su **consumo de este periodo**. **«Probar»** comprueba la clave y el modelo con una llamada mínima,
 sin guardar nada ni gastar cuota, y dice al lado si funciona o por qué no (la clave rechazada, un modelo que no existe,
@@ -57,9 +64,8 @@ con IA»), con estos campos:
 | --- | --- | --- |
 | Activada | No | Enciende o apaga esa función. |
 | Quién la usa | No | Qué tipos de usuario pueden usarla. El usuario principal (Root) siempre puede. |
-| IA para traducciones | No | Solo en «Traducción con IA»: qué proveedor traduce (OpenAI o Mistral, los de arriba). |
-| Proveedor | No | Cuál de tus proveedores usa la función. Sin elegir, la voz a texto usa Groq, y las demás, el de «IA para traducciones». |
-| Modelo | Sí, si eliges proveedor | El modelo de ese proveedor que usa la función. |
+| Proveedor | No | Cuál de tus proveedores usa la función. **Sin proveedor, la función no está disponible.** |
+| Modelo | Sí, si eliges proveedor | El modelo de ese proveedor que usa la función, de su lista o con «Otro…». |
 | Cuota (tokens) | No | Cuánto puede gastar la función en cada periodo. **0 = sin límite.** Al llegar a la cuota, la función deja de llamar al proveedor y avisa de que se alcanzó, hasta el periodo siguiente o hasta que reinicies el contador. |
 | Periodo | No | Cada cuánto vuelve a contar la cuota: **Acumulado** (no vuelve a contar), **Mensual**, **Cada N días** o **Cada N meses**. Con los dos últimos aparece el campo **«N»**. |
 
@@ -67,7 +73,7 @@ Debajo, la línea **«Consumo de este periodo»** dice lo gastado (y la cuota, s
 **«Reiniciar el contador»** pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
 conserva para los informes.
 
-**«Voz a texto»** pasa una grabación a texto, para las funciones que la necesiten. **Viene apagada**; sin proveedor elegido usa la clave y el modelo de Groq.
+**«Voz a texto»** pasa una grabación a texto, para las funciones que la necesiten. **Viene apagada**, y como las demás necesita su proveedor y su modelo (Groq u OpenAI saben pasar voz a texto).
 
 **«Asistente del panel»** es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. **Viene apagada**, con una cuota de 200.000 tokens
