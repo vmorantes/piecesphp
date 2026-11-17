@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Sticky
+ * # Fomantic-UI 0.15.0 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -161,10 +161,17 @@
 
                 bind: {
                     events: function () {
-                        $window
-                            .on('load' + eventNamespace, module.event.load)
-                            .on('resize' + eventNamespace, module.event.resize)
-                        ;
+                        // Fork: iniciado tras la carga de la página, el evento load ya no llega (y jQuery Migrate 4 avisa):
+                        // se recalcula ya
+                        if (document.readyState === 'complete') {
+                            $window.on('resize' + eventNamespace, module.event.resize);
+                            setTimeout(module.event.load, 0);
+                        } else {
+                            $window
+                                .on('load' + eventNamespace, module.event.load)
+                                .on('resize' + eventNamespace, module.event.resize)
+                            ;
+                        }
                         // pub/sub pattern
                         $scroll
                             .off('scroll' + eventNamespace)

@@ -88,13 +88,13 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
         }
         $parameters += $extraParameters;
         $this->lastRawResponse = [];
-        //El cuerpo de la respuesta se guarda tal cual llega (lastRawResponse()); la petición, nunca.
-        /** @var \ArrayObject<string,string> $body */
-        $body = new \ArrayObject(['body' => '']);
+        //El cuerpo y el estado de la respuesta se guardan tal cual llegan (lastRawResponse()); la petición, nunca.
+        /** @var \ArrayObject<string,mixed> $body */
+        $body = new \ArrayObject(['body' => '', 'status' => 0]);
         $capture = new class ($this->httpClient ?? $this->defaultHttpClient(), $body) implements \Psr\Http\Client\ClientInterface {
             /**
              * @param \Psr\Http\Client\ClientInterface $inner
-             * @param \ArrayObject<string,string> $body
+             * @param \ArrayObject<string,mixed> $body
              */
             public function __construct(private \Psr\Http\Client\ClientInterface $inner, private \ArrayObject $body)
             {
@@ -104,22 +104,30 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
             {
                 $response = $this->inner->sendRequest($request);
                 $this->body['body'] = (string) $response->getBody();
+                $this->body['status'] = $response->getStatusCode();
                 return $response->withBody(\GuzzleHttp\Psr7\Utils::streamFor($this->body['body']));
             }
         };
         $factory = OpenAI::factory()->withBaseUri($this->record->baseUrl())->withHttpClient($capture);
         $keyHeader = $this->record->keyHeader();
         $factory = $keyHeader === null ? $factory->withApiKey($this->record->key()) : $factory->withHttpHeader($keyHeader, $this->record->key());
+        $error = null;
         try {
-            $data = $factory->make()->chat()->create($parameters)->toArray();
+            $factory->make()->chat()->create($parameters);
         } catch (\Throwable $e) {
-            //Ni el mensaje ni el cuerpo del proveedor: pueden repetir parte de la clave. El código es el HTTP; 0, sin respuesta.
-            $status = $e instanceof ErrorException ? $e->getStatusCode() : 0;
-            throw new \RuntimeException("El proveedor de tipo «{$this->record->type()}» respondió con un error (HTTP {$status}, " . get_class($e) . ').', $status);
+            $error = $e;
         }
-        $raw = json_decode((string) $body['body'], true);
-        $this->lastRawResponse = is_array($raw) ? $raw : $data;
-        return self::parse($data);
+        //Con una respuesta 2xx se lee del cuerpo, no de los objetos del SDK: el SDK pide campos opcionales del consumo sin «??»
+        //(completion_tokens_details de Groq con gpt-oss) y, en local, ese aviso abortaba una respuesta buena (JKQ).
+        $status = (int) $body['status'];
+        $raw = $status >= 200 && $status < 300 ? json_decode((string) $body['body'], true) : null;
+        if (!is_array($raw) || !is_array($raw['choices'][0] ?? null)) {
+            //Ni el mensaje ni el cuerpo del proveedor: pueden repetir parte de la clave. El código es el HTTP; 0, sin respuesta.
+            $status = $error instanceof ErrorException ? $error->getStatusCode() : ($status >= 400 ? $status : 0);
+            throw new \RuntimeException("El proveedor de tipo «{$this->record->type()}» respondió con un error (HTTP {$status}, " . ($error !== null ? get_class($error) : 'sin respuesta legible') . ').', $status);
+        }
+        $this->lastRawResponse = $raw;
+        return self::parse($raw);
     }
 
     /**
@@ -150,7 +158,7 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
      * La respuesta de chat/completions en la forma de AIChatProvider::chatWithTools(). Sin total_tokens, la suma de las dos partes.
      *
      * @param array<mixed> $data
-     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int}
+     * @return array{content:string,toolCalls:list<array{id:string,name:string,arguments:string}>,usage:int,inputTokens:int,outputTokens:int,finishReason:?string,reasoningTokens:int}
      */
     public static function parse(array $data): array
     {
@@ -177,7 +185,21 @@ final class OpenAICompatibleChatProvider implements AIChatProvider
             'usage' => isset($usage['total_tokens']) ? max(0, (int) $usage['total_tokens']) : $input + $output,
             'inputTokens' => $input,
             'outputTokens' => $output,
+            'finishReason' => is_string($data['choices'][0]['finish_reason'] ?? null) ? $data['choices'][0]['finish_reason'] : null,
+            'reasoningTokens' => max(0, (int) ($usage['completion_tokens_details']['reasoning_tokens'] ?? 0)),
         ];
+    }
+
+    /**
+     * El parámetro del esfuerzo de razonamiento con su valor más bajo, si el catálogo lo documenta para este tipo y este
+     * modelo (AIProviderCatalog, reasoningEffort); [] si no. Va en $extraParameters de chatWithTools().
+     *
+     * @return array<string,string>
+     */
+    public function lowestReasoningEffort(): array
+    {
+        $effort = AIProviderCatalog::get($this->record->type())['reasoningEffort'] ?? null;
+        return $effort !== null && in_array($this->model, $effort['models'], true) ? [$effort['field'] => $effort['lowest']] : [];
     }
 
     /**

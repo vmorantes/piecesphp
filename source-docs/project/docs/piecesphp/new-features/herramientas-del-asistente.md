@@ -8,7 +8,7 @@ porque exige el permiso de una ruta, el mismo que ya decide si ve una pantalla. 
 !!! warning "Provisional"
 
     Hoy existen el registro, el servidor, dos herramientas de lectura y el asistente por dentro (abajo, «El
-    asistente»), apagado por omisión. La ventana del chat en el panel llega en una versión próxima. Las herramientas
+    asistente»), apagado por omisión, y su ventana en el panel (abajo, «La ventana»). Las herramientas
     son de **solo lectura**: las que escriban llegarán más adelante, con una marca explícita.
 
 ## Cómo funciona
@@ -86,7 +86,8 @@ no, nadie vería esa herramienta y nadie se enteraría.
 ## El asistente
 
 `PiecesPHP\Mcp\Assistant::reply($user, $question, $history)` es la conversación: lo que usará la ventana del chat, y
-lo que responde la ruta `POST admin/assistant/` (nombre `assistant-ask`, con las mismas defensas que el servidor MCP).
+lo que responde la ruta `POST admin/assistant/` (nombre `mcp-assistant-ask` desde la `10.32.0`, antes `assistant-ask`; con las
+mismas defensas que el servidor MCP).
 
 - **Es una capacidad del centro de mando de la IA**, `assistant` («Asistente del panel»), **apagada por omisión** y con
   una cuota por omisión de 200.000 tokens al mes: hasta que quien administra la encienda en Configuración › IA,
@@ -114,6 +115,25 @@ lo que responde la ruta `POST admin/assistant/` (nombre `assistant-ask`, con las
 Para probarlo contra el proveedor configurado hay un banco de preguntas, dentro y fuera de tema:
 `bin/cli assistant-bench confirm=yes user=<id>` (solo en local; llama al proveedor de verdad y gasta). Con `fake=yes`
 usa un proveedor simulado que no gasta nada.
+
+## La ventana
+
+La ventana del asistente en el panel es el componente `ui chat` del tema (desde su `0.15.0`). La pintan
+`view/panel/layout/topbar-bar.php` (el lanzador, `button[data-chat="#panel-assistant"]`, junto a las notificaciones; en el
+móvil, un elemento del menú de usuario) y el diseño del panel (el contenedor `#panel-assistant`). Su JS es
+`src/app/classes/PiecesPHP/Mcp/Statics/js/panel-assistant.js`.
+
+- **Solo se pinta si `AIGateway::availability('assistant')` no es `hidden`.** En su límite, se pinta y avisa al abrir.
+- La posición sale de Configuración › IA (`ai_center.capabilities.assistant.position`: `right`, `left`, `floating right` o
+  `floating left`).
+- Manda `{question, history}` a la ruta, con la firma de cada turno del asistente (`get history` del componente).
+- Pinta la respuesta **como texto**, y los `links` como botones, **solo si son del mismo origen**.
+- Los fallos van como aviso del componente, según el `kind` que devuelve `reply()`:
+  - `unavailable`: la IA o la función apagadas, sin permiso, sin proveedor o sin cuota;
+  - `error`: lo demás.
+
+El banco (`bin/cli assistant-bench`) se corre con un proveedor simulado (`fake=yes`) o, en local, contra uno real con
+`provider=<id> model=<modelo> limit=<n>` (como mucho 8 preguntas, todo en memoria y el consumo borrado al terminar).
 
 ## Las herramientas del framework
 

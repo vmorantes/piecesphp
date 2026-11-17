@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Comment
+ * # Fomantic-UI 0.15.0 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -284,7 +284,7 @@
 
 /* Texto del comentario en text-2 (sin variable de color) */
 .ui.comments:not(.inverted) .comment > .content > .text {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 
 /* Avatar de iniciales (.avatar.pp-accent del diseño): sin imagen, círculo --accent-100 con

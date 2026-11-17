@@ -139,7 +139,7 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
 
         //─── 2 · La petición que sale y la respuesta ─────────────────────────────────────────────
         echoTerminal('[2] Por tipo: la petición (dirección, cabecera de la clave, max_tokens) y la respuesta');
-        $esperada = ['content' => 'zz-respuesta', 'toolCalls' => [['id' => 'zz-llamada-1', 'name' => 'zz_herramienta', 'arguments' => '{"a":1}']], 'usage' => 18, 'inputTokens' => 11, 'outputTokens' => 7];
+        $esperada = ['content' => 'zz-respuesta', 'toolCalls' => [['id' => 'zz-llamada-1', 'name' => 'zz_herramienta', 'arguments' => '{"a":1}']], 'usage' => 18, 'inputTokens' => 11, 'outputTokens' => 7, 'finishReason' => 'tool_calls', 'reasoningTokens' => 0];
         $peticionCorrecta = function (array $vista, AIProviderRecord $registro, int $tope): bool {
             $cabeceras = is_array($vista['headers'] ?? null) ? $vista['headers'] : [];
             $clave = $registro->keyHeader() === null
@@ -182,6 +182,18 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
         $check($provocadas === 3, '2b DISCRIMINANTE: otra dirección, otro max_tokens o un Authorization de más en el custom no pasan', "{$provocadas}/3");
         $sinTotal = OpenAICompatibleChatProvider::parse(['choices' => [['message' => ['content' => 'zz']]], 'usage' => ['prompt_tokens' => 4, 'completion_tokens' => 5]]);
         $check($sinTotal['usage'] === 9 && $sinTotal['inputTokens'] === 4 && $sinTotal['outputTokens'] === 5 && $sinTotal['toolCalls'] === [], '2c sin total_tokens, usage es la suma de entrada y salida', (string) json_encode($sinTotal));
+        //Como Groq con gpt-oss (JKQ, #2919): el detalle del consumo solo con reasoning_tokens. La lectura del SDK pide los otros
+        //dos campos sin «??» y, en local, el aviso abortaba la respuesta («HTTP 0, ErrorException»).
+        $cliente->status = 200;
+        $cliente->body = (string) json_encode(['id' => 'zz', 'object' => 'chat.completion', 'created' => 1, 'model' => 'zz', 'choices' => [['index' => 0, 'message' => ['role' => 'assistant', 'content' => 'zz-razonada', 'reasoning' => 'zz-pensado'], 'finish_reason' => 'stop']], 'usage' => ['prompt_tokens' => 11, 'completion_tokens' => 7, 'total_tokens' => 18, 'completion_tokens_details' => ['reasoning_tokens' => 5]]]);
+        try {
+            $razonada = (new OpenAICompatibleChatProvider(new AIProviderRecord('zz-razonada', 'groq', 'Zz razonada', 'zz-clave-razonada'), 'zz-modelo', $cliente))->chatWithTools([['role' => 'user', 'content' => 'zz']]);
+            $razonadaError = null;
+        } catch (\Throwable $e) {
+            $razonada = null;
+            $razonadaError = get_class($e) . ': ' . $e->getMessage();
+        }
+        $check($razonada !== null && $razonada['content'] === 'zz-razonada' && $razonada['usage'] === 18 && $razonada['inputTokens'] === 11 && $razonada['outputTokens'] === 7 && ($razonada['finishReason'] ?? null) === 'stop' && ($razonada['reasoningTokens'] ?? null) === 5, '2d un 200 con completion_tokens_details solo con reasoning_tokens (Groq con gpt-oss): se lee, con sus tokens, su finish_reason y sus reasoning_tokens', (string) ($razonadaError ?? json_encode($razonada)));
         echoTerminal(' ');
 
         //─── 3 · Los errores del proveedor ───────────────────────────────────────────────────────
@@ -309,7 +321,16 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
         $antes = AIGateway::usage(Assistant::CAPABILITY, 'zz-prov-a');
         $respuesta = Assistant::reply(new UserDataPackage($idRoot), 'zz');
         $despues = AIGateway::usage(Assistant::CAPABILITY, 'zz-prov-a');
-        $check($respuesta['ok'] && $respuesta['answer'] === 'zz-respuesta-del-asistente' && ($captura['url'] ?? null) === 'https://api.deepseek.com/chat/completions' && ($captura['cuerpo']['model'] ?? null) === 'zz-modelo-elegido' && $despues - $antes === 5, '7a reply() por chatProvider(): el registro elegido (DeepSeek), su modelo, la respuesta y 5 tokens anotados como «zz-prov-a»', (string) json_encode(['ok' => $respuesta['ok'], 'url' => $captura['url'] ?? null, 'tokens' => $despues - $antes, 'error' => $respuesta['error']]));
+        $check($respuesta['ok'] && !array_key_exists('reasoning_effort', (array) ($captura['cuerpo'] ?? [])) && $respuesta['answer'] === 'zz-respuesta-del-asistente' && ($captura['url'] ?? null) === 'https://api.deepseek.com/chat/completions' && ($captura['cuerpo']['model'] ?? null) === 'zz-modelo-elegido' && $despues - $antes === 5, '7a reply() por chatProvider(): el registro elegido (DeepSeek), su modelo, la respuesta y 5 tokens anotados como «zz-prov-a»; sin reasoning_effort', (string) json_encode(['ok' => $respuesta['ok'], 'url' => $captura['url'] ?? null, 'tokens' => $despues - $antes, 'error' => $respuesta['error']]));
+        //Groq con gpt-oss: el esfuerzo más bajo documentado (https://console.groq.com/docs/reasoning); con otro modelo, nada.
+        $esfuerzos = [];
+        foreach (['openai/gpt-oss-20b', 'llama-3.3-70b-versatile'] as $modeloGroq) {
+            set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'groq', 'alias' => 'Zz G']], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => $modeloGroq]]]);
+            $captura->exchangeArray([]);
+            $respuestaGroq = Assistant::reply(new UserDataPackage($idRoot), 'zz');
+            $esfuerzos[$modeloGroq] = $respuestaGroq['ok'] ? (((array) ($captura['cuerpo'] ?? []))['reasoning_effort'] ?? '(sin)') : 'ERROR ' . (string) $respuestaGroq['error'];
+        }
+        $check($esfuerzos === ['openai/gpt-oss-20b' => 'low', 'llama-3.3-70b-versatile' => '(sin)'], '7b Groq: gpt-oss-20b sale con reasoning_effort «low»; llama-3.3-70b-versatile, sin él', (string) json_encode($esfuerzos));
         echoTerminal(' ');
 
         //─── 8 · El guardado de Configuración › IA ───────────────────────────────────────────────

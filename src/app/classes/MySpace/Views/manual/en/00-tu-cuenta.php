@@ -37,8 +37,22 @@ account”</strong>. It has two sections:</p>
 <li><strong>Focus</strong>: <strong>“Normal”</strong> or <strong>“Strong”</strong>, with a more visible outline on what you have selected when you move with
     the keyboard.</li>
 </ul>
-<p>Everything applies at once and is saved in your account. Until you choose, you see whatever the site's administrator
-chose.</p>
+<p>Everything applies at once and is saved in your account. Each group also has <strong>“Like the site”</strong>, which follows whatever
+the administrator chose and says next to it what that is (for example, “Like the site: More contrast”). It is what you
+have until you choose something else, and choosing it undoes your choice.</p>
 <h2 class="ui header" id="help">Help</h2>
 <p>The question mark icon in the top bar opens the <strong>help center</strong>: this manual and, if your organization has it
 configured, the form to <strong>contact support</strong>.</p>
+<h2 class="ui header" id="the-assistant">The assistant</h2>
+<p>If the administrator has turned it on for you, next to the notifications bell you have the <strong>assistant</strong> button. On a
+phone it is in the menu under your name. It opens a window where you ask in plain language about the platform: where
+something is done (“Where do I create a new user?”), or what you have pending (“Do I have unread notifications?”).</p>
+<ul>
+<li>It answers <strong>only with what you can see</strong> on the platform, and below the answer it leaves buttons to go to the screens
+  it names.</li>
+<li><strong>It only handles the platform.</strong> If you ask it something else, it says it cannot and offers what it can do.</li>
+<li><strong>Enter</strong> sends; <strong>Shift+Enter</strong> adds a line break. Each question, at most 1,000 characters.</li>
+<li><strong>“New conversation”</strong>, at the top of the window, empties it. <strong>Esc</strong> or the <strong>×</strong> close it.</li>
+<li>If the assistant reached its usage limit, the window tells you so and when it renews. If it is not available to you,
+  the button does not appear.</li>
+</ul>

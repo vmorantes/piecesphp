@@ -39,7 +39,7 @@ final class AIProviderCatalog
      * (como mucho 8, sin los marcados en desuso), medida en su documentación en fallbackMeasured; OpenRouter no publica una
      * lista recomendada, así que va vacía.
      *
-     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}>
+     * @var array<string,array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},reasoningEffort?:array{field:string,lowest:string,models:list<string>},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}>
      */
     const TYPES = [
         'openai' => [
@@ -76,9 +76,11 @@ final class AIProviderCatalog
             'keyHeader' => null,
             'maxTokensField' => 'max_completion_tokens',
             'translation' => ['temperature' => null, 'responseFormat' => 'json_object'],
+            //Solo los gpt-oss (low, medium o high; medium por omisión): otro valor u otro modelo da 400.
+            'reasoningEffort' => ['field' => 'reasoning_effort', 'lowest' => 'low', 'models' => ['openai/gpt-oss-20b', 'openai/gpt-oss-120b']],
             'capabilities' => [self::CAPABILITY_CHAT, self::CAPABILITY_TOOLS, self::CAPABILITY_SPEECH],
             'chatClass' => OpenAICompatibleChatProvider::class,
-            'docs' => ['https://console.groq.com/docs/openai', 'https://console.groq.com/docs/tool-use', 'https://console.groq.com/docs/api-reference', 'https://console.groq.com/docs/models', 'https://console.groq.com/docs/speech-to-text'],
+            'docs' => ['https://console.groq.com/docs/openai', 'https://console.groq.com/docs/tool-use', 'https://console.groq.com/docs/api-reference', 'https://console.groq.com/docs/models', 'https://console.groq.com/docs/speech-to-text', 'https://console.groq.com/docs/reasoning'],
             'measured' => '2026-11-14',
             'modelsPath' => '/models',
             'fallbackModels' => ['chat' => ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'], 'speech' => ['whisper-large-v3', 'whisper-large-v3-turbo']],
@@ -197,7 +199,7 @@ final class AIProviderCatalog
 
     /**
      * @param string $type
-     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}|null
+     * @return array{name:string,baseUrl:?string,keyHeader:?string,maxTokensField:string,translation:array{temperature:?float,responseFormat:?string},reasoningEffort?:array{field:string,lowest:string,models:list<string>},capabilities:list<string>,chatClass:class-string<AIChatProvider>,docs:list<string>,measured:string,modelsPath:?string,fallbackModels:array{chat:list<string>,speech:list<string>},fallbackMeasured:string}|null
      */
     public static function get(string $type): ?array
     {

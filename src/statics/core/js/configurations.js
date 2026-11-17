@@ -801,10 +801,19 @@ function pcsAdminTopbars() {
 		const mode = option.data('themeMode')
 		postRequest(themeSelector.data('url'), { mode: mode }).done(function (response) {
 			if (response.success) {
-				document.documentElement.setAttribute('data-theme', mode)
-				//El menú de tu nombre y «Preferencias» dicen lo mismo: la opción se marca en todos los grupos.
-				themeSelector.find('[data-theme-mode]').removeClass('active primary').attr({ 'aria-checked': 'false', tabindex: '-1' })
-				themeSelector.find('[data-theme-mode="' + mode + '"]').addClass('active primary').attr({ 'aria-checked': 'true', tabindex: '0' })
+				//Con «Como el sitio» (site) la ruta devuelve el modo del sitio, que es el que se aplica.
+				document.documentElement.setAttribute('data-theme', response.mode)
+				//El menú de tu nombre y «Preferencias» dicen lo mismo: lo elegido se marca en cada grupo; el del menú, que no
+				//tiene «Como el sitio», marca el modo que queda.
+				themeSelector.each(function () {
+					const group = $(this)
+					group.find('[data-theme-mode]').removeClass('active primary').attr({ 'aria-checked': 'false', tabindex: '-1' })
+					let chosen = group.find('[data-theme-mode="' + mode + '"]')
+					if (chosen.length === 0) {
+						chosen = group.find('[data-theme-mode="' + response.mode + '"]')
+					}
+					chosen.addClass('active primary').attr({ 'aria-checked': 'true', tabindex: '0' })
+				})
 			}
 		})
 	})

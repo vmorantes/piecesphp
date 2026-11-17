@@ -11,7 +11,11 @@ use PiecesPHP\AI\AICapability;
 use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\Core\Mcp\McpTool;
 use PiecesPHP\Core\Mcp\McpToolRegistry;
+use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Mcp\Controllers\McpController;
 use PiecesPHP\UserSystem\UserDataPackage;
 
@@ -46,6 +50,7 @@ class McpRoutes
         if (self::ENABLE) {
             McpLang::injectLang();
             $groupAdministration = McpController::routes($groupAdministration);
+            self::staticResolver($groupAdministration);
             if (McpToolRegistry::get(self::TOOL_PANEL_FIND) === null) {
                 McpToolRegistry::register(self::panelFindTool());
             }
@@ -86,5 +91,30 @@ class McpRoutes
                 return ['total' => count($results), 'results' => $results];
             }
         );
+    }
+
+    /**
+     * @param string $segment
+     * @return string
+     */
+    public static function staticRoute(string $segment = '')
+    {
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::ENABLE);
+    }
+
+    /**
+     * @param RouteGroup $group
+     * @return RouteGroup
+     */
+    protected static function staticResolver(RouteGroup $group)
+    {
+        $callableHandler = function (Request $request, Response $response, array $args) {
+            $server = new ServerStatics();
+            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
+        };
+        $group->register([
+            new Route('mcp/statics/[{params:.*}]', $callableHandler, self::class),
+        ]);
+        return $group;
     }
 }

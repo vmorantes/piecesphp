@@ -160,8 +160,10 @@ conserva para los informes.</p>
 <p><strong>«Voz a texto»</strong> pasa una grabación a texto, para las funciones que la necesiten. <strong>Viene apagada</strong>, y como las demás necesita su proveedor y su modelo (Groq u OpenAI saben pasar voz a texto).</p>
 <p><strong>«Asistente del panel»</strong> es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. <strong>Viene apagada</strong>, con una cuota de 200.000 tokens
-al mes: enciéndela y elige quién la usa antes de que nadie la vea. Por ahora solo existe esta sección: la ventana del chat llega en una versión
-próxima.</p>
+al mes: enciéndela y elige quién la usa antes de que nadie la vea. Elige también su <strong>proveedor</strong> y su <strong>modelo</strong> (uno que
+admita herramientas) y la <strong>«Posición de la ventana»</strong>: <strong>«Derecha»</strong> (por omisión), <strong>«Izquierda»</strong>, <strong>«Flotante abajo a la
+derecha»</strong> o <strong>«Flotante abajo a la izquierda»</strong>; en el móvil ocupa siempre la pantalla entera. Quien puede usarla ve el botón
+del asistente junto a la campana (ver «Tu cuenta», «El asistente»).</p>
 <p><strong>Cuota de tokens</strong>, en <strong>General</strong>, con su propio <strong>«Guardar»</strong>: el <strong>«Límite de tokens de IA»</strong> (obligatorio)
 solo sirve para el informe de consumo y <strong>no limita nada</strong>. La cuota que limita es la de cada función.</p>
 </div>

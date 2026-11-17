@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Input
+ * # Fomantic-UI 0.15.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -64,7 +64,7 @@
 .ui.input > input[readonly]:focus,
 .ui.input > textarea[readonly]:focus {
   background: light-dark(#fafbfc, #262b36);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   cursor: default;
 }
 
@@ -162,8 +162,16 @@
 .ui.ui.inverted.loading.input:not(.transparent) > i.icon::before {
   border-color: color-mix(in srgb, #fff 20%, transparent);
 }
+
+/* El arco con currentColor: el color de la variante (loader.less le da `color` en los inverted de color); en los
+       que no tienen color y en black (casi del tono de la pista sobre el campo oscuro), el claro de inverted. Con el claro fijo, los quince de color salían iguales y blancos. */
 .ui.ui.inverted.loading.input:not(.transparent) > i.icon::after {
-  border-color: #fff transparent transparent;
+  border-color: currentColor transparent transparent;
+}
+
+/* .ui.ui.ui.ui: empata con `.ui.ui.ui.inverted.black.elastic.loading > i.icon::after` de loader.less, que va después */
+.ui.ui.ui.ui.inverted.loading.input:not(.transparent):not(.primary, .secondary, .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey) > i.icon::after {
+  color: #fff;
 }
 
 /* --------------------
@@ -1800,6 +1808,10 @@ input[type="file"].ui.black.file.input::file-selector-button:hover,
 .ui.code.input > input {
   width: 100%;
   min-width: 0;
+  
+/* Fork: sin relleno lateral: el del tema (18,9px por lado en piecesphp) dejaba 10px al dígito y lo recortaba */
+  padding-left: 0;
+  padding-right: 0;
   text-align: center;
   font-size: 1.57142857rem;
   font-variant-numeric: tabular-nums;

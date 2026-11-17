@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Calendar
+ * # Fomantic-UI 0.15.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

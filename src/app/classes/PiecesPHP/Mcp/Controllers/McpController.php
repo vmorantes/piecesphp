@@ -142,7 +142,7 @@ class McpController extends AdminPanelController
         $allRoles = array_keys(UsersModel::TYPES_USERS);
         $group->register([
             new Route("{$startRoute}[/]", self::class . ':server', self::$baseRouteName . '-panel-server', 'POST', true, null, $allRoles),
-            new Route((last_char($group->getGroupSegment()) == '/' ? '' : '/') . 'assistant[/]', self::class . ':ask', 'assistant-ask', 'POST', true, null, $allRoles),
+            new Route((last_char($group->getGroupSegment()) == '/' ? '' : '/') . 'assistant[/]', self::class . ':ask', self::$baseRouteName . '-assistant-ask', 'POST', true, null, $allRoles),
         ]);
         return $group;
     }

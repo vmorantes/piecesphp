@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Step
+ * # Fomantic-UI 0.15.0 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2856,5 +2856,5 @@
 /* Descripción del paso activo: sobre el tinte del acento, text-3 no llega a 4,5:1 */
 .ui.steps:not(.inverted) .active.step .description,
 .ui.step.active:not(.inverted) .description {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }

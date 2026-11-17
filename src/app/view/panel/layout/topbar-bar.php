@@ -21,6 +21,10 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
 <?php if ($withHelpCenter) : ?>
 <button class="ui tertiary icon button" type="button" help-center-toggle aria-haspopup="menu" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Ayuda')); ?>"><i class="question circle icon" aria-hidden="true"></i></button>
 <?php endif; ?>
+<?php //El asistente (ADR 0075), junto a la campana; a 390 no cabe en la barra (el avatar se salía) y va en el menú de usuario. ?>
+<?php if ($assistantWindow !== null) : ?>
+<button class="ui tertiary icon mobile hidden button" type="button" data-chat="#panel-assistant" aria-label="<?= escape_html(__(\PiecesPHP\Mcp\McpLang::LANG_GROUP, 'Asistente')); ?>" title="<?= escape_html(__(\PiecesPHP\Mcp\McpLang::LANG_GROUP, 'Asistente')); ?>"><i class="comment dots outline icon" aria-hidden="true"></i></button>
+<?php endif; ?>
 <?php //La campana (ADR 0073): sale con sesión; la insignia, las no leídas que trae la página, oculta con 0. ?>
 <?php $notificationsLabel = __(\PiecesPHP\Notifications\NotificationsLang::LANG_GROUP, 'Notificaciones, ${n} sin leer'); ?>
 <button class="ui tertiary icon button" type="button" notifications-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="notifications-popup-list" data-label-template="<?= escape_html($notificationsLabel); ?>" aria-label="<?= escape_html(str_replace('${n}', (string) $notificationsUnread, $notificationsLabel)); ?>" title="<?= escape_html(__(\PiecesPHP\Notifications\NotificationsLang::LANG_GROUP, 'Notificaciones')); ?>"><i class="bell icon" aria-hidden="true"></i><span class="ui floating circular mini red label" notifications-badge aria-hidden="true"<?= $notificationsUnread === 0 ? ' hidden' : ''; ?>><?= \PiecesPHP\Notifications\Notifications::badgeText($notificationsUnread); ?></span></button>
@@ -61,6 +65,9 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
             </div>
         </div>
         <div class="divider"></div>
+        <?php if ($assistantWindow !== null) : ?>
+        <a class="mobile only item" href="#" data-chat="#panel-assistant"><i class="comment dots outline icon" aria-hidden="true"></i><?= __(\PiecesPHP\Mcp\McpLang::LANG_GROUP, 'Asistente'); ?></a>
+        <?php endif; ?>
         <a class="item" href="#" edit-account><i class="user icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar Cuenta'); ?></a>
         <a class="item" href="#" change-password><i class="key icon" aria-hidden="true"></i><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar contraseña'); ?></a>
         <?php //El tamaño de letra salió del menú a la pestaña «Preferencias» del perfil (H252): el menú se abarrotaba. ?>

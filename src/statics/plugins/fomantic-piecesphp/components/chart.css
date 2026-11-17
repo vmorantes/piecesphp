@@ -67,3 +67,17 @@
         Chart Overrides
 *******************************/
 
+
+
+/*******************************
+      PiecesPHP: Chart Overrides
+*******************************/
+
+
+/* Donut del diseño (.pp-donut): hasta 184px pero nunca más del 58 % de su fila y siempre cuadrado. Con 184px fijos, a
+   390 la leyenda de al lado se quedaba sin sitio y partía «92,9 %» en otra línea. */
+.ui.square.chart {
+  max-width: 58%;
+  height: auto;
+  aspect-ratio: 1;
+}

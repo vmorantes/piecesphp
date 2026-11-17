@@ -749,6 +749,31 @@ class UsersModel extends EntityMapperExtensible
      */
     public static function setMetaValue(int $id, string $key, string $value): bool
     {
+        return self::writeMetaKey($id, $key, $value);
+    }
+
+    /**
+     * Quita una clave de `meta` sin perder el resto, como setMetaValue(). Sin la clave, no escribe y devuelve true.
+     *
+     * @param int $id
+     * @param string $key Letras, cifras y _; empieza por letra
+     * @return bool
+     * @throws \InvalidArgumentException Con una clave que no tiene esa forma
+     */
+    public static function removeMetaValue(int $id, string $key): bool
+    {
+        return self::writeMetaKey($id, $key, null);
+    }
+
+    /**
+     * @param int $id
+     * @param string $key
+     * @param string|null $value null: quitar la clave
+     * @return bool
+     * @throws \InvalidArgumentException Con una clave que no tiene esa forma
+     */
+    private static function writeMetaKey(int $id, string $key, ?string $value): bool
+    {
         if (preg_match('/^[A-Za-z][A-Za-z0-9_]{0,63}$/', $key) !== 1) {
             throw new \InvalidArgumentException("Clave de meta no válida: {$key}");
         }
@@ -759,7 +784,11 @@ class UsersModel extends EntityMapperExtensible
             if ($fresh === null || $meta === null) {
                 return true;
             }
-            $meta->{$key} = $value;
+            if ($value === null) {
+                unset($meta->{$key});
+            } else {
+                $meta->{$key} = $value;
+            }
             $text = self::metaToStore($meta);
             if ($text === $fresh['meta']) {
                 return true;

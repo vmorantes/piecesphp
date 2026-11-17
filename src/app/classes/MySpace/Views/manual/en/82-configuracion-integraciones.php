@@ -160,8 +160,10 @@ the reports.</p>
 <p><strong>“Speech to text”</strong> turns a recording into text, for the features that need it. <strong>It comes switched off</strong>, and like the others it needs its provider and its model (Groq or OpenAI can turn speech into text).</p>
 <p><strong>“Panel assistant”</strong> is the feature for the panel's chat assistant: it answers questions about the platform (where
 something is done, what you have pending) using only what the person asking can see. <strong>It comes switched off</strong>, with a quota of
-200,000 tokens a month: turn it on and choose who uses it before anyone sees it. For now only this section exists: the chat window arrives in an upcoming
-version.</p>
+200,000 tokens a month: turn it on and choose who uses it before anyone sees it. Also choose its <strong>provider</strong> and its <strong>model</strong> (one
+that supports tools) and the <strong>“Window position”</strong>: <strong>“Right”</strong> (the default), <strong>“Left”</strong>, <strong>“Floating bottom right”</strong> or
+<strong>“Floating bottom left”</strong>; on a phone it always takes the whole screen. Whoever can use it sees the assistant button next to the
+bell (see “Your account”, “The assistant”).</p>
 <p><strong>Token quota</strong>, in <strong>General</strong>, with its own <strong>“Save”</strong>: the <strong>“AI tokens limit”</strong> (required) is only used by the
 usage report and <strong>does not limit anything</strong>. The quota that limits is the one of each feature.</p>
 </div>

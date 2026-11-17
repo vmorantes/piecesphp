@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Site
+ * # Fomantic-UI 0.15.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2459,7 +2459,7 @@ code {
   border: 1px solid var(--theme-border);
   border-radius: 5px;
   background: light-dark(#f5f7fa, #20242d);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   overflow-wrap: break-word;
   -webkit-box-decoration-break: clone;
           box-decoration-break: clone;

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Grid
+ * # Fomantic-UI 0.15.0 - Grid
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1248,6 +1248,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .primary.row .ui.header,
+.ui.grid > .primary.column .ui.header,
+.ui.grid > .row > .primary.column .ui.header,
+.ui.grid > .primary.row .ui.header .sub.header,
+.ui.grid > .primary.column .ui.header .sub.header,
+.ui.grid > .row > .primary.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .secondary.row,
 .ui.grid > .secondary.column,
 .ui.grid > .row > .secondary.column {
@@ -1255,6 +1266,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .secondary.row .ui.header,
+.ui.grid > .secondary.column .ui.header,
+.ui.grid > .row > .secondary.column .ui.header,
+.ui.grid > .secondary.row .ui.header .sub.header,
+.ui.grid > .secondary.column .ui.header .sub.header,
+.ui.grid > .row > .secondary.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .accent-1.row,
 .ui.grid > .accent-1.column,
@@ -1264,6 +1286,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .accent-1.row .ui.header,
+.ui.grid > .accent-1.column .ui.header,
+.ui.grid > .row > .accent-1.column .ui.header,
+.ui.grid > .accent-1.row .ui.header .sub.header,
+.ui.grid > .accent-1.column .ui.header .sub.header,
+.ui.grid > .row > .accent-1.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .accent-2.row,
 .ui.grid > .accent-2.column,
 .ui.grid > .row > .accent-2.column {
@@ -1271,6 +1304,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .accent-2.row .ui.header,
+.ui.grid > .accent-2.column .ui.header,
+.ui.grid > .row > .accent-2.column .ui.header,
+.ui.grid > .accent-2.row .ui.header .sub.header,
+.ui.grid > .accent-2.column .ui.header .sub.header,
+.ui.grid > .row > .accent-2.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .accent-3.row,
 .ui.grid > .accent-3.column,
@@ -1280,6 +1324,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .accent-3.row .ui.header,
+.ui.grid > .accent-3.column .ui.header,
+.ui.grid > .row > .accent-3.column .ui.header,
+.ui.grid > .accent-3.row .ui.header .sub.header,
+.ui.grid > .accent-3.column .ui.header .sub.header,
+.ui.grid > .row > .accent-3.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .red.row,
 .ui.grid > .red.column,
 .ui.grid > .row > .red.column {
@@ -1287,6 +1342,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .red.row .ui.header,
+.ui.grid > .red.column .ui.header,
+.ui.grid > .row > .red.column .ui.header,
+.ui.grid > .red.row .ui.header .sub.header,
+.ui.grid > .red.column .ui.header .sub.header,
+.ui.grid > .row > .red.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .orange.row,
 .ui.grid > .orange.column,
@@ -1296,6 +1362,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .orange.row .ui.header,
+.ui.grid > .orange.column .ui.header,
+.ui.grid > .row > .orange.column .ui.header,
+.ui.grid > .orange.row .ui.header .sub.header,
+.ui.grid > .orange.column .ui.header .sub.header,
+.ui.grid > .row > .orange.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .yellow.row,
 .ui.grid > .yellow.column,
 .ui.grid > .row > .yellow.column {
@@ -1303,6 +1380,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .yellow.row .ui.header,
+.ui.grid > .yellow.column .ui.header,
+.ui.grid > .row > .yellow.column .ui.header,
+.ui.grid > .yellow.row .ui.header .sub.header,
+.ui.grid > .yellow.column .ui.header .sub.header,
+.ui.grid > .row > .yellow.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .olive.row,
 .ui.grid > .olive.column,
@@ -1312,6 +1400,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .olive.row .ui.header,
+.ui.grid > .olive.column .ui.header,
+.ui.grid > .row > .olive.column .ui.header,
+.ui.grid > .olive.row .ui.header .sub.header,
+.ui.grid > .olive.column .ui.header .sub.header,
+.ui.grid > .row > .olive.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .green.row,
 .ui.grid > .green.column,
 .ui.grid > .row > .green.column {
@@ -1319,6 +1418,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .green.row .ui.header,
+.ui.grid > .green.column .ui.header,
+.ui.grid > .row > .green.column .ui.header,
+.ui.grid > .green.row .ui.header .sub.header,
+.ui.grid > .green.column .ui.header .sub.header,
+.ui.grid > .row > .green.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .teal.row,
 .ui.grid > .teal.column,
@@ -1328,6 +1438,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .teal.row .ui.header,
+.ui.grid > .teal.column .ui.header,
+.ui.grid > .row > .teal.column .ui.header,
+.ui.grid > .teal.row .ui.header .sub.header,
+.ui.grid > .teal.column .ui.header .sub.header,
+.ui.grid > .row > .teal.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .blue.row,
 .ui.grid > .blue.column,
 .ui.grid > .row > .blue.column {
@@ -1335,6 +1456,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .blue.row .ui.header,
+.ui.grid > .blue.column .ui.header,
+.ui.grid > .row > .blue.column .ui.header,
+.ui.grid > .blue.row .ui.header .sub.header,
+.ui.grid > .blue.column .ui.header .sub.header,
+.ui.grid > .row > .blue.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .violet.row,
 .ui.grid > .violet.column,
@@ -1344,6 +1476,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .violet.row .ui.header,
+.ui.grid > .violet.column .ui.header,
+.ui.grid > .row > .violet.column .ui.header,
+.ui.grid > .violet.row .ui.header .sub.header,
+.ui.grid > .violet.column .ui.header .sub.header,
+.ui.grid > .row > .violet.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .purple.row,
 .ui.grid > .purple.column,
 .ui.grid > .row > .purple.column {
@@ -1351,6 +1494,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .purple.row .ui.header,
+.ui.grid > .purple.column .ui.header,
+.ui.grid > .row > .purple.column .ui.header,
+.ui.grid > .purple.row .ui.header .sub.header,
+.ui.grid > .purple.column .ui.header .sub.header,
+.ui.grid > .row > .purple.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .pink.row,
 .ui.grid > .pink.column,
@@ -1360,6 +1514,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .pink.row .ui.header,
+.ui.grid > .pink.column .ui.header,
+.ui.grid > .row > .pink.column .ui.header,
+.ui.grid > .pink.row .ui.header .sub.header,
+.ui.grid > .pink.column .ui.header .sub.header,
+.ui.grid > .row > .pink.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .brown.row,
 .ui.grid > .brown.column,
 .ui.grid > .row > .brown.column {
@@ -1367,6 +1532,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .brown.row .ui.header,
+.ui.grid > .brown.column .ui.header,
+.ui.grid > .row > .brown.column .ui.header,
+.ui.grid > .brown.row .ui.header .sub.header,
+.ui.grid > .brown.column .ui.header .sub.header,
+.ui.grid > .row > .brown.column .ui.header .sub.header {
+  color: inherit;
 }
 .ui.grid > .grey.row,
 .ui.grid > .grey.column,
@@ -1376,6 +1552,17 @@
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .grey.row .ui.header,
+.ui.grid > .grey.column .ui.header,
+.ui.grid > .row > .grey.column .ui.header,
+.ui.grid > .grey.row .ui.header .sub.header,
+.ui.grid > .grey.column .ui.header .sub.header,
+.ui.grid > .row > .grey.column .ui.header .sub.header {
+  color: inherit;
+}
 .ui.grid > .black.row,
 .ui.grid > .black.column,
 .ui.grid > .row > .black.column {
@@ -1383,6 +1570,17 @@
   
 /* Fork: texto según la luminosidad del relleno (D36) */
   color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+}
+
+/* Fork: un header dentro toma el texto que eligió la fila o la columna por su relleno (también un `inverted`,
+           que lo fijaba en blanco y no se leía sobre un acento claro en oscuro) */
+.ui.grid > .black.row .ui.header,
+.ui.grid > .black.column .ui.header,
+.ui.grid > .row > .black.column .ui.header,
+.ui.grid > .black.row .ui.header .sub.header,
+.ui.grid > .black.column .ui.header .sub.header,
+.ui.grid > .row > .black.column .ui.header .sub.header {
+  color: inherit;
 }
 
 /* ----------------------

@@ -131,5 +131,10 @@ $avatar = $currentUser->avatar;
 $avatarInitials = AdminPanelController::avatarInitials((string) $currentUser->firstname, (string) $currentUser->firstLastname);
 $avatarLabel = fn(string $size = ''): string => '<span class="ui ' . ($size !== '' ? "{$size} " : '') . 'avatar label" aria-hidden="true">'
     . ($avatarInitials !== '' ? escape_html($avatarInitials) : '<i class="user outline icon"></i>') . '</span>';
+//El asistente (ADR 0075): lanzador, ventana y su JS solo si la función se ofrece a este usuario (AIGateway::availability()).
+$assistantWindow = \PiecesPHP\Mcp\McpRoutes::ENABLE ? \PiecesPHP\Mcp\Assistant::panelWindow(getLoggedFrameworkUserOrFail()) : null;
+if ($assistantWindow !== null) {
+    add_global_asset(\PiecesPHP\Mcp\McpRoutes::staticRoute('js/panel-assistant.js'), 'js');
+}
 //Los avisos flotantes salen del registro de avisos del sistema (PiecesPHP\SystemStatus).
 $systemAlertNags = \PiecesPHP\SystemStatus\SystemAlertRegistry::nagsFor((int) $currentUserType);

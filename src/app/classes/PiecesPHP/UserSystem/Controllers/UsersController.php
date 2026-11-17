@@ -39,6 +39,7 @@ use PiecesPHP\MailCatalog\Definitions\OtherProblemsMail;
 use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
 use PiecesPHP\MailCatalog\Definitions\VerificationCodeMail;
 use PiecesPHP\MailCatalog\MailCatalog;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Tokens\Controllers\TokenController;
 use PiecesPHP\UserSystem\AccountChangeNotice;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
@@ -972,11 +973,20 @@ class UsersController extends AdminPanelController
             $data['showPreferences'] = true;
             $requestedTab = $req->getQueryParam(self::PROFILE_TAB_PARAM, '');
             $data['requestedTab'] = is_string($requestedTab) ? $requestedTab : '';
-            $data['textSize'] = AdminPanelController::textSizeOf((int) $user->id);
-            $data['themeMode'] = AdminPanelController::themeModeOf((int) $user->id);
-            $data['contrast'] = AdminPanelController::contrastOf((int) $user->id);
-            $data['motion'] = AdminPanelController::motionOf((int) $user->id);
-            $data['focus'] = AdminPanelController::focusOf((int) $user->id);
+            //Lo ELEGIDO (o «Como el sitio», PREFERENCE_SITE, sin meta) y lo que pone el sitio en cada grupo (H327).
+            $userID = (int) $user->id;
+            $data['textSize'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::TEXT_SIZE_META, AdminPanelController::TEXT_SIZES);
+            $data['themeMode'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::THEME_MODE_META, AdminPanelController::THEME_MODES);
+            $data['contrast'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::CONTRAST_META, AdminPanelController::CONTRASTS);
+            $data['motion'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::MOTION_META, AdminPanelController::MOTIONS);
+            $data['focus'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::FOCUS_META, AdminPanelController::FOCUSES);
+            $data['sitePreferences'] = [
+                'themeMode' => SettingsController::accessibilityThemeMode(),
+                'textSize' => SettingsController::accessibilityTextSize(),
+                'contrast' => SettingsController::accessibilityContrast(),
+                'motion' => SettingsController::accessibilityMotion(),
+                'focus' => SettingsController::accessibilityFocus(),
+            ];
             $data['pageTitle'] = __(self::LANG_GROUP, 'Mi cuenta');
             $data['pageDescription'] = trim("{$user->firstname} {$user->firstLastname}") . ' · ' . $data['typeName'];
             $data['breadcrumbs'] = [

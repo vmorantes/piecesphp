@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "02a7e0ec",
+  "commit": "4cb8dd60",
   "fuenteSinCambios": true,
-  "generado": "2026-11-14T00:44:19.503Z",
+  "generado": "2026-11-16T18:27:07.520Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -933,7 +933,7 @@
         },
         "necesidad": {
           "icon": "40 piezas cambian sin él",
-          "loader": "35 piezas cambian sin él",
+          "loader": "34 piezas cambian sin él",
           "form": "6 piezas cambian sin él"
         },
         "suelto": {
@@ -994,9 +994,9 @@
             "width": 4
           },
           "muestras": [
-            "input.ui.invisible.file.input en div.: bottom -8410.5px → -8282.5px",
-            "input.ui.invisible.file.input en div.: bottom -8410.5px → -8282.5px",
-            "input.ui.invisible.file.input en div.: bottom -9050.5px → -8922.5px"
+            "input.ui.invisible.file.input en div.: bottom -8424.28px → -8296.28px",
+            "input.ui.invisible.file.input en div.: bottom -8424.28px → -8296.28px",
+            "input.ui.invisible.file.input en div.: bottom -9064.28px → -8936.28px"
           ]
         }
       },
@@ -2078,11 +2078,11 @@
           "piezas": 865,
           "propiedades": {
             "font-size": 880,
-            "scrollbar-color": 880,
             "text-size-adjust": 880,
             "-webkit-font-smoothing": 880,
             "line-height": 877,
-            "scrollbar-width": 865,
+            "scrollbar-color": 876,
+            "scrollbar-width": 864,
             "perspective-origin": 862,
             "transform-origin": 862,
             "block-size": 861,
@@ -3220,6 +3220,119 @@
         ]
       }
     },
+    "chat": {
+      "css": [
+        "button",
+        "icon",
+        "form",
+        "popup"
+      ],
+      "js": [],
+      "opcional": {
+        "loader": "CSS: solo si el marcado lleva esa pieza (1 de 7 ejemplos): span.ui.active.inline.mini.loader ← .ui.loader",
+        "message": "CSS: solo si el marcado lleva esa pieza (1 de 7 ejemplos): div.ui.info.notice.message ← .ui.message"
+      },
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 7,
+        "piezas": 160,
+        "muestras": {
+          "button": "button.ui.tertiary.icon.button.new ← .ui.button",
+          "icon": "i.edit.outline.icon ← i.icon",
+          "loader": "span.ui.active.inline.mini.loader ← .ui.loader",
+          "form": "form.ui.form.composer ← .ui.form",
+          "message": "div.ui.info.notice.message ← .ui.message",
+          "popup": "button.ui.tertiary.icon.button.new ← [data-tooltip]"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "button": "98 piezas cambian sin él",
+          "icon": "88 piezas cambian sin él",
+          "form": "21 piezas cambian sin él",
+          "popup": "7 piezas cambian sin él",
+          "loader": "2 piezas cambian sin él",
+          "message": "6 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 160,
+          "propiedades": {
+            "font-size": 199,
+            "line-height": 199,
+            "scrollbar-color": 199,
+            "text-size-adjust": 199,
+            "inline-size": 161,
+            "width": 161,
+            "scrollbar-width": 160,
+            "perspective-origin": 154,
+            "transform-origin": 154,
+            "-webkit-font-smoothing": 153,
+            "block-size": 142,
+            "height": 142
+          },
+          "muestras": [
+            "div.ui.visible.chat en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\"",
+            "div.header en div.ui.visible.chat: block-size 62px → 70.7031px",
+            "h2.title en div.header: block-size 24px → 21px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 138,
+          "propiedades": {
+            "inline-size": 138,
+            "width": 138,
+            "perspective-origin": 131,
+            "transform-origin": 131,
+            "font-size": 113,
+            "block-size": 93,
+            "height": 93,
+            "line-height": 92,
+            "padding-block-end": 50,
+            "padding-block-start": 50,
+            "padding-bottom": 50,
+            "padding-inline-end": 50
+          },
+          "muestras": [
+            "div.ui.visible.chat en div.: inline-size 364px → 416px",
+            "div.header en div.ui.visible.chat: block-size 62px → 67.7031px",
+            "h2.title en div.header: inline-size 248px → 288.625px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 7,
+          "propiedades": {
+            "inset-inline-start": 5,
+            "left": 5,
+            "inset-inline-end": 2,
+            "right": 2
+          },
+          "muestras": [
+            "div.ui.visible.chat en div.: inset-inline-start 1026px → 1021px",
+            "div.ui.visible.chat en div.: inset-inline-start 1026px → 1021px",
+            "div.ui.visible.chat.thinking en div.: inset-inline-start 1026px → 1021px"
+          ]
+        },
+        "nota": "JS sin uso de prueba definido"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "button",
+          "icon",
+          "form",
+          "popup",
+          "transition",
+          "chat"
+        ],
+        "js": [
+          "jquery",
+          "chat"
+        ]
+      }
+    },
     "checkbox": {
       "css": [],
       "js": [],
@@ -3537,10 +3650,10 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "161 piezas cambian sin él",
+          "icon": "154 piezas cambian sin él",
           "transition": "459 piezas cambian sin él",
           "button": "46 piezas cambian sin él",
-          "flag": "25 piezas cambian sin él",
+          "flag": "27 piezas cambian sin él",
           "label": "21 piezas cambian sin él",
           "loader": "5 piezas cambian sin él",
           "message": "1 piezas cambian sin él"
@@ -4046,6 +4159,89 @@
         ]
       }
     },
+    "pin": {
+      "css": [
+        "input"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "ejemplos": 15,
+        "piezas": 119,
+        "muestras": {
+          "input": "div.ui.pin.input ← .ui.input"
+        },
+        "conDependencias": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "necesidad": {
+          "input": "50 piezas cambian sin él"
+        },
+        "suelto": {
+          "piezas": 119,
+          "propiedades": {
+            "block-size": 120,
+            "height": 120,
+            "perspective-origin": 120,
+            "scrollbar-color": 120,
+            "text-size-adjust": 120,
+            "transform-origin": 120,
+            "-webkit-font-smoothing": 120,
+            "scrollbar-width": 119,
+            "inline-size": 117,
+            "width": 117,
+            "font-family": 105,
+            "font-size": 105
+          },
+          "muestras": [
+            "div.ui.pin.input en div.: block-size 62.5625px → 71.5px",
+            "span.cells en div.ui.pin.input: block-size 62.5625px → 71.5px",
+            "span.cell.active en span.cells: block-size 62.5625px → 71.5px"
+          ]
+        },
+        "sueltoBaseUi": {
+          "piezas": 119,
+          "propiedades": {
+            "perspective-origin": 120,
+            "transform-origin": 120,
+            "block-size": 119,
+            "height": 119,
+            "inline-size": 117,
+            "width": 117,
+            "font-size": 105,
+            "line-height": 75,
+            "column-gap": 15,
+            "row-gap": 15,
+            "margin-inline-end": 1,
+            "margin-right": 1
+          },
+          "muestras": [
+            "div.ui.pin.input en div.: block-size 62.5625px → 71.5px",
+            "span.cells en div.ui.pin.input: block-size 62.5625px → 71.5px",
+            "span.cell.active en span.cells: block-size 62.5625px → 71.5px"
+          ]
+        },
+        "sueltoBaseUiMismoRem": {
+          "piezas": 0,
+          "propiedades": {}
+        },
+        "nota": "JS sin uso de prueba definido"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "input",
+          "pin"
+        ],
+        "js": [
+          "jquery",
+          "pin"
+        ]
+      }
+    },
     "popup": {
       "css": [
         "transition"
@@ -4053,9 +4249,7 @@
       "js": [
         "transition"
       ],
-      "opcional": {
-        "loader": "CSS: solo si el marcado lleva esa pieza (3 de 63 ejemplos): div.ui.visible.blue.loading.bottom.left.popup ← .ui.ui.ui.ui.blue.loading:not(.usual):not(.button)"
-      },
+      "opcional": {},
       "contenido": [
         "button",
         "divider",
@@ -4079,11 +4273,9 @@
           "propiedades": {}
         },
         "sinEfecto": [
-          "placeholder"
+          "placeholder",
+          "loader"
         ],
-        "necesidad": {
-          "loader": "3 piezas cambian sin él"
-        },
         "suelto": {
           "piezas": 105,
           "propiedades": {
@@ -4543,7 +4735,7 @@
       ],
       "js": [],
       "opcional": {
-        "icon": "CSS: solo si el marcado lleva esa pieza (9 de 28 ejemplos): i.home.icon ← i.icon",
+        "icon": "CSS: solo si el marcado lleva esa pieza (10 de 28 ejemplos): i.home.icon ← i.icon",
         "segment": "CSS: solo si el marcado lleva esa pieza (1 de 28 ejemplos): div.ui.visible.right.inverted.segment.sidebar ← .ui.segment"
       },
       "contenido": [
@@ -4557,7 +4749,7 @@
       ],
       "comprobacion": {
         "ejemplos": 28,
-        "piezas": 124,
+        "piezas": 125,
         "muestras": {
           "header": "p ← .ui.header + p",
           "icon": "i.home.icon ← i.icon",
@@ -4570,8 +4762,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "menu": "122 piezas cambian sin él",
-          "icon": "28 piezas cambian sin él",
+          "menu": "123 piezas cambian sin él",
+          "icon": "29 piezas cambian sin él",
           "segment": "2 piezas cambian sin él"
         },
         "sinEfecto": [
@@ -4579,20 +4771,20 @@
           "placeholder"
         ],
         "suelto": {
-          "piezas": 124,
+          "piezas": 125,
           "propiedades": {
-            "box-sizing": 244,
-            "font-size": 244,
-            "line-height": 244,
-            "scrollbar-color": 244,
-            "text-size-adjust": 244,
+            "box-sizing": 246,
+            "font-size": 246,
+            "line-height": 246,
+            "scrollbar-color": 246,
+            "text-size-adjust": 246,
             "-webkit-font-smoothing": 188,
-            "perspective-origin": 183,
-            "transform-origin": 183,
-            "inline-size": 143,
-            "width": 143,
-            "scrollbar-width": 124,
-            "block-size": 119
+            "perspective-origin": 184,
+            "transform-origin": 184,
+            "inline-size": 144,
+            "width": 144,
+            "scrollbar-width": 125,
+            "block-size": 120
           },
           "muestras": [
             "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: box-sizing border-box → content-box",
@@ -4601,16 +4793,16 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 124,
+          "piezas": 125,
           "propiedades": {
-            "font-size": 244,
-            "line-height": 189,
-            "perspective-origin": 183,
-            "transform-origin": 183,
-            "inline-size": 155,
-            "width": 155,
-            "block-size": 119,
-            "height": 119,
+            "font-size": 246,
+            "line-height": 191,
+            "perspective-origin": 184,
+            "transform-origin": 184,
+            "inline-size": 156,
+            "width": 156,
+            "block-size": 120,
+            "height": 120,
             "padding-inline-end": 68,
             "padding-inline-start": 68,
             "padding-left": 68,

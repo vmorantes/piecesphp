@@ -23,7 +23,7 @@
 /* Filas de controles («Ver N», buscador, info, paginación) y la de la tabla */
 .dt-container {
   position: relative;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .dt-container .dt-layout-row {
   display: flex;
@@ -95,6 +95,25 @@
 }
 .dt-container .dt-length select {
   vertical-align: middle;
+}
+
+/* Fork: sin el JS de dropdown queda el select nativo (gris, sin radio y más bajo que el buscador): se viste como un
+   campo del tema, con su chevron dibujado en el color atenuado */
+.dt-container .dt-length select.dt-input {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0.64285714em 2.2em 0.64285714em 0.85714286em;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--r-md, 8px);
+  background-color: var(--theme-surface);
+  background-image: linear-gradient(45deg, transparent 50%, var(--theme-text-muted) 50%), linear-gradient(135deg, var(--theme-text-muted) 50%, transparent 50%);
+  background-position: right 1.05em center, right 0.77em center;
+  background-size: 0.3em 0.3em;
+  background-repeat: no-repeat;
+  color: var(--theme-text);
+  font: inherit;
+  line-height: 1.42857143em;
+  cursor: pointer;
 }
 
 /* Buscador: `span.ui.input` > `input.dt-search` */

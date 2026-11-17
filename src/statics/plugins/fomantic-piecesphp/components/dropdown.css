@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Dropdown
+ * # Fomantic-UI 0.15.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -108,7 +108,7 @@
   border-top: none;
   line-height: 1.42857143em;
   font-size: 1rem;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   padding: 0.57142857rem 0.71428571rem;
   text-transform: none;
   font-weight: 400;
@@ -812,8 +812,13 @@ select.ui.dropdown {
 }
 
 /* Selection Label */
+
+/* Fork: inline-flex: un texto largo parte dentro de su caja y la × se queda a su lado, centrada (con inline-block
+       bajaba sola a la segunda línea) */
 .ui.multiple.dropdown > .label {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
   white-space: normal;
   font-size: 0.85714286em;
   padding: 0.66666667em 0.33333333em 0.66666667em 0.83333333em;
@@ -845,6 +850,17 @@ select.ui.dropdown {
 }
 .ui.multiple.dropdown > .label ~ .text {
   display: none;
+}
+
+/* Fork: sin etiquetas, el texto (o el placeholder) se centra en la altura mínima de la selección: con márgenes de
+       hijo negativos (temas que ajustan las etiquetas a la caja) quedaba pegado arriba */
+.ui.multiple.selection.dropdown:not(:has(> .label)) {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.ui.fluid.multiple.selection.dropdown:not(:has(> .label)) {
+  display: flex;
 }
 .ui.multiple.dropdown > .label:not(.image) > img:not(.centered) {
   margin-right: 0.78571429rem;
@@ -2317,6 +2333,13 @@ select.ui.dropdown {
 }
 .ui.multiple.dropdown > .label > .delete.icon:hover {
   background-color: var(--accent-100);
+}
+
+/* Etiquetas de color o en un dropdown inverted: la equis toma el texto de la etiqueta (en text-4 sobre un relleno de
+   color, o gris claro sobre gris claro, apenas se veía) */
+.ui.multiple.dropdown > .label:is(.primary, .secondary, .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black) > .delete.icon,
+.ui.inverted.multiple.dropdown > .label > .delete.icon {
+  color: currentColor;
 }
 
 /* Con estado (clase en el dropdown o en su campo): las etiquetas toman el tinte, el borde y el

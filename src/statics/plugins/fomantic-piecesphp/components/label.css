@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Label
+ * # Fomantic-UI 0.15.0 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -21,7 +21,7 @@
   background-color: light-dark(#eef1f5, #262b36);
   background-image: none;
   padding: 0.41666667em 0.66666667em;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   text-transform: none;
   font-weight: 400;
   border: 0 solid transparent;
@@ -617,7 +617,7 @@ a.ui.active.label:hover::before {
 .ui.basic.label {
   background: none var(--theme-surface);
   border: 1px solid light-dark(#d8dde5, #3a4150);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   box-shadow: none;
   padding-top: calc(0.4166666666666667em - 1px);
   padding-bottom: calc(0.4166666666666667em - 1px);

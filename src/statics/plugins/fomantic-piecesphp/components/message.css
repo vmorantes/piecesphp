@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Message
+ * # Fomantic-UI 0.15.0 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -964,7 +964,7 @@
 /* Texto del mensaje neutro en --text-2 (los de estado y color pisan este color con más
    especificidad) */
 .ui.message {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 
 /* Cabecera con el interlineado del cuerpo; la del mensaje con ícono (dentro de .content) en peso

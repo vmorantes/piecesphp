@@ -376,6 +376,8 @@ $lang = [
     'Reducir movimiento' => 'Reduce motion',
     'Foco' => 'Focus',
     'Reforzado' => 'Strong',
+    'Como el sitio' => 'Like the site',
+    'Como el sitio: %s' => 'Like the site: %s',
 ];
 
 return $lang;

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Nag
+ * # Fomantic-UI 0.15.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -134,6 +134,7 @@ a.ui.nag {
   z-index: auto;
   opacity: 1;
   text-align: left;
+  padding: 0.85714286rem 3.14285714rem 0.85714286rem 1.14285714rem;
   border-radius: 0;
   box-shadow: none;
   border-bottom: 1px solid var(--theme-border);

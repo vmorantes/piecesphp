@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Button
+ * # Fomantic-UI 0.15.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -758,7 +758,7 @@
 .ui.basic.buttons .button,
 .ui.basic.button {
   background: var(--theme-surface);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   font-weight: 600;
   border-radius: var(--r-md, 8px);
   text-transform: none;
@@ -878,18 +878,18 @@
 }
 .ui.tertiary.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   background: light-dark(#eef1f5, #262b36);
 }
 .ui.tertiary.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   background: light-dark(#eef1f5, #262b36);
 }
 .ui.tertiary.button:active {
   box-shadow: none;
   border-radius: 0;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   background: light-dark(#eef1f5, #262b36);
 }
 
@@ -1372,9 +1372,12 @@
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.primary.buttons .active.button,
 .ui.basic.primary.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -1388,7 +1391,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.primary.buttons .active.button,
 .ui.basic.primary.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -1469,15 +1472,18 @@
 .ui.inverted.primary.basic.buttons .active.button,
 .ui.inverted.primary.buttons .basic.active.button,
 .ui.inverted.primary.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) inset;
   color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.primary.basic.buttons .active.button,
 .ui.ui.inverted.primary.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.primary.basic.buttons .button:active,
 .ui.inverted.primary.buttons .basic.button:active,
@@ -1584,9 +1590,12 @@
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.secondary.buttons .active.button,
 .ui.basic.secondary.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -1600,7 +1609,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.secondary.buttons .active.button,
 .ui.basic.secondary.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -1681,15 +1690,18 @@
 .ui.inverted.secondary.basic.buttons .active.button,
 .ui.inverted.secondary.buttons .basic.active.button,
 .ui.inverted.secondary.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
   color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.secondary.basic.buttons .active.button,
 .ui.ui.inverted.secondary.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.secondary.basic.buttons .button:active,
 .ui.inverted.secondary.buttons .basic.button:active,
@@ -1796,9 +1808,12 @@
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.accent-1.buttons .active.button,
 .ui.basic.accent-1.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -1812,7 +1827,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.accent-1.buttons .active.button,
 .ui.basic.accent-1.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -1893,15 +1908,18 @@
 .ui.inverted.accent-1.basic.buttons .active.button,
 .ui.inverted.accent-1.buttons .basic.active.button,
 .ui.inverted.accent-1.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) inset;
   color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.accent-1.basic.buttons .active.button,
 .ui.ui.inverted.accent-1.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.accent-1.basic.buttons .button:active,
 .ui.inverted.accent-1.buttons .basic.button:active,
@@ -2008,9 +2026,12 @@
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.accent-2.buttons .active.button,
 .ui.basic.accent-2.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -2024,7 +2045,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.accent-2.buttons .active.button,
 .ui.basic.accent-2.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -2105,15 +2126,18 @@
 .ui.inverted.accent-2.basic.buttons .active.button,
 .ui.inverted.accent-2.buttons .basic.active.button,
 .ui.inverted.accent-2.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
   color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.accent-2.basic.buttons .active.button,
 .ui.ui.inverted.accent-2.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.accent-2.basic.buttons .button:active,
 .ui.inverted.accent-2.buttons .basic.button:active,
@@ -2220,9 +2244,12 @@
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.accent-3.buttons .active.button,
 .ui.basic.accent-3.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 84%, black) inset;
   color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -2236,7 +2263,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.accent-3.buttons .active.button,
 .ui.basic.accent-3.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -2317,15 +2344,18 @@
 .ui.inverted.accent-3.basic.buttons .active.button,
 .ui.inverted.accent-3.buttons .basic.active.button,
 .ui.inverted.accent-3.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 84%, black) inset;
   color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.accent-3.basic.buttons .active.button,
 .ui.ui.inverted.accent-3.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.accent-3.basic.buttons .button:active,
 .ui.inverted.accent-3.buttons .basic.button:active,
@@ -2432,9 +2462,12 @@
   box-shadow: 0 0 0 1px #ff1100 inset;
   color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.red.buttons .active.button,
 .ui.basic.red.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #ee291c inset;
   color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -2448,7 +2481,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.red.buttons .active.button,
 .ui.basic.red.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -2529,15 +2562,18 @@
 .ui.inverted.red.basic.buttons .active.button,
 .ui.inverted.red.buttons .basic.active.button,
 .ui.inverted.red.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #ff5346 inset;
   color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.red.basic.buttons .active.button,
 .ui.ui.inverted.red.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.red.basic.buttons .button:active,
 .ui.inverted.red.buttons .basic.button:active,
@@ -2644,9 +2680,12 @@
   box-shadow: 0 0 0 1px #e65000 inset;
   color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.orange.buttons .active.button,
 .ui.basic.orange.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #e05910 inset;
   color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -2660,7 +2699,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.orange.buttons .active.button,
 .ui.basic.orange.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -2741,15 +2780,18 @@
 .ui.inverted.orange.basic.buttons .active.button,
 .ui.inverted.orange.buttons .basic.active.button,
 .ui.inverted.orange.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #ff741e inset;
   color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.orange.basic.buttons .active.button,
 .ui.ui.inverted.orange.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.orange.basic.buttons .button:active,
 .ui.inverted.orange.buttons .basic.button:active,
@@ -2856,9 +2898,12 @@
   box-shadow: 0 0 0 1px #d77a00 inset;
   color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.yellow.buttons .active.button,
 .ui.basic.yellow.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #da7f07 inset;
   color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -2872,7 +2917,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.yellow.buttons .active.button,
 .ui.basic.yellow.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -2953,15 +2998,18 @@
 .ui.inverted.yellow.basic.buttons .active.button,
 .ui.inverted.yellow.buttons .basic.active.button,
 .ui.inverted.yellow.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #ffa806 inset;
   color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.yellow.basic.buttons .active.button,
 .ui.ui.inverted.yellow.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.yellow.basic.buttons .button:active,
 .ui.inverted.yellow.buttons .basic.button:active,
@@ -3068,9 +3116,12 @@
   box-shadow: 0 0 0 1px #6d890b inset;
   color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.olive.buttons .active.button,
 .ui.basic.olive.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #6f8717 inset;
   color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3084,7 +3135,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.olive.buttons .active.button,
 .ui.basic.olive.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3165,15 +3216,18 @@
 .ui.inverted.olive.basic.buttons .active.button,
 .ui.inverted.olive.buttons .basic.active.button,
 .ui.inverted.olive.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #9bba2b inset;
   color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.olive.basic.buttons .active.button,
 .ui.ui.inverted.olive.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.olive.basic.buttons .button:active,
 .ui.inverted.olive.buttons .basic.button:active,
@@ -3280,9 +3334,12 @@
   box-shadow: 0 0 0 1px #069a55 inset;
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.green.buttons .active.button,
 .ui.basic.green.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #13975a inset;
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3296,7 +3353,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.green.buttons .active.button,
 .ui.basic.green.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3377,15 +3434,18 @@
 .ui.inverted.green.basic.buttons .active.button,
 .ui.inverted.green.buttons .basic.active.button,
 .ui.inverted.green.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #2bd07c inset;
   color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.green.basic.buttons .active.button,
 .ui.ui.inverted.green.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.green.basic.buttons .button:active,
 .ui.inverted.green.buttons .basic.button:active,
@@ -3492,9 +3552,12 @@
   box-shadow: 0 0 0 1px #0091b1 inset;
   color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.teal.buttons .active.button,
 .ui.basic.teal.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #0596b6 inset;
   color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3508,7 +3571,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.teal.buttons .active.button,
 .ui.basic.teal.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3589,15 +3652,18 @@
 .ui.inverted.teal.basic.buttons .active.button,
 .ui.inverted.teal.buttons .basic.active.button,
 .ui.inverted.teal.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #02ccf5 inset;
   color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.teal.basic.buttons .active.button,
 .ui.ui.inverted.teal.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.teal.basic.buttons .button:active,
 .ui.inverted.teal.buttons .basic.button:active,
@@ -3704,9 +3770,12 @@
   box-shadow: 0 0 0 1px #007bff inset;
   color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.blue.buttons .active.button,
 .ui.basic.blue.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #1080f9 inset;
   color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3720,7 +3789,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.blue.buttons .active.button,
 .ui.basic.blue.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3801,15 +3870,18 @@
 .ui.inverted.blue.basic.buttons .active.button,
 .ui.inverted.blue.buttons .basic.active.button,
 .ui.inverted.blue.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #37a6ff inset;
   color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.blue.basic.buttons .active.button,
 .ui.ui.inverted.blue.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.blue.basic.buttons .button:active,
 .ui.inverted.blue.buttons .basic.button:active,
@@ -3916,9 +3988,12 @@
   box-shadow: 0 0 0 1px #552aff inset;
   color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.violet.buttons .active.button,
 .ui.basic.violet.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #623df7 inset;
   color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -3932,7 +4007,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.violet.buttons .active.button,
 .ui.basic.violet.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4013,15 +4088,18 @@
 .ui.inverted.violet.basic.buttons .active.button,
 .ui.inverted.violet.buttons .basic.active.button,
 .ui.inverted.violet.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #836cff inset;
   color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.violet.basic.buttons .active.button,
 .ui.ui.inverted.violet.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.violet.basic.buttons .button:active,
 .ui.inverted.violet.buttons .basic.button:active,
@@ -4128,9 +4206,12 @@
   box-shadow: 0 0 0 1px #8e2ac2 inset;
   color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.purple.buttons .active.button,
 .ui.basic.purple.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #9039bd inset;
   color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4144,7 +4225,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.purple.buttons .active.button,
 .ui.basic.purple.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4225,15 +4306,18 @@
 .ui.inverted.purple.basic.buttons .active.button,
 .ui.inverted.purple.buttons .basic.active.button,
 .ui.inverted.purple.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #b766ed inset;
   color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.purple.basic.buttons .active.button,
 .ui.ui.inverted.purple.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.purple.basic.buttons .button:active,
 .ui.inverted.purple.buttons .basic.button:active,
@@ -4340,9 +4424,12 @@
   box-shadow: 0 0 0 1px #aa035f inset;
   color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.pink.buttons .active.button,
 .ui.basic.pink.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #a51263 inset;
   color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4356,7 +4443,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.pink.buttons .active.button,
 .ui.basic.pink.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4437,15 +4524,18 @@
 .ui.inverted.pink.basic.buttons .active.button,
 .ui.inverted.pink.buttons .basic.active.button,
 .ui.inverted.pink.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #fa20b9 inset;
   color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.pink.basic.buttons .active.button,
 .ui.ui.inverted.pink.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.pink.basic.buttons .button:active,
 .ui.inverted.pink.buttons .basic.button:active,
@@ -4552,9 +4642,12 @@
   box-shadow: 0 0 0 1px #56361d inset;
   color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.brown.buttons .active.button,
 .ui.basic.brown.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #583b25 inset;
   color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4568,7 +4661,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.brown.buttons .active.button,
 .ui.basic.brown.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4649,15 +4742,18 @@
 .ui.inverted.brown.basic.buttons .active.button,
 .ui.inverted.brown.buttons .basic.active.button,
 .ui.inverted.brown.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #ac764e inset;
   color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.brown.basic.buttons .active.button,
 .ui.ui.inverted.brown.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.brown.basic.buttons .button:active,
 .ui.inverted.brown.buttons .basic.button:active,
@@ -4764,9 +4860,12 @@
   box-shadow: 0 0 0 1px #565d6a inset;
   color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.grey.buttons .active.button,
 .ui.basic.grey.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px #5a6270 inset;
   color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4780,7 +4879,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.grey.buttons .active.button,
 .ui.basic.grey.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -4860,15 +4959,18 @@
 .ui.inverted.grey.basic.buttons .active.button,
 .ui.inverted.grey.buttons .basic.active.button,
 .ui.inverted.grey.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #8993a6 inset;
   color: oklch(from #99a1af max(l, 0.8) min(c, 0.14) h);
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.grey.basic.buttons .active.button,
 .ui.ui.inverted.grey.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.grey.basic.buttons .button:active,
 .ui.inverted.grey.buttons .basic.button:active,
@@ -4975,9 +5077,12 @@
   box-shadow: 0 0 0 1px light-dark(#2b3140, #5f6879) inset;
   color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
+
+/* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
+               distinguía del normal) */
 .ui.basic.black.buttons .active.button,
 .ui.basic.black.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: 0 0 0 1px light-dark(#141821, #4b5363) inset;
   color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
@@ -4991,7 +5096,7 @@
                que salía rectangular dentro del contorno redondeado del grupo */
 .ui.basic.black.buttons .active.button,
 .ui.basic.black.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
   color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
@@ -5073,16 +5178,19 @@
 .ui.inverted.black.basic.buttons .active.button,
 .ui.inverted.black.buttons .basic.active.button,
 .ui.inverted.black.basic.active.button {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: el activo suelto, tintado como en grupo */
   box-shadow: 0 0 0 2px #000000 inset;
   box-shadow: 0 0 0 2px #fff inset;
   color: #fff;
 }
 
-/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta y sin recuadro propio */
+/* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
+               llevan todos los botones del grupo inverted (sin él asomaba el borde neutro del grupo bajo el activo) */
 .ui.ui.inverted.black.basic.buttons .active.button,
 .ui.ui.inverted.black.buttons .basic.active.button {
-  background: color-mix(in srgb, currentColor 14%, transparent);
-  box-shadow: none;
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .ui.inverted.black.basic.buttons .button:active,
 .ui.inverted.black.buttons .basic.button:active,
@@ -5192,7 +5300,9 @@
 }
 .ui.basic.positive.buttons .active.button,
 .ui.basic.positive.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: como los de color */
   box-shadow: 0 0 0 1px #0aa65d inset;
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -5205,7 +5315,7 @@
 /* Fork: activo en grupo con tinte, como en el bucle de colores */
 .ui.basic.positive.buttons .active.button,
 .ui.basic.positive.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
 }
 .ui.buttons:not(.vertical) > .basic.positive.button:not(:first-child) {
@@ -5308,7 +5418,9 @@
 }
 .ui.basic.negative.buttons .active.button,
 .ui.basic.negative.active.button {
-  background: transparent;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  
+/* Fork: como los de color */
   box-shadow: 0 0 0 1px #fe2011 inset;
   color: light-dark(oklch(from #f04438 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -5321,7 +5433,7 @@
 /* Fork: activo en grupo con tinte, como en el bucle de colores */
 .ui.basic.negative.buttons .active.button,
 .ui.basic.negative.buttons .active.button:hover {
-  background: color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
 }
 .ui.buttons:not(.vertical) > .basic.negative.button:not(:first-child) {
@@ -5607,6 +5719,28 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   margin: 0;
 }
 
+/* Spinner del botón en carga: el arco blanco fijo no se veía sobre un botón claro (el blanco de fluent, el crema de
+   tinker) ni sobre un acento aclarado en oscuro. Arco con la tinta que tendría el texto y pista con esa tinta al 20 %
+   (antes solo en tinker). */
+.ui.loading.button:not(.basic, .inverted, .tertiary, .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black, .positive, .negative)::after {
+  color: var(--theme-text);
+}
+.ui.loading.button:not(.basic, .inverted, .tertiary, .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black, .positive, .negative)::before {
+  border-color: color-mix(in srgb, var(--theme-text) 20%, transparent);
+}
+.ui.primary.loading.button:not(.basic):not(.inverted):not(.tertiary)::after {
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+}
+.ui.secondary.loading.button:not(.basic):not(.inverted):not(.tertiary)::after {
+  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+}
+.ui.primary.loading.button:not(.basic):not(.inverted):not(.tertiary)::before {
+  border-color: color-mix(in srgb, var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
+}
+.ui.secondary.loading.button:not(.basic):not(.inverted):not(.tertiary)::before {
+  border-color: color-mix(in srgb, var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
+}
+
 /* -------------------
         Foco
 -------------------- */
@@ -5880,7 +6014,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).basic:not(.negative):not(.red):is(:hover, :focus, :active) {
   background: var(--theme-surface);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   box-shadow: 0 0 0 1px light-dark(#d8dde5, #3a4150) inset, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).tertiary:is(:hover, :focus, :active) {
@@ -6115,4 +6249,16 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
     padding-top: 0.42857143em;
     padding-bottom: 0.42857143em;
   }
+}
+
+/* wrapping (varias líneas, p. ej. el grupo «Posición» del asistente a 390, apilado en cuatro filas): el radio de 8px en
+   las puntas del primero y el último dejaba esquinas sueltas. Radio pequeño, como en material3, lumen y glass-ios. */
+.ui.wrapping.buttons:not(.spaced) {
+  border-radius: var(--r-xs, 4px);
+}
+.ui.wrapping.buttons:not(.spaced) .button:first-child {
+  border-radius: var(--r-xs, 4px) 0 0 var(--r-xs, 4px);
+}
+.ui.wrapping.buttons:not(.spaced) .button:last-child {
+  border-radius: 0 var(--r-xs, 4px) var(--r-xs, 4px) 0;
 }

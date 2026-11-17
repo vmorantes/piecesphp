@@ -42,10 +42,26 @@ cuenta»**. Tiene dos secciones:
   - **Foco**: **«Normal»** o **«Reforzado»**, con un contorno más visible en lo que tienes seleccionado al moverte con
     el teclado.
 
-Todo se aplica al momento y se guarda en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra el
-sitio.
+Todo se aplica al momento y se guarda en tu cuenta. Cada grupo tiene además **«Como el sitio»**, que sigue lo que haya
+elegido quien administra y dice al lado cuál es (por ejemplo, «Como el sitio: Más contraste»). Es lo que tienes mientras
+no elijas otra cosa, y elegirla deshace tu elección.
 
 ## La ayuda
 
 El icono de interrogación de la barra superior abre el **centro de ayuda**: este manual y, si tu organización lo
 tiene configurado, el formulario para **contactar a soporte**.
+
+## El asistente
+
+Si quien administra lo ha encendido para ti, junto a la campana de notificaciones tienes el botón del **asistente**. En
+el móvil está en el menú de tu nombre. Abre una ventana donde le preguntas en lenguaje normal sobre la plataforma: dónde
+se hace algo («¿Dónde creo un usuario nuevo?»), o lo que tienes pendiente («¿Tengo notificaciones sin leer?»).
+
+- Responde **solo con lo que tú puedes ver** en la plataforma, y debajo de la respuesta te deja botones para ir a las
+  pantallas que nombra.
+- **Solo atiende lo de la plataforma.** Si le preguntas otra cosa, te dice que no puede y te ofrece lo que sí sabe hacer.
+- **Enter** envía; **Mayús+Enter** salta de línea. Cada pregunta, como mucho 1.000 caracteres.
+- **«Nueva conversación»**, arriba en la ventana, la vacía. **Esc** o la **×** la cierran.
+- Si el asistente llegó a su límite de uso, la ventana te lo dice y cuándo se renueva. Si no está disponible para ti, el
+  botón no aparece.
+

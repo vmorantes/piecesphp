@@ -67,7 +67,7 @@ class NotificationsRoutes
         return new McpTool(
             self::TOOL_NOTIFICATIONS_MINE,
             __(NotificationsLang::LANG_GROUP, 'Mis notificaciones'),
-            __(NotificationsLang::LANG_GROUP, 'Devuelve las notificaciones del usuario que pregunta (los avisos del sistema y las noticias internas), de la más nueva a la más vieja, y cuántas tiene en cada filtro. Úsala cuando pregunte qué tiene pendiente o sin leer. Solo ve las suyas, nunca las de otra persona.'),
+            __(NotificationsLang::LANG_GROUP, 'Devuelve las notificaciones del usuario que pregunta (los avisos del sistema y las noticias internas). El total de no leídas va en unreadTotal y los totales de cada filtro en totals; page trae solo una página de notificaciones, de la más nueva a la más vieja, y su tamaño no es el total. Úsala cuando pregunte qué tiene pendiente o sin leer. Solo ve las suyas, nunca las de otra persona.'),
             [
                 'type' => 'object',
                 'properties' => [
@@ -77,7 +77,16 @@ class NotificationsRoutes
                 'additionalProperties' => false,
             ],
             'notifications-list',
-            fn(UserDataPackage $user, array $arguments): array => Notifications::page((int) $user->id, (string) ($arguments['filter'] ?? Notifications::FILTER_UNREAD), 1, (int) ($arguments['limit'] ?? 10))
+            function (UserDataPackage $user, array $arguments): array {
+                $filter = (string) ($arguments['filter'] ?? Notifications::FILTER_UNREAD);
+                $page = Notifications::page((int) $user->id, $filter, 1, (int) ($arguments['limit'] ?? 10));
+                //El total, arriba y con su nombre: con la página sola, el modelo contaba los elementos (10) y no el total (12).
+                return [
+                    'unreadTotal' => (int) ($page['counts'][Notifications::FILTER_UNREAD] ?? 0),
+                    'totals' => $page['counts'],
+                    'page' => ['filter' => $filter, 'size' => count($page['items']), 'hasMore' => $page['hasMore'], 'items' => $page['items']],
+                ];
+            }
         );
     }
 

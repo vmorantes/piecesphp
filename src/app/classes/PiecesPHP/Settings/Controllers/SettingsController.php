@@ -47,6 +47,7 @@ use PiecesPHP\LangInjector;
 use PiecesPHP\Logs\Controllers\LogsController;
 use PiecesPHP\Logs\LogsLang;
 use PiecesPHP\Logs\LogTabRegistry;
+use PiecesPHP\Mcp\Assistant;
 use PiecesPHP\Settings\Mail\MailTester;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Settings\SettingsRoutes;
@@ -2898,7 +2899,7 @@ class SettingsController extends AdminPanelController
             SettingsRoutes::staticRoute('js/accessibility.js'),
         ], 'js');
 
-        $data = $this->sectionHeader(__($langGroup, 'Accesibilidad'), __($langGroup, 'Cómo se ve el panel para quien no elige lo suyo en el menú de su nombre.')) + [
+        $data = $this->sectionHeader(__($langGroup, 'Accesibilidad'), __($langGroup, 'Cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta › Preferencias».')) + [
             'langGroup' => $langGroup,
             'actionURL' => self::routeName('appearance-accessibility-save'),
             'textSize' => self::accessibilityTextSize(),
@@ -3573,6 +3574,14 @@ class SettingsController extends AdminPanelController
             }
             $entry['periodLength'] = (int) $length;
 
+            //La posición de la ventana del asistente (ADR 0075): solo la suya, y solo si el formulario la manda.
+            if ($key === Assistant::CAPABILITY && array_key_exists('position', $fields)) {
+                if (!is_string($fields['position']) || !in_array($fields['position'], Assistant::POSITIONS, true)) {
+                    $invalid($name, __(self::LANG_GROUP, 'Posición de la ventana'));
+                }
+                $entry['position'] = $fields['position'];
+            }
+
             //El proveedor y el modelo de la función (ADR 0077); un id heredado (EN DESUSO) se guarda como su convertido.
             if (array_key_exists('provider', $fields)) {
                 $provider = is_string($fields['provider']) ? AIProviderRegistry::resolveId(trim($fields['provider'])) : null;
@@ -4023,6 +4032,22 @@ class SettingsController extends AdminPanelController
             return $answer(['ok' => false, 'message' => __(self::LANG_GROUP, 'Guarda el proveedor para actualizar sus modelos.'), 'models' => [], 'fetchedAt' => null]);
         }
         return $answer(AIGateway::refreshProviderModels($record));
+    }
+
+    /**
+     * Las posiciones de la ventana del asistente, para el desplegable de Configuración › IA: valor (Assistant::POSITIONS)
+     * y nombre traducido.
+     *
+     * @return array<string,string>
+     */
+    public static function aiAssistantPositionOptions(): array
+    {
+        return [
+            'right' => __(self::LANG_GROUP, 'Derecha'),
+            'left' => __(self::LANG_GROUP, 'Izquierda'),
+            'floating right' => __(self::LANG_GROUP, 'Flotante abajo a la derecha'),
+            'floating left' => __(self::LANG_GROUP, 'Flotante abajo a la izquierda'),
+        ];
     }
 
     /**

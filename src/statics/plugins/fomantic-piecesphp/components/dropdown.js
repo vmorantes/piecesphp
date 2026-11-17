@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Dropdown
+ * # Fomantic-UI 0.15.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2113,7 +2113,8 @@
                                 var
                                     $option  = $(this),
                                     name     = $option.html(),
-                                    disabled = $option.attr('disabled'),
+                                    // Fork: prop y no attr: con jQuery 4, attr('disabled') de <option disabled> es "" (falso) y la opción no salía desactivada
+                                    disabled = $option.prop('disabled'),
                                     value    = $option.attr('value') !== undefined
                                         ? $option.attr('value')
                                         : name,
@@ -3722,7 +3723,9 @@
                             below = viewport - rect.bottom,
                             above = rect.top,
                             menuHeight,
-                            upward
+                            upward,
+                            probe,
+                            box
                         ;
                         // .ui.selection.dropdown lleva transform: rotateZ(0), que haría del campo el bloque contenedor
                         // de la lista fija; se anula mientras está abierta
@@ -3731,12 +3734,21 @@
                         menuHeight = $menu.outerHeight();
                         upward = menuHeight > below && (menuHeight <= above || above > below);
                         $module.toggleClass(className.upward, upward);
+                        // un antecesor con transform, filter, backdrop-filter o contain es el bloque contenedor de la
+                        // lista fija y sus coordenadas dejan de ser las de la ventana (glass-ios: todo segmento lleva
+                        // backdrop-filter). Una sonda fija junto a la lista (top 0, bottom 0) da el origen y el borde
+                        // inferior de ese bloque, se vea la lista o no
+                        probe = document.createElement('div');
+                        probe.style.cssText = 'position:fixed;left:0;top:0;bottom:0;width:0;visibility:hidden;pointer-events:none';
+                        $menu[0].parentNode.insertBefore(probe, $menu[0]);
+                        box = probe.getBoundingClientRect();
+                        probe.remove();
                         $menu.css({
-                            left: rect.left + 'px',
+                            left: (rect.left - box.left) + 'px',
                             width: rect.width + 'px',
                             minWidth: rect.width + 'px',
-                            top: upward ? 'auto' : rect.bottom + 'px',
-                            bottom: upward ? (viewport - rect.top) + 'px' : 'auto',
+                            top: upward ? 'auto' : (rect.bottom - box.top) + 'px',
+                            bottom: upward ? (box.bottom - rect.top) + 'px' : 'auto',
                         });
                         // si no cabe por ningún lado, se limita al espacio mayor (descontando bordes y un margen de 8px)
                         if (menuHeight > Math.max(below, above)) {

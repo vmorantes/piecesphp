@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Popup
+ * # Fomantic-UI 0.15.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -584,8 +584,8 @@
 
 /* Immediate Nested Grid */
 .ui.ui.ui.popup > .ui.grid:not(.padded) {
-  width: calc(100% + 1.75rem);
-  margin: -0.7rem -0.875rem;
+  width: calc(100% + 2 * 1rem);
+  margin: -0.85714286rem -1rem;
 }
 
 
@@ -617,6 +617,24 @@
   box-shadow: 0 0 0 1px transparent;
   visibility: visible;
   z-index: 101;
+}
+
+/* Fork: arco y pista del loader de popup, con la especificidad por encima de `.ui.ui.ui.ui.ui.ui.ui.loading::after` de
+   loader.less, que dejaba transparentes tres bordes */
+.ui.ui.ui.ui.ui.ui.ui.ui.loading.popup::after {
+  border-color: currentColor var(--theme-border) var(--theme-border);
+  color: inherit;
+  
+/* el del texto del popup, también en los de color (loader.less le da el color del popup) */
+}
+
+/* De color: la pista del tema (oscura en modo oscuro) sobre un popup de relleno claro dejaba un anillo oscuro sin
+       arco visible; la pista sale del propio texto */
+.ui.ui.ui.ui.ui.ui.ui.ui.loading.popup:is(.primary, .secondary, .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black)::after {
+  border-color: currentColor color-mix(in srgb, currentColor 25%, transparent) color-mix(in srgb, currentColor 25%, transparent);
+}
+.ui.ui.ui.ui.ui.ui.ui.ui.inverted.loading.popup::after {
+  border-color: currentColor rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.2);
 }
 .ui.invisible.popup {
   display: block;
@@ -665,8 +683,10 @@
 }
 
 /* Fork: los segmentos hijos de un popup fitted son sus bandas (cabecera, pie): sin margen
-       exterior, que dejaba un hueco entre la cabecera y el divisor de debajo */
-.ui.fitted.popup > .ui.segment {
+       exterior, que dejaba un hueco entre la cabecera y el divisor de debajo; y las listas a sangre (la de
+       notificaciones), sin su margen de 1em, que dejaba un hueco bajo el divisor */
+.ui.fitted.popup > .ui.segment,
+.ui.fitted.popup > .ui.list {
   margin: 0;
 }
 

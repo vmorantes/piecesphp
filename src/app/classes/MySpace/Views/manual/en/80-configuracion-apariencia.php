@@ -164,9 +164,9 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 </tbody>
 </table>
 <div class="ui info message">
-<div class="header">For now</div>
-<p>Whoever already chose any of this in their preferences keeps their own even if you change this, and does not yet
-have a button to go back to the site's.</p>
+<div class="header">Whoever already chose their own</div>
+<p>Whoever already chose any of this in their preferences keeps their own even if you change this. To go back to the
+site's, they choose <strong>“Like the site”</strong> in that group of their preferences.</p>
 </div>
 </div>
 <?php endif; ?>

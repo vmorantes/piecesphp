@@ -135,36 +135,38 @@ $this->helpController->_render('panel/built-in/content/page-header.php', [
         <section class="ui segment" aria-label="<?= escape_html(__($langGroup, 'Preferencias')); ?>">
             <?php
                 $preferenceAdmin = AdminPanelController::ADMIN_LANG_GROUP;
-                //Un grupo de botones como el del tamaño: lo guarda y lo aplica configurations.js al momento.
-                $preferenceGroup = function (string $label, string $id, array $options, string $current, string $attributes) use ($preferenceAdmin): string {
+                $preferenceSite = AdminPanelController::PREFERENCE_SITE;
+                $preferenceSites = is_array($sitePreferences ?? null) ? $sitePreferences : [];
+                //Un grupo de botones: lo guarda y lo aplica configurations.js al momento. La primera opción, «Como el sitio»
+                //(H327), borra la meta; debajo, lo que pone el sitio.
+                $preferenceGroup = function (string $label, string $id, array $options, string $current, string $siteValue, string $attributes) use ($preferenceAdmin, $preferenceSite): string {
+                    $dataAttribute = (string) array_values($options)[0][1];
+                    $options = [$preferenceSite => ['Como el sitio', $dataAttribute]] + $options;
                     $html = '<div class="ui hidden divider"></div><div class="ui vertical flex"><small class="ui muted text" id="' . $id . '-label">' . escape_html(__($preferenceAdmin, $label)) . '</small>';
-                    $html .= '<div class="ui ' . (count($options) === 3 ? 'three' : 'two') . ' mini buttons" role="radiogroup" aria-labelledby="' . $id . '-label" ' . $attributes . '>';
-                    foreach ($options as $value => [$name, $dataAttribute]) {
+                    //fluid stackable, sin número de columnas: a 390 cuatro botones se cortaban; en móvil el tema los apila.
+                    $html .= '<div class="ui fluid mini stackable buttons" role="radiogroup" aria-labelledby="' . $id . '-label" ' . $attributes . '>';
+                    foreach ($options as $value => [$name, $optionAttribute]) {
                         $active = $current === $value;
+                        $described = $value === $preferenceSite ? ' aria-describedby="' . $id . '-site"' : '';
                         //La elegida, con primary: a 3:1 de las demás (WCAG 1.4.11), también con «Más contraste».
-                        $html .= '<button type="button" class="ui button' . ($active ? ' active primary' : '') . '" role="radio" aria-checked="' . ($active ? 'true' : 'false') . '" tabindex="' . ($active ? '0' : '-1') . '" ' . $dataAttribute . '="' . escape_html($value) . '">' . escape_html(__($preferenceAdmin, $name)) . '</button>';
+                        $html .= '<button type="button" class="ui button' . ($active ? ' active primary' : '') . '" role="radio" aria-checked="' . ($active ? 'true' : 'false') . '" tabindex="' . ($active ? '0' : '-1') . '"' . $described . ' ' . $optionAttribute . '="' . escape_html((string) $value) . '">' . escape_html(__($preferenceAdmin, $name)) . '</button>';
                     }
-                    return $html . '</div></div>';
+                    $siteName = isset($options[$siteValue]) ? __($preferenceAdmin, $options[$siteValue][0]) : $siteValue;
+                    $html .= '</div><small class="ui muted text" id="' . $id . '-site">' . escape_html(strReplaceTemplate(__($preferenceAdmin, 'Como el sitio: %s'), ['%s' => $siteName])) . '</small>';
+                    return $html . '</div>';
                 };
                 $preferenceURL = escape_html(AdminPanelController::routeName('accessibility-preference'));
             ?>
             <h3 class="ui header" id="user-preferences-appearance-title"><?= __($langGroup, 'Apariencia'); ?></h3>
-            <?= $preferenceGroup('Modo de color', 'user-preferences-theme-mode', ['light' => ['Claro', 'data-theme-mode'], 'dark' => ['Oscuro', 'data-theme-mode'], 'auto' => ['Sistema', 'data-theme-mode']], (string) ($themeMode ?? ''), 'theme-mode-selector data-url="' . escape_html(AdminPanelController::routeName('theme-mode')) . '"'); ?>
+            <?= $preferenceGroup('Modo de color', 'user-preferences-theme-mode', ['light' => ['Claro', 'data-theme-mode'], 'dark' => ['Oscuro', 'data-theme-mode'], 'auto' => ['Sistema', 'data-theme-mode']], (string) ($themeMode ?? ''), (string) ($preferenceSites['themeMode'] ?? ''), 'theme-mode-selector data-url="' . escape_html(AdminPanelController::routeName('theme-mode')) . '"'); ?>
 
             <div class="ui divider"></div>
 
             <h3 class="ui header" id="user-preferences-accessibility-title"><?= __($langGroup, 'Accesibilidad'); ?></h3>
-            <div class="ui vertical flex">
-                <small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra'); ?></small>
-                <div class="ui three mini buttons" role="radiogroup" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Tamaño de letra')); ?>" aria-describedby="user-preferences-text-size-help" text-size-selector data-url="<?= escape_html(AdminPanelController::routeName('text-size')); ?>">
-                    <?php foreach (['normal' => 'Normal', 'large' => 'Grande', 'larger' => 'Más grande'] as $textSizeOption => $textSizeOptionName) : ?>
-                    <button type="button" class="ui button<?= ($textSize ?? '') === $textSizeOption ? ' active primary' : ''; ?>" role="radio" aria-checked="<?= ($textSize ?? '') === $textSizeOption ? 'true' : 'false'; ?>" tabindex="<?= ($textSize ?? '') === $textSizeOption ? '0' : '-1'; ?>" data-text-size="<?= $textSizeOption; ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, $textSizeOptionName); ?></button>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?= $preferenceGroup('Contraste', 'user-preferences-contrast', ['auto' => ['Automático', 'data-value'], 'more' => ['Más contraste', 'data-value']], (string) ($contrast ?? ''), 'accessibility-preference-selector data-preference="contrast" data-url="' . $preferenceURL . '"'); ?>
-            <?= $preferenceGroup('Movimiento', 'user-preferences-motion', ['auto' => ['Automático', 'data-value'], 'reduce' => ['Reducir movimiento', 'data-value']], (string) ($motion ?? ''), 'accessibility-preference-selector data-preference="motion" data-url="' . $preferenceURL . '"'); ?>
-            <?= $preferenceGroup('Foco', 'user-preferences-focus', ['normal' => ['Normal', 'data-value'], 'strong' => ['Reforzado', 'data-value']], (string) ($focus ?? ''), 'accessibility-preference-selector data-preference="focus" data-url="' . $preferenceURL . '"'); ?>
+            <?= $preferenceGroup('Tamaño de letra', 'user-preferences-text-size', ['normal' => ['Normal', 'data-text-size'], 'large' => ['Grande', 'data-text-size'], 'larger' => ['Más grande', 'data-text-size']], (string) ($textSize ?? ''), (string) ($preferenceSites['textSize'] ?? ''), 'aria-describedby="user-preferences-text-size-help" text-size-selector data-url="' . escape_html(AdminPanelController::routeName('text-size')) . '"'); ?>
+            <?= $preferenceGroup('Contraste', 'user-preferences-contrast', ['auto' => ['Automático', 'data-value'], 'more' => ['Más contraste', 'data-value']], (string) ($contrast ?? ''), (string) ($preferenceSites['contrast'] ?? ''), 'accessibility-preference-selector data-preference="contrast" data-url="' . $preferenceURL . '"'); ?>
+            <?= $preferenceGroup('Movimiento', 'user-preferences-motion', ['auto' => ['Automático', 'data-value'], 'reduce' => ['Reducir movimiento', 'data-value']], (string) ($motion ?? ''), (string) ($preferenceSites['motion'] ?? ''), 'accessibility-preference-selector data-preference="motion" data-url="' . $preferenceURL . '"'); ?>
+            <?= $preferenceGroup('Foco', 'user-preferences-focus', ['normal' => ['Normal', 'data-value'], 'strong' => ['Reforzado', 'data-value']], (string) ($focus ?? ''), (string) ($preferenceSites['focus'] ?? ''), 'accessibility-preference-selector data-preference="focus" data-url="' . $preferenceURL . '"'); ?>
             <div class="ui hidden divider"></div>
             <p class="ui muted text" id="user-preferences-text-size-help"><?= __($langGroup, 'Se aplica al momento y se guarda en tu cuenta.'); ?></p>
         </section>

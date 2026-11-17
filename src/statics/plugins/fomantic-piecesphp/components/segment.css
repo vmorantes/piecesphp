@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Segment
+ * # Fomantic-UI 0.15.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -882,6 +882,12 @@
   color: inherit;
 }
 
+/* Fork: el relleno black es el propio fondo inverted: un contorno interior lo separa de él sin mover nada */
+.ui.ui.ui.ui.ui.inverted.black.segment {
+  outline: 1px solid rgba(255, 255, 255, 0.18);
+  outline-offset: -1px;
+}
+
 /* -------------------
            Aligned
     -------------------- */
@@ -915,6 +921,12 @@
 .ui.inverted.segments .segment,
 .ui.inverted.segment {
   border: none;
+  box-shadow: none;
+}
+
+/* Fork: el último de un grupo inverted tampoco lleva la sombra inferior del grupo (una línea clara bajo el bloque
+       oscuro); la regla de :last-child ganaba al `none` de arriba por especificidad */
+.ui.inverted.segments:not(.horizontal) > .segment:last-child {
   box-shadow: none;
 }
 
@@ -962,7 +974,7 @@
 /* Secondary */
 .ui.secondary.segment {
   background: light-dark(#fafbfc, #161920);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.secondary.inverted.segment {
   background: #2f3749 linear-gradient(rgba(255, 255, 255, 0.08) 0, rgba(255, 255, 255, 0.08) 100%);
@@ -972,7 +984,7 @@
 /* Tertiary */
 .ui.tertiary.segment {
   background: light-dark(#eef1f5, #262b36);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.tertiary.inverted.segment {
   background: #3b455b linear-gradient(rgba(255, 255, 255, 0.14) 0, rgba(255, 255, 255, 0.14) 100%);
@@ -1252,7 +1264,7 @@
   font-family: var(--font-body);
   padding: 0.85714286rem 1.14285714rem;
   background: light-dark(#fafbfc, #161920);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   border: 1px solid var(--theme-border);
   border-radius: var(--r-md, 8px);
   box-shadow: none;

@@ -1,3 +1,25 @@
+# 10.32.0 (16-11-2026)
+
+- **Nuevo: la ventana del asistente del panel.** Quien lo tenga encendido ve su botón junto a la campana de
+  notificaciones; en el móvil, en el menú de su nombre. Responde preguntas sobre la plataforma con lo que esa persona
+  puede ver, deja botones para ir a las pantallas que nombra y declina lo que no es de la plataforma.
+  - La posición de la ventana (derecha, izquierda o flotante en una esquina) se elige en Configuración › IA › Funciones ›
+    «Asistente del panel», junto con su proveedor y su modelo.
+  - Manual: «Tu cuenta», «El asistente».
+- **El tema del panel, en su `0.15.0`**: el componente de chat, el del código de verificación, el foco de los campos con el
+  color del tema (antes, el azul de Fomantic), las pestañas sobre su línea y el texto secundario del modo oscuro sin el
+  tono rosado.
+- **«Como el sitio» en «Mi cuenta › Preferencias»**: cada grupo puede volver a seguir lo que eligió quien administra, y
+  dice cuál es.
+- **Arreglado**: con algunos proveedores compatibles con OpenAI (Groq, con modelos que razonan), la respuesta de la IA
+  fallaba al leerla si faltaba un dato opcional del consumo.
+- **Para quien desarrolla**:
+  - **la ruta del asistente se llama ahora `mcp-assistant-ask`** (antes `assistant-ask`); la dirección, los roles y sus
+    defensas no cambian, pero si tu clon nombra el permiso, cámbialo;
+  - `Assistant::reply()` devuelve además `kind` (`unavailable` o `error`) cuando no responde;
+  - `bin/cli assistant-bench` admite, en local, un proveedor real (`provider=`, `model=`, `limit=`).
+  - Guía «Ofrecer herramientas al asistente», «La ventana».
+
 # 10.31.1 (16-11-2026)
 
 - **En «Mi cuenta › Preferencias», la opción elegida se marca con el color principal**: en claro se distingue bien,

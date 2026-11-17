@@ -117,6 +117,12 @@ class AdminPanelController extends BaseController
         'focus' => [self::FOCUS_META, self::FOCUSES],
     ];
     /**
+     * «Como el sitio» (H327): en las tres rutas de preferencias, este valor BORRA la meta y la persona vuelve a heredar lo
+     * que el sitio pone en Configuración › Accesibilidad.
+     */
+    const PREFERENCE_SITE = 'site';
+
+    /**
      * Los píxeles que suma cada nivel al «Tamaño base» de Colores.
      */
     const TEXT_SIZE_STEPS = [self::TEXT_SIZE_NORMAL => 0, 'large' => 2, 'larger' => 4];
@@ -210,9 +216,13 @@ class AdminPanelController extends BaseController
     {
         $mode = $req->getParsedBodyParam('mode', '');
         $user = getLoggedFrameworkUserOrFail();
+        if ($mode === self::PREFERENCE_SITE) {
+            $saved = UsersModel::removeMetaValue((int) $user->id, self::THEME_MODE_META);
+            return $res->withJson(['success' => $saved, 'mode' => $saved ? SettingsController::accessibilityThemeMode() : null, 'choice' => $saved ? self::PREFERENCE_SITE : null], $saved ? 200 : 400);
+        }
         $allowed = is_string($mode) && in_array($mode, self::THEME_MODES, true);
         $saved = $allowed && UsersModel::setMetaValue((int) $user->id, self::THEME_MODE_META, $mode);
-        return $res->withJson(['success' => $saved, 'mode' => $saved ? $mode : null], $saved ? 200 : 400);
+        return $res->withJson(['success' => $saved, 'mode' => $saved ? $mode : null, 'choice' => $saved ? $mode : null], $saved ? 200 : 400);
     }
 
     /**
@@ -227,12 +237,19 @@ class AdminPanelController extends BaseController
     {
         $size = $req->getParsedBodyParam('size', '');
         $user = getLoggedFrameworkUserOrFail();
-        $allowed = is_string($size) && in_array($size, self::TEXT_SIZES, true);
-        $saved = $allowed && UsersModel::setMetaValue((int) $user->id, self::TEXT_SIZE_META, $size);
+        $choice = $size;
+        if ($size === self::PREFERENCE_SITE) {
+            $saved = UsersModel::removeMetaValue((int) $user->id, self::TEXT_SIZE_META);
+            $size = SettingsController::accessibilityTextSize();
+        } else {
+            $allowed = is_string($size) && in_array($size, self::TEXT_SIZES, true);
+            $saved = $allowed && UsersModel::setMetaValue((int) $user->id, self::TEXT_SIZE_META, $size);
+        }
         return $res->withJson([
             'success' => $saved,
             'size' => $saved ? $size : null,
-            'pixels' => $saved ? self::textSizePixels($size) : null,
+            'choice' => $saved ? $choice : null,
+            'pixels' => $saved && is_string($size) ? self::textSizePixels($size) : null,
         ], $saved ? 200 : 400);
     }
 
@@ -250,13 +267,50 @@ class AdminPanelController extends BaseController
         $value = $req->getParsedBodyParam('value', '');
         $user = getLoggedFrameworkUserOrFail();
         $definition = is_string($preference) ? (self::ACCESSIBILITY_PREFERENCES[$preference] ?? null) : null;
-        $allowed = $definition !== null && is_string($value) && in_array($value, $definition[1], true);
-        $saved = $allowed && UsersModel::setMetaValue((int) $user->id, $definition[0], $value);
+        $choice = $value;
+        if ($definition !== null && $value === self::PREFERENCE_SITE) {
+            $saved = UsersModel::removeMetaValue((int) $user->id, $definition[0]);
+            $value = self::siteAccessibilityValue((string) $preference);
+        } else {
+            $allowed = $definition !== null && is_string($value) && in_array($value, $definition[1], true);
+            $saved = $allowed && UsersModel::setMetaValue((int) $user->id, $definition[0], $value);
+        }
         return $res->withJson([
             'success' => $saved,
             'preference' => $saved ? $preference : null,
             'value' => $saved ? $value : null,
+            'choice' => $saved ? $choice : null,
         ], $saved ? 200 : 400);
+    }
+
+    /**
+     * Lo que el sitio pone para una de ACCESSIBILITY_PREFERENCES (contrast, motion o focus).
+     *
+     * @param string $preference
+     * @return string
+     */
+    public static function siteAccessibilityValue(string $preference): string
+    {
+        return match ($preference) {
+            'contrast' => SettingsController::accessibilityContrast(),
+            'motion' => SettingsController::accessibilityMotion(),
+            default => SettingsController::accessibilityFocus(),
+        };
+    }
+
+    /**
+     * Lo que la persona eligió para una preferencia (el valor de su meta, si está en la lista) o PREFERENCE_SITE si no
+     * eligió: es la opción que sale marcada en «Preferencias».
+     *
+     * @param int $userID
+     * @param string $meta THEME_MODE_META, TEXT_SIZE_META o la meta de ACCESSIBILITY_PREFERENCES
+     * @param list<string> $values Los valores de esa preferencia
+     * @return string
+     */
+    public static function preferenceChoiceOf(int $userID, string $meta, array $values): string
+    {
+        $value = UsersModel::metaValue($userID, $meta);
+        return is_string($value) && in_array($value, $values, true) ? $value : self::PREFERENCE_SITE;
     }
 
     /**

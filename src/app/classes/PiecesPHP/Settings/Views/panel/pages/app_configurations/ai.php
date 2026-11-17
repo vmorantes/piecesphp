@@ -183,6 +183,15 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
                         </select>
                         <div class="description"><?= __($langGroup, 'Root siempre puede.'); ?></div>
                     </div>
+                    <?php if ($capabilityKey === \PiecesPHP\Mcp\Assistant::CAPABILITY): ?>
+                    <?php //Dónde se abre la ventana del chat (ADR 0075): los valores del componente del tema. ?>
+                    <div class="field">
+                        <label for="<?= escape_html($idBase); ?>-position"><?= __($langGroup, 'Posición de la ventana'); ?></label>
+                        <select id="<?= escape_html($idBase); ?>-position" name="<?= escape_html($field); ?>[position]" class="ui fluid selection dropdown" data-ai-assistant-position>
+                            <?= array_to_html_options(SettingsController::aiAssistantPositionOptions(), \PiecesPHP\Mcp\Assistant::position()); ?>
+                        </select>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 <?php
                     //La selección EFECTIVA: sin la conversión escrita, la de antes ya rellena (guardar la deja explícita).

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Form
+ * # Fomantic-UI 0.15.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -514,7 +514,7 @@
 .ui.form input:not([type="checkbox"], [type="radio"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="range"])[readonly]:focus,
 .ui.form textarea[readonly]:focus {
   background: light-dark(#fafbfc, #262b36);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   cursor: default;
 }
 
@@ -2204,6 +2204,14 @@
   color: #a1a9b7;
 }
 
+/* Select múltiple nativo (listbox): aire interior y barra fina con pista transparente; la pista opaca cortaba la esquina
+   redondeada y la primera opción tocaba el borde */
+.ui.form select[multiple] {
+  padding: 0.5em 0.25em;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentcolor 35%, transparent) transparent;
+}
+
 /* -------------------
        Etiquetas
 -------------------- */
@@ -2315,4 +2323,11 @@
     padding-right: 1.14285714rem;
     padding-left: 1.14285714rem;
   }
+}
+
+/* Select múltiple nativo: core le da 0.25em de lado (para el resaltado de las opciones); en piecesphp sus opciones
+   quedaban 6px a la izquierda del texto del select simple. El relleno lateral de los campos del tema. */
+.ui.form select[multiple] {
+  padding-right: 0.85714286em;
+  padding-left: 0.85714286em;
 }

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - List
+ * # Fomantic-UI 0.15.0 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -350,7 +350,7 @@ ol.ui.list ol li,
 .ui.list > a.item:hover > .icons,
 .ui.list .list > a.item:hover > i.icon,
 .ui.list > a.item:hover > i.icon {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 
 
@@ -423,7 +423,7 @@ ol.ui.list ol li,
 .ui.link.list .item,
 .ui.link.list a.item,
 .ui.link.list .item a:not(.ui) {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   transition: color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .ui.ui.link.list a.item:hover,
@@ -467,7 +467,7 @@ ol.ui.list ol li,
   background: transparent;
   padding: 0.57142857rem 0.71428571rem;
   margin: 0;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   border-radius: var(--r-md, 8px);
   transition: 0.15s color cubic-bezier(0.2, 0.8, 0.2, 1), 0.15s padding-left cubic-bezier(0.2, 0.8, 0.2, 1), 0.15s background-color cubic-bezier(0.2, 0.8, 0.2, 1);
 }

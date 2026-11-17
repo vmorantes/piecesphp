@@ -256,8 +256,9 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
         $falso->guion([['content' => '', 'toolCalls' => [$llamada('n1', 'notifications_mine', '{"filter":"unread","limit":2}')], 'usage' => 1], ['content' => 'zz', 'toolCalls' => [], 'usage' => 1]]);
         $tras = Assistant::reply($root, 'zz ¿tengo notificaciones?');
         $leidas = json_decode((string) $herramientaDe(1, 'n1'), true);
-        $esperadas = json_decode((string) json_encode(Notifications::page($idRoot, Notifications::FILTER_UNREAD, 1, 2)), true);
-        $check($tras['ok'] && is_array($leidas) && $leidas === $esperadas, '10a tras cerrar la conexión, notifications_mine reconecta y devuelve lo mismo que Notifications::page()', mb_substr((string) $herramientaDe(1, 'n1'), 0, 160));
+        $pagina = Notifications::page($idRoot, Notifications::FILTER_UNREAD, 1, 2);
+        $esperadas = json_decode((string) json_encode(['unreadTotal' => (int) ($pagina['counts'][Notifications::FILTER_UNREAD] ?? 0), 'totals' => $pagina['counts'], 'page' => ['filter' => Notifications::FILTER_UNREAD, 'size' => count($pagina['items']), 'hasMore' => $pagina['hasMore'], 'items' => $pagina['items']]]), true);
+        $check($tras['ok'] && is_array($leidas) && $leidas === $esperadas, '10a tras cerrar la conexión, notifications_mine reconecta y devuelve el total y la página de Notifications::page()', mb_substr((string) $herramientaDe(1, 'n1'), 0, 160));
         echoTerminal(' ');
 
         //─── A · Los topes de gasto ─────────────────────────────────────────────────────────────────
@@ -467,7 +468,7 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
             $cuerpoRespuesta = substr($respuesta, $tamCabecera);
             return ['status' => $status, 'body' => $cuerpoRespuesta, 'json' => json_decode($cuerpoRespuesta, true)];
         };
-        $preguntar = $ruta('assistant-ask');
+        $preguntar = $ruta('mcp-assistant-ask');
         $prefijo = 'zz-agente-asis-' . bin2hex(random_bytes(3));
         $clave = bin2hex(random_bytes(12)) . 'Aa1!';
         $usuarios = [];

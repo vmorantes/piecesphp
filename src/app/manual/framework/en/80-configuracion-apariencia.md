@@ -89,9 +89,9 @@ At the end, **“Cancel”** or **“Save”**.
 | Default motion | No | **“Automatic”** or **“Reduce motion”**. |
 | Default focus | No | **“Normal”** or **“Strong”**: the outline of what is selected with the keyboard, more visible. |
 
-!!! note "For now"
-    Whoever already chose any of this in their preferences keeps their own even if you change this, and does not yet
-    have a button to go back to the site's.
+!!! note "Whoever already chose their own"
+    Whoever already chose any of this in their preferences keeps their own even if you change this. To go back to the
+    site's, they choose **“Like the site”** in that group of their preferences.
 
 ## Identity and SEO
 <!-- ve: configurations-appearance-seo -->

@@ -164,9 +164,9 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 </tbody>
 </table>
 <div class="ui info message">
-<div class="header">Por ahora</div>
-<p>Quien ya eligió algo de esto en sus preferencias sigue con lo suyo aunque cambies esto, y todavía no tiene un botón
-para volver a lo del sitio.</p>
+<div class="header">Quien ya eligió lo suyo</div>
+<p>Quien ya eligió algo de esto en sus preferencias sigue con lo suyo aunque cambies esto. Para volver a lo del sitio,
+elige <strong>«Como el sitio»</strong> en ese grupo de sus preferencias.</p>
 </div>
 </div>
 <?php endif; ?>

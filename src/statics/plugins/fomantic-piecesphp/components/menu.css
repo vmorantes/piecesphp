@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Menu
+ * # Fomantic-UI 0.15.0 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -72,7 +72,7 @@
   background: none;
   padding: 0.92857143em 1.14285714em;
   text-transform: none;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   font-weight: 400;
   transition: background 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -203,7 +203,7 @@
   font-size: 1em !important;
   padding: 0.78571429em 1.14285714em !important;
   background: transparent !important;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h)) !important;
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35)) !important;
   text-transform: none !important;
   font-weight: 400 !important;
   box-shadow: none !important;
@@ -308,7 +308,7 @@
 }
 .ui.menu .item > .label {
   background: light-dark(#eef1f5, #262b36);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.menu .item > .image.label img {
   margin: -0.2833em 0.8em -0.2833em -0.8em;
@@ -567,7 +567,7 @@ Floated Menu / Item
   background: none;
   padding: 0.5em 1.33333333em;
   font-size: 1em;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.vertical.menu .item .menu a.item:hover,
 .ui.vertical.menu .item .menu .link.item:hover {
@@ -621,7 +621,7 @@ Floated Menu / Item
   border-right: 1px solid transparent;
   border-top: 2px solid transparent;
   padding: 0.92857143em 1.42857143em;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.tabular.menu .item::before {
   display: none;
@@ -1219,6 +1219,17 @@ Floated Menu / Item
 /* Fluid */
 .ui.fluid.labeled.icon.menu > .item {
   min-width: 0;
+}
+
+/* Fork: aviso sobre el ícono de un item con etiqueta (barra inferior de una app): la etiqueta floating se ancla
+       por la izquierda al centro del ícono, que está centrado en el item, y no a la esquina del item, donde quedaba lejos
+       del ícono en un `fluid four item` */
+.ui.labeled.icon.menu > .item > .floating.label:not(.bottom) {
+  top: 0.75em;
+  right: auto;
+  left: calc(50% + 0.35em);
+  margin: 0;
+  transform: none;
 }
 
 
@@ -2598,6 +2609,22 @@ Floated Menu / Item
     overflow-x: auto;
     scrollbar-width: none;
   }
+  
+/* Con overflow-x el menú recorta lo que sale de su caja de relleno: el margen de -1px con el que el subrayado
+       de 3px pisaba la línea base quedaba fuera y la pestaña subía 1px dejando ver la línea. La línea base pasa a una
+       sombra interior sobre 1px de relleno: mismo alto y el subrayado vuelve a pisarla. */
+  .ui.secondary.pointing.menu:not(.vertical):not(.inverted) {
+    padding-bottom: 1px;
+    border-bottom-color: transparent;
+    border-bottom-width: 0;
+    box-shadow: inset 0 -1px 0 0 var(--theme-border);
+  }
+  .ui.inverted.secondary.pointing.menu:not(.vertical) {
+    padding-bottom: 1px;
+    border-bottom-color: transparent;
+    border-bottom-width: 0;
+    box-shadow: inset 0 -1px 0 0 rgba(255, 255, 255, 0.1);
+  }
   .ui.secondary.pointing.menu:not(.vertical):not(.inverted) > .item,
   .ui.inverted.secondary.pointing.menu:not(.vertical) > .item {
     flex: none;
@@ -2689,7 +2716,7 @@ Floated Menu / Item
   border: 1px solid transparent;
   border-radius: var(--r-md, 8px);
   line-height: 1.42857143;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.pagination.menu:not(.secondary):not(.text):not(.inverted) > .item:first-child,
 .ui.pagination.menu:not(.secondary):not(.text):not(.inverted) > .item:last-child {
@@ -2876,7 +2903,7 @@ Floated Menu / Item
   padding-bottom: 0;
   border-radius: var(--r-sm, 6px);
   background: transparent;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   font-size: 0.85714286em;
   line-height: 1.33333333;
   font-weight: 600;

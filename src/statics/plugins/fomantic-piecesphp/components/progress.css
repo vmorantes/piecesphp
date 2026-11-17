@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Progress
+ * # Fomantic-UI 0.15.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1321,7 +1321,7 @@
   margin-top: 0;
   font-size: 0.85714286rem;
   line-height: 1.33333333;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.ui.small.progress:not(.circular) .bar:not(:empty),
 .ui.ui.tiny.progress:not(.circular) .bar:not(:empty),

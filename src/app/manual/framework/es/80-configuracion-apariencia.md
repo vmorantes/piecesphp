@@ -89,9 +89,9 @@ Al final, **«Cancelar»** o **«Guardar»**.
 | Movimiento por omisión | No | **«Automático»** o **«Reducir movimiento»**. |
 | Foco por omisión | No | **«Normal»** o **«Reforzado»**: el contorno de lo seleccionado con el teclado, más visible. |
 
-!!! note "Por ahora"
-    Quien ya eligió algo de esto en sus preferencias sigue con lo suyo aunque cambies esto, y todavía no tiene un botón
-    para volver a lo del sitio.
+!!! note "Quien ya eligió lo suyo"
+    Quien ya eligió algo de esto en sus preferencias sigue con lo suyo aunque cambies esto. Para volver a lo del sitio,
+    elige **«Como el sitio»** en ese grupo de sus preferencias.
 
 ## Identidad y SEO
 <!-- ve: configurations-appearance-seo -->

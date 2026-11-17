@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Search
+ * # Fomantic-UI 0.15.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

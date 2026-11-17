@@ -354,7 +354,7 @@ return [
     'Autor' => 'Author',
     'Sale del Propietario.' => 'It comes from the Owner.',
     'Accesibilidad' => 'Accessibility',
-    'Cómo se ve el panel para quien no elige lo suyo en el menú de su nombre.' => 'How the panel looks for anyone who has not chosen their own in the menu under their name.',
+    'Cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta › Preferencias».' => 'How the panel looks for anyone who has not chosen their own in “My account › Preferences”.',
     'Tamaño de letra por omisión' => 'Default text size',
     'Modo de color por omisión' => 'Default color mode',
     'Normal' => 'Normal',
@@ -444,4 +444,9 @@ return [
     'Más contraste' => 'More contrast',
     'Reducir movimiento' => 'Reduce motion',
     'Reforzado' => 'Strong',
+    'Posición de la ventana' => 'Window position',
+    'Derecha' => 'Right',
+    'Izquierda' => 'Left',
+    'Flotante abajo a la derecha' => 'Floating bottom right',
+    'Flotante abajo a la izquierda' => 'Floating bottom left',
 ];

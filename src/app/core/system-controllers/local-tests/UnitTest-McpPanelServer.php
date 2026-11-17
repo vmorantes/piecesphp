@@ -195,10 +195,15 @@ CliActions::make('unit-tests:core/mcp-panel-server', function ($args) {
         echoTerminal(' ');
 
         //─── 8 · notifications_mine ─────────────────────────────────────────────────────────────────
-        echoTerminal('[8] notifications_mine: lo mismo que Notifications::page() para ese usuario');
+        echoTerminal('[8] notifications_mine: el total de no leídas arriba, los totales y una página de Notifications::page()');
+        $forma = fn(array $p, string $f): array => ['unreadTotal' => (int) ($p['counts'][Notifications::FILTER_UNREAD] ?? 0), 'totals' => $p['counts'], 'page' => ['filter' => $f, 'size' => count($p['items']), 'hasMore' => $p['hasMore'], 'items' => $p['items']]];
         $mias = $llamar($root, 'notifications_mine', ['filter' => Notifications::FILTER_ALL, 'limit' => 5]);
-        $check(($mias['result']['isError'] ?? null) === false && $datos($mias) === json_decode((string) json_encode(Notifications::page($idRoot, Notifications::FILTER_ALL, 1, 5)), true), '8a con filtro y límite: lo mismo que page()');
-        $check($datos($llamar($root, 'notifications_mine', [])) === json_decode((string) json_encode(Notifications::page($idRoot, Notifications::FILTER_UNREAD, 1, 10)), true), '8b sin argumentos: las no leídas, 10');
+        $check(($mias['result']['isError'] ?? null) === false && $datos($mias) === json_decode((string) json_encode($forma(Notifications::page($idRoot, Notifications::FILTER_ALL, 1, 5), Notifications::FILTER_ALL)), true), '8a con filtro y límite: unreadTotal, totals y la página de page()');
+        $check($datos($llamar($root, 'notifications_mine', [])) === json_decode((string) json_encode($forma(Notifications::page($idRoot, Notifications::FILTER_UNREAD, 1, 10), Notifications::FILTER_UNREAD)), true), '8b sin argumentos: las no leídas, 10');
+        //El total no es el tamaño de la página (D3: el modelo leía 10 de una página y eran 12).
+        $una = $datos($llamar($root, 'notifications_mine', ['limit' => 1]));
+        $sinLeer = Notifications::unread($idRoot);
+        $check(is_array($una) && ($una['unreadTotal'] ?? null) === $sinLeer && ($una['page']['size'] ?? null) === min(1, $sinLeer), '8c unreadTotal es el total de no leídas del usuario, no el tamaño de la página', (string) json_encode(['unreadTotal' => $una['unreadTotal'] ?? null, 'size' => $una['page']['size'] ?? null, 'unread' => $sinLeer]));
         echoTerminal(' ');
 
         //─── A · ids y datos que no se pueden responder ─────────────────────────────────────────────

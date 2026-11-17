@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Card
+ * # Fomantic-UI 0.15.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -461,7 +461,7 @@
 }
 .ui.cards > .card > .extra a:not(.ui),
 .ui.card > .extra a:not(.ui) {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.cards > .card > .extra a:not(.ui):hover,
 .ui.card > .extra a:not(.ui):hover {
@@ -637,10 +637,12 @@ a.ui.card:hover,
 /* -------------------
        Colors
 -------------------- */
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.primary.cards > .card,
 .ui.cards > .primary.card,
 .ui.primary.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-1, var(--accent, #356dca)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.primary.card:hover,
 .ui.primary.cards a.card:hover,
@@ -742,10 +744,12 @@ a.ui.basic.inverted.primary.card:hover,
 .ui.basic.inverted.primary.card .description {
   color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.secondary.cards > .card,
 .ui.cards > .secondary.card,
 .ui.secondary.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-2, #7a5af8), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.secondary.card:hover,
 .ui.secondary.cards a.card:hover,
@@ -847,10 +851,12 @@ a.ui.basic.inverted.secondary.card:hover,
 .ui.basic.inverted.secondary.card .description {
   color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.accent-1.cards > .card,
 .ui.cards > .accent-1.card,
 .ui.accent-1.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-1, var(--accent, #356dca)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.accent-1.card:hover,
 .ui.accent-1.cards a.card:hover,
@@ -952,10 +958,12 @@ a.ui.basic.inverted.accent-1.card:hover,
 .ui.basic.inverted.accent-1.card .description {
   color: color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.accent-2.cards > .card,
 .ui.cards > .accent-2.card,
 .ui.accent-2.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-2, #7a5af8), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.accent-2.card:hover,
 .ui.accent-2.cards a.card:hover,
@@ -1057,10 +1065,12 @@ a.ui.basic.inverted.accent-2.card:hover,
 .ui.basic.inverted.accent-2.card .description {
   color: color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.accent-3.cards > .card,
 .ui.cards > .accent-3.card,
 .ui.accent-3.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 var(--accent-3, #c11574), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.accent-3.card:hover,
 .ui.accent-3.cards a.card:hover,
@@ -1162,10 +1172,12 @@ a.ui.basic.inverted.accent-3.card:hover,
 .ui.basic.inverted.accent-3.card .description {
   color: color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.red.cards > .card,
 .ui.cards > .red.card,
 .ui.red.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #f04438, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.red.card:hover,
 .ui.red.cards a.card:hover,
@@ -1267,10 +1279,12 @@ a.ui.basic.inverted.red.card:hover,
 .ui.basic.inverted.red.card .description {
   color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.orange.cards > .card,
 .ui.cards > .orange.card,
 .ui.orange.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #ef6820, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.orange.card:hover,
 .ui.orange.cards a.card:hover,
@@ -1372,10 +1386,12 @@ a.ui.basic.inverted.orange.card:hover,
 .ui.basic.inverted.orange.card .description {
   color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.yellow.cards > .card,
 .ui.cards > .yellow.card,
 .ui.yellow.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #f79009, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.yellow.card:hover,
 .ui.yellow.cards a.card:hover,
@@ -1477,10 +1493,12 @@ a.ui.basic.inverted.yellow.card:hover,
 .ui.basic.inverted.yellow.card .description {
   color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.olive.cards > .card,
 .ui.cards > .olive.card,
 .ui.olive.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #84a11b, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.olive.card:hover,
 .ui.olive.cards a.card:hover,
@@ -1582,10 +1600,12 @@ a.ui.basic.inverted.olive.card:hover,
 .ui.basic.inverted.olive.card .description {
   color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.green.cards > .card,
 .ui.cards > .green.card,
 .ui.green.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #17b26a, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.green.card:hover,
 .ui.green.cards a.card:hover,
@@ -1687,10 +1707,12 @@ a.ui.basic.inverted.green.card:hover,
 .ui.basic.inverted.green.card .description {
   color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.teal.cards > .card,
 .ui.cards > .teal.card,
 .ui.teal.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #06aed4, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.teal.card:hover,
 .ui.teal.cards a.card:hover,
@@ -1792,10 +1814,12 @@ a.ui.basic.inverted.teal.card:hover,
 .ui.basic.inverted.teal.card .description {
   color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.blue.cards > .card,
 .ui.cards > .blue.card,
 .ui.blue.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #2e90fa, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.blue.card:hover,
 .ui.blue.cards a.card:hover,
@@ -1897,10 +1921,12 @@ a.ui.basic.inverted.blue.card:hover,
 .ui.basic.inverted.blue.card .description {
   color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.violet.cards > .card,
 .ui.cards > .violet.card,
 .ui.violet.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #7a5af8, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.violet.card:hover,
 .ui.violet.cards a.card:hover,
@@ -2002,10 +2028,12 @@ a.ui.basic.inverted.violet.card:hover,
 .ui.basic.inverted.violet.card .description {
   color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.purple.cards > .card,
 .ui.cards > .purple.card,
 .ui.purple.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #9e4cc9, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.purple.card:hover,
 .ui.purple.cards a.card:hover,
@@ -2107,10 +2135,12 @@ a.ui.basic.inverted.purple.card:hover,
 .ui.basic.inverted.purple.card .description {
   color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.pink.cards > .card,
 .ui.cards > .pink.card,
 .ui.pink.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #c11574, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.pink.card:hover,
 .ui.pink.cards a.card:hover,
@@ -2212,10 +2242,12 @@ a.ui.basic.inverted.pink.card:hover,
 .ui.basic.inverted.pink.card .description {
   color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.brown.cards > .card,
 .ui.cards > .brown.card,
 .ui.brown.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #6e4a2e, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.brown.card:hover,
 .ui.brown.cards a.card:hover,
@@ -2317,10 +2349,12 @@ a.ui.basic.inverted.brown.card:hover,
 .ui.basic.inverted.brown.card .description {
   color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.grey.cards > .card,
 .ui.cards > .grey.card,
 .ui.grey.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 #687181, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.grey.card:hover,
 .ui.grey.cards a.card:hover,
@@ -2422,10 +2456,12 @@ a.ui.basic.inverted.grey.card:hover,
 .ui.basic.inverted.grey.card .description {
   color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
+
+/* Fork: la franja es un indicador: clave `indicator` (en oscuro, black casi blanco y no igual que grey) */
 .ui.black.cards > .card,
 .ui.cards > .black.card,
 .ui.black.card {
-  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#1f2430, #535c6e), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+  box-shadow: 0 0 0 1px var(--theme-border), 0 2px 0 0 light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)), var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 .ui.cards a.black.card:hover,
 .ui.black.cards a.card:hover,
@@ -3091,6 +3127,15 @@ a.inverted.ui.card:hover,
   margin: 0;
 }
 
+/* Fork: el relleno black es el propio fondo inverted: un contorno interior lo separa de él sin mover nada */
+.ui.inverted.cards > .basic.black.card,
+.ui.basic.inverted.black.cards > .card,
+.ui.basic.inverted.cards > .black.card,
+.ui.basic.inverted.black.card {
+  outline: 1px solid rgba(255, 255, 255, 0.18);
+  outline-offset: -1px;
+}
+
 
 /*******************************
          Theme Overrides
@@ -3185,7 +3230,7 @@ a.inverted.ui.card:hover,
 /* Título de las tarjetas de cifra en text-2 y 600 (.pp-stat-title, .pp-mid-title, también cuando
    va dentro de una fila con su ayuda); el de la de acción, en el color del texto */
 .ui.cards > .statistic.card > .content .header:not(.ui) {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   font-weight: 600;
 }
 .ui.cards > .statistic.card > .content > i.bordered.icon ~ .header {
@@ -3295,7 +3340,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.cards > .statistic.card > .content > .right.floated.icon.button:hover,
 .ui.statistic.card > .content > .right.floated.icon.button:hover {
   background: light-dark(#eef1f5, #262b36);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.cards > .statistic.card > .content > .right.floated.icon.button > .icon,
 .ui.statistic.card > .content > .right.floated.icon.button > .icon {

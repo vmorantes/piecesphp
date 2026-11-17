@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Toast
+ * # Fomantic-UI 0.15.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -436,7 +436,7 @@
 }
 .ui.toast.neutral {
   background-color: var(--theme-surface-strong);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.toast > i.icon:not(.close) {
   font-size: 1.14285714rem;
@@ -893,7 +893,7 @@
 .ui.toast:not(.inverted).success,
 .ui.toast:not(.inverted).error {
   background-color: var(--theme-surface-strong);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 
 /* -------------------
@@ -909,7 +909,7 @@
   text-align: center;
   border-radius: var(--r-md, 8px);
   background-color: var(--theme-fill);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.toast:not(.inverted).success > i.icon:not(.close) {
   background-color: light-dark(#ecfdf3, #0c2a1c);
@@ -955,7 +955,7 @@
   color: var(--theme-text);
 }
 .ui.toast:not(.inverted):not(.primary):not(.secondary):not(.accent-1):not(.accent-2):not(.accent-3):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black) > .content > .message {
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 
 /* -------------------
@@ -973,7 +973,7 @@
 }
 .ui.toast-container .toast-box .ui.toast > .close.icon:hover {
   background-color: light-dark(#eef1f5, #262b36);
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 
 /* -------------------

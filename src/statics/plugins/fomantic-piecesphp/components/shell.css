@@ -11,6 +11,17 @@
             Shell
 *******************************/
 
+
+/* Alto de la barra publicado en la raíz, para piezas fuera del shell que deben alinear su línea con la de la barra
+   (la cabecera de un ui chat anclado a un lado) */
+:root:has(.ui.shell > .main > .bar) {
+  --shell-bar-height: 64px;
+}
+@media only screen and (max-width: 767.98px) {
+  :root:has(.ui.shell > .main > .bar) {
+    --shell-bar-height: 56px;
+  }
+}
 .ui.shell {
   --shell-mode: full;
   position: relative;

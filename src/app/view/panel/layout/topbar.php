@@ -42,6 +42,36 @@ $impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pull
 <?php //La campana (ADR 0073): el popup entero sale de notifications-list.php, lo abre el botón de la barra (topbar-bar.php). ?>
 <?= \PiecesPHP\Notifications\Controllers\NotificationsController::listMarkup('notifications-popup-list', true); ?>
 
+<?php if ($assistantWindow !== null) : ?>
+<?php
+//La ventana del asistente (ADR 0075): el componente chat del tema la monta; panel-assistant.js habla con la ruta. Los
+//textos van traducidos aquí y la respuesta se pinta siempre como texto.
+$assistantLang = \PiecesPHP\Mcp\McpLang::LANG_GROUP;
+$assistantText = [
+    'title' => __($assistantLang, 'Asistente'),
+    'conversation' => __($assistantLang, 'Conversación'),
+    'close' => __($assistantLang, 'Cerrar'),
+    'newChat' => __($assistantLang, 'Nueva conversación'),
+    'placeholder' => __($assistantLang, 'Escribe tu pregunta'),
+    'send' => __($assistantLang, 'Enviar'),
+    'thinking' => __($assistantLang, 'Pensando…'),
+    'empty' => __($assistantLang, 'Pregúntame lo que necesites sobre la plataforma.'),
+    'notices' => [
+        'scope' => __($assistantLang, 'Eso queda fuera de lo que puedo ayudarte.'),
+        'unavailable' => __($assistantLang, 'El asistente no está disponible ahora.'),
+        'error' => __($assistantLang, 'Algo salió mal. Inténtalo de nuevo.'),
+    ],
+    'networkError' => __($assistantLang, 'No se pudo hablar con el asistente. Inténtalo de nuevo.'),
+];
+$assistantSuggestions = [
+    __($assistantLang, '¿Qué puedes hacer por mí?'),
+    __($assistantLang, '¿Tengo notificaciones sin leer?'),
+    __($assistantLang, '¿Dónde se crean las publicaciones?'),
+];
+?>
+<div class="ui chat" id="panel-assistant" aria-label="<?= escape_html(__($assistantLang, 'Asistente')); ?>" hidden panel-assistant data-position="<?= escape_html($assistantWindow['position']); ?>" data-url="<?= escape_html(\PiecesPHP\Mcp\Controllers\McpController::routeName('assistant-ask')); ?>" data-text="<?= escape_html((string) json_encode($assistantText, \JSON_UNESCAPED_UNICODE)); ?>" data-suggestions="<?= escape_html((string) json_encode($assistantSuggestions, \JSON_UNESCAPED_UNICODE)); ?>"<?= $assistantWindow['limitMessage'] !== null ? ' data-limit-message="' . escape_html($assistantWindow['limitMessage']) . '"' : ''; ?>></div>
+<?php endif; ?>
+
 <?php if ($withAdminOptions) : ?>
 <?php //Configuración: el patrón del tema (panel-configuracion): buscador y grupos plegables, todos cerrados; no marca la vista actual. ?>
 <div class="ui right flyout" id="admin-options-flyout" admin-options-flyout role="dialog" aria-modal="true" aria-label="<?= escape_html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Configuración del sistema')); ?>">

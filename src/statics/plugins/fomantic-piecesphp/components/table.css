@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.14.1 - Table
+ * # Fomantic-UI 0.15.0 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27,7 +27,7 @@
   border-radius: var(--r-lg, 12px);
   text-align: left;
   vertical-align: middle;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -101,7 +101,7 @@
   border-top: 1px solid var(--theme-border);
   background: light-dark(#fafbfc, #161920);
   text-align: inherit;
-  color: light-dark(oklch(from #4b5363 min(l, var(--ink-light-max, 1)) c h), oklch(from #cfd5de max(l, var(--ink-dark-min, 0)) c h));
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   padding: 0 0.71428571em;
   vertical-align: inherit;
   font-style: 400;
@@ -123,6 +123,15 @@
 .ui.table > tfoot > tr:last-child > th:only-child,
 .ui.table > tfoot > tr:last-child > td:only-child {
   border-radius: 0 0 var(--r-lg, 12px) var(--r-lg, 12px);
+}
+
+/* Fork: sin pie, las celdas de esquina de la última fila siguen el radio de la tabla: el marcador (`marked`), la fila
+   activa o una celda de color pintaban la esquina recta sobre la curva */
+.ui.table:not(.attached):not(.very.basic) > tbody:last-child > tr:last-child > :first-child {
+  border-bottom-left-radius: var(--r-lg, 12px);
+}
+.ui.table:not(.attached):not(.very.basic) > tbody:last-child > tr:last-child > :last-child {
+  border-bottom-right-radius: var(--r-lg, 12px);
 }
 
 /* Table Row */
@@ -1530,7 +1539,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="primary colored"] > th,
@@ -1670,7 +1682,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="secondary colored"] > th,
@@ -1810,7 +1825,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-1, var(--accent, #356dca)) 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)), color-mix(in srgb, light-dark(var(--accent-1, var(--accent, #356dca)), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.7) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="accent-1 colored"] > th,
@@ -1950,7 +1968,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-2, #7a5af8) 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)), color-mix(in srgb, light-dark(var(--accent-2, #7a5af8), oklch(from var(--accent-2, #7a5af8) max(l, 0.7) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from color-mix(in oklab, var(--accent-2, #7a5af8) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="accent-2 colored"] > th,
@@ -2090,7 +2111,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)), color-mix(in srgb, var(--accent-3, #c11574) 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)), color-mix(in srgb, light-dark(var(--accent-3, #c11574), oklch(from var(--accent-3, #c11574) max(l, 0.7) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from color-mix(in oklab, var(--accent-3, #c11574) 22%, var(--theme-surface, white)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="accent-3 colored"] > th,
@@ -2230,7 +2254,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#fee2e0, color-mix(in srgb, #f04438 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#fee2e0, color-mix(in srgb, light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #fee2e0 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="red colored"] > th,
@@ -2370,7 +2397,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#fde7da, color-mix(in srgb, #ef6820 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#fde7da, color-mix(in srgb, light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #fde7da srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="orange colored"] > th,
@@ -2510,7 +2540,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#ffefd3, color-mix(in srgb, #f79009 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#ffefd3, color-mix(in srgb, light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #ffefd3 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="yellow colored"] > th,
@@ -2650,7 +2683,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#edf3d8, color-mix(in srgb, #84a11b 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#edf3d8, color-mix(in srgb, light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #edf3d8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="olive colored"] > th,
@@ -2790,7 +2826,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#daf5e7, color-mix(in srgb, #17b26a 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#daf5e7, color-mix(in srgb, light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #daf5e7 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="green colored"] > th,
@@ -2930,7 +2969,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#d3f5fc, color-mix(in srgb, #06aed4 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#d3f5fc, color-mix(in srgb, light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #d3f5fc srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="teal colored"] > th,
@@ -3070,7 +3112,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#ddefff, color-mix(in srgb, #2e90fa 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#ddefff, color-mix(in srgb, light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #ddefff srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="blue colored"] > th,
@@ -3210,7 +3255,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#ebe8fe, color-mix(in srgb, #7a5af8 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#ebe8fe, color-mix(in srgb, light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #ebe8fe srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="violet colored"] > th,
@@ -3350,7 +3398,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#f2e6fa, color-mix(in srgb, #9e4cc9 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#f2e6fa, color-mix(in srgb, light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #f2e6fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="purple colored"] > th,
@@ -3490,7 +3541,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#fcdaf2, color-mix(in srgb, #c11574 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#fcdaf2, color-mix(in srgb, light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #fcdaf2 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="pink colored"] > th,
@@ -3630,7 +3684,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#efe6e0, color-mix(in srgb, #6e4a2e 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#efe6e0, color-mix(in srgb, light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #efe6e0 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="brown colored"] > th,
@@ -3770,7 +3827,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#99a1af, color-mix(in srgb, #687181 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#99a1af, color-mix(in srgb, light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #99a1af srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="grey colored"] > th,
@@ -3910,7 +3970,10 @@
   
 /* Fork: con un tema de modos (core), en oscuro la celda es un tinte del color sobre la
                superficie y lleva el texto del tema; el pastel claro con texto negro era una franja */
-  background: light-dark(#4b5363, color-mix(in srgb, light-dark(#1f2430, #535c6e) 30%, var(--theme-surface)));
+  
+/* Fork: el tinte oscuro parte de la clave `indicator` (black casi blanco en oscuro): con el relleno, black
+               quedaba en la superficie e igual que grey */
+  background: light-dark(#4b5363, color-mix(in srgb, light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) 30%, var(--theme-surface)));
   color: light-dark(color(from #4b5363 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), var(--theme-text));
 }
 .ui.table > thead > tr[class*="black colored"] > th,
@@ -4537,6 +4600,12 @@
 }
 .ui.massive.table {
   font-size: 1.71428571rem;
+}
+
+/* Fork: el relleno black es el propio fondo inverted: un contorno interior lo separa de él sin mover nada */
+.ui.inverted.black.table {
+  outline: 1px solid rgba(255, 255, 255, 0.18);
+  outline-offset: -1px;
 }
 
 

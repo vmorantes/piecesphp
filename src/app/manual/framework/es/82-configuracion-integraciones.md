@@ -81,8 +81,10 @@ conserva para los informes.
 
 **«Asistente del panel»** es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. **Viene apagada**, con una cuota de 200.000 tokens
-al mes: enciéndela y elige quién la usa antes de que nadie la vea. Por ahora solo existe esta sección: la ventana del chat llega en una versión
-próxima.
+al mes: enciéndela y elige quién la usa antes de que nadie la vea. Elige también su **proveedor** y su **modelo** (uno que
+admita herramientas) y la **«Posición de la ventana»**: **«Derecha»** (por omisión), **«Izquierda»**, **«Flotante abajo a la
+derecha»** o **«Flotante abajo a la izquierda»**; en el móvil ocupa siempre la pantalla entera. Quien puede usarla ve el botón
+del asistente junto a la campana (ver «Tu cuenta», «El asistente»).
 
 **Cuota de tokens**, en **General**, con su propio **«Guardar»**: el **«Límite de tokens de IA»** (obligatorio)
 solo sirve para el informe de consumo y **no limita nada**. La cuota que limita es la de cada función.
