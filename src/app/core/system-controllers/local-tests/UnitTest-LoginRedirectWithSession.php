@@ -128,6 +128,28 @@ CliActions::make('unit-tests:core/login-redirect-with-session', function ($args)
         $r = $ir($haciaListado, 'zz-sin-sesion');
         $check($r['status'] === 200, 'a6 CANARIO: sin sesión, el acceso se pinta y no redirige', "HTTP {$r['status']} → {$r['location']}");
 
+        //─── s · Suspendido con su sesión abierta: el acceso se pinta y verificar la sesión dice que no hay (H217) ─────
+        $verificar = function (string $jwt) use ($base, $ruta, $cabeceraToken): array {
+            $handle = \Terminal\TestRun::curlInit();
+            \Terminal\TestRun::curlSetoptArray($handle, [
+                CURLOPT_URL => $base . '/' . ltrim($ruta('users-verify-login-request'), '/'),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_TIMEOUT => 60,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => '',
+                CURLOPT_HTTPHEADER => ["{$cabeceraToken}: {$jwt}"],
+            ]);
+            $datos = json_decode((string) curl_exec($handle), true);
+            return is_array($datos) ? $datos : [];
+        };
+        $check(($verificar($jwt)['isAuth'] ?? null) === true, 's1 CANARIO: activo, verificar la sesión dice que hay sesión');
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET status = ? WHERE id = ?")->execute([UsersModel::STATUS_USER_INACTIVE, (int) $u->id]);
+        $r = $ir(null, $jwt);
+        $check($r['status'] === 200, 's2 suspendido con la sesión abierta, el acceso se pinta (no lo manda al panel)', "HTTP {$r['status']} → {$r['location']}");
+        $check(($verificar($jwt)['isAuth'] ?? null) === false, 's3 DISCRIMINANTE: y verificar la sesión dice que NO hay: login.js no recarga sin fin (H217)', json_encode($verificar($jwt)) ?: '');
+
     } catch (\Throwable $e) {
         $check(false, 'z0 la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

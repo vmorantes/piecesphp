@@ -1413,7 +1413,8 @@ class UsersController extends AdminPanelController
 
         //Se verifica si ya existe una sesión activa
         $JWT = SessionToken::getJWTReceived();
-        $isActiveSession = UserSessions::jwtIsValid($JWT);
+        //Como index.php: un usuario suspendido no tiene usuario actual; si no, login.js recargaría el acceso sin fin (H217).
+        $isActiveSession = UserSessions::jwtIsValid($JWT) && getLoggedFrameworkUser() !== null;
         $resultOperation->setValue('isAuth', $isActiveSession);
         //Verificar status de la organización si aplica
         $currentUser = getLoggedFrameworkUser();

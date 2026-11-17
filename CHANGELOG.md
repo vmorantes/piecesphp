@@ -1,3 +1,8 @@
+# 10.38.0 (16-11-2026)
+
+- **Arreglado**: un usuario suspendido o desactivado que aún tenía su sesión abierta veía la página de acceso recargándose
+  sin parar. Ahora la página de acceso se queda quieta.
+
 # 10.37.0 (16-11-2026)
 
 - **El panel en inglés, completo**: 87 textos de la interfaz que salían en español con el panel en inglés (avisos, mensajes
