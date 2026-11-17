@@ -1,3 +1,22 @@
+# 10.39.0 (17-11-2026)
+
+- **Nuevo en Configuración › Sistema › Seguridad: «Proxies de confianza»** (solo root). Si la plataforma está detrás de
+  un proxy, un balanceador o una CDN, todas las visitas llegaban con la IP del intermediario y los frenos del acceso
+  frenaban a todos a la vez. Ahora pones ahí sus IP o rangos y la plataforma toma la del visitante. La pantalla enseña
+  qué IP ve, con un botón para añadir la de la conexión; el manual explica cómo obtener la lista. Si la conexión llega
+  por un intermediario y la lista está vacía, la pantalla lo avisa. Con la lista vacía, todo funciona como antes.
+  Manual: «Configuración del sistema», «Proxies de confianza».
+- **La IP del visitante se obtiene ahora de una sola forma en toda la plataforma**, también para atar la sesión a la IP
+  («Usar IP del usuario para encriptar el token de sesión»), y es más segura.
+- **Al actualizar**: con esa casilla activa (lo es de fábrica), quien llegue a través de un proxy o una CDN verá su
+  sesión cerrada una vez y tendrá que volver a entrar. Lo mismo cada vez que añadas o quites un proxy de la lista. Si la
+  plataforma está detrás de un proxy y dejas la lista vacía, esa casilla no ata la sesión a nada, porque todos los
+  visitantes comparten la IP del proxy: entra en Seguridad y, si ves el aviso, añade el intermediario.
+- **Arreglado**: a quien no puede usar una función de IA ya no se le dice si la IA o la función están apagadas; y si la
+  lista de quién puede traducir con IA llegara dañada, solo root podría traducir (antes, todos).
+- **Para quien desarrolla**: la IP del visitante es `PiecesPHP\Core\VisitorIP::get()`; no leas `REMOTE_ADDR` ni las
+  cabeceras por tu cuenta. Guía «Configuración», «La IP del visitante detrás de un proxy».
+
 # 10.38.0 (16-11-2026)
 
 - **Arreglado**: un usuario suspendido o desactivado que aún tenía su sesión abierta veía la página de acceso recargándose

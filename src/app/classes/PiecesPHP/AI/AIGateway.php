@@ -623,15 +623,16 @@ final class AIGateway
         AILang::injectLang();
         $hidden = fn(string $reason): array => ['kind' => self::AVAILABILITY_HIDDEN, 'reason' => $reason, 'limitOf' => null, 'recordId' => null];
 
+        //El permiso primero: a quien no puede usarla no se le dice si la IA o la función están apagadas (H311 2).
+        $type = self::userTypeOf($user);
+        if ($type === null || ($type !== UsersModel::TYPE_USER_ROOT && !in_array($type, $settings['userTypes'], true))) {
+            return $hidden(__(AILang::LANG_GROUP, 'No tienes permiso para usar esta función de inteligencia artificial.'));
+        }
         if (!self::isEnabled()) {
             return $hidden(__(AILang::LANG_GROUP, 'La inteligencia artificial está apagada.'));
         }
         if (!$settings['enabled']) {
             return $hidden(__(AILang::LANG_GROUP, 'Esta función de inteligencia artificial está apagada.'));
-        }
-        $type = self::userTypeOf($user);
-        if ($type === null || ($type !== UsersModel::TYPE_USER_ROOT && !in_array($type, $settings['userTypes'], true))) {
-            return $hidden(__(AILang::LANG_GROUP, 'No tienes permiso para usar esta función de inteligencia artificial.'));
         }
         if ($settings['quota'] > 0 && self::usage($capability, null, $now) >= $settings['quota']) {
             return ['kind' => self::AVAILABILITY_LIMIT, 'reason' => __(AILang::LANG_GROUP, 'Se ha alcanzado la cuota de esta función de inteligencia artificial en este periodo.'), 'limitOf' => 'capability', 'recordId' => null];

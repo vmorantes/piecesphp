@@ -67,7 +67,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         sort($b);
         return $a === $b;
     };
-    $check($igual(APIController::translationUserTypes(null), $seis) && $igual(APIController::translationUserTypes('basura'), $seis), 'p1 sin opción, o si no es una lista: los seis tipos');
+    $check($igual(APIController::translationUserTypes(null), $seis) && $igual(APIController::translationUserTypes(false), $seis), 'p1 sin opción (nunca guardada): los seis tipos (P202)');
+    $check(APIController::translationUserTypes('basura') === [UsersModel::TYPE_USER_ROOT] && APIController::translationUserTypes(7) === [UsersModel::TYPE_USER_ROOT], 'p1b DISCRIMINANTE: guardada y sin forma de lista, solo root: falla cerrada (H311)', json_encode(APIController::translationUserTypes('basura')) ?: '');
+    $comoObjeto = json_decode((string) json_encode([0 => UsersModel::TYPE_USER_GENERAL, 3 => UsersModel::TYPE_USER_ADMIN_GRAL]));
+    $check($comoObjeto instanceof \stdClass && $igual(APIController::translationUserTypes($comoObjeto), [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_GENERAL, UsersModel::TYPE_USER_ADMIN_GRAL]), 'p1c DISCRIMINANTE: la lista que llega de la base como objeto se lee como lista, no como «todos» (H304)', json_encode(APIController::translationUserTypes($comoObjeto)) ?: '');
     $check($igual(APIController::translationUserTypes([UsersModel::TYPE_USER_GENERAL]), [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_GENERAL]), 'p2 una lista con un tipo: ese y root');
     $check(APIController::translationUserTypes([]) === [UsersModel::TYPE_USER_ROOT], 'p3 la lista vacía: solo root (root siempre puede)', json_encode(APIController::translationUserTypes([])) ?: '');
     $check($igual(APIController::translationUserTypes(['x', 99, (string) UsersModel::TYPE_USER_ADMIN_GRAL, null]), [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]), 'p4 lo que no es un tipo conocido se descarta');

@@ -40,6 +40,28 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tr>
 </tbody>
 </table>
+<h3 class="ui header">Trusted proxies</h3>
+<p>Only root sees it. You need it if the platform is behind an intermediary (a proxy, a load balancer or a content delivery
+network such as Cloudflare): without it, every visit arrives with that intermediary's IP, and the login brakes would stop
+everyone at once. With the list empty, the platform uses the connection IP, as always.</p>
+<p>The section shows what the platform sees now: <strong>“Connection IP (REMOTE_ADDR)”</strong>, what the <code>X-Forwarded-For</code> and
+<code>X-Real-IP</code> headers bring (“(not received)” if they don't come) and the <strong>“Visitor IP the platform uses”</strong>. If the
+connection comes from a private or local address with <code>X-Forwarded-For</code> and the list is empty, a warning says so above:
+there is an intermediary the platform does not know yet.</p>
+<p>How to get the list:</p>
+<ul>
+<li><strong>The intermediary is on the same machine</strong> (for example, an nginx in front of Apache, as HestiaCP usually sets up): open the panel and
+  look at the “Connection IP”; if it is the server's or <code>127.0.0.1</code>/<code>::1</code> and <code>X-Forwarded-For</code> brings another one,
+  click <strong>“Add this IP to the list”</strong> and then <strong>“Save”</strong>. The button is only available when the request comes with
+  <code>X-Forwarded-For</code>; if the connection IP is public, it asks for confirmation, because it could be yours and not the
+  intermediary's.</li>
+<li><strong>A content delivery network (CDN)</strong>: the provider publishes its IP ranges (Cloudflare, at <code>cloudflare.com/ips</code>). Copy
+  each range on its own line.</li>
+<li><strong>A load balancer or a proxy from your provider</strong>: ask them for its IPs or ranges.</li>
+</ul>
+<p>One IP or CIDR range per line. A range that covers every address (<code>0.0.0.0/0</code>, <code>::/0</code>) is not accepted: anyone could
+then make up their IP. With “Use the user's IP to encrypt the session token” on, changing the list closes once the
+session of whoever comes in through the proxies you add or remove. To empty the list, delete every line and save.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-system-backups'])): ?>
 <h2 class="ui header" id="backups">Backups</h2>

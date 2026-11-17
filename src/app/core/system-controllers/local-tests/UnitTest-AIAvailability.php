@@ -129,6 +129,16 @@ CliActions::make('unit-tests:core/ai-availability', function ($args) {
         $check($malos === [], '1a los trece casos dan su state, y denialReason() es null si y solo si state es available', implode(' · ', $malos));
         $noRegistrada = AIGateway::availability('zz-no-registrada', $root);
         $check($noRegistrada === ['state' => AIGateway::AVAILABILITY_HIDDEN, 'message' => null, 'renewsAt' => null], '1b una capacidad no registrada: hidden, sin lanzar (denialReason(), como siempre, lanza)');
+        //A quien no puede usarla, la misma razón genérica con la IA o la función apagadas que con todo encendido (H311 2).
+        set_config(AIGateway::CONFIG_NAME, $centro());
+        $sinPermisoEncendida = AIGateway::denialReason(AIGateway::TRANSLATION_CAPABILITY, $general);
+        set_config(AIGateway::CONFIG_NAME, $centro([], ['enabled' => false]));
+        $sinPermisoIaApagada = AIGateway::denialReason(AIGateway::TRANSLATION_CAPABILITY, $general);
+        $rootIaApagada = AIGateway::denialReason(AIGateway::TRANSLATION_CAPABILITY, $root);
+        set_config(AIGateway::CONFIG_NAME, $centro(['enabled' => false]));
+        $sinPermisoFuncionApagada = AIGateway::denialReason(AIGateway::TRANSLATION_CAPABILITY, $general);
+        $check($sinPermisoEncendida !== null && $sinPermisoIaApagada === $sinPermisoEncendida && $sinPermisoFuncionApagada === $sinPermisoEncendida, '1e DISCRIMINANTE: sin permiso, la misma razón con la IA o la función apagadas que con todo encendido: no sabe si está apagada', json_encode([$sinPermisoEncendida, $sinPermisoIaApagada, $sinPermisoFuncionApagada], \JSON_UNESCAPED_UNICODE) ?: '');
+        $check($rootIaApagada === __('ai', 'La inteligencia artificial está apagada.'), '1f y root sigue sabiendo que la IA está apagada', (string) $rootIaApagada);
         $mensual = $tabla['cuota de la función, mensual'] ?? [];
         $acumulada = $tabla['cuota de la función, acumulada'] ?? [];
         $registro = $tabla['cuota del registro'] ?? [];

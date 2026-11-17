@@ -86,8 +86,7 @@ class OTPRateLimiter
      */
     public static function clientIP(): string
     {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-        return is_string($ip) && $ip !== '' ? $ip : '0.0.0.0';
+        return \PiecesPHP\Core\VisitorIP::get();
     }
 
     /**

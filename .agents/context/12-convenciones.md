@@ -246,6 +246,13 @@ estaba escrito en ninguna parte.**
 > **La CLI es una caja de herramientas, NO un desplegador obligatorio.** Un despliegue
 > clonado tiene que arrancar solo.
 
+**Y se configura en sí mismo** (PO, 2026-11-16, P341): lo que un clon necesite ajustar va al panel, no a valores
+globales del servidor; el servidor web queda como alternativa documentada. Primer caso: los proxies de confianza
+(`PiecesPHP\Core\VisitorIP`, Configuración › Seguridad). **La IP del visitante es siempre `VisitorIP::get()`**: ni
+`$_SERVER['REMOTE_ADDR']` ni cabeceras leídas a mano. Trampas de la lista: un `''` enviado es «no llega» para
+`Parameters` (por eso `securityOrAI()` lo convierte en `[]` a mano); una IPv4 mapeada se compara como IPv4, y una
+entrada mapeada con `/96` equivale a `/0`.
+
 Consecuencia práctica, que es la que hay que aplicar al escribir código:
 
 - Una funcionalidad que necesite datos de arranque **los materializa ella misma**, en un

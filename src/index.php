@@ -336,7 +336,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                 isset($expiredUserData->id) ? (int) $expiredUserData->id : null,
                 $route->getName(),
                 $request->getRequestTarget(),
-                $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+                \PiecesPHP\Core\VisitorIP::get(),
                 is_object($expiredToken) && isset($expiredToken->iat) ? (int) $expiredToken->iat : null,
                 is_object($expiredToken) && isset($expiredToken->exp) ? (int) $expiredToken->exp : null,
                 $ignoreExpired

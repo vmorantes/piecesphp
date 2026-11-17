@@ -24,6 +24,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
+use PiecesPHP\Core\VisitorIP;
 use PiecesPHP\MailCatalog\Definitions\MailSettingsTestMail;
 use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Settings\Controllers\SettingsController;
@@ -99,6 +100,7 @@ class SettingsRoutes
         //Seguridad.
         $declare(['check_aud_on_auth', 'hide_app_key_warning'], $owner, ConfigOptions::SHAPE_BOOL);
         $declare([SessionToken::INACTIVITY_CONFIG, SessionToken::CEILING_CONFIG], SessionToken::class, ConfigOptions::SHAPE_INTEGER);
+        $declare([VisitorIP::CONFIG_NAME], VisitorIP::class, ConfigOptions::SHAPE_JSON);
 
         //Inteligencia artificial.
         $declare(['modelOpenAI', 'modelMistral', 'modelGroq', 'translationAI'], $owner, ConfigOptions::SHAPE_TEXT);

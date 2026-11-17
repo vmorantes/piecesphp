@@ -23,6 +23,33 @@ Entra por **«Seguridad»**. Reúne las opciones de seguridad de la plataforma. 
 | Días sin actividad que cierran la sesión | Sí | Cuántos días sin actividad cierran la sesión. Con 0 no caduca por inactividad. |
 | Días desde que se abrió que la cierran (tope) | Sí | Cuántos días, contados desde que se abrió, cierran la sesión. Con 0 no hay tope. |
 
+### Proxies de confianza
+
+Solo la ve root. Hace falta si la plataforma está detrás de un intermediario (un proxy, un balanceador o una red de
+distribución como Cloudflare): sin ella, todas las visitas llegan con la IP de ese intermediario, y los frenos del
+acceso frenarían a todos a la vez. Con la lista vacía, la plataforma usa la IP de la conexión, como siempre.
+
+La sección enseña qué ve la plataforma ahora: **«IP de la conexión (REMOTE_ADDR)»**, lo que traen las cabeceras
+`X-Forwarded-For` y `X-Real-IP` («(no llega)» si no vienen) y la **«IP del visitante que usa la plataforma»**. Si la
+conexión llega desde una dirección privada o local con `X-Forwarded-For` y la lista está vacía, un aviso lo dice encima:
+hay un intermediario y la plataforma todavía no lo conoce.
+
+Cómo obtener la lista:
+
+- **El intermediario está en la misma máquina** (por ejemplo, un nginx delante de Apache, como suele montar HestiaCP): entra al panel y
+  mira la «IP de la conexión»; si es la del servidor o `127.0.0.1`/`::1` y `X-Forwarded-For` trae otra, pulsa
+  **«Añadir esta IP a la lista»** y después **«Guardar»**. El botón solo se activa si la petición llega con
+  `X-Forwarded-For`; si la IP de la conexión es pública, pide confirmación, porque podría ser la tuya y no la del
+  intermediario.
+- **Una red de distribución (CDN)**: sus rangos de IP los publica el proveedor (Cloudflare, en `cloudflare.com/ips`).
+  Copia cada rango en una línea.
+- **Un balanceador o un proxy de tu proveedor**: pídele sus IP o rangos.
+
+Una IP o un rango CIDR por línea. No se admite un rango que abarque todas las direcciones (`0.0.0.0/0`, `::/0`): así
+cualquiera podría inventar su IP. Con «Usar IP del usuario para encriptar el token de sesión» activa, cambiar la lista
+cierra una vez la sesión de quien entra por los proxies que añadas o quites. Para vaciar la lista, borra todas las líneas
+y guarda.
+
 ## Respaldos
 <!-- ve: configurations-system-backups -->
 

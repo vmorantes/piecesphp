@@ -325,17 +325,8 @@ class BaseToken
      */
     private static function aud()
     {
-        $aud = '';
-
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $aud = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $aud = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            //Con `??`, como los otros seis sitios del framework que la leen: en terminal no existe, y sin esto el
-            //cálculo del aud reventaba con un aviso. El valor es el mismo al emitir y al validar, así que cuadra.
-            $aud = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        }
+        //La IP del visitante (VisitorIP): Client-IP y X-Forwarded-For sin proxy de confianza los escribe el cliente (H28).
+        $aud = VisitorIP::get();
 
         $aud .= gethostname();
 

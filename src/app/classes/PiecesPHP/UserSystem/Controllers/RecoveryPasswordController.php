@@ -370,7 +370,7 @@ class RecoveryPasswordController extends UsersController
         $logRequest->email = $recoveryPassword->email;
         $logRequest->information = [
             'email_sended' => $sent,
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+            'ip' => \PiecesPHP\Core\VisitorIP::get(),
         ];
         $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de restablecimiento de contraseña.');
         $logRequest->save();

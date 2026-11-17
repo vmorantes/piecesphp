@@ -43,6 +43,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Core\VisitorIP;
 use PiecesPHP\Geo\GeoThumbnail;
 use PiecesPHP\LangInjector;
 use PiecesPHP\Logs\Controllers\LogsController;
@@ -1877,7 +1878,49 @@ class SettingsController extends AdminPanelController
     {
         $title = __(self::LANG_GROUP, 'Seguridad');
         $header = $this->sectionHeader($title, __(self::LANG_GROUP, 'Las opciones de seguridad de la plataforma.'));
-        return $this->securityOrAI($req, $res, 'system-security', $title, 'security', self::SECURITY_CONFIG_KEYS, $header);
+        //Los proxies de confianza, solo root (H28): se valida y guarda solo para root; otro que los envíe, 403.
+        $isRoot = (int) (getLoggedFrameworkUser()->type ?? -1) === UsersModel::TYPE_USER_ROOT;
+        $body = $req->getParsedBody();
+        if (!$isRoot && mb_strtoupper($req->getMethod()) === 'POST' && is_array($body) && array_key_exists(VisitorIP::CONFIG_NAME, $body)) {
+            return throw403($req);
+        }
+        $keys = $isRoot ? array_merge(self::SECURITY_CONFIG_KEYS, [VisitorIP::CONFIG_NAME]) : self::SECURITY_CONFIG_KEYS;
+        return $this->securityOrAI($req, $res, 'system-security', $title, 'security', $keys, $header, ['canEditProxies' => $isRoot]);
+    }
+
+    /**
+     * La lista de proxies de confianza que llega del área de texto (H28): una IP o un CIDR por línea, sin duplicados.
+     *
+     * @param mixed $input
+     * @return string[]
+     * @throws InvalidParameterValueException si una línea no vale o abarca todas las direcciones (/0), con su motivo
+     */
+    public static function trustedProxiesFromInput($input): array
+    {
+        //Parameters valida dos veces: el texto que llega y la lista que devuelve el parseo.
+        $lines = is_string($input) ? (preg_split('/\R/', $input) ?: []) : (is_array($input) ? $input : null);
+        if ($lines === null) {
+            throw new InvalidParameterValueException(__(self::LANG_GROUP, 'Proxies de confianza: la lista enviada no es válida.'));
+        }
+        $list = [];
+        foreach ($lines as $line) {
+            if (!is_string($line)) {
+                throw new InvalidParameterValueException(__(self::LANG_GROUP, 'Proxies de confianza: la lista enviada no es válida.'));
+            }
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            $error = VisitorIP::entryError($line);
+            if ($error === VisitorIP::ERROR_ALL) {
+                throw new InvalidParameterValueException(strReplaceTemplate(__(self::LANG_GROUP, 'Proxies de confianza: «%entry%» abarca todas las direcciones; así cualquiera podría inventar su IP.'), ['%entry%' => escape_html($line)]));
+            }
+            if ($error !== null) {
+                throw new InvalidParameterValueException(strReplaceTemplate(__(self::LANG_GROUP, 'Proxies de confianza: «%entry%» no es una IP ni un rango CIDR válido.'), ['%entry%' => escape_html($line)]));
+            }
+            $list[] = $line;
+        }
+        return array_values(array_unique($list));
     }
 
     /**
@@ -2367,6 +2410,19 @@ class SettingsController extends AdminPanelController
                         return ($value === 1 || $value == '1' || $value === true);
                     }
                 ),
+                //Una entrada por línea; lo que no vale lanza con su motivo y no se guarda nada.
+                VisitorIP::CONFIG_NAME => new Parameter(
+                    VisitorIP::CONFIG_NAME,
+                    null,
+                    function ($value) {
+                        self::trustedProxiesFromInput($value);
+                        return true;
+                    },
+                    true,
+                    function ($value) {
+                        return self::trustedProxiesFromInput($value);
+                    }
+                ),
                 //El centro de mando: el JSON entero sale de los campos; lo que no vale lanza con su motivo (nada a medias).
                 AIGateway::CONFIG_NAME => new Parameter(
                     AIGateway::CONFIG_NAME,
@@ -2413,6 +2469,10 @@ class SettingsController extends AdminPanelController
                     $configurationsToSave = [];
                     foreach ($keys as $key) {
                         $configurationsToSave[$key] = $expectedParameters->getValue($key);
+                        //Parameters toma '' por «no llega» (null, no se guarda): la lista enviada vacía se vacía; sin la clave, no se toca.
+                        if ($key === VisitorIP::CONFIG_NAME && is_array($inputData) && is_string($inputData[$key] ?? null) && trim($inputData[$key]) === '') {
+                            $configurationsToSave[$key] = [];
+                        }
                     }
                     $messagesOnSave = [
                         'check_aud_on_auth' => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
@@ -2430,6 +2490,7 @@ class SettingsController extends AdminPanelController
                         'translationAIEnable' => __(self::LANG_GROUP, 'Configuración de traducción con IA actualizada'),
                         \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => __(self::LANG_GROUP, 'Quién puede traducir con IA actualizado'),
                         AIGateway::CONFIG_NAME => __(self::LANG_GROUP, 'Las funciones de inteligencia artificial, actualizadas'),
+                        VisitorIP::CONFIG_NAME => __(self::LANG_GROUP, 'La lista de proxies de confianza fue guardada'),
                     ];
 
                     $success = true;

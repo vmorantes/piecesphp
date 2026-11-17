@@ -83,7 +83,7 @@ class OsTicketAPI
         $contents['name'] = $name;
         $contents['email'] = $email;
         $contents['subject'] = $subject;
-        $contents['ip'] = $_SERVER['REMOTE_ADDR'];
+        $contents['ip'] = \PiecesPHP\Core\VisitorIP::get();
         $contents['message'] = "data:text/html;charset=utf-8, $message";
         $this->httpClient->request(self::$createTicketsQuery, 'POST', $contents, [], false);
         $statusResponse = $this->httpClient->getResponseStatus();

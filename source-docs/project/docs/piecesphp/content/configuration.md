@@ -216,8 +216,35 @@ $config['allowed_hosts'] = ['app.ejemplo.com', '.ejemplo.org'];
 
 Un valor que no sea un `int` de PHP mayor que cero (`'5'`, `0`, `-1`) se sustituye por el de la tabla.
 
-La IP es `REMOTE_ADDR`. **Detrás de un proxy inverso que no la pase**, todos los clientes comparten la del proxy y el
-freno de una IP los frena a todos; el framework no lee `X-Forwarded-For`.
+La IP es la del visitante según `PiecesPHP\Core\VisitorIP::get()`: la de la conexión (`REMOTE_ADDR`) salvo que llegue
+de un proxy de confianza (abajo).
+
+### La IP del visitante detrás de un proxy
+
+Detrás de un intermediario (un proxy inverso, un balanceador, una CDN), la conexión la abre el intermediario: sin más,
+todos los visitantes compartirían su IP y los frenos de una IP los frenarían a todos. La plataforma lo resuelve sola,
+sin tocar el servidor web:
+
+- La lista **«Proxies de confianza»** de Configuración › Sistema › Seguridad (solo root; la opción `trusted_proxies`,
+  vacía por omisión): una IP o un rango CIDR por línea, IPv4 o IPv6. No admite un rango que abarque todas las direcciones
+  (`/0`, ni una IPv4 mapeada en IPv6 con `/96`). Una IPv4 mapeada en IPv6 (`::ffff:a.b.c.d`) casa con su IPv4, tanto
+  la de la conexión como la de una entrada.
+- Si la conexión viene de uno de ellos, se lee `X-Forwarded-For` de derecha a izquierda y la primera IP que no es de
+  confianza es la del visitante. Si la cabecera falta, se usa la de la conexión; si el recorrido encuentra algo que no
+  es una IP, se queda en el último salto de confianza visitado. **Sin la conexión en la lista, ninguna cabecera
+  cuenta**: el visitante no puede inventarse la IP. Con Apache, varias cabeceras `X-Forwarded-For` llegan a PHP unidas
+  en una, en su orden (medido en local).
+- La pantalla enseña un diagnóstico (la IP de la conexión, las cabeceras y la IP resultante); el manual explica cómo
+  obtener la lista («Configuración del sistema», «Proxies de confianza»). Avisa si la conexión llega desde una dirección
+  privada o local con `X-Forwarded-For` y la lista está vacía (`VisitorIP::proxyWithoutList()`), y «Añadir esta IP a la
+  lista» solo se activa con esa cabecera, con confirmación si la IP es pública (`VisitorIP::isPrivateOrLocal()`).
+  Guardar la lista vacía la vacía; un envío sin el campo no la toca.
+- La usan todos los frenos de acceso, los intentos, las sesiones, los registros y la audiencia del token de sesión. Con
+  `check_aud_on_auth` (de fábrica, encendida), cambiar la lista cierra una vez la sesión de quien entra por los proxies
+  que se añaden o se quitan.
+- **Alternativa en el servidor web**, si lo controlas: `mod_remoteip` de Apache o `real_ip` de nginx entregan a PHP la
+  IP real en `REMOTE_ADDR`; entonces la lista puede quedar vacía.
+- **En código, la IP del visitante es siempre `VisitorIP::get()`**: nunca `$_SERVER['REMOTE_ADDR']` ni las cabeceras.
 
 ### Contacto y servicios
 

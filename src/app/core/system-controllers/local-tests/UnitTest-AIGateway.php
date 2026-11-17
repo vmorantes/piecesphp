@@ -162,9 +162,9 @@ CliActions::make('unit-tests:core/ai-gateway', function ($args) {
             AIGateway::recordUsage('zz-chat', 'zz-proveedor', 1);
             $check($antesDeLaCuota === null && AIGateway::usage('zz-chat') === 10 && AIGateway::denialReason('zz-chat', $root) === $motivo[4], 'd4 cuota: con 9 de 10 pasa; al llegar a 10 (usage == quota), motivo 4, también para root', var_export($antesDeLaCuota, true) . ' · usage ' . AIGateway::usage('zz-chat'));
             $centro(['enabled' => false, 'capabilities' => ['zz-chat' => ['enabled' => false, 'userTypes' => [], 'quota' => 10]]]);
-            $check(AIGateway::denialReason('zz-chat', $general) === $motivo[1], 'd5 el orden: con todo apagado y la cuota llena, el motivo 1');
+            $check(AIGateway::denialReason('zz-chat', $general) === $motivo[3] && AIGateway::denialReason('zz-chat', $root) === $motivo[1], 'd5 el orden: el permiso primero; con todo apagado y la cuota llena, a quien no puede, el motivo 3 (no sabe si está apagada, H311); a root, el 1');
             $centro(['capabilities' => ['zz-chat' => ['enabled' => false, 'userTypes' => [], 'quota' => 10]]]);
-            $check(AIGateway::denialReason('zz-chat', $general) === $motivo[2], 'd5b sin el general: el motivo 2');
+            $check(AIGateway::denialReason('zz-chat', $general) === $motivo[3] && AIGateway::denialReason('zz-chat', $root) === $motivo[2], 'd5b sin el general: a quien no puede, el 3; a root, el 2');
             $borrarZz();
             echoTerminal(' ');
 

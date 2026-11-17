@@ -702,7 +702,7 @@ class AdminPanelController extends BaseController
             $logRequest->information = [
                 'subject' => $fullSubject,
                 'email_sended' => $success,
-                'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+                'ip' => \PiecesPHP\Core\VisitorIP::get(),
             ];
             $logRequest->type = (string) __(self::ADMIN_LANG_GROUP, 'Ticket de soporte del panel (correo).');
             $logRequest->save();

@@ -1732,8 +1732,8 @@ class APIController extends AdminPanelController
     }
 
     /**
-     * Quién puede traducir con IA. Sin opción, o si no es una lista, los seis tipos (P202). Lo que no es un tipo conocido
-     * se descarta, y root siempre puede: nadie se queda sin poder volver a configurarlo.
+     * Quién puede traducir con IA. Sin opción (nunca guardada), los seis tipos (P202); guardada y sin forma de lista, solo
+     * root: falla cerrada (H311). Lo que no es un tipo conocido se descarta, y root siempre puede.
      *
      * @param mixed $option El valor de TRANSLATION_AI_USER_TYPES_CONFIG
      * @return int[]
@@ -1741,10 +1741,17 @@ class APIController extends AdminPanelController
     public static function translationUserTypes($option): array
     {
         $known = array_keys(UsersModel::TYPES_USERS);
-        if (!is_array($option)) {
+        if ($option === false || $option === null) {
             return $known;
         }
+        //Llega de la base como lista, o como objeto (H304).
+        if ($option instanceof \stdClass) {
+            $option = get_object_vars($option);
+        }
         $types = [UsersModel::TYPE_USER_ROOT];
+        if (!is_array($option)) {
+            return $types;
+        }
         foreach ($option as $type) {
             if (Validator::isInteger($type) && in_array((int) $type, $known, true)) {
                 $types[] = (int) $type;

@@ -328,7 +328,7 @@ class UserProblemsController extends UsersController
             //El código NO se registra: el registro no puede servir para resolver el problema (como en recuperación).
             $logRequest->information = [
                 'email_sended' => $sent,
-                'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+                'ip' => \PiecesPHP\Core\VisitorIP::get(),
             ];
             if ($type == self::TYPE_USER_FORGET) {
                 $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
@@ -521,7 +521,7 @@ class UserProblemsController extends UsersController
             $logRequest->message = $message;
             $logRequest->information = [
                 'email_sended' => $success,
-                'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+                'ip' => \PiecesPHP\Core\VisitorIP::get(),
             ];
             $logRequest->type = __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
             $logRequest->save();

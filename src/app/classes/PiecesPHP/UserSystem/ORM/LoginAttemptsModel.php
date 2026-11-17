@@ -203,7 +203,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         $mapper->usernameAttempt = $username;
         $mapper->success = $success ? self::SUCCESS_ATTEMPT : self::FAIL_ATTEMPT;
         $mapper->message = $message;
-        $mapper->ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $mapper->ip = \PiecesPHP\Core\VisitorIP::get();
         $mapper->ipGroup = OTPRateLimiter::ipGroup($mapper->ip);
         try {
             $mapper->extraData = $extraData;

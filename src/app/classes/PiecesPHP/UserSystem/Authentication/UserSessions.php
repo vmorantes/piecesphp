@@ -110,7 +110,7 @@ final class UserSessions
         $identifier = bin2hex(random_bytes(32));
         $now = time();
         $userAgent = isset($_SERVER['HTTP_USER_AGENT']) && is_string($_SERVER['HTTP_USER_AGENT']) ? mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 255) : null;
-        $ip = isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR']) ? mb_substr($_SERVER['REMOTE_ADDR'], 0, 45) : null;
+        $ip = mb_substr(\PiecesPHP\Core\VisitorIP::get(), 0, 45);
         $statement = $database->prepare('INSERT INTO `' . self::TABLE . '` (userID, sessionHash, createdAt, lastActivityAt, expiresAt, ip, userAgent) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $statement->execute([
             $userID,

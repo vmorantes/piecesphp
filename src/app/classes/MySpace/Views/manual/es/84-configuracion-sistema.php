@@ -40,6 +40,29 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tr>
 </tbody>
 </table>
+<h3 class="ui header">Proxies de confianza</h3>
+<p>Solo la ve root. Hace falta si la plataforma está detrás de un intermediario (un proxy, un balanceador o una red de
+distribución como Cloudflare): sin ella, todas las visitas llegan con la IP de ese intermediario, y los frenos del
+acceso frenarían a todos a la vez. Con la lista vacía, la plataforma usa la IP de la conexión, como siempre.</p>
+<p>La sección enseña qué ve la plataforma ahora: <strong>«IP de la conexión (REMOTE_ADDR)»</strong>, lo que traen las cabeceras
+<code>X-Forwarded-For</code> y <code>X-Real-IP</code> («(no llega)» si no vienen) y la <strong>«IP del visitante que usa la plataforma»</strong>. Si la
+conexión llega desde una dirección privada o local con <code>X-Forwarded-For</code> y la lista está vacía, un aviso lo dice encima:
+hay un intermediario y la plataforma todavía no lo conoce.</p>
+<p>Cómo obtener la lista:</p>
+<ul>
+<li><strong>El intermediario está en la misma máquina</strong> (por ejemplo, un nginx delante de Apache, como suele montar HestiaCP): entra al panel y
+  mira la «IP de la conexión»; si es la del servidor o <code>127.0.0.1</code>/<code>::1</code> y <code>X-Forwarded-For</code> trae otra, pulsa
+  <strong>«Añadir esta IP a la lista»</strong> y después <strong>«Guardar»</strong>. El botón solo se activa si la petición llega con
+  <code>X-Forwarded-For</code>; si la IP de la conexión es pública, pide confirmación, porque podría ser la tuya y no la del
+  intermediario.</li>
+<li><strong>Una red de distribución (CDN)</strong>: sus rangos de IP los publica el proveedor (Cloudflare, en <code>cloudflare.com/ips</code>).
+  Copia cada rango en una línea.</li>
+<li><strong>Un balanceador o un proxy de tu proveedor</strong>: pídele sus IP o rangos.</li>
+</ul>
+<p>Una IP o un rango CIDR por línea. No se admite un rango que abarque todas las direcciones (<code>0.0.0.0/0</code>, <code>::/0</code>): así
+cualquiera podría inventar su IP. Con «Usar IP del usuario para encriptar el token de sesión» activa, cambiar la lista
+cierra una vez la sesión de quien entra por los proxies que añadas o quites. Para vaciar la lista, borra todas las líneas
+y guarda.</p>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-system-backups'])): ?>
 <h2 class="ui header" id="respaldos">Respaldos</h2>

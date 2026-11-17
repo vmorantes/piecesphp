@@ -457,7 +457,7 @@ class LogsMapper extends EntityMapperExtensible
         $notExistsMessage = true;
 
         //SIEMPRE las dos: objectToMapper() exige todas las meta, y sin la extensión geoip la fila quedaba ilegible.
-        $ip = isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+        $ip = \PiecesPHP\Core\VisitorIP::get();
         $geolocationByIp = __(self::LANG_GROUP, 'Sin especificar');
         if (function_exists('geoip_record_by_name')) {
             try {
