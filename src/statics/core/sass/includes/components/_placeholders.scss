@@ -3,8 +3,8 @@
 
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
 $-attachLabelShadow: #00000029;
-$-attachImageBackground: #F3F3F3;
-$-attachMetaColor: #B7B7B7;
+$-attachImageBackground: var(--theme-fill);
+$-attachMetaColor: var(--theme-text-muted);
 
 @mixin attach-placeholder {
 
@@ -69,7 +69,7 @@ $-attachMetaColor: #B7B7B7;
 
         > .image {
             background-color: $-attachImageBackground;
-            color: $colorTextMuted;
+            color: var(--theme-text-muted);
             height: 100%;
             width: 100%;
             align-content: center;
@@ -123,7 +123,7 @@ $-attachMetaColor: #B7B7B7;
                 font-weight: $fwLight;
                 font-size: pxToRem(14);
                 line-height: pxToRem(14+3);
-                color: var(--accent);
+                color: var(--accent-text);
                 width: 165px;
                 max-width: 100%;
                 height: max-content;
@@ -132,7 +132,7 @@ $-attachMetaColor: #B7B7B7;
                 overflow: hidden;
 
                 a[see-file] {
-                    color: var(--accent);
+                    color: var(--accent-text);
                 }
             }
 
@@ -142,7 +142,7 @@ $-attachMetaColor: #B7B7B7;
                     font-weight: $fwMedium;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+3);
-                    color: var(--accent);
+                    color: var(--accent-text);
                     padding-bottom: 5px;
                     width: max-content;
                     max-width: 100%;

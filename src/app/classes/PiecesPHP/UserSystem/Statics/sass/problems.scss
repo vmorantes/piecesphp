@@ -29,7 +29,6 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
     }
 
     > .content {
-        background-color: white;
         border-radius: 25px !important;
         width: 100%;
         height: 100%;
@@ -96,7 +95,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
                 > h2 {
                     width: 100%;
                     text-align: center;
-                    color: $mainBrandColor;
+                    color: var(--accent-text);
                     font-size: 45px;
                     font-weight: bold;
                     margin: 0;
@@ -114,7 +113,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
 
                             > p {
                                 > span {
-                                    color: $mainBrandColor;
+                                    color: var(--accent-text);
                                     font-weight: bold;
                                 }
                             }
@@ -232,7 +231,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
         width: 600px;
         height: 400px;
         padding: 10px;
-        background-color: white;
+        background-color: var(--theme-surface);
         border-radius: 25px;
         box-shadow: 0 8px 16px 0 palette.$colorShadowSoft;
         display: flex;
@@ -241,7 +240,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
         align-items: center;
 
         .title {
-            color: $card-modal-title;
+            color: var(--accent-text);
             text-transform: uppercase;
             margin-bottom: 5%;
             font-weight: 500;
@@ -264,7 +263,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
             }
 
             .name {
-                color: $mainBrandColor;
+                color: var(--accent-text);
                 text-transform: uppercase;
             }
         }
@@ -359,6 +358,6 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
 
 [modal-type="SUCCESS_PASSWORD_CHANGE"] {
     .title {
-        color: $mainBrandColor !important;
+        color: var(--accent-text) !important;
     }
 }

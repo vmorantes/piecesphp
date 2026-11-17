@@ -24,6 +24,7 @@ $accessPartners = trim((string) get_config('partners'));
 //El propietario de Identidad y SEO, en el idioma de la página (get_config() ya lo resuelve); vacío, el nombre de la aplicación.
 $accessOwner = trim((string) get_config('owner'));
 $accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
+$accessLogoClass = \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') ? ' invert-on-dark' : '';
 ?>
 <div class="ui very relaxed internally celled stackable stretched equal width fullscreen grid">
 
@@ -31,7 +32,7 @@ $accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
         <div class="ui vertical wide flex">
             <div class="fluid ui centered flex">
                 <div class="ui vertical centered very relaxed flex">
-                    <div class="ui raised segment"><img class="ui tiny image" src="<?= escape_html((string) get_config('logo')); ?>" alt=""></div>
+                    <div class="ui raised segment"><img class="ui tiny image<?= $accessLogoClass; ?>" src="<?= escape_html((string) get_config('logo')); ?>" alt=""></div>
                     <div class="ui huge center aligned header"><?= escape_html($accessTitle); ?>
                         <?php if ($accessDescription !== ''): ?>
                         <div class="sub header"><span class="ui large text"><?= escape_html($accessDescription); ?></span></div>
@@ -52,7 +53,7 @@ $accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
                 <?php if ($accessDeveloperName !== ''): ?>
                 <small class="ui muted text tight nowrap centered flex developer-credit">
                     <?php if ($accessDeveloperLogo !== ''): ?>
-                    <img class="ui mini image" src="<?= escape_html($accessDeveloperLogo); ?>" alt="">
+                    <img class="ui mini image<?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoInvertsOnDark() ? ' invert-on-dark' : ''; ?>" src="<?= escape_html($accessDeveloperLogo); ?>" alt="">
                     <?php endif; ?>
                     <span><?= __('general', 'Desarrollado por'); ?> <?= $accessDeveloperName; ?></span>
                 </small>
@@ -68,7 +69,7 @@ $accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
                 <div class="mobile tablet only row">
                     <div class="column">
                         <div class="ui relaxed nowrap flex">
-                            <img class="ui mini image" src="<?= escape_html((string) get_config('logo')); ?>" alt="">
+                            <img class="ui mini image<?= $accessLogoClass; ?>" src="<?= escape_html((string) get_config('logo')); ?>" alt="">
                             <div class="ui medium header"><?= escape_html($accessTitle); ?></div>
                         </div>
                     </div>

@@ -23,6 +23,7 @@ $invertOnDark = fn(string $image): string => \PiecesPHP\Settings\Controllers\Set
 //El crédito del desarrollador (config.php, P263): fijo por clon; vacío no se pinta.
 $developer = trim((string) get_config('developer'));
 $developerLogo = trim((string) get_config('developer_logo'));
+$developerLogoInverts = \PiecesPHP\Settings\Controllers\SettingsController::developerLogoInvertsOnDark() ? ' invert-on-dark' : '';
 $developerURL = trim((string) get_config('developer_url'));
 $developerName = $developer === '' ? '' : '<strong>' . escape_html($developer) . '</strong>';
 if ($developerName !== '' && $developerURL !== '') {
@@ -90,7 +91,7 @@ if ($developerName !== '' && $developerURL !== '') {
             <div class="ui vertical centered flex">
                 <img class="partners<?= ($invertOnDark)('partnersVertical'); ?>" src="<?= get_config('partnersVertical'); ?>" alt="">
                 <?php if ($developer !== '' && $developerLogo !== '') : ?>
-                <img class="developer-logo" src="<?= escape_html($developerLogo); ?>" alt="" title="<?= escape_html(__('general', 'Desarrollado por') . ' ' . $developer); ?>">
+                <img class="developer-logo<?= $developerLogoInverts; ?>" src="<?= escape_html($developerLogo); ?>" alt="" title="<?= escape_html(__('general', 'Desarrollado por') . ' ' . $developer); ?>">
                 <?php endif; ?>
             </div>
         </div>
@@ -107,7 +108,7 @@ if ($developerName !== '' && $developerURL !== '') {
                 <?php if ($developerName !== '') : ?>
                 <span class="developer-credit">
                     <?php if ($developerLogo !== '') : ?>
-                    <img class="developer-logo" src="<?= escape_html($developerLogo); ?>" alt="">
+                    <img class="developer-logo<?= $developerLogoInverts; ?>" src="<?= escape_html($developerLogo); ?>" alt="">
                     <?php endif; ?>
                     <?= __('general', 'Desarrollado por'); ?> <?= $developerName; ?>
                 </span>

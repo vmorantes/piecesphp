@@ -681,20 +681,6 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
     }
 }
 
-//La casilla «Invertir colores en modo oscuro» (P277 c): el logo y las banderas, en blanco. Va por `data-theme` y no por
-//light-dark() porque `filter` no lo admite. El acceso y los errores no llevan `data-theme`: salen en claro, a propósito.
-$-invertOnDark: brightness(0) invert(1);
-
-[data-theme="dark"] .invert-on-dark {
-    filter: $-invertOnDark;
-}
-
-@media (prefers-color-scheme: dark) {
-    [data-theme="auto"] .invert-on-dark {
-        filter: $-invertOnDark;
-    }
-}
-
 //El logo va en la línea del texto: un nombre largo parte centrado y el logo sigue junto a él (en un flex, el texto ocuparía
 //todo el ancho y lo alejaría).
 .developer-credit {

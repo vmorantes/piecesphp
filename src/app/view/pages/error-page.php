@@ -35,6 +35,7 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon')); ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/plugins/fomantic-piecesphp/semantic.min.css'); ?>">
     <link rel="stylesheet" href="<?= \PiecesPHP\CSSVariables::globalVersionedURL(); ?>">
+    <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/core/css/ui-pcs.css'); ?>">
 </head>
 
 <body>
@@ -43,7 +44,7 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
 
         <header class="ui basic center aligned segment">
             <a class="ui medium header inline relaxed flex" href="<?= base_url(); ?>">
-                <img class="ui mini image" src="<?= escape_html((string) get_config('logo')); ?>" alt="">
+                <img class="ui mini image<?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') ? ' invert-on-dark' : ''; ?>" src="<?= escape_html((string) get_config('logo')); ?>" alt="">
                 <?= escape_html((string) get_config('title_app')); ?>
             </a>
         </header>
@@ -82,7 +83,7 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
                 <?php if ($errorDeveloperName !== ''): ?>
                 <small class="ui muted text tight nowrap centered flex developer-credit" data-error-developer>
                     <?php if ($errorDeveloperLogo !== ''): ?>
-                    <img class="ui mini image" src="<?= escape_html($errorDeveloperLogo); ?>" alt="">
+                    <img class="ui mini image<?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoInvertsOnDark() ? ' invert-on-dark' : ''; ?>" src="<?= escape_html($errorDeveloperLogo); ?>" alt="">
                     <?php endif; ?>
                     <span><?= __('general', 'Desarrollado por'); ?> <?= $errorDeveloperName; ?></span>
                 </small>

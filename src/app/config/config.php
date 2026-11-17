@@ -163,6 +163,8 @@ ini_set('geoip.custom_directory', $config['GEO_IP']['custom_directory']);
 //Ejemplo: 'developer' => 'Mi Empresa S.A.S.', 'developer_logo' => 'statics/images/mi-empresa.svg', 'developer_url' => 'https://mi-empresa.example'
 $config['developer'] = 'Nombre Desarrollador';
 $config['developer_logo'] = 'statics/images/developer-logo.png';
+//Su logo en blanco en modo oscuro (un PNG con fondo transparente): 1 sí, 0 no; sin poner o false, solo el de fábrica.
+// $config['developer_logo_invert_on_dark'] = 1;
 $config['developer_url'] = '';
 //Las preguntas frecuentes del proyecto, si las tiene; vacío, la entrada no sale.
 $config['help_faq_url'] = '';

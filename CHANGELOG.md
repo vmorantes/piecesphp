@@ -1,3 +1,30 @@
+# 10.35.0 (16-11-2026)
+
+- **Arreglado en modo oscuro**:
+  - el logo de fábrica, oscuro, ya se ve también en el inicio de sesión, en las páginas de problemas de acceso y en la
+    página de error: se invierte como en el panel, con la misma casilla «Invertir colores en modo oscuro» de
+    Configuración › Imágenes de marca;
+  - la caja de un anexo sin imagen (en Publicaciones y en las fichas de Aprobaciones) ya no es un recuadro claro: sigue
+    el modo de color;
+  - los textos en el color de acento (el título y el nombre de un anexo, las cifras y los pies de las tarjetas de
+    estadísticas del inicio, el código de seguridad de «Mi espacio», el nombre de la ficha de perfil y los del recortador
+    de imágenes) se leían a 2,3:1 en oscuro; ahora usan el color de acento del tema para texto, que se adapta: 6,35:1 en
+    oscuro y, en claro, más contraste que antes (9,29:1 frente a 7,26:1);
+  - las ventanas de «¿Necesitas ayuda para ingresar?» (recuperar la contraseña y sus avisos) ya no son blancas en
+    oscuro: siguen el modo de color, y su etiqueta y su campo se leen;
+  - el logo del desarrollador de fábrica («Desarrollado por», en el menú, el acceso y la página de error) también se
+    invierte. Si tu clon pone el suyo, decide con `$config['developer_logo_invert_on_dark']` en `config.php`: `1` lo
+    invierte, `0` no; sin ponerla, solo se invierte el de fábrica (guía «Configuración», «La ayuda, el crédito y el alta
+    pública»).
+- **Si personalizaste la plantilla de los problemas de acceso** (`src/app/lang/files/usersProblems/PROBLEMS_LIST-*.html`):
+  sigue funcionando igual, pero su logo no se invertirá en oscuro hasta que añadas `class="${logoClass}"` a su `<img>`.
+- **Para quien desarrolla**:
+  - la clase `invert-on-dark` vive ahora en `ui-pcs.css` (antes en la hoja del panel), así que vale en todo lo que la
+    carga, también el acceso y la página de error;
+  - `SettingsController::developerLogoInvertsOnDark()` dice si el logo del desarrollador se invierte;
+  - en tu SCSS, un texto en el color de acento va con `var(--accent-text)`, no con `var(--accent)` (que es para fondos y
+    bordes): solo el primero se lee en los dos modos.
+
 # 10.34.0 (16-11-2026)
 
 - **La conversación del asistente se conserva** aunque cambies de pantalla, recargues o cierres el navegador: se guarda

@@ -25,6 +25,7 @@
     '${otherProblemsFormLink}' => \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'),
     '${owner}' => escape_html(get_config('owner')),
     '${logoURL}' => get_config('logo'),
+    '${logoClass}' => \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') ? 'invert-on-dark' : '',
     '${mailSystem}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
 ]); ?>
     <?php $accessContent = (string) ob_get_clean(); require dirname(__DIR__) . '/inc/access-frame.php'; ?>

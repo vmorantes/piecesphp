@@ -84,6 +84,11 @@ class SettingsController extends AdminPanelController
     ];
 
     /**
+     * El logo del desarrollador que trae el framework (config.php, `developer_logo`).
+     */
+    const FACTORY_DEVELOPER_LOGO = 'statics/images/developer-logo.png';
+
+    /**
      * Las imágenes que el modo oscuro puede volver blancas (P277 c): imagen => su opción. Se guardan 1 o 0, nunca un
      * booleano: get_config() devuelve false también si la opción no existe, y sin opción manda brandImageInvertsOnDark().
      */
@@ -3467,6 +3472,25 @@ class SettingsController extends AdminPanelController
         }
         $value = get_config(self::BRAND_IMAGES_INVERT_ON_DARK[$configName]);
         return $value === false ? self::isFactoryBrandImage($configName) : in_array($value, [1, '1'], true);
+    }
+
+    /**
+     * Si el logo del desarrollador (`developer_logo`, de config.php) se pinta en blanco en modo oscuro:
+     * `developer_logo_invert_on_dark` a 1 o 0 manda; sin ponerla, o a false (get_config() no distingue false de
+     * ausente), solo el logo de fábrica.
+     *
+     * @return bool
+     */
+    public static function developerLogoInvertsOnDark(): bool
+    {
+        $value = get_config('developer_logo_invert_on_dark');
+        if (in_array($value, [1, '1'], true)) {
+            return true;
+        }
+        if (in_array($value, [0, '0'], true)) {
+            return false;
+        }
+        return trim((string) get_config('developer_logo')) === self::FACTORY_DEVELOPER_LOGO;
     }
 
     /**

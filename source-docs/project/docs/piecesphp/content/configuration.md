@@ -893,4 +893,5 @@ QueueTask::addQueueHandlers([
 
 - **El centro de ayuda de la barra** (el icono de interrogación) sale si tiene algo que enseñar: «Contactar a soporte» con `support_form_recipients` no vacío (de fábrica, la dirección de ejemplo, con su aviso: arriba) y permiso sobre `admin-tickets-create`, y «Preguntas frecuentes» si tu proyecto pone su enlace en **`$config['help_faq_url']`**, que viene vacío.
 - **`$config['developer']`, `$config['developer_logo']` y `$config['developer_url']`**: el crédito del pie del menú. El framework trae marcadores: cámbialos en tu clon.
+- **`$config['developer_logo_invert_on_dark']`**: si el logo del desarrollador se pinta en blanco en modo oscuro (en el menú, el acceso y la página de error). `1` lo invierte y `0` no; sin poner (o `false`, que cuenta igual), solo se invierte el de fábrica, que es oscuro. Pide un PNG con fondo transparente: un fondo opaco saldría como un rectángulo blanco. Viene comentada junto a `developer_logo`.
 - **`API_PUBLIC_SIGNUP`** (`src/app/config/constants.php`): el alta de usuarios sin sesión por la API. De fábrica, `false`: la ruta responde 404.

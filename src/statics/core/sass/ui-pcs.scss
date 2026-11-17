@@ -45,6 +45,20 @@ body {
     height: 50px;
 }
 
+//La casilla «Invertir colores en modo oscuro» (P277 c): el logo y las banderas, en blanco. Va por `data-theme` y no por
+//light-dark() porque `filter` no lo admite. El acceso, los problemas de acceso y los errores llevan `data-theme` y se oscurecen.
+$-invertOnDark: brightness(0) invert(1);
+
+[data-theme="dark"] .invert-on-dark {
+    filter: $-invertOnDark;
+}
+
+@media (prefers-color-scheme: dark) {
+    [data-theme="auto"] .invert-on-dark {
+        filter: $-invertOnDark;
+    }
+}
+
 //Link
 // @en-desuso 11.0.0: la clase ui-pcs no la pone ninguna vista ni JS (JEL); se borra en la 11.0.0
 a {
@@ -546,7 +560,7 @@ a.ui.button {
         justify-content: center;
 
         > span {
-            color: var(--accent);
+            color: var(--accent-text);
             font-size: 20px;
             font-weight: $fwMedium;
 
@@ -581,7 +595,7 @@ a.ui.button {
     align-items: center;
 
     > span {
-        color: var(--accent);
+        color: var(--accent-text);
         font-size: 27px;
         font-weight: $fwSemiBold;
     }

@@ -139,7 +139,7 @@ $dashboardCardGap: pxToRem(16);
                 font-size: pxToRem(35);
                 line-height: pxToRem(35);
                 font-weight: $fwBold;
-                color: var(--accent);
+                color: var(--accent-text);
             }
         }
     }
@@ -204,7 +204,7 @@ $dashboardCardGap: pxToRem(16);
                     }
 
                     > .value {
-                        color: var(--custom-value-color, var(--accent));
+                        color: var(--custom-value-color, var(--accent-text));
                     }
                 }
             }
@@ -382,14 +382,14 @@ $dashboardCardGap: pxToRem(16);
                 font-weight: $fwBold;
                 font-size: pxToRem(56);
                 line-height: pxToRem(74);
-                color: var(--accent);
+                color: var(--accent-text);
             }
 
             > .text {
                 font-size: pxToRem(21);
                 line-height: pxToRem(21);
                 font-weight: $fwMedium;
-                color: var(--accent);
+                color: var(--accent-text);
                 width: 250px;
                 max-width: 100%;
                 padding-top: 5px;
@@ -422,7 +422,7 @@ $dashboardCardGap: pxToRem(16);
                 min-width: 0;
                 font-size: pxToRem(15);
                 line-height: pxToRem(20);
-                color: $statisticsPrimaryColor;
+                color: var(--accent-text);
             }
 
             // @en-desuso 11.0.0: sin uso en el framework (JDU); se borra en la 11.0.0
@@ -595,7 +595,7 @@ $dashboardCardGap: pxToRem(16);
                 min-width: 0;
                 font-size: pxToRem(15);
                 line-height: pxToRem(20);
-                color: $statisticsPrimaryColor;
+                color: var(--accent-text);
             }
 
             > .action-button {
