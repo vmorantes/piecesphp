@@ -43,4 +43,6 @@ return [
     'Idiomas' => 'Languages',
     'Iniciar' => 'Start date',
     'Finalizar' => 'End date',
+    'Error' => 'Error',
+    'Ha ocurrido un error al cargar los elementos.' => 'An error occurred while loading the items.',
 ];

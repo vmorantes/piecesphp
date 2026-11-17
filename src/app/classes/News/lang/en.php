@@ -55,4 +55,8 @@ return [
     "Editar: %s" => "Edit: %s",
     "Cancelar" => "Cancel",
     "Nueva categoría" => "New category",
+    "Borrador" => "Draft",
+    "Marcar como leída" => "Mark as read",
+    "La noticia que intenta marcar como leída no existe." => "The news item you are trying to mark as read does not exist.",
+    "Noticia marcada como leída." => "News item marked as read.",
 ];

@@ -95,4 +95,5 @@ return [
     "Cancelar" => "Cancel",
     "Nueva categoría" => "New category",
     "¿Seguro de eliminar el elemento?" => "Are you sure you want to delete this item?",
+    "Falta un archivo obligatorio: %s." => "A required file is missing: %s.",
 ];

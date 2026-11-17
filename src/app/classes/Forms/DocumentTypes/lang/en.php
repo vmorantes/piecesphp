@@ -26,4 +26,5 @@ return [
     "Traducir"                                                             => "Translate",
     "Cancelar"                                                             => "Cancel",
     "¿Seguro de eliminar el elemento?"                                     => "Are you sure you want to delete this item?",
+    "No pudo conectarse a la base de datos" => "Could not connect to the database",
 ];

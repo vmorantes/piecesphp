@@ -378,6 +378,9 @@ $lang = [
     'Reforzado' => 'Strong',
     'Como el sitio' => 'Like the site',
     'Como el sitio: %s' => 'Like the site: %s',
+    "Eliminar cuenta" => "Delete account",
+    "Invertir colores en modo oscuro" => "Invert colors in dark mode",
+    "Necesita un PNG con fondo transparente: un fondo opaco saldría como un rectángulo blanco." => "It needs a PNG with a transparent background: an opaque background would show as a white rectangle.",
 ];
 
 return $lang;

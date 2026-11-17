@@ -98,10 +98,14 @@ $lang = [
         'Ocurrió un error interno. Si lo reporta, indique la referencia %s.' => 'An internal error occurred. If you report it, please include reference %s.',
         'No se pudo cerrar la sesión' => 'Could not log out',
         'No se pudo cerrar la sesión en el servidor. Tu sesión sigue abierta: inténtalo de nuevo.' => 'Could not log out on the server. Your session is still open: please try again.',
+        'Copia y comparte este enlace:' => 'Copy and share this link:',
+        'Enlace copiado al portapapeles' => 'Link copied to the clipboard',
+        'Error al compartir:' => 'Could not share:',
     ],
     'errors' => [
         'RESTRICTED_AREA'              => 'Try to access a restricted area. For which you do not have permissions.',
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Missing or unexpected parameters.',
+        'type_param_not_allowed' => 'The parameter type is not allowed.',
     ],
     'users' => [
         'NO_ERROR'                     => '',
@@ -294,6 +298,7 @@ $lang = [
         'No recuerdo'                                                     => 'I forgot my',
         'Contraseña'                                                      => 'Password',
         'Atrás'                                                           => 'Back',
+        'name@domain.com' => 'name@domain.com',
     ],
     'userLogin' => [
         'Ingresa con tu cuenta para continuar.' => 'Log in with your account to continue.',
@@ -346,6 +351,54 @@ $lang = [
     'datatables' => [
         'Buscar'              => 'To look for...',
         "elementos"           => "elements",
+    ],
+    //Grupos sin diccionario propio: su inglés (H226; antes caían al español).
+    'global' => [
+        'Cancelar' => 'Cancel',
+        'Código de área' => 'Area code',
+        'Confirmación' => 'Confirmation',
+        'Eliminar' => 'Delete',
+        'Escriba \'Eliminar\'' => 'Type \'Delete\'',
+        '¿Está seguro de cancelar la operación?' => 'Are you sure you want to cancel the operation?',
+        'No' => 'No',
+        'Para confirmar la acción escriba en el siguiente campo: Eliminar' => 'To confirm the action, type in the following field: Delete',
+        'Seleccione una nacionalidad' => 'Select a nationality',
+        'Sí' => 'Yes',
+    ],
+    'operation-route' => [
+        'Operación' => 'Operation',
+        'La operación solicitada no corresponde con la ruta utilizada.' => 'The requested operation does not match the route used.',
+    ],
+    'html_exceptions' => [
+        'malformed_attribute' => 'Malformed attribute.',
+        'malformed_child' => 'Malformed child element.',
+    ],
+    'array_of_exceptions' => [
+        'missing_qualified_name' => 'The qualified name is missing.',
+    ],
+    'exceptions' => [
+        'not_allowed_type' => 'Type not allowed.',
+    ],
+    'roles_exceptions' => [
+        'not_exists' => 'The role does not exist.',
+        'role_duplicate' => 'The role is duplicated.',
+        'role_malformed' => 'The role is malformed.',
+    ],
+    'routes_exceptions' => [
+        'duplicate_name_exceptions' => 'There is already a route with that name.',
+    ],
+    'UploadedFileAdapter' => [
+        'No se encontró ningún archivo cargado.' => 'No uploaded file was found.',
+        'Los archivos no han sido cargados correctamente.' => 'The files were not uploaded correctly.',
+        'Debe ser un solo archivo por manejador.' => 'There must be a single file per handler.',
+        'No hay ningún directorio de destino definido' => 'No destination folder is defined',
+    ],
+    'PiecesPHP\\Core\\Validation\\Parameters' => [
+        'Los parámetros %PARAMS% son obligatorios' => 'The parameters %PARAMS% are required',
+        'El parámetro %PARAMS% es obligatorio' => 'The parameter %PARAMS% is required',
+    ],
+    'NONE' => [
+        'Agregar archivo' => 'Add file',
     ],
 ];
 

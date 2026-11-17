@@ -106,4 +106,5 @@ return [
     "Ver usuarios" => "View users",
     "Encargado de la organización" => "Person in charge of the organization",
     "El encargado actual fue eliminado: elija otro cuando pueda." => "The current person in charge was deleted: choose another one when you can.",
+    "Falta un archivo obligatorio: %s." => "A required file is missing: %s.",
 ];

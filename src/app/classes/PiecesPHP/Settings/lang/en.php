@@ -476,4 +476,5 @@ return [
     'Falta la actualización 2026-11-16-coste-de-la-ia: el coste del proveedor no se cuenta.' => 'The 2026-11-16-coste-de-la-ia database update is missing: the provider cost is not counted.',
     'Olvidar la conversación tras (minutos)' => 'Forget the conversation after (minutes)',
     'La conversación se guarda en el navegador de cada persona y se olvida tras ese tiempo sin usarla.' => 'The conversation is saved in each person\'s browser and is forgotten after that time without using it.',
+    'Serie 1' => 'Series 1',
 ];

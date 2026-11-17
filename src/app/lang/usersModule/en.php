@@ -130,6 +130,12 @@ $lang = [
     'Se aplica al momento y se guarda en tu cuenta.' => 'It applies at once and is saved in your account.',
     'Apariencia' => 'Appearance',
     'Accesibilidad' => 'Accessibility',
+    "El usuario indicado no es válido." => "The given user is not valid.",
+    "No hay una sesión de usuario activa." => "There is no active user session.",
+    "No se pudieron cerrar las sesiones." => "The sessions could not be closed.",
+    "No tiene permisos para cerrar las sesiones de otro usuario." => "You do not have permission to close another user's sessions.",
+    "Se cerraron todas las sesiones de %s." => "All sessions of %s were closed.",
+    "Solo un superadministrador puede cerrar las sesiones de otro superadministrador." => "Only a super administrator can close the sessions of another super administrator.",
 ];
 
 return $lang;

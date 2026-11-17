@@ -42,4 +42,7 @@ return [
     "Sin archivo"                                                          => "No file",
     "(eliminado)"                                                          => "(deleted)",
     "El tipo de documento no existe o fue eliminado."                      => "The document type does not exist or was deleted.",
+    "Falta un archivo obligatorio: %s." => "A required file is missing: %s.",
+    "No pudo conectarse a la base de datos" => "Could not connect to the database",
+    "-" => "-",
 ];

@@ -1,3 +1,13 @@
+# 10.37.0 (16-11-2026)
+
+- **El panel en inglés, completo**: 87 textos de la interfaz que salían en español con el panel en inglés (avisos, mensajes
+  de error, rótulos de Configuración, de la API, de categorías, de noticias, de usuarios…) ya tienen su traducción. No
+  cambia nada en español.
+- **Para quien desarrolla**: la suite `core/lang-missing-english` falla si una llamada a `__()` o `_i18n()` con texto
+  literal no tiene traducción en el diccionario inglés de su grupo. Si añades un texto, añade su inglés en el mismo
+  cambio. Con el grupo en una variable de la vista, solo detecta el texto que no tenga inglés en ningún grupo. Necesita
+  `bin/tools/i18n/`, que no viaja con la distribución: en un clon sin esa carpeta, `gates` dice que no aplica.
+
 # 10.36.0 (16-11-2026)
 
 - **Nuevo: los puntos de Ubicaciones (las coordenadas) se pueden eliminar** desde su edición, con el botón «Eliminar» y

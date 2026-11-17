@@ -50,4 +50,7 @@ return [
     "Desordenadas" => "Unordered",
     "Ordenadas" => "Ordered",
     'correo@correo.com' => 'email@email.com',
+    "Extra" => "Extra",
+    "Enviado desde" => "Sent from",
+    "Inicio" => "Home",
 ];
