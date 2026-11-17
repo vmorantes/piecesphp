@@ -161,6 +161,16 @@ class Point extends AdminPanelController
             $data['title'] = __(LOCATIONS_LANG_GROUP, 'Editar') . ' ' . mb_strtolower(self::$title);
             $data['fields'] = $this->formFields($element, $status_options);
             $data['pieces'] = $this->helperController;
+            //Eliminar solo en la edición de un punto, y solo si la ruta lo concede (H23).
+            if (self::allowedRoute('actions-delete', ['id' => $element->id])) {
+                $data['delete'] = [
+                    'route' => self::routeName('actions-delete', ['id' => $element->id]),
+                    'title' => __(LOCATIONS_LANG_GROUP, 'Eliminar coordenada'),
+                    'message' => __(LOCATIONS_LANG_GROUP, '¿Seguro de eliminar la coordenada? No se puede deshacer.'),
+                    'confirm' => __(LOCATIONS_LANG_GROUP, 'Sí, eliminar'),
+                    'cancel' => __(LOCATIONS_LANG_GROUP, 'Cancelar'),
+                ];
+            }
             set_custom_assets([Locations::staticRoute('js/locations-forms.js')], 'js');
 
             $this->helperController->render('panel/layout/header');
@@ -688,6 +698,49 @@ class Point extends AdminPanelController
         $fields[] = ['kind' => 'input', 'name' => 'name', 'label' => __(LOCATIONS_LANG_GROUP, 'Nombre'), 'required' => true, 'requiredAttribute' => false, 'maxlength' => 255, 'value' => $element !== null ? $element->name : ''];
         $fields[] = ['kind' => 'select', 'name' => 'active', 'label' => __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo'), 'required' => true, 'options' => $statusOptions];
         return $fields;
+    }
+
+    /**
+     * Elimina un punto (H23). Ninguna tabla apunta a locations_points, así que borrar no deja a nadie colgando.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public function delete(Request $request, Response $response, array $args)
+    {
+        $id = $args['id'] ?? null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
+        $mapper = new PointMapper($id);
+
+        if ($mapper->id === null) {
+            throw new NotFoundException($request, $response);
+        }
+
+        $operation_name = __(LOCATIONS_LANG_GROUP, 'Eliminar coordenada');
+        $result = new ResultOperations([
+            new Operation($operation_name),
+        ], $operation_name);
+        $result->setValue('redirect', false);
+
+        try {
+            $deleted = PointMapper::model()->delete(['id' => $mapper->id])->execute();
+            if ($deleted && (new PointMapper((int) $mapper->id))->id === null) {
+                $result->setMessage(__(LOCATIONS_LANG_GROUP, 'Coordenada eliminada.'));
+                //La operación se creó con este nombre en el constructor: si faltara, es un fallo de verdad.
+                ($result->operation($operation_name) ?? throw new \LogicException('La operación del resultado no existe.'))->setSuccess(true);
+                $result->setValue('redirect', true);
+                $result->setValue('redirect_to', self::routeName('list'));
+            } else {
+                $result->setMessage(__(LOCATIONS_LANG_GROUP, 'Ha ocurrido un error desconocido.'));
+            }
+        } catch (\Exception $e) {
+            $reference = log_exception($e);
+            $result->setMessage(CustomSlimErrorHandler::genericMessage($reference));
+        }
+
+        return $response->withJson($result);
     }
 
     /**

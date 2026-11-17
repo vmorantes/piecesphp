@@ -79,9 +79,11 @@ Columns: ID, name, country, department, city, address, coordinates, active or in
 
 This form includes a map. With the map buttons you can switch between **“Satellite view”** and **“Drawing view”**, **“Center”** the map and zoom it in or out.
 
+When you edit a coordinate, **“Delete”** removes it after you confirm with **“Yes, delete”**. It cannot be undone. Countries, departments and cities are not deleted from the panel.
+
 ## Add and edit
 <!-- ve: locations-countries-forms-add, locations-countries-forms-edit, locations-states-forms-add, locations-states-forms-edit, locations-cities-forms-add, locations-cities-forms-edit, locations-points-forms-add, locations-points-forms-edit -->
 
-For each type of location, the creation form and the edit form have the same fields. Only the title changes (“Add…” or “Edit…”).
+For each type of location, the creation form and the edit form have the same fields. Only the title changes (“Add…” or “Edit…”) and, when editing a coordinate, the **“Delete”** button.
 
 ![Add and edit](img/locations-countries-forms-add.webp)

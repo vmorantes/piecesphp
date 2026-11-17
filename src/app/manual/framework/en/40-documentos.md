@@ -38,7 +38,7 @@ How to get there: click **“New document”**, or **“Edit”** in a document'
 
 | Field | Required | What it is for |
 | --- | --- | --- |
-| Type of document | Yes | The type it is classified under. |
+| Type of document | Yes | The type it is classified under. If a document's type was deleted, its edit form still offers it, marked “(deleted)”, so you can save it without changing it. |
 | Document name | Yes | The name it shows with in the list. |
 | Document | Yes | The file. |
 | Description | No | A text that explains the document. |

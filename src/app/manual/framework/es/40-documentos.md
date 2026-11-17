@@ -38,7 +38,7 @@ Cómo se llega: pulsa **«Nuevo documento»**, o **«Editar»** en la fila de un
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
-| Tipo de documento | Sí | El tipo con que se clasifica. |
+| Tipo de documento | Sí | El tipo con que se clasifica. Si el tipo de un documento se eliminó, su edición lo sigue ofreciendo, marcado «(eliminado)», para poder guardarlo sin cambiarlo. |
 | Nombre del documento | Sí | El nombre con el que se ve en el listado. |
 | Documento | Sí | El archivo. |
 | Descripción | No | Un texto que explica el documento. |

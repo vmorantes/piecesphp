@@ -188,12 +188,13 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tbody>
 </table>
 <p>Este formulario incluye un mapa. Con los botones del mapa puedes cambiar entre <strong>«Vista satelital»</strong> y <strong>«Vista de dibujo»</strong>, <strong>«Centrar»</strong> el mapa y acercarlo o alejarlo.</p>
+<p>Al editar una coordenada, <strong>«Eliminar»</strong> la borra después de confirmarlo con <strong>«Sí, eliminar»</strong>. No se puede deshacer. Los países, departamentos y ciudades no se eliminan desde el panel.</p>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['locations-countries-forms-add', 'locations-countries-forms-edit', 'locations-states-forms-add', 'locations-states-forms-edit', 'locations-cities-forms-add', 'locations-cities-forms-edit', 'locations-points-forms-add', 'locations-points-forms-edit'])): ?>
 <h2 class="title" id="agregar-y-editar"><span role="button" tabindex="0" aria-expanded="false" aria-controls="agregar-y-editar-contenido"><i class="dropdown icon" aria-hidden="true"></i>Agregar y editar</span></h2>
 <div class="content" id="agregar-y-editar-contenido">
-<p>Para cada tipo de ubicación, el formulario de alta y el de edición tienen los mismos campos. Solo cambia el título («Agregar…» o «Editar…»).</p>
+<p>Para cada tipo de ubicación, el formulario de alta y el de edición tienen los mismos campos. Solo cambia el título («Agregar…» o «Editar…») y, en la edición de una coordenada, el botón <strong>«Eliminar»</strong>.</p>
 <p><img class="ui image" alt="Agregar y editar" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/locations-countries-forms-add.webp')); ?>"></p>
 </div>
 <?php endif; ?>

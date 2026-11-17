@@ -33,7 +33,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <tr>
 <td>Type of document</td>
 <td>Yes</td>
-<td>The type it is classified under.</td>
+<td>The type it is classified under. If a document's type was deleted, its edit form still offers it, marked “(deleted)”, so you can save it without changing it.</td>
 </tr>
 <tr>
 <td>Document name</td>

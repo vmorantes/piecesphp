@@ -79,9 +79,11 @@ Columnas: ID, nombre, país, departamento, ciudad, dirección, coordenadas, acti
 
 Este formulario incluye un mapa. Con los botones del mapa puedes cambiar entre **«Vista satelital»** y **«Vista de dibujo»**, **«Centrar»** el mapa y acercarlo o alejarlo.
 
+Al editar una coordenada, **«Eliminar»** la borra después de confirmarlo con **«Sí, eliminar»**. No se puede deshacer. Los países, departamentos y ciudades no se eliminan desde el panel.
+
 ## Agregar y editar
 <!-- ve: locations-countries-forms-add, locations-countries-forms-edit, locations-states-forms-add, locations-states-forms-edit, locations-cities-forms-add, locations-cities-forms-edit, locations-points-forms-add, locations-points-forms-edit -->
 
-Para cada tipo de ubicación, el formulario de alta y el de edición tienen los mismos campos. Solo cambia el título («Agregar…» o «Editar…»).
+Para cada tipo de ubicación, el formulario de alta y el de edición tienen los mismos campos. Solo cambia el título («Agregar…» o «Editar…») y, en la edición de una coordenada, el botón **«Eliminar»**.
 
 ![Agregar y editar](img/locations-countries-forms-add.webp)

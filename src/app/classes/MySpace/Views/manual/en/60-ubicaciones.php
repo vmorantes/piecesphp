@@ -188,12 +188,13 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 </tbody>
 </table>
 <p>This form includes a map. With the map buttons you can switch between <strong>“Satellite view”</strong> and <strong>“Drawing view”</strong>, <strong>“Center”</strong> the map and zoom it in or out.</p>
+<p>When you edit a coordinate, <strong>“Delete”</strong> removes it after you confirm with <strong>“Yes, delete”</strong>. It cannot be undone. Countries, departments and cities are not deleted from the panel.</p>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['locations-countries-forms-add', 'locations-countries-forms-edit', 'locations-states-forms-add', 'locations-states-forms-edit', 'locations-cities-forms-add', 'locations-cities-forms-edit', 'locations-points-forms-add', 'locations-points-forms-edit'])): ?>
 <h2 class="title" id="add-and-edit"><span role="button" tabindex="0" aria-expanded="false" aria-controls="add-and-edit-contenido"><i class="dropdown icon" aria-hidden="true"></i>Add and edit</span></h2>
 <div class="content" id="add-and-edit-contenido">
-<p>For each type of location, the creation form and the edit form have the same fields. Only the title changes (“Add…” or “Edit…”).</p>
+<p>For each type of location, the creation form and the edit form have the same fields. Only the title changes (“Add…” or “Edit…”) and, when editing a coordinate, the <strong>“Delete”</strong> button.</p>
 <p><img class="ui image" alt="Add and edit" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/locations-countries-forms-add.webp')); ?>"></p>
 </div>
 <?php endif; ?>

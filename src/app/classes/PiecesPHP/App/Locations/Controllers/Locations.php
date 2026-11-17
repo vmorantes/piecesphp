@@ -263,6 +263,18 @@ class Locations extends AdminPanelController
                 'list' => $permisos_listado,
             ])
         );
+        //Point: eliminar, solo los puntos (países, departamentos y ciudades tienen quien los referencie). H23.
+        $registrar([
+            new Route(
+                "{$startRoute}points/action/delete/{id}[/]",
+                Point::class . ':delete',
+                self::$prefixEntity . '-points-actions-delete',
+                'POST',
+                true,
+                null,
+                $permisos_gestion
+            ),
+        ]);
 
         return [
             'groupAdministration' => $groupAdministration,

@@ -18,6 +18,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $action
  * @var string $back_link
  * @var array<int,array<string,mixed>> $fields
+ * @var array{route:string,title:string,message:string,confirm:string,cancel:string}|null $delete Solo la edición de un punto, con permiso
  */
 ?>
 <section class="module-view-container">
@@ -82,11 +83,21 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             </div>
 
             <?php
+                $secondaryActions = [['text' => __(LOCATIONS_LANG_GROUP, 'Cancelar'), 'url' => $back_link, 'icon' => 'times']];
+                //Eliminar es `button`: si locations-forms.js no cargara, un submit guardaría el formulario.
+                if (isset($delete) && is_array($delete)) {
+                    $secondaryActions[] = ['text' => __(LOCATIONS_LANG_GROUP, 'Eliminar'), 'type' => 'button', 'icon' => 'trash alternate', 'danger' => true, 'attributes' => [
+                        'delete-point-button' => '',
+                        'data-route' => $delete['route'],
+                        'data-title' => $delete['title'],
+                        'data-message' => $delete['message'],
+                        'data-confirm' => $delete['confirm'],
+                        'data-cancel' => $delete['cancel'],
+                    ]];
+                }
                 $pieces->_render('panel/built-in/content/form-action-bar.php', [
                     'saveText' => __(LOCATIONS_LANG_GROUP, 'Guardar'),
-                    'secondaryActions' => [
-                        ['text' => __(LOCATIONS_LANG_GROUP, 'Cancelar'), 'url' => $back_link, 'icon' => 'times'],
-                    ],
+                    'secondaryActions' => $secondaryActions,
                 ]);
             ?>
 

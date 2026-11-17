@@ -145,6 +145,8 @@ CliActions::make('unit-tests:core/form-uploads', function ($args) {
     //La URL relativa de las subidas de un módulo, como la calcula su controlador.
     $urlDe = fn (string $dir): string => trim(str_replace(base_url(), '', append_to_url((string) get_config('upload_dir_url'), $dir)), '/');
     $meta = json_encode(['baseLang' => $lang, 'langData' => new \stdClass]);
+    //Los tipos de documento que siembra la parte de H31; se retiran con el de la prueba.
+    $tiposH31 = [];
     $usuarios = [];
     $filas = [];
     $carpetas = [];
@@ -391,6 +393,103 @@ CliActions::make('unit-tests:core/form-uploads', function ($args) {
         $nuevasH5 = array_values(array_diff($carpetasPublicaciones(), $antesH5));
         $check($nuevasH5 === [], 'h2 y no aparece ninguna carpeta nueva en las subidas de Publications', implode(', ', $nuevasH5));
 
+        //k · Publications: en la EDICIÓN, un archivo rechazado no cambia nada (H80): ni fila, ni disco, ni imagen
+        echoTerminal('');
+        echoTerminal('[Publications] edición con un adjunto rechazado');
+        $estadoPublicacion = function () use ($database, $idPublicacion, $raizPublicaciones): array {
+            $fila = $database->query('SELECT title, mainImage, thumbImage, ogImage, folder FROM `' . PublicationMapper::TABLE . "` WHERE id = {$idPublicacion}")->fetch(\PDO::FETCH_ASSOC) ?: [];
+            $adjuntos = $database->query('SELECT id, fileLocation FROM `' . AttachmentPublicationMapper::TABLE . "` WHERE publication = {$idPublicacion} ORDER BY id")->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+            $disco = [];
+            $carpeta = append_to_path_system($raizPublicaciones, (string) ($fila['folder'] ?? ''));
+            clearstatcache();
+            if (($fila['folder'] ?? '') !== '' && is_dir($carpeta)) {
+                foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($carpeta, \FilesystemIterator::SKIP_DOTS)) as $archivo) {
+                    if ($archivo instanceof \SplFileInfo && $archivo->isFile()) {
+                        $disco[substr($archivo->getPathname(), strlen($carpeta))] = (string) sha1_file($archivo->getPathname());
+                    }
+                }
+            }
+            ksort($disco);
+            return ['fila' => $fila, 'adjuntos' => $adjuntos, 'disco' => $disco];
+        };
+        $edicionK = ['id' => $idPublicacion] + $modulos['Publications']['campos'];
+        $antesK = $estadoPublicacion();
+        $r = $guardar($camino(PublicationsController::class, 'actions-edit'), $jwt, ['title' => "{$prefijo}-h80-cambiado"] + $edicionK + [
+            'attachmentsName_0' => "{$prefijo}-adjunto-h80-pdf",
+            'attachmentsFile_0' => $subir('pdf'),
+            'attachmentsName_1' => "{$prefijo}-adjunto-h80-html",
+            'attachmentsFile_1' => $subir('html'),
+        ]);
+        $despuesK = $estadoPublicacion();
+        foreach ($despuesK['adjuntos'] as $adjunto) {
+            $filas[AttachmentPublicationMapper::TABLE][] = (int) $adjunto['id'];
+        }
+        $check($r['success'] === false && str_contains($r['message'], $tipoInvalido), "k1 la edición con un .pdf válido y después un .html se rechaza con «{$tipoInvalido}»", "HTTP {$r['status']} · " . mb_substr($r['message'], 0, 160));
+        $check($despuesK === $antesK, 'k2 DISCRIMINANTE: el título, las filas de adjuntos y los archivos en disco quedan IDÉNTICOS (antes quedaba la fila del .pdf y su archivo: H80)', json_encode(['antes' => count($antesK['adjuntos']) . ' adjuntos, ' . count($antesK['disco']) . ' archivos', 'despues' => count($despuesK['adjuntos']) . ' adjuntos, ' . count($despuesK['disco']) . ' archivos', 'titulo' => $despuesK['fila']['title'] ?? null]) ?: '');
+        $antesK3 = $estadoPublicacion();
+        $imagenAntes = (string) ($antesK3['fila']['mainImage'] ?? '');
+        $r = $guardar($camino(PublicationsController::class, 'actions-edit'), $jwt, $edicionK + [
+            'mainImage' => $subir('d'),
+            'attachmentsName_0' => "{$prefijo}-adjunto-h80-html",
+            'attachmentsFile_0' => $subir('html'),
+        ]);
+        $despuesK2 = $estadoPublicacion();
+        foreach ($despuesK2['adjuntos'] as $adjunto) {
+            $filas[AttachmentPublicationMapper::TABLE][] = (int) $adjunto['id'];
+        }
+        $check($r['success'] === false && $despuesK2 === $antesK3 && $imagenAntes !== '' && !str_contains((string) ($despuesK2['fila']['mainImage'] ?? ''), 'zz-subidas-d'), 'k3 DISCRIMINANTE: con una imagen nueva válida y un adjunto rechazado, la imagen anterior sigue en la fila y en disco, y nada cambia', "HTTP {$r['status']} · imagen {$imagenAntes} → " . (string) ($despuesK2['fila']['mainImage'] ?? '') . ' · ' . count($despuesK2['disco']) . ' archivos');
+
+        //d · Documents: un documento cuyo tipo se borró se guarda con su tipo; un tipo ajeno se rechaza (H31)
+        echoTerminal('');
+        echoTerminal('[Documents] el tipo actual borrado y los tipos ajenos');
+        $idDocumento = (int) ($filas[DocumentsMapper::TABLE][0] ?? 0);
+        $nuevoTipo = function (string $sufijo, int $estado) use ($database, $prefijo, $ahora, $root, $meta, &$tiposH31): int {
+            $database->prepare('INSERT INTO `' . DocumentTypesMapper::TABLE . '` (documentTypeName, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?)')->execute(["{$prefijo}-tipo-{$sufijo}", "{$prefijo}-tipo-{$sufijo}", $estado, $ahora, $root, $meta]);
+            $id = (int) $database->lastInsertId();
+            $tiposH31[] = $id;
+            return $id;
+        };
+        $tipoBorrado = $nuevoTipo('borrado', 1);
+        $tipoAjeno = $nuevoTipo('ajeno-borrado', 0);
+        $tipoActivo = $nuevoTipo('activo', 1);
+        $database->prepare('UPDATE `' . DocumentsMapper::TABLE . '` SET documentType = ? WHERE id = ?')->execute([$tipoBorrado, $idDocumento]);
+        $database->prepare('UPDATE `' . DocumentTypesMapper::TABLE . '` SET status = 0 WHERE id = ?')->execute([$tipoBorrado]);
+        $tipoGuardado = fn (): int => (int) $database->query('SELECT documentType FROM `' . DocumentsMapper::TABLE . "` WHERE id = {$idDocumento}")->fetchColumn();
+        $rutaFormulario = DocumentsController::routeName('forms-edit', ['id' => $idDocumento, 'lang' => $lang], true);
+        $rutaFormulario = '/' . ltrim(str_contains($rutaFormulario, '://') ? (string) parse_url($rutaFormulario, \PHP_URL_PATH) : $rutaFormulario, '/');
+        $rutaFormulario = $prefijoBase !== '' && str_starts_with($rutaFormulario, $prefijoBase) ? substr($rutaFormulario, strlen($prefijoBase)) : $rutaFormulario;
+        $handle = \Terminal\TestRun::curlInit();
+        \Terminal\TestRun::curlSetoptArray($handle, [
+            CURLOPT_URL => $base . $rutaFormulario,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTPHEADER => ["{$cabeceraToken}: {$jwt}"],
+        ]);
+        $formulario = curl_exec($handle);
+        $formulario = is_string($formulario) ? $formulario : '';
+        $rotulo = __(DocumentsController::LANG_GROUP, '(eliminado)');
+        $opcion = preg_match('~<option[^>]*value=[\'"]' . $tipoBorrado . '[\'"][^>]*>([^<]*)</option>~', $formulario, $m) === 1 ? $m[0] : '';
+        $check($opcion !== '' && str_contains($opcion, 'selected') && str_contains($opcion, $rotulo), "d1 DISCRIMINANTE: la edición ofrece el tipo actual borrado, elegido y rotulado «{$rotulo}»", $opcion !== '' ? html_entity_decode($opcion) : 'no está');
+        $check($formulario !== '' && preg_match('~value=[\'"]' . $tipoAjeno . '[\'"]~', $formulario) !== 1, 'd2 y no ofrece otro tipo borrado');
+        $edicionD = ['id' => $idDocumento] + $modulos['Documents']['campos'];
+        $r = $guardar($camino(DocumentsController::class, 'actions-edit'), $jwt, ['documentType' => $tipoBorrado] + $edicionD);
+        $check($r['success'] === true && $tipoGuardado() === $tipoBorrado, 'd3 DISCRIMINANTE: se guarda con su tipo borrado, sin cambiarlo (antes no: H31)', "HTTP {$r['status']} · " . mb_substr($r['message'], 0, 160));
+        $rechazo = __(DocumentsController::LANG_GROUP, 'El tipo de documento no existe o fue eliminado.');
+        foreach (['otro tipo borrado' => $tipoAjeno, 'un tipo que no existe' => 2147483000] as $nombre => $ajeno) {
+            $r = $guardar($camino(DocumentsController::class, 'actions-edit'), $jwt, ['documentType' => $ajeno] + $edicionD);
+            $check($r['success'] === false && str_contains($r['message'], $rechazo) && $tipoGuardado() === $tipoBorrado, "d4 DISCRIMINANTE: {$nombre} se rechaza con «{$rechazo}» y el tipo no cambia", "HTTP {$r['status']} · " . mb_substr($r['message'], 0, 160));
+        }
+        $r = $guardar($camino(DocumentsController::class, 'actions-add'), $jwt, ['documentType' => $tipoBorrado, 'documentName' => "{$prefijo}-documento-h31"] + $modulos['Documents']['campos'] + ['document' => $subir('pdf')]);
+        $idAltaH31 = (int) $database->query('SELECT id FROM `' . DocumentsMapper::TABLE . '` WHERE documentName = ' . $database->quote("{$prefijo}-documento-h31"))->fetchColumn();
+        if ($idAltaH31 > 0) {
+            $filas[DocumentsMapper::TABLE][] = $idAltaH31;
+        }
+        $check($r['success'] === false && str_contains($r['message'], $rechazo) && $idAltaH31 === 0, 'd5 el alta no acepta un tipo borrado (ahí no hay tipo actual)', "HTTP {$r['status']} · id {$idAltaH31}");
+        $r = $guardar($camino(DocumentsController::class, 'actions-edit'), $jwt, ['documentType' => $tipoActivo] + $edicionD);
+        $check($r['success'] === true && $tipoGuardado() === $tipoActivo, 'd6 y un tipo activo se sigue aceptando', "HTTP {$r['status']} · " . mb_substr($r['message'], 0, 160));
+
         //f · Modo público: si mover falla, FileUpload::moveTo() da [''] (DEF-1). Sin HTTP: aquí move_uploaded_file() falla sin
         //aviso porque el archivo no vino por POST; por HTTP, en local, el aviso aborta antes y no se vería el arreglo.
         echoTerminal('');
@@ -486,7 +585,7 @@ CliActions::make('unit-tests:core/form-uploads', function ($args) {
             $aprobaciones = SystemApprovalsMapper::model();
             //Los adjuntos primero: su clave foránea apunta a la publicación.
             $filas = [AttachmentPublicationMapper::TABLE => $filas[AttachmentPublicationMapper::TABLE] ?? []] + $filas;
-            foreach (array_merge($filas, [UsersModel::TABLE => $usuarios, DocumentTypesMapper::TABLE => isset($tipoDocumento) ? [$tipoDocumento] : []]) as $tabla => $ids) {
+            foreach (array_merge($filas, [UsersModel::TABLE => $usuarios, DocumentTypesMapper::TABLE => array_merge(isset($tipoDocumento) ? [$tipoDocumento] : [], $tiposH31)]) as $tabla => $ids) {
                 foreach ($ids as $id) {
                     $aprobaciones->resetAll();
                     //RETORNO-IGNORADO: lo comprueba z1 contando lo que queda.
@@ -513,7 +612,7 @@ CliActions::make('unit-tests:core/form-uploads', function ($args) {
             $check(false, 'z0 la limpieza corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
         }
         $restos = 0;
-        foreach (array_merge($filas, [DocumentTypesMapper::TABLE => isset($tipoDocumento) ? [$tipoDocumento] : []]) as $tabla => $ids) {
+        foreach (array_merge($filas, [DocumentTypesMapper::TABLE => array_merge(isset($tipoDocumento) ? [$tipoDocumento] : [], $tiposH31)]) as $tabla => $ids) {
             foreach ($ids as $id) {
                 $restos += (int) $database->query("SELECT COUNT(*) FROM `{$tabla}` WHERE id = " . (int) $id)->fetchColumn();
             }

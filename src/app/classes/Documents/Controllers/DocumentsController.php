@@ -266,6 +266,25 @@ class DocumentsController extends AdminPanelController
     }
 
     /**
+     * Los tipos activos y, si se da, el actual del documento aunque esté borrado, rotulado como tal: así una edición
+     * guarda sin obligar a cambiarle el tipo (H31). La opción vacía ('') es el rótulo del desplegable.
+     *
+     * @param int|null $currentDocumentType
+     * @return array<string,string>
+     */
+    private static function documentTypesForSelect(?int $currentDocumentType = null): array
+    {
+        $options = DocumentTypesMapper::allForSelect('', '');
+        if ($currentDocumentType !== null && !array_key_exists((string) $currentDocumentType, $options)) {
+            $current = new DocumentTypesMapper($currentDocumentType);
+            if ($current->id !== null) {
+                $options[(string) $current->id] = $current->currentLangData('documentTypeName') . ' ' . __(self::LANG_GROUP, '(eliminado)');
+            }
+        }
+        return $options;
+    }
+
+    /**
      * @param Request $request
      * @param Response $response
      * @return Response
@@ -299,7 +318,8 @@ class DocumentsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $documentTypes = array_to_html_options(array_map('escape_html', array_filter(DocumentTypesMapper::allForSelect('', ''), 'is_scalar')), $element->documentType instanceof DocumentTypesMapper ? $element->documentType->id : $element->documentType);
+            $currentDocumentType = $element->documentType instanceof DocumentTypesMapper ? $element->documentType->id : $element->documentType;
+            $documentTypes = array_to_html_options(array_map('escape_html', array_filter(self::documentTypesForSelect($currentDocumentType), 'is_scalar')), $currentDocumentType);
             $manyLangs = count($allowedLangs) > 1 && !empty($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
             //El nombre del documento, recortado como en publicaciones; lo escapan la cabecera y MetaTags, las migas no.
@@ -475,6 +495,16 @@ class DocumentsController extends AdminPanelController
                     }
                 } else {
                     $lang = get_config('default_lang');
+                }
+
+                //Solo un tipo activo, o el que el documento ya tiene aunque se borrara después (H31): cualquier otro id, fuera.
+                $currentDocumentType = null;
+                if ($isEdit) {
+                    $currentDocument = new DocumentsMapper((int) $id);
+                    $currentDocumentType = $currentDocument->documentType instanceof DocumentTypesMapper ? $currentDocument->documentType->id : $currentDocument->documentType;
+                }
+                if (!array_key_exists((string) $documentType, self::documentTypesForSelect($currentDocumentType))) {
+                    throw new SafeException(__(self::LANG_GROUP, 'El tipo de documento no existe o fue eliminado.'));
                 }
 
                 if (!$isEdit) {

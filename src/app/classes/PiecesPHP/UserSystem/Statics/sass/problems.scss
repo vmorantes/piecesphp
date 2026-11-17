@@ -133,7 +133,7 @@ $actionButtonBackground: rgba(128, 128, 128, 0.194);
                             background-color: $actionButtonBackground;
                             border-radius: 8px;
                             cursor: pointer;
-                            color: gray;
+                            color: var(--theme-text);
 
 
                             &.back {

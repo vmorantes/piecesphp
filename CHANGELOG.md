@@ -1,3 +1,18 @@
+# 10.36.0 (16-11-2026)
+
+- **Nuevo: los puntos de Ubicaciones (las coordenadas) se pueden eliminar** desde su edición, con el botón «Eliminar» y
+  una confirmación. Solo los ve quien puede editarlos. Los países, departamentos y ciudades siguen sin borrarse desde el
+  panel. Manual: «Ubicaciones».
+- **Arreglado**:
+  - editar una publicación con un archivo rechazado (un adjunto o una imagen de un tipo no admitido) ya no deja nada a
+    medias: no se guarda ningún adjunto ni se sustituye ninguna imagen, y la publicación queda como estaba;
+  - un documento cuyo tipo se eliminó se puede volver a guardar: su edición ofrece ese tipo, marcado «(eliminado)»; y el
+    guardado ya no acepta un tipo eliminado o que no existe;
+  - en «Recuperar mi contraseña», los botones «Ya tengo un código» y «Atrás» se leen en los dos modos (antes, 2,8:1 en
+    oscuro).
+- **Para quien desarrolla**: la ruta nueva `locations-points-actions-delete` (POST), con los mismos tipos de usuario que
+  editar coordenadas, y `Point::delete()`.
+
 # 10.35.0 (16-11-2026)
 
 - **Arreglado en modo oscuro**:

@@ -33,7 +33,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <tr>
 <td>Tipo de documento</td>
 <td>Sí</td>
-<td>El tipo con que se clasifica.</td>
+<td>El tipo con que se clasifica. Si el tipo de un documento se eliminó, su edición lo sigue ofreciendo, marcado «(eliminado)», para poder guardarlo sin cambiarlo.</td>
 </tr>
 <tr>
 <td>Nombre del documento</td>

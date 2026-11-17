@@ -73,6 +73,11 @@ $lang = [
     'El gentilicio no puede pasar de 255 caracteres.' => 'The demonym cannot be longer than 255 characters.',
     'El prefijo telefónico no es de ningún país activo.' => 'The phone code does not belong to any active country.',
     'La nacionalidad no es de ningún país activo.' => 'The nationality does not belong to any active country.',
+    'Eliminar' => 'Delete',
+    'Eliminar coordenada' => 'Delete coordinate',
+    '¿Seguro de eliminar la coordenada? No se puede deshacer.' => 'Delete the coordinate? This cannot be undone.',
+    'Sí, eliminar' => 'Yes, delete',
+    'Coordenada eliminada.' => 'Coordinate deleted.',
 ];
 
 return $lang;

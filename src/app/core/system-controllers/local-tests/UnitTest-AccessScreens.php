@@ -367,6 +367,8 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
             $check($cuerpo !== '' && preg_match($blanco, $cuerpo) !== 1, "v1 DISCRIMINANTE: {$selector} no fija un fondo blanco", $cuerpo === '' ? 'no encuentro el bloque' : '');
         }
         $check(str_contains($bloque('.card-ui-center'), 'background-color: var(--theme-surface)'), 'v2 .card-ui-center toma el fondo del tema (--theme-surface)');
+        $botones = $bloque('> .buttons-action-area');
+        $check($botones !== '' && preg_match('~^\s*color\s*:\s*(gray|grey|#[0-9a-f]{3,6})\s*;~mi', $botones) !== 1 && str_contains($botones, 'color: var(--theme-text);'), 'v3 DISCRIMINANTE: el texto de los botones de «Recuperar mi contraseña» es el del tema, no un gris fijo (2,81:1 en oscuro)', $botones === '' ? 'no encuentro el bloque' : '');
 
         try {
             set_config('developer_logo', \PiecesPHP\Settings\Controllers\SettingsController::FACTORY_DEVELOPER_LOGO);

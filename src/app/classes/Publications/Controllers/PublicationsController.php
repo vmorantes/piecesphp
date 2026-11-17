@@ -18,6 +18,7 @@ use PiecesPHP\Core\Database\ORM\Statements\HavingSegment;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Forms\FormUploadHandler;
 use PiecesPHP\Core\Forms\FormUploadRejectedException;
+use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Route;
@@ -766,6 +767,24 @@ class PublicationsController extends AdminPanelController
                         if (!is_string($mapper->folder) || trim($mapper->folder) === '') {
                             //Sin carpeta, las subidas irían a la raíz de publications/: se le asigna una, como en el alta.
                             $mapper->folder = str_replace('.', '', uniqid());
+                        }
+
+                        //Nada se mueve, se sustituye, se borra ni se guarda hasta que TODOS los archivos recibidos pasen su
+                        //validación: un rechazo deja la publicación, sus imágenes y sus adjuntos como estaban (H80).
+                        foreach (['mainImage', 'thumbImage', 'ogImage'] as $imageField) {
+                            self::validateUploadOrFail($imageField, [FileValidator::TYPE_ALL_IMAGES]);
+                        }
+                        foreach ($attachmentsUploaded as $attachmentUploaded) {
+                            if ($attachmentUploaded['nameOnFiles'] !== null) {
+                                self::validateUploadOrFail($attachmentUploaded['nameOnFiles'], [
+                                    FileValidator::TYPE_ALL_IMAGES,
+                                    FileValidator::TYPE_PDF,
+                                    FileValidator::TYPE_DOC,
+                                    FileValidator::TYPE_DOCX,
+                                    FileValidator::TYPE_XLS,
+                                    FileValidator::TYPE_XLSX,
+                                ]);
+                            }
                         }
 
                         $mainImageSetted = $translationExists ? $mapper->getLangData($lang, 'mainImage', false, null) : null;
@@ -1970,6 +1989,29 @@ class PublicationsController extends AdminPanelController
         } catch (FormUploadRejectedException $e) {
             //Un tipo no permitido es culpa de quien sube: se le explica, y no es un error interno que registrar.
             throw new SafeException($e->getMessage());
+        }
+    }
+
+    /**
+     * Lo mismo que FormUploadHandler::upload() comprueba antes de mover (un archivo por campo, su tipo y su tamaño), sin
+     * mover nada: la edición rechaza así antes de tocar el disco o la base (H80). Sin archivo en el campo, no hace nada.
+     *
+     * @param string $nameOnFiles El campo en $_FILES
+     * @param array $allowedTypes Tipos de FileValidator, los mismos que pasa su handlerUpload()
+     * @return void
+     * @throws SafeException Con el mensaje que daría la subida
+     */
+    protected static function validateUploadOrFail(string $nameOnFiles, array $allowedTypes): void
+    {
+        $associativePaths = UploadedFileAdapter::findAssociativePathsByName($nameOnFiles);
+        if (count($associativePaths) > 1) {
+            throw new SafeException(__(FileValidator::LANG_GROUP, 'Solo se admite un archivo por campo.'));
+        }
+        foreach ($associativePaths as $associativePath) {
+            $handler = new UploadedFileAdapter($associativePath, $allowedTypes);
+            if ($handler->hasInput() && $handler->getFileInformation()['error'] !== \UPLOAD_ERR_NO_FILE && !$handler->validate()) {
+                throw new SafeException(implode('<br>', $handler->getErrorMessages()));
+            }
         }
     }
 

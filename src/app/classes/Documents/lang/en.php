@@ -40,4 +40,6 @@ return [
     "Inicio"                                                               => "Home",
     "Abrir"                                                                => "Open",
     "Sin archivo"                                                          => "No file",
+    "(eliminado)"                                                          => "(deleted)",
+    "El tipo de documento no existe o fue eliminado."                      => "The document type does not exist or was deleted.",
 ];
