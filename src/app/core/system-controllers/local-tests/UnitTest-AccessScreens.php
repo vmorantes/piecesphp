@@ -387,6 +387,34 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
             set_config('developer_logo', $logoDesarrollador);
             set_config('developer_logo_invert_on_dark', $claveDesarrollador === false ? null : $claveDesarrollador);
         }
+        echoTerminal(' ');
+
+        //─── f · El logo de fábrica, el de hoy y el anterior, por su sha1 (H336) ─────────────────────
+        echoTerminal('[f] El logo de fábrica se reconoce por su sha1, el de hoy y el anterior (v10.41.0)');
+        $logoAntes = get_config('logo');
+        $opcionAntes = get_config($opcionLogo);
+        $viejo = 'app/cache/zz-logo-de-fabrica-viejo-' . bin2hex(random_bytes(3)) . '.png';
+        try {
+            //La opción sin guardar (get_config() da false): decide si el logo es el de fábrica.
+            set_config($opcionLogo, false);
+            set_config('logo', 'statics/images/logo.png');
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'f1 DISCRIMINANTE: el logo de fábrica de hoy, sin la opción guardada, se invierte en oscuro', (string) sha1_file(basepath('statics/images/logo.png')));
+            $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+            $git = proc_open(['git', '--no-optional-locks', '-C', $proyecto, 'show', 'v10.41.0:src/statics/images/logo.png'], [1 => ['file', basepath($viejo), 'w'], 2 => ['file', '/dev/null', 'w']], $tuberias);
+            $sacado = is_resource($git) && proc_close($git) === 0 && sha1_file(basepath($viejo)) === '9cf27f1fbb82e550d03fbaca632f9c6563eec81a';
+            set_config('logo', $viejo);
+            $check($sacado && \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'f2 el logo de fábrica anterior (el de v10.41.0) también', $sacado ? '' : 'no se pudo sacar de git');
+            set_config('logo', 'statics/images/framework/main_logo.svg');
+            $check(!\PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'f3 otra imagen, sin la opción, no');
+        } finally {
+            set_config('logo', $logoAntes);
+            set_config($opcionLogo, $opcionAntes);
+            if (is_file(basepath($viejo))) {
+                //RETORNO-IGNORADO: un temporal en app/cache/, que git ignora; f4 lo comprueba.
+                unlink(basepath($viejo));
+            }
+        }
+        $check(!is_file(basepath($viejo)), 'f4 no queda el logo viejo temporal');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

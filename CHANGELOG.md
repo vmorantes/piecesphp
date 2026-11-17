@@ -1,3 +1,14 @@
+# 10.42.0 (17-11-2026)
+
+- **Las imágenes de fábrica son las de PiecesPHP**: el logo (la «P» del logo de PiecesPHP, para los cuadros del acceso y
+  del menú lateral, que llevan el nombre de la plataforma al lado), su versión blanca, la de la barra y la de los correos
+  (el rótulo «PiecesPHP»), la del cargador y las dos favicons (la «P»), y la favicon de la documentación. Salen de
+  `src/statics/images/framework/main_logo.svg` y de la marca sola, `main_mark.svg`. «Con el apoyo de» y «Desarrollado
+  por» siguen con su imagen de relleno: son de terceros de cada proyecto.
+- **Al actualizar**: si tu instalación nunca subió sus imágenes en Configuración › Apariencia › Imágenes de marca, verás
+  las de PiecesPHP en lugar de «company». Las que subiste no cambian. El logo de fábrica de antes se sigue reconociendo:
+  en modo oscuro se invierte igual.
+
 # 10.41.0 (17-11-2026)
 
 - **Si la IA no consigue apuntar lo que gasta, root lo ve**: cuando la base de datos no deja escribir en ese momento, la

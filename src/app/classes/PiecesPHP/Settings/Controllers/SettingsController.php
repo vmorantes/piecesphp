@@ -75,13 +75,13 @@ class SettingsController extends AdminPanelController
 
     use ControllerRoutingTrait;
     /**
-     * El sha1 de las imágenes de marca que trae el framework (statics/images/). Se distingue por el contenido y no por la
+     * Los sha1 de fábrica de cada imagen de marca (statics/images/), el de hoy y los anteriores. Por contenido y no por
      * ruta: una instalación anterior a H230 guardó su imagen propia en el MISMO archivo de fábrica.
      */
     const FACTORY_BRAND_IMAGES = [
-        'logo' => '9cf27f1fbb82e550d03fbaca632f9c6563eec81a',
-        'partners' => 'f99eed56bd1b37230c3da8219a88aa4ca3e815c1',
-        'partnersVertical' => '759ba8f2f55108ad876d8974da1ef0ae3dfbbf0f',
+        'logo' => ['267a9e14146deb1b23e52417da4512737bbceaa2', '98b74efa0dca1da2cbe5a671dd3d940d733319ee', '9cf27f1fbb82e550d03fbaca632f9c6563eec81a'],
+        'partners' => ['f99eed56bd1b37230c3da8219a88aa4ca3e815c1'],
+        'partnersVertical' => ['759ba8f2f55108ad876d8974da1ef0ae3dfbbf0f'],
     ];
 
     /**
@@ -3519,7 +3519,7 @@ class SettingsController extends AdminPanelController
         $value = get_config($configName);
         $file = is_string($value) && $value !== '' ? basepath($value) : '';
         return array_key_exists($configName, self::FACTORY_BRAND_IMAGES) && $file !== '' && is_file($file)
-            && sha1_file($file) === self::FACTORY_BRAND_IMAGES[$configName];
+            && in_array(sha1_file($file), (array) self::FACTORY_BRAND_IMAGES[$configName], true);
     }
 
     /**

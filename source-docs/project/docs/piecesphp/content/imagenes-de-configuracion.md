@@ -14,6 +14,13 @@ borra: `SettingsController::deleteSettingsImage()` comprueba con `realpath` que 
 Una opción que apunte a una carpeta de fábrica (lo subido antes de la 10.11.0) se sigue leyendo tal cual; al
 sustituirla, el archivo viejo no se borra.
 
+**Las de fábrica salen del logo de PiecesPHP** (desde la 10.42.0): `src/statics/images/framework/main_logo.svg` (el
+rótulo) y `main_mark.svg` (la «P» sola). Las cuadradas (`logo.png`, `white-logo.png`, `loader-logo.png`, las favicons)
+llevan la marca; las anchas (`navbar-logo.png`, `mailing-logo.png`), el rótulo. **El logo de fábrica se reconoce por su
+contenido**, no por su ruta: `SettingsController::FACTORY_BRAND_IMAGES` guarda, por imagen, la lista de sha1 de fábrica
+(el de hoy y los anteriores), y `isFactoryBrandImage()` la usa para que el de fábrica se invierta en modo oscuro sin
+opción guardada. **Quien cambie una imagen de fábrica añade su sha1 nuevo a esa lista** y conserva los viejos.
+
 ## Del navegador a la base, en orden
 
 1. **La tarjeta** (`panel/built-in/content/image-card.php`) lleva en sus `data-*` el ancho, el alto, el formato, la
