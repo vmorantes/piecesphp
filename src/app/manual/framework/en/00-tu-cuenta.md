@@ -26,14 +26,22 @@ the manual does not appear for you, your user type does not have it.
 !!! tip "If you cannot log in"
     On the login screen, the help link lets you recover your password or username, or report another problem.
 
-## Text size and color mode
+## Your preferences
 
-- **Color mode**: open the menu under your name, at the top right, and choose under **“Color mode”**: **“Light”**,
-  **“Dark”** or **“System”** (your device's).
-- **Text size**: in that same menu, **“Preferences”** takes you to the **“Preferences”** tab of **“My account”**.
-  Under **“Text size”**, choose **“Normal”**, **“Large”** or **“Larger”**.
+In the menu under your name, at the top right, **“Preferences”** takes you to the **“Preferences”** tab of **“My
+account”**. It has two sections:
 
-Both apply at once and are saved in your account. Until you choose, you see whatever the site's administrator chose.
+- **Appearance**: the **color mode**, **“Light”**, **“Dark”** or **“System”** (your device's). You also have it in the
+  menu under your name, under **“Color mode”**, to change it quickly.
+- **Accessibility**:
+  - **Text size**: **“Normal”**, **“Large”** or **“Larger”**.
+  - **Contrast**: **“Automatic”** (it follows your device) or **“More contrast”**, with stronger text and colors.
+  - **Motion**: **“Automatic”** (it follows your device) or **“Reduce motion”**, with fewer animations.
+  - **Focus**: **“Normal”** or **“Strong”**, with a more visible outline on what you have selected when you move with
+    the keyboard.
+
+Everything applies at once and is saved in your account. Until you choose, you see whatever the site's administrator
+chose.
 
 ## Help
 

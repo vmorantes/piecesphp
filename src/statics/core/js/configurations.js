@@ -802,8 +802,9 @@ function pcsAdminTopbars() {
 		postRequest(themeSelector.data('url'), { mode: mode }).done(function (response) {
 			if (response.success) {
 				document.documentElement.setAttribute('data-theme', mode)
+				//El menú de tu nombre y «Preferencias» dicen lo mismo: la opción se marca en todos los grupos.
 				themeSelector.find('[data-theme-mode]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
-				option.addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
+				themeSelector.find('[data-theme-mode="' + mode + '"]').addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
 			}
 		})
 	})
@@ -821,6 +822,25 @@ function pcsAdminTopbars() {
 				textSizeSelector.find('[data-text-size]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
 				option.addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
 			}
+		})
+	})
+
+	//Contraste, movimiento y foco («Preferencias»): se guardan en la meta del usuario y se aplican al momento con
+	//data-contrast, data-motion y data-focus en <html>, que traduce el tema.
+	$('[accessibility-preference-selector]').each(function () {
+		const group = $(this)
+		group.find('[data-value]').on('click', function (e) {
+			e.preventDefault()
+			e.stopPropagation()
+			const option = $(this)
+			const preference = String(group.data('preference'))
+			postRequest(group.data('url'), { preference: preference, value: String(option.data('value')) }).done(function (response) {
+				if (response.success) {
+					document.documentElement.setAttribute('data-' + preference, response.value)
+					group.find('[data-value]').removeClass('active').attr({ 'aria-checked': 'false', tabindex: '-1' })
+					option.addClass('active').attr({ 'aria-checked': 'true', tabindex: '0' })
+				}
+			})
 		})
 	})
 

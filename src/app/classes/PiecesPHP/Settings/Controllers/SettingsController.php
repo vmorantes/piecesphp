@@ -257,6 +257,12 @@ class SettingsController extends AdminPanelController
     const ACCESSIBILITY_TEXT_SIZE_CONFIG = 'accessibility_text_size';
     const ACCESSIBILITY_THEME_MODE_CONFIG = 'accessibility_theme_mode';
     /**
+     * Contraste, movimiento y foco del sitio (H252, fase 2), de AdminPanelController::CONTRASTS, MOTIONS y FOCUSES.
+     */
+    const ACCESSIBILITY_CONTRAST_CONFIG = 'accessibility_contrast';
+    const ACCESSIBILITY_MOTION_CONFIG = 'accessibility_motion';
+    const ACCESSIBILITY_FOCUS_CONFIG = 'accessibility_focus';
+    /**
      * La configuración SMTP, cifrada, y las de osTicket.
      */
     const MAIL_CONFIG = 'mail';
@@ -2897,6 +2903,9 @@ class SettingsController extends AdminPanelController
             'actionURL' => self::routeName('appearance-accessibility-save'),
             'textSize' => self::accessibilityTextSize(),
             'themeMode' => self::accessibilityThemeMode(),
+            'contrast' => self::accessibilityContrast(),
+            'motion' => self::accessibilityMotion(),
+            'focus' => self::accessibilityFocus(),
         ];
 
         $this->render('panel/layout/header');
@@ -2907,7 +2916,7 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * Guarda la pantalla Accesibilidad de una vez: un valor fuera de su lista no cambia ninguna de las dos opciones.
+     * Guarda la pantalla Accesibilidad de una vez: un valor fuera de su lista no cambia ninguna de las cinco opciones.
      *
      * @param Request $req
      * @param Response $res
@@ -2921,6 +2930,9 @@ class SettingsController extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(self::ACCESSIBILITY_TEXT_SIZE_CONFIG, null, $inList(AdminPanelController::TEXT_SIZES)),
             new Parameter(self::ACCESSIBILITY_THEME_MODE_CONFIG, null, $inList(AdminPanelController::THEME_MODES)),
+            new Parameter(self::ACCESSIBILITY_CONTRAST_CONFIG, null, $inList(AdminPanelController::CONTRASTS)),
+            new Parameter(self::ACCESSIBILITY_MOTION_CONFIG, null, $inList(AdminPanelController::MOTIONS)),
+            new Parameter(self::ACCESSIBILITY_FOCUS_CONFIG, null, $inList(AdminPanelController::FOCUSES)),
         ]);
 
         $inputData = $req->getParsedBody();
@@ -2938,9 +2950,12 @@ class SettingsController extends AdminPanelController
             $options = [
                 self::ACCESSIBILITY_TEXT_SIZE_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_TEXT_SIZE_CONFIG),
                 self::ACCESSIBILITY_THEME_MODE_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_THEME_MODE_CONFIG),
+                self::ACCESSIBILITY_CONTRAST_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_CONTRAST_CONFIG),
+                self::ACCESSIBILITY_MOTION_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_MOTION_CONFIG),
+                self::ACCESSIBILITY_FOCUS_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_FOCUS_CONFIG),
             ];
 
-            //Las dos juntas: una que falle no deja la otra cambiada.
+            //Todas juntas: una que falle no deja las otras cambiadas.
             $pdo = SettingsModel::model()->getDatabase();
             //Null solo sin conexión, que el arranque ya exige: aquí sería un fallo de verdad, y el catch lo registra.
             if ($pdo === null) {
@@ -3068,6 +3083,33 @@ class SettingsController extends AdminPanelController
     {
         $mode = get_config(self::ACCESSIBILITY_THEME_MODE_CONFIG);
         return is_string($mode) && in_array($mode, AdminPanelController::THEME_MODES, true) ? $mode : AdminPanelController::THEME_MODE_AUTO;
+    }
+
+    /**
+     * @return string El contraste del sitio, de AdminPanelController::CONTRASTS; si lo guardado no vale, auto
+     */
+    public static function accessibilityContrast(): string
+    {
+        $value = get_config(self::ACCESSIBILITY_CONTRAST_CONFIG);
+        return is_string($value) && in_array($value, AdminPanelController::CONTRASTS, true) ? $value : 'auto';
+    }
+
+    /**
+     * @return string El movimiento del sitio, de AdminPanelController::MOTIONS; si lo guardado no vale, auto
+     */
+    public static function accessibilityMotion(): string
+    {
+        $value = get_config(self::ACCESSIBILITY_MOTION_CONFIG);
+        return is_string($value) && in_array($value, AdminPanelController::MOTIONS, true) ? $value : 'auto';
+    }
+
+    /**
+     * @return string El foco del sitio, de AdminPanelController::FOCUSES; si lo guardado no vale, normal
+     */
+    public static function accessibilityFocus(): string
+    {
+        $value = get_config(self::ACCESSIBILITY_FOCUS_CONFIG);
+        return is_string($value) && in_array($value, AdminPanelController::FOCUSES, true) ? $value : 'normal';
     }
 
     /**

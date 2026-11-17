@@ -122,8 +122,9 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-accessibility'])): ?>
 <h2 class="title" id="accesibilidad"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accesibilidad-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accesibilidad</span></h2>
 <div class="content" id="accesibilidad-contenido">
-<p>Entra por <strong>«Accesibilidad»</strong>. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en el menú de su
-nombre o en «Mi cuenta» › «Preferencias» (ver «Tu cuenta», «Tamaño de letra y modo de color»).</p>
+<p>Entra por <strong>«Accesibilidad»</strong>. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta» ›
+«Preferencias» (ver «Tu cuenta», «Tus preferencias»). Tiene dos secciones, como las preferencias de cada persona:
+<strong>Apariencia</strong> y <strong>Accesibilidad</strong>.</p>
 <p><img class="ui image" alt="Accesibilidad" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
 <p>Al final, <strong>«Cancelar»</strong> o <strong>«Guardar»</strong>.</p>
 <table class="ui celled table">
@@ -136,21 +137,36 @@ nombre o en «Mi cuenta» › «Preferencias» (ver «Tu cuenta», «Tamaño de 
 </thead>
 <tbody>
 <tr>
+<td>Modo de color por omisión</td>
+<td>No</td>
+<td>En <strong>Apariencia</strong>: <strong>«Claro»</strong>, <strong>«Oscuro»</strong> o <strong>«Sistema»</strong> (el que tenga el dispositivo de cada persona).</td>
+</tr>
+<tr>
 <td>Tamaño de letra por omisión</td>
 <td>No</td>
 <td><strong>«Normal»</strong>, <strong>«Grande»</strong> o <strong>«Más grande»</strong>. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de Colores.</td>
 </tr>
 <tr>
-<td>Modo de color por omisión</td>
+<td>Contraste por omisión</td>
 <td>No</td>
-<td><strong>«Claro»</strong>, <strong>«Oscuro»</strong> o <strong>«Sistema»</strong> (el que tenga el dispositivo de cada persona).</td>
+<td><strong>«Automático»</strong> (sigue al dispositivo de cada persona) o <strong>«Más contraste»</strong>.</td>
+</tr>
+<tr>
+<td>Movimiento por omisión</td>
+<td>No</td>
+<td><strong>«Automático»</strong> o <strong>«Reducir movimiento»</strong>.</td>
+</tr>
+<tr>
+<td>Foco por omisión</td>
+<td>No</td>
+<td><strong>«Normal»</strong> o <strong>«Reforzado»</strong>: el contorno de lo seleccionado con el teclado, más visible.</td>
 </tr>
 </tbody>
 </table>
 <div class="ui info message">
 <div class="header">Por ahora</div>
-<p>Quien ya eligió su tamaño de letra o su modo de color en su menú sigue con lo suyo aunque cambies esto, y todavía
-no tiene un botón para volver a lo del sitio.</p>
+<p>Quien ya eligió algo de esto en sus preferencias sigue con lo suyo aunque cambies esto, y todavía no tiene un botón
+para volver a lo del sitio.</p>
 </div>
 </div>
 <?php endif; ?>

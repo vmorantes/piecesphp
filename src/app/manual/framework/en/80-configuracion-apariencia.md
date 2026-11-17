@@ -73,8 +73,9 @@ the accent and the palette will look in the panel. At the end, **“Cancel”** 
 ## Accessibility
 <!-- ve: configurations-appearance-accessibility -->
 
-Go to **“Accessibility”**. Here you choose how the panel looks for anyone who has not chosen their own in the menu
-under their name or in “My account” › “Preferences” (see “Your account”, “Text size and color mode”).
+Go to **“Accessibility”**. Here you choose how the panel looks for whoever has not chosen their own in “My account” ›
+“Preferences” (see “Your account”, “Your preferences”). It has two sections, like each person's preferences:
+**Appearance** and **Accessibility**.
 
 ![Accessibility](img/configurations-appearance-accessibility.webp)
 
@@ -82,12 +83,15 @@ At the end, **“Cancel”** or **“Save”**.
 
 | Field | Required | Purpose |
 | --- | --- | --- |
+| Default color mode | No | In **Appearance**: **“Light”**, **“Dark”** or **“System”** (each person's device). |
 | Default text size | No | **“Normal”**, **“Large”** or **“Larger”**. Large and Larger add 2 and 4 pixels to the “Base size” in Colors. |
-| Default color mode | No | **“Light”**, **“Dark”** or **“System”** (whatever each person's device uses). |
+| Default contrast | No | **“Automatic”** (it follows each person's device) or **“More contrast”**. |
+| Default motion | No | **“Automatic”** or **“Reduce motion”**. |
+| Default focus | No | **“Normal”** or **“Strong”**: the outline of what is selected with the keyboard, more visible. |
 
 !!! note "For now"
-    Anyone who has already chosen their text size or color mode in their menu keeps their choice even if you change
-    this, and does not yet have a button to go back to the site's setting.
+    Whoever already chose any of this in their preferences keeps their own even if you change this, and does not yet
+    have a button to go back to the site's.
 
 ## Identity and SEO
 <!-- ve: configurations-appearance-seo -->

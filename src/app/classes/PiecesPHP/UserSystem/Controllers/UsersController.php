@@ -973,6 +973,10 @@ class UsersController extends AdminPanelController
             $requestedTab = $req->getQueryParam(self::PROFILE_TAB_PARAM, '');
             $data['requestedTab'] = is_string($requestedTab) ? $requestedTab : '';
             $data['textSize'] = AdminPanelController::textSizeOf((int) $user->id);
+            $data['themeMode'] = AdminPanelController::themeModeOf((int) $user->id);
+            $data['contrast'] = AdminPanelController::contrastOf((int) $user->id);
+            $data['motion'] = AdminPanelController::motionOf((int) $user->id);
+            $data['focus'] = AdminPanelController::focusOf((int) $user->id);
             $data['pageTitle'] = __(self::LANG_GROUP, 'Mi cuenta');
             $data['pageDescription'] = trim("{$user->firstname} {$user->firstLastname}") . ' · ' . $data['typeName'];
             $data['breadcrumbs'] = [

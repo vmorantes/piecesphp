@@ -96,6 +96,26 @@ class AdminPanelController extends BaseController
     const TEXT_SIZE_META = 'text_size';
     const TEXT_SIZE_NORMAL = 'normal';
     const TEXT_SIZES = [self::TEXT_SIZE_NORMAL, 'large', 'larger'];
+
+    /**
+     * Contraste, movimiento y foco del panel (H252, fase 2): los `data-contrast`, `data-motion` y `data-focus` de `<html>`
+     * que traduce el tema. «auto» sigue a la preferencia del dispositivo (prefers-contrast, prefers-reduced-motion).
+     */
+    const CONTRAST_META = 'contrast';
+    const CONTRASTS = ['auto', 'more'];
+    const MOTION_META = 'motion';
+    const MOTIONS = ['auto', 'reduce'];
+    const FOCUS_META = 'focus';
+    const FOCUSES = ['normal', 'strong'];
+
+    /**
+     * Las tres de la ruta admin-accessibility-preference: su meta y sus valores.
+     */
+    const ACCESSIBILITY_PREFERENCES = [
+        'contrast' => [self::CONTRAST_META, self::CONTRASTS],
+        'motion' => [self::MOTION_META, self::MOTIONS],
+        'focus' => [self::FOCUS_META, self::FOCUSES],
+    ];
     /**
      * Los píxeles que suma cada nivel al «Tamaño base» de Colores.
      */
@@ -217,6 +237,29 @@ class AdminPanelController extends BaseController
     }
 
     /**
+     * Guarda una preferencia de accesibilidad del usuario actual (ACCESSIBILITY_PREFERENCES: contrast, motion o focus):
+     * 400 con otra preferencia o con un valor que no esté en su lista.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function accessibilityPreference(Request $req, Response $res)
+    {
+        $preference = $req->getParsedBodyParam('preference', '');
+        $value = $req->getParsedBodyParam('value', '');
+        $user = getLoggedFrameworkUserOrFail();
+        $definition = is_string($preference) ? (self::ACCESSIBILITY_PREFERENCES[$preference] ?? null) : null;
+        $allowed = $definition !== null && is_string($value) && in_array($value, $definition[1], true);
+        $saved = $allowed && UsersModel::setMetaValue((int) $user->id, $definition[0], $value);
+        return $res->withJson([
+            'success' => $saved,
+            'preference' => $saved ? $preference : null,
+            'value' => $saved ? $value : null,
+        ], $saved ? 200 : 400);
+    }
+
+    /**
      * Las iniciales del avatar sin foto (el «MR» del marco del tema): la primera letra del nombre y la del primer
      * apellido, en mayúscula; con uno solo, una letra; sin ninguno, vacío (y el marco pinta el icono).
      *
@@ -253,6 +296,42 @@ class AdminPanelController extends BaseController
     {
         $size = UsersModel::metaValue($userID, self::TEXT_SIZE_META);
         return is_string($size) && in_array($size, self::TEXT_SIZES, true) ? $size : SettingsController::accessibilityTextSize();
+    }
+
+    /**
+     * El contraste guardado de un usuario; sin guardar o con un valor que ya no vale, el del sitio.
+     *
+     * @param int $userID
+     * @return string Uno de CONTRASTS
+     */
+    public static function contrastOf(int $userID): string
+    {
+        $value = UsersModel::metaValue($userID, self::CONTRAST_META);
+        return is_string($value) && in_array($value, self::CONTRASTS, true) ? $value : SettingsController::accessibilityContrast();
+    }
+
+    /**
+     * El movimiento guardado de un usuario; sin guardar o con un valor que ya no vale, el del sitio.
+     *
+     * @param int $userID
+     * @return string Uno de MOTIONS
+     */
+    public static function motionOf(int $userID): string
+    {
+        $value = UsersModel::metaValue($userID, self::MOTION_META);
+        return is_string($value) && in_array($value, self::MOTIONS, true) ? $value : SettingsController::accessibilityMotion();
+    }
+
+    /**
+     * El foco guardado de un usuario; sin guardar o con un valor que ya no vale, el del sitio.
+     *
+     * @param int $userID
+     * @return string Uno de FOCUSES
+     */
+    public static function focusOf(int $userID): string
+    {
+        $value = UsersModel::metaValue($userID, self::FOCUS_META);
+        return is_string($value) && in_array($value, self::FOCUSES, true) ? $value : SettingsController::accessibilityFocus();
     }
 
     /**
@@ -629,6 +708,15 @@ class AdminPanelController extends BaseController
                 "{$startRoute}text-size[/]",
                 self::class . ':textSize',
                 'admin-text-size',
+                'POST',
+                true,
+                null,
+                $allRoles
+            ),
+            new Route(
+                "{$startRoute}accessibility-preference[/]",
+                self::class . ':accessibilityPreference',
+                'admin-accessibility-preference',
                 'POST',
                 true,
                 null,

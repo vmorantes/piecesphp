@@ -24,14 +24,21 @@ the manual does not appear for you, your user type does not have it.</p>
 <div class="header">If you cannot log in</div>
 <p>On the login screen, the help link lets you recover your password or username, or report another problem.</p>
 </div>
-<h2 class="ui header" id="text-size-and-color-mode">Text size and color mode</h2>
+<h2 class="ui header" id="your-preferences">Your preferences</h2>
+<p>In the menu under your name, at the top right, <strong>“Preferences”</strong> takes you to the <strong>“Preferences”</strong> tab of <strong>“My
+account”</strong>. It has two sections:</p>
 <ul>
-<li><strong>Color mode</strong>: open the menu under your name, at the top right, and choose under <strong>“Color mode”</strong>: <strong>“Light”</strong>,
-  <strong>“Dark”</strong> or <strong>“System”</strong> (your device's).</li>
-<li><strong>Text size</strong>: in that same menu, <strong>“Preferences”</strong> takes you to the <strong>“Preferences”</strong> tab of <strong>“My account”</strong>.
-  Under <strong>“Text size”</strong>, choose <strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>.</li>
+<li><strong>Appearance</strong>: the <strong>color mode</strong>, <strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (your device's). You also have it in the
+  menu under your name, under <strong>“Color mode”</strong>, to change it quickly.</li>
+<li><strong>Accessibility</strong>:</li>
+<li><strong>Text size</strong>: <strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>.</li>
+<li><strong>Contrast</strong>: <strong>“Automatic”</strong> (it follows your device) or <strong>“More contrast”</strong>, with stronger text and colors.</li>
+<li><strong>Motion</strong>: <strong>“Automatic”</strong> (it follows your device) or <strong>“Reduce motion”</strong>, with fewer animations.</li>
+<li><strong>Focus</strong>: <strong>“Normal”</strong> or <strong>“Strong”</strong>, with a more visible outline on what you have selected when you move with
+    the keyboard.</li>
 </ul>
-<p>Both apply at once and are saved in your account. Until you choose, you see whatever the site's administrator chose.</p>
+<p>Everything applies at once and is saved in your account. Until you choose, you see whatever the site's administrator
+chose.</p>
 <h2 class="ui header" id="help">Help</h2>
 <p>The question mark icon in the top bar opens the <strong>help center</strong>: this manual and, if your organization has it
 configured, the form to <strong>contact support</strong>.</p>

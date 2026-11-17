@@ -73,8 +73,9 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 ## Accesibilidad
 <!-- ve: configurations-appearance-accessibility -->
 
-Entra por **«Accesibilidad»**. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en el menú de su
-nombre o en «Mi cuenta» › «Preferencias» (ver «Tu cuenta», «Tamaño de letra y modo de color»).
+Entra por **«Accesibilidad»**. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta» ›
+«Preferencias» (ver «Tu cuenta», «Tus preferencias»). Tiene dos secciones, como las preferencias de cada persona:
+**Apariencia** y **Accesibilidad**.
 
 ![Accesibilidad](img/configurations-appearance-accessibility.webp)
 
@@ -82,12 +83,15 @@ Al final, **«Cancelar»** o **«Guardar»**.
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
+| Modo de color por omisión | No | En **Apariencia**: **«Claro»**, **«Oscuro»** o **«Sistema»** (el que tenga el dispositivo de cada persona). |
 | Tamaño de letra por omisión | No | **«Normal»**, **«Grande»** o **«Más grande»**. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de Colores. |
-| Modo de color por omisión | No | **«Claro»**, **«Oscuro»** o **«Sistema»** (el que tenga el dispositivo de cada persona). |
+| Contraste por omisión | No | **«Automático»** (sigue al dispositivo de cada persona) o **«Más contraste»**. |
+| Movimiento por omisión | No | **«Automático»** o **«Reducir movimiento»**. |
+| Foco por omisión | No | **«Normal»** o **«Reforzado»**: el contorno de lo seleccionado con el teclado, más visible. |
 
 !!! note "Por ahora"
-    Quien ya eligió su tamaño de letra o su modo de color en su menú sigue con lo suyo aunque cambies esto, y todavía
-    no tiene un botón para volver a lo del sitio.
+    Quien ya eligió algo de esto en sus preferencias sigue con lo suyo aunque cambies esto, y todavía no tiene un botón
+    para volver a lo del sitio.
 
 ## Identidad y SEO
 <!-- ve: configurations-appearance-seo -->

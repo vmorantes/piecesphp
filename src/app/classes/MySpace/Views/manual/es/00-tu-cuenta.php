@@ -26,15 +26,21 @@ nombra el manual no te aparece, tu tipo de usuario no la tiene.</p>
 <p>En la pantalla de acceso, el enlace de ayuda te deja recuperar la contraseña o el usuario, o avisar de otro
 problema.</p>
 </div>
-<h2 class="ui header" id="tamano-de-letra-y-modo-de-color">Tamaño de letra y modo de color</h2>
+<h2 class="ui header" id="tus-preferencias">Tus preferencias</h2>
+<p>En el menú de tu nombre, arriba a la derecha, <strong>«Preferencias»</strong> te lleva a la pestaña <strong>«Preferencias»</strong> de <strong>«Mi
+cuenta»</strong>. Tiene dos secciones:</p>
 <ul>
-<li><strong>El modo de color</strong>: abre el menú de tu nombre, arriba a la derecha, y elige en <strong>«Modo de color»</strong>: <strong>«Claro»</strong>,
-  <strong>«Oscuro»</strong> o <strong>«Sistema»</strong> (el de tu dispositivo).</li>
-<li><strong>El tamaño de letra</strong>: en ese mismo menú, <strong>«Preferencias»</strong> te lleva a la pestaña <strong>«Preferencias»</strong> de
-  <strong>«Mi cuenta»</strong>. En <strong>«Tamaño de letra»</strong>, elige <strong>«Normal»</strong>, <strong>«Grande»</strong> o <strong>«Más grande»</strong>.</li>
+<li><strong>Apariencia</strong>: el <strong>modo de color</strong>, <strong>«Claro»</strong>, <strong>«Oscuro»</strong> o <strong>«Sistema»</strong> (el de tu dispositivo). También lo
+  tienes en el menú de tu nombre, en <strong>«Modo de color»</strong>, para cambiarlo rápido.</li>
+<li><strong>Accesibilidad</strong>:</li>
+<li><strong>Tamaño de letra</strong>: <strong>«Normal»</strong>, <strong>«Grande»</strong> o <strong>«Más grande»</strong>.</li>
+<li><strong>Contraste</strong>: <strong>«Automático»</strong> (sigue a tu dispositivo) o <strong>«Más contraste»</strong>, con textos y colores más marcados.</li>
+<li><strong>Movimiento</strong>: <strong>«Automático»</strong> (sigue a tu dispositivo) o <strong>«Reducir movimiento»</strong>, con menos animaciones.</li>
+<li><strong>Foco</strong>: <strong>«Normal»</strong> o <strong>«Reforzado»</strong>, con un contorno más visible en lo que tienes seleccionado al moverte con
+    el teclado.</li>
 </ul>
-<p>Los dos se aplican al momento y se guardan en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra
-el sitio.</p>
+<p>Todo se aplica al momento y se guarda en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra el
+sitio.</p>
 <h2 class="ui header" id="la-ayuda">La ayuda</h2>
 <p>El icono de interrogación de la barra superior abre el <strong>centro de ayuda</strong>: este manual y, si tu organización lo
 tiene configurado, el formulario para <strong>contactar a soporte</strong>.</p>

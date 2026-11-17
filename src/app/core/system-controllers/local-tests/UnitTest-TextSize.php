@@ -112,7 +112,9 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
     $exito = fn (array $r): bool => $r['status'] === 200 && (json_decode($r['body'], true)['success'] ?? null) === true;
 
     $tablaOpciones = (new SettingsModel())->getModel()->getTable();
-    $opciones = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG];
+    $opciones = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG, SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG];
+    //Desde la fase 2 (JKO) la pantalla guarda también contraste, movimiento y foco: los cuerpos los llevan, con su valor por omisión.
+    $fase2 = [SettingsController::ACCESSIBILITY_CONTRAST_CONFIG => 'auto', SettingsController::ACCESSIBILITY_MOTION_CONFIG => 'auto', SettingsController::ACCESSIBILITY_FOCUS_CONFIG => 'normal'];
     $crudoDe = function (string $nombre) use ($database, $tablaOpciones): ?string {
         $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
         $consulta->execute([$nombre]);
@@ -158,12 +160,12 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
         //──── [g] Guardar la pantalla Accesibilidad ──────────────────────────────────────────
         echoTerminal('[g] Guardar la pantalla Accesibilidad');
         $guardar = $relativa(SettingsController::routeName('appearance-accessibility-save', [], true));
-        $r = $peticion($guardar, $jwtRoot, [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'larger', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'dark']);
+        $r = $peticion($guardar, $jwtRoot, [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'larger', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'dark'] + $fase2);
         $check($exito($r) && $crudoDe(SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG) === 'larger' && $crudoDe(SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG) === 'dark', 'g1 guarda los dos valores válidos', "HTTP {$r['status']}");
         foreach ([
-            't7a un tamaño fuera de la lista' => [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'zz-enorme', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'light'],
-            't7b un modo fuera de la lista' => [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'normal', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'zz-sepia'],
-            't7c sin el tamaño' => [SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'light'],
+            't7a un tamaño fuera de la lista' => [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'zz-enorme', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'light'] + $fase2,
+            't7b un modo fuera de la lista' => [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'normal', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'zz-sepia'] + $fase2,
+            't7c sin el tamaño' => [SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'light'] + $fase2,
         ] as $caso => $cuerpo) {
             $antes = $foto();
             $r = $peticion($guardar, $jwtRoot, $cuerpo);
@@ -171,7 +173,7 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
         }
         $idGeneral = $crear('general', UsersModel::TYPE_USER_GENERAL);
         $antes = $foto();
-        $r = $peticion($guardar, UserSessions::issueToken($idGeneral), [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'normal', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'light']);
+        $r = $peticion($guardar, UserSessions::issueToken($idGeneral), [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'normal', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'light'] + $fase2);
         $check($r['status'] === 403 && $foto() === $antes, 'g2 un usuario general: 403 y nada cambia', "HTTP {$r['status']}");
         $r = $peticion($relativa(SettingsController::routeName('appearance-accessibility', [], true)), $jwtRoot, null);
         $check($r['status'] === 200 && str_contains($r['body'], 'name="accessibility_text_size"') && str_contains($r['body'], '<option value="larger" selected>'), 'g3 la pantalla pinta lo guardado', "HTTP {$r['status']}");
@@ -215,7 +217,7 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
         $check($r['status'] === 200 && ($datos['success'] ?? null) === true && ($datos['size'] ?? null) === 'larger' && ($datos['pixels'] ?? null) === $baseLetra + 4 && UsersModel::metaValue($idRoot, AdminPanelController::TEXT_SIZE_META) === 'larger', 't2 guarda uno válido y responde sus píxeles', "HTTP {$r['status']}, {$r['body']}");
 
         //El sitio (g1 lo dejó en larger y dark) manda para quien no eligió: otro usuario sin metas.
-        $peticion($guardar, $jwtRoot, [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'large', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'dark']);
+        $peticion($guardar, $jwtRoot, [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'large', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'dark'] + $fase2);
         $jwtOtro = UserSessions::issueToken($crear('otro', UsersModel::TYPE_USER_ROOT));
         $r = $peticion($inicio, $jwtOtro, null);
         $etiqueta = $html($r['body']);

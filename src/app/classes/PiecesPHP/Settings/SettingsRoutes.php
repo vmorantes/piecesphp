@@ -122,7 +122,7 @@ class SettingsRoutes
         $declare(['theme_font_size', 'theme_radius'], $owner, ConfigOptions::SHAPE_INTEGER);
 
         //Accesibilidad: lo que ve quien no ha elegido lo suyo.
-        $declare([SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG], $owner, ConfigOptions::SHAPE_TEXT);
+        $declare([SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG, SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG], $owner, ConfigOptions::SHAPE_TEXT);
     }
 
     /**

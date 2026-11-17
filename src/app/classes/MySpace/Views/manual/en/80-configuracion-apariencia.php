@@ -122,8 +122,9 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-accessibility'])): ?>
 <h2 class="title" id="accessibility"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accessibility-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accessibility</span></h2>
 <div class="content" id="accessibility-contenido">
-<p>Go to <strong>“Accessibility”</strong>. Here you choose how the panel looks for anyone who has not chosen their own in the menu
-under their name or in “My account” › “Preferences” (see “Your account”, “Text size and color mode”).</p>
+<p>Go to <strong>“Accessibility”</strong>. Here you choose how the panel looks for whoever has not chosen their own in “My account” ›
+“Preferences” (see “Your account”, “Your preferences”). It has two sections, like each person's preferences:
+<strong>Appearance</strong> and <strong>Accessibility</strong>.</p>
 <p><img class="ui image" alt="Accessibility" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
 <p>At the end, <strong>“Cancel”</strong> or <strong>“Save”</strong>.</p>
 <table class="ui celled table">
@@ -136,21 +137,36 @@ under their name or in “My account” › “Preferences” (see “Your accou
 </thead>
 <tbody>
 <tr>
+<td>Default color mode</td>
+<td>No</td>
+<td>In <strong>Appearance</strong>: <strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (each person's device).</td>
+</tr>
+<tr>
 <td>Default text size</td>
 <td>No</td>
 <td><strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>. Large and Larger add 2 and 4 pixels to the “Base size” in Colors.</td>
 </tr>
 <tr>
-<td>Default color mode</td>
+<td>Default contrast</td>
 <td>No</td>
-<td><strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (whatever each person's device uses).</td>
+<td><strong>“Automatic”</strong> (it follows each person's device) or <strong>“More contrast”</strong>.</td>
+</tr>
+<tr>
+<td>Default motion</td>
+<td>No</td>
+<td><strong>“Automatic”</strong> or <strong>“Reduce motion”</strong>.</td>
+</tr>
+<tr>
+<td>Default focus</td>
+<td>No</td>
+<td><strong>“Normal”</strong> or <strong>“Strong”</strong>: the outline of what is selected with the keyboard, more visible.</td>
 </tr>
 </tbody>
 </table>
 <div class="ui info message">
 <div class="header">For now</div>
-<p>Anyone who has already chosen their text size or color mode in their menu keeps their choice even if you change
-this, and does not yet have a button to go back to the site's setting.</p>
+<p>Whoever already chose any of this in their preferences keeps their own even if you change this, and does not yet
+have a button to go back to the site's.</p>
 </div>
 </div>
 <?php endif; ?>

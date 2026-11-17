@@ -369,6 +369,13 @@ $lang = [
     'Grande' => 'Large',
     'Más grande' => 'Larger',
     'Preferencias' => 'Preferences',
+    'Contraste' => 'Contrast',
+    'Automático' => 'Automatic',
+    'Más contraste' => 'More contrast',
+    'Movimiento' => 'Motion',
+    'Reducir movimiento' => 'Reduce motion',
+    'Foco' => 'Focus',
+    'Reforzado' => 'Strong',
 ];
 
 return $lang;

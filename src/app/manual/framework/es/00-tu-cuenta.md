@@ -28,15 +28,22 @@ nombra el manual no te aparece, tu tipo de usuario no la tiene.
     En la pantalla de acceso, el enlace de ayuda te deja recuperar la contraseña o el usuario, o avisar de otro
     problema.
 
-## Tamaño de letra y modo de color
+## Tus preferencias
 
-- **El modo de color**: abre el menú de tu nombre, arriba a la derecha, y elige en **«Modo de color»**: **«Claro»**,
-  **«Oscuro»** o **«Sistema»** (el de tu dispositivo).
-- **El tamaño de letra**: en ese mismo menú, **«Preferencias»** te lleva a la pestaña **«Preferencias»** de
-  **«Mi cuenta»**. En **«Tamaño de letra»**, elige **«Normal»**, **«Grande»** o **«Más grande»**.
+En el menú de tu nombre, arriba a la derecha, **«Preferencias»** te lleva a la pestaña **«Preferencias»** de **«Mi
+cuenta»**. Tiene dos secciones:
 
-Los dos se aplican al momento y se guardan en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra
-el sitio.
+- **Apariencia**: el **modo de color**, **«Claro»**, **«Oscuro»** o **«Sistema»** (el de tu dispositivo). También lo
+  tienes en el menú de tu nombre, en **«Modo de color»**, para cambiarlo rápido.
+- **Accesibilidad**:
+  - **Tamaño de letra**: **«Normal»**, **«Grande»** o **«Más grande»**.
+  - **Contraste**: **«Automático»** (sigue a tu dispositivo) o **«Más contraste»**, con textos y colores más marcados.
+  - **Movimiento**: **«Automático»** (sigue a tu dispositivo) o **«Reducir movimiento»**, con menos animaciones.
+  - **Foco**: **«Normal»** o **«Reforzado»**, con un contorno más visible en lo que tienes seleccionado al moverte con
+    el teclado.
+
+Todo se aplica al momento y se guarda en tu cuenta. Mientras no elijas, ves lo que haya elegido quien administra el
+sitio.
 
 ## La ayuda
 

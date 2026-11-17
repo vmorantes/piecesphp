@@ -1,3 +1,16 @@
+# 10.31.0 (16-11-2026)
+
+- **Más accesibilidad en el panel: contraste, movimiento y foco.** Cada persona elige en «Mi cuenta › Preferencias»:
+  - **Más contraste**: textos y colores más marcados, de 7:1;
+  - **Reducir movimiento**: menos animaciones;
+  - **Foco reforzado**: un contorno más visible al moverse con el teclado.
+  Contraste y movimiento vienen en «Automático», que sigue la preferencia del dispositivo. El valor del sitio, para quien
+  no ha elegido, se pone en Configuración › Accesibilidad. Manual: «Tu cuenta» y «Configuración de la apariencia».
+- **«Preferencias» y Configuración › Accesibilidad, en dos secciones**: Apariencia (el modo de color) y Accesibilidad
+  (el tamaño de letra, el contraste, el movimiento y el foco). El modo de color sigue también en el menú de tu nombre.
+- **Para quien desarrolla**: el `<html>` del panel lleva ahora `data-contrast`, `data-motion` y `data-focus`, además de
+  `data-theme` y `data-text-size`. Los traduce el tema; no hace falta CSS propio.
+
 # 10.30.0 (16-11-2026)
 
 - **Las funciones de inteligencia artificial que no se pueden usar ya no se enseñan.** Por ejemplo, la IA o la función
