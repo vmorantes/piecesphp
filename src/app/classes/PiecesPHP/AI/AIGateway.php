@@ -72,6 +72,15 @@ final class AIGateway
     const PROVIDER_USAGE_ROW = '@provider';
 
     /**
+     * La marca de que la anotación del consumo falló (P344 b), relativa a basepath(). Va en un archivo y no en la base:
+     * la causa del fallo (disco lleno, solo lectura, permiso) impediría también guardar el aviso allí.
+     */
+    const USAGE_FAILED_MARK = 'app/cache/ai-usage-write-failed.json';
+
+    /** Cuántos días se enseña el aviso desde el último fallo. */
+    const USAGE_FAILED_DAYS = 7;
+
+    /**
      * Los estados de availability(): se ofrece, no se enseña, o se enseña desactivada con su aviso.
      */
     const AVAILABILITY_AVAILABLE = 'available';
@@ -975,11 +984,68 @@ final class AIGateway
             }
         } catch (\Throwable $e) {
             log_exception($e);
+            self::markUsageWriteFailed();
         }
 
         $accumulated = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
         $accumulated[$provider] = (int) ($accumulated[$provider] ?? 0) + $tokens;
         GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $accumulated);
+    }
+
+    /**
+     * La marca de la anotación fallida si vale y su último fallo es de los últimos USAGE_FAILED_DAYS días; si no, null.
+     * Una anotación que sale bien no la borra: el aviso dura hasta que pasan esos días o root lo oculta.
+     *
+     * @return array{first:string,last:string,count:int}|null
+     */
+    public static function usageWriteFailure(): ?array
+    {
+        $mark = self::readUsageFailedMark();
+        if ($mark === null) {
+            return null;
+        }
+        $last = \DateTime::createFromFormat(self::ANCHOR_FORMAT, $mark['last']);
+        if ($last === false || $last->getTimestamp() < time() - self::USAGE_FAILED_DAYS * 86400) {
+            return null;
+        }
+        return $mark;
+    }
+
+    /**
+     * La marca, si existe y tiene la forma {first, last, count ≥ 1}; null si no.
+     *
+     * @return array{first:string,last:string,count:int}|null
+     */
+    private static function readUsageFailedMark(): ?array
+    {
+        $file = basepath(self::USAGE_FAILED_MARK);
+        if (!is_file($file)) {
+            return null;
+        }
+        $content = file_get_contents($file);
+        $mark = is_string($content) ? json_decode($content, true) : null;
+        if (!is_array($mark) || !is_string($mark['first'] ?? null) || !is_string($mark['last'] ?? null) || !is_int($mark['count'] ?? null) || $mark['count'] < 1) {
+            return null;
+        }
+        return ['first' => $mark['first'], 'last' => $mark['last'], 'count' => $mark['count']];
+    }
+
+    /**
+     * Suma un fallo a la marca (o la crea). Nunca lanza: si tampoco puede escribirla, queda el log_exception() de quien la
+     * llama.
+     *
+     * @return void
+     */
+    private static function markUsageWriteFailed(): void
+    {
+        try {
+            $previous = self::readUsageFailedMark();
+            $now = date(self::ANCHOR_FORMAT);
+            $mark = ['first' => $previous['first'] ?? $now, 'last' => $now, 'count' => ($previous['count'] ?? 0) + 1];
+            //RETORNO-IGNORADO: si no se puede escribir, no hay a quién avisar; el fallo ya está en el registro de errores.
+            file_put_contents(basepath(self::USAGE_FAILED_MARK), (string) json_encode($mark), \LOCK_EX);
+        } catch (\Throwable) {
+        }
     }
 
     /**

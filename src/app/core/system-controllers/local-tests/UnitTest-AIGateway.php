@@ -1,7 +1,7 @@
 <?php
 
 //Centro de mando de la IA (ADR 0074): registro, chatHandler() sin llamar a ningún proveedor, recordUsage() y los controles.
-//Escribe filas zz- en pcsphp_ai_usage y las borra; CONTENT_TOKENS_USED se repone como estaba.
+//Escribe filas zz- en pcsphp_ai_usage y las borra; CONTENT_TOKENS_USED y la marca de la anotación fallida se reponen como estaban.
 //@areas nucleo
 
 use API\Adapters\MistralHandlerAdapter;
@@ -14,6 +14,8 @@ use PiecesPHP\AI\AIUnavailableException;
 use PiecesPHP\AI\Mappers\AIUsageMapper;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\SystemStatus\SystemAlertRegistry;
+use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 
@@ -58,6 +60,9 @@ CliActions::make('unit-tests:core/ai-gateway', function ($args) {
     $root = $usuario(UsersModel::TYPE_USER_ROOT);
     $general = $usuario(UsersModel::TYPE_USER_GENERAL);
     $centro = fn(array $valor) => set_config(AIGateway::CONFIG_NAME, $valor);
+    //La marca de la anotación fallida (P344 b): la de la instalación se guarda y se repone; si no existía, se borra.
+    $marcaArchivo = basepath(AIGateway::USAGE_FAILED_MARK);
+    $marcaPrevia = is_file($marcaArchivo) ? (string) file_get_contents($marcaArchivo) : null;
 
     try {
         //Sin ai_center: todo como hoy, también en lo que ya probaba la ronda 1.
@@ -247,11 +252,64 @@ CliActions::make('unit-tests:core/ai-gateway', function ($args) {
             $check($usoA === [10, 4, 6], 'h1 usage() suma los proveedores, o da uno solo', (string) json_encode($usoA));
             $check($inicioA !== $inicioB && $usoB === 2 && $filas === 3, 'h2 otro periodo, otras filas: su consumo empieza de cero', "{$inicioA} / {$inicioB} · uso {$usoB} · filas {$filas}");
             $borrarZz();
+            echoTerminal(' ');
+
+            //─── u · La anotación que falla: una marca en archivo y un aviso para root (P344 b) ──────────────
+            echoTerminal('[u] recordUsage() sin poder escribir: la marca y el aviso');
+            if (is_file($marcaArchivo)) {
+                //RETORNO-IGNORADO: empezar sin marca; u1 comprueba lo que queda.
+                unlink($marcaArchivo);
+            }
+            $leerMarca = fn(): ?array => is_file($marcaArchivo) ? json_decode((string) file_get_contents($marcaArchivo), true) : null;
+            AIGateway::swapUsageTableForTesting('zz_ai_usage_no_existe');
+            $antes = time();
+            $lanzo = null;
+            try {
+                AIGateway::recordUsage('zz-chat', 'zz-proveedor', 1);
+            } catch (\Throwable $e) {
+                $lanzo = get_class($e);
+            }
+            $marca1 = $leerMarca();
+            $ultima = is_array($marca1) && is_string($marca1['last'] ?? null) ? strtotime($marca1['last']) : false;
+            $check($lanzo === null && is_array($marca1) && ($marca1['count'] ?? null) === 1 && $ultima !== false && abs($ultima - $antes) <= 5, 'u1 DISCRIMINANTE: con la tabla rota no lanza y deja la marca con count 1 y la hora de ahora', (string) json_encode([$lanzo, $marca1]));
+            AIGateway::recordUsage('zz-chat', 'zz-proveedor', 1);
+            $marca2 = $leerMarca();
+            $check(($marca2['count'] ?? null) === 2 && ($marca2['first'] ?? null) === ($marca1['first'] ?? 'zz'), 'u2 una segunda falla: count 2 y el primer fallo, el mismo', (string) json_encode($marca2));
+            $check(AIGateway::usageWriteFailure() === $marca2, 'u3a usageWriteFailure() devuelve la marca', (string) json_encode(AIGateway::usageWriteFailure()));
+            $vieja = ['first' => date('Y-m-d H:i:s', time() - 9 * 86400), 'last' => date('Y-m-d H:i:s', time() - 8 * 86400), 'count' => 3];
+            //RETORNO-IGNORADO: la marca de la prueba; lo que cuenta es lo que lee la comprobación que sigue.
+            file_put_contents($marcaArchivo, (string) json_encode($vieja));
+            $check(AIGateway::usageWriteFailure() === null, 'u3b con el último fallo de hace 8 días, null');
+            //RETORNO-IGNORADO: la marca de la prueba; lo que cuenta es lo que lee la comprobación que sigue.
+            file_put_contents($marcaArchivo, (string) json_encode($marca2));
+            //Una vez por proceso: si ya se registraron (al arrancar), no hace nada.
+            SystemStatusRoutes::registerCoreAlerts();
+            $aviso = SystemAlertRegistry::get('ai-usage-write-failed');
+            $activoConMarca = $aviso !== null && $aviso->evaluateActive();
+            $versionConMarca = $aviso !== null ? $aviso->nagVersion() : '';
+            //RETORNO-IGNORADO: la marca de la prueba; lo que cuenta es lo que lee la comprobación que sigue.
+            unlink($marcaArchivo);
+            $activoSinMarca = $aviso !== null && $aviso->evaluateActive();
+            $check($aviso !== null && $aviso->audience() === [UsersModel::TYPE_USER_ROOT] && $aviso->isDismissible() && $aviso->showAsNag() && $activoConMarca && !$activoSinMarca && $versionConMarca === preg_replace('/[^A-Za-z0-9-]/', '', (string) ($marca2['last'] ?? 'zz')), 'u4 DISCRIMINANTE: el aviso «ai-usage-write-failed» es de root, se puede ocultar, sale flotante y está activo con la marca (su versión, el último fallo) e inactivo sin ella', (string) json_encode([$aviso !== null, $activoConMarca, $activoSinMarca, $versionConMarca]));
+            //RETORNO-IGNORADO: la marca de la prueba; lo que cuenta es lo que lee la comprobación que sigue.
+            file_put_contents($marcaArchivo, (string) json_encode($marca2));
+            AIGateway::swapUsageTableForTesting(null);
+            AIGateway::recordUsage('zz-chat', 'zz-proveedor', 1);
+            $check(AIGateway::usageWriteFailure() === $marca2, 'u5 una anotación que sale bien no borra la marca', (string) json_encode(AIGateway::usageWriteFailure()));
+            $borrarZz();
         }
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . $e->getLine());
     } finally {
+        AIGateway::swapUsageTableForTesting(null);
+        if ($marcaPrevia !== null) {
+            //RETORNO-IGNORADO: reponer la marca de la instalación; si falla, la suite ya terminó.
+            file_put_contents($marcaArchivo, $marcaPrevia);
+        } elseif (is_file($marcaArchivo)) {
+            //RETORNO-IGNORADO: quitar la marca de la prueba; si falla, la suite ya terminó.
+            unlink($marcaArchivo);
+        }
         AICapabilityRegistry::swapForTesting($registroPrevio);
         foreach ($opcionesPrevias as $nombre => $valor) {
             set_config($nombre, $valor);
@@ -274,4 +332,4 @@ CliActions::make('unit-tests:core/ai-gateway', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El centro de mando de la IA (ADR 0074): el registro, chatHandler() sin llamar a ningún proveedor, recordUsage() y, desde la ronda 2, los controles de la puerta (general, por capacidad, quién la usa, cuota y su orden), los campos no válidos, lo heredado de la traducción, los cuatro periodos y usage().')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('El centro de mando de la IA (ADR 0074): el registro, chatHandler() sin llamar a ningún proveedor, recordUsage() y, desde la ronda 2, los controles de la puerta (general, por capacidad, quién la usa, cuota y su orden), los campos no válidos, lo heredado de la traducción, los cuatro periodos y usage(); y la anotación que falla: la marca en archivo y el aviso a root (P344 b).')->setEffects([CliActions::EFFECT_DATABASE])->register();

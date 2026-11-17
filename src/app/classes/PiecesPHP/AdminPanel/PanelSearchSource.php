@@ -37,7 +37,7 @@ final class PanelSearchSource
      * Las entradas, en el orden del buscador: módulos, Configuración, la cuenta y el manual que ve (capítulos y secciones).
      *
      * @param UserDataPackage $user El usuario de la sesión
-     * @return list<array{category:string,title:string,url:string}>
+     * @return list<array{category:string,title:string,url:string,keywords?:string}>
      * @throws \LogicException si no es el usuario de la sesión, o no hay sesión
      */
     public static function entries(UserDataPackage $user): array
@@ -45,9 +45,9 @@ final class PanelSearchSource
         self::assertSessionUser($user);
         $lang = AdminPanelController::ADMIN_LANG_GROUP;
         $entries = [];
-        $add = function (string $category, string $title, string $url) use (&$entries): void {
+        $add = function (string $category, string $title, string $url, ?string $keywords = null) use (&$entries): void {
             if ($url !== '' && $url !== '#') {
-                $entries[] = ['category' => $category, 'title' => $title, 'url' => $url];
+                $entries[] = ['category' => $category, 'title' => $title, 'url' => $url] + ($keywords !== null ? ['keywords' => $keywords] : []);
             }
         };
         $categoryModules = __($lang, 'Módulos');
@@ -69,7 +69,7 @@ final class PanelSearchSource
             if ($group['visible']) {
                 foreach ($group['items'] as $item) {
                     if ($item['visible']) {
-                        ($add)($categoryConfiguration, "{$group['name']} › {$item['name']}", (string) $item['href']);
+                        ($add)($categoryConfiguration, "{$group['name']} › {$item['name']}", (string) $item['href'], isset($item['keywords']) ? (string) $item['keywords'] : null);
                     }
                 }
             }
@@ -100,13 +100,13 @@ final class PanelSearchSource
     }
 
     /**
-     * Las entradas que casan con MÁS palabras distintas de la consulta (en título o categoría, sin mayúsculas ni tildes),
-     * si casan con alguna. Sin palabras útiles (todas cortas o de relleno), la consulta entera como subcadena.
+     * Las entradas que casan con MÁS palabras distintas de la consulta (en título, categoría o palabras clave, sin mayúsculas
+     * ni tildes), si casan con alguna. Sin palabras útiles (todas cortas o de relleno), la consulta entera como subcadena.
      *
      * @param UserDataPackage $user
      * @param string $query
      * @param int $limit
-     * @return list<array{category:string,title:string,url:string}>
+     * @return list<array{category:string,title:string,url:string,keywords?:string}>
      * @throws \LogicException si no es el usuario de la sesión, o no hay sesión
      */
     public static function find(UserDataPackage $user, string $query, int $limit): array
@@ -124,7 +124,7 @@ final class PanelSearchSource
             return array_slice(array_values($found), 0, max(0, $limit));
         }
         $scores = array_map(function (array $entry) use ($words): int {
-            $haystack = StringManipulate::friendlyURLString($entry['title']) . '-' . StringManipulate::friendlyURLString($entry['category']);
+            $haystack = StringManipulate::friendlyURLString($entry['title']) . '-' . StringManipulate::friendlyURLString($entry['category']) . '-' . StringManipulate::friendlyURLString($entry['keywords'] ?? '');
             return count(array_filter($words, fn(string $word): bool => str_contains($haystack, $word)));
         }, $entries);
         $best = $scores === [] ? 0 : max($scores);

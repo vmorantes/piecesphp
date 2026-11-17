@@ -37,11 +37,13 @@ lleva a donde se arregla y, para root, la columna «Acciones». Algunos avisos s
 
 ## Los avisos que trae el framework
 
-`SystemStatusRoutes::registerCoreAlerts()` registra **13 avisos**. Ninguno es ocultable salvo el primero.
+`SystemStatusRoutes::registerCoreAlerts()` registra **21 avisos** (uno de ellos, `new-errors`, por `NewErrorsAlert::register()`). Seis se pueden ocultar; los marca **Ocultable**.
 
 | Clave | Gravedad | Quién lo ve | Flotante | Cuándo salta | Dónde se arregla |
 | :-- | :-- | :-- | :-- | :-- | :-- |
 | `app-key-placeholder` | grave | root y administrador general | sí | La `app_key` es la de relleno. **Ocultable.** | `configurations-system-security` («Seguridad») |
+| `app-keyring-unreadable` | grave | root | sí | El llavero `secure-keys/app-key.json` existe y este proceso no lo puede leer: se usa otra clave. | Sus permisos: lo leen el servidor web y la terminal |
+| `app-key-in-config` | grave | root | sí | La `app_key` está en `config.php`, que se versiona. | `bin/cli store-app-key` y quitarla de `config.php` |
 | `legacy-extensions-folder` | atención | root y administrador general | sí | Existe la carpeta vieja `app/config/final-configurations-includes`; se sigue cargando. | Moverla a `app/config/extensions` |
 | `backup-overdue` | atención | root | sí | La política de respaldos está encendida y el último respaldo es más viejo que dos veces el intervalo configurado, o no hay ninguno. | `configurations-system-backups` («Respaldos»); revisar que corran las tareas programadas |
 | `server-delegated-broken-links` | atención | root | no | Hay enlaces rotos en `statics/server-delegated`. | `system-status-maintenance` («Estado y cachés») |
@@ -50,10 +52,16 @@ lleva a donde se arregla y, para root, la columna «Acciones». Algunos avisos s
 | `mail-retenido-en-produccion` | grave | root | no | Entorno de producción con el correo retenido: nadie recibe nada. | «Correo»: poner la entrega en «Real» |
 | `mail-real-en-local` | grave | root | no | Máquina local con el correo saliendo de verdad por el SMTP. | «Correo»: poner la entrega en «Retenido» |
 | `mail-con-fallos` | grave | root | sí | Hay correos que no llegaron a ningún sitio en las últimas 24 horas (umbral: 1 fallo). Se apaga solo al pasar la ventana. | `system-status-mail-log` («Registro de correos»); `bin/cli mail-doctor` |
+| `new-errors` | atención | root | sí | Hay errores nuevos desde la última visita de root a Registros › Errores. **Ocultable**; un error nuevo lo vuelve a enseñar. | `logs-admin-index`, pestaña de errores |
+| `ai-usage-write-failed` | atención | root | sí | La IA no pudo anotar lo que gastó (la base no dejó escribir): esas peticiones no cuentan para las cuotas. Dura 7 días desde el último fallo; la función no se detiene. **Ocultable**; un fallo nuevo lo vuelve a enseñar. | `logs-admin-index`, pestaña de errores; la causa suele ser la base sin espacio, en solo lectura o sin permiso de escritura |
 | `mail-log-sin-tabla` | grave | root | sí | Falta la tabla del registro de correos: no se anota ningún envío. | Aplicar el archivo de actualización que nombra el propio aviso |
 | `mail-log-sin-cuerpo` | atención | root | sí | La tabla del registro existe pero le falta la columna del cuerpo. | Aplicar el archivo de actualización que nombra el propio aviso |
+| `task-runs-missing` | atención | root | sí | Falta la tabla del libro de tareas programadas: corren, pero no se anota cuándo ni si fallaron. | Aplicar el archivo de actualización que nombra el propio aviso |
 | `invalid-route-pattern` | grave | root | sí | Se descartaron rutas por tener un patrón que no se puede analizar. | Corregir el patrón (están en el log) |
 | `environment-not-configured` | info | root | no | No existe `src/app/config/environment.php`: la instalación funciona como producción. | Crearlo desde `environment.example.php` |
+| `mapbox-key-missing` | atención | root y administrador general | sí | No hay llave de MapBox para este entorno: los mapas del panel no cargan. **Ocultable.** | «Llaves de Mapas» |
+| `support-recipients-placeholder` | atención | root | sí | El formulario de soporte envía a una dirección de ejemplo. **Ocultable.** | `$config['support_form_recipients']` en `config.php` |
+| `allowed-hosts-empty` | atención | root | sí | La lista de dominios permitidos está vacía (fuera de local). **Ocultable.** | `$config['allowed_hosts']` en `config.php` |
 
 «Gravedad» sigue el campo `severity` del código (`DANGER` = grave, `WARNING` = atención, `INFO` = información). Los
 avisos de correo no se pueden ocultar: un fallo de correo que se puede silenciar vuelve a ser un fallo que nadie ve.

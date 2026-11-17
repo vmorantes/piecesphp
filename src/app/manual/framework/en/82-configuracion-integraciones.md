@@ -78,6 +78,10 @@ Below, the **“Usage this period”** line shows what has been spent (and the q
 counter”** button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
 the reports.
 
+If the platform cannot record what the AI spent (the database does not allow writing at that moment), the feature keeps
+working, but those requests do not count towards the quota. root sees it in **“System alerts”**, with how many times it
+happened and the time of the last one, for 7 days.
+
 **“Speech to text”** turns a recording into text, for the features that need it. **It comes switched off**, and like the others it needs its provider and its model (Groq or OpenAI can turn speech into text).
 
 **“Panel assistant”** is the feature for the panel's chat assistant: it answers questions about the platform (where

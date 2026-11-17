@@ -28,4 +28,5 @@ return [
     'Se alcanzó el límite de uso del proveedor «%alias%» en este periodo.' => 'The usage limit of the provider “%alias%” has been reached for this period.',
     'Se renueva el %fecha%.' => 'It renews on %fecha%.',
     'Quien administra puede reiniciar el contador en Configuración › IA.' => 'An administrator can reset the counter in Settings › AI.',
+    'La IA no pudo anotar lo que gastó %count% vez/veces (la última, %last%): esas peticiones no cuentan para las cuotas. Suele ser la base de datos sin espacio, en solo lectura o sin permiso de escritura. Mira el registro de errores.' => 'The AI could not record its usage %count% time(s) (the last one, %last%): those requests do not count towards the quotas. It is usually the database out of space, read-only or without write permission. Check the error log.',
 ];

@@ -259,7 +259,7 @@ compatible «no production-ready», y `guardia.py`/`menciones_ia.py` bloquean la
 registro vive en un `WeakMap` de `AIProviderRecord`, nunca en una propiedad (`var_export` ignora `__debugInfo`); `ai_provider_keys` es
 `SHAPE_SEALED` con su propósito en `EncryptedDataRegistry` (para que la rotación de la clave de la aplicación la vuelva a sellar; la cota de
 `core/app-key-crypto` f2 cuenta los propósitos); `AIProviderRecord` llama `$nickname` a su propiedad: `->alias = …` lo toma el detector de
-alias de ruta de `verify-integrity`; OpenAI marca `max_tokens` en desuso (serie o): ronda 2.
+alias de ruta de `verify-integrity`; OpenAI marca `max_tokens` en desuso (serie o): ronda 2. **El aviso de un fallo de escritura en la base no se guarda en la base** (P344 b, JLH `ad9664ee`): `recordUsage()` deja la marca en `app/cache/ai-usage-write-failed.json` y la enseña el `SystemAlert` `ai-usage-write-failed`; el texto de un aviso de otro grupo de idioma necesita su `injectLang()` (el grupo `ai` solo se inyecta al usar la IA).
 **Desde la revisión (JKK, `c43f2405`)**:
 - **No hay proveedores fijos.** Mientras `ai_center.legacyConverted` no es `true`, `AIProviderRegistry::all()` inventa en
   memoria los convertidos `openai`/`mistral`/`groq` desde las opciones viejas. Una suite que guarde Configuración › IA pone

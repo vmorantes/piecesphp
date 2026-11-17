@@ -162,6 +162,9 @@ con IA»), con estos campos:</p>
 <p>Debajo, la línea <strong>«Consumo de este periodo»</strong> dice lo gastado (y la cuota, si la hay) y desde cuándo. El botón
 <strong>«Reiniciar el contador»</strong> pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
 conserva para los informes.</p>
+<p>Si la plataforma no consigue apuntar lo que gastó la IA (la base de datos no deja escribir en ese momento), la función
+sigue funcionando, pero esas peticiones no cuentan para la cuota. root lo ve en <strong>«Avisos del sistema»</strong>, con cuántas
+veces pasó y la hora de la última, durante 7 días.</p>
 <p><strong>«Voz a texto»</strong> pasa una grabación a texto, para las funciones que la necesiten. <strong>Viene apagada</strong>, y como las demás necesita su proveedor y su modelo (Groq u OpenAI saben pasar voz a texto).</p>
 <p><strong>«Asistente del panel»</strong> es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se
 hace algo, lo que tienes pendiente) usando solo lo que quien pregunta puede ver. <strong>Viene apagada</strong>, con una cuota de 200.000 tokens

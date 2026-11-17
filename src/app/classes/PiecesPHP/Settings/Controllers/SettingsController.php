@@ -2689,7 +2689,10 @@ class SettingsController extends AdminPanelController
      * módulos y aquí solo se agrupan: el menú no obliga a la URL a espejarlo. Las de registros son pestañas del visor de
      * registros (`?tab=`), con su título, su icono y su permiso de LogTabRegistry.
      *
-     * @return array<int,array{name:string,icon:string,visible:bool,items:array<int,array{name:string,icon:string,href:string,visible:bool}>}>
+     * `keywords`, opcional, son palabras con las que también se encuentra la pantalla en el buscador del asistente
+     * (PanelSearchSource::find()), como «logo» para Imágenes de marca.
+     *
+     * @return array<int,array{name:string,icon:string,visible:bool,items:array<int,array{name:string,icon:string,href:string,visible:bool,keywords?:string}>}>
      */
     public static function panelGroups(): array
     {
@@ -2697,12 +2700,12 @@ class SettingsController extends AdminPanelController
         $statusLangGroup = SystemStatusController::LANG_GROUP;
         $user = getLoggedFrameworkUser();
         $userType = $user !== null ? (int) $user->type : null;
-        $own = fn(string $suffix, string $name, string $icon): array => [
+        $own = fn(string $suffix, string $name, string $icon, ?string $keywords = null): array => [
             'name' => $name,
             'icon' => $icon,
             'href' => (string) self::routeName($suffix, [], true),
             'visible' => self::allowedRoute($suffix),
-        ];
+        ] + ($keywords !== null ? ['keywords' => $keywords] : []);
         $status = fn(string $suffix, string $name, string $icon): array => [
             'name' => $name,
             'icon' => $icon,
@@ -2764,7 +2767,7 @@ class SettingsController extends AdminPanelController
                 ],
             ]],
             __($langGroup, 'Apariencia') => ['palette', [
-                $own('appearance-brand-images', __($langGroup, 'Imágenes de marca'), 'image'),
+                $own('appearance-brand-images', __($langGroup, 'Imágenes de marca'), 'image', __($langGroup, 'logo, logos, favicon, icono, marca')),
                 $own('appearance-backgrounds', __($langGroup, 'Fondos del inicio de sesión'), 'images'),
                 $own('appearance-colors', __($langGroup, 'Colores'), 'fill drip'),
                 $own('appearance-accessibility', __($langGroup, 'Accesibilidad'), 'universal access'),

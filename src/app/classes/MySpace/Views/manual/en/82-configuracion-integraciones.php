@@ -162,6 +162,9 @@ AI”), with these fields:</p>
 <p>Below, the <strong>“Usage this period”</strong> line shows what has been spent (and the quota, if any) and since when. The <strong>“Reset the
 counter”</strong> button asks for confirmation and makes the quota count from zero again; what was spent until then is kept for
 the reports.</p>
+<p>If the platform cannot record what the AI spent (the database does not allow writing at that moment), the feature keeps
+working, but those requests do not count towards the quota. root sees it in <strong>“System alerts”</strong>, with how many times it
+happened and the time of the last one, for 7 days.</p>
 <p><strong>“Speech to text”</strong> turns a recording into text, for the features that need it. <strong>It comes switched off</strong>, and like the others it needs its provider and its model (Groq or OpenAI can turn speech into text).</p>
 <p><strong>“Panel assistant”</strong> is the feature for the panel's chat assistant: it answers questions about the platform (where
 something is done, what you have pending) using only what the person asking can see. <strong>It comes switched off</strong>, with a quota of

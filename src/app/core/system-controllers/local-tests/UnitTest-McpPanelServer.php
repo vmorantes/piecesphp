@@ -224,6 +224,11 @@ CliActions::make('unit-tests:core/mcp-panel-server', function ($args) {
         $m6 = PanelSearchSource::find($root, 'de la', 50);
         $check($m6 === $deHoy && $m6 !== [], 'm6 «de la» (solo palabras cortas): la consulta entera como subcadena, como antes', count($m6) . ' resultado(s)');
         $check($deRootManual !== [], 'm7 entries() de root (lo que lee Ctrl K) trae la categoría Manual', count($deRootManual) . ' entrada(s) del manual');
+        $urlMarca = (string) \PiecesPHP\Settings\Controllers\SettingsController::routeName('appearance-brand-images', [], true);
+        $m8 = PanelSearchSource::find($root, 'logo', 50);
+        $check($urlMarca !== '' && array_filter($m8, fn(array $e): bool => $e['url'] === $urlMarca) !== [], 'm8 DISCRIMINANTE: «logo» da Imágenes de marca, por sus palabras clave (H339)', implode(' | ', array_column($m8, 'title')));
+        $m9 = $buscar($root, 'logo');
+        $check($m9 !== [] && array_filter($m9, fn(array $r): bool => array_key_exists('keywords', $r)) === [], 'm9 panel_find no devuelve las palabras clave', (string) json_encode(array_keys($m9[0] ?? [])));
         $como($idGeneral, UsersModel::TYPE_USER_GENERAL);
         $rutasCapitulo = is_array($capitulo) && is_array($capitulo['rutas']) ? $capitulo['rutas'] : [];
         $generalSinPublicaciones = $rutasCapitulo !== [] && array_filter($rutasCapitulo, fn(string $ruta): bool => Roles::hasPermissions($ruta, UsersModel::TYPE_USER_GENERAL)) === [];
@@ -455,4 +460,4 @@ CliActions::make('unit-tests:core/mcp-panel-server', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El servidor MCP del panel (ADR 0075): el registro de herramientas (key, esquema, remove/replace), tools/list y tools/call con los permisos de quien pregunta (sin permiso = no existe), los argumentos contra el esquema, el protocolo, una herramienta que lanza, panel_find contra Ctrl K, el manual en el buscador por permisos y panel_find por palabras, y notifications_mine contra Notifications::page(); y la ruta por HTTP (sin sesión, 415, Origin ajeno 403, JSON roto, lote, notificación y tools/list). Crea y borra un usuario, sus sesiones y sus intentos de acceso.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('El servidor MCP del panel (ADR 0075): el registro de herramientas (key, esquema, remove/replace), tools/list y tools/call con los permisos de quien pregunta (sin permiso = no existe), los argumentos contra el esquema, el protocolo, una herramienta que lanza, panel_find contra Ctrl K, el manual en el buscador por permisos y panel_find por palabras y por palabras clave, y notifications_mine contra Notifications::page(); y la ruta por HTTP (sin sesión, 415, Origin ajeno 403, JSON roto, lote, notificación y tools/list). Crea y borra un usuario, sus sesiones y sus intentos de acceso.')->setEffects([CliActions::EFFECT_DATABASE])->register();

@@ -78,6 +78,10 @@ Debajo, la línea **«Consumo de este periodo»** dice lo gastado (y la cuota, s
 **«Reiniciar el contador»** pide confirmación y hace que la cuota vuelva a contar desde cero; lo gastado hasta entonces se
 conserva para los informes.
 
+Si la plataforma no consigue apuntar lo que gastó la IA (la base de datos no deja escribir en ese momento), la función
+sigue funcionando, pero esas peticiones no cuentan para la cuota. root lo ve en **«Avisos del sistema»**, con cuántas
+veces pasó y la hora de la última, durante 7 días.
+
 **«Voz a texto»** pasa una grabación a texto, para las funciones que la necesiten. **Viene apagada**, y como las demás necesita su proveedor y su modelo (Groq u OpenAI saben pasar voz a texto).
 
 **«Asistente del panel»** es la función del asistente de chat del panel: responde preguntas sobre la plataforma (dónde se

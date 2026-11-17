@@ -332,6 +332,28 @@ class SystemStatusRoutes
         //Errores nuevos desde la última visita de root a Registros › Errores (ADR 0060 §4).
         \PiecesPHP\Logs\NewErrorsAlert::register();
 
+        //La IA que no consigue anotar lo que gasta (P344 b): la marca va en un archivo, no en la base, y la función sigue.
+        SystemAlertRegistry::register(new SystemAlert(
+            'ai-usage-write-failed',
+            SystemAlert::SEVERITY_WARNING,
+            function (): string {
+                \PiecesPHP\AI\AILang::injectLang();
+                $failure = \PiecesPHP\AI\AIGateway::usageWriteFailure();
+                return strReplaceTemplate(__(\PiecesPHP\AI\AILang::LANG_GROUP, 'La IA no pudo anotar lo que gastó %count% vez/veces (la última, %last%): esas peticiones no cuentan para las cuotas. Suele ser la base de datos sin espacio, en solo lectura o sin permiso de escritura. Mira el registro de errores.'), [
+                    '%count%' => (string) ($failure['count'] ?? 0),
+                    '%last%' => (string) ($failure['last'] ?? ''),
+                ]);
+            },
+            fn(): bool => \PiecesPHP\AI\AIGateway::usageWriteFailure() !== null,
+            true,
+            [UsersModel::TYPE_USER_ROOT],
+            true,
+            'logs-admin-index',
+            null,
+            ['tab' => \PiecesPHP\Logs\Controllers\LogsController::ERRORS_TAB],
+            fn(): string => (string) (\PiecesPHP\AI\AIGateway::usageWriteFailure()['last'] ?? '')
+        ));
+
         //Sin la tabla, `record()` calla: «no hay fallos» y «no hay datos» se leerían igual. El aviso
         //nombra el archivo que falta aplicar porque es lo único que salva a un clon que no lo aplicó.
         SystemAlertRegistry::register(new SystemAlert(

@@ -11,6 +11,7 @@ return [
     'Tamaño de la imagen {dimensions}' => 'Image size {dimensions}',
     'Seleccionar imagen' => 'Select image',
     'Imágenes de marca' => 'Brand images',
+    'logo, logos, favicon, icono, marca' => 'logo, logos, favicon, icon, brand',
     'Imagen preferiblemente con fondo transparente. Tamaño de la imagen {dimensions}' => 'Image preferably with transparent background. Image size {dimensions}',
     'Íconos de favoritos (favicon)' => 'Favorite icons (favicon)',
     'Correos electrónicos' => 'E-mails',

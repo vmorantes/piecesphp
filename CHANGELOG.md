@@ -1,3 +1,13 @@
+# 10.41.0 (17-11-2026)
+
+- **Si la IA no consigue apuntar lo que gasta, root lo ve**: cuando la base de datos no deja escribir en ese momento, la
+  función sigue funcionando, pero esas peticiones no contaban para la cuota y nadie lo sabía. Ahora aparece en «Avisos
+  del sistema», con cuántas veces pasó y la hora de la última, durante 7 días.
+- **El asistente encuentra una pantalla por la palabra que usa la gente**: «¿Dónde cambio el logo?» lleva a «Imágenes de
+  marca». Y ya no describe rutas de menús que su búsqueda no le dio.
+- **La guía «Avisos del sistema» lista los 21 avisos del framework**: decía 13, y faltaban los de la clave de la
+  aplicación, el libro de tareas, MapBox, el soporte, los dominios permitidos y los errores nuevos.
+
 # 10.40.0 (17-11-2026)
 
 - **El asistente y el buscador de la barra (Ctrl K) encuentran el manual de uso**: además de las pantallas, ofrecen los

@@ -142,7 +142,12 @@ if ($handler === null) {
   datos** (como siempre hizo la traducción), porque la petición al proveedor puede tardar; el siguiente acceso a la
   base la vuelve a abrir.
 - `recordUsage()` suma los tokens y una petición en la fila del periodo vigente de esa capacidad y ese proveedor, y
-  también en el acumulado por proveedor que enseña Configuración › IA.
+  también en el acumulado por proveedor que enseña Configuración › IA. **Nunca lanza.** Si la base no deja escribir (sin
+  espacio, en solo lectura, sin permiso, un bloqueo), el fallo va al registro de errores, la petición no cuenta para la
+  cuota y la función sigue; además deja la marca `app/cache/ai-usage-write-failed.json` (`AIGateway::USAGE_FAILED_MARK`:
+  primer y último fallo, y cuántos), que root ve como el aviso del sistema `ai-usage-write-failed` durante 7 días desde
+  el último fallo (`AIGateway::usageWriteFailure()`). Va en un archivo y no en la base porque la misma causa impediría
+  guardarlo allí; una anotación que sale bien no la borra.
 
 ## Los proveedores y `chatProvider()`
 

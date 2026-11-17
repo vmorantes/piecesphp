@@ -148,8 +148,14 @@ gasta.
 
 | Herramienta | Permiso | Argumentos | Qué devuelve |
 | :-- | :-- | :-- | :-- |
-| `panel_find` | `admin` (el inicio del panel) | `query` (1-100 caracteres: palabras clave), `limit` (1-50, por omisión 20) | `{total, results: [{title, category, url}]}`: lo que ofrece el buscador de la barra (Ctrl K) a ese usuario, con los capítulos y secciones del manual que ve (categoría «Manual», `url` con `#sección`). Busca por palabras (fuera las de menos de 3 letras y unas comunes, `PanelSearchSource::STOP_WORDS`) y devuelve las entradas que casan con más palabras; sin palabras útiles, la consulta entera como subcadena |
+| `panel_find` | `admin` (el inicio del panel) | `query` (1-100 caracteres: palabras clave), `limit` (1-50, por omisión 20) | `{total, results: [{title, category, url}]}`: lo que ofrece el buscador de la barra (Ctrl K) a ese usuario, con los capítulos y secciones del manual que ve (categoría «Manual», `url` con `#sección`). Busca por palabras (fuera las de menos de 3 letras y unas comunes, `PanelSearchSource::STOP_WORDS`) en el título, la categoría y las palabras clave de la entrada, y devuelve las que casan con más palabras; sin palabras útiles, la consulta entera como subcadena |
 | `notifications_mine` | `notifications-list` | `filter` (`all`, `unread`, `read` o, con noticias internas, `news`; por omisión `unread`), `limit` (1-50, por omisión 10) | Lo de `Notifications::page()`: `items`, `counts` y `hasMore` |
+
+**Palabras clave de una pantalla.** La gente busca por la palabra que usa, no por el título («logo», y la pantalla se llama
+«Imágenes de marca»). Un item de Configuración (`SettingsController::panelGroups()`) puede llevar `'keywords'`, una cadena
+traducible con palabras separadas por comas; `panel_find` las puntúa y no las devuelve, y Ctrl K no las mira. Hoy solo la
+lleva «Imágenes de marca» (`logo, logos, favicon, icono, marca`). Las instrucciones del asistente le prohíben describir
+una ruta de menús que `panel_find` no le haya dado.
 
 Para quien desarrolla sobre el framework hay además otro servidor MCP, por la terminal: [Un MCP para
 desarrollar](mcp-para-desarrollar.md). Los dos comparten el protocolo (`PiecesPHP\Core\Mcp\McpProtocol`).
