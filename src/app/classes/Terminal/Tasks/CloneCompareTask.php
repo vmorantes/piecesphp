@@ -19,7 +19,8 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
  * CloneCompareTask - Compara un proyecto clonado con el framework, archivo por archivo por hash, y dice de qué versión
  * partió (H209). Solo lee: ni el proyecto ni el framework se escriben, y del proyecto solo salen rutas, categorías y cifras.
  *
- * Categorías: igual (mismo blob de git, con CRLF pasado a LF en los archivos de texto); igual-nivel-1 (además, sin espacios
+ * Categorías: igual (mismo blob de git, con CRLF pasado a LF en los archivos de texto de los DOS lados: las 7.x se
+ * guardaron con CRLF); igual-nivel-1 (además, sin espacios
  * ni tabuladores al final de cada línea ni saltos de línea al final del archivo); igual-nivel-2 (solo .php: además, sin
  * comentarios y con cada tramo de espacios reducido a uno, por token_get_all); modificado; solo-framework-no-viaja (casa con
  * bin/distribution-exclude.txt o con la capa C de .agents/capas.json, leídos del framework en HEAD); solo-framework;
@@ -182,10 +183,16 @@ class CloneCompareTask extends TerminalTaskAbstract
         $scores = [];
         $trees = [];
         $origins = array_fill_keys(array_keys($projectFiles), null);
+        //El blob crudo de cada etiqueta → su hash con CRLF pasado a LF, como el del proyecto; se calcula una vez por blob.
+        $normalized = [];
         foreach ($tags as $tag) {
             [$tree, $treeError] = self::tree($framework, $tag);
             if ($treeError !== null) {
                 return $fail($treeError);
+            }
+            $hashError = self::normalizeTreeHashes($framework, $tree, $projectFiles, $normalized);
+            if ($hashError !== null) {
+                return $fail($hashError);
             }
             $common = 0;
             $identical = 0;
@@ -194,7 +201,7 @@ class CloneCompareTask extends TerminalTaskAbstract
                     continue;
                 }
                 $common++;
-                if ($tree[$path] === $blob) {
+                if ($normalized[$tree[$path]] === $blob) {
                     $identical++;
                     $origins[$path] = $origins[$path] ?? $tag;
                 }
@@ -234,6 +241,10 @@ class CloneCompareTask extends TerminalTaskAbstract
             $trees[$contra] = $tree;
         }
         $frameworkFiles = $trees[$contra];
+        $hashError = self::normalizeTreeHashes($framework, $frameworkFiles, $projectFiles, $normalized);
+        if ($hashError !== null) {
+            return $fail($hashError);
+        }
         $notShipped = self::notShippedPatterns($framework);
 
         $files = array_fill_keys(self::CATEGORIES, []);
@@ -241,7 +252,7 @@ class CloneCompareTask extends TerminalTaskAbstract
         foreach ($projectFiles as $path => $blob) {
             if (!isset($frameworkFiles[$path])) {
                 $files['solo-proyecto'][] = $path;
-            } elseif ($frameworkFiles[$path] === $blob) {
+            } elseif ($normalized[$frameworkFiles[$path]] === $blob) {
                 $files['igual'][] = $path;
             } else {
                 $candidatesForLevels[$path] = $frameworkFiles[$path];
@@ -606,6 +617,54 @@ class CloneCompareTask extends TerminalTaskAbstract
         }
         $content = @file_get_contents($full);
         return is_string($content) ? $content : null;
+    }
+
+    /**
+     * Completa $normalized (blob crudo → blobHash() de su contenido) para los blobs de $tree cuyas rutas tiene el proyecto,
+     * leyéndolos de una vez con git cat-file --batch. Un blob sin «\r» o binario da su mismo id: solo se lee lo que falta.
+     *
+     * @param string $framework
+     * @param array<string,string> $tree
+     * @param array<string,string> $projectFiles
+     * @param array<string,string> $normalized
+     * @return string|null El error, o null
+     */
+    private static function normalizeTreeHashes(string $framework, array $tree, array $projectFiles, array &$normalized): ?string
+    {
+        $missing = [];
+        foreach (array_intersect_key($tree, $projectFiles) as $blob) {
+            if (!isset($normalized[$blob])) {
+                $missing[$blob] = true;
+            }
+        }
+        if ($missing === []) {
+            return null;
+        }
+        [$code, $out, $error] = self::git($framework, ['cat-file', '--batch'], implode("\n", array_keys($missing)) . "\n");
+        if ($code !== 0) {
+            return "git cat-file falló en el framework: {$error}";
+        }
+        $offset = 0;
+        $length = strlen($out);
+        while ($offset < $length) {
+            $end = strpos($out, "\n", $offset);
+            if ($end === false) {
+                break;
+            }
+            $header = explode(' ', substr($out, $offset, $end - $offset));
+            $offset = $end + 1;
+            if (($header[1] ?? '') !== 'blob' || !isset($header[2])) {
+                continue;
+            }
+            $size = (int) $header[2];
+            $normalized[$header[0]] = self::blobHash(substr($out, $offset, $size));
+            $offset += $size + 1;
+        }
+        foreach (array_keys($missing) as $blob) {
+            //Lo que cat-file no devolvió se compara crudo, como antes.
+            $normalized[$blob] = $normalized[$blob] ?? $blob;
+        }
+        return null;
     }
 
     /**

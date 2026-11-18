@@ -111,7 +111,7 @@ emite el generador; y **un `scheme-drop module=all` emitiría el `DROP` del núc
 **La siembra descubre sus tablas por el mismo camino** (`SeedPlanner::universe()` llama a `discover()`): un mapper hecho
 solo para sembrar entra también en `scheme-create` y `scheme-drop`. Para una tabla del núcleo o para modificar una que ya
 existe: `ALTER TABLE` en `databases/actualizaciones/` con la forma del precedente
-(`2026-09-22-organizaciones-code.sql`), **aplicado** contra la base local con `bin/cli db-update file=<nombre> apply=yes`
+(`2026-09-22-organizaciones-code.sql`), **aplicado** contra la base local con `bin/cli db-update file=<nombre> apply=yes` (desde JLL, `e4312093`, se registra en `pcsphp_db_updates` y para en el primer fallo; en esta instalación las 22 anteriores están marcadas con `mark=yes`)
 (volcado de la última hora antes; desde JJH, `e1ced3fd`; **no con `db-restore`**, que escribe `files/dev/last-restore.json`
 y le dice a `bin/walk-attribute` que la base es nueva; autorizado por el PO para la base local, P328), y `databases/piecesphp_structure.sql`
 actualizado en el mismo commit para que un clon nuevo nazca con la columna.

@@ -1,7 +1,7 @@
 <?php
 
-//clone-compare (H209) sobre un src/app/core sacado de v10.6.0: nacimiento, más parecida y origen por archivo; separa
-//finales de línea, espacios y comentarios de un cambio de código, ve lo nuevo y lo borrado, y no escribe en el proyecto.
+//clone-compare (H209) sobre un src/app/core sacado de v10.6.0 y unos archivos de la v7.0.5 con CRLF: partida, origen por archivo,
+//niveles de normalización, lo nuevo y lo borrado, y no escribe en el proyecto.
 //@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
@@ -27,6 +27,8 @@ CliActions::make('unit-tests:core/clone-compare', function ($args) {
     $tag = 'v10.6.0';
     $suffix = getmypid() . '-' . bin2hex(random_bytes(3));
     $fixture = basepath("app/cache/zz-clone-compare-{$suffix}");
+    $crlf = basepath("app/cache/zz-clone-compare-crlf-{$suffix}");
+    $crlfFiles = ['src/app/config/roles.php', 'src/app/core/autoload.php'];
     $report = basepath("app/cache/zz-clone-compare-{$suffix}.json");
     $framework = dirname(rtrim(basepath(), '/'));
     $core = "{$fixture}/src/app/core";
@@ -177,6 +179,34 @@ CliActions::make('unit-tests:core/clone-compare', function ($args) {
         $check(str_contains((string) $outcome['error'], 'contra=') && $outcome['result'] === null, 's4 contra= con una forma que no es un nombre de etiqueta es un error', (string) $outcome['error']);
         echoTerminal(' ');
 
+        echoTerminal('[6/6] Un clon anterior a la 8: archivos de la v7.0.5 tal cual, con CRLF (H346)');
+        //git show da el blob crudo, con sus CRLF: un clon de la 7.x los tiene así en disco.
+        $withCr = 0;
+        foreach ($crlfFiles as $path) {
+            $content = '';
+            if ($run(['git', '--no-optional-locks', '-C', $framework, 'show', "v7.0.5:{$path}"], $content) && (is_dir(dirname("{$crlf}/{$path}")) || mkdir(dirname("{$crlf}/{$path}"), 0775, true)) && file_put_contents("{$crlf}/{$path}", $content) !== false) {
+                $withCr += str_contains($content, "\r\n") ? 1 : 0;
+            }
+        }
+        //Las etiquetas que tienen esos dos archivos idénticos a la v7.0.5 (por blob crudo): ahí tiene que caer la partida.
+        $sameAs705 = [];
+        foreach ($tags as $candidate) {
+            $equal = true;
+            foreach ($crlfFiles as $path) {
+                $ours = $theirs = '';
+                $equal = $equal && $run(['git', '--no-optional-locks', '-C', $framework, 'rev-parse', "v7.0.5:{$path}"], $ours) && $run(['git', '--no-optional-locks', '-C', $framework, 'rev-parse', "{$candidate}:{$path}"], $theirs) && trim($ours) === trim($theirs);
+            }
+            if ($equal) {
+                $sameAs705[] = $candidate;
+            }
+        }
+        $outcome = CloneCompareTask::execute(['ruta' => $crlf]);
+        $start = $outcome['result']['partida'] ?? [];
+        $check($withCr === count($crlfFiles) && in_array('v7.0.5', $sameAs705, true) && in_array($start['masParecida']['etiqueta'] ?? null, $sameAs705, true) && in_array($start['nacimiento']['etiqueta'] ?? null, $sameAs705, true), 'c-crlf DISCRIMINANTE: con CRLF, el nacimiento y la más parecida son una etiqueta con esos archivos idénticos a la v7.0.5', json_encode([$withCr, $start['nacimiento']['etiqueta'] ?? null, $start['masParecida']['etiqueta'] ?? null, $sameAs705]) ?: '');
+        $outcome = CloneCompareTask::execute(['ruta' => $crlf, 'contra' => 'v7.0.5']);
+        $check(array_filter($crlfFiles, fn(string $path): bool => !$in($outcome['result'] ?? ['archivos' => []], 'igual', $path)) === [], 'c-crlf2 contra la v7.0.5, los dos cuentan «igual»', json_encode(array_map(fn(string $path): string => $where($outcome['result'] ?? ['archivos' => []], $path), $crlfFiles)) ?: '');
+        echoTerminal(' ');
+
     } catch (\Throwable $e) {
         $check(false, 'x9 la suite terminó sin excepciones', get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')');
     } finally {
@@ -184,10 +214,20 @@ CliActions::make('unit-tests:core/clone-compare', function ($args) {
             chmod($locked, 0775); //RETORNO-IGNORADO: si no se pudo, z1 lo ve porque la fixture no se borra
         }
         $left = $remove($fixture);
+        foreach ($crlfFiles as $path) {
+            if (is_file("{$crlf}/{$path}")) {
+                unlink("{$crlf}/{$path}"); //RETORNO-IGNORADO: z1 comprueba que no queda la carpeta
+            }
+        }
+        foreach (['/src/app/config', '/src/app/core', '/src/app', '/src', ''] as $dir) {
+            if (is_dir($crlf . $dir)) {
+                rmdir($crlf . $dir); //RETORNO-IGNORADO: z1 comprueba que no queda la carpeta
+            }
+        }
         if (is_file($report)) {
             unlink($report); //RETORNO-IGNORADO: z1 comprueba que no queda
         }
-        $check($left === 0 && !is_dir($fixture) && !is_file($report), 'z1 la fixture y el informe se borraron', "{$left} sin borrar");
+        $check($left === 0 && !is_dir($fixture) && !is_dir($crlf) && !is_file($report), 'z1 las dos fixtures y el informe se borraron', "{$left} sin borrar");
     }
 
     $total = $passed + $failed;
@@ -197,4 +237,4 @@ CliActions::make('unit-tests:core/clone-compare', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('clone-compare compara un proyecto con el framework por hash, da la etiqueta de nacimiento, la más parecida y el origen de cada archivo, y separa los niveles de normalización (H209).')->setEffects([CliActions::EFFECT_FILES])->register();
+})->setDescription('clone-compare compara un proyecto con el framework por hash, da la etiqueta de nacimiento, la más parecida y el origen de cada archivo, y separa los niveles de normalización (H209); y un clon de la 7.x con CRLF casa con su versión (H346).')->setEffects([CliActions::EFFECT_FILES])->register();

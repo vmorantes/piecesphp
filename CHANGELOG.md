@@ -1,3 +1,20 @@
+# 10.43.0 (17-11-2026)
+
+- **`bin/cli db-update` sabe qué está aplicado y para en el primer fallo.** Registra cada actualización en una tabla nueva,
+  `pcsphp_db_updates`, y el listado dice cuáles están aplicadas y cuántas faltan. Si una sentencia falla, ya no sigue con
+  las demás: para, no registra el archivo y dice desde dónde seguir (`from=`). Una ya registrada no se repite sin
+  `again=yes`.
+- **La actualización del selector de los tokens**, `2026-09-15-selector-de-tokens.sql`, que solo constaba en este CHANGELOG.
+- **`bin/cli clone-compare` reconoce los proyectos nacidos de una versión anterior a la 8.** Las 7.x se guardaron con
+  finales de línea de Windows y la comparación no las reconocía: daba una versión de origen equivocada.
+- **Al actualizar**: aplica `bin/cli db-update file=2026-11-17-registro-de-actualizaciones apply=yes` (con `bin/cli
+  db-backup` antes). Si ya aplicaste a mano las actualizaciones anteriores, márcalas una a una con `mark=yes` después de
+  comprobar que están (por ejemplo, que la tabla o la columna que añaden existen): así el listado dirá lo que de verdad
+  falta. Si nunca aplicaste la del selector y tu tabla `pcsphp_tokens` no tiene la columna `selector`, aplícala.
+- **Una omisión de la 9.x, corregida aquí**: el módulo `Persons` (y su tabla `persons`) también salió entonces
+  (`68c52a68`); este CHANGELOG solo nombraba el chat y las presentaciones. Un proyecto que lo use tiene que conservarlo
+  como módulo propio.
+
 # 10.42.0 (17-11-2026)
 
 - **Las imágenes de fábrica son las de PiecesPHP**: el logo (la «P» del logo de PiecesPHP, para los cuadros del acceso y

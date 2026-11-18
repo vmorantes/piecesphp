@@ -328,6 +328,17 @@ CREATE TABLE `pcsphp_app_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
+DROP TABLE IF EXISTS `pcsphp_db_updates`;
+CREATE TABLE `pcsphp_db_updates` (
+  `name` varchar(191) NOT NULL,
+  `sha1` char(40) NOT NULL,
+  `statements` int(11) NOT NULL,
+  `appliedAt` datetime NOT NULL,
+  `mode` varchar(16) NOT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+
 DROP TABLE IF EXISTS `pcsphp_jobs_queue`;
 CREATE TABLE `pcsphp_jobs_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

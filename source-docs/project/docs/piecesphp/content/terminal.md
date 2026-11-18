@@ -74,7 +74,7 @@ Las acciones de pruebas (`unit-tests:…`, etc.) las enumera `bin/cli gates`, no
 | :-- | :-- | :-- |
 | `db-backup` | `gz`, `data`, `routines`, `views`, `definer` (yes/no) | Respalda la base en `dumps/` |
 | `db-restore` | `file=<ruta>`, `confirm=yes`, `database=` | **Restaura** un volcado. Destruye los datos de la base destino: exige `confirm=yes`. Para aplicar una actualización de `databases/actualizaciones/`, `db-update` |
-| `db-update` | `file=<nombre>`, `apply=yes` | Lista, simula o aplica las actualizaciones de la base (`databases/actualizaciones/`). Aplicar exige un volcado de la última hora. Ver [10. db-update](#10-db-update) |
+| `db-update` | `file=<nombre>`, `apply=yes`, `again=yes`, `from=<n>`, `mark=yes` | Lista (con lo aplicado y lo pendiente), simula, aplica o marca las actualizaciones de la base (`databases/actualizaciones/`). Aplicar y marcar exigen un volcado de la última hora. Ver [10. db-update](#10-db-update) |
 | `users-meta-normalize` | `apply=yes` | Reescribe el `meta` de los usuarios que quedó guardado con el formato de MySQL (antes de la 10.21.0) con el del framework. Sin `apply=yes` solo cuenta; aplicar exige un volcado de la última hora. No imprime valores |
 | `assistant-bench` | `confirm=yes`, `user=<id>`, `fake=yes` | Pasa el banco de preguntas del asistente del panel (`src/app/classes/PiecesPHP/Mcp/assistant-bench.json`) con ese usuario e imprime cada respuesta, para revisarlas. **Llama al proveedor configurado y gasta**; con `fake=yes`, un proveedor simulado. Solo en local; no viaja en la distribución |
 | `bundle` | `app`, `statics`, `all`, `zip` (yes/no) | Empaqueta la app y/o los estáticos en `bundle/` |
@@ -265,18 +265,29 @@ Aplica a una instalación que ya existe las actualizaciones de la base que trae 
 nuevas, columnas, índices. Cada versión que las necesite lo dice en el `CHANGELOG`, con el nombre del archivo.
 
 ```bash
-bin/cli db-update                                             # lista las actualizaciones, con su primera línea
+bin/cli db-update                                             # lista: aplicada, marcada o pendiente, y cuántas faltan
 bin/cli db-update file=2026-11-13-consumo-de-la-ia            # SIMULA: cuenta las sentencias y enseña cada una
-bin/cli db-backup                                             # aplicar exige un volcado de la última hora
-bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes  # aplica, sentencia a sentencia
+bin/cli db-backup                                             # aplicar o marcar exige un volcado de la última hora
+bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes  # aplica y la registra
+bin/cli db-update file=2026-11-13-consumo-de-la-ia apply=yes from=3   # sigue desde la 3.ª, tras corregir un fallo
+bin/cli db-update file=2026-11-13-consumo-de-la-ia mark=yes   # la registra SIN ejecutar: ya estaba aplicada a mano
 ```
 
 - `file=` es el **nombre** de un archivo de esa carpeta, con o sin `.sql`; nunca una ruta (una con `/`, `\` o `..` se
   rechaza sin leer nada).
 - Sin `apply=yes` no toca la base. Con él, y sin un volcado de la última hora en `dumps/`, tampoco: lo dice y sale con 1.
-- Aplica cada sentencia por separado, dice `OK` o `FALLO` en cada una, **sigue tras un fallo** y sale con 1 si alguna
-  falló. Un `ALTER` que ya se aplicó falla sin daño (por ejemplo, «Duplicate key name»): si la tabla ya estaba, ese
-  fallo es lo esperado.
+- **Registra lo aplicado** (desde la 10.43.0) en la tabla `pcsphp_db_updates`: nombre, sha1 del archivo, cuántas
+  sentencias, cuándo y cómo (`aplicada` o `marcada`). Si falta, la crea al aplicar o marcar la primera vez; listar no la
+  crea. El listado dice de cada una si está aplicada, marcada o pendiente, y avisa si el archivo cambió desde que se
+  registró.
+- Una ya registrada **no se vuelve a aplicar** ni a marcar: lo dice; `again=yes` lo fuerza.
+- Aplica cada sentencia por separado y dice `OK` o `FALLO`. **Para en la primera que falla**: no ejecuta las siguientes,
+  no registra el archivo y sale con 1. Las anteriores quedan aplicadas (MySQL no deshace un `ALTER`): corrige lo que
+  falló y sigue con `from=<n>` (la sentencia por la que seguir, 1 = la primera); al terminar sin fallos, registra el
+  archivo entero.
+- **`mark=yes`** registra el archivo como `marcada` sin ejecutar nada. Es para una instalación que aplicó esas
+  actualizaciones a mano antes de que existiera el registro: compruébalo antes (por ejemplo, la tabla o la columna que
+  añade ya están); marcar una que no está aplicada esconde un fallo.
 - A diferencia de `db-restore`, no deja el rastro de «base restaurada» que leen las herramientas de desarrollo.
 
 ---
@@ -318,7 +329,7 @@ conserva igual, no con la que se copió.
 
 | Grupo | Qué significa |
 | :-- | :-- |
-| `igual` | El mismo contenido (los finales de línea de Windows no cuentan) |
+| `igual` | El mismo contenido (los finales de línea de Windows no cuentan, en ninguno de los dos lados: las versiones 7.x del framework se guardaron con ellos) |
 | `igual-nivel-1` | Igual salvo espacios al final de las líneas o líneas en blanco al final del archivo |
 | `igual-nivel-2` | Solo PHP: igual salvo comentarios y espacios |
 | `modificado` | Cambió |
