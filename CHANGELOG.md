@@ -1,8 +1,21 @@
+# 10.50.0 (17-11-2026)
+
+- **Ninguna página del panel se titula «Dashboard»**: cada una lleva el suyo en la pestaña del navegador (Mi cuenta,
+  Prueba del recortador…) y el inicio, «Inicio». Una página que no fije el suyo sale con el nombre de la plataforma.
+- **La pestaña de preferencias de Mi cuenta se abre con `?tab=preferences`**. Los enlaces viejos con `?tab=preferencias`
+  siguen funcionando.
+- **Al actualizar**: si tu proyecto enlaza a `?tab=preferencias`, sigue funcionando; cámbialo a `?tab=preferences`
+  cuando puedas. Si tu código lee `UsersController::PROFILE_PREFERENCES_TAB`, ahora vale `preferences`.
+
 # 10.49.0 (17-11-2026)
 
-- **`robots.txt`, `sitemap.xml`, `llms.txt` y `humans.txt` ya no los tapa el comodín de un módulo del proyecto**: se
-  registran antes que los módulos del proyecto.
-- **Un proyecto que sustituye rutas públicas del framework** las quita con `$config['public_area_ignore_routes']`.
+- **Un comodín de un módulo del proyecto (`/{name}`) ya no tumba el sitio por `robots.txt`, `sitemap.xml`, `llms.txt` y
+  `humans.txt`**: se registran antes que los módulos del proyecto. Antes, el enrutador rechazaba esas rutas, que venían
+  después, y cada página daba un error 500.
+- **Un proyecto que sustituye rutas públicas del framework** las quita con `$config['public_area_ignore_routes']`, y
+  registra las suyas con los mismos nombres (las vistas del framework enlazan a ellas por su nombre).
+- **En desuso**, y sale en la 11.0.0: `src/statics/sass/wf-overwrite.scss`, vacío; nada lo carga. Si tu proyecto lo usa,
+  lleva sus estilos a su módulo.
 - **La línea base del proyecto de `verify-integrity`** admite también DOCBLOCK HUÉRFANO y sus usos declarados de
   ofuscación, cada uno con su motivo.
 - **Borrar una categoría de Publicaciones que no se puede borrar** vuelve a decir por qué, en lugar de un aviso genérico.

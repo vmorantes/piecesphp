@@ -148,7 +148,8 @@ class AdminPanelController extends BaseController
         $this->init();
         $this->moduleViews = (new HelperController($this->user, $this->getGlobalVariables()))
             ->setInstanceViewDir(__DIR__ . '/../Views/');
-        set_title('Dashboard');
+        //Por omisión, el nombre de la plataforma: cada página fija el suyo (H373).
+        set_title((string) get_config('title_app'));
     }
 
     /**
@@ -667,6 +668,7 @@ class AdminPanelController extends BaseController
     {
         import_cropper();
         set_custom_assets([self::staticRoute('js/test-cropper.js')], 'js');
+        set_title(__(self::ADMIN_LANG_GROUP, 'Prueba del recortador'));
 
         $data = [];
         $data['langGroup'] = self::ADMIN_LANG_GROUP;

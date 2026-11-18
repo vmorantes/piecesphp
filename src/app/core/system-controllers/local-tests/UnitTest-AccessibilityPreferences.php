@@ -227,8 +227,8 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         $preferencias = [
             'apariencia' => $cuenta($xpath, "//*[@id='user-preferences-appearance-title']"),
             'lectura y movimiento' => $cuenta($xpath, "//*[@id='user-preferences-reading-title']"),
-            'modo' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@theme-mode-selector]//*[@data-theme-mode]"),
-            'tamaño' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@text-size-selector]//*[@data-text-size]"),
+            'modo' => $cuenta($xpath, "//*[@data-tab='preferences']//*[@theme-mode-selector]//*[@data-theme-mode]"),
+            'tamaño' => $cuenta($xpath, "//*[@data-tab='preferences']//*[@text-size-selector]//*[@data-text-size]"),
             'contraste' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='contrast'][@role='radiogroup']//*[@data-value]"),
             'movimiento' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='motion'][@role='radiogroup']//*[@data-value]"),
             'foco' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='focus'][@role='radiogroup']//*[@data-value]"),
@@ -237,8 +237,8 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
             'espaciado activo wide' => $cuenta($xpath, "//*[@data-preference='text-spacing']//*[@data-value='wide'][contains(@class,'active')][@aria-checked='true']"),
             'contraste activo more' => $cuenta($xpath, "//*[@data-preference='contrast']//*[@data-value='more'][contains(@class,'active')][@aria-checked='true']"),
             //La elegida, con primary (a 3:1 de las demás, H326): una por grupo, y solo la elegida.
-            'elegidas con primary' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='true']"),
-            'primary sin elegir' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='false']"),
+            'elegidas con primary' => $cuenta($xpath, "//*[@data-tab='preferences']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='true']"),
+            'primary sin elegir' => $cuenta($xpath, "//*[@data-tab='preferences']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='false']"),
             'título repetido' => $cuenta($xpath, "//*[@id='user-preferences-title']"),
         ];
         $check($r['status'] === 200 && $preferencias === ['apariencia' => 1, 'lectura y movimiento' => 1, 'modo' => 4, 'tamaño' => 4, 'contraste' => 3, 'movimiento' => 3, 'foco' => 3, 'espaciado' => 3, 'transparencias' => 3, 'espaciado activo wide' => 1, 'contraste activo more' => 1, 'elegidas con primary' => 7, 'primary sin elegir' => 0, 'título repetido' => 0], 'v1 «Preferencias»: Apariencia (modo y tamaño, 4 con «Como el sitio»; espaciado del texto 3) y Lectura y movimiento (contraste, movimiento, transparencias y foco, 3 cada uno), con lo guardado marcado; la elegida de cada uno de los siete grupos con primary, y sin el título repetido', "HTTP {$r['status']}, " . json_encode($preferencias, \JSON_UNESCAPED_UNICODE));
@@ -261,7 +261,7 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         ];
         $check($tarjetas === ['apariencia' => ['theme-mode', 'text-size', 'text-spacing'], 'lectura y movimiento' => ['contrast', 'motion', 'transparency', 'focus'], 'vista previa inerte' => 1, 'grupos en la vista previa' => 0], 'v3 las dos tarjetas con sus grupos en orden (Apariencia: modo, tamaño, espaciado; Lectura y movimiento: contraste, movimiento, transparencias, foco) y la vista previa inerte, sin grupos', (string) json_encode($tarjetas));
         //«Como el sitio» primero en cada grupo, con su recordatorio debajo (P313).
-        $grupos = $xpath->query("//*[@data-tab='preferencias']//*[@role='radiogroup']");
+        $grupos = $xpath->query("//*[@data-tab='preferences']//*[@role='radiogroup']");
         $sinSitio = [];
         foreach ($grupos === false ? [] : $grupos as $grupo) {
             if (!$grupo instanceof \DOMElement) {
@@ -341,7 +341,7 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         $etiqueta = $html($peticion($inicio, $jwtRoot, null)['body']);
         $check(count(array_filter(['data-theme="auto"', 'data-text-size="normal"', 'data-contrast="more"', 'data-motion="reduce"', 'data-focus="strong"', 'data-text-spacing="wide"', 'data-transparency="reduce"'], fn(string $atributo): bool => str_contains($etiqueta, $atributo))) === 7, 's3 la petición siguiente lleva en <html> los siete del sitio', $etiqueta);
         $xpath = $dom($peticion($relativa(UsersController::routeName('form-profile', [], true)) . '?' . UsersController::PROFILE_TAB_PARAM . '=' . UsersController::PROFILE_PREFERENCES_TAB, $jwtRoot, null)['body']);
-        $marcadas = $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[@aria-checked='true'][@data-theme-mode='site' or @data-text-size='site' or @data-value='site'][contains(@class,'active')]");
+        $marcadas = $cuenta($xpath, "//*[@data-tab='preferences']//*[@role='radiogroup']//button[@aria-checked='true'][@data-theme-mode='site' or @data-text-size='site' or @data-value='site'][contains(@class,'active')]");
         $nodosNota = $xpath->query("//*[@id='user-preferences-contrast-site']");
         $nodoNota = $nodosNota !== false ? $nodosNota->item(0) : null;
         $notaContraste = $nodoNota instanceof \DOMElement ? trim($nodoNota->textContent) : '';

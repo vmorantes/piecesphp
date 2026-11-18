@@ -263,9 +263,10 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
         $enMenu = $x->query('//*[@user-options-dropdown]//*[@text-size-selector]');
         $enlace = $x->query('//*[@user-options-dropdown]//a[contains(@href, "' . UsersController::PROFILE_TAB_PARAM . '=' . UsersController::PROFILE_PREFERENCES_TAB . '")]');
         $check($r['status'] === 200 && $enMenu !== false && $enMenu->length === 0, 'f1 DISCRIMINANTE: el menú de usuario ya no tiene el grupo del tamaño de letra', "HTTP {$r['status']}");
-        $check($enlace !== false && $enlace->length === 1 && str_ends_with((string) parse_url((string) ($enlace->item(0) instanceof \DOMElement ? $enlace->item(0)->getAttribute('href') : ''), \PHP_URL_PATH), (string) parse_url($perfil, \PHP_URL_PATH)), 'f2 y sí el enlace «Preferencias» a ?tab=preferencias del perfil');
+        $check($enlace !== false && $enlace->length === 1 && str_ends_with((string) parse_url((string) ($enlace->item(0) instanceof \DOMElement ? $enlace->item(0)->getAttribute('href') : ''), \PHP_URL_PATH), (string) parse_url($perfil, \PHP_URL_PATH)), 'f2 y sí el enlace «Preferencias» a ?tab=preferences del perfil');
         foreach ([
-            'f3 ?tab=preferencias abre Preferencias' => ['?tab=preferencias', $jwtRoot, 'preferencias'],
+            'f3 ?tab=preferences abre Preferencias' => ['?tab=preferences', $jwtRoot, 'preferences'],
+            'f3b el enlace viejo ?tab=preferencias también la abre' => ['?tab=preferencias', $jwtRoot, 'preferences'],
             'f4 sin parámetro: Cuenta' => ['', $jwtRoot, 'form-container'],
             'f5 ?tab=form-container: Cuenta' => ['?tab=form-container', $jwtRoot, 'form-container'],
             'f6 DISCRIMINANTE: una pestaña que no existe cae en Cuenta' => ['?tab=zz-no-existe', $jwtRoot, 'form-container'],
@@ -277,11 +278,11 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
             $soloEsa = array_keys(array_filter($vistas['items'])) === [$esperada] && $vistas['activos'] === [$esperada];
             $check($r['status'] === 200 && $soloEsa && array_key_last($vistas['items']) === UsersController::PROFILE_PREFERENCES_TAB, $caso . ' (y Preferencias es la última)', "HTTP {$r['status']}, " . json_encode($vistas));
         }
-        $r = $peticion($perfil . '?tab=preferencias', $jwtRoot, null);
+        $r = $peticion($perfil . '?tab=preferences', $jwtRoot, null);
         $grupo = $dom($r['body'])->query('//*[@data-tab="' . UsersController::PROFILE_PREFERENCES_TAB . '" and contains(@class, "tab")]//*[@text-size-selector]');
         $url = $grupo !== false && $grupo->item(0) instanceof \DOMElement ? $grupo->item(0)->getAttribute('data-url') : '';
         $check($grupo !== false && $grupo->length === 1 && $relativa($url) === $tamano, 'f9 el grupo del tamaño de letra está en la pestaña, con su ruta', $url);
-        $r = $peticion($relativa(UsersController::routeName('form-edit', ['id' => $idGeneral], true)) . '?tab=preferencias', $jwtRoot, null);
+        $r = $peticion($relativa(UsersController::routeName('form-edit', ['id' => $idGeneral], true)) . '?tab=' . UsersController::PROFILE_PREFERENCES_TAB, $jwtRoot, null);
         $vistas = $pestanas($r['body']);
         $check($r['status'] === 200 && $vistas['items'] !== [] && !array_key_exists(UsersController::PROFILE_PREFERENCES_TAB, $vistas['items']) && $vistas['activos'] === ['form-container'], 'f10 DISCRIMINANTE: editar a otro no tiene Preferencias, aunque se pida', "HTTP {$r['status']}, " . json_encode($vistas));
     } catch (\Throwable $e) {

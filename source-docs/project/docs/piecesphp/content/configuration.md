@@ -517,12 +517,18 @@ Slim atiende la primera ruta que casa. `RouteGroup` registra los grupos en el or
 
 - Declara de lo más específico a lo menos específico, tanto los grupos como las rutas dentro de un grupo.
 - Los servicios y el backoffice van antes que la zona pública.
-- **`robots.txt`, `sitemap.xml`, `llms.txt` y `humans.txt` van antes que el hueco «Del clon»** (desde la 10.49.0): un
-  comodín de tu proyecto (`/{name}`) ya no los tapa. El contenido de esos archivos se edita en Configuración › Archivos
+- **`robots.txt`, `sitemap.xml`, `llms.txt` y `humans.txt` van antes que el hueco «Del clon»** (desde la 10.49.0).
+  **Un comodín de tu módulo (`/{name}`) que cubra una ruta estática registrada DESPUÉS no la tapa: el enrutador lanza
+  «Static route … is shadowed by previously defined variable route» y todo el sitio da error 500.** Pasa con cualquier
+  ruta estática pública del framework que vaya detrás del hueco, como `/contact`: acota tu comodín para que no la cubra
+  (por ejemplo, `{name:[^/.]+}` libra `robots.txt` y los demás archivos, pero NO `/contact`) o quita las del framework
+  que sustituyes (abajo), y prueba la portada, el contacto y la baja después de declararlo. El contenido de esos archivos se edita en Configuración › Archivos
   para buscadores, no con rutas.
 - **Si tu módulo sustituye rutas públicas del framework** (la portada `public-index`, las genéricas `public-generic` y
   `public-generic-2`…), quítalas del framework con `$config['public_area_ignore_routes']` en `config.php`, una lista
-  de nombres de ruta: así cada URL tiene un solo nombre. El formulario de contacto se apaga entero con
+  de nombres de ruta, **y registra en tu módulo las tuyas con esos MISMOS nombres**: las vistas del framework enlazan a
+  ellas por su nombre, y sin ellas fallan con «Named route does not exist». Para quitarlas todas de una vez,
+  `define('PUBLIC_AREA_VIEWS', false)` en `constants.php`. El formulario de contacto se apaga entero con
   `define('PUBLIC_AREA_CONTACT_FORMS', false)` en `constants.php`.
 - Un grupo al que nunca llamas `register()` no aporta rutas. Dos grupos con el mismo prefijo son dos entradas
   distintas.

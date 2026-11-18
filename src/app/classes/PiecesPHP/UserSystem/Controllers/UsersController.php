@@ -185,7 +185,10 @@ class UsersController extends AdminPanelController
     const PROFILE_TAB_PARAM = 'tab';
 
     /** La pestaña de las preferencias de cada persona en su perfil: el tamaño de letra (H252). */
-    const PROFILE_PREFERENCES_TAB = 'preferencias';
+    const PROFILE_PREFERENCES_TAB = 'preferences';
+
+    /** Los nombres viejos de una pestaña: un enlace guardado con ?tab=preferencias sigue abriéndola (H373). */
+    const PROFILE_TAB_ALIASES = ['preferencias' => self::PROFILE_PREFERENCES_TAB];
 
     /**
      * La dirección del perfil propio con una pestaña abierta.
@@ -876,7 +879,7 @@ class UsersController extends AdminPanelController
             //Solo el perfil propio lleva «Preferencias»; la pestaña la elige ?tab= desde el servidor (usuarios/form.php).
             $data['showPreferences'] = true;
             $requestedTab = $req->getQueryParam(self::PROFILE_TAB_PARAM, '');
-            $data['requestedTab'] = is_string($requestedTab) ? $requestedTab : '';
+            $data['requestedTab'] = is_string($requestedTab) ? (self::PROFILE_TAB_ALIASES[$requestedTab] ?? $requestedTab) : '';
             //Lo ELEGIDO (o «Como el sitio», PREFERENCE_SITE, sin meta) y lo que pone el sitio en cada grupo (H327).
             $userID = (int) $user->id;
             $data['textSize'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::TEXT_SIZE_META, AdminPanelController::TEXT_SIZES);
@@ -896,6 +899,7 @@ class UsersController extends AdminPanelController
                 'transparency' => SettingsController::accessibilityTransparency(),
             ];
             $data['pageTitle'] = __(self::LANG_GROUP, 'Mi cuenta');
+            set_title($data['pageTitle']);
             $data['pageDescription'] = trim("{$user->firstname} {$user->firstLastname}") . ' · ' . $data['typeName'];
             $data['breadcrumbs'] = [
                 __(self::LANG_GROUP, 'Inicio') => [
