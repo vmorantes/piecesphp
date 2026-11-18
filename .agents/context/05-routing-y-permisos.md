@@ -235,6 +235,13 @@ Controller::allowedRoute('list');                       // bool: ¿el usuario pu
 get_route_info($nombre); get_routes();
 ```
 
+**Los `parameters` de `get_route_info()` no ven un marcador con expresión** (`{name:[^/.]+}`, `[{params:.*}]`): los saca
+`RouteAdapter.php:260` con una expresión que no admite `:` (H391). Para la muestra de una ruta con sus marcadores,
+`get_route_sample($nombre, $silencio)`, que desde la `v10.51.0` lee el patrón completo con el analizador de FastRoute
+(`get_route_pattern_placeholders()`, `AppHelpers.php`): incluye los opcionales, y con una ruta inexistente y silencio
+devuelve `null` sin avisos. Quien filtre muestras por «`{`» (el sitemap, `SiteFilesController.php:150`) descarta también
+las que llevan un opcional con expresión.
+
 **`get_route('nombre-literal')` está vetado** (P36 fase 2, 2026-09-18). La comprobación `GET_ROUTE` de
 `bin/cli verify-integrity` recorre `src/app` y `src/index.php` con el tokenizador de PHP (no con grep) y falla ante una
 llamada con nombre literal que no esté en `files/dev/get-route-direct-allowed.json`, o si esa lista tiene una entrada

@@ -128,6 +128,7 @@
         ".agents/docs/adr/0076-*",
         ".agents/docs/adr/0077-*",
         ".agents/docs/adr/0078-*",
+        ".agents/docs/adr/0079-*",
         ".agents/docs/auditorias/*",
         ".agents/estado/AHORA.md",
         ".agents/estado/PO.md",

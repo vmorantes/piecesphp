@@ -11,7 +11,8 @@ Los layouts públicos (`view/layout/header.php` y `view/webflow/layout/header.ph
   las **alternativas por idioma** (`hreflang`, más `x-default`).
 - `MetaTags::getMetaTagsOpenGraph()`: Open Graph (`og:locale` del idioma de la página, la imagen con sus dimensiones
   y su texto alternativo) y las etiquetas de X/Twitter.
-- `StructuredData::get()`: un bloque JSON-LD con `WebSite` y `Organization`.
+- `StructuredData::get()`: un bloque JSON-LD con `WebSite` y `Organization`. La organización se puede ampliar desde el
+  proyecto (abajo, «La organización del proyecto»).
 
 Los valores por omisión salen de **Configuración → Apariencia → Identidad y SEO**: título del sitio, propietario,
 descripción, palabras clave, imagen para compartir, título y descripción para compartir, y la cuenta de X.
@@ -50,6 +51,37 @@ StructuredData::add([
 - **Alternativas por idioma:** si tu página no existe en todos los idiomas, deja las suyas en
   `Config::set_config('alternatives_url', …)`, como hace la publicación, y no se anunciará un idioma en que no existe.
 - **`MetaTags::setRobots('noindex, nofollow')`** para una página pública que no deba aparecer en buscadores.
+- **Leer lo que va a salir**: `MetaTags::getTitle()`, `getDescription()`, `getImage()`, `getURL()`, `getLocale()`,
+  `getType()`, `getRobots()`, `getOwner()`, `getSitename()`, `getKeywords()`, `getThemeColor()`, `getLocaleAlternate()`,
+  `getImageAlt()`, `getShareTitle()` y `getShareDescription()`. Devuelven lo fijado o, si no se fijó, lo de omisión,
+  **sin fijarlo**: leer el título antes de `set_title()` no lo congela.
+
+## La organización del proyecto
+
+El nodo `Organization` sale siempre con el nombre, la URL y el logotipo de «Identidad y SEO». Para decir qué tipo de
+organización es, sus perfiles en redes u otras propiedades, el proyecto lo amplía en
+`src/app/config/extensions/structured-data.php`, que trae un ejemplo comentado:
+
+```php
+use PiecesPHP\Core\Utilities\Helpers\StructuredData;
+
+StructuredData::extendOrganization([
+    '@type' => 'NGO',
+    'sameAs' => [
+        'https://www.facebook.com/ejemplo',
+        'https://www.instagram.com/ejemplo',
+    ],
+    'email' => 'contacto@ejemplo.org',
+]);
+```
+
+- **Amplía el mismo nodo**, no añade otro: `StructuredData::add()` con una segunda organización la duplicaría.
+- **`@type`**, uno de `StructuredData::ORGANIZATION_TYPES` (los subtipos de Organization de schema.org).
+- **`sameAs`**, solo URL absolutas `http` o `https`; si una no lo es, se rechaza la lista entera.
+- **`@id`, `@context` y cualquier otra clave con `@`** se rechazan: el `@id` es el que enlaza la organización con el sitio.
+- Un `logo` relativo se completa con la URL del sitio.
+- **Lo rechazado no se aplica.** En local, una página falla con el error a la vista, y `bin/cli verify-integrity` lo da
+  por fallo («DATOS ESTRUCTURADOS»). En producción no se registra: compruébalo en local antes de subir.
 
 ## Scripts de terceros (analítica, chat, píxeles)
 

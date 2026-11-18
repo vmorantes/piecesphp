@@ -329,6 +329,9 @@ def revisar_git(args):
     i = 0
     while i < len(args) and args[i].startswith("-"):
         if args[i] == "-C" and i + 1 < len(args):
+            # Sin expandir, `$D` se resolvía como RAIZ/$D: etiquetas del hermano juzgadas como del framework (#3056).
+            if "$" in args[i + 1] or "`" in args[i + 1]:
+                bloquear("git -C con una variable de shell: la guarda no sabe en qué repositorio actúa. Escribe la ruta literal.")
             repo = os.path.realpath(os.path.join(repo, os.path.expanduser(args[i + 1])))
         i += 2 if args[i] in ("-C", "-c") else 1
     if i >= len(args):

@@ -65,6 +65,12 @@ foreach ([basepath('app/core/extensions'), basepath('app/config/extensions'), ba
     }
 }
 
+//Lo que una extensión no pudo añadir a la organización del JSON-LD (StructuredData::extendOrganization()): en local, la
+//petición cae con el error a la vista; la terminal sigue y verify-integrity lo da por fallo. En producción no se aplica.
+if (is_local() && PHP_SAPI !== 'cli' && \PiecesPHP\Core\Utilities\Helpers\StructuredData::errors() !== []) {
+    throw new \RuntimeException('StructuredData::extendOrganization() rechazó datos de la organización y no se aplicaron: ' . implode('; ', \PiecesPHP\Core\Utilities\Helpers\StructuredData::errors()));
+}
+
 //Indica si la aplicación está en local o en producción
 add_to_front_configurations('isLH', is_local());
 

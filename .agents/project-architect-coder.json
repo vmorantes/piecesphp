@@ -11,7 +11,8 @@
             {"path": "../datastructures", "can_tag": true, "creatable_branches": ["dev"]},
             {"path": "../geojson", "can_tag": true, "creatable_branches": ["dev"]},
             {"path": "../html", "can_tag": true, "creatable_branches": ["dev"]},
-            {"path": "../guia-piecesphp-para-po", "can_tag": false, "creatable_branches": []}
+            {"path": "../guia-piecesphp-para-po", "can_tag": false, "creatable_branches": []},
+            {"path": "../piecesphp-dist", "can_tag": true, "creatable_branches": []}
         ],
         "banned_scripts": ["push-all", "permissions-and-property.sh"],
         "extra_banned_commands": [],

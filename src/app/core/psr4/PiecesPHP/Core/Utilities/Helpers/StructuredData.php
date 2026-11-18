@@ -29,9 +29,33 @@ class StructuredData
     const JSON_FLAGS = \JSON_HEX_TAG | \JSON_HEX_AMP | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR;
 
     /**
+     * Los subtipos de schema.org `Organization` que admite extendOrganization(): lista cerrada.
+     */
+    const ORGANIZATION_TYPES = [
+        'Organization', 'Airline', 'Consortium', 'Cooperative', 'Corporation', 'EducationalOrganization', 'FundingScheme',
+        'GovernmentOrganization', 'LibrarySystem', 'LocalBusiness', 'MedicalOrganization', 'NGO', 'NewsMediaOrganization',
+        'OnlineBusiness', 'PerformingGroup', 'PoliticalParty', 'Project', 'ResearchOrganization', 'SearchRescueOrganization',
+        'SportsOrganization', 'WorkersUnion',
+    ];
+
+    /**
      * @var array<int,array<string,mixed>>
      */
     protected static $nodes = [];
+
+    /**
+     * Lo que el proyecto añade al nodo de la organización (extendOrganization()).
+     *
+     * @var array<string,mixed>
+     */
+    protected static array $organization = [];
+
+    /**
+     * Lo que extendOrganization() rechazó, sin aplicarlo.
+     *
+     * @var string[]
+     */
+    protected static array $errors = [];
 
     /**
      * @param array<string,mixed> $node Un nodo de schema.org, con su `@type`.
@@ -50,6 +74,72 @@ class StructuredData
     public static function clear()
     {
         self::$nodes = [];
+    }
+
+    /**
+     * Amplía el nodo de la organización (src/app/config/extensions/structured-data.php): el subtipo con `@type`, las
+     * redes con `sameAs` y cualquier otra propiedad de schema.org. Varias llamadas se acumulan: la última gana por clave
+     * y `sameAs` se une sin repetir. Lo rechazado va a errors() y no se aplica; el `@id` no se toca nunca, porque
+     * `WebSite.publisher` apunta a él.
+     *
+     * @param array<array-key,mixed> $properties Las claves que no son texto se rechazan a errors()
+     * @return void
+     */
+    public static function extendOrganization(array $properties): void
+    {
+        foreach ($properties as $key => $value) {
+            if (!is_string($key)) {
+                self::$errors[] = 'la clave ' . var_export($key, true) . ' no es un nombre de propiedad: las claves tienen que ser texto';
+                continue;
+            }
+            if ($key === '@id' || $key === '@context') {
+                self::$errors[] = "{$key} no se puede cambiar: la organización conserva el suyo";
+                continue;
+            }
+            if (str_starts_with($key, '@') && $key !== '@type') {
+                self::$errors[] = "{$key} no se admite: de las claves con @ solo vale @type";
+                continue;
+            }
+            if ($key === '@type' && !in_array($value, self::ORGANIZATION_TYPES, true)) {
+                self::$errors[] = '@type ' . var_export($value, true) . ' no es un subtipo admitido de Organization (StructuredData::ORGANIZATION_TYPES)';
+                continue;
+            }
+            if ($key === 'sameAs') {
+                $invalid = is_array($value) && array_is_list($value) ? array_filter($value, fn($url) => !self::isAbsoluteHttpURL($url)) : [$value];
+                if ($invalid !== []) {
+                    self::$errors[] = 'sameAs tiene que ser una lista de URL absolutas http(s); no lo es: ' . implode(', ', array_map(fn($url) => var_export($url, true), $invalid));
+                    continue;
+                }
+                $value = array_values(array_unique(array_merge(self::$organization['sameAs'] ?? [], $value)));
+            }
+            if ($key === 'logo' && is_string($value) && $value !== '' && !str_contains($value, '://')) {
+                $value = baseurl(ltrim($value, '/'));
+            }
+            self::$organization[$key] = $value;
+        }
+    }
+
+    /**
+     * Lo que extendOrganization() rechazó. En local tumba la petición (final-configurations.php) y verify-integrity lo da
+     * por fallo; en producción solo deja de aplicarse.
+     *
+     * @return string[]
+     */
+    public static function errors(): array
+    {
+        return self::$errors;
+    }
+
+    /**
+     * @param mixed $url
+     * @return bool
+     */
+    private static function isAbsoluteHttpURL($url): bool
+    {
+        if (!is_string($url) || filter_var($url, \FILTER_VALIDATE_URL) === false) {
+            return false;
+        }
+        return in_array(mb_strtolower((string) parse_url($url, \PHP_URL_SCHEME)), ['http', 'https'], true);
     }
 
     /**
@@ -72,6 +162,7 @@ class StructuredData
         if (is_string($logo) && $logo !== '') {
             $organization['logo'] = str_contains($logo, '://') ? $logo : baseurl(ltrim($logo, '/'));
         }
+        $organization = array_merge($organization, self::$organization);
         return [
             [
                 '@type' => 'WebSite',

@@ -2595,18 +2595,55 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
 }
 
 /**
- * @param string $name
- * @param bool $silentOnNotExists
+ * Los nombres de los marcadores de un patrón de ruta, en orden de aparición y sin repetir, con el analizador de
+ * FastRoute que usa Slim: cuenta los opcionales y los que llevan expresión, también con llaves dentro
+ * (`{x:\d{2,4}}`).
+ *
+ * @param string $pattern Patrón de ruta, p. ej. `/user/{name}[/{id:[0-9]+}]`
+ * @return string[]
+ * @throws \FastRoute\BadRouteException Si FastRoute no puede analizar el patrón
+ */
+function get_route_pattern_placeholders(string $pattern): array
+{
+    $names = [];
+    foreach ((new \FastRoute\RouteParser\Std())->parse($pattern) as $routeData) {
+        foreach ($routeData as $segment) {
+            if (is_array($segment) && !in_array($segment[0], $names, true)) {
+                $names[] = $segment[0];
+            }
+        }
+    }
+    return $names;
+}
+
+/**
+ * La URL de muestra de una ruta: cada marcador de su patrón, opcionales incluidos, se rellena con su propio nombre
+ * entre llaves (`/user/{name}/{id}`).
+ *
+ * Los marcadores salen del patrón completo que tiene Slim, no de los parámetros declarados en la ruta: esos no
+ * recogen los que llevan expresión (`{x:...}`).
+ *
+ * @param string $name Nombre de la ruta
+ * @param bool $silentOnNotExists Si es true, una ruta inexistente devuelve null sin avisos
  * @return string|null
+ * @throws \RuntimeException Sin $silentOnNotExists y con una ruta inexistente: la misma que lanza get_route()
  */
 function get_route_sample(string $name, bool $silentOnNotExists = false)
 {
-    $information = get_route_info($name);
-    $parameters = $information['parameters'];
-    foreach ($parameters as $name => $value) {
-        $parameters[$name] = "{" . $name . "}";
+    try {
+        $pattern = get_router()->getRouteCollector()->getNamedRoute($name)->getPattern();
+    } catch (\RuntimeException $e) {
+        if ($silentOnNotExists) {
+            return null;
+        }
+        throw $e;
     }
-    return get_route($information['name'], $parameters, $silentOnNotExists);
+
+    $parameters = [];
+    foreach (get_route_pattern_placeholders($pattern) as $placeholder) {
+        $parameters[$placeholder] = '{' . $placeholder . '}';
+    }
+    return get_route($name, $parameters, $silentOnNotExists);
 }
 
 /**

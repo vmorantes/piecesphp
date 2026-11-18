@@ -21,47 +21,47 @@ class MetaTags
 {
 
     /**
-     * @var string
+     * @var string|null
      */
     protected static $owner = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $sitename = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $title = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $description = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $keywords = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $image = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $url = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $themeColor = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $locale = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $localeAlternate = null;
     /**
-     * @var string
+     * @var string|null
      */
     protected static $type = null;
     /**
@@ -87,109 +87,207 @@ class MetaTags
     protected static $descriptionSetByPage = false;
 
     /**
+     * La omisión de una propiedad, calculada y SIN asignar: los lectores la usan para no congelar lo que la página aún
+     * puede cambiar (un get antes de set_title() fijaría el título viejo).
+     *
+     * @param string $property
+     * @return mixed
+     */
+    private static function defaultValue(string $property): mixed
+    {
+        switch ($property) {
+            case 'owner':
+                $owner = get_config('owner');
+                return $owner !== false ? $owner : '';
+            case 'sitename':
+                $sitename = get_config('title_app');
+                return $sitename !== false ? $sitename : '';
+            case 'title':
+                $title = get_title(true, null, false);
+                return $title !== false ? $title : '';
+            case 'description':
+                $description = get_config('description');
+                return $description !== false ? $description : '';
+            case 'keywords':
+                $keywords = get_config('keywords');
+                return $keywords !== false ? implode(',', $keywords) : '';
+            case 'image':
+                $image = get_config('open_graph_image');
+                return $image !== false ? baseurl($image) : '';
+            case 'url':
+                return self::canonicalURL();
+            case 'themeColor':
+                $themeColor = get_config('meta_theme_color');
+                $themeColor = $themeColor !== false ? $themeColor : '';
+                return is_string($themeColor) && mb_strlen(trim($themeColor)) > 0 ? trim($themeColor) : null;
+            case 'locale':
+                return self::ogLocale(Config::get_lang());
+            case 'type':
+                return 'website';
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Los lectores devuelven texto aunque la configuración del clon guarde otra cosa (null, un número): sin esto, TypeError.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private static function textOrEmpty(mixed $value): string
+    {
+        return is_string($value) ? $value : '';
+    }
+
+    /**
+     * @param mixed $value
+     * @return string|null
+     */
+    private static function textOrNull(mixed $value): ?string
+    {
+        return is_string($value) ? $value : null;
+    }
+
+    /**
      * @return void
      */
     private static function initialValues()
     {
+        self::$owner ??= self::defaultValue('owner');
+        self::$sitename ??= self::defaultValue('sitename');
+        self::$title ??= self::defaultValue('title');
+        self::$description ??= self::defaultValue('description');
+        self::$keywords ??= self::defaultValue('keywords');
+        self::$image ??= self::defaultValue('image');
+        self::$url ??= self::defaultValue('url');
+        self::$themeColor ??= self::defaultValue('themeColor');
+        self::$locale ??= self::defaultValue('locale');
+        self::$type ??= self::defaultValue('type');
+    }
 
-        if (is_null(self::$owner)) {
+    /**
+     * @return string
+     */
+    public static function getOwner(): string
+    {
+        return self::textOrEmpty(self::$owner ?? self::defaultValue('owner'));
+    }
 
-            $owner = get_config('owner');
+    /**
+     * @return string
+     */
+    public static function getSitename(): string
+    {
+        return self::textOrEmpty(self::$sitename ?? self::defaultValue('sitename'));
+    }
 
-            if ($owner !== false) {
-                self::$owner = $owner;
-            } else {
-                self::$owner = '';
-            }
+    /**
+     * @return string
+     */
+    public static function getTitle(): string
+    {
+        return self::textOrEmpty(self::$title ?? self::defaultValue('title'));
+    }
 
-        }
+    /**
+     * @return string
+     */
+    public static function getDescription(): string
+    {
+        return self::textOrEmpty(self::$description ?? self::defaultValue('description'));
+    }
 
-        if (is_null(self::$sitename)) {
+    /**
+     * @return string
+     */
+    public static function getKeywords(): string
+    {
+        return self::textOrEmpty(self::$keywords ?? self::defaultValue('keywords'));
+    }
 
-            $sitename = get_config('title_app');
+    /**
+     * @return string
+     */
+    public static function getImage(): string
+    {
+        return self::textOrEmpty(self::$image ?? self::defaultValue('image'));
+    }
 
-            if ($sitename !== false) {
-                self::$sitename = $sitename;
-            } else {
-                self::$sitename = '';
-            }
+    /**
+     * @return string
+     */
+    public static function getURL(): string
+    {
+        return self::textOrEmpty(self::$url ?? self::defaultValue('url'));
+    }
 
-        }
+    /**
+     * @return string|null
+     */
+    public static function getThemeColor(): ?string
+    {
+        return self::textOrNull(self::$themeColor ?? self::defaultValue('themeColor'));
+    }
 
-        if (is_null(self::$title)) {
+    /**
+     * @return string
+     */
+    public static function getLocale(): string
+    {
+        return self::textOrEmpty(self::$locale ?? self::defaultValue('locale'));
+    }
 
-            $title = get_title(true, null, false);
+    /**
+     * @return string|null
+     */
+    public static function getLocaleAlternate(): ?string
+    {
+        return self::textOrNull(self::$localeAlternate ?? self::defaultValue('localeAlternate'));
+    }
 
-            if ($title !== false) {
-                self::$title = $title;
-            } else {
-                self::$title = '';
-            }
+    /**
+     * @return string
+     */
+    public static function getType(): string
+    {
+        return self::textOrEmpty(self::$type ?? self::defaultValue('type'));
+    }
 
-        }
+    /**
+     * @return string|null
+     */
+    public static function getRobots(): ?string
+    {
+        return self::textOrNull(self::$robots ?? self::defaultValue('robots'));
+    }
 
-        if (is_null(self::$description)) {
+    /**
+     * @return string|null
+     */
+    public static function getImageAlt(): ?string
+    {
+        return self::textOrNull(self::$imageAlt ?? self::defaultValue('imageAlt'));
+    }
 
-            $description = get_config('description');
+    /**
+     * El título efectivo de og:title y twitter:title.
+     *
+     * @return string
+     */
+    public static function getShareTitle(): string
+    {
+        return self::shareTitle();
+    }
 
-            if ($description !== false) {
-                self::$description = $description;
-            } else {
-                self::$description = '';
-            }
-
-        }
-
-        if (is_null(self::$keywords)) {
-
-            $keywords = get_config('keywords');
-
-            if ($keywords !== false) {
-                self::$keywords = implode(',', $keywords);
-            } else {
-                self::$keywords = '';
-            }
-
-        }
-
-        if (is_null(self::$image)) {
-
-            $image = get_config('open_graph_image');
-
-            if ($image !== false) {
-                self::$image = baseurl($image);
-            } else {
-                self::$image = '';
-            }
-
-        }
-
-        if (is_null(self::$url)) {
-            self::$url = self::canonicalURL();
-        }
-
-        if (is_null(self::$themeColor)) {
-
-            $themeColor = get_config('meta_theme_color');
-            $themeColor = $themeColor !== false ? $themeColor : '';
-            $themeColor = is_string($themeColor) && mb_strlen(trim($themeColor)) > 0 ? trim($themeColor) : null;
-
-            if ($themeColor !== null) {
-                self::$themeColor = $themeColor;
-            } else {
-                self::$themeColor = null;
-            }
-
-        }
-
-        if (is_null(self::$locale)) {
-            self::$locale = self::ogLocale(Config::get_lang());
-        }
-
-        if (is_null(self::$type)) {
-            self::$type = 'website';
-        }
-
+    /**
+     * La descripción efectiva de og:description y twitter:description.
+     *
+     * @return string
+     */
+    public static function getShareDescription(): string
+    {
+        return self::shareDescription();
     }
 
     /**
@@ -371,7 +469,6 @@ class MetaTags
      */
     public static function languageURLs(): array
     {
-        self::initialValues();
         $urls = [];
         $alternatives = Config::get_config('alternatives_url');
         foreach (is_array($alternatives) ? $alternatives : [] as $lang => $url) {
@@ -379,7 +476,7 @@ class MetaTags
                 $urls[$lang] = $url;
             }
         }
-        $urls[Config::get_lang()] = self::$url;
+        $urls[Config::get_lang()] = self::getURL();
         return $urls;
     }
 
@@ -427,7 +524,7 @@ class MetaTags
         }
         $share = get_config('share_title');
         $withoutOwnTitle = !self::$titleSetByPage && get_config('title') === false;
-        return $withoutOwnTitle && is_string($share) && trim($share) !== '' ? trim($share) : self::$title;
+        return $withoutOwnTitle && is_string($share) && trim($share) !== '' ? trim($share) : self::getTitle();
     }
 
     /**
@@ -438,7 +535,7 @@ class MetaTags
     private static function shareDescription(): string
     {
         $share = get_config('share_description');
-        return !self::$descriptionSetByPage && is_string($share) && trim($share) !== '' ? trim($share) : self::$description;
+        return !self::$descriptionSetByPage && is_string($share) && trim($share) !== '' ? trim($share) : self::getDescription();
     }
 
     /**

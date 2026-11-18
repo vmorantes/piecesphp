@@ -78,6 +78,9 @@ BASH_BLOQUEA = [
     "git tag release-v8.0.0",
     "git tag -d v8.0.0",
     f"git -C {AJENO} tag v1.0.0-alpha.1",
+    # #3056: con una variable, la guarda tomaba el repositorio por este; se exige la ruta literal.
+    "D=/var/www/html/vicsen/piecesphp-dist; git -C $D tag -a v10.50.0 -m 'x'",
+    'git -C "$REPO" update-ref refs/heads/last-stable c9125196 b536c9c5',
     # ADR 0019: una rama solo avanza, con comparación atómica; las etiquetas no se mueven.
     "git update-ref refs/heads/master HEAD",
     "git update-ref -d refs/heads/last-stable",

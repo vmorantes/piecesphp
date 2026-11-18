@@ -197,7 +197,7 @@ comprobación 41 de `verify-integrity`. Ayudantes para el clon: `set_configs_fro
 `set_configs_if_empty()` (`AppHelpers.php`).
 
 
-Los del clon, en `src/app/config/extensions/` (medido con `git ls-files` el 2026-11-14: ocho):
+Los del clon, en `src/app/config/extensions/` (medido con `git ls-files` el 2026-11-18: nueve):
 
 | Archivo | Para qué |
 | :-- | :-- |
@@ -209,6 +209,7 @@ Los del clon, en `src/app/config/extensions/` (medido con `git ls-files` el 2026
 | `protected-files.php` | `ProtectFileMiddleware::protect()` |
 | `queues.php` | Handlers de cola (`QueueTask::make()`) |
 | `set-additional-configurations.php` | Ajustes finales / parches de configuración |
+| `structured-data.php` | Cómo se presenta la organización en el JSON-LD (`StructuredData::extendOrganization()`); lo rechazado lo enseña la comprobación 69 |
 
 **No hay `mailing.php` del clon**: el SMTP se configura en el panel (opción `mail`, cifrada) y la guía pública lo dice
 (`structure.md`). El `mailing.php` que existe es del framework, en `src/app/core/extensions/` (el logo de los correos,

@@ -1,3 +1,25 @@
+# 10.51.0 (18-11-2026)
+
+- **`bin/cli db-backup`, `db-update` y `db-restore` arrancan contra una base de una versión anterior**: ya no leen al
+  usuario al arrancar, así que se puede respaldar y actualizar una base que todavía no ha pasado sus actualizaciones. El
+  resto de las órdenes sigue necesitando la base al día, y `bin/cli version` sigue siendo la forma de comprobarlo. Las
+  rutas de esas tres tareas conservan sus permisos.
+- **La organización de los datos estructurados se amplía desde el proyecto**: `StructuredData::extendOrganization()`, en
+  el nuevo `src/app/config/extensions/structured-data.php` (con un ejemplo comentado), cambia su tipo de schema.org
+  (`NGO`, `Corporation`…), añade sus perfiles en redes (`sameAs`) y otras propiedades sobre el mismo nodo, sin duplicarlo.
+  Lo que no vale se rechaza: en local la página lo enseña y `bin/cli verify-integrity` lo da por fallo («DATOS
+  ESTRUCTURADOS»). Guía: «Identidad, SEO y scripts inyectados».
+- **`MetaTags` tiene lectores** (`getTitle()`, `getDescription()`, `getImage()`, `getURL()`… y `getShareTitle()`):
+  devuelven lo que va a salir en la cabecera sin fijarlo, así que leer el título antes de `set_title()` ya no lo congela.
+- **Configuración › Rutas y el mapa del sitio ya no fallan con una ruta cuyo marcador lleva una expresión**
+  (`{name:[^/.]+}`): `get_route_sample()` lee el patrón completo. La muestra incluye ahora también los marcadores
+  opcionales con expresión (las rutas de estáticos enseñan `{params}`), y el mapa del sitio descarta, como antes, toda
+  muestra con marcadores.
+- **Al actualizar**: nada que hacer. Si tu proyecto añade su organización con `StructuredData::add()`, pásala a
+  `extendOrganization()` o saldrán dos. Si tu código filtra las muestras de `get_route_sample()` por «`{`», cuenta con los
+  opcionales. Si añades un middleware a la ruta de `db-backup`, `db-update` o `db-restore`, esa tarea vuelve a leer al
+  usuario al arrancar.
+
 # 10.50.0 (17-11-2026)
 
 - **Ninguna página del panel se titula «Dashboard»**: cada una lleva el suyo en la pestaña del navegador (Mi cuenta,
@@ -6,6 +28,8 @@
   siguen funcionando.
 - **Al actualizar**: si tu proyecto enlaza a `?tab=preferencias`, sigue funcionando; cámbialo a `?tab=preferences`
   cuando puedas. Si tu código lee `UsersController::PROFILE_PREFERENCES_TAB`, ahora vale `preferences`.
+  La pestaña también cambia su atributo `data-tab` (de `preferencias` a `preferences`) y el alias solo cubre la
+  dirección: si tu CSS o tu JS selecciona `[data-tab="preferencias"]`, cámbialo a `[data-tab="preferences"]`.
 
 # 10.49.0 (17-11-2026)
 

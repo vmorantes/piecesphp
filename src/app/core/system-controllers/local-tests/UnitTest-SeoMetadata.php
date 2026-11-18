@@ -168,9 +168,10 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
         $datos = json_decode($c['ld'][0], true);
         return is_array($datos) && is_array($datos['@graph'] ?? null) ? $datos['@graph'] : null;
     };
-    $nodo = function (?array $grafo, string $tipo): ?array {
+    //La organización se busca por su @id: un clon puede cambiar su @type por un subtipo (extendOrganization()).
+    $nodo = function (?array $grafo, string $valor, string $clave = '@type'): ?array {
         foreach ($grafo ?? [] as $n) {
-            if (is_array($n) && ($n['@type'] ?? null) === $tipo) {
+            if (is_array($n) && ($n[$clave] ?? null) === $valor) {
                 return $n;
             }
         }
@@ -284,7 +285,8 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
         $check(is_array($tamano) && $uno($portadaES, 'og:image:width') === (string) $tamano[0] && $uno($portadaES, 'og:image:height') === (string) $tamano[1], 'a9 og:image:width y height, los del archivo', (string) json_encode([$uno($portadaES, 'og:image:width'), $uno($portadaES, 'og:image:height'), $tamano]));
         $check($uno($portadaES, 'og:image:alt') !== null && $uno($portadaES, 'twitter:card') === 'summary_large_image' && $uno($portadaES, 'twitter:image') === $imagen, 'a10 og:image:alt y la tarjeta grande de Twitter con la imagen');
         $grafoPortada = $grafo($portadaES);
-        $organizacion = $nodo($grafoPortada, 'Organization');
+        //La base servida, no la del terminal, como en a9.
+        $organizacion = $nodo($grafoPortada, "{$raiz}#organization", '@id');
         $check($nodo($grafoPortada, 'WebSite') !== null && $organizacion !== null && str_starts_with((string) ($organizacion['logo'] ?? ''), 'http'), 'a11 JSON-LD: se decodifica, con WebSite y Organization de logotipo absoluto', (string) json_encode($grafoPortada));
         echoTerminal(' ');
 

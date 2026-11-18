@@ -12,6 +12,7 @@ use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Core\Utilities\Helpers\StructuredData;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CliActions;
@@ -552,6 +553,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 68. user-types.php se aplica entero y ningún módulo encendido asigna un tipo retirado (ADR 0078) ─
         $userTypesFileFailures = self::checkUserTypesFile();
 
+        //──── 69. Lo que las extensiones añaden a la organización del JSON-LD se aplica entero ─
+        $structuredDataFailures = self::checkStructuredDataOrganization();
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -593,7 +597,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
-         + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures);
+         + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures)
+         + count($structuredDataFailures);
 
         foreach ($cloneFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
@@ -696,6 +701,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($userTypesFileFailures as $line) {
             echoTerminal("\e[31mTIPOS DE USUARIO:\e[39m {$line}");
+        }
+        foreach ($structuredDataFailures as $line) {
+            echoTerminal("\e[31mDATOS ESTRUCTURADOS:\e[39m {$line}");
         }
         foreach ($versionDateFailures as $line) {
             echoTerminal("\e[31mFECHA DE VERSIÓN:\e[39m {$line}");
@@ -6954,6 +6962,25 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         if ($failures === []) {
             $file = is_file(UserTypes::file()) ? 'src/app/config/user-types.php' : 'sin src/app/config/user-types.php';
             echoTerminal("\e[94mINFO:\e[39m tipos de usuario ({$file}): " . count(UserTypes::codes()) . ' con rol (' . implode(', ', UserTypes::codes()) . '), ' . count(UserTypes::retired()) . ' retirado(s), ' . count($warnings) . ' aviso(s).');
+        }
+        return $failures;
+    }
+
+    /**
+     * 69. Lo que las extensiones pasan a `StructuredData::extendOrganization()` se aplica entero: lo rechazado no sale en
+     * el JSON-LD, en local tumba la petición y aquí cae.
+     *
+     * @return string[]
+     */
+    protected static function checkStructuredDataOrganization(): array
+    {
+        $failures = [];
+        foreach (StructuredData::errors() as $error) {
+            $failures[] = "StructuredData::extendOrganization(): {$error}; no se aplicó";
+        }
+        if ($failures === []) {
+            $organization = array_values(array_filter(StructuredData::defaultNodes(), fn(array $node) => ($node['@id'] ?? null) === baseurl() . '#organization'))[0] ?? [];
+            echoTerminal("\e[94mINFO:\e[39m datos estructurados: la organización es " . var_export($organization['@type'] ?? null, true) . ', con ' . count($organization) . ' propiedad(es) y 0 rechazos de extendOrganization().');
         }
         return $failures;
     }

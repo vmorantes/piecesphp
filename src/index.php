@@ -951,6 +951,15 @@ if (TerminalData::getInstance()->isTerminal()) {
 
     $routeName = TerminalController::routeID($terminalDataInstance->route());
     $routeInformation = get_route_info($routeName);
+
+    //P358, ADR 0079: estas tres arrancan sin leer al usuario, que contra una base vieja cae; el exit, porque db-backup vuelve con true.
+    $sessionlessTask = \Terminal\SessionlessDatabaseTasks::taskFor(PHP_SAPI, $terminalDataInstance->isTerminal() === true, $actionName ?? '', $routeInformation);
+    if ($sessionlessTask !== null) {
+        GenericHandler::setRouteName($routeName);
+        $sessionlessTask::main(null, null, []);
+        exit(0);
+    }
+
     $_SERVER['REQUEST_URI'] = '';
 
     //Por sistema de rutas
