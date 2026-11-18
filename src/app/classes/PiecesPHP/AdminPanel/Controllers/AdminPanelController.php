@@ -508,7 +508,7 @@ class AdminPanelController extends BaseController
 
         set_title(__(AdminPanelController::ADMIN_LANG_GROUP, 'Acerca de'));
 
-        $publicationsListLink = PublicationsController::routeName('list');
+        $publicationsListLink = \Publications\PublicationsRoutes::ENABLE ? PublicationsController::routeName('list') : '';
 
         //Las de PHP salen de lo instalado; Ver. y Licencia se dejan sin traducir, como el resto de la lista.
         $describe = fn(array $package): string => InstalledPackages::displayName($package['name'])

@@ -166,8 +166,11 @@ class SystemApprovalsController extends AdminPanelController
             $formByType = [
                 UsersModel::TABLE => 'forms/approval-profile-user',
                 OrganizationMapper::TABLE => 'forms/approval-profile-organization',
-                PublicationMapper::TABLE => 'forms/approval-publications',
             ];
+            //Con Publicaciones apagado, una aprobación vieja de una publicación no se abre: su mapper leería una tabla que puede no existir (H368).
+            if (\Publications\PublicationsRoutes::ENABLE) {
+                $formByType[PublicationMapper::TABLE] = 'forms/approval-publications';
+            }
 
             $this->helpController->render('panel/layout/header');
             if (array_key_exists($approvalMapper->referenceTable, $formByType)) {

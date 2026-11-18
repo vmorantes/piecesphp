@@ -1,3 +1,15 @@
+# 10.48.0 (17-11-2026)
+
+- **Apagar Publicaciones ya no tumba el sitio**: con `PUBLICATIONS_MODULE` apagado (o las aprobaciones apagadas), el
+  arranque, las aprobaciones, la tarea programada de visibilidad de las publicaciones, los archivos protegidos, la API y
+  los informes dejan de tocar sus tablas. Antes, sin las tablas `publications_*`, cada página y cada orden de la terminal
+  daba un error 500.
+- **Un proyecto con su propio módulo de publicaciones** protege su carpeta de subidas con su validador:
+  `ProtectFileMiddleware::protect()` en su `src/app/config/extensions/protected-files.php`. Con Publicaciones apagado,
+  el framework ya no protege `statics/uploads/publications/` con el suyo.
+- **Al actualizar**: nada que hacer si usas Publicaciones. Si lo tienes apagado y guardas archivos en
+  `statics/uploads/publications/`, registra su protección como arriba.
+
 # 10.47.0 (17-11-2026)
 
 - **`verify-integrity` se adapta a un proyecto**: reconoce los módulos apagados (el manual y la comprobación de permisos

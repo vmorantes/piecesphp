@@ -1842,7 +1842,7 @@ class APIController extends AdminPanelController
 
             //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
             //JSON
-            new Route( //Rutas de publicaciones
+             ...(\Publications\PublicationsRoutes::ENABLE ? [new Route( //Rutas de publicaciones
                 "{$startRoute}/publications/{context}/{actionType}[/]",
                 $classname . ':publications',
                 self::$baseRouteName . '-publications-actions',
@@ -1850,7 +1850,7 @@ class APIController extends AdminPanelController
                 true,
                 null,
                 $publications,
-            ),
+            )] : []),
             new Route( //Rutas de noticias
                 "{$startRoute}/news/{actionType}[/]",
                 $classname . ':news',

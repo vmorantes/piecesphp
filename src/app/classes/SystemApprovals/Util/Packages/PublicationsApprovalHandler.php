@@ -26,11 +26,22 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
     protected static $REFERENCE_COLUMN = 'id';
     protected static $CREATION_DATE_COLUMN = 'createdAt';
     protected static $BASE_TEXT = 'Publicación';
+
     public static string $STATUS_ACTIVATION_COLUMN = 'status';
     public static array $STATUS_ACTIVATION_POSITIVES_VALUES = [
         PublicationMapper::ACTIVE,
         PublicationMapper::DRAFT,
     ];
+
+    /**
+     * Con Publicaciones o las aprobaciones apagadas no se aprueba nada suyo, y sin el módulo su tabla puede no existir (H368).
+     *
+     * @return bool
+     */
+    public static function isEnabled(): bool
+    {
+        return \Publications\PublicationsRoutes::ENABLE && \SystemApprovals\SystemApprovalsRoutes::ENABLE && parent::isEnabled();
+    }
 
     /**
      * Obtiene el tipo de contenido específico del mapper.

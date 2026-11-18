@@ -66,22 +66,24 @@ $cronjobs[] = CronJobTask::make('Rellenar slugs pendientes', function () {
     ];
 })->dailyAt("00:10");
 
-//Las carpetas de publicaciones cuya visibilidad cambió con la fecha (startDate o endDate): cada hora, al minuto 5
-$cronjobs[] = CronJobTask::make('Sincronizar visibilidad de publicaciones', function () {
+//Las carpetas de publicaciones cuya visibilidad cambió con la fecha (startDate o endDate): cada hora, al minuto 5. Con el módulo apagado, no.
+if (\Publications\PublicationsRoutes::ENABLE) {
+    $cronjobs[] = CronJobTask::make('Sincronizar visibilidad de publicaciones', function () {
 
-    $summary = \Publications\Controllers\PublicationsController::syncAllUploadsVisibility();
+        $summary = \Publications\Controllers\PublicationsController::syncAllUploadsVisibility();
 
-    return [
-        'success' => $summary['failed'] === 0,
-        'message' => strReplaceTemplate(__(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Revisadas ${publications} publicación(es) activas: ${renamed} archivo(s) renombrados, ${conflicts} conflicto(s), ${failed} fallo(s).'), [
-            '${publications}' => (string) $summary['publications'],
-            '${renamed}' => (string) $summary['renamed'],
-            '${conflicts}' => (string) $summary['conflicts'],
-            '${failed}' => (string) $summary['failed'],
-        ]),
-        'extra_data' => $summary,
-    ];
-})->onMinute(5);
+        return [
+            'success' => $summary['failed'] === 0,
+            'message' => strReplaceTemplate(__(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Revisadas ${publications} publicación(es) activas: ${renamed} archivo(s) renombrados, ${conflicts} conflicto(s), ${failed} fallo(s).'), [
+                '${publications}' => (string) $summary['publications'],
+                '${renamed}' => (string) $summary['renamed'],
+                '${conflicts}' => (string) $summary['conflicts'],
+                '${failed}' => (string) $summary['failed'],
+            ]),
+            'extra_data' => $summary,
+        ];
+    })->onMinute(5);
+}
 
 //Drenar la cola en cada pasada del ejecutor, por el mismo camino que la tarea process-queue.
 $cronjobs[] = CronJobTask::make('Procesar la cola', function () {

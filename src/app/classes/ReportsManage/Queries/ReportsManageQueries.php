@@ -286,6 +286,10 @@ class ReportsManageQueries
      */
     public static function getTotalPublicationsQty(?string $approvalStatus = null)
     {
+        //Con el módulo apagado, sus tablas pueden no existir (H368).
+        if (!\Publications\PublicationsRoutes::ENABLE) {
+            return 0;
+        }
 
         $table = PublicationMapper::TABLE;
         $tableAppovals = SystemApprovalsMapper::TABLE;

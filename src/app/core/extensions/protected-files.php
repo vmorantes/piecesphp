@@ -11,12 +11,16 @@ use Organizations\Controllers\OrganizationsController;
 use PiecesPHP\Core\Statics\ProtectedUploads;
 use PiecesPHP\Core\Statics\ProtectFileMiddleware;
 use Publications\Controllers\PublicationsController;
+use Publications\PublicationsRoutes;
 
 $uploadsDir = get_config('upload_dir');
 
 //ARQUETIPO: cada carpeta de subidas se protege aquí, con el UPLOAD_DIR de su controlador y el validador que
 //decida su dueño. La que se sirve sin proteger se declara en files/dev/upload-dirs.json (verify-integrity, 29).
-ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, PublicationsController::UPLOAD_DIR), [PublicationsController::class, 'uploadedFileValidator']);
+if (PublicationsRoutes::ENABLE) {
+    //Apagado, el proyecto registra la suya (H368): el validador del módulo leería sus tablas.
+    ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, PublicationsController::UPLOAD_DIR), [PublicationsController::class, 'uploadedFileValidator']);
+}
 ProtectFileMiddleware::protectWithSession(append_to_path_system($uploadsDir, DocumentsController::UPLOAD_DIR));
 ProtectFileMiddleware::protectWithSession(append_to_path_system($uploadsDir, OrganizationsController::UPLOAD_DIR));
 ProtectFileMiddleware::protectWithSession(append_to_path_system($uploadsDir, NewsCategoryController::UPLOAD_DIR));
