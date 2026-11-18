@@ -105,7 +105,7 @@ class LogsController extends AdminPanelController
 
         $labels = LogsMapper::messageLabels();
         $types = [];
-        foreach (array_keys(LogsMapper::MESSAGES) as $type) {
+        foreach (array_keys(LogsMapper::messages()) as $type) {
             $types[$type] = $labels[$type] ?? $type;
         }
         asort($types);
@@ -158,8 +158,8 @@ class LogsController extends AdminPanelController
             $where[] = new WhereItem("{$table}.createdAt", WhereItem::LESS_OR_EQUAL_OPERATOR, $to . ' 23:59:59', WhereItem::AND_OPERATOR);
         }
         $type = $request->getQueryParam('type', '');
-        if (is_string($type) && array_key_exists($type, LogsMapper::MESSAGES)) {
-            $where[] = new WhereItem("{$table}.textMessage", WhereItem::EQUAL_OPERATOR, LogsMapper::MESSAGES[$type], WhereItem::AND_OPERATOR);
+        if (is_string($type) && array_key_exists($type, LogsMapper::messages())) {
+            $where[] = new WhereItem("{$table}.textMessage", WhereItem::EQUAL_OPERATOR, LogsMapper::messages()[$type], WhereItem::AND_OPERATOR);
         }
         $whereSegment = null;
         if ($where !== []) {
@@ -267,7 +267,7 @@ class LogsController extends AdminPanelController
         }
         $meta = is_string($row->meta ?? null) ? json_decode($row->meta, true) : null;
         $variables = is_string($row->textMessageVariables ?? null) ? json_decode($row->textMessageVariables, true) : null;
-        $type = array_search($row->textMessage, LogsMapper::MESSAGES, true);
+        $type = array_search($row->textMessage, LogsMapper::messages(), true);
         return $response->withJson([
             'id' => (int) $row->id,
             'type' => is_string($type) ? (LogsMapper::messageLabels()[$type] ?? $type) : '',

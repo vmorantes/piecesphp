@@ -280,6 +280,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Espaciado de texto amplio (WCAG 1.4.12): sin puntos suspensivos, que ocultaban parte del texto («Gestión de
+   organizaciones» no cabía con las letras a 0,12 em); salta de línea. */
+:root[data-text-spacing="wide"] .ui.shell > .navigation > .ui.menu .item > span,
+:root[data-text-spacing="wide"] .ui.shell > .navigation > .ui.menu .item > .title > span {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
 .ui.shell > .navigation > .ui.menu .item > .label,
 .ui.shell > .navigation > .ui.menu .item > .title > .label {
   flex: none;

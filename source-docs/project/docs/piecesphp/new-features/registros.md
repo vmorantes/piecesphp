@@ -72,6 +72,27 @@ detalle de cada acción (quién, cuándo, desde dónde, y si actuaba como otro u
 recortan por debajo de 1.000), igual que el registro de correos con las suyas. Se cambia con `setMaxRows()` de
 `LogsMapper` y de `LoginAttemptsModel`.
 
+## Para quien desarrolla: anotar una acción propia
+
+Cada acción del registro tiene un **tipo**: un código y un texto con huecos (`%username%`…), que se traduce al leerlo.
+Los del framework están en `LogsMapper::MESSAGES`. **Un módulo o un proyecto declara los suyos** en
+`src/app/config/extensions/`, antes de anotarlos:
+
+```php
+use EventsLog\Mappers\LogsMapper;
+
+LogsMapper::registerMessage('DONATION_RECEIVED', 'Se registró una donación de %donor% por %amount%');
+```
+
+Y para anotar, **`LogsMapper::addLogSafe()`**, con los mismos argumentos que `addLog()`: si anotar falla, lo deja en el
+registro de errores y la acción sigue, en lugar de que quien la hizo vea un error en algo que sí se hizo. `addLog()` sigue
+existiendo y lanza, para quien necesite saberlo.
+
+- Un código ya declarado (del framework o de otro módulo) no se puede volver a declarar: la llamada lanza.
+- El texto se escribe en español y se traduce en el grupo de los registros, como los del framework; dale su inglés en el
+  diccionario de tu módulo.
+- Los tipos declarados salen en el filtro «Tipo» de «Últimos movimientos», junto a los del framework.
+
 ## Para quien desarrolla: añadir una pestaña
 
 Una pestaña la aporta el módulo dueño del registro, no `Logs`. Se registra **una vez**, en el `*Routes::routes()` de tu

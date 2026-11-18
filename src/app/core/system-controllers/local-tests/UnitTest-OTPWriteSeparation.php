@@ -132,6 +132,26 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 'llamar a los dos buscadores sobre un usuario SIN filas no crea ninguna',
                 "antes {$antes}, después {$despues} — un buscador que crea es el defecto D2"
             );
+
+            //H355: el método va por marcador. Interpolado, la comilla cerraba la cadena y el OR lo hacía verdadero.
+            $db->prepare("INSERT INTO pcsphp_users_otp_secrets (user, secret, intervalTOTP, oneUseCode, method, twoAuthFactor, twoAuthFactorSecurityCode) VALUES (?, '', 30, '', ?, 'no', '')")
+                ->execute([$usuarioID, OTPSecretsUsersMapper::METHOD_TOTP]);
+            $check(
+                OTPSecretsUsersMapper::existsUserByMethod($usuarioID, OTPSecretsUsersMapper::METHOD_TOTP),
+                'existsUserByMethod() encuentra el método que el usuario tiene'
+            );
+            $inyectado = false;
+            $errorInyectado = '';
+            try {
+                $inyectado = OTPSecretsUsersMapper::existsUserByMethod($usuarioID, "NO_EXISTE' OR '1'='1");
+            } catch (\Throwable $e) {
+                $errorInyectado = get_class($e);
+            }
+            $check(
+                $inyectado === false && $errorInyectado === '',
+                'existsUserByMethod() trata la comilla como texto: un método inexistente con OR no encuentra nada',
+                $errorInyectado !== '' ? "lanzó {$errorInyectado}: la comilla llegó al SQL" : ($inyectado ? 'devolvió true: el OR entró en el SQL' : null)
+            );
         } finally {
             $db->prepare('DELETE FROM pcsphp_users_otp_secrets WHERE user = ?')->execute([$usuarioID]);
             $db->prepare('DELETE FROM user_system_profile WHERE belongsTo = ?')->execute([$usuarioID]);

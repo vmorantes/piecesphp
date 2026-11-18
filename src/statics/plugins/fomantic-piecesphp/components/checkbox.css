@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Checkbox
+ * # Fomantic-UI 0.16.1 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29,6 +29,17 @@
   font-size: 1em;
   line-height: 1.42857143em;
   min-width: 1.14285714rem;
+}
+
+/* Fork (WCAG 2.5.8): la etiqueta mide al menos lo que medía el control, para que el alto mínimo de 24px de los temas
+   (core) pueda centrarla (align-content) sin que una etiqueta vacía (fitted, etiqueta fuera) deje la caja arriba.
+   --checkbox-height: ese alto, con el que core baja una casilla sin texto hasta su línea base de antes */
+.ui.checkbox {
+  --checkbox-height: 1.14285714rem;
+}
+.ui.checkbox > label,
+.ui.checkbox > .box {
+  min-height: 1.14285714rem;
 }
 
 /* HTML Checkbox */
@@ -252,6 +263,15 @@
 .ui.radio.checkbox {
   min-height: 1.14285714rem;
 }
+.ui.radio.checkbox {
+  --checkbox-height: 1.14285714rem;
+}
+.ui.radio.checkbox > label,
+.ui.radio.checkbox > .box {
+  min-height: 1.14285714rem;
+  
+/* Fork: ver .ui.checkbox > label */
+}
 .ui.radio.checkbox label {
   padding-left: 1.85714286em;
 }
@@ -314,6 +334,16 @@
          Slider
     --------------- */
 .ui.slider.checkbox {
+  min-height: 1.42857143em;
+}
+.ui.slider.checkbox {
+  --checkbox-height: 1.42857143em;
+}
+
+/* Fork: ver .ui.checkbox > label. Solo sin texto: el raíl va a @sliderLineVerticalOffset de arriba, no centrado en
+       @sliderHeight, y con ese alto la etiqueta con texto quedaba 2–3px alta frente a un toggle de la misma fila */
+.ui.slider.checkbox > label:empty,
+.ui.slider.checkbox > .box:empty {
   min-height: 1.42857143em;
 }
 
@@ -429,6 +459,15 @@
   min-height: 1.14285714em;
   padding-left: 3.28571429em;
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
+}
+.ui.toggle.checkbox {
+  --checkbox-height: 1.42857143em;
+}
+.ui.toggle.checkbox > label,
+.ui.toggle.checkbox > .box {
+  min-height: 1.42857143em;
+  
+/* Fork: ver .ui.checkbox > label */
 }
 .ui.toggle.checkbox label {
   padding-top: 0;

@@ -29,20 +29,27 @@ the manual does not appear for you, your user type does not have it.
 ## Your preferences
 
 In the menu under your name, at the top right, **“Preferences”** takes you to the **“Preferences”** tab of **“My
-account”**. It has two sections:
+account”**: how you see the panel. It has two cards and, below them, a **“Preview”** with sample text, buttons and
+labels that change at once with what you choose:
 
-- **Appearance**: the **color mode**, **“Light”**, **“Dark”** or **“System”** (your device's). You also have it in the
-  menu under your name, under **“Color mode”**, to change it quickly.
-- **Accessibility**:
+- **Appearance**:
+  - **Color mode**: **“Light”**, **“Dark”** or **“System”** (your device's). You also have it in the menu under your
+    name, under **“Color mode”**, to change it quickly.
   - **Text size**: **“Normal”**, **“Large”** or **“Larger”**.
+  - **Text spacing**: **“Normal”** or **“Wide”**, with more space between lines, paragraphs, words and letters.
+- **Reading and motion**:
   - **Contrast**: **“Automatic”** (it follows your device) or **“More contrast”**, with stronger text and colors.
   - **Motion**: **“Automatic”** (it follows your device) or **“Reduce motion”**, with fewer animations.
-  - **Focus**: **“Normal”** or **“Strong”**, with a more visible outline on what you have selected when you move with
-    the keyboard.
+  - **Transparency**: **“Like the system”** (it follows your device, if reducing transparency is turned on there) or
+    **“Reduce”**, with solid backgrounds instead of translucent ones.
+  - **Focus indicator**: **“Normal”** or **“Strong”**, with a more visible outline on what you have selected when you
+    move with the keyboard.
 
-Everything applies at once and is saved in your account. Each group also has **“Like the site”**, which follows whatever
-the administrator chose and says next to it what that is (for example, “Like the site: More contrast”). It is what you
-have until you choose something else, and choosing it undoes your choice.
+![Preferences](img/users-form-profile-preferencias.webp)
+
+Everything applies at once, only for you, and is saved in your account. Each group also has **“Like the site”**, which
+follows whatever the administrator chose and says below what that is (for example, “Like the site: More contrast”). It
+is what you have until you choose something else, and choosing it undoes your choice.
 
 ## The search box
 

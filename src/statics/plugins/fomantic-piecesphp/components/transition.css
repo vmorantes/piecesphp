@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Transition
+ * # Fomantic-UI 0.16.1 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

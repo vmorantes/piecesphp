@@ -30,20 +30,26 @@ the manual does not appear for you, your user type does not have it.</p>
 <h2 class="title" id="your-preferences"><span role="button" tabindex="0" aria-expanded="false" aria-controls="your-preferences-contenido"><i class="dropdown icon" aria-hidden="true"></i>Your preferences</span></h2>
 <div class="content" id="your-preferences-contenido">
 <p>In the menu under your name, at the top right, <strong>“Preferences”</strong> takes you to the <strong>“Preferences”</strong> tab of <strong>“My
-account”</strong>. It has two sections:</p>
+account”</strong>: how you see the panel. It has two cards and, below them, a <strong>“Preview”</strong> with sample text, buttons and
+labels that change at once with what you choose:</p>
 <ul>
-<li><strong>Appearance</strong>: the <strong>color mode</strong>, <strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (your device's). You also have it in the
-  menu under your name, under <strong>“Color mode”</strong>, to change it quickly.</li>
-<li><strong>Accessibility</strong>:</li>
+<li><strong>Appearance</strong>:</li>
+<li><strong>Color mode</strong>: <strong>“Light”</strong>, <strong>“Dark”</strong> or <strong>“System”</strong> (your device's). You also have it in the menu under your
+    name, under <strong>“Color mode”</strong>, to change it quickly.</li>
 <li><strong>Text size</strong>: <strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>.</li>
+<li><strong>Text spacing</strong>: <strong>“Normal”</strong> or <strong>“Wide”</strong>, with more space between lines, paragraphs, words and letters.</li>
+<li><strong>Reading and motion</strong>:</li>
 <li><strong>Contrast</strong>: <strong>“Automatic”</strong> (it follows your device) or <strong>“More contrast”</strong>, with stronger text and colors.</li>
 <li><strong>Motion</strong>: <strong>“Automatic”</strong> (it follows your device) or <strong>“Reduce motion”</strong>, with fewer animations.</li>
-<li><strong>Focus</strong>: <strong>“Normal”</strong> or <strong>“Strong”</strong>, with a more visible outline on what you have selected when you move with
-    the keyboard.</li>
+<li><strong>Transparency</strong>: <strong>“Like the system”</strong> (it follows your device, if reducing transparency is turned on there) or
+    <strong>“Reduce”</strong>, with solid backgrounds instead of translucent ones.</li>
+<li><strong>Focus indicator</strong>: <strong>“Normal”</strong> or <strong>“Strong”</strong>, with a more visible outline on what you have selected when you
+    move with the keyboard.</li>
 </ul>
-<p>Everything applies at once and is saved in your account. Each group also has <strong>“Like the site”</strong>, which follows whatever
-the administrator chose and says next to it what that is (for example, “Like the site: More contrast”). It is what you
-have until you choose something else, and choosing it undoes your choice.</p>
+<p><img class="ui image" alt="Preferences" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/users-form-profile-preferencias.webp')); ?>"></p>
+<p>Everything applies at once, only for you, and is saved in your account. Each group also has <strong>“Like the site”</strong>, which
+follows whatever the administrator chose and says below what that is (for example, “Like the site: More contrast”). It
+is what you have until you choose something else, and choosing it undoes your choice.</p>
 </div>
 <h2 class="title" id="the-search-box"><span role="button" tabindex="0" aria-expanded="false" aria-controls="the-search-box-contenido"><i class="dropdown icon" aria-hidden="true"></i>The search box</span></h2>
 <div class="content" id="the-search-box-contenido">

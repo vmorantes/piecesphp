@@ -87,7 +87,7 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
     };
 
     $tablaOpciones = (new SettingsModel())->getModel()->getTable();
-    $opciones = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG, SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG];
+    $opciones = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG, SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG, SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG, SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG];
     $crudoDe = function (string $nombre) use ($database, $tablaOpciones): ?string {
         $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
         $consulta->execute([$nombre]);
@@ -137,46 +137,52 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         $r = $peticion($ruta, $jwtRoot, ['preference' => 'zz-sabor', 'value' => 'more']);
         $check($r['status'] === 400 && UsersModel::metaValue($idRoot, AdminPanelController::CONTRAST_META) === null, 'r1 una preferencia desconocida: 400 y no guarda', "HTTP {$r['status']}");
         $malos = [];
-        foreach (['contrast' => 'reduce', 'motion' => 'more', 'focus' => 'zz-grueso'] as $preferencia => $valor) {
+        foreach (['contrast' => 'reduce', 'motion' => 'more', 'focus' => 'zz-grueso', 'text-spacing' => 'reduce', 'transparency' => 'wide'] as $preferencia => $valor) {
             $r = $peticion($ruta, $jwtRoot, ['preference' => $preferencia, 'value' => $valor]);
             if ($r['status'] !== 400) {
                 $malos[] = "{$preferencia}={$valor}: HTTP {$r['status']}";
             }
         }
-        $check($malos === [] && UsersModel::metaValue($idRoot, AdminPanelController::CONTRAST_META) === null && UsersModel::metaValue($idRoot, AdminPanelController::MOTION_META) === null && UsersModel::metaValue($idRoot, AdminPanelController::FOCUS_META) === null, 'r2 DISCRIMINANTE: un valor fuera de la lista de SU preferencia (el de otra no vale): 400 y no guarda', implode(' · ', $malos));
+        $check($malos === [] && UsersModel::metaValue($idRoot, AdminPanelController::CONTRAST_META) === null && UsersModel::metaValue($idRoot, AdminPanelController::MOTION_META) === null && UsersModel::metaValue($idRoot, AdminPanelController::FOCUS_META) === null && UsersModel::metaValue($idRoot, AdminPanelController::TEXT_SPACING_META) === null && UsersModel::metaValue($idRoot, AdminPanelController::TRANSPARENCY_META) === null, 'r2 DISCRIMINANTE: un valor fuera de la lista de SU preferencia (el de otra no vale): 400 y no guarda', implode(' · ', $malos));
         $r = $peticion($ruta, null, ['preference' => 'contrast', 'value' => 'more']);
         $check($r['status'] !== 200, 'r3 sin sesión no entra', "HTTP {$r['status']}");
         $guardados = [];
-        foreach (['contrast' => 'more', 'motion' => 'reduce', 'focus' => 'strong'] as $preferencia => $valor) {
+        foreach (['contrast' => 'more', 'motion' => 'reduce', 'focus' => 'strong', 'text-spacing' => 'wide', 'transparency' => 'reduce'] as $preferencia => $valor) {
             $r = $peticion($ruta, $jwtRoot, ['preference' => $preferencia, 'value' => $valor]);
             $datos = json_decode($r['body'], true);
             $guardados[$preferencia] = $exito($r) && ($datos['value'] ?? null) === $valor;
         }
-        $check($guardados === ['contrast' => true, 'motion' => true, 'focus' => true] && UsersModel::metaValue($idRoot, AdminPanelController::CONTRAST_META) === 'more' && UsersModel::metaValue($idRoot, AdminPanelController::MOTION_META) === 'reduce' && UsersModel::metaValue($idRoot, AdminPanelController::FOCUS_META) === 'strong', 'r4 200: guarda las tres metas y responde el valor guardado', (string) json_encode($guardados));
+        $check($guardados === ['contrast' => true, 'motion' => true, 'focus' => true, 'text-spacing' => true, 'transparency' => true] && UsersModel::metaValue($idRoot, AdminPanelController::CONTRAST_META) === 'more' && UsersModel::metaValue($idRoot, AdminPanelController::MOTION_META) === 'reduce' && UsersModel::metaValue($idRoot, AdminPanelController::FOCUS_META) === 'strong' && UsersModel::metaValue($idRoot, AdminPanelController::TEXT_SPACING_META) === 'wide' && UsersModel::metaValue($idRoot, AdminPanelController::TRANSPARENCY_META) === 'reduce', 'r4 200: guarda las cinco metas y responde el valor guardado', (string) json_encode($guardados));
         $r = $peticion($inicio, $jwtRoot, null);
         $etiqueta = $html($r['body']);
-        $check($r['status'] === 200 && str_contains($etiqueta, 'data-contrast="more"') && str_contains($etiqueta, 'data-motion="reduce"') && str_contains($etiqueta, 'data-focus="strong"'), 'r5 la petición siguiente lleva los tres en <html>', "HTTP {$r['status']}, {$etiqueta}");
+        $check($r['status'] === 200 && str_contains($etiqueta, 'data-contrast="more"') && str_contains($etiqueta, 'data-motion="reduce"') && str_contains($etiqueta, 'data-focus="strong"') && str_contains($etiqueta, 'data-text-spacing="wide"') && str_contains($etiqueta, 'data-transparency="reduce"'), 'r5 la petición siguiente lleva los cinco en <html>', "HTTP {$r['status']}, {$etiqueta}");
         echoTerminal(' ');
 
         //──── [h] La herencia del sitio ──────────────────────────────────────────────────────
         echoTerminal('[h] Sin meta, el del sitio; con meta, el suyo; con una que no vale, el del sitio');
         $memoria = [];
-        foreach ([SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG] as $opcion) {
+        foreach ([SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG, SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG, SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG] as $opcion) {
             $memoria[$opcion] = get_config($opcion);
         }
         try {
             set_config(SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, 'more');
             set_config(SettingsController::ACCESSIBILITY_MOTION_CONFIG, 'reduce');
             set_config(SettingsController::ACCESSIBILITY_FOCUS_CONFIG, 'strong');
+            set_config(SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG, 'wide');
+            set_config(SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG, 'reduce');
             $sinMeta = $crear('sin-meta', UsersModel::TYPE_USER_GENERAL);
-            $check(AdminPanelController::contrastOf($sinMeta) === 'more' && AdminPanelController::motionOf($sinMeta) === 'reduce' && AdminPanelController::focusOf($sinMeta) === 'strong', 'h1 sin meta: los tres del sitio');
+            $check(AdminPanelController::contrastOf($sinMeta) === 'more' && AdminPanelController::motionOf($sinMeta) === 'reduce' && AdminPanelController::focusOf($sinMeta) === 'strong' && AdminPanelController::textSpacingOf($sinMeta) === 'wide' && AdminPanelController::transparencyOf($sinMeta) === 'reduce', 'h1 sin meta: los cinco del sitio');
             UsersModel::setMetaValue($sinMeta, AdminPanelController::CONTRAST_META, 'auto');
             UsersModel::setMetaValue($sinMeta, AdminPanelController::FOCUS_META, 'zz-viejo');
-            $check(AdminPanelController::contrastOf($sinMeta) === 'auto' && AdminPanelController::focusOf($sinMeta) === 'strong', 'h2 con meta, la suya (auto aunque el sitio diga more); con una que no vale, la del sitio');
+            UsersModel::setMetaValue($sinMeta, AdminPanelController::TEXT_SPACING_META, 'normal');
+            UsersModel::setMetaValue($sinMeta, AdminPanelController::TRANSPARENCY_META, 'zz-viejo');
+            $check(AdminPanelController::contrastOf($sinMeta) === 'auto' && AdminPanelController::focusOf($sinMeta) === 'strong' && AdminPanelController::textSpacingOf($sinMeta) === 'normal' && AdminPanelController::transparencyOf($sinMeta) === 'reduce', 'h2 con meta, la suya (auto aunque el sitio diga more); con una que no vale, la del sitio');
             set_config(SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, 'zz-raro');
             set_config(SettingsController::ACCESSIBILITY_MOTION_CONFIG, null);
             set_config(SettingsController::ACCESSIBILITY_FOCUS_CONFIG, 'zz-raro');
-            $check(SettingsController::accessibilityContrast() === 'auto' && SettingsController::accessibilityMotion() === 'auto' && SettingsController::accessibilityFocus() === 'normal', 'h3 el sitio sin valor o con uno que no vale: auto, auto y normal');
+            set_config(SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG, 'zz-raro');
+            set_config(SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG, null);
+            $check(SettingsController::accessibilityContrast() === 'auto' && SettingsController::accessibilityMotion() === 'auto' && SettingsController::accessibilityFocus() === 'normal' && SettingsController::accessibilityTextSpacing() === 'normal' && SettingsController::accessibilityTransparency() === 'auto', 'h3 el sitio sin valor o con uno que no vale: auto, auto, normal, normal y auto');
         } finally {
             foreach ($memoria as $opcion => $valor) {
                 set_config($opcion, $valor);
@@ -185,13 +191,13 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         echoTerminal(' ');
 
         //──── [g] Configuración › Accesibilidad ──────────────────────────────────────────────
-        echoTerminal('[g] Configuración › Accesibilidad guarda y valida los tres nuevos');
+        echoTerminal('[g] Configuración › Accesibilidad guarda y valida los cinco de contraste a transparencias');
         $guardar = $relativa(SettingsController::routeName('appearance-accessibility-save', [], true));
-        $validos = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'normal', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'auto', SettingsController::ACCESSIBILITY_CONTRAST_CONFIG => 'more', SettingsController::ACCESSIBILITY_MOTION_CONFIG => 'reduce', SettingsController::ACCESSIBILITY_FOCUS_CONFIG => 'strong'];
+        $validos = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'normal', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'auto', SettingsController::ACCESSIBILITY_CONTRAST_CONFIG => 'more', SettingsController::ACCESSIBILITY_MOTION_CONFIG => 'reduce', SettingsController::ACCESSIBILITY_FOCUS_CONFIG => 'strong', SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG => 'wide', SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG => 'reduce'];
         $r = $peticion($guardar, $jwtRoot, $validos);
-        $check($exito($r) && $crudoDe(SettingsController::ACCESSIBILITY_CONTRAST_CONFIG) === 'more' && $crudoDe(SettingsController::ACCESSIBILITY_MOTION_CONFIG) === 'reduce' && $crudoDe(SettingsController::ACCESSIBILITY_FOCUS_CONFIG) === 'strong', 'g1 guarda los tres valores válidos', "HTTP {$r['status']}");
+        $check($exito($r) && $crudoDe(SettingsController::ACCESSIBILITY_CONTRAST_CONFIG) === 'more' && $crudoDe(SettingsController::ACCESSIBILITY_MOTION_CONFIG) === 'reduce' && $crudoDe(SettingsController::ACCESSIBILITY_FOCUS_CONFIG) === 'strong' && $crudoDe(SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG) === 'wide' && $crudoDe(SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG) === 'reduce', 'g1 guarda los cinco valores válidos', "HTTP {$r['status']}");
         $noGuardan = [];
-        foreach ([SettingsController::ACCESSIBILITY_CONTRAST_CONFIG => 'reduce', SettingsController::ACCESSIBILITY_MOTION_CONFIG => 'zz', SettingsController::ACCESSIBILITY_FOCUS_CONFIG => 'auto'] as $opcion => $malo) {
+        foreach ([SettingsController::ACCESSIBILITY_CONTRAST_CONFIG => 'reduce', SettingsController::ACCESSIBILITY_MOTION_CONFIG => 'zz', SettingsController::ACCESSIBILITY_FOCUS_CONFIG => 'auto', SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG => 'auto', SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG => 'wide'] as $opcion => $malo) {
             $antes = $foto();
             $r = $peticion($guardar, $jwtRoot, [$opcion => $malo] + $validos);
             if ($exito($r) || $foto() !== $antes) {
@@ -205,13 +211,13 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
                 $noGuardan[] = "sin {$opcion}";
             }
         }
-        $check($noGuardan === [], 'g2 DISCRIMINANTE: un valor fuera de su lista, o el campo que falta, no guarda nada (ninguna de las cinco)', implode(' · ', $noGuardan));
+        $check($noGuardan === [], 'g2 DISCRIMINANTE: un valor fuera de su lista, o el campo que falta, no guarda nada (ninguna de las siete)', implode(' · ', $noGuardan));
         $r = $peticion($guardar, UserSessions::issueToken($crear('general', UsersModel::TYPE_USER_GENERAL)), $validos);
         $check($r['status'] === 403, 'g3 un usuario general: 403', "HTTP {$r['status']}");
-        //Quien no eligió hereda lo del sitio en <html> (el sitio quedó en more, reduce y strong).
+        //Quien no eligió hereda lo del sitio en <html> (el sitio quedó en more, reduce, strong, wide y reduce).
         $r = $peticion($inicio, UserSessions::issueToken($crear('hereda', UsersModel::TYPE_USER_ROOT)), null);
         $etiqueta = $html($r['body']);
-        $check($r['status'] === 200 && str_contains($etiqueta, 'data-contrast="more"') && str_contains($etiqueta, 'data-motion="reduce"') && str_contains($etiqueta, 'data-focus="strong"'), 'g4 quien no eligió: los del sitio en <html>', "HTTP {$r['status']}, {$etiqueta}");
+        $check($r['status'] === 200 && str_contains($etiqueta, 'data-contrast="more"') && str_contains($etiqueta, 'data-motion="reduce"') && str_contains($etiqueta, 'data-focus="strong"') && str_contains($etiqueta, 'data-text-spacing="wide"') && str_contains($etiqueta, 'data-transparency="reduce"'), 'g4 quien no eligió: los del sitio en <html>', "HTTP {$r['status']}, {$etiqueta}");
         echoTerminal(' ');
 
         //──── [v] Las dos vistas, en dos secciones ───────────────────────────────────────────
@@ -220,34 +226,87 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         $xpath = $dom($r['body']);
         $preferencias = [
             'apariencia' => $cuenta($xpath, "//*[@id='user-preferences-appearance-title']"),
-            'accesibilidad' => $cuenta($xpath, "//*[@id='user-preferences-accessibility-title']"),
+            'lectura y movimiento' => $cuenta($xpath, "//*[@id='user-preferences-reading-title']"),
             'modo' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@theme-mode-selector]//*[@data-theme-mode]"),
             'tamaño' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@text-size-selector]//*[@data-text-size]"),
             'contraste' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='contrast'][@role='radiogroup']//*[@data-value]"),
             'movimiento' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='motion'][@role='radiogroup']//*[@data-value]"),
             'foco' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='focus'][@role='radiogroup']//*[@data-value]"),
+            'espaciado' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='text-spacing'][@role='radiogroup']//*[@data-value]"),
+            'transparencias' => $cuenta($xpath, "//*[@accessibility-preference-selector][@data-preference='transparency'][@role='radiogroup']//*[@data-value]"),
+            'espaciado activo wide' => $cuenta($xpath, "//*[@data-preference='text-spacing']//*[@data-value='wide'][contains(@class,'active')][@aria-checked='true']"),
             'contraste activo more' => $cuenta($xpath, "//*[@data-preference='contrast']//*[@data-value='more'][contains(@class,'active')][@aria-checked='true']"),
             //La elegida, con primary (a 3:1 de las demás, H326): una por grupo, y solo la elegida.
             'elegidas con primary' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='true']"),
             'primary sin elegir' => $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[contains(concat(' ', normalize-space(@class), ' '), ' primary ')][@aria-checked='false']"),
             'título repetido' => $cuenta($xpath, "//*[@id='user-preferences-title']"),
         ];
-        $check($r['status'] === 200 && $preferencias === ['apariencia' => 1, 'accesibilidad' => 1, 'modo' => 4, 'tamaño' => 4, 'contraste' => 3, 'movimiento' => 3, 'foco' => 3, 'contraste activo more' => 1, 'elegidas con primary' => 5, 'primary sin elegir' => 0, 'título repetido' => 0], 'v1 «Preferencias»: Apariencia (modo, 4 con «Como el sitio») y Accesibilidad (tamaño 4; contraste, movimiento y foco 3 cada uno), con lo guardado marcado; la elegida de cada uno de los cinco grupos con primary, y sin el título repetido', "HTTP {$r['status']}, " . json_encode($preferencias, \JSON_UNESCAPED_UNICODE));
+        $check($r['status'] === 200 && $preferencias === ['apariencia' => 1, 'lectura y movimiento' => 1, 'modo' => 4, 'tamaño' => 4, 'contraste' => 3, 'movimiento' => 3, 'foco' => 3, 'espaciado' => 3, 'transparencias' => 3, 'espaciado activo wide' => 1, 'contraste activo more' => 1, 'elegidas con primary' => 7, 'primary sin elegir' => 0, 'título repetido' => 0], 'v1 «Preferencias»: Apariencia (modo y tamaño, 4 con «Como el sitio»; espaciado del texto 3) y Lectura y movimiento (contraste, movimiento, transparencias y foco, 3 cada uno), con lo guardado marcado; la elegida de cada uno de los siete grupos con primary, y sin el título repetido', "HTTP {$r['status']}, " . json_encode($preferencias, \JSON_UNESCAPED_UNICODE));
+        //Las dos tarjetas del tema (H354), cada una con sus grupos en este orden, y la vista previa debajo, inerte.
+        $gruposDe = function (string $titulo) use ($xpath): array {
+            $nodos = $xpath->query("//section[@aria-labelledby='{$titulo}']//*[@role='radiogroup']");
+            $ids = [];
+            foreach ($nodos === false ? [] : $nodos as $nodo) {
+                if ($nodo instanceof \DOMElement) {
+                    $ids[] = str_replace(['user-preferences-', '-label'], '', $nodo->getAttribute('aria-labelledby'));
+                }
+            }
+            return $ids;
+        };
+        $tarjetas = [
+            'apariencia' => $gruposDe('user-preferences-appearance-title'),
+            'lectura y movimiento' => $gruposDe('user-preferences-reading-title'),
+            'vista previa inerte' => $cuenta($xpath, "//section[@user-preferences-preview]//*[@inert]"),
+            'grupos en la vista previa' => $cuenta($xpath, "//section[@user-preferences-preview]//*[@role='radiogroup']"),
+        ];
+        $check($tarjetas === ['apariencia' => ['theme-mode', 'text-size', 'text-spacing'], 'lectura y movimiento' => ['contrast', 'motion', 'transparency', 'focus'], 'vista previa inerte' => 1, 'grupos en la vista previa' => 0], 'v3 las dos tarjetas con sus grupos en orden (Apariencia: modo, tamaño, espaciado; Lectura y movimiento: contraste, movimiento, transparencias, foco) y la vista previa inerte, sin grupos', (string) json_encode($tarjetas));
+        //«Como el sitio» primero en cada grupo, con su recordatorio debajo (P313).
+        $grupos = $xpath->query("//*[@data-tab='preferencias']//*[@role='radiogroup']");
+        $sinSitio = [];
+        foreach ($grupos === false ? [] : $grupos as $grupo) {
+            if (!$grupo instanceof \DOMElement) {
+                continue;
+            }
+            $id = str_replace('-label', '', $grupo->getAttribute('aria-labelledby'));
+            $primera = $xpath->query('./button[1]', $grupo);
+            $boton = $primera !== false ? $primera->item(0) : null;
+            $esSitio = $boton instanceof \DOMElement && in_array('site', [$boton->getAttribute('data-value'), $boton->getAttribute('data-theme-mode'), $boton->getAttribute('data-text-size')], true)
+                && trim($boton->textContent) === __(AdminPanelController::ADMIN_LANG_GROUP, 'Como el sitio');
+            $recordatorio = $xpath->query("//*[@id='{$id}-site']");
+            $nodoRecordatorio = $recordatorio !== false ? $recordatorio->item(0) : null;
+            $tieneRecordatorio = $nodoRecordatorio instanceof \DOMElement && str_starts_with(trim($nodoRecordatorio->textContent), strReplaceTemplate(__(AdminPanelController::ADMIN_LANG_GROUP, 'Como el sitio: %s'), ['%s' => '']));
+            if (!$esSitio || !$tieneRecordatorio) {
+                $sinSitio[] = $id;
+            }
+        }
+        $check(($grupos === false ? 0 : $grupos->length) === 7 && $sinSitio === [], 'v4 «Como el sitio» es la primera opción de los siete grupos y cada uno lleva debajo «Como el sitio: …»', 'sin él: ' . implode(', ', $sinSitio));
         $r = $peticion($relativa(SettingsController::routeName('appearance-accessibility', [], true)), $jwtRoot, null);
         $xpath = $dom($r['body']);
         $sitio = [
             'apariencia' => $cuenta($xpath, "//*[@id='accessibility-appearance-title']"),
-            'accesibilidad' => $cuenta($xpath, "//*[@id='accessibility-accessibility-title']"),
+            'lectura y movimiento' => $cuenta($xpath, "//*[@id='accessibility-reading-title']"),
         ];
         foreach ($opciones as $opcion) {
             $sitio[$opcion] = $cuenta($xpath, "//form[@accessibility-form]//select[@name='{$opcion}']");
         }
-        $check($r['status'] === 200 && array_unique(array_values($sitio)) === [1] && $cuenta($xpath, "//select[@name='accessibility_contrast']/option[@value='more'][@selected]") === 1, 'v2 Configuración › Accesibilidad: sus dos secciones y los cinco campos en un solo formulario, con lo guardado elegido', "HTTP {$r['status']}, " . json_encode($sitio));
+        $check($r['status'] === 200 && array_unique(array_values($sitio)) === [1] && $cuenta($xpath, "//select[@name='accessibility_contrast']/option[@value='more'][@selected]") === 1, 'v2 Configuración › Accesibilidad: sus dos tarjetas y los siete campos en un solo formulario, con lo guardado elegido', "HTTP {$r['status']}, " . json_encode($sitio));
+        $camposDe = function (string $titulo) use ($xpath): array {
+            $nodos = $xpath->query("//form[@accessibility-form]//section[@aria-labelledby='{$titulo}']//select");
+            $nombres = [];
+            foreach ($nodos === false ? [] : $nodos as $nodo) {
+                if ($nodo instanceof \DOMElement) {
+                    $nombres[] = str_replace('accessibility_', '', $nodo->getAttribute('name'));
+                }
+            }
+            return $nombres;
+        };
+        $tarjetasSitio = ['apariencia' => $camposDe('accessibility-appearance-title'), 'lectura y movimiento' => $camposDe('accessibility-reading-title')];
+        $check($tarjetasSitio === ['apariencia' => ['theme_mode', 'text_size', 'text_spacing'], 'lectura y movimiento' => ['contrast', 'motion', 'transparency', 'focus']], 'v5 Configuración › Accesibilidad con las mismas dos tarjetas y los campos en el mismo orden', (string) json_encode($tarjetasSitio));
         echoTerminal(' ');
 
         //──── [s] «Como el sitio» (H327) ─────────────────────────────────────────────────────
         echoTerminal('[s] «Como el sitio»: site borra la meta en las tres rutas y la persona vuelve a heredar');
-        //El sitio quedó en g1 con normal, auto, more, reduce y strong: root elige lo contrario de cada uno.
+        //El sitio quedó en g1 con normal, auto, more, reduce, strong, wide y reduce: root elige lo contrario de cada uno.
         $rutaModo = $relativa(AdminPanelController::routeName('theme-mode', [], true));
         $rutaTamano = $relativa(AdminPanelController::routeName('text-size', [], true));
         $propias = [
@@ -256,9 +315,11 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
             $exito($peticion($ruta, $jwtRoot, ['preference' => 'contrast', 'value' => 'auto'])),
             $exito($peticion($ruta, $jwtRoot, ['preference' => 'motion', 'value' => 'auto'])),
             $exito($peticion($ruta, $jwtRoot, ['preference' => 'focus', 'value' => 'normal'])),
+            $exito($peticion($ruta, $jwtRoot, ['preference' => 'text-spacing', 'value' => 'normal'])),
+            $exito($peticion($ruta, $jwtRoot, ['preference' => 'transparency', 'value' => 'auto'])),
         ];
         $etiqueta = $html($peticion($inicio, $jwtRoot, null)['body']);
-        $check($propias === [true, true, true, true, true] && str_contains($etiqueta, 'data-theme="dark"') && str_contains($etiqueta, 'data-text-size="larger"') && str_contains($etiqueta, 'data-contrast="auto"'), 's0 root elige lo contrario del sitio y su <html> lo lleva', $etiqueta);
+        $check($propias === [true, true, true, true, true, true, true] && str_contains($etiqueta, 'data-theme="dark"') && str_contains($etiqueta, 'data-text-size="larger"') && str_contains($etiqueta, 'data-contrast="auto"') && str_contains($etiqueta, 'data-text-spacing="normal"') && str_contains($etiqueta, 'data-transparency="auto"'), 's0 root elige lo contrario del sitio y su <html> lo lleva', $etiqueta);
         $rechazos = [
             $peticion($rutaModo, $jwtRoot, ['mode' => 'sitio'])['status'],
             $peticion($rutaTamano, $jwtRoot, ['size' => 'SITE'])['status'],
@@ -271,24 +332,26 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
             json_decode($peticion($ruta, $jwtRoot, ['preference' => 'contrast', 'value' => 'site'])['body'], true),
             json_decode($peticion($ruta, $jwtRoot, ['preference' => 'motion', 'value' => 'site'])['body'], true),
             json_decode($peticion($ruta, $jwtRoot, ['preference' => 'focus', 'value' => 'site'])['body'], true),
+            json_decode($peticion($ruta, $jwtRoot, ['preference' => 'text-spacing', 'value' => 'site'])['body'], true),
+            json_decode($peticion($ruta, $jwtRoot, ['preference' => 'transparency', 'value' => 'site'])['body'], true),
         ];
         $respuestas = array_map(fn($d): string => is_array($d) && ($d['success'] ?? null) === true && ($d['choice'] ?? null) === 'site' ? (string) ($d['mode'] ?? $d['size'] ?? $d['value'] ?? '') : 'MAL', $alSitio);
-        $metas = array_map(fn(string $meta) => UsersModel::metaValue($idRoot, $meta), [AdminPanelController::THEME_MODE_META, AdminPanelController::TEXT_SIZE_META, AdminPanelController::CONTRAST_META, AdminPanelController::MOTION_META, AdminPanelController::FOCUS_META]);
-        $check($respuestas === ['auto', 'normal', 'more', 'reduce', 'strong'] && $metas === [null, null, null, null, null], 's2 site en las tres rutas: 200, borra las cinco metas y responde el valor del sitio, que es el que se aplica', (string) json_encode(['respuestas' => $respuestas, 'metas' => $metas]));
+        $metas = array_map(fn(string $meta) => UsersModel::metaValue($idRoot, $meta), [AdminPanelController::THEME_MODE_META, AdminPanelController::TEXT_SIZE_META, AdminPanelController::CONTRAST_META, AdminPanelController::MOTION_META, AdminPanelController::FOCUS_META, AdminPanelController::TEXT_SPACING_META, AdminPanelController::TRANSPARENCY_META]);
+        $check($respuestas === ['auto', 'normal', 'more', 'reduce', 'strong', 'wide', 'reduce'] && $metas === [null, null, null, null, null, null, null], 's2 site en las tres rutas: 200, borra las siete metas y responde el valor del sitio, que es el que se aplica', (string) json_encode(['respuestas' => $respuestas, 'metas' => $metas]));
         $etiqueta = $html($peticion($inicio, $jwtRoot, null)['body']);
-        $check(count(array_filter(['data-theme="auto"', 'data-text-size="normal"', 'data-contrast="more"', 'data-motion="reduce"', 'data-focus="strong"'], fn(string $atributo): bool => str_contains($etiqueta, $atributo))) === 5, 's3 la petición siguiente lleva en <html> los cinco del sitio', $etiqueta);
+        $check(count(array_filter(['data-theme="auto"', 'data-text-size="normal"', 'data-contrast="more"', 'data-motion="reduce"', 'data-focus="strong"', 'data-text-spacing="wide"', 'data-transparency="reduce"'], fn(string $atributo): bool => str_contains($etiqueta, $atributo))) === 7, 's3 la petición siguiente lleva en <html> los siete del sitio', $etiqueta);
         $xpath = $dom($peticion($relativa(UsersController::routeName('form-profile', [], true)) . '?' . UsersController::PROFILE_TAB_PARAM . '=' . UsersController::PROFILE_PREFERENCES_TAB, $jwtRoot, null)['body']);
         $marcadas = $cuenta($xpath, "//*[@data-tab='preferencias']//*[@role='radiogroup']//button[@aria-checked='true'][@data-theme-mode='site' or @data-text-size='site' or @data-value='site'][contains(@class,'active')]");
         $nodosNota = $xpath->query("//*[@id='user-preferences-contrast-site']");
         $nodoNota = $nodosNota !== false ? $nodosNota->item(0) : null;
         $notaContraste = $nodoNota instanceof \DOMElement ? trim($nodoNota->textContent) : '';
-        $check($marcadas === 5 && $notaContraste === strReplaceTemplate(__(AdminPanelController::ADMIN_LANG_GROUP, 'Como el sitio: %s'), ['%s' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Más contraste')]), 's4 sin meta, «Como el sitio» marcada en los cinco grupos, y debajo el valor del sitio («Como el sitio: Más contraste»)', (string) json_encode(['marcadas' => $marcadas, 'nota' => $notaContraste], \JSON_UNESCAPED_UNICODE));
+        $check($marcadas === 7 && $notaContraste === strReplaceTemplate(__(AdminPanelController::ADMIN_LANG_GROUP, 'Como el sitio: %s'), ['%s' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Más contraste')]), 's4 sin meta, «Como el sitio» marcada en los siete grupos, y debajo el valor del sitio («Como el sitio: Más contraste»)', (string) json_encode(['marcadas' => $marcadas, 'nota' => $notaContraste], \JSON_UNESCAPED_UNICODE));
         echoTerminal(' ');
 
         //──── [p] Las páginas del panel con <html> propio (H325) ─────────────────────────────
-        echoTerminal('[p] El acceso y los problemas de acceso, sin sesión, con los cinco del sitio');
-        //El sitio quedó en g1 con normal, auto, more, reduce y strong.
-        $delSitio = ['data-theme="auto"', 'data-text-size="normal"', 'data-contrast="more"', 'data-motion="reduce"', 'data-focus="strong"'];
+        echoTerminal('[p] El acceso y los problemas de acceso, sin sesión, con los siete del sitio');
+        //El sitio quedó en g1 con normal, auto, more, reduce, strong, wide y reduce.
+        $delSitio = ['data-theme="auto"', 'data-text-size="normal"', 'data-contrast="more"', 'data-motion="reduce"', 'data-focus="strong"', 'data-text-spacing="wide"', 'data-transparency="reduce"'];
         set_config('current_user', null);
         set_config('pcsphp_current_user_stored', null);
         $memoriaSitio = [];
@@ -300,7 +363,7 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         foreach ($memoriaSitio as $opcion => $valor) {
             set_config($opcion, $valor);
         }
-        $check(count(array_filter($delSitio, fn(string $atributo): bool => str_contains($atributos, $atributo))) === 5 && substr_count($atributos, 'data-') === 5, 'p1 htmlPreferenceAttributes() sin sesión: los cinco del sitio, escapados', $atributos);
+        $check(count(array_filter($delSitio, fn(string $atributo): bool => str_contains($atributos, $atributo))) === 7 && substr_count($atributos, 'data-') === 7, 'p1 htmlPreferenceAttributes() sin sesión: los siete del sitio, escapados', $atributos);
         $paginas = [
             'p2 la página de acceso' => $relativa(UsersController::routeName('form-login', [], true)),
             'p3 la lista de problemas de acceso' => $relativa(UsersController::routeName('problems-list', [], true)),
@@ -308,7 +371,7 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         foreach ($paginas as $caso => $camino) {
             $r = $peticion($camino, null, null);
             $etiqueta = $html($r['body']);
-            $check($r['status'] === 200 && count(array_filter($delSitio, fn(string $atributo): bool => str_contains($etiqueta, $atributo))) === 5, "{$caso}, sin sesión: los cinco del sitio en <html>", "HTTP {$r['status']}, {$etiqueta}");
+            $check($r['status'] === 200 && count(array_filter($delSitio, fn(string $atributo): bool => str_contains($etiqueta, $atributo))) === 7, "{$caso}, sin sesión: los siete del sitio en <html>", "HTTP {$r['status']}, {$etiqueta}");
         }
         echoTerminal(' ');
     } catch (\Throwable $e) {
@@ -339,9 +402,9 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         $quedan = (int) $database->query('SELECT COUNT(*) FROM `' . UsersModel::TABLE . '` WHERE username LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
         $check($quedan === 0, 'z1 no queda ningún usuario de la prueba (ni sus metas)', "quedan {$quedan}");
         $huellaDespues = sha1((string) json_encode($foto()));
-        $check($huellaDespues === $huellaAntes, 'z2 las cinco opciones de accesibilidad, como estaban (sha1)', "{$huellaAntes} → {$huellaDespues}");
+        $check($huellaDespues === $huellaAntes, 'z2 las siete opciones de accesibilidad, como estaban (sha1)', "{$huellaAntes} → {$huellaDespues}");
     }
 
     return $balance();
 
-})->setDescription('La accesibilidad, fase 2 (H252): la ruta admin-accessibility-preference (400 fuera de lista, 200 guarda la meta y el <html> la lleva), la herencia del sitio, Configuración › Accesibilidad con los tres nuevos (todo o nada; 403 al general) y las dos secciones de «Preferencias» y de la pantalla del sitio. Por HTTP; crea usuarios zz-agente- y los retira, y repone las opciones en crudo.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('La accesibilidad, fase 2 (H252): la ruta admin-accessibility-preference (400 fuera de lista, 200 guarda la meta y el <html> la lleva), la herencia del sitio, Configuración › Accesibilidad con contraste, movimiento, foco, espaciado del texto y transparencias (todo o nada; 403 al general) y las dos secciones de «Preferencias» y de la pantalla del sitio. Por HTTP; crea usuarios zz-agente- y los retira, y repone las opciones en crudo.')->setEffects([CliActions::EFFECT_DATABASE])->register();

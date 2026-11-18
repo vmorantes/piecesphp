@@ -123,8 +123,8 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <h2 class="title" id="accessibility"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accessibility-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accessibility</span></h2>
 <div class="content" id="accessibility-contenido">
 <p>Go to <strong>“Accessibility”</strong>. Here you choose how the panel looks for whoever has not chosen their own in “My account” ›
-“Preferences” (see “Your account”, “Your preferences”). It has two sections, like each person's preferences:
-<strong>Appearance</strong> and <strong>Accessibility</strong>.</p>
+“Preferences” (see “Your account”, “Your preferences”). It has the same two cards as each person's preferences:
+<strong>Appearance</strong> and <strong>Reading and motion</strong>.</p>
 <p><img class="ui image" alt="Accessibility" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
 <p>At the end, <strong>“Cancel”</strong> or <strong>“Save”</strong>.</p>
 <table class="ui celled table">
@@ -147,9 +147,14 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <td><strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>. Large and Larger add 2 and 4 pixels to the “Base size” in Colors.</td>
 </tr>
 <tr>
+<td>Default text spacing</td>
+<td>No</td>
+<td><strong>“Normal”</strong> or <strong>“Wide”</strong>: more space between lines, paragraphs, words and letters.</td>
+</tr>
+<tr>
 <td>Default contrast</td>
 <td>No</td>
-<td><strong>“Automatic”</strong> (it follows each person's device) or <strong>“More contrast”</strong>.</td>
+<td>In <strong>Reading and motion</strong>: <strong>“Automatic”</strong> (it follows each person's device) or <strong>“More contrast”</strong>.</td>
 </tr>
 <tr>
 <td>Default motion</td>
@@ -157,7 +162,12 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <td><strong>“Automatic”</strong> or <strong>“Reduce motion”</strong>.</td>
 </tr>
 <tr>
-<td>Default focus</td>
+<td>Default transparency</td>
+<td>No</td>
+<td><strong>“Like the system”</strong> (it follows each person's device) or <strong>“Reduce”</strong>: solid backgrounds instead of translucent ones.</td>
+</tr>
+<tr>
+<td>Default focus indicator</td>
 <td>No</td>
 <td><strong>“Normal”</strong> or <strong>“Strong”</strong>: the outline of what is selected with the keyboard, more visible.</td>
 </tr>

@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 0.15.0
+ * # Fomantic UI - 0.16.1
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 0.15.0 - Reset
+ * # Fomantic-UI 0.16.1 - Reset
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -426,7 +426,7 @@ template {
   display: none;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Site
+ * # Fomantic-UI 0.16.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -864,10 +864,12 @@ mark {
   }
 }
 
-/* Movimiento reducido: ninguna animación ni transición, desplazamiento sin suavizado */
+/* Movimiento reducido: ninguna animación ni transición, desplazamiento sin suavizado. Salvo los temporizadores, que no
+   son movimiento: el toast cuenta su displayTime con una animación invisible (span.wait.progressing) y se cierra en su
+   animationend; con 0.01ms se cerraba al instante (PiecesPHP, 2026-11-17). Su barra de progreso sí queda quieta. */
 
 :root[data-motion="reduce"],
-:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *:not(.wait.progressing),
 :root[data-motion="reduce"] *::before,
 :root[data-motion="reduce"] *::after {
   animation-duration: 0.01ms !important;
@@ -880,7 +882,7 @@ mark {
 
 @media (prefers-reduced-motion: reduce) {
   :root[data-motion="auto"],
-  :root[data-motion="auto"] *,
+  :root[data-motion="auto"] *:not(.wait.progressing),
   :root[data-motion="auto"] *::before,
   :root[data-motion="auto"] *::after {
     animation-duration: 0.01ms !important;
@@ -900,6 +902,254 @@ mark {
   outline-offset: 2px !important;
   box-shadow: 0 0 0 5px var(--theme-surface) !important;
 }
+
+/* Espaciado de texto (WCAG 1.4.12, encargo de PiecesPHP 2026-11-16): interlineado 1,5, párrafos a 2× el tamaño, letras a
+   0,12 em y palabras a 0,16 em, los valores mínimos que pide la norma. !important, como el marcador de prueba de WCAG:
+   tiene que ganar a cualquier regla de componente. Los íconos quedan fuera (son glifos de fuente, no texto), y los botones de solo ícono (sin texto, el
+   interlineado solo los hacía más altos que anchos), los grupos de íconos (`i.icons`) y las etiquetas circulares (un número
+   o una letra en un círculo: con 1,5 pasaban de 24×24 a 24×30). */
+
+:root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled),
+.ui.icon.buttons > .button:not(.labeled),
+.ui.circular.label) {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+
+/* Lo excluido no toma el espaciado, pero lo heredaría del padre: la etiqueta circular con dos cifras pasaba a 28,7×24 */
+
+:root[data-text-spacing="wide"] .ui.circular.label {
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+:root[data-text-spacing="wide"] p {
+  margin-block-end: 2em !important;
+}
+
+/* Con las letras más anchas, una palabra larga sin espacios (una ruta, un nombre de clase) que ya rozaba el ancho se sale
+   del contenedor: puede partirse por cualquier punto. */
+
+:root[data-text-spacing="wide"] body {
+  overflow-wrap: anywhere;
+}
+
+/* Las celdas `collapsing` de una tabla no saltan de línea (nowrap de Fomantic): con las letras más anchas, a 390 sacaban
+   la tabla de la ventana. */
+
+:root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing {
+  white-space: normal;
+}
+
+/* El código en línea no saca su caja de la ventana: una ruta larga sin espacios se parte si no cabe (a 390 salía hasta
+   100px en todos los temas menos piecesphp, que ya lo hacía). break-word no cambia el ancho mínimo de lo que lo contiene. */
+
+:not(pre) > code {
+  overflow-wrap: break-word;
+}
+
+/* El código en línea (una ruta, `Clase::CONSTANTE`) también puede partirse: los temas le quitan el corte de palabra */
+
+:root[data-text-spacing="wide"] :not(pre) > code {
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+}
+
+/* Transparencias reducidas (encargo de PiecesPHP, 2026-11-16): sin desenfoques detrás de las superficies. Cada tema
+   vuelve opacas sus superficies translúcidas con el mismo atributo (glass-ios es el que más tiene). `auto` sigue a la
+   preferencia del sistema. */
+
+:root[data-transparency="reduce"] {
+  /* La barra del shell es pegajosa y translúcida (superficie al 86 %): el contenido se veía al pasar por debajo */
+}
+
+:root[data-transparency="reduce"] *,
+:root[data-transparency="reduce"] *::before,
+:root[data-transparency="reduce"] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+:root[data-transparency="reduce"] .ui.shell > .main > .bar {
+  background-color: var(--theme-surface) !important;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-transparency="auto"] {
+    /* La barra del shell es pegajosa y translúcida (superficie al 86 %): el contenido se veía al pasar por debajo */
+  }
+
+  :root[data-transparency="auto"] *,
+  :root[data-transparency="auto"] *::before,
+  :root[data-transparency="auto"] *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  :root[data-transparency="auto"] .ui.shell > .main > .bar {
+    background-color: var(--theme-surface) !important;
+  }
+}
+
+/* Opción elegida de un grupo (WCAG 1.4.11, encargo de PiecesPHP): en un `role="radiogroup"` (un `ui buttons` o un
+   selector segmentado `ui item secondary menu`), la elegida (`aria-checked="true"`) se rellena con el acento del modo y
+   lleva su texto sobre relleno automático (--accent-1-text). Corregido por su PO en la 0.16.1: en el color del texto
+   (0.16.0) se perdía el azul de marca; la garantía de contraste en oscuro la da el acento de oscuro (0.17.0, D109).
+   Solo con el ARIA: ningún `active` cambia sin él. !important: tiene que ganar a los rellenos de color y de estado de
+   cada tema. */
+
+[role="radiogroup"] > [aria-checked="true"],
+[role="radiogroup"] > [aria-checked="true"]:hover {
+  background: var(--accent-1, var(--accent, #356dca)) !important;
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) !important;
+  box-shadow: none !important;
+}
+
+[role="radiogroup"] > [aria-checked="true"] > .icon {
+  color: inherit !important;
+}
+
+/* Objetivos de pulsación de 24px (WCAG 2.5.8, encargo de PiecesPHP 2026-11-16), por omisión: enlaces de una lista
+   apilados (22–23px, uno pegado al otro), el resumen de un <details> (20px), las etiquetas que son enlaces (unos 22px en
+   fila) y el ícono-enlace de un input (unos 15px de ancho, pegado al campo). */
+
+/* Contenido centrado en los 24px: arriba, el paso entre textos era 27/24 (el primero sin relleno superior) */
+
+.ui.list a.item {
+  min-height: 24px;
+  align-content: center;
+}
+
+/* En una lista horizontal los ítems van en línea: centrados y con 1px de margen negativo arriba y abajo cuentan como 22px
+   en la línea, o al partirse en dos filas (un pie a 390) las filas se separaban 5px más (medido: la lista mide lo que en
+   la 0.15.0 en piecesphp y fluent; en lumen, 2px menos). .ui.ui: la divided pone margin: 0 (y line-height 0.6, por eso
+   no vale 1lh) */
+
+.ui.ui.horizontal.list > a.item {
+  vertical-align: middle;
+  margin-block: -1px;
+}
+
+/* Los enlaces y cabeceras-enlace que crecen a 24px no cambian la disposición: márgenes negativos de lo que crecen sobre
+   su línea (1lh), así la línea mide lo de antes y el texto sigue junto a su ícono (centrado en 24px bajaba 2–3px y el
+   margen inferior de una cabecera de menú, antes en línea, empezaba a contar: 10px más por grupo) */
+
+.ui.list .item > a:not(.ui):only-child,
+.ui.list .item > .content > a:not(.ui):only-child,
+.ui.list .item > a:not(.ui):first-child:has(+ .list) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* La × de un nag (unos 17×15px, pegada al propio nag, que también es un enlace). Va anclada con top y right: la caja
+   crecía solo hacia abajo y a la izquierda y la × bajaba 5px; translate la devuelve a su centro (medía 1.18em × 1em, el
+   i.icon). Un tema cuya × ya mide 24px (piecesphp) lo anula. */
+
+.ui.nag > .close.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 24px;
+  min-height: 24px;
+  translate: max(0px, (24px - 1.18em) / 2) min(0px, (1em - 24px) / 2);
+}
+
+.ui.list .item a.header,
+.ui.menu .item > a.header {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* El margen inferior de la cabecera de un menú vertical (.ui.vertical.menu .item > .header:not(.ui)) no contaba en un
+   enlace en línea */
+
+.ui.ui.vertical.menu .item > a.header:not(.ui) {
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* Checkbox, radio y toggle: la caja y su etiqueta son un objetivo de 17–20px de alto, pegado al campo de al lado
+   (.ui.ui: el toggle fija su propio alto mínimo). El contenido va centrado en los 24px (la etiqueta mide al menos lo que
+   el control, checkbox.less): arriba quedaba 2–4px por encima del texto de una fila o de una celda. Sin texto, su línea
+   base es el pie de la caja (como en Fomantic): márgenes negativos de lo que creció, y la línea solo cuenta el alto de
+   antes (--checkbox-height, de checkbox.less); el control queda donde estaba y la caja pulsable sigue siendo de 24px
+   (con vertical-align, la caja más alta subía la línea de una celda y la casilla quedaba 2px por debajo del texto) */
+
+.ui.ui.checkbox {
+  min-height: 24px !important;
+  align-content: center;
+  /* el centrado de una línea, también en las de dos líneas: una casilla de dos líneas junto a otra de una (una rejilla
+       de casillas) quedaba 2px más alta */
+  padding-block: max(0px, (24px - max(var(--checkbox-height, 24px), 1lh)) / 2);
+}
+
+/* invisible: la etiqueta es un botón o una imagen, ya mayor que 24px */
+
+.ui.ui.invisible.checkbox {
+  padding-block: 0;
+}
+
+/* En una fila de campos la casilla se alinea con el input por su margen superior (form.less, pensado para el alto de
+   antes): sube lo que crece por arriba al centrarse en 24px (quedaba 2px por debajo del centro del input) */
+
+.ui.form .fields:not(.grouped):not(.inline) .field:not(:only-child) .ui.ui.checkbox,
+.ui.form .field .fields .field:not(:only-child) .ui.ui.checkbox {
+  translate: 0 min(0px, (max(var(--checkbox-height, 24px), 1lh) - 24px) / 2);
+}
+
+/* El asterisco de una casilla obligatoria va arriba de la caja (top: 0, form.less): baja lo que se centra una línea */
+
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > .ui.ui.checkbox::after,
+.ui.form .required.field > .ui.ui.checkbox::after {
+  top: max(0px, (24px - 1lh) / 2);
+}
+
+.ui.ui.fitted.checkbox,
+.ui.ui.checkbox:has(> label:empty) {
+  margin-block: min(0px, (var(--checkbox-height, 24px) - 24px) / 2);
+}
+
+/* Enlaces del pie de un evento del feed («4 me gusta») y de la línea de metadatos de un ítem, fuera de una frase */
+
+/* inline-block con el contenido centrado: con inline-flex se perdía el espacio entre el ícono y el texto (de 8 a 5px).
+   Márgenes negativos de lo que crece sobre su línea: la fila de metadatos no crece (el evento crecía 7px) */
+
+.ui.feed > .event > .content .meta > a,
+.ui.items > .item .meta > a {
+  display: inline-block;
+  align-content: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* border-box: un summary con relleno propio (lumen, 31px) crecía 8px; el contenido centrado en los 24px */
+
+summary {
+  box-sizing: border-box;
+  min-height: 24px;
+  align-content: center;
+}
+
+/* inline-block (el de Fomantic) con el contenido centrado: con inline-flex se perdía el espacio entre el texto y su × */
+
+a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
+  align-content: center;
+  min-height: 24px;
+  vertical-align: middle;
+}
+
+.ui.icon.input > i.link.icon {
+  min-width: 24px;
+}
+
+/* Etiquetas circulares que son enlaces: al menos 24px, en label.less (necesita el tamaño mínimo de cada tema) */
+
+/* Punto de color que es un enlace (`a.ui.empty.circular.label`): caja de 24px con el mismo punto, en label.less */
 
 /* Colores forzados (alto contraste de Windows): el sistema quita fondos y sombras; los controles que solo se
    distinguían por el relleno recuperan su borde y el foco se ve siempre */
@@ -3231,7 +3481,7 @@ strong {
   font-weight: 600;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Button
+ * # Fomantic-UI 0.16.1 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -9565,6 +9815,18 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   border-color: color-mix(in srgb, var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
 }
 
+/* Grupos que saltan de línea (wrapping, no spaced): una rejilla de esquinas rectas. Con radios en el primer y el último
+   botón quedaba una muesca en la junta entre filas (el primero redondeado abajo aunque tuviera otra fila debajo). Más
+   específico que las reglas de :first-child y :last-child de los temas; tinker recorta el grupo con su propio radio. */
+
+.ui.ui.ui.wrapping.buttons:not(.spaced) {
+  border-radius: 0;
+}
+
+.ui.ui.ui.wrapping.buttons:not(.spaced) > .ui.button {
+  border-radius: 0;
+}
+
 /* -------------------
         Foco
 -------------------- */
@@ -10274,20 +10536,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 
-/* wrapping (varias líneas, p. ej. el grupo «Posición» del asistente a 390, apilado en cuatro filas): el radio de 8px en
-   las puntas del primero y el último dejaba esquinas sueltas. Radio pequeño, como en material3, lumen y glass-ios. */
-
-.ui.wrapping.buttons:not(.spaced) {
-  border-radius: var(--r-xs, 4px);
-}
-
-.ui.wrapping.buttons:not(.spaced) .button:first-child {
-  border-radius: var(--r-xs, 4px) 0 0 var(--r-xs, 4px);
-}
-
-.ui.wrapping.buttons:not(.spaced) .button:last-child {
-  border-radius: 0 var(--r-xs, 4px) var(--r-xs, 4px) 0;
-}
+/* wrapping (varias líneas): rejilla de esquinas rectas, en core */
 /* Fork: componente propio, no existe en Fomantic. */
 
 /*******************************
@@ -10372,7 +10621,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   aspect-ratio: 1;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Container
+ * # Fomantic-UI 0.16.1 - Container
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10749,7 +10998,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Divider
+ * # Fomantic-UI 0.16.1 - Divider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -11092,7 +11341,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.15.0 - Emoji
+ * # Fomantic-UI 0.16.1 - Emoji
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -30212,7 +30461,7 @@ em[data-emoji="regional_indicator_a"]::before {
              Emojis
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Flag
+ * # Fomantic-UI 0.16.1 - Flag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -31847,7 +32096,7 @@ i.flag.united.nations::before {
          Flex Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Header
+ * # Fomantic-UI 0.16.1 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -33081,7 +33330,7 @@ h1.ui.header:not(:last-child) {
   color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 /*!
- * # Fomantic-UI 0.15.0 - Icon
+ * # Fomantic-UI 0.16.1 - Icon
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -42427,7 +42676,7 @@ i.huge.bordered.primary.icon.icon.icon.icon.icon.icon:not(.inverted) {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.15.0 - Image
+ * # Fomantic-UI 0.16.1 - Image
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -42848,7 +43097,7 @@ svg.ui.avatar.image,
   box-shadow: 0 0 0 1px var(--theme-border);
 }
 /*!
- * # Fomantic-UI 0.15.0 - Input
+ * # Fomantic-UI 0.16.1 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -43028,7 +43277,9 @@ svg.ui.avatar.image,
        que no tienen color y en black (casi del tono de la pista sobre el campo oscuro), el claro de inverted. Con el claro fijo, los quince de color salían iguales y blancos. */
 
 .ui.ui.inverted.loading.input:not(.transparent) > i.icon::after {
-  border-color: currentColor transparent transparent;
+  /* Aclarado: el campo inverted es oscuro en los dos modos y la tinta de color del modo claro (secondary, primary)
+           casi no se separaba de la pista */
+  border-color: color-mix(in oklab, currentColor 60%, #fff) transparent transparent;
 }
 
 /* .ui.ui.ui.ui: empata con `.ui.ui.ui.inverted.black.elastic.loading > i.icon::after` de loader.less, que va después */
@@ -45192,7 +45443,7 @@ input[type="file"].ui.black.file.input::file-selector-button:hover,
   text-overflow: ellipsis;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Label
+ * # Fomantic-UI 0.16.1 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -45308,6 +45559,35 @@ a.ui.label {
 .ui.label:not(.icon) > .close.icon,
 .ui.label:not(.icon) > .delete.icon {
   margin: 0 0 0 0.5em;
+}
+
+/* Fork (WCAG 2.5.8): la × mide unos 8×11 px; su caja pasa a 24×24 con el glifo centrado, y márgenes negativos de lo que
+   crece para no mover nada (medía @deleteIconWidth × 1em: en una etiqueta el ícono tiene width: auto, no 1.18em) */
+
+.ui.label > .close.icon,
+.ui.label > .delete.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 24px !important;
+  /* algún tema fija el ancho de la × de las etiquetas del dropdown */
+  height: 24px !important;
+  flex-shrink: 0;
+  /* en una etiqueta flexible estrecha (un dropdown múltiple a 390) se encogía a 22px */
+  padding: 0;
+}
+
+.ui.label:not(.icon) > .close.icon,
+.ui.label:not(.icon) > .delete.icon,
+.ui.label[class*="left icon"] > .right.close.icon,
+.ui.label[class*="left icon"] > .right.delete.icon {
+  margin: calc((1em - 24px) / 2) calc((0.6875em - 24px) / 2) calc((1em - 24px) / 2) calc(0.5em + (0.6875em - 24px) / 2);
+}
+
+.ui.label[class*="left icon"] > .close.icon:not(.right),
+.ui.label[class*="left icon"] > .delete.icon:not(.right) {
+  margin: calc((1em - 24px) / 2) calc(0.5em + (0.6875em - 24px) / 2) calc((1em - 24px) / 2) calc((0.6875em - 24px) / 2);
 }
 
 /* Label for only an icon */
@@ -45473,6 +45753,15 @@ a.ui.label {
   width: 1.2963657em;
   height: 1.2963657em;
   transition: none;
+}
+
+/* Fork (WCAG 2.5.8): la punta de una tag que es un enlace llega al alto mínimo que le dé el tema (@tagLinkMinTriangle).
+       Mínimos, no tamaño: varios temas fijan el de su punta en sus overrides */
+
+.ui.tag.labels > a.label::before,
+a.ui.tag.label::before {
+  min-width: 16.97px;
+  min-height: 16.97px;
 }
 
 .ui.tag.labels .label::after,
@@ -47776,6 +48065,15 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
   border-radius: 500rem;
 }
 
+/* Fork (WCAG 2.5.8): la que es un enlace mide al menos 24px, sin bajar del tamaño del tema (sustituirlo por 24px la
+       dejaba en 24×28 en material3, cuyo mínimo es 2em) */
+
+.ui.ui.circular.labels:not(.empty) > a.label:not(.empty),
+a.ui.ui.circular.label:not(.empty) {
+  min-width: max(24px, 1.8333333333333333em);
+  min-height: max(24px, 1.8333333333333333em);
+}
+
 .ui.empty.circular.labels .label,
 .ui.empty.circular.label {
   min-width: 0;
@@ -47784,6 +48082,30 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
   width: 0.5em;
   height: 0.5em;
   vertical-align: baseline;
+}
+
+/* Fork (WCAG 2.5.8): el punto que es un enlace se dibuja como el de cada tema (borde incluido: en material3 y en los
+       basic, con relleno, el borde quedaba como un aro de 26px) y su zona de pulsación de 24px es un ::after transparente
+       centrado sobre él. Márgenes laterales para que los círculos de 24px de dos puntos vecinos no se toquen.
+       @emptyCircleLinkSize: lo que mide el punto en el tema. */
+
+.ui.ui.ui.empty.circular.labels > a.label,
+a.ui.ui.ui.empty.circular.label {
+  position: relative;
+  overflow: visible;
+  margin-inline: max(0.14285714em, (24px - 1em) / 2);
+}
+
+.ui.ui.ui.empty.circular.labels > a.label::after,
+a.ui.ui.ui.empty.circular.label::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  translate: -50% -50%;
+  border-radius: 50%;
 }
 
 /* -------------------
@@ -48658,7 +48980,7 @@ a.ui.ui.ui.basic.teal.label:hover {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.15.0 - List
+ * # Fomantic-UI 0.16.1 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -49815,7 +50137,7 @@ ol.ui.suffixed.list li::before,
   padding: 0;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Loader
+ * # Fomantic-UI 0.16.1 - Loader
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51154,7 +51476,7 @@ ol.ui.suffixed.list li::before,
   border-color: rgba(255, 255, 255, 0.15);
 }
 /*!
- * # Fomantic-UI 0.15.0 - Placeholder
+ * # Fomantic-UI 0.16.1 - Placeholder
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51460,7 +51782,7 @@ body {
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 /*!
- * # Fomantic-UI 0.15.0 - Rail
+ * # Fomantic-UI 0.16.1 - Rail
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51618,7 +51940,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Reveal
+ * # Fomantic-UI 0.16.1 - Reveal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51925,7 +52247,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Segment
+ * # Fomantic-UI 0.16.1 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -53687,7 +54009,7 @@ body {
   color-scheme: inherit;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Step
+ * # Fomantic-UI 0.16.1 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -57277,7 +57599,7 @@ body {
         Swatch Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Text
+ * # Fomantic-UI 0.16.1 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -57678,7 +58000,7 @@ span.ui.info.text {
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.15.0 - Breadcrumb
+ * # Fomantic-UI 0.16.1 - Breadcrumb
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -58873,7 +59195,7 @@ table.dataTable td.dt-type-date {
   }
 }
 /*!
- * # Fomantic-UI 0.15.0 - Form
+ * # Fomantic-UI 0.16.1 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -61516,7 +61838,7 @@ textarea),
   padding-left: 0.85714286em;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Grid
+ * # Fomantic-UI 0.16.1 - Grid
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -64107,7 +64429,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.15.0 - Menu
+ * # Fomantic-UI 0.16.1 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -67538,7 +67860,7 @@ Floated Menu / Item
   }
 }
 /*!
- * # Fomantic-UI 0.15.0 - Message
+ * # Fomantic-UI 0.16.1 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -68718,7 +69040,7 @@ Floated Menu / Item
   box-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Table
+ * # Fomantic-UI 0.16.1 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -74298,7 +74620,7 @@ Floated Menu / Item
   color: #4b5363;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Ad
+ * # Fomantic-UI 0.16.1 - Ad
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -74603,7 +74925,7 @@ Floated Menu / Item
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Card
+ * # Fomantic-UI 0.16.1 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -78362,7 +78684,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   align-self: flex-start;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Comment
+ * # Fomantic-UI 0.16.1 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -78708,7 +79030,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   object-fit: cover;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Feed
+ * # Fomantic-UI 0.16.1 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79901,8 +80223,16 @@ a.ui.link.card > .content > i.right.floated.icon {
 .ui.feed > .event > .content .meta {
   line-height: 1.33333333;
 }
+
+/* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio, el texto bajo una etiqueta («10:30») no cabía en su ancho
+   fijo; la columna de la etiqueta crece con él. */
+
+:root[data-text-spacing="wide"] .ui.feed > .event > .label:has(> .text) {
+  width: auto;
+  min-width: 2.28571429rem;
+}
 /*!
- * # Fomantic-UI 0.15.0 - Item
+ * # Fomantic-UI 0.16.1 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -80525,7 +80855,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.5;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Statistic
+ * # Fomantic-UI 0.16.1 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81377,7 +81707,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   letter-spacing: -0.02em;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Accordion
+ * # Fomantic-UI 0.16.1 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -82122,7 +82452,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.15.0 - Calendar
+ * # Fomantic-UI 0.16.1 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -82610,11 +82940,14 @@ a.ui.link.card > .content > i.right.floated.icon {
   border-bottom: 1px solid var(--theme-border);
 }
 
-/* Anclado a un lado junto a un ui shell: la línea de la cabecera a la altura de la de la barra (antes quedaba a 4px) */
+/* Anclado a un lado junto a un ui shell: la línea de la cabecera a la altura de la de la barra (antes quedaba a 4px). Alto
+   fijo y sin relleno vertical: con un mínimo, los botones de un tema de 44px (lumen) la dejaban más alta que la barra. */
 
-.ui.chat:not(.floating) > .header {
+:root:has(.ui.shell > .main > .bar) .ui.chat:not(.floating) > .header {
   box-sizing: border-box;
-  min-height: var(--shell-bar-height, 0);
+  height: var(--shell-bar-height);
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .ui.chat > .header > .title {
@@ -82851,7 +83184,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Chat Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Checkbox
+ * # Fomantic-UI 0.16.1 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -82880,6 +83213,19 @@ a.ui.link.card > .content > i.right.floated.icon {
   font-size: 1em;
   line-height: 1.42857143em;
   min-width: 1.14285714rem;
+}
+
+/* Fork (WCAG 2.5.8): la etiqueta mide al menos lo que medía el control, para que el alto mínimo de 24px de los temas
+   (core) pueda centrarla (align-content) sin que una etiqueta vacía (fitted, etiqueta fuera) deje la caja arriba.
+   --checkbox-height: ese alto, con el que core baja una casilla sin texto hasta su línea base de antes */
+
+.ui.checkbox {
+  --checkbox-height: 1.14285714rem;
+}
+
+.ui.checkbox > label,
+.ui.checkbox > .box {
+  min-height: 1.14285714rem;
 }
 
 /* HTML Checkbox */
@@ -83131,6 +83477,16 @@ a.ui.link.card > .content > i.right.floated.icon {
   min-height: 1.14285714rem;
 }
 
+.ui.radio.checkbox {
+  --checkbox-height: 1.14285714rem;
+}
+
+.ui.radio.checkbox > label,
+.ui.radio.checkbox > .box {
+  min-height: 1.14285714rem;
+  /* Fork: ver .ui.checkbox > label */
+}
+
 .ui.radio.checkbox label {
   padding-left: 1.85714286em;
 }
@@ -83203,6 +83559,18 @@ a.ui.link.card > .content > i.right.floated.icon {
     --------------- */
 
 .ui.slider.checkbox {
+  min-height: 1.42857143em;
+}
+
+.ui.slider.checkbox {
+  --checkbox-height: 1.42857143em;
+}
+
+/* Fork: ver .ui.checkbox > label. Solo sin texto: el raíl va a @sliderLineVerticalOffset de arriba, no centrado en
+       @sliderHeight, y con ese alto la etiqueta con texto quedaba 2–3px alta frente a un toggle de la misma fila */
+
+.ui.slider.checkbox > label:empty,
+.ui.slider.checkbox > .box:empty {
   min-height: 1.42857143em;
 }
 
@@ -83336,6 +83704,16 @@ a.ui.link.card > .content > i.right.floated.icon {
   min-height: 1.14285714em;
   padding-left: 3.28571429em;
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
+}
+
+.ui.toggle.checkbox {
+  --checkbox-height: 1.42857143em;
+}
+
+.ui.toggle.checkbox > label,
+.ui.toggle.checkbox > .box {
+  min-height: 1.42857143em;
+  /* Fork: ver .ui.checkbox > label */
 }
 
 .ui.toggle.checkbox label {
@@ -83831,9 +84209,9 @@ a.ui.link.card > .content > i.right.floated.icon {
   z-index: 1;
   flex: none;
   align-self: center;
-  width: 1.42857143rem;
-  height: 1.42857143rem;
-  margin: 0 -2.14285714rem 0 0.71428571rem;
+  width: 1.71428571rem;
+  height: 1.71428571rem;
+  margin: 0 -2.42857143rem 0 0.71428571rem;
   padding: 0;
   border: 0;
   border-radius: var(--r-xs, 4px);
@@ -83854,7 +84232,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 }
 
 .ui.ui.ui.colorpicker > .trigger + input {
-  padding-left: 2.71428571rem;
+  padding-left: 3rem;
 }
 
 .ui.colorpicker > input.hidden,
@@ -84332,7 +84710,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Colorpicker Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Dimmer
+ * # Fomantic-UI 0.16.1 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -84791,7 +85169,7 @@ body.dimmable > .dimmer {
   padding: 1.71428571rem;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Dropdown
+ * # Fomantic-UI 0.16.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -87594,8 +87972,16 @@ select.ui.dropdown:focus {
 .ui.multiple.dropdown:not(.selection) > .label ~ .text {
   margin-left: 0.28571429rem;
 }
+
+/* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio el texto pasa a interlineado 1,5 y el relleno del selection,
+   pensado para 1em, lo dejaba 4px más alto que el input de al lado. El relleno vertical del input: misma altura. */
+
+:root[data-text-spacing="wide"] .ui.selection.dropdown {
+  padding-top: 0.64285714em !important;
+  padding-bottom: 0.64285714em !important;
+}
 /*!
- * # Fomantic-UI 0.15.0 - Embed
+ * # Fomantic-UI 0.16.1 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -87763,7 +88149,7 @@ select.ui.dropdown:focus {
   text-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Flyout
+ * # Fomantic-UI 0.16.1 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88609,7 +88995,7 @@ body.pushable > .pusher {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 /*!
- * # Fomantic-UI 0.15.0 - Modal
+ * # Fomantic-UI 0.16.1 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -89574,8 +89960,17 @@ body.pushable > .pusher {
   background-color: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
+
+/* La × va dentro del modal (a @closeRight del borde, con caja de @closeHitbox): la cabecera le reserva las dos medidas.
+   Con solo la caja (28px), un texto largo llegaba bajo la × (a 390, en el editor de imagen, con el espaciado de texto
+   amplio). */
+
+.ui.modal > .close + .header:not(.centered):not(.center):not(.icon),
+.ui.fullscreen.modal > .close + .header:not(.centered):not(.center):not(.icon) {
+  padding-right: calc(1.14285714rem + 2rem);
+}
 /*!
- * # Fomantic-UI 0.15.0 - Nag
+ * # Fomantic-UI 0.16.1 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90290,6 +90685,8 @@ a.ui.nag {
   text-align: center;
   border-radius: var(--r-sm, 6px);
   color: light-dark(#99a1af, #737c8c);
+  translate: none;
+  /* ya mide 24px: el desplazamiento de core para centrar la caja crecida no hace falta */
 }
 
 .ui.nag > .close.icon:hover {
@@ -90470,7 +90867,7 @@ a.ui.nag {
          Pin Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Popup
+ * # Fomantic-UI 0.16.1 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92105,7 +92502,7 @@ span[data-tooltip] {
   cursor: help;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Progress
+ * # Fomantic-UI 0.16.1 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -93680,7 +94077,7 @@ span[data-tooltip] {
   text-shadow: 0 0 0.14285714rem rgba(0, 0, 0, 0.7), 0 0 0.28571429rem rgba(0, 0, 0, 0.5);
 }
 /*!
- * # Fomantic-UI 0.15.0 - Slider
+ * # Fomantic-UI 0.16.1 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -95021,8 +95418,24 @@ span[data-tooltip] {
 .ui.black.slider .inner .thumb {
   box-shadow: 0 1px 3px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 0 0 2px light-dark(#1f2430, #535c6e) inset;
 }
+
+/* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio las etiquetas de un slider horizontal, centradas en su marca,
+   se montaban unas sobre otras. Una de cada dos (sin contar las de media marca) sube una línea, su marca se alarga
+   hasta ella y el slider reserva esa línea arriba. */
+
+:root[data-text-spacing="wide"] .ui.labeled.slider:not(.vertical):not(.bottom.aligned) {
+  margin-top: 1.6em;
+}
+
+:root[data-text-spacing="wide"] .ui.labeled.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick)) {
+  transform: translate(-50%, calc(-100% - 1.6em));
+}
+
+:root[data-text-spacing="wide"] .ui.labeled.ticked.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick))::after {
+  height: calc(1.28571429em + 1.6em);
+}
 /*!
- * # Fomantic-UI 0.15.0 - Rating
+ * # Fomantic-UI 0.16.1 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -95579,8 +95992,23 @@ span[data-tooltip] {
 /*******************************
          Theme Overrides
 *******************************/
+
+/* Fork (WCAG 2.5.8, D95): cada ícono es un objetivo; en los tamaños pequeños medía menos de 24×24 y tocaba al de al
+   lado. El relleno completa los 24px (el glifo no cambia; los íconos quedan algo más separados). El degradado del
+   parcial se mide sobre la caja del glifo, no sobre la del relleno. Una de solo lectura (disabled, la que pone
+   interactive: false) no es un objetivo: conserva su separación. */
+
+.ui.rating:not(.disabled) .icon {
+  box-sizing: content-box;
+  padding: max(0px, calc((24px - 1em) / 2)) max(0px, calc((24px - 1.25em) / 2));
+  /* alto: 1em (line-height 1; @iconHeight es auto) */
+}
+
+.ui.rating .icon.partial.active {
+  background-origin: content-box;
+}
 /*!
- * # Fomantic-UI 0.15.0 - Search
+ * # Fomantic-UI 0.16.1 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -96315,7 +96743,7 @@ span[data-tooltip] {
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 /*!
- * # Fomantic-UI 0.15.0 - Shape
+ * # Fomantic-UI 0.16.1 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -96460,7 +96888,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Sidebar
+ * # Fomantic-UI 0.16.1 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97409,6 +97837,16 @@ body.pushable > .pusher {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Espaciado de texto amplio (WCAG 1.4.12): sin puntos suspensivos, que ocultaban parte del texto («Gestión de
+   organizaciones» no cabía con las letras a 0,12 em); salta de línea. */
+
+:root[data-text-spacing="wide"] .ui.shell > .navigation > .ui.menu .item > span,
+:root[data-text-spacing="wide"] .ui.shell > .navigation > .ui.menu .item > .title > span {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .ui.shell > .navigation > .ui.menu .item > .label,
@@ -98555,7 +98993,7 @@ body.pushable > .pusher {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.571em;
+  gap: 16px;
   margin: 0;
   padding: 0;
   pointer-events: none;
@@ -98581,9 +99019,9 @@ body.pushable > .pusher {
 .ui.slideshow .indicators > .indicator::before {
   content: "";
   display: block;
-  margin: -0.5em;
-  width: calc(100% + 2 * 0.5em);
-  height: calc(100% + 2 * 0.5em);
+  margin: -8px;
+  width: calc(100% + 2 * 8px);
+  height: calc(100% + 2 * 8px);
 }
 
 .ui.slideshow .indicators > .indicator:hover {
@@ -98987,7 +99425,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Sticky
+ * # Fomantic-UI 0.16.1 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -99052,7 +99490,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.15.0 - Tab
+ * # Fomantic-UI 0.16.1 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -99141,7 +99579,7 @@ body.pushable > .pusher {
   padding-top: 1.14285714rem;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Toast
+ * # Fomantic-UI 0.16.1 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -100322,7 +100760,7 @@ body.pushable > .pusher {
   background: transparent;
 }
 /*!
- * # Fomantic-UI 0.15.0 - Transition
+ * # Fomantic-UI 0.16.1 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

@@ -884,12 +884,16 @@ class UsersController extends AdminPanelController
             $data['contrast'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::CONTRAST_META, AdminPanelController::CONTRASTS);
             $data['motion'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::MOTION_META, AdminPanelController::MOTIONS);
             $data['focus'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::FOCUS_META, AdminPanelController::FOCUSES);
+            $data['textSpacing'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::TEXT_SPACING_META, AdminPanelController::TEXT_SPACINGS);
+            $data['transparency'] = AdminPanelController::preferenceChoiceOf($userID, AdminPanelController::TRANSPARENCY_META, AdminPanelController::TRANSPARENCIES);
             $data['sitePreferences'] = [
                 'themeMode' => SettingsController::accessibilityThemeMode(),
                 'textSize' => SettingsController::accessibilityTextSize(),
                 'contrast' => SettingsController::accessibilityContrast(),
                 'motion' => SettingsController::accessibilityMotion(),
                 'focus' => SettingsController::accessibilityFocus(),
+                'textSpacing' => SettingsController::accessibilityTextSpacing(),
+                'transparency' => SettingsController::accessibilityTransparency(),
             ];
             $data['pageTitle'] = __(self::LANG_GROUP, 'Mi cuenta');
             $data['pageDescription'] = trim("{$user->firstname} {$user->firstLastname}") . ' · ' . $data['typeName'];

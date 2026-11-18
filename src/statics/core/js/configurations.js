@@ -834,8 +834,8 @@ function pcsAdminTopbars() {
 		})
 	})
 
-	//Contraste, movimiento y foco («Preferencias»): se guardan en la meta del usuario y se aplican al momento con
-	//data-contrast, data-motion y data-focus en <html>, que traduce el tema.
+	//Contraste, movimiento, foco, espaciado del texto y transparencias («Preferencias»): se guardan en la meta del usuario y
+	//se aplican al momento con data-<preferencia> en <html> (data-contrast… data-transparency), que traduce el tema.
 	$('[accessibility-preference-selector]').each(function () {
 		const group = $(this)
 		group.find('[data-value]').on('click', function (e) {

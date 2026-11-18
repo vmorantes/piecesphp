@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Label
+ * # Fomantic-UI 0.16.1 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -102,6 +102,34 @@ a.ui.label {
 .ui.label:not(.icon) > .close.icon,
 .ui.label:not(.icon) > .delete.icon {
   margin: 0 0 0 0.5em;
+}
+
+/* Fork (WCAG 2.5.8): la × mide unos 8×11 px; su caja pasa a 24×24 con el glifo centrado, y márgenes negativos de lo que
+   crece para no mover nada (medía @deleteIconWidth × 1em: en una etiqueta el ícono tiene width: auto, no 1.18em) */
+.ui.label > .close.icon,
+.ui.label > .delete.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 24px !important;
+  
+/* algún tema fija el ancho de la × de las etiquetas del dropdown */
+  height: 24px !important;
+  flex-shrink: 0;
+  
+/* en una etiqueta flexible estrecha (un dropdown múltiple a 390) se encogía a 22px */
+  padding: 0;
+}
+.ui.label:not(.icon) > .close.icon,
+.ui.label:not(.icon) > .delete.icon,
+.ui.label[class*="left icon"] > .right.close.icon,
+.ui.label[class*="left icon"] > .right.delete.icon {
+  margin: calc((1em - 24px) / 2) calc((0.6875em - 24px) / 2) calc((1em - 24px) / 2) calc(0.5em + (0.6875em - 24px) / 2);
+}
+.ui.label[class*="left icon"] > .close.icon:not(.right),
+.ui.label[class*="left icon"] > .delete.icon:not(.right) {
+  margin: calc((1em - 24px) / 2) calc(0.5em + (0.6875em - 24px) / 2) calc((1em - 24px) / 2) calc((0.6875em - 24px) / 2);
 }
 
 /* Label for only an icon */
@@ -245,6 +273,14 @@ a.ui.label {
   width: 1.2963657em;
   height: 1.2963657em;
   transition: none;
+}
+
+/* Fork (WCAG 2.5.8): la punta de una tag que es un enlace llega al alto mínimo que le dé el tema (@tagLinkMinTriangle).
+       Mínimos, no tamaño: varios temas fijan el de su punta en sus overrides */
+.ui.tag.labels > a.label::before,
+a.ui.tag.label::before {
+  min-width: 16.97px;
+  min-height: 16.97px;
 }
 .ui.tag.labels .label::after,
 .ui.tag.label::after {
@@ -2341,6 +2377,14 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
   text-align: center;
   border-radius: 500rem;
 }
+
+/* Fork (WCAG 2.5.8): la que es un enlace mide al menos 24px, sin bajar del tamaño del tema (sustituirlo por 24px la
+       dejaba en 24×28 en material3, cuyo mínimo es 2em) */
+.ui.ui.circular.labels:not(.empty) > a.label:not(.empty),
+a.ui.ui.circular.label:not(.empty) {
+  min-width: max(24px, 1.8333333333333333em);
+  min-height: max(24px, 1.8333333333333333em);
+}
 .ui.empty.circular.labels .label,
 .ui.empty.circular.label {
   min-width: 0;
@@ -2349,6 +2393,28 @@ a.ui.ui.ui.inverted.basic.black.label:hover {
   width: 0.5em;
   height: 0.5em;
   vertical-align: baseline;
+}
+
+/* Fork (WCAG 2.5.8): el punto que es un enlace se dibuja como el de cada tema (borde incluido: en material3 y en los
+       basic, con relleno, el borde quedaba como un aro de 26px) y su zona de pulsación de 24px es un ::after transparente
+       centrado sobre él. Márgenes laterales para que los círculos de 24px de dos puntos vecinos no se toquen.
+       @emptyCircleLinkSize: lo que mide el punto en el tema. */
+.ui.ui.ui.empty.circular.labels > a.label,
+a.ui.ui.ui.empty.circular.label {
+  position: relative;
+  overflow: visible;
+  margin-inline: max(0.14285714em, (24px - 1em) / 2);
+}
+.ui.ui.ui.empty.circular.labels > a.label::after,
+a.ui.ui.ui.empty.circular.label::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  translate: -50% -50%;
+  border-radius: 50%;
 }
 
 /* -------------------

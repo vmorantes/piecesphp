@@ -57,10 +57,13 @@
   border-bottom: 1px solid var(--theme-border);
 }
 
-/* Anclado a un lado junto a un ui shell: la línea de la cabecera a la altura de la de la barra (antes quedaba a 4px) */
-.ui.chat:not(.floating) > .header {
+/* Anclado a un lado junto a un ui shell: la línea de la cabecera a la altura de la de la barra (antes quedaba a 4px). Alto
+   fijo y sin relleno vertical: con un mínimo, los botones de un tema de 44px (lumen) la dejaban más alta que la barra. */
+:root:has(.ui.shell > .main > .bar) .ui.chat:not(.floating) > .header {
   box-sizing: border-box;
-  min-height: var(--shell-bar-height, 0);
+  height: var(--shell-bar-height);
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .ui.chat > .header > .title {
   flex: 1 1 auto;

@@ -400,7 +400,7 @@
 }
 
 :where(.ui, .dt-container) :root[data-motion="reduce"], :root[data-motion="reduce"]:where(.ui, .dt-container),
-:where(.ui, .dt-container) :root[data-motion="reduce"] *, :root[data-motion="reduce"] *:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-motion="reduce"] *:not(.wait.progressing), :root[data-motion="reduce"] *:not(.wait.progressing):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *:where(.ui, .dt-container)::before,
 :where(.ui, .dt-container) :root[data-motion="reduce"] *::after, :root[data-motion="reduce"] *:where(.ui, .dt-container)::after {
   animation-duration: 0.01ms !important;
@@ -413,7 +413,7 @@
 
 @media (prefers-reduced-motion: reduce) {
 :where(.ui, .dt-container) :root[data-motion="auto"], :root[data-motion="auto"]:where(.ui, .dt-container),
-:where(.ui, .dt-container) :root[data-motion="auto"] *, :root[data-motion="auto"] *:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-motion="auto"] *:not(.wait.progressing), :root[data-motion="auto"] *:not(.wait.progressing):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-motion="auto"] *::before, :root[data-motion="auto"] *:where(.ui, .dt-container)::before,
 :where(.ui, .dt-container) :root[data-motion="auto"] *::after, :root[data-motion="auto"] *:where(.ui, .dt-container)::after {
   animation-duration: 0.01ms !important;
@@ -429,6 +429,165 @@
   outline: 3px solid var(--theme-text) !important;
   outline-offset: 2px !important;
   box-shadow: 0 0 0 5px var(--theme-surface) !important;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label), :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label):where(.ui, .dt-container) {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.circular.label, :root[data-text-spacing="wide"] .ui.circular.label:where(.ui, .dt-container) {
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] p, :root[data-text-spacing="wide"] p:where(.ui, .dt-container) {
+  margin-block-end: 2em !important;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] body, :root[data-text-spacing="wide"] body:where(.ui, .dt-container) {
+  overflow-wrap: anywhere;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing, :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing:where(.ui, .dt-container) {
+  white-space: normal;
+}
+
+:where(.ui, .dt-container) :not(pre) > code, :not(pre) > code:where(.ui, .dt-container) {
+  overflow-wrap: break-word;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] :not(pre) > code, :root[data-text-spacing="wide"] :not(pre) > code:where(.ui, .dt-container) {
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+}
+
+:where(.ui, .dt-container) :root[data-transparency="reduce"] *, :root[data-transparency="reduce"] *:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-transparency="reduce"] *::before, :root[data-transparency="reduce"] *:where(.ui, .dt-container)::before,
+:where(.ui, .dt-container) :root[data-transparency="reduce"] *::after, :root[data-transparency="reduce"] *:where(.ui, .dt-container)::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+:where(.ui, .dt-container) :root[data-transparency="reduce"] .ui.shell > .main > .bar, :root[data-transparency="reduce"] .ui.shell > .main > .bar:where(.ui, .dt-container) {
+  background-color: var(--theme-surface) !important;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+:where(.ui, .dt-container) :root[data-transparency="auto"] *, :root[data-transparency="auto"] *:where(.ui, .dt-container),
+:where(.ui, .dt-container) :root[data-transparency="auto"] *::before, :root[data-transparency="auto"] *:where(.ui, .dt-container)::before,
+:where(.ui, .dt-container) :root[data-transparency="auto"] *::after, :root[data-transparency="auto"] *:where(.ui, .dt-container)::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+}
+
+@media (prefers-reduced-transparency: reduce) {
+:where(.ui, .dt-container) :root[data-transparency="auto"] .ui.shell > .main > .bar, :root[data-transparency="auto"] .ui.shell > .main > .bar:where(.ui, .dt-container) {
+  background-color: var(--theme-surface) !important;
+}
+}
+
+:where(.ui, .dt-container) [role="radiogroup"] > [aria-checked="true"], [role="radiogroup"] > [aria-checked="true"]:where(.ui, .dt-container),
+:where(.ui, .dt-container) [role="radiogroup"] > [aria-checked="true"]:hover, [role="radiogroup"] > [aria-checked="true"]:hover:where(.ui, .dt-container) {
+  background: var(--accent-1, var(--accent, #356dca)) !important;
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) !important;
+  box-shadow: none !important;
+}
+
+:where(.ui, .dt-container) [role="radiogroup"] > [aria-checked="true"] > .icon, [role="radiogroup"] > [aria-checked="true"] > .icon:where(.ui, .dt-container) {
+  color: inherit !important;
+}
+
+.ui.list a.item {
+  min-height: 24px;
+  align-content: center;
+}
+
+.ui.ui.horizontal.list > a.item {
+  vertical-align: middle;
+  margin-block: -1px;
+}
+
+.ui.list .item > a:not(.ui):only-child,
+.ui.list .item > .content > a:not(.ui):only-child,
+.ui.list .item > a:not(.ui):first-child:has(+ .list) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+.ui.nag > .close.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 24px;
+  min-height: 24px;
+  translate: max(0px, (24px - 1.18em) / 2) min(0px, (1em - 24px) / 2);
+}
+
+.ui.list .item a.header,
+.ui.menu .item > a.header {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+.ui.ui.vertical.menu .item > a.header:not(.ui) {
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+.ui.ui.checkbox {
+  min-height: 24px !important;
+  align-content: center;
+  padding-block: max(0px, (24px - max(var(--checkbox-height, 24px), 1lh)) / 2);
+}
+
+.ui.ui.invisible.checkbox {
+  padding-block: 0;
+}
+
+.ui.form .fields:not(.grouped):not(.inline) .field:not(:only-child) .ui.ui.checkbox,
+.ui.form .field .fields .field:not(:only-child) .ui.ui.checkbox {
+  translate: 0 min(0px, (max(var(--checkbox-height, 24px), 1lh) - 24px) / 2);
+}
+
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > .ui.ui.checkbox::after,
+.ui.form .required.field > .ui.ui.checkbox::after {
+  top: max(0px, (24px - 1lh) / 2);
+}
+
+.ui.ui.fitted.checkbox,
+.ui.ui.checkbox:has(> label:empty) {
+  margin-block: min(0px, (var(--checkbox-height, 24px) - 24px) / 2);
+}
+
+.ui.feed > .event > .content .meta > a,
+.ui.items > .item .meta > a {
+  display: inline-block;
+  align-content: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+:where(.ui, .dt-container) summary, summary:where(.ui, .dt-container) {
+  box-sizing: border-box;
+  min-height: 24px;
+  align-content: center;
+}
+
+:where(.ui, .dt-container) a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty), a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty):where(.ui, .dt-container) {
+  align-content: center;
+  min-height: 24px;
+  vertical-align: middle;
+}
+
+.ui.icon.input > i.link.icon {
+  min-width: 24px;
 }
 
 @media (forced-colors: active) {

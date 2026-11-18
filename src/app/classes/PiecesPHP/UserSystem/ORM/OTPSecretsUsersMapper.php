@@ -9,6 +9,8 @@ use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\Crypto\EncryptedDataRegistry;
 use PiecesPHP\Core\Crypto\Sealed;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\TOTPStandard;
 
@@ -445,12 +447,12 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     public static function existsUserByMethod(int $userID, string $method, int $ignoreID = -1)
     {
         $model = self::model();
-        $where = [
-            "user = {$userID}",
-            "AND method = '{$method}'",
-            "AND id != {$ignoreID}",
-        ];
-        $model->select()->where(implode(' ', $where));
+        //Con marcadores: el método llega como texto y no se interpola en el SQL (H355).
+        $model->select()->where(new WhereSegment([
+            new WhereItem('user', WhereItem::EQUAL_OPERATOR, $userID, WhereItem::AND_OPERATOR),
+            new WhereItem('method', WhereItem::EQUAL_OPERATOR, $method, WhereItem::AND_OPERATOR),
+            new WhereItem('id', WhereItem::NOT_EQUAL_OPERATOR, $ignoreID),
+        ]));
         $model->execute();
         $result = $model->result();
         return !empty($result);

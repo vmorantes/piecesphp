@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Feed
+ * # Fomantic-UI 0.16.1 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1069,4 +1069,11 @@
 .ui.feed > .event > .content .date,
 .ui.feed > .event > .content .meta {
   line-height: 1.33333333;
+}
+
+/* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio, el texto bajo una etiqueta («10:30») no cabía en su ancho
+   fijo; la columna de la etiqueta crece con él. */
+:root[data-text-spacing="wide"] .ui.feed > .event > .label:has(> .text) {
+  width: auto;
+  min-width: 2.28571429rem;
 }

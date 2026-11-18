@@ -35,8 +35,16 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
     $plain = 'zz-' . bin2hex(random_bytes(6));
     $hash = password_hash($plain, \PASSWORD_DEFAULT);
     $insert = $db->prepare('INSERT INTO pcsphp_users (username, password, firstname, firstLastname, email, type, status) VALUES (?,?,?,?,?,?,1)');
-    $insert->execute([$username, $hash, 'ZZ', 'Backup', $username . '@example.invalid', 1]);
+    //Un carácter de 4 bytes: con un volcado en utf8 (utf8mb3) no sobrevive a la restauración (H360).
+    $firstname = 'ZZ 🦊';
+    $insert->execute([$username, $hash, $firstname, 'Backup', $username . '@example.invalid', 1]);
     $userID = (int) $db->lastInsertId();
+
+    $checksum = static function (string $table) use ($db): ?string {
+        $row = $db->query("CHECKSUM TABLE {$table}")->fetch(\PDO::FETCH_ASSOC);
+        return is_array($row) && isset($row['Checksum']) ? (string) $row['Checksum'] : null;
+    };
+    $checksumBefore = $checksum('`pcsphp_users`');
 
     $dumpDirectory = basepath('dumps');
     $before = glob($dumpDirectory . '/*.sql') ?: [];
@@ -46,6 +54,8 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
     @exec(escapeshellarg($repoRoot . '/bin/cli') . ' db-backup gz=no 2>/dev/null');
     $after = array_values(array_diff(glob($dumpDirectory . '/*.sql') ?: [], $before));
     $dump = count($after) > 0 ? $after[0] : null;
+    //Si la tabla cambió durante el volcado, comparar con la restaurada no mediría el respaldo.
+    $checksumAfterDump = $checksum('`pcsphp_users`');
 
     try {
 
@@ -80,6 +90,7 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
         //archivo no basta —un volcado puede tener el hash bien y no restaurar—.
         $tmpDatabase = 'pcs_zz_backup_round_trip';
         $originalDatabase = (string) $db->getDatabaseName();
+        $originalNames = (string) $db->query('SELECT @@character_set_client')->fetchColumn();
         try {
             $db->exec("DROP DATABASE IF EXISTS `{$tmpDatabase}`");
             $db->exec("CREATE DATABASE `{$tmpDatabase}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin");
@@ -118,12 +129,23 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
             $create = (string) preg_replace('/,(\s*\n\s*\))/', '$1', $create);
             $insert = $bloque('INSERT INTO `pcsphp_users`');
 
-            foreach ([$create, $insert] as $statement) {
+            //Como db-restore: el juego de caracteres de la conexión lo pone la cabecera del volcado.
+            $names = preg_match('/^SET NAMES [A-Za-z0-9_]+;/m', $sql, $namesMatch) === 1 ? $namesMatch[0] : '';
+            $check($names !== '', 'el volcado declara su juego de caracteres con SET NAMES');
+
+            $restoreError = '';
+            foreach ([$names, $create, $insert] as $statement) {
                 if (trim($statement) === '') {
                     continue;
                 }
-                $db->exec(str_replace('`pcsphp_users`', "`{$tmpDatabase}`.`pcsphp_users`", $statement));
+                try {
+                    $db->exec(str_replace('`pcsphp_users`', "`{$tmpDatabase}`.`pcsphp_users`", $statement));
+                } catch (\PDOException $e) {
+                    $restoreError = $e->getMessage();
+                    break;
+                }
             }
+            $check($restoreError === '', 'el volcado se restaura sin errores', mb_substr($restoreError, 0, 140));
 
             $restored = $db->prepare("SELECT password FROM `{$tmpDatabase}`.`pcsphp_users` WHERE username = ?");
             $restored->execute([$username]);
@@ -135,9 +157,28 @@ CliActions::make('unit-tests:core/db-backup-round-trip', function ($args) {
                 'password_verify contra la base restaurada devuelve false: la copia no sirve de red'
             );
 
+            $restoredName = $db->prepare("SELECT firstname FROM `{$tmpDatabase}`.`pcsphp_users` WHERE username = ?");
+            $restoredName->execute([$username]);
+            $restoredFirstname = (string) $restoredName->fetchColumn();
+            $check(
+                $restoredFirstname === $firstname,
+                'el carácter de 4 bytes vuelve IDÉNTICO tras la ida y vuelta',
+                'restaurado «' . $restoredFirstname . '» (' . bin2hex($restoredFirstname) . '), original ' . bin2hex($firstname)
+            );
+
+            $checksumRestored = $checksum("`{$tmpDatabase}`.`pcsphp_users`");
+            $check(
+                $checksumBefore !== null && $checksumBefore === $checksumAfterDump && $checksumRestored === $checksumBefore,
+                'CHECKSUM TABLE de la tabla restaurada es el de la original',
+                "original {$checksumBefore} (tras volcar {$checksumAfterDump}), restaurada {$checksumRestored}"
+            );
+
         } finally {
             $db->exec("DROP DATABASE IF EXISTS `{$tmpDatabase}`");
             $db->exec("USE `{$originalDatabase}`");
+            if (preg_match('/^[A-Za-z0-9_]+$/', $originalNames) === 1) {
+                $db->exec("SET NAMES {$originalNames}");
+            }
         }
 
     } finally {

@@ -55,12 +55,12 @@ módulos. No llames a `__()` ni a otros ayudantes, ni uses constantes de módulo
 
 | Clave | Para qué | Por omisión, en un tipo propio |
 | :-- | :-- | :-- |
-| `id` | Su código. Entero, no negativo, ni 99 ni 50 | obligatoria |
-| `label` | Su nombre en español. Es también el nombre de su rol: no se puede repetir ni ser un número | obligatoria |
+| `id` | Su código. Entero, no negativo, ni 99; el 50 solo para encender Google Play, con su `label` (admite lo mismo que un tipo de fábrica) | obligatoria |
+| `label` | Su nombre en español. Es también el nombre de su rol: no se puede repetir (tampoco cambiando mayúsculas) ni ser un número | obligatoria |
 | `translations` | Su nombre en otros idiomas, `['en' => '…']` | ninguna (se ve en español) |
 | `description` | El texto de la pantalla de elegir tipo al crear un usuario | el genérico |
 | `descriptionTranslations` | Ese texto en otros idiomas, `['en' => '…']` | ninguna |
-| `priority` | Su lugar en la jerarquía: tiene autoridad sobre los de prioridad menor. Menor que 500 (la de root) | obligatoria |
+| `priority` | Su lugar en la jerarquía: tiene autoridad sobre los de prioridad menor. Menor que 500 (la de root); desde 400 se aplica, pero `verify-integrity` avisa: queda al nivel de la administración general | obligatoria |
 | `organization` | Si pertenece a una organización | `true` |
 | `profile` | Si tiene perfil público | `false` |
 | `externalLogin` | Si puede entrar con un proveedor externo | `false` |
@@ -70,7 +70,7 @@ módulos. No llames a `__()` ni a otros ayudantes, ni uses constantes de módulo
 | `permissions` | Con qué rutas empieza: `generals`, `administratives` o `superiors`, las tres listas de `roles.php` | `generals` |
 | `routes` | Nombres de ruta de más, solo para este tipo | `[]` |
 
-Un tipo de fábrica dentro de `types` solo admite `label`, `translations`, `description`, `descriptionTranslations` y `creatable`: lo demás lo usa el
+**Una clave que no está en esta tabla es un error**: así un nombre mal escrito no pasa en silencio. Un tipo de fábrica dentro de `types` solo admite `label`, `translations`, `description`, `descriptionTranslations` y `creatable`: lo demás lo usa el
 código del framework.
 
 ### Retirar o dejar de ofrecer
@@ -85,8 +85,9 @@ código del framework.
 ### Si el archivo tiene un error
 
 Si el archivo no se puede leer o algo no cumple las reglas de arriba, **no se aplica nada de él**: el sitio sigue con
-los tipos de fábrica, root ve un aviso con el error y `bin/cli verify-integrity` falla. En local, además, el arranque se
-para con el error a la vista. No se aplica a medias: aceptar las entradas buenas y tirar las malas daría un reparto que
+los tipos de fábrica, root ve un aviso con el error y `bin/cli verify-integrity` falla. En local, además, las páginas se
+paran con el error a la vista; la terminal sigue, y `bin/cli verify-integrity` lo enseña. Sin traducción a un idioma
+permitido, `verify-integrity` solo avisa. No se aplica a medias: aceptar las entradas buenas y tirar las malas daría un reparto que
 nadie escribió.
 
 ## Los permisos de un tipo propio

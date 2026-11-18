@@ -74,8 +74,8 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 <!-- ve: configurations-appearance-accessibility -->
 
 Entra por **«Accesibilidad»**. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta» ›
-«Preferencias» (ver «Tu cuenta», «Tus preferencias»). Tiene dos secciones, como las preferencias de cada persona:
-**Apariencia** y **Accesibilidad**.
+«Preferencias» (ver «Tu cuenta», «Tus preferencias»). Tiene las mismas dos tarjetas que las preferencias de cada
+persona: **Apariencia** y **Lectura y movimiento**.
 
 ![Accesibilidad](img/configurations-appearance-accessibility.webp)
 
@@ -85,9 +85,11 @@ Al final, **«Cancelar»** o **«Guardar»**.
 | --- | --- | --- |
 | Modo de color por omisión | No | En **Apariencia**: **«Claro»**, **«Oscuro»** o **«Sistema»** (el que tenga el dispositivo de cada persona). |
 | Tamaño de letra por omisión | No | **«Normal»**, **«Grande»** o **«Más grande»**. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de Colores. |
-| Contraste por omisión | No | **«Automático»** (sigue al dispositivo de cada persona) o **«Más contraste»**. |
+| Espaciado del texto por omisión | No | **«Normal»** o **«Amplio»**: más espacio entre líneas, párrafos, palabras y letras. |
+| Contraste por omisión | No | En **Lectura y movimiento**: **«Automático»** (sigue al dispositivo de cada persona) o **«Más contraste»**. |
 | Movimiento por omisión | No | **«Automático»** o **«Reducir movimiento»**. |
-| Foco por omisión | No | **«Normal»** o **«Reforzado»**: el contorno de lo seleccionado con el teclado, más visible. |
+| Transparencias por omisión | No | **«Como el sistema»** (sigue al dispositivo de cada persona) o **«Reducir»**: fondos opacos en lugar de translúcidos. |
+| Indicador de foco por omisión | No | **«Normal»** o **«Reforzado»**: el contorno de lo seleccionado con el teclado, más visible. |
 
 !!! note "Quien ya eligió lo suyo"
     Quien ya eligió algo de esto en sus preferencias sigue con lo suyo aunque cambies esto. Para volver a lo del sitio,

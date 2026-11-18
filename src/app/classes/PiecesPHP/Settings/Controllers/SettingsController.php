@@ -272,6 +272,11 @@ class SettingsController extends AdminPanelController
     const ACCESSIBILITY_MOTION_CONFIG = 'accessibility_motion';
     const ACCESSIBILITY_FOCUS_CONFIG = 'accessibility_focus';
     /**
+     * Espaciado del texto y transparencias del sitio (tema 0.16.0), de AdminPanelController::TEXT_SPACINGS y TRANSPARENCIES.
+     */
+    const ACCESSIBILITY_TEXT_SPACING_CONFIG = 'accessibility_text_spacing';
+    const ACCESSIBILITY_TRANSPARENCY_CONFIG = 'accessibility_transparency';
+    /**
      * La configuración SMTP, cifrada, y las de osTicket.
      */
     const MAIL_CONFIG = 'mail';
@@ -3012,6 +3017,8 @@ class SettingsController extends AdminPanelController
             'contrast' => self::accessibilityContrast(),
             'motion' => self::accessibilityMotion(),
             'focus' => self::accessibilityFocus(),
+            'textSpacing' => self::accessibilityTextSpacing(),
+            'transparency' => self::accessibilityTransparency(),
         ];
 
         $this->render('panel/layout/header');
@@ -3022,7 +3029,7 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * Guarda la pantalla Accesibilidad de una vez: un valor fuera de su lista no cambia ninguna de las cinco opciones.
+     * Guarda la pantalla Accesibilidad de una vez: un valor fuera de su lista no cambia ninguna de las opciones.
      *
      * @param Request $req
      * @param Response $res
@@ -3039,6 +3046,8 @@ class SettingsController extends AdminPanelController
             new Parameter(self::ACCESSIBILITY_CONTRAST_CONFIG, null, $inList(AdminPanelController::CONTRASTS)),
             new Parameter(self::ACCESSIBILITY_MOTION_CONFIG, null, $inList(AdminPanelController::MOTIONS)),
             new Parameter(self::ACCESSIBILITY_FOCUS_CONFIG, null, $inList(AdminPanelController::FOCUSES)),
+            new Parameter(self::ACCESSIBILITY_TEXT_SPACING_CONFIG, null, $inList(AdminPanelController::TEXT_SPACINGS)),
+            new Parameter(self::ACCESSIBILITY_TRANSPARENCY_CONFIG, null, $inList(AdminPanelController::TRANSPARENCIES)),
         ]);
 
         $inputData = $req->getParsedBody();
@@ -3059,6 +3068,8 @@ class SettingsController extends AdminPanelController
                 self::ACCESSIBILITY_CONTRAST_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_CONTRAST_CONFIG),
                 self::ACCESSIBILITY_MOTION_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_MOTION_CONFIG),
                 self::ACCESSIBILITY_FOCUS_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_FOCUS_CONFIG),
+                self::ACCESSIBILITY_TEXT_SPACING_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_TEXT_SPACING_CONFIG),
+                self::ACCESSIBILITY_TRANSPARENCY_CONFIG => $expectedParameters->getValue(self::ACCESSIBILITY_TRANSPARENCY_CONFIG),
             ];
 
             //Todas juntas: una que falle no deja las otras cambiadas.
@@ -3216,6 +3227,24 @@ class SettingsController extends AdminPanelController
     {
         $value = get_config(self::ACCESSIBILITY_FOCUS_CONFIG);
         return is_string($value) && in_array($value, AdminPanelController::FOCUSES, true) ? $value : 'normal';
+    }
+
+    /**
+     * @return string El espaciado del texto del sitio, de AdminPanelController::TEXT_SPACINGS; si lo guardado no vale, normal
+     */
+    public static function accessibilityTextSpacing(): string
+    {
+        $value = get_config(self::ACCESSIBILITY_TEXT_SPACING_CONFIG);
+        return is_string($value) && in_array($value, AdminPanelController::TEXT_SPACINGS, true) ? $value : 'normal';
+    }
+
+    /**
+     * @return string Las transparencias del sitio, de AdminPanelController::TRANSPARENCIES; si lo guardado no vale, auto
+     */
+    public static function accessibilityTransparency(): string
+    {
+        $value = get_config(self::ACCESSIBILITY_TRANSPARENCY_CONFIG);
+        return is_string($value) && in_array($value, AdminPanelController::TRANSPARENCIES, true) ? $value : 'auto';
     }
 
     /**

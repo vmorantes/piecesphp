@@ -74,8 +74,8 @@ the accent and the palette will look in the panel. At the end, **“Cancel”** 
 <!-- ve: configurations-appearance-accessibility -->
 
 Go to **“Accessibility”**. Here you choose how the panel looks for whoever has not chosen their own in “My account” ›
-“Preferences” (see “Your account”, “Your preferences”). It has two sections, like each person's preferences:
-**Appearance** and **Accessibility**.
+“Preferences” (see “Your account”, “Your preferences”). It has the same two cards as each person's preferences:
+**Appearance** and **Reading and motion**.
 
 ![Accessibility](img/configurations-appearance-accessibility.webp)
 
@@ -85,9 +85,11 @@ At the end, **“Cancel”** or **“Save”**.
 | --- | --- | --- |
 | Default color mode | No | In **Appearance**: **“Light”**, **“Dark”** or **“System”** (each person's device). |
 | Default text size | No | **“Normal”**, **“Large”** or **“Larger”**. Large and Larger add 2 and 4 pixels to the “Base size” in Colors. |
-| Default contrast | No | **“Automatic”** (it follows each person's device) or **“More contrast”**. |
+| Default text spacing | No | **“Normal”** or **“Wide”**: more space between lines, paragraphs, words and letters. |
+| Default contrast | No | In **Reading and motion**: **“Automatic”** (it follows each person's device) or **“More contrast”**. |
 | Default motion | No | **“Automatic”** or **“Reduce motion”**. |
-| Default focus | No | **“Normal”** or **“Strong”**: the outline of what is selected with the keyboard, more visible. |
+| Default transparency | No | **“Like the system”** (it follows each person's device) or **“Reduce”**: solid backgrounds instead of translucent ones. |
+| Default focus indicator | No | **“Normal”** or **“Strong”**: the outline of what is selected with the keyboard, more visible. |
 
 !!! note "Whoever already chose their own"
     Whoever already chose any of this in their preferences keeps their own even if you change this. To go back to the

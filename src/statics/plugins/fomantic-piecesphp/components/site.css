@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Site
+ * # Fomantic-UI 0.16.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -413,9 +413,11 @@ mark {
   }
 }
 
-/* Movimiento reducido: ninguna animación ni transición, desplazamiento sin suavizado */
+/* Movimiento reducido: ninguna animación ni transición, desplazamiento sin suavizado. Salvo los temporizadores, que no
+   son movimiento: el toast cuenta su displayTime con una animación invisible (span.wait.progressing) y se cierra en su
+   animationend; con 0.01ms se cerraba al instante (PiecesPHP, 2026-11-17). Su barra de progreso sí queda quieta. */
 :root[data-motion="reduce"],
-:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *:not(.wait.progressing),
 :root[data-motion="reduce"] *::before,
 :root[data-motion="reduce"] *::after {
   animation-duration: 0.01ms !important;
@@ -427,7 +429,7 @@ mark {
 }
 @media (prefers-reduced-motion: reduce) {
   :root[data-motion="auto"],
-  :root[data-motion="auto"] *,
+  :root[data-motion="auto"] *:not(.wait.progressing),
   :root[data-motion="auto"] *::before,
   :root[data-motion="auto"] *::after {
     animation-duration: 0.01ms !important;
@@ -446,6 +448,225 @@ mark {
   outline-offset: 2px !important;
   box-shadow: 0 0 0 5px var(--theme-surface) !important;
 }
+
+/* Espaciado de texto (WCAG 1.4.12, encargo de PiecesPHP 2026-11-16): interlineado 1,5, párrafos a 2× el tamaño, letras a
+   0,12 em y palabras a 0,16 em, los valores mínimos que pide la norma. !important, como el marcador de prueba de WCAG:
+   tiene que ganar a cualquier regla de componente. Los íconos quedan fuera (son glifos de fuente, no texto), y los botones de solo ícono (sin texto, el
+   interlineado solo los hacía más altos que anchos), los grupos de íconos (`i.icons`) y las etiquetas circulares (un número
+   o una letra en un círculo: con 1,5 pasaban de 24×24 a 24×30). */
+:root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label) {
+  line-height: 1.5 !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+}
+
+/* Lo excluido no toma el espaciado, pero lo heredaría del padre: la etiqueta circular con dos cifras pasaba a 28,7×24 */
+:root[data-text-spacing="wide"] .ui.circular.label {
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+:root[data-text-spacing="wide"] p {
+  margin-block-end: 2em !important;
+}
+
+/* Con las letras más anchas, una palabra larga sin espacios (una ruta, un nombre de clase) que ya rozaba el ancho se sale
+   del contenedor: puede partirse por cualquier punto. */
+:root[data-text-spacing="wide"] body {
+  overflow-wrap: anywhere;
+}
+
+/* Las celdas `collapsing` de una tabla no saltan de línea (nowrap de Fomantic): con las letras más anchas, a 390 sacaban
+   la tabla de la ventana. */
+:root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing {
+  white-space: normal;
+}
+
+/* El código en línea no saca su caja de la ventana: una ruta larga sin espacios se parte si no cabe (a 390 salía hasta
+   100px en todos los temas menos piecesphp, que ya lo hacía). break-word no cambia el ancho mínimo de lo que lo contiene. */
+:not(pre) > code {
+  overflow-wrap: break-word;
+}
+
+/* El código en línea (una ruta, `Clase::CONSTANTE`) también puede partirse: los temas le quitan el corte de palabra */
+:root[data-text-spacing="wide"] :not(pre) > code {
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+}
+
+/* Transparencias reducidas (encargo de PiecesPHP, 2026-11-16): sin desenfoques detrás de las superficies. Cada tema
+   vuelve opacas sus superficies translúcidas con el mismo atributo (glass-ios es el que más tiene). `auto` sigue a la
+   preferencia del sistema. */
+:root[data-transparency="reduce"] {
+  
+/* La barra del shell es pegajosa y translúcida (superficie al 86 %): el contenido se veía al pasar por debajo */
+}
+:root[data-transparency="reduce"] *,
+:root[data-transparency="reduce"] *::before,
+:root[data-transparency="reduce"] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+:root[data-transparency="reduce"] .ui.shell > .main > .bar {
+  background-color: var(--theme-surface) !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-transparency="auto"] {
+    
+/* La barra del shell es pegajosa y translúcida (superficie al 86 %): el contenido se veía al pasar por debajo */
+  }
+  :root[data-transparency="auto"] *,
+  :root[data-transparency="auto"] *::before,
+  :root[data-transparency="auto"] *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  :root[data-transparency="auto"] .ui.shell > .main > .bar {
+    background-color: var(--theme-surface) !important;
+  }
+}
+
+/* Opción elegida de un grupo (WCAG 1.4.11, encargo de PiecesPHP): en un `role="radiogroup"` (un `ui buttons` o un
+   selector segmentado `ui item secondary menu`), la elegida (`aria-checked="true"`) se rellena con el acento del modo y
+   lleva su texto sobre relleno automático (--accent-1-text). Corregido por su PO en la 0.16.1: en el color del texto
+   (0.16.0) se perdía el azul de marca; la garantía de contraste en oscuro la da el acento de oscuro (0.17.0, D109).
+   Solo con el ARIA: ningún `active` cambia sin él. !important: tiene que ganar a los rellenos de color y de estado de
+   cada tema. */
+[role="radiogroup"] > [aria-checked="true"],
+[role="radiogroup"] > [aria-checked="true"]:hover {
+  background: var(--accent-1, var(--accent, #356dca)) !important;
+  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) !important;
+  box-shadow: none !important;
+}
+[role="radiogroup"] > [aria-checked="true"] > .icon {
+  color: inherit !important;
+}
+
+/* Objetivos de pulsación de 24px (WCAG 2.5.8, encargo de PiecesPHP 2026-11-16), por omisión: enlaces de una lista
+   apilados (22–23px, uno pegado al otro), el resumen de un <details> (20px), las etiquetas que son enlaces (unos 22px en
+   fila) y el ícono-enlace de un input (unos 15px de ancho, pegado al campo). */
+
+/* Contenido centrado en los 24px: arriba, el paso entre textos era 27/24 (el primero sin relleno superior) */
+.ui.list a.item {
+  min-height: 24px;
+  align-content: center;
+}
+
+/* En una lista horizontal los ítems van en línea: centrados y con 1px de margen negativo arriba y abajo cuentan como 22px
+   en la línea, o al partirse en dos filas (un pie a 390) las filas se separaban 5px más (medido: la lista mide lo que en
+   la 0.15.0 en piecesphp y fluent; en lumen, 2px menos). .ui.ui: la divided pone margin: 0 (y line-height 0.6, por eso
+   no vale 1lh) */
+.ui.ui.horizontal.list > a.item {
+  vertical-align: middle;
+  margin-block: -1px;
+}
+
+/* Los enlaces y cabeceras-enlace que crecen a 24px no cambian la disposición: márgenes negativos de lo que crecen sobre
+   su línea (1lh), así la línea mide lo de antes y el texto sigue junto a su ícono (centrado en 24px bajaba 2–3px y el
+   margen inferior de una cabecera de menú, antes en línea, empezaba a contar: 10px más por grupo) */
+.ui.list .item > a:not(.ui):only-child,
+.ui.list .item > .content > a:not(.ui):only-child,
+.ui.list .item > a:not(.ui):first-child:has(+ .list) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* La × de un nag (unos 17×15px, pegada al propio nag, que también es un enlace). Va anclada con top y right: la caja
+   crecía solo hacia abajo y a la izquierda y la × bajaba 5px; translate la devuelve a su centro (medía 1.18em × 1em, el
+   i.icon). Un tema cuya × ya mide 24px (piecesphp) lo anula. */
+.ui.nag > .close.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 24px;
+  min-height: 24px;
+  translate: max(0px, (24px - 1.18em) / 2) min(0px, (1em - 24px) / 2);
+}
+.ui.list .item a.header,
+.ui.menu .item > a.header {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* El margen inferior de la cabecera de un menú vertical (.ui.vertical.menu .item > .header:not(.ui)) no contaba en un
+   enlace en línea */
+.ui.ui.vertical.menu .item > a.header:not(.ui) {
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* Checkbox, radio y toggle: la caja y su etiqueta son un objetivo de 17–20px de alto, pegado al campo de al lado
+   (.ui.ui: el toggle fija su propio alto mínimo). El contenido va centrado en los 24px (la etiqueta mide al menos lo que
+   el control, checkbox.less): arriba quedaba 2–4px por encima del texto de una fila o de una celda. Sin texto, su línea
+   base es el pie de la caja (como en Fomantic): márgenes negativos de lo que creció, y la línea solo cuenta el alto de
+   antes (--checkbox-height, de checkbox.less); el control queda donde estaba y la caja pulsable sigue siendo de 24px
+   (con vertical-align, la caja más alta subía la línea de una celda y la casilla quedaba 2px por debajo del texto) */
+.ui.ui.checkbox {
+  min-height: 24px !important;
+  align-content: center;
+  
+/* el centrado de una línea, también en las de dos líneas: una casilla de dos líneas junto a otra de una (una rejilla
+       de casillas) quedaba 2px más alta */
+  padding-block: max(0px, (24px - max(var(--checkbox-height, 24px), 1lh)) / 2);
+}
+
+/* invisible: la etiqueta es un botón o una imagen, ya mayor que 24px */
+.ui.ui.invisible.checkbox {
+  padding-block: 0;
+}
+
+/* En una fila de campos la casilla se alinea con el input por su margen superior (form.less, pensado para el alto de
+   antes): sube lo que crece por arriba al centrarse en 24px (quedaba 2px por debajo del centro del input) */
+.ui.form .fields:not(.grouped):not(.inline) .field:not(:only-child) .ui.ui.checkbox,
+.ui.form .field .fields .field:not(:only-child) .ui.ui.checkbox {
+  translate: 0 min(0px, (max(var(--checkbox-height, 24px), 1lh) - 24px) / 2);
+}
+
+/* El asterisco de una casilla obligatoria va arriba de la caja (top: 0, form.less): baja lo que se centra una línea */
+.ui.form .required.fields:not(.grouped):not(.inline) > .field > .ui.ui.checkbox::after,
+.ui.form .required.field > .ui.ui.checkbox::after {
+  top: max(0px, (24px - 1lh) / 2);
+}
+.ui.ui.fitted.checkbox,
+.ui.ui.checkbox:has(> label:empty) {
+  margin-block: min(0px, (var(--checkbox-height, 24px) - 24px) / 2);
+}
+
+/* Enlaces del pie de un evento del feed («4 me gusta») y de la línea de metadatos de un ítem, fuera de una frase */
+
+/* inline-block con el contenido centrado: con inline-flex se perdía el espacio entre el ícono y el texto (de 8 a 5px).
+   Márgenes negativos de lo que crece sobre su línea: la fila de metadatos no crece (el evento crecía 7px) */
+.ui.feed > .event > .content .meta > a,
+.ui.items > .item .meta > a {
+  display: inline-block;
+  align-content: center;
+  min-height: 24px;
+  margin-block: min(0px, (1lh - 24px) / 2);
+}
+
+/* border-box: un summary con relleno propio (lumen, 31px) crecía 8px; el contenido centrado en los 24px */
+summary {
+  box-sizing: border-box;
+  min-height: 24px;
+  align-content: center;
+}
+
+/* inline-block (el de Fomantic) con el contenido centrado: con inline-flex se perdía el espacio entre el texto y su × */
+a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
+  align-content: center;
+  min-height: 24px;
+  vertical-align: middle;
+}
+.ui.icon.input > i.link.icon {
+  min-width: 24px;
+}
+
+/* Etiquetas circulares que son enlaces: al menos 24px, en label.less (necesita el tamaño mínimo de cada tema) */
+
+/* Punto de color que es un enlace (`a.ui.empty.circular.label`): caja de 24px con el mismo punto, en label.less */
 
 /* Colores forzados (alto contraste de Windows): el sistema quita fondos y sombras; los controles que solo se
    distinguían por el relleno recuperan su borde y el foco se ve siempre */

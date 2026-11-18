@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Dropdown
+ * # Fomantic-UI 0.16.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2432,4 +2432,11 @@ select.ui.dropdown:focus {
 .ui.multiple.dropdown:not(.selection) > .label ~ input.search,
 .ui.multiple.dropdown:not(.selection) > .label ~ .text {
   margin-left: 0.28571429rem;
+}
+
+/* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio el texto pasa a interlineado 1,5 y el relleno del selection,
+   pensado para 1em, lo dejaba 4px más alto que el input de al lado. El relleno vertical del input: misma altura. */
+:root[data-text-spacing="wide"] .ui.selection.dropdown {
+  padding-top: 0.64285714em !important;
+  padding-bottom: 0.64285714em !important;
 }

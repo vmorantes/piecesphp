@@ -467,6 +467,10 @@ mismo recorrido de `scheme-create`. `bin/cli seed module=all` simula; `escribir=
   página de acceso la repone en la cookie: borrar solo cookies no cierra nada (`#1988`). Cada recorrido deja así sus
   filas de acceso (dos por entrada, medido en JAS), y el propio recorrido las borra al terminar. Un instrumento que diga «sin sesión» y solo borre cookies
   miente.
+  **Un recorrido que navega justo después de un envío con éxito se queda colgado si intercepta peticiones**: tras el
+  éxito, `genericFormHandler.js:563`/`:571` recarga o redirige a los 1,5 s, y una navegación de Puppeteer con
+  `setRequestInterception` que cae encima no termina nunca (ni la siguiente). Sin interceptar, termina. Remedio: esperar
+  más de 1,5 s tras el éxito, o marcar con `setExtraHTTPHeaders` en vez de interceptar (JLT, `#3029` §7.6).
 - **Las capturas para el PO** (ADR 0058) viven en `~/Documentos/PiecesPHP/`. **Lo que él mira es PLANO: una carpeta por
   resolución con todas las imágenes**, `todas-1920x1080/` y `todas-390x844/` (el PO, 2026-10-17: «con todo es todo, no
   jerarquías»; la `panel/` por secciones se borró por su orden, P183). **Es la ÚNICA captura** (P184, GM): `bin/navegador

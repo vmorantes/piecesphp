@@ -63,4 +63,7 @@ return [
     "Código invalidado" => "Code invalidated",
     "Doble factor restablecido" => "Two-factor reset",
     "Sin especificar" => "Unspecified",
+    "El código de tipo «%code%» no es válido: solo mayúsculas, números y guion bajo." => "The type code «%code%» is not valid: only uppercase letters, numbers and underscores.",
+    "El tipo «%code%» necesita un texto." => "The type «%code%» needs a text.",
+    "El tipo de mensaje «%code%» ya existe." => "The message type «%code%» already exists.",
 ];

@@ -1401,7 +1401,7 @@ class APIController extends AdminPanelController
                     $arrayBodyResponse = json_decode($response->getBody()->__toString(), true);
 
                     if ($arrayBodyResponse['success'] && $userMapper !== null && $userMapper->id !== null) {
-                        LogsMapper::addLog(LogsMapper::MSG_UPDATE_PROFILE, [
+                        LogsMapper::addLogSafe(LogsMapper::MSG_UPDATE_PROFILE, [
                             '%username%' => $userMapper->username,
                         ], 'id', $userMapper->id, UsersModel::TABLE);
                     }
@@ -1467,7 +1467,7 @@ class APIController extends AdminPanelController
                     $arrayBodyResponse = json_decode($response->getBody()->__toString(), true);
 
                     if ($arrayBodyResponse['success'] && $userMapper !== null && $userMapper->id !== null) {
-                        LogsMapper::addLog(LogsMapper::MSG_UPDATE_PROFILE_IMAGE, [
+                        LogsMapper::addLogSafe(LogsMapper::MSG_UPDATE_PROFILE_IMAGE, [
                             '%username%' => $userMapper->username,
                         ], 'id', $userMapper->id, UsersModel::TABLE);
                     }
@@ -1577,7 +1577,7 @@ class APIController extends AdminPanelController
                 ]);
 
                 if ($usuario !== null) {
-                    LogsMapper::addLog(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
+                    LogsMapper::addLogSafe(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
                         '%username%' => $usuario->username,
                     ], 'id', $usuario->id, UsersModel::TABLE);
                 }
@@ -1606,7 +1606,7 @@ class APIController extends AdminPanelController
             if (is_array($arrayBodyResponse) && ($arrayBodyResponse['success'] ?? false) === true && is_array($parsedBody) && is_string($parsedBody['username'] ?? null)) {
                 $usuario = $controller->resolveUser(trim($parsedBody['username']));
                 if ($usuario !== null) {
-                    LogsMapper::addLog(LogsMapper::MSG_PASSWORD_RECOVERY_BY_CODE, [
+                    LogsMapper::addLogSafe(LogsMapper::MSG_PASSWORD_RECOVERY_BY_CODE, [
                         '%username%' => $usuario->username,
                     ], 'id', $usuario->id, UsersModel::TABLE);
                 }

@@ -170,7 +170,7 @@ class UserTokensController extends AdminPanelController
         $texts = [];
         $last = count(self::HISTORY_TYPES) - 1;
         foreach (self::HISTORY_TYPES as $index => $type) {
-            $texts[] = WhereItem::isEqual("{$table}.textMessage", LogsMapper::MESSAGES[$type], $index < $last ? WhereItem::OR_OPERATOR : WhereItem::AND_OPERATOR);
+            $texts[] = WhereItem::isEqual("{$table}.textMessage", LogsMapper::messages()[$type], $index < $last ? WhereItem::OR_OPERATOR : WhereItem::AND_OPERATOR);
         }
         $whereSegment = new WhereSegment();
         $whereSegment->addGroup(new WhereItemGroup($texts));

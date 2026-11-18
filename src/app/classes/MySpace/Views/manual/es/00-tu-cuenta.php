@@ -32,20 +32,26 @@ problema.</p>
 <h2 class="title" id="tus-preferencias"><span role="button" tabindex="0" aria-expanded="false" aria-controls="tus-preferencias-contenido"><i class="dropdown icon" aria-hidden="true"></i>Tus preferencias</span></h2>
 <div class="content" id="tus-preferencias-contenido">
 <p>En el menú de tu nombre, arriba a la derecha, <strong>«Preferencias»</strong> te lleva a la pestaña <strong>«Preferencias»</strong> de <strong>«Mi
-cuenta»</strong>. Tiene dos secciones:</p>
+cuenta»</strong>: cómo ves el panel. Tiene dos tarjetas y, debajo, una <strong>«Vista previa»</strong> con texto, botones y etiquetas de
+muestra que cambian al momento con lo que elijas:</p>
 <ul>
-<li><strong>Apariencia</strong>: el <strong>modo de color</strong>, <strong>«Claro»</strong>, <strong>«Oscuro»</strong> o <strong>«Sistema»</strong> (el de tu dispositivo). También lo
-  tienes en el menú de tu nombre, en <strong>«Modo de color»</strong>, para cambiarlo rápido.</li>
-<li><strong>Accesibilidad</strong>:</li>
+<li><strong>Apariencia</strong>:</li>
+<li><strong>Modo de color</strong>: <strong>«Claro»</strong>, <strong>«Oscuro»</strong> o <strong>«Sistema»</strong> (el de tu dispositivo). También lo tienes en el menú
+    de tu nombre, en <strong>«Modo de color»</strong>, para cambiarlo rápido.</li>
 <li><strong>Tamaño de letra</strong>: <strong>«Normal»</strong>, <strong>«Grande»</strong> o <strong>«Más grande»</strong>.</li>
+<li><strong>Espaciado del texto</strong>: <strong>«Normal»</strong> o <strong>«Amplio»</strong>, con más espacio entre líneas, párrafos, palabras y letras.</li>
+<li><strong>Lectura y movimiento</strong>:</li>
 <li><strong>Contraste</strong>: <strong>«Automático»</strong> (sigue a tu dispositivo) o <strong>«Más contraste»</strong>, con textos y colores más marcados.</li>
 <li><strong>Movimiento</strong>: <strong>«Automático»</strong> (sigue a tu dispositivo) o <strong>«Reducir movimiento»</strong>, con menos animaciones.</li>
-<li><strong>Foco</strong>: <strong>«Normal»</strong> o <strong>«Reforzado»</strong>, con un contorno más visible en lo que tienes seleccionado al moverte con
-    el teclado.</li>
+<li><strong>Transparencias</strong>: <strong>«Como el sistema»</strong> (sigue a tu dispositivo, si tiene activado reducir las transparencias) o
+    <strong>«Reducir»</strong>, con fondos opacos en lugar de translúcidos.</li>
+<li><strong>Indicador de foco</strong>: <strong>«Normal»</strong> o <strong>«Reforzado»</strong>, con un contorno más visible en lo que tienes seleccionado al
+    moverte con el teclado.</li>
 </ul>
-<p>Todo se aplica al momento y se guarda en tu cuenta. Cada grupo tiene además <strong>«Como el sitio»</strong>, que sigue lo que haya
-elegido quien administra y dice al lado cuál es (por ejemplo, «Como el sitio: Más contraste»). Es lo que tienes mientras
-no elijas otra cosa, y elegirla deshace tu elección.</p>
+<p><img class="ui image" alt="Preferencias" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/users-form-profile-preferencias.webp')); ?>"></p>
+<p>Todo se aplica al momento, solo para ti, y se guarda en tu cuenta. Cada grupo tiene además <strong>«Como el sitio»</strong>, que
+sigue lo que haya elegido quien administra y dice debajo cuál es (por ejemplo, «Como el sitio: Más contraste»). Es lo
+que tienes mientras no elijas otra cosa, y elegirla deshace tu elección.</p>
 </div>
 <h2 class="title" id="el-buscador"><span role="button" tabindex="0" aria-expanded="false" aria-controls="el-buscador-contenido"><i class="dropdown icon" aria-hidden="true"></i>El buscador</span></h2>
 <div class="content" id="el-buscador-contenido">

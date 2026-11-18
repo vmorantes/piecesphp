@@ -14,9 +14,9 @@
   z-index: 1;
   flex: none;
   align-self: center;
-  width: 1.42857143rem;
-  height: 1.42857143rem;
-  margin: 0 -2.14285714rem 0 0.71428571rem;
+  width: 1.71428571rem;
+  height: 1.71428571rem;
+  margin: 0 -2.42857143rem 0 0.71428571rem;
   padding: 0;
   border: 0;
   border-radius: var(--r-xs, 4px);
@@ -34,7 +34,7 @@
   cursor: default;
 }
 .ui.ui.ui.colorpicker > .trigger + input {
-  padding-left: 2.71428571rem;
+  padding-left: 3rem;
 }
 .ui.colorpicker > input.hidden,
 .ui.colorpicker > .hidden {

@@ -17,6 +17,43 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 		'image/jpg': 'jpg',
 		'image/webp': 'webp',
 		'image/png': 'png',
+		'image/gif': 'gif',
+	}
+	/**
+	 * El tipo REAL de una imagen ya puesta: el content-type de la respuesta si es de imagen, y si no, sus primeros bytes.
+	 * Un servidor puede servir WebP con nombre .jpg: el archivo tiene que llamarse por lo que es (H353).
+	 * @param {Blob} blob
+	 * @param {String} headerType
+	 * @returns {Promise<String>}
+	 */
+	let realImageType = (blob, headerType) => {
+		const declared = String(headerType || '').split(';')[0].trim().toLowerCase()
+		if (typeof extensionsByMime[declared] == 'string') {
+			return Promise.resolve(declared)
+		}
+		return blob.slice(0, 12).arrayBuffer().then(function (buffer) {
+			const b = new Uint8Array(buffer)
+			const ascii = (from, to) => String.fromCharCode.apply(null, Array.from(b.slice(from, to)))
+			if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) return 'image/jpeg'
+			if (b[0] === 0x89 && ascii(1, 4) === 'PNG') return 'image/png'
+			if (ascii(0, 4) === 'GIF8') return 'image/gif'
+			if (ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WEBP') return 'image/webp'
+			return blob.type || declared
+		})
+	}
+	/**
+	 * El nombre con la extensión del tipo dado, en lugar de la que traiga; sin tipo conocido, el nombre tal cual.
+	 * @param {String} name
+	 * @param {String} mime
+	 * @returns {String}
+	 */
+	let extensionByMimeOver = (name, mime) => {
+		const extension = extensionsByMime[mime]
+		if (typeof extension != 'string') {
+			return name
+		}
+		const dot = name.lastIndexOf('.')
+		return (dot > 0 ? name.substring(0, dot) : name) + '.' + extension
 	}
 	let formatsWithQuality = [
 		'image/jpeg',
@@ -296,15 +333,16 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 			if (fileInput.hasAttribute('required')) {
 				fileInput.removeAttribute('required')
 			}
-			fetch(settedImage)
+			//Sin WebP en Accept: si el servidor convierte según lo que acepta el navegador, aquí tiene que dar el original.
+			fetch(settedImage, { headers: { Accept: 'image/jpeg,image/png,image/gif' } })
 				.then(function (response) {
-					const mimeType = response.headers.get('content-type')
+					const headerType = response.headers.get('content-type')
 					const fileName = settedImageName.length > 0 ? settedImageName : getNameFromSrc(settedImage)
-					return new Promise(function (fileResolve) {
-						response.blob().then(function (blob) {
-							fileResolve(new File([blob], fileName, {
-								type: mimeType,
-							}))
+					return response.blob().then(function (blob) {
+						return realImageType(blob, headerType).then(function (realType) {
+							return new File([blob], extensionByMimeOver(fileName, realType), {
+								type: realType || blob.type,
+							})
 						})
 					})
 				})

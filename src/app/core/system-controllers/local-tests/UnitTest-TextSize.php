@@ -112,9 +112,10 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
     $exito = fn (array $r): bool => $r['status'] === 200 && (json_decode($r['body'], true)['success'] ?? null) === true;
 
     $tablaOpciones = (new SettingsModel())->getModel()->getTable();
-    $opciones = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG, SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG];
-    //Desde la fase 2 (JKO) la pantalla guarda también contraste, movimiento y foco: los cuerpos los llevan, con su valor por omisión.
-    $fase2 = [SettingsController::ACCESSIBILITY_CONTRAST_CONFIG => 'auto', SettingsController::ACCESSIBILITY_MOTION_CONFIG => 'auto', SettingsController::ACCESSIBILITY_FOCUS_CONFIG => 'normal'];
+    $opciones = [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG, SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG, SettingsController::ACCESSIBILITY_CONTRAST_CONFIG, SettingsController::ACCESSIBILITY_MOTION_CONFIG, SettingsController::ACCESSIBILITY_FOCUS_CONFIG, SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG, SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG];
+    //Desde la fase 2 (JKO) la pantalla guarda también contraste, movimiento y foco, y desde JLR el espaciado del texto y las
+    //transparencias: los cuerpos los llevan, con su valor por omisión.
+    $fase2 = [SettingsController::ACCESSIBILITY_CONTRAST_CONFIG => 'auto', SettingsController::ACCESSIBILITY_MOTION_CONFIG => 'auto', SettingsController::ACCESSIBILITY_FOCUS_CONFIG => 'normal', SettingsController::ACCESSIBILITY_TEXT_SPACING_CONFIG => 'normal', SettingsController::ACCESSIBILITY_TRANSPARENCY_CONFIG => 'auto'];
     $crudoDe = function (string $nombre) use ($database, $tablaOpciones): ?string {
         $consulta = $database->prepare("SELECT value FROM `{$tablaOpciones}` WHERE BINARY name = ?");
         $consulta->execute([$nombre]);

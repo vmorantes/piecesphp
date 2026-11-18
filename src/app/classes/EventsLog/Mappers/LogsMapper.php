@@ -197,6 +197,47 @@ class LogsMapper extends EntityMapperExtensible
     protected static $maxRows = self::MAX_ROWS;
 
     /**
+     * Los tipos que declara el proyecto con registerMessage(), además de MESSAGES (H363).
+     *
+     * @var array<string,string>
+     */
+    protected static $registeredMessages = [];
+
+    /**
+     * Declara un tipo de acción propio: un código en mayúsculas, números y guion bajo, y su texto con huecos (%username%…),
+     * en español y traducible en el grupo de los registros. Un código que ya existe, del framework o declarado antes, lanza.
+     *
+     * @param string $code
+     * @param string $text
+     * @return void
+     * @throws \InvalidArgumentException Si el código no tiene la forma o el texto está vacío.
+     * @throws \LogicException Si el código ya existe.
+     */
+    public static function registerMessage(string $code, string $text): void
+    {
+        if (preg_match('/^[A-Z0-9_]+$/', $code) !== 1) {
+            throw new \InvalidArgumentException(strReplaceTemplate(__(self::LANG_GROUP, 'El código de tipo «%code%» no es válido: solo mayúsculas, números y guion bajo.'), ['%code%' => $code]));
+        }
+        if (trim($text) === '') {
+            throw new \InvalidArgumentException(strReplaceTemplate(__(self::LANG_GROUP, 'El tipo «%code%» necesita un texto.'), ['%code%' => $code]));
+        }
+        if (array_key_exists($code, self::messages())) {
+            throw new \LogicException(strReplaceTemplate(__(self::LANG_GROUP, 'El tipo de mensaje «%code%» ya existe.'), ['%code%' => $code]));
+        }
+        self::$registeredMessages[$code] = $text;
+    }
+
+    /**
+     * Todos los tipos: los del framework (MESSAGES) y los que declara el proyecto.
+     *
+     * @return array<string,string>
+     */
+    public static function messages(): array
+    {
+        return self::MESSAGES + self::$registeredMessages;
+    }
+
+    /**
      * Por debajo de MIN_ROWS se queda en MIN_ROWS, sin lanzar. Con null vuelve a MAX_ROWS.
      *
      * @param int|null $rows
@@ -470,7 +511,7 @@ class LogsMapper extends EntityMapperExtensible
         $mapper->geolocationByIp = $geolocationByIp;
         $mapper->ip = $ip;
 
-        foreach (self::MESSAGES as $type => $text) {
+        foreach (self::messages() as $type => $text) {
 
             if ($type == $messageType) {
                 $notExistsMessage = false;
@@ -494,6 +535,26 @@ class LogsMapper extends EntityMapperExtensible
             throw new \Exception(__(self::LANG_GROUP, "El tipo de mensaje '{$messageType}' no existe."));
         }
         return $mapper;
+    }
+
+    /**
+     * Como addLog(), pero un fallo al anotar no rompe la acción que se anota: queda en el registro de errores (H356).
+     *
+     * @param string $messageType
+     * @param array $variables
+     * @param string $referenceColumn
+     * @param string $referenceValue
+     * @param string $referenceSource
+     * @return LogsMapper|null null si no se pudo anotar.
+     */
+    public static function addLogSafe(string $messageType, array $variables = [], ?string $referenceColumn = null, ?string $referenceValue = null, ?string $referenceSource = null): ?LogsMapper
+    {
+        try {
+            return self::addLog($messageType, $variables, $referenceColumn, $referenceValue, $referenceSource);
+        } catch (\Throwable $e) {
+            log_exception($e);
+            return null;
+        }
     }
 
     /**

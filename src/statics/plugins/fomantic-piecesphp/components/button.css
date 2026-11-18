@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Button
+ * # Fomantic-UI 0.16.1 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -5741,6 +5741,16 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   border-color: color-mix(in srgb, var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
 }
 
+/* Grupos que saltan de línea (wrapping, no spaced): una rejilla de esquinas rectas. Con radios en el primer y el último
+   botón quedaba una muesca en la junta entre filas (el primero redondeado abajo aunque tuviera otra fila debajo). Más
+   específico que las reglas de :first-child y :last-child de los temas; tinker recorta el grupo con su propio radio. */
+.ui.ui.ui.wrapping.buttons:not(.spaced) {
+  border-radius: 0;
+}
+.ui.ui.ui.wrapping.buttons:not(.spaced) > .ui.button {
+  border-radius: 0;
+}
+
 /* -------------------
         Foco
 -------------------- */
@@ -6251,14 +6261,4 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 
-/* wrapping (varias líneas, p. ej. el grupo «Posición» del asistente a 390, apilado en cuatro filas): el radio de 8px en
-   las puntas del primero y el último dejaba esquinas sueltas. Radio pequeño, como en material3, lumen y glass-ios. */
-.ui.wrapping.buttons:not(.spaced) {
-  border-radius: var(--r-xs, 4px);
-}
-.ui.wrapping.buttons:not(.spaced) .button:first-child {
-  border-radius: var(--r-xs, 4px) 0 0 var(--r-xs, 4px);
-}
-.ui.wrapping.buttons:not(.spaced) .button:last-child {
-  border-radius: 0 var(--r-xs, 4px) var(--r-xs, 4px) 0;
-}
+/* wrapping (varias líneas): rejilla de esquinas rectas, en core */

@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "4cb8dd60",
+  "commit": "6586a7f5",
   "fuenteSinCambios": true,
-  "generado": "2026-11-16T18:27:07.520Z",
+  "generado": "2026-11-17T22:14:04.369Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -994,9 +994,9 @@
             "width": 4
           },
           "muestras": [
-            "input.ui.invisible.file.input en div.: bottom -8424.28px → -8296.28px",
-            "input.ui.invisible.file.input en div.: bottom -8424.28px → -8296.28px",
-            "input.ui.invisible.file.input en div.: bottom -9064.28px → -8936.28px"
+            "input.ui.invisible.file.input en div.: bottom -8430.09px → -8296.28px",
+            "input.ui.invisible.file.input en div.: bottom -8430.09px → -8296.28px",
+            "input.ui.invisible.file.input en div.: bottom -9070.09px → -8936.28px"
           ]
         }
       },
@@ -1033,17 +1033,17 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "25 piezas cambian sin él",
+          "icon": "24 piezas cambian sin él",
           "image": "10 piezas cambian sin él"
         },
         "suelto": {
           "piezas": 110,
           "propiedades": {
-            "box-sizing": 215,
             "font-size": 215,
             "line-height": 215,
             "scrollbar-color": 215,
             "text-size-adjust": 215,
+            "box-sizing": 214,
             "block-size": 193,
             "height": 193,
             "inline-size": 193,
@@ -1143,11 +1143,11 @@
             "font-size": 744,
             "-webkit-font-smoothing": 705,
             "font-family": 667,
-            "transform-origin": 643,
-            "perspective-origin": 642,
-            "inline-size": 559,
-            "width": 559,
-            "block-size": 513
+            "transform-origin": 649,
+            "perspective-origin": 648,
+            "inline-size": 565,
+            "width": 565,
+            "block-size": 519
           },
           "muestras": [
             "div.ui.list en div.: block-size 72px → 82.2188px",
@@ -1160,12 +1160,12 @@
           "propiedades": {
             "font-size": 744,
             "line-height": 685,
-            "perspective-origin": 624,
-            "transform-origin": 624,
-            "block-size": 513,
-            "height": 513,
-            "inline-size": 490,
-            "width": 490,
+            "perspective-origin": 629,
+            "transform-origin": 629,
+            "block-size": 507,
+            "height": 507,
+            "inline-size": 496,
+            "width": 496,
             "padding-block-start": 181,
             "padding-top": 181,
             "padding-block-end": 180,
@@ -2091,7 +2091,7 @@
             "font-family": 722
           },
           "muestras": [
-            "form.ui.form.initial en div.: block-size 235.094px → 268.094px",
+            "form.ui.form.initial en div.: block-size 239.094px → 268.094px",
             "div.field en form.ui.form.initial: block-size 63.5469px → 72.3438px",
             "label. en div.field: block-size 17.9844px → 20.5625px"
           ]
@@ -2100,10 +2100,10 @@
           "piezas": 865,
           "propiedades": {
             "font-size": 880,
-            "perspective-origin": 862,
-            "transform-origin": 862,
-            "block-size": 861,
-            "height": 861,
+            "perspective-origin": 826,
+            "transform-origin": 826,
+            "block-size": 798,
+            "height": 798,
             "inline-size": 576,
             "width": 576,
             "line-height": 413,
@@ -2113,7 +2113,7 @@
             "padding-right": 364
           },
           "muestras": [
-            "form.ui.form.initial en div.: block-size 235.094px → 268.094px",
+            "form.ui.form.initial en div.: block-size 239.094px → 269.234px",
             "div.field en form.ui.form.initial: block-size 63.5469px → 72.3438px",
             "label. en div.field: block-size 17.9844px → 20.5625px"
           ]
@@ -2241,7 +2241,7 @@
       ],
       "comprobacion": {
         "ejemplos": 80,
-        "piezas": 366,
+        "piezas": 365,
         "muestras": {
           "icon": "i.clock.icon ← i.icon"
         },
@@ -2253,20 +2253,20 @@
           "icon": "31 piezas cambian sin él"
         },
         "suelto": {
-          "piezas": 366,
+          "piezas": 365,
           "propiedades": {
-            "box-sizing": 737,
-            "font-size": 737,
-            "line-height": 737,
-            "scrollbar-color": 737,
-            "text-size-adjust": 737,
-            "-webkit-font-smoothing": 701,
-            "perspective-origin": 532,
-            "transform-origin": 532,
-            "block-size": 505,
-            "height": 505,
-            "inline-size": 407,
-            "width": 407
+            "box-sizing": 735,
+            "font-size": 735,
+            "line-height": 735,
+            "scrollbar-color": 735,
+            "text-size-adjust": 735,
+            "-webkit-font-smoothing": 699,
+            "perspective-origin": 528,
+            "transform-origin": 528,
+            "block-size": 501,
+            "height": 501,
+            "inline-size": 405,
+            "width": 405
           },
           "muestras": [
             "div.ui.menu en div.: block-size 52px → 56.8281px",
@@ -2275,20 +2275,20 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 366,
+          "piezas": 365,
           "propiedades": {
-            "font-size": 737,
-            "line-height": 569,
-            "perspective-origin": 530,
-            "transform-origin": 530,
-            "block-size": 506,
-            "height": 506,
-            "inline-size": 365,
-            "width": 365,
-            "padding-inline-end": 234,
-            "padding-inline-start": 234,
-            "padding-left": 234,
-            "padding-right": 234
+            "font-size": 735,
+            "line-height": 567,
+            "perspective-origin": 526,
+            "transform-origin": 526,
+            "block-size": 502,
+            "height": 502,
+            "inline-size": 364,
+            "width": 364,
+            "padding-inline-end": 231,
+            "padding-inline-start": 231,
+            "padding-left": 231,
+            "padding-right": 231
           },
           "muestras": [
             "div.ui.menu en div.: block-size 52px → 58.8281px",
@@ -2297,21 +2297,25 @@
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 5,
+          "piezas": 6,
           "propiedades": {
             "inline-size": 3,
             "perspective-origin": 3,
             "transform-origin": 3,
             "width": 3,
-            "inset-inline-end": 1,
-            "right": 1,
-            "inset-inline-start": 1,
-            "left": 1
+            "border-block-end-color": 2,
+            "border-block-start-color": 2,
+            "border-bottom-color": 2,
+            "border-inline-end-color": 2,
+            "border-inline-start-color": 2,
+            "border-left-color": 2,
+            "border-right-color": 2,
+            "border-top-color": 2
           },
           "muestras": [
+            "a.item en div.ui.secondary.two.item.menu: background-color rgb(53, 109, 202) → rgba(0, 0, 0, 0)",
             "div.ui.top.fixed.menu en div.: inline-size 1390px → 1385px",
-            "div.ui.bottom.fixed.menu en div.: inline-size 1390px → 1385px",
-            "div.ui.left.fixed.vertical.menu en div.: inset-inline-end 1180px → 1175px"
+            "div.ui.bottom.fixed.menu en div.: inline-size 1390px → 1385px"
           ]
         }
       },
@@ -2787,7 +2791,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "78 piezas cambian sin él"
+          "icon": "91 piezas cambian sin él"
         },
         "suelto": {
           "piezas": 751,
@@ -2797,10 +2801,10 @@
             "line-height": 935,
             "scrollbar-color": 935,
             "text-size-adjust": 935,
-            "block-size": 825,
-            "height": 825,
-            "perspective-origin": 825,
-            "transform-origin": 825,
+            "block-size": 842,
+            "height": 842,
+            "perspective-origin": 842,
+            "transform-origin": 842,
             "font-family": 808,
             "-webkit-font-smoothing": 808,
             "scrollbar-width": 751
@@ -2815,17 +2819,17 @@
           "piezas": 751,
           "propiedades": {
             "font-size": 935,
-            "perspective-origin": 825,
-            "transform-origin": 825,
+            "perspective-origin": 842,
+            "transform-origin": 842,
             "block-size": 823,
             "height": 823,
-            "inline-size": 614,
-            "width": 614,
+            "inline-size": 631,
+            "width": 631,
             "line-height": 432,
             "padding-block-start": 224,
             "padding-top": 224,
-            "margin-block-end": 202,
-            "margin-bottom": 202
+            "margin-block-end": 219,
+            "margin-bottom": 219
           },
           "muestras": [
             "div.ui.feed en div.: block-size 337.641px → 380.562px",
@@ -2889,11 +2893,11 @@
             "text-size-adjust": 375,
             "-webkit-font-smoothing": 357,
             "font-family": 321,
-            "perspective-origin": 259,
+            "perspective-origin": 261,
+            "transform-origin": 261,
             "scrollbar-width": 259,
-            "transform-origin": 259,
-            "inline-size": 205,
-            "width": 205
+            "inline-size": 207,
+            "width": 207
           },
           "muestras": [
             "div.ui.items en div.: block-size 304.188px → 306.188px",
@@ -3050,7 +3054,7 @@
             "line-height": 375,
             "scrollbar-color": 375,
             "text-size-adjust": 375,
-            "box-sizing": 360,
+            "box-sizing": 369,
             "scrollbar-width": 303,
             "-webkit-font-smoothing": 245,
             "perspective-origin": 231,
@@ -3071,11 +3075,11 @@
             "perspective-origin": 173,
             "transform-origin": 173,
             "font-size": 157,
+            "block-size": 153,
+            "height": 153,
             "line-height": 153,
-            "block-size": 152,
-            "height": 152,
-            "inline-size": 110,
-            "width": 110,
+            "inline-size": 109,
+            "width": 109,
             "padding-inline-end": 80,
             "padding-inline-start": 80,
             "padding-left": 80,
@@ -3269,12 +3273,12 @@
             "perspective-origin": 154,
             "transform-origin": 154,
             "-webkit-font-smoothing": 153,
-            "block-size": 142,
-            "height": 142
+            "box-sizing": 146,
+            "block-size": 142
           },
           "muestras": [
             "div.ui.visible.chat en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\"",
-            "div.header en div.ui.visible.chat: block-size 62px → 70.7031px",
+            "div.header en div.ui.visible.chat: block-size 62px → 45.7031px",
             "h2.title en div.header: block-size 24px → 21px"
           ]
         },
@@ -3358,16 +3362,16 @@
             "text-size-adjust": 364,
             "-webkit-font-smoothing": 364,
             "font-size": 361,
+            "block-size": 357,
+            "height": 357,
             "inline-size": 355,
             "width": 355,
-            "block-size": 353,
-            "height": 353,
             "perspective-origin": 353,
             "transform-origin": 353,
             "font-family": 305
           },
           "muestras": [
-            "div.ui.checkbox.checked en div.: block-size 20px → 22.8594px",
+            "div.ui.checkbox.checked en div.: align-content center → normal",
             "input.hidden en div.ui.checkbox.checked: block-size 16px → 18.2812px",
             "label. en div.ui.checkbox.checked: block-size 20px → 22.8594px"
           ]
@@ -3379,17 +3383,17 @@
             "font-size": 361,
             "inline-size": 355,
             "width": 355,
-            "block-size": 353,
-            "height": 353,
             "perspective-origin": 353,
             "transform-origin": 353,
-            "bottom": 202,
-            "inset-block-end": 202,
+            "block-size": 288,
+            "height": 288,
+            "bottom": 206,
+            "inset-block-end": 206,
             "inset-inline-end": 187,
             "right": 187
           },
           "muestras": [
-            "div.ui.checkbox.checked en div.: block-size 20px → 22.8594px",
+            "div.ui.checkbox.checked en div.: font-size 14px → 16px",
             "input.hidden en div.ui.checkbox.checked: block-size 16px → 18.2812px",
             "label. en div.ui.checkbox.checked: block-size 20px → 22.8594px"
           ]
@@ -3479,7 +3483,7 @@
           },
           "muestras": [
             "div.ui.colorpicker.input en div.: block-size 40px → 45.4219px",
-            "button.trigger en div.ui.colorpicker.input: block-size 20px → 22.8438px",
+            "button.trigger en div.ui.colorpicker.input: block-size 24px → 27.4219px",
             "input. en div.ui.colorpicker.input: block-size 40px → 45.4219px"
           ]
         },
@@ -3650,10 +3654,10 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "154 piezas cambian sin él",
+          "icon": "153 piezas cambian sin él",
           "transition": "459 piezas cambian sin él",
           "button": "46 piezas cambian sin él",
-          "flag": "27 piezas cambian sin él",
+          "flag": "25 piezas cambian sin él",
           "label": "21 piezas cambian sin él",
           "loader": "5 piezas cambian sin él",
           "message": "1 piezas cambian sin él"
@@ -4092,18 +4096,18 @@
             "line-height": 250,
             "scrollbar-color": 250,
             "text-size-adjust": 250,
-            "scrollbar-width": 185,
-            "block-size": 183,
-            "height": 183,
-            "perspective-origin": 183,
-            "transform-origin": 183,
-            "inline-size": 129,
-            "width": 129
+            "block-size": 241,
+            "height": 241,
+            "perspective-origin": 241,
+            "transform-origin": 241,
+            "inline-size": 187,
+            "width": 187,
+            "scrollbar-width": 185
           },
           "muestras": [
             "div.ui.nag en div.: block-size 45px → 22.8438px",
             "span.title en div.ui.nag: block-size 20px → 22.8438px",
-            "i.close.icon en div.ui.nag: block-size 24px → 27.4219px"
+            "i.close.icon en div.ui.nag: align-items center → normal"
           ]
         },
         "sueltoBaseUi": {
@@ -4111,12 +4115,12 @@
           "propiedades": {
             "font-size": 250,
             "line-height": 250,
-            "block-size": 183,
-            "height": 183,
-            "perspective-origin": 183,
-            "transform-origin": 183,
-            "inline-size": 129,
-            "width": 129,
+            "block-size": 241,
+            "height": 241,
+            "perspective-origin": 241,
+            "transform-origin": 241,
+            "inline-size": 187,
+            "width": 187,
             "bottom": 61,
             "inset-block-end": 61,
             "inset-block-start": 60,
@@ -4500,21 +4504,21 @@
         "suelto": {
           "piezas": 399,
           "propiedades": {
-            "box-sizing": 726,
             "font-size": 726,
             "line-height": 726,
             "scrollbar-color": 726,
             "text-size-adjust": 726,
-            "block-size": 399,
-            "height": 399,
-            "inline-size": 399,
-            "perspective-origin": 399,
             "scrollbar-width": 399,
-            "transform-origin": 399,
-            "width": 399
+            "inline-size": 338,
+            "width": 338,
+            "block-size": 337,
+            "height": 337,
+            "padding-block-end": 308,
+            "padding-block-start": 308,
+            "padding-bottom": 308
           },
           "muestras": [
-            "div.ui.rating en div.: block-size 14px → 16px",
+            "div.ui.rating en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
             "i.star.icon.active en div.ui.rating: block-size 14px → 16px",
             "i.star.icon.active en div.ui.rating: block-size 14px → 16px"
           ]
@@ -4524,15 +4528,19 @@
           "propiedades": {
             "font-size": 726,
             "line-height": 654,
-            "block-size": 399,
-            "height": 399,
-            "inline-size": 399,
-            "perspective-origin": 399,
-            "transform-origin": 399,
-            "width": 399
+            "inline-size": 338,
+            "width": 338,
+            "block-size": 337,
+            "height": 337,
+            "padding-block-end": 308,
+            "padding-block-start": 308,
+            "padding-bottom": 308,
+            "padding-top": 308,
+            "padding-inline-end": 298,
+            "padding-inline-start": 298
           },
           "muestras": [
-            "div.ui.rating en div.: block-size 14px → 16px",
+            "div.ui.rating en div.: font-size 14px → 16px",
             "i.star.icon.active en div.ui.rating: block-size 14px → 16px",
             "i.star.icon.active en div.ui.rating: block-size 14px → 16px"
           ]

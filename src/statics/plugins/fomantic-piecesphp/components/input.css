@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Input
+ * # Fomantic-UI 0.16.1 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -166,7 +166,10 @@
 /* El arco con currentColor: el color de la variante (loader.less le da `color` en los inverted de color); en los
        que no tienen color y en black (casi del tono de la pista sobre el campo oscuro), el claro de inverted. Con el claro fijo, los quince de color salían iguales y blancos. */
 .ui.ui.inverted.loading.input:not(.transparent) > i.icon::after {
-  border-color: currentColor transparent transparent;
+  
+/* Aclarado: el campo inverted es oscuro en los dos modos y la tinta de color del modo claro (secondary, primary)
+           casi no se separaba de la pista */
+  border-color: color-mix(in oklab, currentColor 60%, #fff) transparent transparent;
 }
 
 /* .ui.ui.ui.ui: empata con `.ui.ui.ui.inverted.black.elastic.loading > i.icon::after` de loader.less, que va después */

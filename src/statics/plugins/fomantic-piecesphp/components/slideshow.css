@@ -190,7 +190,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.571em;
+  gap: 16px;
   margin: 0;
   padding: 0;
   pointer-events: none;
@@ -214,9 +214,9 @@
 .ui.slideshow .indicators > .indicator::before {
   content: "";
   display: block;
-  margin: -0.5em;
-  width: calc(100% + 2 * 0.5em);
-  height: calc(100% + 2 * 0.5em);
+  margin: -8px;
+  width: calc(100% + 2 * 8px);
+  height: calc(100% + 2 * 8px);
 }
 .ui.slideshow .indicators > .indicator:hover {
   background: rgba(255, 255, 255, 0.85);

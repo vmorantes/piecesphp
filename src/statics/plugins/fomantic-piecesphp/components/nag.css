@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Nag
+ * # Fomantic-UI 0.16.1 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -615,6 +615,9 @@ a.ui.nag {
   text-align: center;
   border-radius: var(--r-sm, 6px);
   color: light-dark(#99a1af, #737c8c);
+  translate: none;
+  
+/* ya mide 24px: el desplazamiento de core para centrar la caja crecida no hace falta */
 }
 .ui.nag > .close.icon:hover {
   background-color: color-mix(in srgb, currentColor 8%, transparent);

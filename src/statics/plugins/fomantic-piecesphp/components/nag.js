@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Nag
+ * # Fomantic-UI 0.16.1 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

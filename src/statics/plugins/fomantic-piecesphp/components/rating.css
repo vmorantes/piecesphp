@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Rating
+ * # Fomantic-UI 0.16.1 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -493,3 +493,17 @@
          Theme Overrides
 *******************************/
 
+
+/* Fork (WCAG 2.5.8, D95): cada ícono es un objetivo; en los tamaños pequeños medía menos de 24×24 y tocaba al de al
+   lado. El relleno completa los 24px (el glifo no cambia; los íconos quedan algo más separados). El degradado del
+   parcial se mide sobre la caja del glifo, no sobre la del relleno. Una de solo lectura (disabled, la que pone
+   interactive: false) no es un objetivo: conserva su separación. */
+.ui.rating:not(.disabled) .icon {
+  box-sizing: content-box;
+  padding: max(0px, calc((24px - 1em) / 2)) max(0px, calc((24px - 1.25em) / 2));
+  
+/* alto: 1em (line-height 1; @iconHeight es auto) */
+}
+.ui.rating .icon.partial.active {
+  background-origin: content-box;
+}

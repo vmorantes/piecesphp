@@ -31,20 +31,27 @@ nombra el manual no te aparece, tu tipo de usuario no la tiene.
 ## Tus preferencias
 
 En el menú de tu nombre, arriba a la derecha, **«Preferencias»** te lleva a la pestaña **«Preferencias»** de **«Mi
-cuenta»**. Tiene dos secciones:
+cuenta»**: cómo ves el panel. Tiene dos tarjetas y, debajo, una **«Vista previa»** con texto, botones y etiquetas de
+muestra que cambian al momento con lo que elijas:
 
-- **Apariencia**: el **modo de color**, **«Claro»**, **«Oscuro»** o **«Sistema»** (el de tu dispositivo). También lo
-  tienes en el menú de tu nombre, en **«Modo de color»**, para cambiarlo rápido.
-- **Accesibilidad**:
+- **Apariencia**:
+  - **Modo de color**: **«Claro»**, **«Oscuro»** o **«Sistema»** (el de tu dispositivo). También lo tienes en el menú
+    de tu nombre, en **«Modo de color»**, para cambiarlo rápido.
   - **Tamaño de letra**: **«Normal»**, **«Grande»** o **«Más grande»**.
+  - **Espaciado del texto**: **«Normal»** o **«Amplio»**, con más espacio entre líneas, párrafos, palabras y letras.
+- **Lectura y movimiento**:
   - **Contraste**: **«Automático»** (sigue a tu dispositivo) o **«Más contraste»**, con textos y colores más marcados.
   - **Movimiento**: **«Automático»** (sigue a tu dispositivo) o **«Reducir movimiento»**, con menos animaciones.
-  - **Foco**: **«Normal»** o **«Reforzado»**, con un contorno más visible en lo que tienes seleccionado al moverte con
-    el teclado.
+  - **Transparencias**: **«Como el sistema»** (sigue a tu dispositivo, si tiene activado reducir las transparencias) o
+    **«Reducir»**, con fondos opacos en lugar de translúcidos.
+  - **Indicador de foco**: **«Normal»** o **«Reforzado»**, con un contorno más visible en lo que tienes seleccionado al
+    moverte con el teclado.
 
-Todo se aplica al momento y se guarda en tu cuenta. Cada grupo tiene además **«Como el sitio»**, que sigue lo que haya
-elegido quien administra y dice al lado cuál es (por ejemplo, «Como el sitio: Más contraste»). Es lo que tienes mientras
-no elijas otra cosa, y elegirla deshace tu elección.
+![Preferencias](img/users-form-profile-preferencias.webp)
+
+Todo se aplica al momento, solo para ti, y se guarda en tu cuenta. Cada grupo tiene además **«Como el sitio»**, que
+sigue lo que haya elegido quien administra y dice debajo cuál es (por ejemplo, «Como el sitio: Más contraste»). Es lo
+que tienes mientras no elijas otra cosa, y elegirla deshace tu elección.
 
 ## El buscador
 

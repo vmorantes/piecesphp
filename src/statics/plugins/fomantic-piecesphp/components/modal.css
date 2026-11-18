@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.15.0 - Modal
+ * # Fomantic-UI 0.16.1 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -836,4 +836,12 @@
 .ui.ui.ui.inverted.modal > .close:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: #fff;
+}
+
+/* La × va dentro del modal (a @closeRight del borde, con caja de @closeHitbox): la cabecera le reserva las dos medidas.
+   Con solo la caja (28px), un texto largo llegaba bajo la × (a 390, en el editor de imagen, con el espaciado de texto
+   amplio). */
+.ui.modal > .close + .header:not(.centered):not(.center):not(.icon),
+.ui.fullscreen.modal > .close + .header:not(.centered):not(.center):not(.icon) {
+  padding-right: calc(1.14285714rem + 2rem);
 }

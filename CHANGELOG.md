@@ -1,3 +1,25 @@
+# 10.46.0 (17-11-2026)
+
+- **El tema del panel pasa a la 0.16.1**: objetivos táctiles de al menos 24 px (las casillas, las × de los avisos y las
+  etiquetas), la opción elegida de cada grupo marcada por accesibilidad (`role="radiogroup"` y `aria-checked`) y rellena con el
+  color de acento, y los avisos flotantes visibles su tiempo entero con «Reducir movimiento». Algunas pantallas crecen
+  unos píxeles: las listas de casillas apiladas, los interruptores y los selectores múltiples pequeños.
+- **Dos preferencias de accesibilidad nuevas**, con su predeterminado del sitio en Configuración › Apariencia ›
+  Accesibilidad y la elección de cada persona en Mi cuenta › Preferencias: **«Espaciado del texto»** (Normal o Amplio:
+  más espacio entre líneas, párrafos, palabras y letras) y **«Transparencias»** (Como el sistema o Reducir: fondos
+  opacos en lugar de translúcidos).
+- **Mi cuenta › Preferencias y Configuración › Apariencia › Accesibilidad, mejor ordenadas**: dos tarjetas, «Apariencia»
+  (modo de color, tamaño de letra y espaciado del texto) y «Lectura y movimiento» (contraste, movimiento, transparencias e
+  indicador de foco), y en Preferencias una vista previa que enseña al momento cómo se lee el panel. Cada opción conserva
+  «Como el sitio» y el recordatorio de lo que tiene el sitio.
+- **Un proyecto puede declarar sus propios tipos de acción para el registro**: `LogsMapper::registerMessage()`. Y
+  `LogsMapper::addLogSafe()` anota sin que un fallo al anotar convierta en error una acción que sí se hizo; las acciones
+  de perfil y de recuperación de contraseña de la API ya lo usan. Guía: «Registros».
+- **El recortador de imágenes guarda cada imagen con la extensión de su formato real**: una imagen ya puesta que el
+  servidor entregaba en otro formato se guardaba con una extensión que no le correspondía.
+- **Una mejora de seguridad** en la comprobación de los métodos de doble factor. Actualizar es suficiente.
+- **Al actualizar**: nada que hacer. Las dos opciones nuevas empiezan en «Normal» y «Como el sistema».
+
 # 10.45.0 (17-11-2026)
 
 - **Cada proyecto declara sus tipos de usuario** en `src/app/config/user-types.php`. Puede añadir los suyos, cambiar el

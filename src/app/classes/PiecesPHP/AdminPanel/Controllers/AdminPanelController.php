@@ -108,17 +108,28 @@ class AdminPanelController extends BaseController
     const MOTIONS = ['auto', 'reduce'];
     const FOCUS_META = 'focus';
     const FOCUSES = ['normal', 'strong'];
+    /**
+     * Espaciado del texto y transparencias (tema 0.16.0): los `data-text-spacing` y `data-transparency` de `<html>`.
+     * «wide» es el espaciado de WCAG 1.4.12; «auto» sigue a prefers-reduced-transparency.
+     */
+    const TEXT_SPACING_META = 'text_spacing';
+    const TEXT_SPACINGS = ['normal', 'wide'];
+    const TRANSPARENCY_META = 'transparency';
+    const TRANSPARENCIES = ['auto', 'reduce'];
 
     /**
-     * Las tres de la ruta admin-accessibility-preference: su meta y sus valores.
+     * Las de la ruta admin-accessibility-preference: su meta y sus valores. La clave es el nombre del atributo de
+     * `<html>` sin `data-`: el JS de «Preferencias» pone `data-<clave>` con lo que responde la ruta.
      */
     const ACCESSIBILITY_PREFERENCES = [
         'contrast' => [self::CONTRAST_META, self::CONTRASTS],
         'motion' => [self::MOTION_META, self::MOTIONS],
         'focus' => [self::FOCUS_META, self::FOCUSES],
+        'text-spacing' => [self::TEXT_SPACING_META, self::TEXT_SPACINGS],
+        'transparency' => [self::TRANSPARENCY_META, self::TRANSPARENCIES],
     ];
     /**
-     * «Como el sitio» (H327): en las tres rutas de preferencias, este valor BORRA la meta y la persona vuelve a heredar lo
+     * «Como el sitio» (H327): en las rutas de preferencias, este valor BORRA la meta y la persona vuelve a heredar lo
      * que el sitio pone en Configuración › Accesibilidad.
      */
     const PREFERENCE_SITE = 'site';
@@ -255,7 +266,8 @@ class AdminPanelController extends BaseController
     }
 
     /**
-     * Guarda una preferencia de accesibilidad del usuario actual (ACCESSIBILITY_PREFERENCES: contrast, motion o focus):
+     * Guarda una preferencia de accesibilidad del usuario actual (ACCESSIBILITY_PREFERENCES: contrast, motion, focus,
+     * text-spacing o transparency):
      * 400 con otra preferencia o con un valor que no esté en su lista.
      *
      * @param Request $req
@@ -285,7 +297,7 @@ class AdminPanelController extends BaseController
     }
 
     /**
-     * Lo que el sitio pone para una de ACCESSIBILITY_PREFERENCES (contrast, motion o focus).
+     * Lo que el sitio pone para una de ACCESSIBILITY_PREFERENCES.
      *
      * @param string $preference
      * @return string
@@ -295,6 +307,8 @@ class AdminPanelController extends BaseController
         return match ($preference) {
             'contrast' => SettingsController::accessibilityContrast(),
             'motion' => SettingsController::accessibilityMotion(),
+            'text-spacing' => SettingsController::accessibilityTextSpacing(),
+            'transparency' => SettingsController::accessibilityTransparency(),
             default => SettingsController::accessibilityFocus(),
         };
     }
@@ -354,8 +368,8 @@ class AdminPanelController extends BaseController
     }
 
     /**
-     * Los cinco atributos de apariencia y accesibilidad del `<html>` del panel (data-theme, data-text-size, data-contrast,
-     * data-motion y data-focus), ya escapados y con un espacio delante: los de la persona si hay sesión, los del sitio si
+     * Los atributos de apariencia y accesibilidad del `<html>` del panel (data-theme, data-text-size, data-contrast,
+     * data-motion, data-focus, data-text-spacing y data-transparency), ya escapados y con un espacio delante: los de la persona si hay sesión, los del sitio si
      * no. Los usan los encabezados del panel y las páginas con `<html>` propio (el acceso, sus problemas, los tokens, el error).
      *
      * @return string
@@ -368,6 +382,8 @@ class AdminPanelController extends BaseController
             'data-contrast' => SettingsController::accessibilityContrast(),
             'data-motion' => SettingsController::accessibilityMotion(),
             'data-focus' => SettingsController::accessibilityFocus(),
+            'data-text-spacing' => SettingsController::accessibilityTextSpacing(),
+            'data-transparency' => SettingsController::accessibilityTransparency(),
         ];
         //La página de error también la usa, y puede pintarse con la base caída: sin la persona, los del sitio.
         try {
@@ -378,6 +394,8 @@ class AdminPanelController extends BaseController
                 'data-contrast' => self::contrastOf((int) $user->id),
                 'data-motion' => self::motionOf((int) $user->id),
                 'data-focus' => self::focusOf((int) $user->id),
+                'data-text-spacing' => self::textSpacingOf((int) $user->id),
+                'data-transparency' => self::transparencyOf((int) $user->id),
             ];
         } catch (\Throwable $e) {
             $values = $site;
@@ -423,6 +441,30 @@ class AdminPanelController extends BaseController
     {
         $value = UsersModel::metaValue($userID, self::FOCUS_META);
         return is_string($value) && in_array($value, self::FOCUSES, true) ? $value : SettingsController::accessibilityFocus();
+    }
+
+    /**
+     * El espaciado del texto guardado de un usuario; sin guardar o con un valor que ya no vale, el del sitio.
+     *
+     * @param int $userID
+     * @return string Uno de TEXT_SPACINGS
+     */
+    public static function textSpacingOf(int $userID): string
+    {
+        $value = UsersModel::metaValue($userID, self::TEXT_SPACING_META);
+        return is_string($value) && in_array($value, self::TEXT_SPACINGS, true) ? $value : SettingsController::accessibilityTextSpacing();
+    }
+
+    /**
+     * Las transparencias guardadas de un usuario; sin guardar o con un valor que ya no vale, las del sitio.
+     *
+     * @param int $userID
+     * @return string Uno de TRANSPARENCIES
+     */
+    public static function transparencyOf(int $userID): string
+    {
+        $value = UsersModel::metaValue($userID, self::TRANSPARENCY_META);
+        return is_string($value) && in_array($value, self::TRANSPARENCIES, true) ? $value : SettingsController::accessibilityTransparency();
     }
 
     /**
