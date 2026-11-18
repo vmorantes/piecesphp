@@ -193,7 +193,7 @@ Consecuencias, las tres medidas:
 **Defecto abierto:** `set_route()` registra el ALIAS en el catálogo de rutas pero concede el permiso **solo al nombre**,
 así que un alias con login responde 403 a todos. Hoy solo hay uno (`terminal-h`, alias de `terminal-help`). Arreglarlo
 toca núcleo transversal. Lo declara la puerta `core/permissions-coherence` (8 comprobaciones), que también vigila que
-ningún tipo de `TYPES_USERS` se quede sin rol —el caso de `GOOGLE_PLAY`, comentado, que haría que sus usuarios no
+ningún tipo de `UserTypes::labels()` se quede sin rol —el caso de `GOOGLE_PLAY`, comentado, que haría que sus usuarios no
 pasaran por la capa 2—.
 
 ## Leer al usuario conectado
@@ -389,22 +389,29 @@ Ver [13-recetas.md](./13-recetas.md), con un ejemplo de cada uno:
 
 Definidos en `src/app/config/roles.php` y gestionados por `PiecesPHP\Core\Roles`.
 
-### Tipos de usuario (`App\Model\UsersModel`)
+### Tipos de usuario (`UserTypes`, ADR 0078)
 
-| Constante | Código | Nombre |
-| :-- | --: | :-- |
-| `TYPE_USER_ROOT` | 0 | Principal |
-| `TYPE_USER_ADMIN_GRAL` | 1 | Administrador general |
-| `TYPE_USER_GENERAL` | 2 | Usuario general |
-| `TYPE_USER_INSTITUCIONAL` | 3 | Institucional |
-| `TYPE_USER_COMUNICACIONES` | 4 | Comunicaciones |
-| `TYPE_USER_ADMIN_ORG` | 12 | Administrador de organización |
-| `TYPE_USER_GOOGLE_PLAY` | 50 | (especial, comentado en `TYPES_USERS`) |
+Los de fábrica viven en `PiecesPHP\UserSystem\UserTypes` (`CORE_*`); el proyecto añade, ajusta o retira en
+`src/app/config/user-types.php`. Todo el código pregunta a `UserTypes` (`codes()`, `labels()`, `priorities()`,
+`requiresOrganization()`…); las listas `TYPES_*` de `UsersModel` son alias en desuso de los de fábrica, y la comprobación
+67 de `verify-integrity` rechaza leerlas en `src/app`. Las constantes `UsersModel::TYPE_USER_*` se quedan.
 
-Hay además `TYPES_USER_PRIORITY` (jerarquía numérica: root 500, admin gral 400…).
-Los tipos cuyo `name` es `null` en `TYPES_USERS` se filtran automáticamente de
-`$config['roles']['types']`; y si `ORGANIZATIONS_MODULE` está en `false`, se elimina
-`TYPE_USER_ADMIN_ORG`.
+| Constante | Código | Nombre | Clase |
+| :-- | --: | :-- | :-- |
+| `TYPE_USER_ROOT` | 0 | Principal | protegido |
+| `TYPE_USER_ADMIN_GRAL` | 1 | Administrador general | protegido |
+| `TYPE_USER_GENERAL` | 2 | Usuario general | retirable |
+| `TYPE_USER_INSTITUCIONAL` | 3 | Institucional | retirable |
+| `TYPE_USER_COMUNICACIONES` | 4 | Comunicaciones | retirable |
+| `TYPE_USER_ADMIN_ORG` | 12 | Administrador de organización | retirable |
+| `TYPE_USER_GOOGLE_PLAY` | 50 | (apagado, sin rol) | reservado |
+| `TYPE_USER_SYSTEM` | 99 | (el usuario del sistema) | reservado |
+
+`UserTypes::roles()` construye `$config['roles']['types']` desde las tres listas de `roles.php`; sin
+`ORGANIZATIONS_MODULE` se descarta el administrador de organización. **Trampas**: la etiqueta es el nombre del rol
+(repetida, `Roles.php:89-91` lanza y tumba el arranque; numérica, choca con un código por `==`); `getHigherPriorityTypes()`
+filtra por clave desde JLP (el `array_flip` se comía los de prioridad repetida); `roles.php` se carga antes que
+`Config::init()` y las constantes de módulo (`bootstrap.php:231-255`), así que `user-types.php` es solo datos.
 
 ### Cómo se otorga acceso
 

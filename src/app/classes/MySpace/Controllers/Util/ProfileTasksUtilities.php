@@ -9,6 +9,7 @@ namespace MySpace\Controllers\Util;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * ProfileTasksUtilities.
@@ -44,7 +45,7 @@ class ProfileTasksUtilities extends AdminPanelController
     }
 
     /**
-     * Los usuarios de UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE que no tienen perfil y, con $doIt, el perfil de cada uno
+     * Los usuarios de UserTypes::profileTypes() que no tienen perfil y, con $doIt, el perfil de cada uno
      * ({@see UserProfileMapper::ensureFor()}). Es el cuerpo de `bin/cli profiles-create-missing`: al actualizar una
      * instalación se rellenan una vez. Ya no corre en cada petición (P266): el alta crea el perfil.
      *
@@ -57,10 +58,38 @@ class ProfileTasksUtilities extends AdminPanelController
         $created = [];
         $failed = [];
 
+        foreach (self::usersWithoutProfile(UserTypes::profileTypes()) as $userID) {
+            $missing[] = $userID;
+            if ($doIt) {
+                if (UserProfileMapper::ensureFor($userID)) {
+                    $created[] = $userID;
+                } else {
+                    $failed[] = $userID;
+                }
+            }
+        }
+
+        return ['missing' => $missing, 'created' => $created, 'failed' => $failed];
+    }
+
+    /**
+     * Los ids de los usuarios de esos tipos que no tienen perfil.
+     *
+     * Con la lista vacía no se consulta: `IN ()` es un error de SQL.
+     *
+     * @param int[] $types
+     * @return int[]
+     */
+    protected static function usersWithoutProfile(array $types): array
+    {
+        if ($types === []) {
+            return [];
+        }
+
         $userTable = UsersModel::TABLE;
         $profileTable = UserProfileMapper::TABLE;
         $model = UsersModel::model();
-        $typesShouldHaveProfile = implode(', ', UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE);
+        $typesShouldHaveProfile = implode(', ', array_map('intval', $types));
 
         $model->select([
             "{$userTable}.id AS userID",
@@ -82,19 +111,11 @@ class ProfileTasksUtilities extends AdminPanelController
         $model->execute();
         $result = $model->result();
 
+        $ids = [];
         foreach ($result ?? [] as $element) {
-            $userID = (int) $element->userID;
-            $missing[] = $userID;
-            if ($doIt) {
-                if (UserProfileMapper::ensureFor($userID)) {
-                    $created[] = $userID;
-                } else {
-                    $failed[] = $userID;
-                }
-            }
+            $ids[] = (int) $element->userID;
         }
-
-        return ['missing' => $missing, 'created' => $created, 'failed' => $failed];
+        return $ids;
     }
 
 }

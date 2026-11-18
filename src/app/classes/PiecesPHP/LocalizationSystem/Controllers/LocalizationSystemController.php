@@ -15,7 +15,7 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * LocalizationSystemController.
@@ -127,9 +127,9 @@ class LocalizationSystemController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         $routes = [
 

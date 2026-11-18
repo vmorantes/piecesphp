@@ -14,6 +14,7 @@ use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
@@ -51,7 +52,7 @@ class UsersSeeder extends ModuleSeeder
     }
 
     /**
-     * Un usuario de TYPES_USER_SHOULD_HAVE_PROFILE puede tener un perfil vacío (`bin/cli profiles-create-missing`), y
+     * Un usuario de UserTypes::profileTypes() puede tener un perfil vacío (`bin/cli profiles-create-missing`), y
      * cada arranque le crea su fila de aprobación (`SystemApprovalManager::init()`), que apunta por número de id y por tabla.
      *
      * La actividad de un usuario sembrado (quien lo suplanta la deja) es dato de prueba y se va con él. Lo que creó o
@@ -102,13 +103,13 @@ class UsersSeeder extends ModuleSeeder
     }
 
     /**
-     * Los tipos de usuario que se siembran: todos los de TYPES_USERS menos el principal.
+     * Los tipos de usuario que se siembran: todos los de UserTypes::codes() menos el principal.
      *
      * @return int[]
      */
     public static function types(): array
     {
-        return array_values(array_filter(array_map('intval', array_keys(UsersModel::TYPES_USERS)), static fn (int $type): bool => $type !== UsersModel::TYPE_USER_ROOT));
+        return array_values(array_filter(array_map('intval', UserTypes::codes()), static fn (int $type): bool => $type !== UsersModel::TYPE_USER_ROOT));
     }
 
 }

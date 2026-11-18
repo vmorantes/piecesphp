@@ -39,6 +39,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * OrganizationsController.
@@ -1683,9 +1684,9 @@ class OrganizationsController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //Permisos
         $baseList = OrganizationMapper::CAN_VIEW_BASE_LIST;

@@ -423,14 +423,16 @@ El archivo trae siete roles, y cada uno se arma a partir de tres listas **anidad
 $permisosGenerales  ⊂  $permisosAdministrativos  ⊂  $permisosSuperiores
 ```
 
-| Rol (`UsersModel`) | Código | Lista |
-| :-- | :-- | :-- |
-| `TYPE_USER_ROOT` | 0 | superiores |
-| `TYPE_USER_ADMIN_GRAL` | 1 | administrativos |
-| `TYPE_USER_ADMIN_ORG`, `TYPE_USER_GENERAL`, `TYPE_USER_INSTITUCIONAL`, `TYPE_USER_COMUNICACIONES`, `TYPE_USER_GOOGLE_PLAY` | 12, 2, 3, 4, 50 | generales |
+Los tipos y su rol los construye `UserTypes::roles()` a partir de estas tres listas (ADR 0078):
 
-`name` sale de `UsersModel::TYPES_USERS`: **un rol cuyo tipo no esté ahí se descarta** (así queda fuera
-`TYPE_USER_GOOGLE_PLAY`, que está comentado). Con `CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']` en `false` se descarta
+| Tipo | Código | Lista |
+| :-- | :-- | :-- |
+| Principal | 0 | superiores |
+| Administrador general | 1 | administrativos |
+| Administrador de organización, Usuario general, Institucional, Comunicaciones | 12, 2, 3, 4 | generales |
+
+Un tipo del proyecto elige su lista en `src/app/config/user-types.php` (ver [Los tipos de usuario](tipos-de-usuario.md)).
+El 50 (Google Play) viene apagado y no tiene rol. Con `CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']` en `false` se descarta
 también el administrador de organización.
 
 **Añadir los permisos de un módulo** es poner los nombres de ruta al final de la lista que corresponda, en el hueco

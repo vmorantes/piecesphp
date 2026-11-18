@@ -20,6 +20,7 @@ use PiecesPHP\UserSystem\ORM\UserProblemsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 CliActions::make('unit-tests:core/system-user', function ($args) {
@@ -125,8 +126,8 @@ CliActions::make('unit-tests:core/system-user', function ($args) {
         $hash = (string) $fila['password'];
         $check(!password_verify('', $hash) && !password_verify('!', $hash) && !password_verify('system', $hash) && !password_verify($prefijo, $hash),
             'a2 password_verify() no acepta ninguna cadena (vacía, «!», el nombre, una al azar)');
-        $check(!array_key_exists(UsersModel::TYPE_USER_SYSTEM, UsersModel::TYPES_USERS) && !\PiecesPHP\Core\Roles::roleExists(UsersModel::TYPE_USER_SYSTEM),
-            'a3 su tipo no está en TYPES_USERS ni tiene rol');
+        $check(!array_key_exists(UsersModel::TYPE_USER_SYSTEM, UserTypes::labels()) && !\PiecesPHP\Core\Roles::roleExists(UsersModel::TYPE_USER_SYSTEM),
+            'a3 su tipo no está en las etiquetas de UserTypes ni tiene rol');
         $check(UserHierarchy::rank(UsersModel::TYPE_USER_SYSTEM) === UserHierarchy::RANK_NOBODY
             && !UserHierarchy::canActOn(UsersModel::TYPE_USER_ADMIN_GRAL, null, UsersModel::TYPE_USER_SYSTEM, null),
             'a4 su rango es RANK_NOBODY: un administrador general no actúa sobre él');

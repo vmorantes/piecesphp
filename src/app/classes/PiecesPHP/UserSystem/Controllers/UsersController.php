@@ -55,6 +55,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
+use PiecesPHP\UserSystem\UserTypes;
 use Slim\Exception\HttpForbiddenException;
 use SystemApprovals\SystemApprovalsRoutes;
 use SystemApprovals\Util\Packages\UsersApprovalHandler;
@@ -435,8 +436,8 @@ class UsersController extends AdminPanelController
         $ignoreTypes = is_string($ignoreTypes) && mb_strlen(trim($ignoreTypes)) > 0 ? trim($ignoreTypes) : null;
         $ignoreTypes = is_string($ignoreTypes) ? explode(',', $ignoreTypes) : [];
         //`is_numeric` ANTES de `intval`: `intval('abc')` da 0, y 0 es `TYPE_USER_ROOT`.
-        //`TYPES_USER_PRIORITY` es el único que enumera los siete tipos. Ver T153.
-        $tiposConocidos = array_keys(UsersModel::TYPES_USER_PRIORITY);
+        //Las prioridades son las únicas que enumeran los siete tipos. Ver T153.
+        $tiposConocidos = array_keys(UserTypes::priorities());
         $ignoreTypes = array_values(array_filter(
             array_map('intval', array_filter($ignoreTypes, 'is_numeric')),
             static fn (int $tipo): bool => in_array($tipo, $tiposConocidos, true)
@@ -631,14 +632,18 @@ class UsersController extends AdminPanelController
 
             $type_encrypt = self::signedType((int) $key);
 
-            $hasAuthority = $currentUser->hasAuthorityOver($key);
+            //Un tipo con creatable en false (user-types.php) no se ofrece: los que ya lo tienen siguen igual.
+            $hasAuthority = $currentUser->hasAuthorityOver($key) && UserTypes::isCreatable((int) $key);
 
             if ($hasAuthority) {
 
+                $declaredDescription = UserTypes::description((int) $key);
                 $types[$key] = [
                     'link' => self::routeName('form-create', ['type' => $type_encrypt]),
                     'text' => $display,
-                    'description' => $typeDescriptions[$key] ?? strReplaceTemplate(__(self::LANG_GROUP, 'Agregar nuevo usuario ${type}'), ['${type}' => $display]),
+                    'description' => $declaredDescription !== null
+                        ? __(self::LANG_GROUP, $declaredDescription)
+                        : ($typeDescriptions[$key] ?? strReplaceTemplate(__(self::LANG_GROUP, 'Agregar nuevo usuario ${type}'), ['${type}' => $display])),
                 ];
 
             } else {
@@ -677,8 +682,8 @@ class UsersController extends AdminPanelController
         $type = $req->getAttribute('type', null);
         $type = is_string($type) ? self::typeFromSigned($type) : null;
 
-        //El {type} de la URL va firmado: si la firma no casa, no es un tipo y la ruta no existe.
-        if ($type === null) {
+        //El {type} de la URL va firmado: si la firma no casa, no es un tipo y la ruta no existe. Tampoco para uno que no se crea.
+        if ($type === null || !UserTypes::isCreatable($type)) {
             throw new NotFoundException($req, $res);
         }
 
@@ -700,41 +705,8 @@ class UsersController extends AdminPanelController
             $data_form = [];
             $data_form['status_options'] = $status_options;
 
-            $form = '';
-
-            $formsByType = [
-                UsersModel::TYPE_USER_ROOT => [
-                    'view' => 'usuarios/form-by-type/create/root/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_ADMIN_GRAL => [
-                    'view' => 'usuarios/form-by-type/create/admin-general/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_ADMIN_ORG => [
-                    'view' => 'usuarios/form-by-type/create/admin-organization/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_GENERAL => [
-                    'view' => 'usuarios/form-by-type/create/general/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_INSTITUCIONAL => [
-                    'view' => 'usuarios/form-by-type/create/institucional/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_COMUNICACIONES => [
-                    'view' => 'usuarios/form-by-type/create/comunicaciones/form',
-                    'data' => array_merge($data_form, []),
-                ],
-            ];
-
-            foreach ($formsByType as $formType => $formTypeData) {
-                if ($type == $formType) {
-                    $form = $this->render($formTypeData['view'], $formTypeData['data'], false);
-                    break;
-                }
-            }
+            //Un solo formulario para cualquier tipo, con su código (ADR 0078).
+            $form = $this->render('usuarios/form-by-type/user-form', array_merge($data_form, ['formMode' => 'create', 'typeCode' => (int) $type]), false);
 
             $data = [];
             $data['form'] = $form;
@@ -811,41 +783,7 @@ class UsersController extends AdminPanelController
                 $data_form['status_options'] = $status_options;
                 $data_form['edit_user'] = $user;
 
-                $form = '';
-
-                $formsByType = [
-                    UsersModel::TYPE_USER_ROOT => [
-                        'view' => 'usuarios/form-by-type/edit/root/form',
-                        'data' => array_merge($data_form, []),
-                    ],
-                    UsersModel::TYPE_USER_ADMIN_GRAL => [
-                        'view' => 'usuarios/form-by-type/edit/admin-general/form',
-                        'data' => array_merge($data_form, []),
-                    ],
-                    UsersModel::TYPE_USER_ADMIN_ORG => [
-                        'view' => 'usuarios/form-by-type/edit/admin-organization/form',
-                        'data' => array_merge($data_form, []),
-                    ],
-                    UsersModel::TYPE_USER_GENERAL => [
-                        'view' => 'usuarios/form-by-type/edit/general/form',
-                        'data' => array_merge($data_form, []),
-                    ],
-                    UsersModel::TYPE_USER_INSTITUCIONAL => [
-                        'view' => 'usuarios/form-by-type/edit/institucional/form',
-                        'data' => array_merge($data_form, []),
-                    ],
-                    UsersModel::TYPE_USER_COMUNICACIONES => [
-                        'view' => 'usuarios/form-by-type/edit/comunicaciones/form',
-                        'data' => array_merge($data_form, []),
-                    ],
-                ];
-
-                foreach ($formsByType as $formType => $formTypeData) {
-                    if ($type == $formType) {
-                        $form = $this->render($formTypeData['view'], $formTypeData['data'], false);
-                        break;
-                    }
-                }
+                $form = $this->render('usuarios/form-by-type/user-form', array_merge($data_form, ['formMode' => 'edit', 'typeCode' => (int) $type]), false);
 
                 $data = [];
                 $data['form'] = $form;
@@ -924,41 +862,7 @@ class UsersController extends AdminPanelController
             $data_form = [];
             $data_form['edit_user'] = $user;
 
-            $form = '';
-
-            $formsByType = [
-                UsersModel::TYPE_USER_ROOT => [
-                    'view' => 'usuarios/form-by-type/profile/root/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_ADMIN_GRAL => [
-                    'view' => 'usuarios/form-by-type/profile/admin-general/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_ADMIN_ORG => [
-                    'view' => 'usuarios/form-by-type/profile/admin-organization/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_GENERAL => [
-                    'view' => 'usuarios/form-by-type/profile/general/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_INSTITUCIONAL => [
-                    'view' => 'usuarios/form-by-type/profile/institucional/form',
-                    'data' => array_merge($data_form, []),
-                ],
-                UsersModel::TYPE_USER_COMUNICACIONES => [
-                    'view' => 'usuarios/form-by-type/profile/comunicaciones/form',
-                    'data' => array_merge($data_form, []),
-                ],
-            ];
-
-            foreach ($formsByType as $formType => $formTypeData) {
-                if ($type == $formType) {
-                    $form = $this->render($formTypeData['view'], $formTypeData['data'], false);
-                    break;
-                }
-            }
+            $form = $this->render('usuarios/form-by-type/user-form', array_merge($data_form, ['formMode' => 'profile', 'typeCode' => (int) $type]), false);
 
             $data = [];
             $data['form'] = $form;
@@ -996,7 +900,7 @@ class UsersController extends AdminPanelController
                 $data['pageTitle'],
             ];
             //La cuenta enlaza con el perfil público, y él con ella (PO, 2026-10-10): solo si el tipo lleva perfil.
-            $data['pageSecondaryActions'] = in_array($type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE) && MyProfileController::allowedRoute('my-profile') ? [
+            $data['pageSecondaryActions'] = UserTypes::shouldHaveProfile((int) $type) && MyProfileController::allowedRoute('my-profile') ? [
                 ['text' => __(self::LANG_GROUP, 'Perfil público'), 'url' => MyProfileController::routeName('my-profile'), 'icon' => 'id card outline'],
             ] : [];
 
@@ -1200,7 +1104,7 @@ class UsersController extends AdminPanelController
                         if ($organizationOk) {
 
                             if ($isExternalLogin) {
-                                if (!in_array($user->type, UsersModel::TYPES_WITH_EXTERNAL_LOGIN)) {
+                                if (!UserTypes::hasExternalLogin((int) $user->type)) {
                                     $resultOperation->setValue('error', self::NO_EXTERNAL_LOGIN_AVAILABLE);
                                     $resultOperation->setValue('message', __(self::LANG_GROUP, 'El usuario no está habilitado para usar la este método de inicio de sesión'));
                                     return $response->withJson($resultOperation->getValues());
@@ -1731,8 +1635,8 @@ class UsersController extends AdminPanelController
 
             $password_match = $password == $password2;
 
-            //Validar que la organización sea obligatoria si no está en UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION
-            if (!in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) {
+            //Validar que la organización sea obligatoria si el tipo la requiere (UserTypes::requiresOrganization())
+            if (UserTypes::requiresOrganization((int) $type)) {
                 if (!Validator::isInteger($organization)) {
                     $result
                         ->setMessage($message_organization_required);
@@ -1763,8 +1667,8 @@ class UsersController extends AdminPanelController
                 $userMapper->createdAt = new \DateTime();
                 $userMapper->modifiedAt = $userMapper->createdAt;
 
-                //Asignar la organización si no está en UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION
-                if (!in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) {
+                //Asignar la organización si el tipo la requiere (UserTypes::requiresOrganization())
+                if (UserTypes::requiresOrganization((int) $type)) {
                     $userMapper->organization = $organization;
                 }
 
@@ -1906,14 +1810,14 @@ class UsersController extends AdminPanelController
      */
     private static function canCreateUser(UsersModel $actor, int $type, ?int $organization, int $status): bool
     {
-        if (!Roles::hasPermissions('users-form-create', (int) $actor->type, true) || !isset(UsersModel::getTypesUser()[$type]) || !$actor->hasAuthorityOver($type)) {
+        if (!Roles::hasPermissions('users-form-create', (int) $actor->type, true) || !isset(UsersModel::getTypesUser()[$type]) || !UserTypes::isCreatable($type) || !$actor->hasAuthorityOver($type)) {
             return false;
         }
         //Lista blanca: los estados que ofrece el formulario de alta.
         if (!in_array($status, array_diff(array_keys(UsersModel::STATUSES), UsersModel::STATUSES_HIDDEN_ON_CREATION), true)) {
             return false;
         }
-        if (!in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION) && !OrganizationMapper::canModifyAnyOrganization((int) $actor->type)) {
+        if (UserTypes::requiresOrganization((int) $type) && !OrganizationMapper::canModifyAnyOrganization((int) $actor->type)) {
             $own = $actor->organization;
             if ($own === null || $organization != $own) {
                 return false;
@@ -2139,8 +2043,8 @@ class UsersController extends AdminPanelController
             $password_match = $change_password ? $password == $password2 : true;
             $password_ok = true;
 
-            //Validar que la organización sea obligatoria si no está en UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION
-            if (!in_array($userMapper->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) {
+            //Validar que la organización sea obligatoria si el tipo la requiere (UserTypes::requiresOrganization())
+            if (UserTypes::requiresOrganization((int) $userMapper->type)) {
                 if (!Validator::isInteger($organization) && !$isProfile) {
                     $result
                         ->setMessage($message_organization_required);
@@ -2183,7 +2087,7 @@ class UsersController extends AdminPanelController
                     if ($status !== null) {
                         $userMapper->status = $status;
                     }
-                    if ($organization !== null && (!in_array($userMapper->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) && !$isProfile) {
+                    if ($organization !== null && UserTypes::requiresOrganization((int) $userMapper->type) && !$isProfile) {
                         $userMapper->organization = $organization;
                     }
                     $userMapper->modifiedAt = new \DateTime();
@@ -2494,9 +2398,9 @@ class UsersController extends AdminPanelController
         $recovery = RecoveryPasswordController::class;
         $users_problems = UserProblemsController::class;
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
         //EL LISTADO DE USUARIOS NO LO VE `general` (PO, 2026-09-25). Sus dos fuentes de datos van con la pantalla
         //`users-list`, que solo abren root y administrador general por las listas de `roles.php`.
         $listadoDeUsuarios = [

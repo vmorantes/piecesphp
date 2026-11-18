@@ -18,6 +18,7 @@ use PiecesPHP\Core\DataTransfer\Export\ExportParameter;
 use PiecesPHP\Core\DataTransfer\Export\ExportResult;
 use PiecesPHP\Core\DataTransfer\Export\ExportSheet;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * ExampleUsersReportExportDefinition - Ejemplo de la guía: un informe de usuarios con filtros, dos hojas, totales e imagen.
@@ -101,8 +102,8 @@ class ExampleUsersReportExportDefinition extends ExportDefinition
         return [
             //En la URL son dos claves: created_from y created_to.
             ExportParameter::dateRange('created', __(self::LANG_GROUP, 'Creado')),
-            //Lista blanca: solo llegan claves de UsersModel::TYPES_USERS.
-            ExportParameter::multiChoice('types', __(self::LANG_GROUP, 'Tipos'), UsersModel::TYPES_USERS),
+            //Lista blanca: solo llegan claves de UserTypes::labels().
+            ExportParameter::multiChoice('types', __(self::LANG_GROUP, 'Tipos'), UserTypes::labels()),
             //Tres estados: sí, no o sin filtro (null).
             ExportParameter::boolean('active', __(self::LANG_GROUP, 'Activo')),
             ExportParameter::text('search', __(self::LANG_GROUP, 'Usuario o correo contiene'))
@@ -130,7 +131,7 @@ class ExampleUsersReportExportDefinition extends ExportDefinition
                     $row['second_lastname'] ?? null,
                 ], fn($part) => is_string($part) && $part !== '')))),
             (new ExportColumn('typeLabel', __(self::LANG_GROUP, 'Tipo')))
-                ->transform(fn(array $row) => UsersModel::TYPES_USERS[(int) ($row['type'] ?? -1)] ?? (string) ($row['type'] ?? '')),
+                ->transform(fn(array $row) => UserTypes::labels()[(int) ($row['type'] ?? -1)] ?? (string) ($row['type'] ?? '')),
             (new ExportColumn('active', __(self::LANG_GROUP, 'Activo')))->asBoolean()->align(ExportColumn::ALIGN_CENTER),
             (new ExportColumn('createdAt', __(self::LANG_GROUP, 'Creado')))->asDateTime(),
         ];
@@ -252,7 +253,7 @@ class ExampleUsersReportExportDefinition extends ExportDefinition
         $summary = [];
         foreach ($counts as $type => $count) {
             $summary[] = [
-                'type' => UsersModel::TYPES_USERS[$type] ?? (string) $type,
+                'type' => UserTypes::labels()[$type] ?? (string) $type,
                 'count' => $count,
                 'share' => $all > 0 ? $count / $all : 0,
             ];

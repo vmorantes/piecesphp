@@ -27,8 +27,8 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * MyProfileController.
@@ -108,7 +108,7 @@ class MyProfileController extends AdminPanelController
         ];
 
         $this->helpController->render('panel/layout/header');
-        if (in_array($currentUser->type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE)) {
+        if (UserTypes::shouldHaveProfile((int) $currentUser->type)) {
             $this->render('my-profile', $data);
         }
         $this->helpController->render('panel/layout/footer');
@@ -454,11 +454,11 @@ class MyProfileController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
         $saveProfile = $allRoles;
-        $withProfile = UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE;
+        $withProfile = UserTypes::profileTypes();
 
         $routes = [
 

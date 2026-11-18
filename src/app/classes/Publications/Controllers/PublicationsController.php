@@ -40,6 +40,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Exceptions\DuplicateException;
 use Publications\Exceptions\SafeException;
 use Publications\Mappers\AttachmentPublicationMapper;
@@ -133,7 +134,7 @@ class PublicationsController extends AdminPanelController
         PublicationCategoryMapper::uncategorizedCategory();
 
         //Para autor
-        $ignoreTypesForAuthor = array_filter(array_keys(UsersModel::TYPES_USERS), function ($type) {
+        $ignoreTypesForAuthor = array_filter(UserTypes::codes(), function ($type) {
             $validTypes = [
                 UsersModel::TYPE_USER_COMUNICACIONES,
                 UsersModel::TYPE_USER_INSTITUCIONAL,
@@ -2031,9 +2032,9 @@ class PublicationsController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //Permisos
         $list = [

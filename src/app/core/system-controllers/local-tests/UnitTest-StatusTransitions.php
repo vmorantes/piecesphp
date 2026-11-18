@@ -24,6 +24,7 @@ use PiecesPHP\UserSystem\ORM\UserProblemsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
@@ -539,7 +540,7 @@ CliActions::make('unit-tests:core/status-transitions', function ($args) {
         }
         //El listado, con la misma autoridad y en LISTA BLANCA: un tipo fuera de TYPES_USERS no se lista a nadie.
         $id = $crearUsuario('e-tipo-50', UsersModel::STATUS_USER_APPROVED_PENDING, UsersModel::TYPE_USER_GOOGLE_PLAY, $orgMiembros);
-        $check(!array_key_exists(UsersModel::TYPE_USER_GOOGLE_PLAY, UsersModel::TYPES_USERS), "e{$n} banco: el tipo " . UsersModel::TYPE_USER_GOOGLE_PLAY . ' está fuera de TYPES_USERS');
+        $check(!array_key_exists(UsersModel::TYPE_USER_GOOGLE_PLAY, UserTypes::labels()), "e{$n} banco: el tipo " . UsersModel::TYPE_USER_GOOGLE_PLAY . ' está fuera de las etiquetas de UserTypes');
         $n++;
         $filasPerfiles['e-tipo-50'] = [$filaAprobacion($tablaUsuarios, $id, $id, SystemApprovalsMapper::STATUS_PENDING, "{$prefijo}-e-tipo-50"), false];
         $rootActor = $crearUsuario('e-root-actor', UsersModel::STATUS_USER_ACTIVE, UsersModel::TYPE_USER_ROOT, null);

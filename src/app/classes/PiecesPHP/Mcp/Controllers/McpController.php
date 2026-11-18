@@ -16,7 +16,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Mcp\Assistant;
 use PiecesPHP\Mcp\McpLang;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * McpController - Las rutas del servidor MCP del panel y del asistente (ADR 0075), con la sesión del usuario.
@@ -139,7 +139,7 @@ class McpController extends AdminPanelController
     public static function routes(RouteGroup $group)
     {
         $startRoute = (last_char($group->getGroupSegment()) == '/' ? '' : '/') . self::$URLDirectory;
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
         $group->register([
             new Route("{$startRoute}[/]", self::class . ':server', self::$baseRouteName . '-panel-server', 'POST', true, null, $allRoles),
             new Route((last_char($group->getGroupSegment()) == '/' ? '' : '/') . 'assistant[/]', self::class . ':ask', self::$baseRouteName . '-assistant-ask', 'POST', true, null, $allRoles),

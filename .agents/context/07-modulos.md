@@ -172,7 +172,7 @@ la misma rama que usa la acción HTTP. Trampa que lo rompía (T120): la petició
 `isEditRoute()` lanzaba, el `catch` respondía sin `orgID` y la línea siguiente leía esa clave sin comprobarla. Reglas
 vivas: si la organización falla, no se crea usuario; si el usuario falla, la organización creada se retira con el
 `DELETED` del módulo; el NIT lleva marcador (`NIT_WITHOUT_INFORMATION_PREFIX`) porque `save()` lo trata como único; y el
-`-10` solo es defecto de `TYPES_USER_DONT_REQUIRE_ORGANIZATION` (P39). Suite `core/api-register` (18), provocada.
+`-10` solo es defecto de los tipos sin organización (`UserTypes::requiresOrganization()` en falso, P39). Suite `core/api-register` (18), provocada.
 **Sin cerrar:** `src/app/config/containers.php:94-100` escribe el `-10` a cualquier usuario sin organización en cada
 petición, y `UsersImportDefinition.php:201-205` se lo pone a los tipos que la requieren (decidido y probado). Ver
 `../docs/pendientes.md`, punto 73.

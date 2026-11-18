@@ -9,6 +9,7 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/login-attempts-counts';
@@ -64,7 +65,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $global = OrganizationMapper::INITIAL_ID_GLOBAL;
     $consulta = $database->prepare("SELECT id, type, organization FROM {$tabla} WHERE type = :type AND status != :deleted ORDER BY (organization IS NULL), (organization = {$global}), id LIMIT 1");
     $actores = [];
-    foreach (array_keys(UsersModel::TYPES_USERS) as $tipo) {
+    foreach (UserTypes::codes() as $tipo) {
         $consulta->execute([':type' => $tipo, ':deleted' => UsersModel::STATUS_USER_DELETED]);
         $fila = $consulta->fetch(\PDO::FETCH_OBJ);
         $consulta->closeCursor();

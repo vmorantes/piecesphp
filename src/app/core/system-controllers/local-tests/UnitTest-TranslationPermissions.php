@@ -21,6 +21,7 @@ use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
@@ -61,7 +62,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     //──── 0. La regla, pura ────────────────────────────────────────────────────────────────────
     echoTerminal('[0/3] La regla: APIController::translationUserTypes() y el validador de Configuración › IA');
-    $seis = array_keys(UsersModel::TYPES_USERS);
+    $seis = UserTypes::codes();
     $igual = function (array $a, array $b): bool {
         sort($a);
         sort($b);
@@ -117,8 +118,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         foreach ($rutas as $ruta) {
             $check(is_array(get_route_info($ruta)) && (get_route_info($ruta)['require_login'] ?? false) === true, "r0 {$ruta} existe y pide sesión: sin ella, 403 antes de llegar al proveedor");
         }
-        $roles = array_filter(Roles::getRoles(), fn ($rol): bool => is_array($rol) && array_key_exists((int) ($rol['code'] ?? -1), UsersModel::TYPES_USERS));
-        $check(count($roles) === count(UsersModel::TYPES_USERS), 'r1 CANARIO: hay un rol por cada tipo de usuario', count($roles) . ' de ' . count(UsersModel::TYPES_USERS));
+        $roles = array_filter(Roles::getRoles(), fn ($rol): bool => is_array($rol) && array_key_exists((int) ($rol['code'] ?? -1), UserTypes::labels()));
+        $check(count($roles) === count(UserTypes::labels()), 'r1 CANARIO: hay un rol por cada tipo de usuario', count($roles) . ' de ' . count(UserTypes::labels()));
         foreach ($roles as $rol) {
             $tipo = (int) $rol['code'];
             $esperado = in_array($tipo, $conPermiso, true);

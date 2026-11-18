@@ -21,6 +21,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 
 CliActions::make('unit-tests:core/ai-speech', function ($args) {
 
@@ -74,7 +75,7 @@ CliActions::make('unit-tests:core/ai-speech', function ($args) {
     $opciones = [AIGateway::CONFIG_NAME, AIProviderRegistry::KEYS_CONFIG_NAME, 'GroqAPIKey', 'modelGroq'];
     $previos = array_combine($opciones, array_map(fn(string $opcion) => get_config($opcion), $opciones));
     $acumulado = GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
-    $encendida = ['enabled' => true, 'userTypes' => array_keys(UsersModel::TYPES_USERS), 'quota' => 0];
+    $encendida = ['enabled' => true, 'userTypes' => UserTypes::codes(), 'quota' => 0];
 
     try {
         //─── 1 · La petición y la respuesta ──────────────────────────────────────────────────────

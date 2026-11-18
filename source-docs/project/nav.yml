@@ -4,6 +4,7 @@ nav:
         - piecesphp/index.md
         - Despliegue: piecesphp/content/general.md
         - Permisos: piecesphp/content/permissions.md
+        - Los tipos de usuario: piecesphp/content/tipos-de-usuario.md
         - Estructura: piecesphp/content/structure.md
         - Los archivos de configuración: piecesphp/content/configuration.md
         - Idiomas y traducciones: piecesphp/content/idiomas.md

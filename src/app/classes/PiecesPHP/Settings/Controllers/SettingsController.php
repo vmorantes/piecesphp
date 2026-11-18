@@ -60,6 +60,7 @@ use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\Controllers\UserSessionsController;
 use PiecesPHP\UserSystem\Controllers\UserTokensController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -3653,7 +3654,7 @@ class SettingsController extends AdminPanelController
         $center['enabled'] = $truthy($input['enabled'] ?? false);
         $capabilities = is_array($center['capabilities'] ?? null) ? $center['capabilities'] : [];
         $sent = is_array($input['capabilities'] ?? null) ? $input['capabilities'] : [];
-        $known = array_keys(UsersModel::TYPES_USERS);
+        $known = UserTypes::codes();
 
         foreach (AICapabilityRegistry::all() as $key => $capability) {
             $fields = is_array($sent[$key] ?? null) ? $sent[$key] : [];
@@ -4260,7 +4261,7 @@ class SettingsController extends AdminPanelController
         if (!is_array($value)) {
             return false;
         }
-        $known = array_keys(UsersModel::TYPES_USERS);
+        $known = UserTypes::codes();
         foreach ($value as $type) {
             if ($type !== '' && (!Validator::isInteger($type) || !in_array((int) $type, $known, true))) {
                 return false;
@@ -4281,9 +4282,9 @@ class SettingsController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         $group->active(APP_CONFIGURATION_MODULE);
 

@@ -18,6 +18,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\FileManager\FileManagerLang;
 use PiecesPHP\FileManager\FileManagerRoutes;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * FileManagerController.
@@ -485,9 +486,9 @@ class FileManagerController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         $totalManagement = [
             UsersModel::TYPE_USER_ROOT,

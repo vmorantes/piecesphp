@@ -222,7 +222,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $marcasUsers = [
         "array_filter(\$ignoreTypes, 'is_numeric')" => '`is_numeric` filtra ANTES de `intval`',
-        'TYPES_USER_PRIORITY' => 'la lista blanca son los SIETE tipos declarados',
+        'array_keys(UserTypes::priorities())' => 'la lista blanca son los SIETE tipos declarados',
         'HavingSegment($criteriosHaving)' => 'la búsqueda va por HavingSegment',
     ];
     foreach ($marcasUsers as $marca => $porQue) {
@@ -847,7 +847,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         'organizations · sizes' => \Organizations\Mappers\OrganizationMapper::sizes(),
         'organizations · actionLines' => \Organizations\Mappers\OrganizationMapper::actionLines(),
         'organizations · esalOptions' => \Organizations\Mappers\OrganizationMapper::esalOptions(),
-        'users · TYPES_USERS' => \PiecesPHP\UserSystem\ORM\UsersModel::TYPES_USERS,
+        'users · UserTypes labels' => \PiecesPHP\UserSystem\UserTypes::labels(),
         'users · statusesForDisplayQuery' => \PiecesPHP\UserSystem\ORM\UsersModel::statusesForDisplayQuery(),
         'banner · statuses' => \PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper::statuses(),
         'news · statuses' => \News\Mappers\NewsMapper::statuses(),

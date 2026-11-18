@@ -41,6 +41,7 @@ use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserHierarchy;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * UserSessionsController - Las sesiones abiertas: cerrar sesión en el servidor, cerrar una, cerrar las demás, extender, y
@@ -645,7 +646,7 @@ class UserSessionsController extends AdminPanelController
     public static function routes(RouteGroup $group)
     {
         $startRoute = (last_char($group->getGroupSegment()) == '/' ? '' : '/') . self::$URLDirectory;
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
         $listing = [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL, UsersModel::TYPE_USER_ADMIN_ORG];
 
         $group->register([

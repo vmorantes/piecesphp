@@ -18,6 +18,7 @@ use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UserProblemsModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
+use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -580,7 +581,7 @@ class UserProblemsController extends UsersController
         if ($approvalStatus === SystemApprovalsMapper::STATUS_REJECTED) {
             return [UsersModel::STATUS_USER_REJECTED, UsersModel::STATUS_USER_REJECTED];
         }
-        $active = $approvalStatus === SystemApprovalsMapper::STATUS_APPROVED || in_array((int) $user->type, UsersModel::ARE_AUTO_APPROVAL, true);
+        $active = $approvalStatus === SystemApprovalsMapper::STATUS_APPROVED || UserTypes::isAutoApproval((int) $user->type);
         return [$active ? UsersModel::STATUS_USER_ACTIVE : UsersModel::STATUS_USER_APPROVED_PENDING, null];
     }
 

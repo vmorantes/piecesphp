@@ -103,6 +103,8 @@ return [
     '1 usuario tiene un tipo que ya no existe' => '1 user has a type that no longer exists',
     '%d usuarios tienen un tipo que ya no existe' => '%d users have a type that no longer exists',
     'Ver usuarios' => 'See users',
+    'src/app/config/user-types.php tiene errores y rigen los tipos de usuario de fábrica: %s' => 'src/app/config/user-types.php has errors and the factory user types apply: %s',
+    'Un tipo de usuario retirado sigue en uso por un módulo encendido: %s' => 'A retired user type is still used by an enabled module: %s',
     'Expulsar' => 'Force sign-out',
     'Ingresos e intentos de acceso de los usuarios.' => 'Users\' logins and login attempts.',
     'Las sesiones que siguen abiertas: dónde, desde cuándo y cuándo caducan.' => 'The sessions still open: where, since when and when they expire.',

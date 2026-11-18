@@ -4,13 +4,16 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
- * El formulario de un usuario: lo común de los 18 de form-by-type (`<mode>/<tipo>/form.php`), que solo dicen su modo y su
- * tipo. users-forms.js los toma por las clases del `form`; el servidor, por sus `name`.
+ * El formulario de un usuario, para cualquier tipo (ADR 0078): UsersController lo pinta con el código del tipo. Los 18 de
+ * form-by-type (`<mode>/<tipo>/form.php`), en desuso, lo pintan con la carpeta del tipo. users-forms.js lo toma por las
+ * clases del `form` (`users <modo>`); el servidor, por sus `name`.
  *
  * @var string $formMode 'create', 'edit' o 'profile'.
- * @var string $formType La carpeta del tipo: 'root', 'admin-general', 'admin-organization', 'general', 'institucional' o 'comunicaciones'.
+ * @var int $typeCode El código del tipo; sin él, sale de $formType.
+ * @var string $formType En desuso: la carpeta del tipo de fábrica ('root', 'admin-general', 'admin-organization', 'general', 'institucional' o 'comunicaciones').
  * @var array<string,int> $status_options Sin 'profile'.
  * @var \stdClass $edit_user Sin 'create'.
  */
@@ -25,8 +28,11 @@ $typeConstants = [
 ];
 $isCreate = $formMode === 'create';
 $isProfile = $formMode === 'profile';
-//Principal y administrador general no pertenecen a una organización.
-$hasOrganization = !in_array($formType, ['root', 'admin-general'], true);
+//Un tipo que no esté en la tabla pertenece a una organización, como hasta ahora.
+$typeCode = isset($typeCode) ? (int) $typeCode : ($typeConstants[$formType ?? ''] ?? -1);
+//La clase del tipo se conserva para los de fábrica; uno del proyecto lleva la suya.
+$typeClass = array_flip($typeConstants)[$typeCode] ?? "type-{$typeCode}";
+$hasOrganization = UserTypes::requiresOrganization($typeCode);
 $canPickOrganization = $hasOrganization && !$isProfile && OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type);
 $organizations = $canPickOrganization ? OrganizationMapper::all(false) : [];
 $userValue = fn(string $property): string => $isCreate ? '' : escape_html($edit_user->$property);
@@ -40,10 +46,10 @@ $textField = function (string $inputName, string $property, string $label, bool 
     <?php
         };
     ?>
-<form class="ui form initial segment users <?= $formMode; ?> <?= $formType; ?>" action="<?= UsersController::routeName($isCreate ? 'register-request' : 'edit-request'); ?>" data-content-form>
+<form class="ui form initial segment users <?= $formMode; ?> <?= $typeClass; ?>" action="<?= UsersController::routeName($isCreate ? 'register-request' : 'edit-request'); ?>" data-content-form>
 
     <?php if ($isCreate): ?>
-    <input type="hidden" name="type" value="<?= $typeConstants[$formType]; ?>">
+    <input type="hidden" name="type" value="<?= $typeCode; ?>">
     <?php else: ?>
     <input type="hidden" name='id' value="<?= $edit_user->id; ?>">
     <?php endif; ?>

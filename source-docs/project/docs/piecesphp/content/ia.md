@@ -33,14 +33,14 @@ En el `Routes` de tu módulo, al registrar sus rutas (así lo hace `APIRoutes` c
 ```php
 use PiecesPHP\AI\AICapability;
 use PiecesPHP\AI\AICapabilityRegistry;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 AICapabilityRegistry::register(new AICapability(
     'invoice-summary',                                    //clave: minúsculas, números y guiones
     fn(): string => __(MiModuloLang::LANG_GROUP, 'Resumen de facturas con IA'),
     AICapability::PROVIDER_CHAT,                          //o PROVIDER_SPEECH
     true,                                                 //encendida por omisión
-    array_keys(UsersModel::TYPES_USERS),                  //quién la usa por omisión
+    UserTypes::codes(),                                   //quién la usa por omisión
     0,                                                    //cuota por omisión: 0 = sin límite
     AICapability::PERIOD_ACCUMULATED,                     //periodo de la cuota
 ));

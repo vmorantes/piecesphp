@@ -26,6 +26,7 @@ use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserHierarchy;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * LogsController.
@@ -352,9 +353,9 @@ class LogsController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //Los administradores, recortados por la jerarquía de P133 (actorFields()).
         $permisos_listado = [

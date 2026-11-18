@@ -19,6 +19,7 @@ use PiecesPHP\Core\SessionToken;
 use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * ImpersonationController - Empezar y terminar de actuar como otro usuario (P204 a). Solo desde el panel, por POST: la
@@ -213,7 +214,7 @@ class ImpersonationController extends AdminPanelController
     public static function routes(RouteGroup $group)
     {
         $startRoute = (last_char($group->getGroupSegment()) == '/' ? '' : '/') . self::$URLDirectory;
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         $group->register([
             new Route("{$startRoute}/start[/]", self::class . ':start', self::$baseRouteName . '-start', 'POST', true, null, [UsersModel::TYPE_USER_ROOT]),

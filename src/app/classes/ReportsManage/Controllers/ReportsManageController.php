@@ -17,8 +17,8 @@ use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 use ReportsManage\Queries\ReportsManageQueries;
 use ReportsManage\ReportsManageLang;
 use ReportsManage\ReportsManageRoutes;
@@ -160,9 +160,9 @@ class ReportsManageController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //Permisos
         $allAccess = ReportsManageQueries::ROLES_WITH_REPORTS;

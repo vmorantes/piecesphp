@@ -15,7 +15,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Notifications\Notifications;
 use PiecesPHP\Notifications\NotificationsLang;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * NotificationsController - La lista y las marcas de leída, en JSON (ADR 0073). Cada uno ve y toca solo lo suyo: lo
@@ -208,7 +208,7 @@ class NotificationsController extends AdminPanelController
     public static function routes(RouteGroup $group)
     {
         $startRoute = (last_char($group->getGroupSegment()) == '/' ? '' : '/') . self::$URLDirectory;
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
         $group->register([
             new Route("{$startRoute}/view[/]", self::class . ':view', self::$baseRouteName . '-view', 'GET', true, null, $allRoles),
             new Route("{$startRoute}/list[/]", self::class . ':list', self::$baseRouteName . '-list', 'GET', true, null, $allRoles),

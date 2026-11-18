@@ -16,6 +16,7 @@ use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -140,7 +141,7 @@ CliActions::make('unit-tests:core/api-register', function ($args) {
 
         //─── a4 · P39 ───────────────────────────────────────────────────────────────────────────────────
         echoTerminal('[a4] P39: a un tipo que requiere organización no se le queda el -10');
-        $check(!in_array(UsersModel::TYPE_USER_GENERAL, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION, true), 'a4 el usuario general SÍ requiere organización');
+        $check(UserTypes::requiresOrganization(UsersModel::TYPE_USER_GENERAL), 'a4 el usuario general SÍ requiere organización');
         [$cuerpoA4, $textoA4] = $alta([
             '__sufijo' => 'a4',
             'userType' => BaseHashEncryption::encryptBidirectionalHash((string) UsersModel::TYPE_USER_GENERAL),

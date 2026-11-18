@@ -55,7 +55,7 @@ sufijo.
 Además hay dos rutas de estáticos (`formularios/categorias-forms/statics-resolver/…`) que sirven el JavaScript y el CSS
 del módulo.
 
-**Quiénes son «los seis»**: los que da `UsersModel::TYPES_USERS`: Principal (0), Administrador general (1),
+**Quiénes son «los seis»**: los de fábrica que da `UserTypes::codes()` (más los que declare el proyecto): Principal (0), Administrador general (1),
 Administrador de organización (12), Usuario general (2), Institucional (3) y Comunicaciones (4).
 
 > [!WARNING]

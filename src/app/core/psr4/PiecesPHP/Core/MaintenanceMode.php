@@ -7,6 +7,7 @@
 namespace PiecesPHP\Core;
 
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * MaintenanceMode. El modo mantenimiento del sitio.
@@ -187,7 +188,7 @@ class MaintenanceMode
             return false;
         }
 
-        $existentes = array_keys(UsersModel::TYPES_USERS);
+        $existentes = UserTypes::codes();
 
         foreach ($roles as $role) {
             if (is_bool($role) || !is_scalar($role)) {

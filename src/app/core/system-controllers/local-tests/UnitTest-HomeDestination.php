@@ -15,6 +15,7 @@ use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -48,7 +49,7 @@ CliActions::make('unit-tests:core/home-destination', function ($args) {
 
     //─── d · Los repartos de siempre, registrados por sus módulos ─────────────────────────────
     echoTerminal('[d] Los destinos por omisión, registrados al arrancar');
-    $conPerfil = UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE;
+    $conPerfil = UserTypes::profileTypes();
     $check(HomeDestinationRegistry::has(UsersModel::TYPE_USER_COMUNICACIONES) && array_filter($conPerfil, fn (int $tipo): bool => !HomeDestinationRegistry::has($tipo)) === [], 'd1 comunicaciones y los tipos con perfil tienen destino');
     $check(!HomeDestinationRegistry::has(UsersModel::TYPE_USER_ROOT) && !HomeDestinationRegistry::has(UsersModel::TYPE_USER_ADMIN_GRAL), 'd2 root y el administrador general, no: ven las tarjetas');
     echoTerminal(' ');

@@ -11,7 +11,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\UserSystem\ORM\TimeOnPlatformModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -79,9 +79,9 @@ class TimerController extends BaseController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = self::class;
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $all_roles = UserTypes::codes();
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
 

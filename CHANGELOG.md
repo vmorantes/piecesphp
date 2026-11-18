@@ -1,3 +1,20 @@
+# 10.45.0 (17-11-2026)
+
+- **Cada proyecto declara sus tipos de usuario** en `src/app/config/user-types.php`. Puede añadir los suyos, cambiar el
+  nombre de los de fábrica, dejar de ofrecerlos al crear usuarios o retirarlos (Principal y Administrador general no se
+  retiran). El alta y la edición sirven para cualquier tipo sin vistas nuevas. Si el archivo tiene un error, el sitio
+  sigue con los tipos de fábrica y avisa. Guía: «Los tipos de usuario».
+- **En desuso**, y salen en la 11.0.0: las listas de tipos de `UsersModel` (`TYPES_USERS`, `TYPES_USER_PRIORITY`,
+  `TYPES_USER_DONT_REQUIRE_ORGANIZATION`, `TYPES_USER_SHOULD_HAVE_PROFILE`, `TYPES_WITH_EXTERNAL_LOGIN`,
+  `TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE` y `ARE_AUTO_APPROVAL`). Solo traen los de fábrica: se usa
+  `PiecesPHP\UserSystem\UserTypes` (`codes()`, `labels()`, `requiresOrganization()`…).
+- **Al actualizar**:
+  - si tu código lee una de esas listas, cámbiala por su método de `UserTypes`: `bin/cli verify-integrity` las señala;
+  - si añadiste tipos editando `UsersModel`, `roles.php` o las vistas de usuarios, pásalos a `user-types.php`;
+  - el bloque de tipos de `src/app/config/roles.php` ya no se escribe a mano (lo construye `UserTypes::roles()`); si lo
+    tenías editado, lleva tus cambios a `user-types.php`;
+  - `files/CliScripts/GeneradorIntegralTipoUsuario.php` desaparece: escribía en rutas que ya no existen.
+
 # 10.44.0 (17-11-2026)
 
 - **Los respaldos pueden sustituir el valor de una columna en el volcado**: `BackupPolicy::transformColumn()` deja que un

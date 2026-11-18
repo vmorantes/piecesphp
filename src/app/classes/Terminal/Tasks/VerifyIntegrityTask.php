@@ -6,6 +6,7 @@
 
 namespace Terminal\Tasks;
 
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
@@ -17,6 +18,7 @@ use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\Terminal\LoadFailures;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Terminal\Distribution;
 
 /**
@@ -544,6 +546,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 66. Cada herramienta MCP del panel tiene una ruta de permiso que existe y un esquema válido ─
         $mcpToolFailures = self::checkMcpTools();
 
+        //──── 67. Nadie lee las listas de tipos de UsersModel fuera de su registro (ADR 0078) ─
+        $userTypeListFailures = self::checkUserTypeListReads();
+
+        //──── 68. user-types.php se aplica entero y ningún módulo encendido asigna un tipo retirado (ADR 0078) ─
+        $userTypesFileFailures = self::checkUserTypesFile();
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -569,7 +577,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($routeDecidedFailures) + count($suiteAreaFailures) + count($looseColorFailures)
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
-         + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures);
+         + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures);
 
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
@@ -663,6 +671,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($mcpToolFailures as $line) {
             echoTerminal("\e[31mHERRAMIENTA MCP:\e[39m {$line}");
+        }
+        foreach ($userTypeListFailures as $line) {
+            echoTerminal("\e[31mLISTA DE TIPOS:\e[39m {$line}");
+        }
+        foreach ($userTypesFileFailures as $line) {
+            echoTerminal("\e[31mTIPOS DE USUARIO:\e[39m {$line}");
         }
         foreach ($versionDateFailures as $line) {
             echoTerminal("\e[31mFECHA DE VERSIÓN:\e[39m {$line}");
@@ -774,7 +788,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, la distribución pública y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, las listas de tipos de usuario, el archivo de tipos de usuario, la distribución pública y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
             if (Distribution::announcedCount() > 0) {
                 echoTerminal("\e[33mEN LA DISTRIBUCIÓN:\e[39m " . Distribution::announcedCount() . ' comprobación(es) NO se hicieron, cada una con su línea «'
                     . Distribution::NOT_APPLICABLE . '» arriba: el OK solo vale para las demás.');
@@ -6426,6 +6440,132 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $calls[] = ['line' => (int) $token[2], 'kind' => 'sealed', 'purpose' => $purpose];
         }
         return $calls;
+    }
+
+    /**
+     * 67. Las listas de tipos de `UsersModel` (`TYPES_*` y `ARE_AUTO_APPROVAL`) son alias en desuso de los tipos de
+     * fábrica (ADR 0078): en `src/app` se lee `UserTypes`. Por tokens, nunca por texto. Fuera quedan `UsersModel.php`,
+     * que las define, y `UserTypes.php`; en `local-tests/` vale la línea que prueba el alias a propósito, con la marca
+     * `@alias-tipos-de-usuario` en un comentario de esa línea o de la anterior.
+     *
+     * @return string[]
+     */
+    protected static function checkUserTypeListReads(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+
+        //Canario de tres caras: ve la lectura sembrada, no cuenta la de un comentario y sí ve la marca.
+        $sembrado = self::userTypeListReads("<?php\n\$a = UsersModel::TYPES_USERS;\n// UsersModel::TYPES_USERS\n//@alias-tipos-de-usuario: prueba el alias\n\$b = \\PiecesPHP\\UserSystem\\ORM\\UsersModel::ARE_AUTO_APPROVAL;\n\$c = Otra::TYPES_USERS;\n");
+        $canarioVivo = count($sembrado) === 2 && $sembrado[0]['name'] === 'TYPES_USERS' && !$sembrado[0]['marked']
+            && $sembrado[1]['name'] === 'ARE_AUTO_APPROVAL' && $sembrado[1]['marked'];
+        if (!$canarioVivo) {
+            return ['canario muerto: el tokenizador no ve la lectura sembrada, cuenta un comentario o no ve la marca: la comprobación no miró nada'];
+        }
+
+        $excluidos = [
+            $repoRoot . '/app/classes/PiecesPHP/UserSystem/ORM/UsersModel.php',
+            $repoRoot . '/app/classes/PiecesPHP/UserSystem/UserTypes.php',
+        ];
+        $archivos = [];
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($repoRoot . '/app', \FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $file) {
+            $p = str_replace('\\', '/', (string) $file->getPathname());
+            if ($file->isFile() && str_ends_with($p, '.php') && mb_strpos($p, '/vendor/') === false && mb_strpos($p, '/logs/') === false
+                && !in_array($p, $excluidos, true)) {
+                $archivos[] = $p;
+            }
+        }
+
+        $failures = [];
+        $marcadas = 0;
+        foreach ($archivos as $archivo) {
+            $contenido = (string) file_get_contents($archivo);
+            if (mb_strpos($contenido, 'TYPES_') === false && mb_strpos($contenido, 'ARE_AUTO_APPROVAL') === false) {
+                continue;
+            }
+            $enPruebas = mb_strpos($archivo, '/system-controllers/local-tests/') !== false;
+            foreach (self::userTypeListReads($contenido) as $lectura) {
+                if ($enPruebas && $lectura['marked']) {
+                    $marcadas++;
+                    continue;
+                }
+                $sitio = mb_substr($archivo, mb_strlen($root) + 1) . ':' . $lectura['line'];
+                $failures[] = "{$sitio}: UsersModel::{$lectura['name']} es un alias en desuso de los tipos de fábrica; usa UserTypes";
+            }
+        }
+
+        if (count($failures) === 0) {
+            echoTerminal("\e[94mINFO:\e[39m listas de tipos de usuario: " . count($archivos) . " archivo(s) en el universo (src/app sin vendor ni logs, fuera UsersModel.php y UserTypes.php); 0 lecturas de UsersModel::TYPES_* o ARE_AUTO_APPROVAL; {$marcadas} en local-tests marcadas con @alias-tipos-de-usuario.");
+        }
+        return $failures;
+    }
+
+    /**
+     * 68. `src/app/config/user-types.php` se aplica entero (con un error rigen los de fábrica, y aquí cae) y ningún tipo
+     * retirado lo sigue asignando un módulo encendido. Lo que solo conviene revisar (una prioridad desde 400, una
+     * etiqueta o una descripción sin traducción a un idioma permitido) se imprime como aviso y no falla.
+     *
+     * @return string[]
+     */
+    protected static function checkUserTypesFile(): array
+    {
+        $failures = [];
+        foreach (UserTypes::errors() as $error) {
+            $failures[] = "src/app/config/user-types.php: {$error}; rigen los tipos de fábrica";
+        }
+        foreach (UserTypes::moduleConflicts() as $conflict) {
+            $failures[] = "src/app/config/user-types.php: {$conflict}";
+        }
+        $warnings = array_merge(UserTypes::warnings(), UserTypes::missingTranslations(Config::get_allowed_langs()));
+        foreach ($warnings as $warning) {
+            echoTerminal("\e[33mAVISO:\e[39m tipos de usuario: {$warning}");
+        }
+        if ($failures === []) {
+            $file = is_file(UserTypes::file()) ? 'src/app/config/user-types.php' : 'sin src/app/config/user-types.php';
+            echoTerminal("\e[94mINFO:\e[39m tipos de usuario ({$file}): " . count(UserTypes::codes()) . ' con rol (' . implode(', ', UserTypes::codes()) . '), ' . count(UserTypes::retired()) . ' retirado(s), ' . count($warnings) . ' aviso(s).');
+        }
+        return $failures;
+    }
+
+    /**
+     * Las lecturas de `UsersModel::TYPES_*` y `UsersModel::ARE_AUTO_APPROVAL` de un código PHP, con su línea y si llevan
+     * la marca `@alias-tipos-de-usuario` en un comentario de esa línea o de la anterior.
+     *
+     * @param string $code
+     * @return array<int,array{line:int,name:string,marked:bool}>
+     */
+    protected static function userTypeListReads(string $code): array
+    {
+        $nombres = ['TYPES_USERS', 'TYPES_USER_PRIORITY', 'TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE', 'TYPES_USER_DONT_REQUIRE_ORGANIZATION',
+            'TYPES_USER_SHOULD_HAVE_PROFILE', 'TYPES_WITH_EXTERNAL_LOGIN', 'ARE_AUTO_APPROVAL'];
+        $todos = token_get_all($code);
+        $lineasMarcadas = [];
+        foreach ($todos as $t) {
+            if (is_array($t) && in_array($t[0], [\T_COMMENT, \T_DOC_COMMENT], true) && mb_strpos($t[1], '@alias-tipos-de-usuario') !== false) {
+                $lineasMarcadas[(int) $t[2]] = true;
+            }
+        }
+        $tokens = array_values(array_filter($todos, fn ($t) => !is_array($t) || !in_array($t[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)));
+        $lecturas = [];
+        foreach ($tokens as $i => $token) {
+            if (!is_array($token) || $token[0] !== \T_STRING || !in_array($token[1], $nombres, true)) {
+                continue;
+            }
+            $dosPuntos = $tokens[$i - 1] ?? null;
+            $clase = $tokens[$i - 2] ?? null;
+            if (!is_array($dosPuntos) || $dosPuntos[0] !== \T_DOUBLE_COLON || !is_array($clase)
+                || !in_array($clase[0], [\T_STRING, \T_NAME_QUALIFIED, \T_NAME_FULLY_QUALIFIED], true)) {
+                continue;
+            }
+            $partes = explode('\\', $clase[1]);
+            if (end($partes) !== 'UsersModel') {
+                continue;
+            }
+            $linea = (int) $token[2];
+            $lecturas[] = ['line' => $linea, 'name' => $token[1], 'marked' => isset($lineasMarcadas[$linea]) || isset($lineasMarcadas[$linea - 1])];
+        }
+        return $lecturas;
     }
 
     /**

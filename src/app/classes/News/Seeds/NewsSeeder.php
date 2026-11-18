@@ -10,6 +10,7 @@ use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;
 use News\Mappers\NewsReadedMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
 
@@ -98,7 +99,7 @@ class NewsSeeder extends ModuleSeeder
             'createdBy' => $this->author,
             'status' => NewsMapper::ACTIVE,
             //Lo que el formulario exige al guardar: sin perfiles ni fechas, una noticia sembrada no se podía editar.
-            'profilesTarget' => array_values(array_filter(array_map('intval', array_keys(UsersModel::TYPES_USERS)), fn (int $type): bool => $type !== UsersModel::TYPE_USER_ROOT)),
+            'profilesTarget' => array_values(array_filter(array_map('intval', UserTypes::codes()), fn (int $type): bool => $type !== UsersModel::TYPE_USER_ROOT)),
             'startDate' => (new \DateTime('today'))->setTime(8, 0),
             'endDate' => (new \DateTime('today'))->setTime(20, 0)->modify('+1 year'),
         ];

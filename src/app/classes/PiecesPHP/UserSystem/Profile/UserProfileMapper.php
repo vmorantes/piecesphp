@@ -17,6 +17,7 @@ use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * UserProfileMapper.
@@ -659,7 +660,7 @@ class UserProfileMapper extends EntityMapperExtensible
     }
 
     /**
-     * Garantiza el perfil de un usuario cuyo tipo debe tenerlo (UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE): lo crea si
+     * Garantiza el perfil de un usuario cuyo tipo debe tenerlo (UserTypes::shouldHaveProfile()): lo crea si
      * falta. Es el camino de creación del alta, la importación, la API y el primer guardado del perfil propio; nunca se
      * llama en cada petición (P266).
      *
@@ -688,7 +689,7 @@ class UserProfileMapper extends EntityMapperExtensible
             $type = $statement->fetchColumn();
             if ($type === false) {
                 $ensured = false;
-            } elseif (!in_array((int) $type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE, true)) {
+            } elseif (!UserTypes::shouldHaveProfile((int) $type)) {
                 $ensured = true;
             } else {
                 $ensured = self::createProfile($userID) !== null;

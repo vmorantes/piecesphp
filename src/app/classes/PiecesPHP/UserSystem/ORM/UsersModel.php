@@ -17,6 +17,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * UsersModel.
@@ -114,12 +115,10 @@ class UsersModel extends EntityMapperExtensible
         self::STATUS_USER_APPROVED_PENDING,
         self::STATUS_USER_REJECTED,
     ];
-    const ARE_AUTO_APPROVAL = [
-        self::TYPE_USER_ROOT,
-        self::TYPE_USER_ADMIN_GRAL,
-        self::TYPE_USER_INSTITUCIONAL,
-        self::TYPE_USER_COMUNICACIONES,
-    ];
+    /**
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::isAutoApproval(); sale en la 11.0.0
+     */
+    const ARE_AUTO_APPROVAL = UserTypes::CORE_AUTO_APPROVAL;
 
     //Constantes de tipos de usuario
     const TYPE_USER_ROOT = 0;
@@ -136,52 +135,39 @@ class UsersModel extends EntityMapperExtensible
      */
     const SYSTEM_USER_ID = -10;
     /**
-     * Fuera de TYPES_USERS a propósito: no se ofrece en ningún formulario y no tiene rol.
+     * Fuera de las etiquetas de UserTypes a propósito: no se ofrece en ningún formulario y no tiene rol.
      */
     const TYPE_USER_SYSTEM = 99;
 
     /**
-     * @var array<int,string>
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::labels() o codes(); sale en la 11.0.0
      */
-    const TYPES_USERS = [
-        self::TYPE_USER_ROOT => 'Principal',
-        self::TYPE_USER_ADMIN_GRAL => 'Administrador general',
-        self::TYPE_USER_ADMIN_ORG => 'Administrador de organización',
-        self::TYPE_USER_GENERAL => 'Usuario general',
-        self::TYPE_USER_INSTITUCIONAL => 'Institucional',
-        self::TYPE_USER_COMUNICACIONES => 'Comunicaciones',
-        //self::TYPE_USER_GOOGLE_PLAY => 'Google Play',
-    ];
+    const TYPES_USERS = UserTypes::CORE_LABELS;
 
-    const TYPES_USER_PRIORITY = [
-        self::TYPE_USER_ROOT => 500,
-        self::TYPE_USER_ADMIN_GRAL => 400,
-        self::TYPE_USER_ADMIN_ORG => 1,
-        self::TYPE_USER_GENERAL => 1,
-        self::TYPE_USER_INSTITUCIONAL => 100,
-        self::TYPE_USER_COMUNICACIONES => 2,
-        self::TYPE_USER_GOOGLE_PLAY => -50,
-    ];
+    /**
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::priorities() o priority(); sale en la 11.0.0
+     */
+    const TYPES_USER_PRIORITY = UserTypes::CORE_PRIORITY;
 
-    const TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE = [
-        self::TYPE_USER_ADMIN_ORG,
-    ];
+    /**
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::hasAuthorityOverSameType(); sale en la 11.0.0
+     */
+    const TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE = UserTypes::CORE_NO_AUTHORITY_OVER_SAME_TYPE;
 
-    const TYPES_USER_DONT_REQUIRE_ORGANIZATION = [
-        self::TYPE_USER_ROOT,
-        self::TYPE_USER_ADMIN_GRAL,
-        self::TYPE_USER_GOOGLE_PLAY,
-    ];
+    /**
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::requiresOrganization(); sale en la 11.0.0
+     */
+    const TYPES_USER_DONT_REQUIRE_ORGANIZATION = UserTypes::CORE_NO_ORGANIZATION;
 
-    const TYPES_USER_SHOULD_HAVE_PROFILE = [
-        self::TYPE_USER_ADMIN_ORG,
-        self::TYPE_USER_GENERAL,
-    ];
+    /**
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::shouldHaveProfile() o profileTypes(); sale en la 11.0.0
+     */
+    const TYPES_USER_SHOULD_HAVE_PROFILE = UserTypes::CORE_PROFILE;
 
-    const TYPES_WITH_EXTERNAL_LOGIN = [
-        self::TYPE_USER_GENERAL,
-        self::TYPE_USER_GOOGLE_PLAY,
-    ];
+    /**
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::hasExternalLogin(); sale en la 11.0.0
+     */
+    const TYPES_WITH_EXTERNAL_LOGIN = UserTypes::CORE_EXTERNAL_LOGIN;
 
     const LANG_GROUP = UserDataPackage::LANG_GROUP;
     const TABLE = 'pcsphp_users';
@@ -341,44 +327,27 @@ class UsersModel extends EntityMapperExtensible
         $typesOver = $this->getHigherPriorityTypes();
         $hasAuthority = !in_array((int) $type, $typesOver);
         //Verificar si el tipo tiene autoridad o no sobre su mismo tipo
-        if (in_array($type, self::TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE)) {
+        if (!UserTypes::hasAuthorityOverSameType($type)) {
             $hasAuthority = $hasAuthority && $type != $this->type;
         }
         return $hasAuthority;
     }
 
     /**
-     * @return array
+     * Los tipos con más prioridad que el de este usuario; sin usuario, todos los que tienen etiqueta.
+     *
+     * Se filtra por CLAVE: dos tipos pueden compartir prioridad, y darle la vuelta al array se comería uno.
+     *
+     * @return int[]
      */
     public function getHigherPriorityTypes()
     {
-        $allTypes = [];
-
-        array_map(function ($type) use (&$allTypes) {
-            $allTypes[] = $type;
-        }, array_flip(self::TYPES_USERS));
-
-        if ($this->id !== null) {
-
-            $types = [];
-
-            $prioritiesByType = self::TYPES_USER_PRIORITY;
-            $typesByPriorities = array_flip(self::TYPES_USER_PRIORITY);
-            $currentPriority = self::TYPES_USER_PRIORITY[$this->type];
-
-            $higherPrioritiesThanCurrentOne = array_filter($prioritiesByType, function ($priority) use ($currentPriority) {
-                return $priority > $currentPriority;
-            });
-
-            foreach ($higherPrioritiesThanCurrentOne as $priority) {
-                $types[] = $typesByPriorities[$priority];
-            }
-
-            return $types;
-
+        if ($this->id === null) {
+            return UserTypes::codes();
         }
 
-        return $allTypes;
+        $currentPriority = UserTypes::priority((int) $this->type);
+        return array_keys(array_filter(UserTypes::priorities(), fn(int $priority): bool => $priority > $currentPriority));
     }
 
     /**
@@ -1300,7 +1269,7 @@ class UsersModel extends EntityMapperExtensible
 
         $types = [];
 
-        foreach (self::TYPES_USERS as $key => $value) {
+        foreach (UserTypes::labels() as $key => $value) {
 
             if (Roles::roleExists($key)) {
                 $types[$key] = __(self::LANG_GROUP, $value);
@@ -1495,7 +1464,7 @@ class UsersModel extends EntityMapperExtensible
         $secondNameSegment = "IF({$table}.secondname IS NOT NULL, CONCAT(' ', {$table}.secondname), '')";
         $secondLastNameSegment = "IF({$table}.secondLastname IS NOT NULL, CONCAT(' ', {$table}.secondLastname), '')";
         //Literal hexadecimal: la etiqueta es del SERVIDOR, pero editable por traducción dinámica (ADR 0009, T2 de #040).
-        $typesJSON = json_encode((object) self::TYPES_USERS, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
+        $typesJSON = json_encode((object) UserTypes::labels(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
         $statusDisplay = self::statusesForDisplayQuery();
         $statusDisplayJSON = json_encode((object) $statusDisplay, \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR);
 

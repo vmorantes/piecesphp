@@ -21,7 +21,7 @@ use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Core\Utilities\Helpers\StructuredData;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
@@ -399,9 +399,9 @@ class PublicationsPublicController extends BaseController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $all_roles = UserTypes::codes();
 
         $routes = [
 

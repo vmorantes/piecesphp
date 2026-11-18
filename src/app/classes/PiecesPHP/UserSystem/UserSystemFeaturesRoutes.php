@@ -67,6 +67,8 @@ class UserSystemFeaturesRoutes
             LoginAttemptsController::registerDashboardCard();
             //Los usuarios cuyo tipo ya no es un rol (P290, fase 1): no entran ni se borran, y root lo ve en un aviso.
             InvalidTypeUsersAlert::register();
+            //Los errores de user-types.php y los tipos retirados que un módulo sigue asignando (ADR 0078).
+            UserTypesAlert::register();
             //La contraseña de un uso, en el catálogo de correos.
             MailCatalog::register(new OneUseCodeMail(), 'Funciones de usuario');
 

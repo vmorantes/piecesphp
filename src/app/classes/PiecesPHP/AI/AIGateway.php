@@ -19,6 +19,7 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * AIGateway - La puerta única de la IA (ADR 0074): en el producto, solo ella crea los adaptadores de los proveedores y
@@ -1216,7 +1217,7 @@ final class AIGateway
         }
         if (array_key_exists('userTypes', $over)) {
             //Como en MaintenanceMode::allowedRoles(): una lista con algo que no es un tipo conocido se descarta ENTERA.
-            $known = array_keys(UsersModel::TYPES_USERS);
+            $known = UserTypes::codes();
             $list = $over['userTypes'];
             $valid = is_array($list) && array_is_list($list) && count(array_filter($list, fn ($type) => !is_int($type) || !in_array($type, $known, true))) === 0;
             if ($valid) {

@@ -16,6 +16,7 @@ use PiecesPHP\Core\DataTransfer\Import\ImportPersistException;
 use PiecesPHP\Core\DataTransfer\Import\ParsedRow;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * UsersImportDefinition - Importación de usuarios: todo el archivo en una transacción y credenciales de entrega única.
@@ -142,7 +143,7 @@ class UsersImportDefinition extends ImportDefinition
             //P62: ya no se cae en la organización global. La fila la trae, la hereda de quien importa, o falla.
             $type = $this->resolveType($row->get('type')) ?? UsersModel::TYPE_USER_GENERAL;
             if (
-                !in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)
+                UserTypes::requiresOrganization((int) $type)
                     && $row->get('organization') === null
                     && $importerOrganization === null
             ) {
@@ -214,7 +215,7 @@ class UsersImportDefinition extends ImportDefinition
 
                 //Misma regla que el alta por formulario, y sin caída a la organización global (P62): la fila trae su
                 //código, o hereda la de quien importa, o no se guarda. La validación ya lo dijo; esto lo hace cumplir.
-                if (!in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) {
+                if (UserTypes::requiresOrganization((int) $type)) {
                     $cell = $row->get('organization');
                     $given = self::organizationID($cell);
                     //Lo que la fila TRAE no se sustituye por lo heredado: si no resuelve, es un dato malo, no una falta.
@@ -308,15 +309,15 @@ class UsersImportDefinition extends ImportDefinition
         }
         //Nadie importa un tipo con tanta o más prioridad que la suya.
         $importer = getLoggedFrameworkUser();
-        $importerPriority = $importer !== null ? (UsersModel::TYPES_USER_PRIORITY[(int) $importer->type] ?? null) : null;
-        if ($importerPriority === null || UsersModel::TYPES_USER_PRIORITY[$type] >= $importerPriority) {
+        $importerPriority = $importer !== null ? UserTypes::priority((int) $importer->type) : null;
+        if ($importerPriority === null || UserTypes::priority($type) >= $importerPriority) {
             return sprintf(__(self::LANG_GROUP, 'Tipo: no tienes permiso para importar usuarios de tipo «%s».'), $value);
         }
         return null;
     }
 
     /**
-     * Código numérico o nombre de UsersModel::TYPES_USERS, sin mayúsculas.
+     * Código numérico o etiqueta de UserTypes::labels(), sin mayúsculas.
      *
      * @param string|null $value
      * @return int|null
@@ -327,9 +328,9 @@ class UsersImportDefinition extends ImportDefinition
             return null;
         }
         if (ctype_digit($value)) {
-            return array_key_exists((int) $value, UsersModel::TYPES_USERS) ? (int) $value : null;
+            return array_key_exists((int) $value, UserTypes::labels()) ? (int) $value : null;
         }
-        foreach (UsersModel::TYPES_USERS as $code => $name) {
+        foreach (UserTypes::labels() as $code => $name) {
             if (mb_strtolower($name) === mb_strtolower(trim($value))) {
                 return (int) $code;
             }

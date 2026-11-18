@@ -14,6 +14,7 @@ use PiecesPHP\Core\DataTransfer\Export\ExportColumn;
 use PiecesPHP\Core\DataTransfer\Export\ExportContext;
 use PiecesPHP\Core\DataTransfer\Export\ExportDefinition;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * UsersExportDefinition - Exportación de usuarios con las mismas columnas que la importación, para poder reimportar.
@@ -150,7 +151,7 @@ class UsersExportDefinition extends ExportDefinition
                     'secondname' => $user->secondname,
                     'first_lastname' => $user->firstLastname,
                     'second_lastname' => $user->secondLastname,
-                    'type' => UsersModel::TYPES_USERS[$type] ?? (string) $type,
+                    'type' => UserTypes::labels()[$type] ?? (string) $type,
                     //EL CÓDIGO, NO EL ID (P62): este archivo se edita a mano, y un identificador interno no se edita.
                     'organization' => $organizationCell($user->organization !== null ? (int) $user->organization : null),
                 ];

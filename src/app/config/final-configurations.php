@@ -43,6 +43,13 @@ foreach ($langInjectors as $group => $injector) {
     $injector->injectGroup($group);
 }
 
+//Los tipos de usuario del proyecto (src/app/config/user-types.php, ADR 0078): sus traducciones, y en local un archivo con
+//errores para la petición con el error a la vista. La terminal sigue: verify-integrity lo da por fallo y lo enseña.
+\PiecesPHP\UserSystem\UserTypes::injectTranslations();
+if (is_local() && PHP_SAPI !== 'cli' && \PiecesPHP\UserSystem\UserTypes::errors() !== []) {
+    throw new \RuntimeException('src/app/config/user-types.php tiene errores y rigen los tipos de fábrica: ' . implode('; ', \PiecesPHP\UserSystem\UserTypes::errors()));
+}
+
 //Extensiones: las del framework (core/extensions) y después las del clon (config/extensions). La carpeta vieja
 //final-configurations-includes se sigue cargando si existe, y su aviso del sistema pide moverla.
 foreach ([basepath('app/core/extensions'), basepath('app/config/extensions'), basepath('app/config/final-configurations-includes')] as $extensionsPath) {

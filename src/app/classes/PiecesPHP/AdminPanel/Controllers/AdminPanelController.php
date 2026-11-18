@@ -30,6 +30,7 @@ use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Controllers\PublicationsController;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
@@ -763,7 +764,7 @@ class AdminPanelController extends BaseController
         $groupSegmentURL = $group->getGroupSegment();
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
 
@@ -912,9 +913,9 @@ class AdminPanelController extends BaseController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = self::class;
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $all_roles = UserTypes::codes();
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
 

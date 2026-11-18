@@ -27,6 +27,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Exceptions\DuplicateException;
 use Publications\Exceptions\SafeException;
 use Publications\Mappers\PublicationCategoryMapper;
@@ -876,9 +877,9 @@ class PublicationsCategoryController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //Permisos
         $list = [

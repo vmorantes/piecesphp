@@ -6,6 +6,7 @@
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
 
@@ -27,7 +28,7 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     //Lo que esta puerta puede ver. Si el universo no está, las comprobaciones saldrían verdes por vacío.
     $rutas = get_routes();
     $roles = Roles::getRoles();
-    $tipos = UsersModel::TYPES_USERS;
+    $tipos = UserTypes::labels();
 
     echoTerminal('[canario] El universo de la puerta');
     $check(is_array($rutas) && count($rutas) >= 300, 'c1 ve el catálogo de rutas', 'rutas: ' . (is_array($rutas) ? count($rutas) : gettype($rutas)));
@@ -183,7 +184,7 @@ CliActions::make('unit-tests:core/permissions-coherence', function ($args) {
     };
     $comunicacionYSuperiores = $ordenar([UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL, UsersModel::TYPE_USER_COMUNICACIONES]);
     $soloPrincipal = [UsersModel::TYPE_USER_ROOT];
-    $todos = $ordenar(array_map('intval', array_keys(UsersModel::TYPES_USERS)));
+    $todos = $ordenar(array_map('intval', UserTypes::codes()));
     $esperado = [];
     foreach (['-list', '-forms-add', '-forms-edit', '-ajax-all', '-datatables', '-actions-add', '-actions-edit', '-actions-delete'] as $sufijo) {
         $esperado['built-in-banner-admin' . $sufijo] = [$comunicacionYSuperiores, 'Comunicaciones y superiores'];

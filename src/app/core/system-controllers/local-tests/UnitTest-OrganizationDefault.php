@@ -14,6 +14,7 @@ use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -103,7 +104,7 @@ CliActions::make('unit-tests:core/organization-default', function ($args) {
         $navegar($idA1);
         [$existeA1, $orgA1] = $organizacionDe($idA1);
         $nuevoLogA1 = $logDesde($tamanoLog);
-        $check(in_array(UsersModel::TYPE_USER_ROOT, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION, true), 'a1 el tipo elegido NO requiere organización');
+        $check(!UserTypes::requiresOrganization(UsersModel::TYPE_USER_ROOT), 'a1 el tipo elegido NO requiere organización');
         $check($existeA1 && $orgA1 === null, 'a1 tras navegar, su organización sigue siendo null', 'organización: ' . var_export($orgA1, true));
         $check(!str_contains($nuevoLogA1, (string) $idA1), 'a1 y no se anota nada: no hay defecto que anotar', mb_substr($nuevoLogA1, 0, 160));
         echoTerminal(' ');
@@ -116,7 +117,7 @@ CliActions::make('unit-tests:core/organization-default', function ($args) {
         $navegar($idA2);
         [$existeA2, $orgA2] = $organizacionDe($idA2);
         $nuevoLogA2 = $logDesde($tamanoLog);
-        $check(!in_array(UsersModel::TYPE_USER_GENERAL, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION, true), 'a2 el tipo elegido SÍ requiere organización');
+        $check(UserTypes::requiresOrganization(UsersModel::TYPE_USER_GENERAL), 'a2 el tipo elegido SÍ requiere organización');
         $check($existeA2 && $orgA2 === null, 'a2 tras navegar, su organización sigue siendo null: nadie le pone el -10', 'organización: ' . var_export($orgA2, true));
         $check(
             str_contains($nuevoLogA2, (string) $idA2) && str_contains($nuevoLogA2, 'defecto de datos (P61)'),

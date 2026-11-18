@@ -15,7 +15,7 @@ use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\TerminalData;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
@@ -62,7 +62,7 @@ $container_configurations = [
         if (
             $loggedUser !== null
                 && $loggedUser->organization === null
-                && !in_array($loggedUser->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)
+                && UserTypes::requiresOrganization((int) $loggedUser->type)
         ) {
             //Un usuario dentro sin la organización que su tipo exige es un DEFECTO DE DATOS: se anota una vez por
             //sesión —si la hay— y se deja como está. Nunca se arregla solo.

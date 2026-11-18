@@ -181,7 +181,7 @@ getRequest(url).then(function (response) {
 ## Quién puede pedirlo
 
 **Cualquiera, con o sin sesión.** La ruta se declara con `requireLogin = false` (quinto argumento de `Route`,
-`ComponentProvider.php:195-202`) y la lista de roles que lleva (todos los de `UsersModel::TYPES_USERS`, `:186`) **no
+`ComponentProvider.php:195-202`) y la lista de roles que lleva (todos los de `UserTypes::codes()`, `:193`) **no
 restringe**: un `rolesAllowed` sin `require_login` no actúa. El inventario lo confirma:
 `files/dev/permissions-declared.json:502-512` anota `"requireLogin": false` con los roles 0, 1, 2, 3, 4 y 12.
 

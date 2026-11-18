@@ -20,6 +20,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * ProfileController.
@@ -125,13 +126,13 @@ class ProfileController extends AdminPanelController
 
             if ($userOfProfile->profile->isComplete()) {
                 $this->helpController->render('panel/layout/header');
-                if (in_array($userOfProfile->type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE)) {
+                if (UserTypes::shouldHaveProfile((int) $userOfProfile->type)) {
                     $this->render('profile', $data);
                 }
                 $this->helpController->render('panel/layout/footer');
             } else {
                 $this->helpController->render('panel/layout/header');
-                if (in_array($userOfProfile->type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE)) {
+                if (UserTypes::shouldHaveProfile((int) $userOfProfile->type)) {
                     $this->render('profile-not-completed', $data);
                 }
                 $this->helpController->render('panel/layout/footer');
@@ -169,9 +170,9 @@ class ProfileController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         $routes = [
 

@@ -19,6 +19,7 @@ use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\Packages\OrganizationApprovalHandler;
 use SystemApprovals\Util\Packages\UsersApprovalHandler;
@@ -193,7 +194,7 @@ class GeoLoadFixtureTask extends TerminalTaskAbstract
                 'publicVisible' => 1,
             ];
         }
-        $types = UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE;
+        $types = UserTypes::profileTypes();
         for ($i = 0; $i < $persons; $i++) {
             $number = str_pad((string) ($i + 1), 5, '0', STR_PAD_LEFT);
             [$lng, $lat] = self::position($i, 0);

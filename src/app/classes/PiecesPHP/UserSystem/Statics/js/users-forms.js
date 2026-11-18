@@ -17,43 +17,19 @@ $(document).ready(function (e) {
 		},
 	}
 
+	//Un selector por modo, no por tipo: user-form.php pinta el mismo formulario para cualquier tipo, también uno del
+	//proyecto (user-types.php), y lleva las clases `users <modo>` (ADR 0078).
 	const forms = {}
-	const userTypesFormsSelectors = {
-		create: {
-			root: 'form.users.create.root',
-			adminGral: 'form.users.create.admin-general',
-			adminOrg: 'form.users.create.admin-organization',
-			general: 'form.users.create.general',
-			institucional: 'form.users.create.institucional',
-			comunicaciones: 'form.users.create.comunicaciones',
-		},
-		edit: {
-			root: 'form.users.edit.root',
-			adminGral: 'form.users.edit.admin-general',
-			adminOrg: 'form.users.edit.admin-organization',
-			general: 'form.users.edit.general',
-			institucional: 'form.users.edit.institucional',
-			comunicaciones: 'form.users.edit.comunicaciones',
-		},
-		profile: {
-			root: 'form.users.profile.root',
-			adminGral: 'form.users.profile.admin-general',
-			adminOrg: 'form.users.profile.admin-organization',
-			general: 'form.users.profile.general',
-			institucional: 'form.users.profile.institucional',
-			comunicaciones: 'form.users.profile.comunicaciones',
-		},
+	const usersFormsSelectors = {
+		create: 'form.users.create',
+		edit: 'form.users.edit',
+		profile: 'form.users.profile',
 	}
 
-	for (const formType in userTypesFormsSelectors) {
-		const userTypeFormsSelectorsByUserType = userTypesFormsSelectors[formType]
-		forms[formType] = typeof forms[formType] == 'object' ? forms[formType] : {}
-		for (const userType in userTypeFormsSelectorsByUserType) {
-			const userTypeFormSelector = userTypeFormsSelectorsByUserType[userType]
-			forms[formType][userType] = genericFormHandler(userTypeFormSelector, formConfiguration)
-			if (formType == 'create' || formType == 'edit') {
-				forms[formType][userType].find(`[name="organization"][hidden]`).closest('.field').hide()
-			}
+	for (const formMode in usersFormsSelectors) {
+		forms[formMode] = genericFormHandler(usersFormsSelectors[formMode], formConfiguration)
+		if (formMode == 'create' || formMode == 'edit') {
+			forms[formMode].find(`[name="organization"][hidden]`).closest('.field').hide()
 		}
 	}
 

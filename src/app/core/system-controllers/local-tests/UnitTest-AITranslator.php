@@ -22,6 +22,7 @@ use PiecesPHP\Mcp\Assistant;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -76,7 +77,7 @@ CliActions::make('unit-tests:core/ai-translator', function ($args) {
     $rolActual = new \ReflectionProperty(Roles::class, 'currentRole');
     $rolAntes = $rolActual->getValue();
     $acumulado = GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
-    $encendida = ['enabled' => true, 'userTypes' => array_keys(UsersModel::TYPES_USERS), 'quota' => 0];
+    $encendida = ['enabled' => true, 'userTypes' => UserTypes::codes(), 'quota' => 0];
 
     try {
         //─── 1 · El prompt ───────────────────────────────────────────────────────────────────────

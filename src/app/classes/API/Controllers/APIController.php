@@ -52,6 +52,7 @@ use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
@@ -1255,7 +1256,7 @@ class APIController extends AdminPanelController
             $parsedBody['type'] = (string) $userType;
             $parsedBody['status'] = (string) UsersModel::STATUS_USER_APPROVED_PENDING;
 
-            //P39: el -10 solo vale de defecto para TYPES_USER_DONT_REQUIRE_ORGANIZATION, y aquí no se admite ninguno
+            //P39: el -10 solo vale de defecto para los tipos sin organización (UserTypes::requiresOrganization()), y aquí no se admite ninguno
             //de esos tipos: sin organización el alta falla con su mensaje —lo dice register()— y queda en el log.
             if (!array_key_exists('organization', $parsedBody)) {
                 log_exception(new \RuntimeException(
@@ -1740,7 +1741,7 @@ class APIController extends AdminPanelController
      */
     public static function translationUserTypes($option): array
     {
-        $known = array_keys(UsersModel::TYPES_USERS);
+        $known = UserTypes::codes();
         if ($option === false || $option === null) {
             return $known;
         }
@@ -1809,9 +1810,9 @@ class APIController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //Permisos
 

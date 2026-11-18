@@ -18,7 +18,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\MailCatalog\Definitions\ApiUserCreatedMail;
 use PiecesPHP\MailCatalog\Definitions\RecoveryPasswordMail;
 use PiecesPHP\MailCatalog\MailCatalog;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * APIRoutes.
@@ -67,7 +67,7 @@ class APIRoutes
                     fn(): string => __(APILang::LANG_GROUP, 'Traducción con IA'),
                     AICapability::PROVIDER_CHAT,
                     true,
-                    array_keys(UsersModel::TYPES_USERS),
+                    UserTypes::codes(),
                     0,
                     AICapability::PERIOD_ACCUMULATED,
                     //Lo de antes del centro (hasta la 11.0.0): la casilla y quién traduce. La cuota de Configuración › IA no se

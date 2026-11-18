@@ -13,6 +13,7 @@ use PiecesPHP\Core\DataTransfer\Source\ArrayRowSource;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 
 CliActions::make('unit-tests:core/users-import', function ($args) {
 
@@ -237,7 +238,7 @@ CliActions::make('unit-tests:core/users-import', function ($args) {
 
         //b5: un tipo que NO requiere organización no la necesita. Por la vía normal es inalcanzable —IMPORTABLE_TYPES
         //solo deja el usuario general—, así que se comprueba donde vive la regla: persist().
-        $check(!in_array(UsersModel::TYPE_USER_GENERAL, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION) && UsersImportDefinition::IMPORTABLE_TYPES === [UsersModel::TYPE_USER_GENERAL], 'b5 el único tipo importable SÍ requiere organización: por la vía normal no hay caso exento');
+        $check(UserTypes::requiresOrganization(UsersModel::TYPE_USER_GENERAL) && UsersImportDefinition::IMPORTABLE_TYPES === [UsersModel::TYPE_USER_GENERAL], 'b5 el único tipo importable SÍ requiere organización: por la vía normal no hay caso exento');
         $sinRequerir = new \PiecesPHP\Core\DataTransfer\Import\ParsedRow(1, ['username' => "{$prefijo}-tr1", 'email' => "{$prefijo}-tr1@example.com", 'firstname' => 'Zz', 'secondname' => null, 'first_lastname' => 'Prueba', 'second_lastname' => null, 'password' => null, 'type' => (string) UsersModel::TYPE_USER_ROOT, 'organization' => null]);
         $errorExento = null;
         try {

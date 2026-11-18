@@ -21,7 +21,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\Geo\GeoSourceRegistry;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * OrganizationsRoutes.
@@ -106,7 +106,7 @@ class OrganizationsRoutes
              */
             $sidebar = get_sidebar_menu();
 
-            $dontRequireOrganization = in_array($currentUserType, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION);
+            $dontRequireOrganization = !UserTypes::requiresOrganization((int) $currentUserType);
 
             if ($dontRequireOrganization) {
                 $sidebar->addItem(new MenuGroup([

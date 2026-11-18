@@ -40,7 +40,7 @@ En orden:
    log 1), cuadra en los dos sentidos. Trampa: `->operation(...)` suelto tras `setMessage()` no hace nada (PHPStan).
    **P61 (`82d95543`)**: el `foundHandler` de `src/app/config/containers.php` YA NO escribe
    `OrganizationMapper::INITIAL_ID_GLOBAL` al usuario logueado sin organización. Si su tipo no la requiere
-   (`TYPES_USER_DONT_REQUIRE_ORGANIZATION`), no pasa nada; si la requiere, se anota el defecto con `log_exception()` —una
+   (`UserTypes::requiresOrganization()` en falso), no pasa nada; si la requiere, se anota el defecto con `log_exception()` —una
    vez por sesión vía `SessionDataHandler`, y **solo si ya hay sesión activa**, porque su constructor llama a
    `session_start()` y navegar no puede abrir una sesión que no existía—. Suite `core/organization-default` (13), que
    corre el middleware REAL sacado de `get_router()->getDI()->get('foundHandler')`; provocada. Censo del 2026-09-22: 66

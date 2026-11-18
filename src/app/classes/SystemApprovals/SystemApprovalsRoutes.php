@@ -59,7 +59,7 @@ class SystemApprovalsRoutes
             //Su tarjeta del inicio del panel, después del idioma: su título se traduce al registrarse.
             SystemApprovalsController::registerDashboardCard();
             //Quien debe tener perfil entra (aprobado) a completarlo; un proyecto lo cambia con replace().
-            foreach (\PiecesPHP\UserSystem\ORM\UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE as $profileType) {
+            foreach (\PiecesPHP\UserSystem\UserTypes::profileTypes() as $profileType) {
                 \PiecesPHP\AdminPanel\HomeDestinationRegistry::register($profileType, fn(Request $request, Response $response): Response => $response->withRedirect(\MySpace\Controllers\MyProfileController::routeName('my-profile')));
             }
 

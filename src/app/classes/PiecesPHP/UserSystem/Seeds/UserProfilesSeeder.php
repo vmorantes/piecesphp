@@ -11,6 +11,7 @@ use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\App\Locations\Mappers\StateMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
 
@@ -18,7 +19,7 @@ use Terminal\Seeding\SeedContext;
  * UserProfilesSeeder.
  *
  * El perfil COMPLETO (`UserProfileMapper::profileIsComplete()`) de cada usuario sembrado de un tipo de
- * TYPES_USER_SHOULD_HAVE_PROFILE, para que el Directorio y los perfiles públicos se vean poblados. Con la
+ * UserTypes::profileTypes(), para que el Directorio y los perfiles públicos se vean poblados. Con la
  * cantidad por defecto son exactamente esos; con otra, se completa con los demás usuarios sembrados.
  *
  * Tiene que sembrarse aquí: los usuarios sembrados se escriben sin pasar por el alta, que es la que crea el perfil
@@ -133,7 +134,7 @@ class UserProfilesSeeder extends ModuleSeeder
      */
     public static function profileTypes(): array
     {
-        return array_values(array_filter(UsersSeeder::types(), static fn (int $type): bool => in_array($type, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE, true)));
+        return array_values(array_filter(UsersSeeder::types(), static fn (int $type): bool => UserTypes::shouldHaveProfile($type)));
     }
 
     /**

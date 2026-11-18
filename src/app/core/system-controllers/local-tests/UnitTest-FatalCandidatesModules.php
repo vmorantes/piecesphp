@@ -1,6 +1,6 @@
 <?php
 
-//Los posibles 500 de fatal-candidates fuera del núcleo: adaptadores de IA sin cliente, glob() que da false y los scripts sin $argv.
+//Los posibles 500 de fatal-candidates fuera del núcleo: adaptadores de IA sin cliente y glob() que da false.
 //Sin red ni gasto: el cliente se anula en proceso y nada llega a OpenAI, Mistral ni Groq.
 //@areas nucleo
 //@areas src/app/classes/API/
@@ -113,7 +113,7 @@ CliActions::make('unit-tests:core/fatal-candidates-modules', function ($args) {
     }
     $check($clase === '' && $avisosForeach === 0, 'b2 FixWebmDuration: con glob() en false no hay foreach sobre false', "{$clase}: {$mensaje}; avisos de foreach: {$avisosForeach}");
 
-    //c. Los scripts sueltos, en su propio proceso: sin $argv paran con su mensaje; el webm con glob() en false no recorre.
+    //c. El script suelto del webm, en su propio proceso: con glob() en false no recorre.
     $raiz = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
     $ejecuta = function (string $comando): array {
         $tuberias = [];
@@ -133,13 +133,10 @@ CliActions::make('unit-tests:core/fatal-candidates-modules', function ($args) {
     [$codigo, $texto] = $ejecuta("{$php} " . escapeshellarg("{$raiz}/files/CliScripts/CorregirTiempoDuraciónWebm.php") . ' ' . escapeshellarg("--updir={$temporal}") . ' --absolute ' . escapeshellarg("--glob={$largo}"));
     $check(!str_contains($texto, 'foreach()'), 'c1 CorregirTiempoDuraciónWebm: con glob() en false no hay foreach sobre false', "código {$codigo}: " . mb_substr($texto, 0, 300));
 
-    [$codigo, $texto] = $ejecuta("{$php} -r " . escapeshellarg('unset($argv, $argc); include ' . var_export("{$raiz}/files/CliScripts/GeneradorIntegralTipoUsuario.php", true) . ';'));
-    $check($codigo === 1 && str_contains($texto, 'Solo se ejecuta por terminal.'), 'c2 GeneradorIntegralTipoUsuario sin $argv para con su mensaje y código 1', "código {$codigo}: " . mb_substr($texto, 0, 300));
-
     //RETORNO-IGNORADO: z1 comprueba justo después que el directorio no quede.
     rmdir($temporal);
     $check(!file_exists($temporal), 'z1 el directorio temporal no queda');
 
     return $balance();
 
-})->setDescription('Los posibles 500 de fatal-candidates fuera del núcleo: adaptadores de IA sin cliente, glob() en false y scripts sin $argv. Sin red.')->setEffects([CliActions::EFFECT_FILES])->register();
+})->setDescription('Los posibles 500 de fatal-candidates fuera del núcleo: adaptadores de IA sin cliente y glob() en false. Sin red.')->setEffects([CliActions::EFFECT_FILES])->register();

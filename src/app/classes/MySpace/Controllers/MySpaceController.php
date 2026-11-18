@@ -25,6 +25,7 @@ use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\SystemApprovalsRoutes;
 use SystemApprovals\Util\Packages\UsersApprovalHandler;
 use SystemApprovals\Util\SystemApprovalManager;
@@ -391,9 +392,9 @@ class MySpaceController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         $routes = [
 

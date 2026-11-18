@@ -18,7 +18,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
-use PiecesPHP\UserSystem\ORM\UsersModel;
+use PiecesPHP\UserSystem\UserTypes;
 
 /**
  * BuiltInBannerPublicController.
@@ -116,9 +116,9 @@ class BuiltInBannerPublicController extends BaseController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $all_roles = UserTypes::codes();
 
         $routes = [
 

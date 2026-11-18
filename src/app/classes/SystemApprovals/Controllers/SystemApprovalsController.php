@@ -42,6 +42,7 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Mappers\PublicationMapper;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
@@ -496,11 +497,11 @@ class SystemApprovalsController extends AdminPanelController
             new HavingItem('referenceOrtanizationApprovalValue', HavingItem::NOT_EQUAL_OPERATOR, $approved, HavingItem::AND_OPERATOR),
         ]));
 
-        //La autoridad sobre el tipo, como canManage(), en LISTA BLANCA: un tipo fuera de TYPES_USERS no se lista. Un `=` por
+        //La autoridad sobre el tipo, como canManage(), en LISTA BLANCA: un tipo sin etiqueta en UserTypes no se lista. Un `=` por
         //tipo (IN no va por marcador): (no es un perfil) OR (tipo = a) OR (tipo = b)…
         $actorModel = new UsersModel((int) $currentUserID);
         $authorityItems = [new HavingItem("{$table}.referenceTable", HavingItem::NOT_EQUAL_OPERATOR, $tableUsers, HavingItem::OR_OPERATOR)];
-        foreach (array_keys(UsersModel::TYPES_USERS) as $type) {
+        foreach (UserTypes::codes() as $type) {
             if ($actorModel->hasAuthorityOver($type)) {
                 $authorityItems[] = new HavingItem('referenceUserType', HavingItem::EQUAL_OPERATOR, $type, HavingItem::OR_OPERATOR);
             }
@@ -634,8 +635,8 @@ class SystemApprovalsController extends AdminPanelController
         //administrador general, como no puede editarlos.
         if ((string) $element->referenceTable === UsersModel::TABLE) {
             $subject = new UsersModel((int) $element->referenceValue);
-            //Lista blanca, como el listado: un tipo fuera de TYPES_USERS no se resuelve, tampoco por id.
-            if ($subject->id === null || !array_key_exists((int) $subject->type, UsersModel::TYPES_USERS) || !(new UsersModel((int) $user->id))->hasAuthorityOver((int) $subject->type)) {
+            //Lista blanca, como el listado: un tipo sin etiqueta en UserTypes no se resuelve, tampoco por id.
+            if ($subject->id === null || !array_key_exists((int) $subject->type, UserTypes::labels()) || !(new UsersModel((int) $user->id))->hasAuthorityOver((int) $subject->type)) {
                 return false;
             }
         }
@@ -844,9 +845,9 @@ class SystemApprovalsController extends AdminPanelController
         $classname = self::class;
 
         /**
-         * @var array<string>
+         * @var int[]
          */
-        $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = UserTypes::codes();
 
         //Permisos
         $list = $allRoles;
