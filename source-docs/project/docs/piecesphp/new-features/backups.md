@@ -102,6 +102,10 @@ llama el cronjob: un fallo repetido no puede llevarse los respaldos buenos.
 no tiene nombre de respaldo, así que no cuenta como el último (el siguiente intento no espera un intervalo entero) ni
 entra en la rotación. La rotación tampoco lo borra: se borra a mano.
 
+**Al pasar a estos respaldos desde una tarea propia**, copia antes aparte los volcados que ya tengas en `src/dumps/`: la
+rotación reconoce cualquier archivo con el formato de nombre de un respaldo y poda los que no entren en la política,
+aunque no los haya creado ella.
+
 ### Verlo sin borrar nada
 
 ```bash

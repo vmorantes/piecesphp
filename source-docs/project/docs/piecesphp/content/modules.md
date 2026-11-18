@@ -245,6 +245,11 @@ protected static function handlerUpload(?string $nameOnFiles, string $folder, ?s
 - `upload()` devuelve la ruta relativa que se guarda en el registro, o `''` si no llegó archivo: en una edición, quédate
   entonces con la ruta que ya tenía.
 - `FormUploadRejectedException` se convierte en la `SafeException` del módulo para que el mensaje llegue a quien sube.
+- **Los tipos de archivo** son constantes de `FileValidator` (`TYPE_PDF`, `TYPE_DOCX`, `TYPE_XLSX`, `TYPE_ALL_IMAGES`…), y
+  el validador comprueba el contenido, no solo la extensión. Desde la 10.47.0 hay tres más, **que solo acepta un campo que
+  los pida**: `TYPE_PPT`, `TYPE_PPTX` y `TYPE_ZIP`, por ejemplo
+  `[FileValidator::TYPE_PDF, FileValidator::TYPE_PPTX, FileValidator::TYPE_ZIP]`. Un ZIP tiene que empezar como un ZIP y
+  llamarse `.zip`; el servidor nunca lo abre. `TYPE_PPTX`, como `TYPE_DOCX`, no garantiza que el archivo no lleve macros.
 
 ## 9. Registrarlo
 

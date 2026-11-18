@@ -224,6 +224,11 @@ class LogsMapper extends EntityMapperExtensible
         if (array_key_exists($code, self::messages())) {
             throw new \LogicException(strReplaceTemplate(__(self::LANG_GROUP, 'El tipo de mensaje «%code%» ya existe.'), ['%code%' => $code]));
         }
+        //El tipo de una fila se reconoce por su texto (LogsController): dos tipos con el mismo texto se confundirían.
+        $sameText = array_search($text, self::messages(), true);
+        if (is_string($sameText)) {
+            throw new \LogicException(strReplaceTemplate(__(self::LANG_GROUP, 'El texto del tipo «%code%» ya lo tiene el tipo «%other%».'), ['%code%' => $code, '%other%' => $sameText]));
+        }
         self::$registeredMessages[$code] = $text;
     }
 
@@ -296,14 +301,14 @@ class LogsMapper extends EntityMapperExtensible
     }
 
     /**
-     * El nombre de cada tipo, ya traducido, para el filtro y el detalle del registro de acciones. Un tipo sin nombre sale
-     * con su clave.
+     * El nombre de cada tipo, ya traducido, para el filtro y el detalle del registro de acciones. Un tipo declarado con
+     * registerMessage() se nombra con su texto traducido y «…» en cada hueco (H367).
      *
      * @return array<string,string>
      */
     public static function messageLabels(): array
     {
-        return [
+        $labels = [
             self::MSG_GENERIC => __(self::LANG_GROUP, 'Mensaje libre'),
             self::MSG_UPDATE_PROFILE => __(self::LANG_GROUP, 'Perfil actualizado'),
             self::MSG_UPDATE_PROFILE_IMAGE => __(self::LANG_GROUP, 'Imagen de perfil actualizada'),
@@ -334,6 +339,11 @@ class LogsMapper extends EntityMapperExtensible
             self::MSG_TOKEN_INVALIDATED => __(self::LANG_GROUP, 'Código invalidado'),
             self::MSG_TWO_FACTOR_RESET => __(self::LANG_GROUP, 'Doble factor restablecido'),
         ];
+        foreach (self::$registeredMessages as $code => $text) {
+            $label = (string) preg_replace('/%[A-Za-z0-9_]+%/', '…', __(self::LANG_GROUP, $text));
+            $labels[$code] = trim((string) preg_replace('/\s+/', ' ', $label));
+        }
+        return $labels;
     }
 
     /**

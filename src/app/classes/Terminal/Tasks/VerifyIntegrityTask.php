@@ -556,8 +556,23 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
 
+        //──── El código propio de un clon (H366): línea base SOLO para las reglas de estilo ─
+        $styleFailures = ['COMENTARIO' => $narrativeFailures, 'COLOR SUELTO' => $looseColorFailures, 'STYLE EN VISTA' => $inlineStyleFailures, 'ORDEN' => $orderFailures];
+        if (TerminalData::instance()->getArgument('update-clone-baseline', 'no') === 'yes') {
+            exit(self::writeCloneBaseline($styleFailures) ? 0 : 1);
+        }
+        [$styleFailures, $cloneFailures] = self::applyCloneBaseline($styleFailures);
+        $frameworkWithClone = self::frameworkHasCloneBaseline(Distribution::root());
+        if ($frameworkWithClone !== null) {
+            $cloneFailures[] = $frameworkWithClone;
+        }
+        $narrativeFailures = $styleFailures['COMENTARIO'];
+        $looseColorFailures = $styleFailures['COLOR SUELTO'];
+        $inlineStyleFailures = $styleFailures['STYLE EN VISTA'];
+        $orderFailures = $styleFailures['ORDEN'];
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
-        $failures = count($sealedFailures) + count($docblockFailures) + count($signatureFailures)
+        $failures = count($cloneFailures) + count($sealedFailures) + count($docblockFailures) + count($signatureFailures)
          + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
          + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
          + count($executableFailures) + count($typeFailures) + count($volatileFailures)
@@ -579,6 +594,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
          + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures);
 
+        foreach ($cloneFailures as $line) {
+            echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
+        }
         foreach ($returnFailures as $line) {
             echoTerminal("\e[31mRETORNO:\e[39m {$line}");
         }
@@ -1375,6 +1393,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      *
      * @var array<string,string>
      */
+    /** La línea base del código propio de un clon (H366): la crea el clon con update-clone-baseline=yes; en el framework no existe. */
+    const CLONE_BASELINE_RELATIVE_PATH = 'files/clone/verify-integrity.json';
+    /** Las reglas de estilo que admite esa línea base. Las de funcionamiento y seguridad nunca. */
+    const CLONE_STYLE_RULES = ['COMENTARIO', 'COLOR SUELTO', 'STYLE EN VISTA', 'ORDEN'];
+
     const KNOWN_ROUTE_OVERRIDES = [
         //──── Propiedad del recurso ────────────────────────────────────────────────────
         'News\\Controllers\\NewsController::_allowedRoute' => 'actions-delete: solo el creador, o los tipos de NewsMapper::CAN_DELETE_ALL.',
@@ -1395,6 +1418,203 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         'News\\Controllers\\NewsCategoryController::_allowedRoute' => 'actions-delete: impide borrar la categoría UNCATEGORIZED_ID, a la que caen las noticias sin categoría.',
         'Publications\\Controllers\\PublicationsCategoryController::_allowedRoute' => 'actions-delete: impide borrar la categoría UNCATEGORIZED_ID.',
     ];
+
+    /**
+     * La línea base del clon (H366): `estilo` (regla => archivo => cifra) y `sobreescrituras` (`Clase::método` => motivo), y
+     * lo que no se pudo leer. Sin archivo, todo vacío y nada cambia. `PCSPHP_CLONE_BASELINE` cambia la ruta (las pruebas).
+     *
+     * @return array{existe:bool,ruta:string,estilo:array<string,array<string,int>>,sobreescrituras:array<string,string>,errores:string[]}
+     */
+    protected static function cloneBaseline(): array
+    {
+        $path = getenv('PCSPHP_CLONE_BASELINE') ?: Distribution::root() . '/' . self::CLONE_BASELINE_RELATIVE_PATH;
+        $result = ['existe' => is_file($path), 'ruta' => $path, 'estilo' => [], 'sobreescrituras' => [], 'errores' => []];
+        if (!$result['existe']) {
+            return $result;
+        }
+        $data = json_decode((string) file_get_contents($path), true);
+        if (!is_array($data)) {
+            $result['errores'][] = "{$path} no es JSON válido: la línea base del clon no se aplica";
+            return $result;
+        }
+        foreach ((array) ($data['estilo'] ?? []) as $rule => $files) {
+            if (!in_array($rule, self::CLONE_STYLE_RULES, true)) {
+                $result['errores'][] = "{$path}: «{$rule}» no es una regla de estilo; solo admite " . implode(', ', self::CLONE_STYLE_RULES);
+                continue;
+            }
+            foreach ((array) $files as $file => $count) {
+                if (is_string($file) && is_int($count) && $count > 0) {
+                    $result['estilo'][$rule][$file] = $count;
+                }
+            }
+        }
+        foreach ((array) ($data['sobreescrituras_de_ruta'] ?? []) as $key => $reason) {
+            if (!is_string($key) || preg_match('/^[\\\\\w]+::(routeName|allowedRoute|_allowedRoute)$/', $key) !== 1 || !is_string($reason) || trim($reason) === '') {
+                $result['errores'][] = "{$path}: la sobreescritura «" . (is_string($key) ? $key : '?') . '» necesita la forma Clase::routeName|allowedRoute|_allowedRoute y su motivo';
+                continue;
+            }
+            $result['sobreescrituras'][$key] = $reason;
+        }
+        return $result;
+    }
+
+    /**
+     * El repositorio del framework (se reconoce por bin/distribution-exclude.txt, que no viaja) no puede tener la línea base
+     * de un proyecto: escondería sus propios fallos de estilo. El mensaje, o null si no pasa.
+     *
+     * @param string $root La raíz del repositorio
+     * @return string|null
+     */
+    protected static function frameworkHasCloneBaseline(string $root): ?string
+    {
+        if (!is_file($root . '/' . self::CLONE_BASELINE_RELATIVE_PATH) || !is_file($root . '/bin/distribution-exclude.txt')) {
+            return null;
+        }
+        return self::CLONE_BASELINE_RELATIVE_PATH . ' es de un proyecto, no del framework: este repositorio es el del framework'
+            . ' (tiene bin/distribution-exclude.txt) y sus fallos de estilo no se congelan. Quita el archivo.';
+    }
+
+    /**
+     * El archivo y la cifra de un fallo de estilo, o null si la línea no es de un archivo (un resumen).
+     *
+     * @param string $rule
+     * @param string $line
+     * @return array{0:string,1:int}|null
+     */
+    protected static function cloneStyleEntry(string $rule, string $line): ?array
+    {
+        return match ($rule) {
+            'ORDEN', 'COLOR SUELTO' => preg_match('/^(\S+?):\d+ — /u', $line, $m) === 1 ? [$m[1], 1] : null,
+            'COMENTARIO' => preg_match('/^(\S+) — (?:\d+ bloque\(s\) narrativo\(s\), (\d+) líneas de prosa|la prosa narrativa CRECIÓ de \d+ a (\d+) líneas)/u', $line, $m) === 1
+                ? [$m[1], (int) (($m[3] ?? '') !== '' ? $m[3] : ($m[2] ?? '0'))] : null,
+            'STYLE EN VISTA' => preg_match('/^(\S+): \d+ -> (\d+)$/u', $line, $m) === 1 ? [$m[1], (int) $m[2]] : null,
+            default => null,
+        };
+    }
+
+    /**
+     * La cifra de cada archivo en los fallos de una regla de estilo: ORDEN y COLOR SUELTO cuentan líneas; COMENTARIO, las
+     * líneas de prosa; STYLE EN VISTA, los style=".
+     *
+     * @param string $rule
+     * @param string[] $lines
+     * @return array<string,int>
+     */
+    protected static function cloneStyleCounts(string $rule, array $lines): array
+    {
+        $counts = [];
+        foreach ($lines as $line) {
+            $entry = self::cloneStyleEntry($rule, $line);
+            if ($entry !== null) {
+                $counts[$entry[0]] = in_array($rule, ['ORDEN', 'COLOR SUELTO'], true) ? ($counts[$entry[0]] ?? 0) + $entry[1] : max($counts[$entry[0]] ?? 0, $entry[1]);
+            }
+        }
+        ksort($counts);
+        return $counts;
+    }
+
+    /**
+     * Aplica la línea base del clon a los fallos de estilo: por regla y por archivo, lo que no supera la cifra congelada no
+     * falla; lo que la supera, o un archivo que no está, sí. Lo que baja avisa para regenerar. Devuelve los fallos de estilo
+     * que quedan y los del propio archivo.
+     *
+     * @param array<string,string[]> $styleFailures
+     * @return array{0:array<string,string[]>,1:string[]}
+     */
+    protected static function applyCloneBaseline(array $styleFailures): array
+    {
+        $baseline = self::cloneBaseline();
+        if (!$baseline['existe']) {
+            return [$styleFailures, []];
+        }
+        $suppressed = 0;
+        $lower = [];
+        foreach ($styleFailures as $rule => $lines) {
+            $frozen = $baseline['estilo'][$rule] ?? [];
+            $counts = self::cloneStyleCounts($rule, $lines);
+            $kept = [];
+            $keptFile = false;
+            foreach ($lines as $line) {
+                $entry = self::cloneStyleEntry($rule, $line);
+                if ($entry === null) {
+                    continue;
+                }
+                $now = $counts[$entry[0]];
+                if (isset($frozen[$entry[0]]) && $now <= $frozen[$entry[0]]) {
+                    $suppressed++;
+                    continue;
+                }
+                $kept[] = $line . (isset($frozen[$entry[0]]) ? " [línea base del clon: {$frozen[$entry[0]]}; ahora {$now}]" : '');
+                $keptFile = true;
+            }
+            //Las líneas que no son de un archivo (el resumen de un censo) siguen si queda algún fallo de archivo en la regla.
+            foreach ($lines as $line) {
+                if (self::cloneStyleEntry($rule, $line) === null && ($keptFile || $counts === [])) {
+                    $kept[] = $line;
+                }
+            }
+            foreach ($frozen as $file => $count) {
+                if (($counts[$file] ?? 0) < $count) {
+                    $lower[] = "{$rule} {$file}: {$count} -> " . ($counts[$file] ?? 0);
+                }
+            }
+            $styleFailures[$rule] = $kept;
+        }
+        echoTerminal("\e[94mINFO:\e[39m línea base del clon ({$baseline['ruta']}): {$suppressed} fallo(s) de estilo congelado(s) en "
+            . implode(', ', self::CLONE_STYLE_RULES) . '; ' . count($baseline['sobreescrituras']) . ' sobreescritura(s) de ruta del clon.');
+        if ($lower !== []) {
+            echoTerminal("\e[33mAVISO:\e[39m la línea base del clon BAJA en " . count($lower) . ' archivo(s): ' . implode('; ', $lower)
+                . '. Regenera con bin/cli verify-integrity update-clone-baseline=yes');
+        }
+        return [$styleFailures, $baseline['errores']];
+    }
+
+    /**
+     * Escribe la línea base del clon con los fallos de estilo de ahora y conserva sus sobreescrituras de ruta.
+     *
+     * @param array<string,string[]> $styleFailures
+     * @return bool
+     */
+    protected static function writeCloneBaseline(array $styleFailures): bool
+    {
+        $baseline = self::cloneBaseline();
+        if ($baseline['errores'] !== []) {
+            foreach ($baseline['errores'] as $error) {
+                echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$error}");
+            }
+            echoTerminal("\e[31mNo se escribe: arregla primero el archivo.\e[39m");
+            return false;
+        }
+        $style = [];
+        foreach (self::CLONE_STYLE_RULES as $rule) {
+            $counts = self::cloneStyleCounts($rule, $styleFailures[$rule] ?? []);
+            if ($counts !== []) {
+                $style[$rule] = $counts;
+            }
+        }
+        $previous = $baseline['existe'] ? json_decode((string) file_get_contents($baseline['ruta']), true) : [];
+        $document = [
+            'medido' => [
+                'fecha' => date('Y-m-d H:i'),
+                'metodo' => 'bin/cli verify-integrity update-clone-baseline=yes: los fallos de ' . implode(', ', self::CLONE_STYLE_RULES)
+                    . ' por archivo (ORDEN y COLOR SUELTO, líneas; COMENTARIO, líneas de prosa; STYLE EN VISTA, style=")',
+            ],
+            'estilo' => (object) $style,
+            'sobreescrituras_de_ruta' => (object) (is_array($previous['sobreescrituras_de_ruta'] ?? null) ? $previous['sobreescrituras_de_ruta'] : []),
+        ];
+        $directory = dirname($baseline['ruta']);
+        if (!is_dir($directory) && !mkdir($directory, 0775, true)) {
+            echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m no se pudo crear {$directory}");
+            return false;
+        }
+        $json = json_encode($document, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+        if (!is_string($json) || file_put_contents($baseline['ruta'], $json . "\n") === false) {
+            echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m no se pudo escribir {$baseline['ruta']}");
+            return false;
+        }
+        echoTerminal("\e[34mLínea base del clon escrita:\e[39m " . array_sum(array_map('count', $style)) . " archivo(s) con fallos de estilo en {$baseline['ruta']}.");
+        return true;
+    }
 
     /**
      * Comprueba las sobreescrituras de `routeName`, `allowedRoute` y `_allowedRoute`.
@@ -1437,6 +1657,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $found = [];
         $plantillas = 0;
+        //Las del clon (H366) entran con las mismas reglas: registradas con su motivo y con el mismo clasificador.
+        $known = self::KNOWN_ROUTE_OVERRIDES + self::cloneBaseline()['sobreescrituras'];
 
         foreach ($files as $relative) {
             $relative = str_replace('\\', '/', $relative);
@@ -1471,9 +1693,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue;
                 }
 
-                if (!array_key_exists($key, self::KNOWN_ROUTE_OVERRIDES)) {
+                if (!array_key_exists($key, $known)) {
                     $failures[] = $key . ' — sobreescribe un método del trait sin estar registrado.'
-                        . ' Si decide algo, va a KNOWN_ROUTE_OVERRIDES con su razón; si no, se borra.';
+                        . ' Si decide algo, va a KNOWN_ROUTE_OVERRIDES con su razón (en un clon, a «sobreescrituras_de_ruta» de '
+                        . self::CLONE_BASELINE_RELATIVE_PATH . '); si no, se borra.';
                     continue;
                 }
                 //UN CUERPO INERTE NO SIGNIFICA UN MÉTODO INERTE si lo que llama está
@@ -1503,9 +1726,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
 
-        foreach (self::KNOWN_ROUTE_OVERRIDES as $key => $reason) {
+        foreach ($known as $key => $reason) {
             if (!array_key_exists($key, $found)) {
-                $failures[] = $key . ' — figura en KNOWN_ROUTE_OVERRIDES pero ya no se declara. Retira la entrada.';
+                $failures[] = $key . ' — figura en ' . (array_key_exists($key, self::KNOWN_ROUTE_OVERRIDES) ? 'KNOWN_ROUTE_OVERRIDES' : self::CLONE_BASELINE_RELATIVE_PATH)
+                    . ' pero ya no se declara. Retira la entrada.';
             }
         }
 
@@ -3250,6 +3474,69 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
+     * Los módulos apagados de esta instalación (H364) y los prefijos de los nombres de sus rutas: cada clase `*Routes` de
+     * `src/app/classes` con `ENABLE` en falso apaga su carpeta, y los nombres salen del `$baseRouteName` de los controladores
+     * de esa carpeta y del nombre de la propia clase `*Routes` (el de sus estáticos). Se lee el código, sin registrar nada.
+     *
+     * @return array<string,string[]> Clase `*Routes` => prefijos
+     */
+    protected static function offModuleRoutePrefixes(): array
+    {
+        static $cache = null;
+        if (is_array($cache)) {
+            return $cache;
+        }
+        $cache = [];
+        $classesRoot = rtrim(str_replace('\\', '/', basepath('app/classes')), '/');
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($classesRoot, \FilesystemIterator::SKIP_DOTS));
+        foreach ($iterator as $file) {
+            $path = str_replace('\\', '/', (string) $file);
+            if (!str_ends_with($path, 'Routes.php')) {
+                continue;
+            }
+            $source = (string) file_get_contents($path);
+            if (preg_match('/^namespace\s+([^;]+);/m', $source, $namespace) !== 1 || preg_match('/^class\s+(\w+)/m', $source, $class) !== 1 || !str_contains($source, 'const ENABLE')) {
+                continue;
+            }
+            $routesClass = trim($namespace[1]) . '\\' . $class[1];
+            if (!class_exists($routesClass) || !defined($routesClass . '::ENABLE') || constant($routesClass . '::ENABLE') !== false) {
+                continue;
+            }
+            $prefixes = [$routesClass];
+            $moduleIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(dirname($path), \FilesystemIterator::SKIP_DOTS));
+            foreach ($moduleIterator as $moduleFile) {
+                if (!str_ends_with((string) $moduleFile, '.php')) {
+                    continue;
+                }
+                if (preg_match_all('/static\s+\$baseRouteName\s*=\s*[\'"]([^\'"]+)[\'"]/', (string) file_get_contents((string) $moduleFile), $names) > 0) {
+                    $prefixes = array_merge($prefixes, $names[1]);
+                }
+            }
+            $cache[$routesClass] = array_values(array_unique($prefixes));
+        }
+        ksort($cache);
+        return $cache;
+    }
+
+    /**
+     * La clase `*Routes` del módulo apagado al que pertenece un nombre de ruta, o null si no es de ninguno (H364).
+     *
+     * @param string $routeName
+     * @return string|null
+     */
+    protected static function offModuleOfRoute(string $routeName): ?string
+    {
+        foreach (self::offModuleRoutePrefixes() as $routesClass => $prefixes) {
+            foreach ($prefixes as $prefix) {
+                if ($routeName === $prefix || str_starts_with($routeName, $prefix . '-')) {
+                    return $routesClass;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * 61. El manual de usuario (ADR 0072): toda ruta que cita un capítulo, en `rutas` y en `ve`, existe; los marcadores de sección de sus
      * fuentes (`<!-- ve: … -->`, H182) están tras un `##`, bien formados y con rutas del capítulo que existen; y la cifra de pantallas del
      * panel sin capítulo solo baja (trinquete en `manual-coverage-baseline.json`).
@@ -3273,12 +3560,27 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             return ['no se pudo leer el índice del manual o las rutas: la comprobación no miró nada'];
         }
 
-        //a) Toda ruta citada existe.
+        //a) Toda ruta citada existe. La de un módulo apagado no aplica (H364): se cuenta y no falla.
         $failures = [];
         $covered = [];
+        $notApplicable = [];
+        $offModule = static function ($routeName) use ($routes, &$notApplicable): bool {
+            if (!is_string($routeName) || array_key_exists($routeName, $routes)) {
+                return false;
+            }
+            $module = self::offModuleOfRoute($routeName);
+            if ($module === null) {
+                return false;
+            }
+            $notApplicable[$module][$routeName] = true;
+            return true;
+        };
         foreach ($index as $chapter) {
             $cited = is_array($chapter) ? ($chapter['rutas'] ?? []) : [];
             foreach (is_array($cited) ? $cited : [] as $routeName) {
+                if ($offModule($routeName)) {
+                    continue;
+                }
                 if (!is_string($routeName) || !array_key_exists($routeName, $routes)) {
                     $failures[] = 'el capítulo «' . ($chapter['slug'] ?? '?') . '» (' . ($chapter['idioma'] ?? '?') . ') cita la ruta «' . (is_string($routeName) ? $routeName : '?') . '», que no existe';
                     continue;
@@ -3288,6 +3590,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             //`ve` decide quién ve el capítulo: una ruta suya que no exista lo esconde a todos. No cubre: cubre `rutas`.
             $seenBy = is_array($chapter) ? ($chapter['ve'] ?? []) : [];
             foreach (is_array($seenBy) ? $seenBy : [] as $routeName) {
+                if ($offModule($routeName)) {
+                    continue;
+                }
                 if (!is_string($routeName) || !array_key_exists($routeName, $routes)) {
                     $failures[] = 'el capítulo «' . ($chapter['slug'] ?? '?') . '» (' . ($chapter['idioma'] ?? '?') . ') tiene en `ve` la ruta «' . (is_string($routeName) ? $routeName : '?') . '», que no existe';
                 }
@@ -3328,11 +3633,22 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 foreach (explode(', ', $marker[1]) as $routeName) {
                     if (!is_array($chapterRoutes) || !in_array($routeName, $chapterRoutes, true)) {
                         $failures[] = "{$where}: la sección nombra «{$routeName}», que no está en las `rutas` del capítulo";
+                    } elseif ($offModule($routeName)) {
+                        continue;
                     } elseif (!array_key_exists($routeName, $routes)) {
                         $failures[] = "{$where}: la sección nombra «{$routeName}», que no existe";
                     }
                 }
             }
+        }
+
+        if ($notApplicable !== []) {
+            $total = array_sum(array_map('count', $notApplicable));
+            echoTerminal("\e[94mINFO:\e[39m 61 manual: {$total} ruta(s) citada(s) no aplica(n), módulo apagado: " . implode(', ', array_map(
+                static fn (string $module, array $names): string => $module . ' (' . count($names) . ')',
+                array_keys($notApplicable),
+                $notApplicable
+            )) . '.');
         }
 
         //b) La cobertura: las pantallas sin capítulo.
@@ -3708,14 +4024,35 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 . ']. Se está leyendo solo lo declarado en la ruta, no las listas de roles.php.';
         }
 
-        //Canario de COBERTURA: la matriz por HTTP recorre 204 rutas. Si esta puerta trae esa cifra,
-        //está midiendo lo mismo y no cubre nada nuevo.
-        if (count($mapa) <= 300) {
-            $fallos[] = 'CANARIO CAÍDO: la línea base trae ' . count($mapa) . ' rutas y tendría que'
-                . ' traer más de 300. Con 204 se estaría midiendo lo mismo que la matriz por HTTP.';
+        //Canario de COBERTURA: con la cifra de la matriz HTTP (204) mediría lo mismo. Los módulos apagados bajan el suelo (H364).
+        $floor = 300 - self::offModuleRoutesInBaseline($mapa);
+        if (count($mapa) <= $floor) {
+            $fallos[] = 'CANARIO CAÍDO: la línea base trae ' . count($mapa) . " rutas y tendría que traer más de {$floor}"
+                . ' (300, menos las de los módulos apagados). Con 204 se estaría midiendo lo mismo que la matriz por HTTP.';
         }
 
         return $fallos;
+    }
+
+    /**
+     * Cuántas rutas de la línea base de permisos eran de un módulo hoy apagado y ya no están (H364). Sin línea base, 0.
+     *
+     * @param array<string,mixed> $mapa Lo de ahora
+     * @return int
+     */
+    protected static function offModuleRoutesInBaseline(array $mapa): int
+    {
+        $baseline = json_decode((string) @file_get_contents(self::declaredPermissionsPath()), true);
+        if (!is_array($baseline) || !is_array($baseline['rutas'] ?? null)) {
+            return 0;
+        }
+        $off = 0;
+        foreach (array_keys($baseline['rutas']) as $name) {
+            if (!array_key_exists((string) $name, $mapa) && self::offModuleOfRoute((string) $name) !== null) {
+                $off++;
+            }
+        }
+        return $off;
     }
 
     /**

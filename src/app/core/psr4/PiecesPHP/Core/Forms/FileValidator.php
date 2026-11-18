@@ -39,6 +39,10 @@ class FileValidator
     const TYPE_PDF = 'pdf';
     const TYPE_DOC = 'doc';
     const TYPE_DOCX = 'docx';
+    //PowerPoint y ZIP (H347): opcionales; ningún campo del framework los pide. Un ZIP se guarda y se descarga, nunca se abre.
+    const TYPE_PPT = 'ppt';
+    const TYPE_PPTX = 'pptx';
+    const TYPE_ZIP = 'zip';
 
     const TYPE_MP3 = 'mp3';
     const TYPE_OGG = 'ogg';
@@ -149,6 +153,16 @@ class FileValidator
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.ms-word.document.macroEnabled.12',
+        ],
+        self::TYPE_PPT => [
+            'application/vnd.ms-powerpoint',
+        ],
+        self::TYPE_PPTX => [
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ],
+        //libmagic da application/zip a cualquier archivo con el registro final de un ZIP: validate() exige además la firma.
+        self::TYPE_ZIP => [
+            'application/zip',
         ],
         self::TYPE_MP3 => [
             'audio/mpeg3',
@@ -270,6 +284,15 @@ class FileValidator
             'doc',
             'docm',
         ],
+        self::TYPE_PPT => [
+            'ppt',
+        ],
+        self::TYPE_PPTX => [
+            'pptx',
+        ],
+        self::TYPE_ZIP => [
+            'zip',
+        ],
         self::TYPE_MP3 => [
             'mp3',
         ],
@@ -329,6 +352,9 @@ class FileValidator
         self::TYPE_PDF => 'PDF',
         self::TYPE_DOC => 'DOC (Word)',
         self::TYPE_DOCX => 'DOCX (Word)',
+        self::TYPE_PPT => 'PPT (PowerPoint)',
+        self::TYPE_PPTX => 'PPTX (PowerPoint)',
+        self::TYPE_ZIP => 'ZIP',
         self::TYPE_MP3 => 'MP3',
         self::TYPE_OGG => 'OGG',
         self::TYPE_WEBM => 'WEBM',
@@ -480,6 +506,12 @@ class FileValidator
         if (!in_array(self::TYPE_ANY, $this->getAcceptedTypes())) {
             $valid_mime_type = in_array($mime_type, $mimes);
             $valid_extension = in_array($extension, $extensions);
+            //Un ZIP: firma al principio (un PHP o un HTML con el registro final de un ZIP también da application/zip) y extensión .zip.
+            if ($valid_mime_type && $mime_type === 'application/zip') {
+                $head = (string) file_get_contents($file, false, null, 0, 4);
+                $valid_mime_type = in_array($head, ["PK\x03\x04", "PK\x05\x06", "PK\x07\x08"], true);
+                $valid_extension = $valid_extension && $extension === 'zip';
+            }
         } else {
             $valid_mime_type = true;
             $valid_extension = true;

@@ -1,3 +1,16 @@
+# 10.47.0 (17-11-2026)
+
+- **`verify-integrity` se adapta a un proyecto**: reconoce los módulos apagados (el manual y la comprobación de permisos
+  ya no fallan por ellos), y un proyecto puede congelar los fallos de estilo de su propio código y declarar sus
+  sobreescrituras de permisos en `files/clone/verify-integrity.json`. Guía: «Pruebas unitarias», «`verify-integrity` en
+  un proyecto».
+- **`FileValidator` acepta presentaciones y ZIP cuando un campo los pide**: `TYPE_PPT`, `TYPE_PPTX` y `TYPE_ZIP`. Ningún
+  campo del framework los acepta por defecto.
+- **Los tipos de acción declarados por un proyecto** tienen nombre en el filtro «Tipo» y no pueden repetir el texto de
+  otro tipo.
+- **Al actualizar**: nada que hacer. Si tu proyecto apaga módulos, regenera los permisos declarados con
+  `bin/cli verify-integrity update-permissions=yes`.
+
 # 10.46.0 (17-11-2026)
 
 - **El tema del panel pasa a la 0.16.1**: objetivos táctiles de al menos 24 px (las casillas, las × de los avisos y las

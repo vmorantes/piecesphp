@@ -91,7 +91,9 @@ existiendo y lanza, para quien necesite saberlo.
 - Un código ya declarado (del framework o de otro módulo) no se puede volver a declarar: la llamada lanza.
 - El texto se escribe en español y se traduce en el grupo de los registros, como los del framework; dale su inglés en el
   diccionario de tu módulo.
-- Los tipos declarados salen en el filtro «Tipo» de «Últimos movimientos», junto a los del framework.
+- Los tipos declarados salen en el filtro «Tipo» de «Últimos movimientos», junto a los del framework, **nombrados con su
+  texto** y «…» en cada hueco: escríbelo como una frase que sirva de nombre.
+- Dos tipos no pueden tener el mismo texto (del framework o declarados): la llamada lanza.
 
 ## Para quien desarrolla: añadir una pestaña
 

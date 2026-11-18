@@ -45,6 +45,38 @@ A continuación, se listan los comandos para ejecutar las suites de pruebas inte
 
 ---
 
+## `verify-integrity` en un proyecto
+
+`bin/cli verify-integrity` revisa el código del proyecto con las mismas reglas que el del framework. Dos cosas lo adaptan
+a un proyecto:
+
+- **Los módulos apagados**: un módulo con `const ENABLE = false` en su clase `*Routes` no cuenta. Si el manual cita
+  rutas suyas, sale como «no aplica, módulo apagado», y el mínimo de rutas que espera la comprobación de permisos baja
+  con las de los módulos apagados. No hay nada que configurar. Al apagar un módulo, regenera los permisos declarados con
+  `bin/cli verify-integrity update-permissions=yes`.
+- **La línea base del proyecto**, en `files/clone/verify-integrity.json`. La crea el proyecto, fuera de `src/` (ni se
+  despliega ni se sirve). Sirve para dos cosas:
+  - **Congelar los fallos de ESTILO de su propio código**: COMENTARIO, COLOR SUELTO, STYLE EN VISTA y ORDEN. Lo
+    escribe `bin/cli verify-integrity update-clone-baseline=yes`. Es un trinquete por regla y por archivo: lo que ya
+    estaba no cae, lo nuevo o lo que crece cae, y lo que baja avisa para regenerar. Las reglas de funcionamiento y de
+    seguridad (por ejemplo INSTANTÁNEA, RUTA o NÚMERO DE REGISTRO) nunca se congelan: un archivo que lo intente es un
+    error.
+  - **Declarar sus sobreescrituras de `routeName`, `allowedRoute` o `_allowedRoute`**, cada una con su motivo, en
+    `sobreescrituras_de_ruta`, a mano:
+
+```json
+{
+    "sobreescrituras_de_ruta": {
+        "MiModulo\\Controllers\\MiController::_allowedRoute": "Borrar: solo quien lo creó."
+    }
+}
+```
+
+    Pasan por el mismo clasificador que las del framework: una sobreescritura declarada que no decide nada sigue cayendo.
+    `update-clone-baseline=yes` conserva esta sección.
+
+El repositorio del framework no tiene ese archivo, y `verify-integrity` falla si aparece en él.
+
 ## 🛠️ Creación de Nuevas Suite de Pruebas
 
 Las pruebas unitarias se definen como **Acciones CLI** y se encuentran típicamente en `src/app/core/system-controllers/local-tests/`.

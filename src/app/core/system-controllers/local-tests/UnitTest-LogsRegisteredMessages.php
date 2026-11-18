@@ -1,6 +1,6 @@
 <?php
 
-//H363 y H356: los tipos de acción que declara el proyecto, y anotar sin romper la acción (addLogSafe).
+//H363, H356 y H367: los tipos de acción que declara el proyecto (con nombre y texto único) y anotar sin romper la acción.
 //Escribe en el registro de acciones (y borra lo suyo) y una entrada en logs/error.log.jsonl, que poda bin/con-marca.
 //@areas src/app/classes/EventsLog/ src/app/classes/API/
 
@@ -90,6 +90,17 @@ CliActions::make('unit-tests:core/logs-registered-messages', function ($args) {
         $check($throws(fn() => LogsMapper::registerMessage('ZZ LOGS', 'x')) === \InvalidArgumentException::class, '2d un código con espacios lanza InvalidArgumentException');
         $check($throws(fn() => LogsMapper::registerMessage('ZZ_LOGS_EMPTY', '  ')) === \InvalidArgumentException::class, '2e un texto vacío lanza InvalidArgumentException');
         $check(!array_key_exists('ZZ_LOGS_EMPTY', LogsMapper::messages()), '2f lo rechazado no queda declarado');
+        //H367: el tipo de una fila se reconoce por su texto; dos tipos con el mismo texto se confundirían.
+        $check($throws(fn() => LogsMapper::registerMessage('ZZ_LOGS_SAME_OWN', 'zz-logs-registered %who% hizo algo')) === \LogicException::class, '2g un texto que ya tiene un tipo declarado lanza LogicException');
+        $check($throws(fn() => LogsMapper::registerMessage('ZZ_LOGS_SAME_CORE', LogsMapper::MESSAGES[LogsMapper::MSG_UPDATE_PROFILE])) === \LogicException::class, '2h un texto que ya tiene un tipo del framework lanza LogicException');
+        $check(!array_key_exists('ZZ_LOGS_SAME_OWN', LogsMapper::messages()) && !array_key_exists('ZZ_LOGS_SAME_CORE', LogsMapper::messages()), '2i los de texto repetido no quedan declarados');
+        echoTerminal(' ');
+
+        //──── 2bis. El nombre de un tipo declarado ────────────────────────────────────────────
+        echoTerminal('[2bis] Un tipo declarado tiene nombre en el filtro: su texto, con «…» en cada hueco');
+        $labels = LogsMapper::messageLabels();
+        $check(($labels[$own] ?? null) === 'zz-logs-registered … hizo algo', '2bis-a messageLabels() nombra al declarado con su texto y sin %huecos%', 'nombre: ' . var_export($labels[$own] ?? null, true));
+        $check(($labels[LogsMapper::MSG_UPDATE_PROFILE] ?? null) === __(LogsMapper::LANG_GROUP, 'Perfil actualizado'), '2bis-b los del framework conservan su nombre');
         echoTerminal(' ');
 
         //──── 3. addLog sigue lanzando; addLogSafe no ─────────────────────────────────────────
