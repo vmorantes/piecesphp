@@ -1,3 +1,17 @@
+# 10.44.0 (17-11-2026)
+
+- **Los respaldos pueden sustituir el valor de una columna en el volcado**: `BackupPolicy::transformColumn()` deja que un
+  módulo o un proyecto saque del respaldo un dato que no debe salir del servidor (por ejemplo, datos de pago cifrados)
+  sin dejar fuera la tabla entera. La pantalla Respaldos las enseña con su motivo.
+- **Un respaldo fallido ya no cuenta como el último.** Su archivo a medias se quedaba con nombre de respaldo: el siguiente
+  intento esperaba un intervalo entero y la rotación podía conservarlo en lugar de uno bueno. Ahora se renombra a
+  `<nombre>.fallido`, que se borra a mano.
+- **Al actualizar**: nada obligatorio. Un proyecto que lo resolvía modificando su propia tarea de respaldo puede pasar a esta
+  función y volver a la del framework. Antes, copia aparte sus volcados: la rotación del framework poda todo lo que tiene
+  su formato de nombre en `src/dumps/`.
+  Los archivos de respaldos que fallaron antes de esta versión conservan su nombre: el aviso de cada fallo dice cuál
+  es («Archivo INCOMPLETO» o «Archivo NO fiable»), y se borran a mano.
+
 # 10.43.1 (17-11-2026)
 
 - **Sin cambios en lo que viaja**, salvo el número de versión. Es la versión con la que se publica la nueva página de

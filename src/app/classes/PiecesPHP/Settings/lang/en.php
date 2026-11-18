@@ -199,6 +199,8 @@ return [
     'La tabla se guarda con su estructura, pero vacía: al restaurar, sus datos NO vuelven. Sirve para no sacar datos sensibles del servidor.' => 'The table is saved with its structure, but empty: when restoring, its data does NOT come back. It is the way to keep sensitive data from leaving the server.',
     'Fijadas desde el código, no se pueden cambiar aquí:' => 'Set from the code, they cannot be changed here:',
     'No se pudieron leer las tablas de la base de datos.' => 'The database tables could not be read.',
+    'Columnas que salen sustituidas' => 'Columns exported replaced',
+    'La tabla se guarda con todas sus filas, pero esas columnas salen con otro valor: al restaurar, traen ese valor y no el original.' => 'The table is saved with all its rows, but those columns are exported with another value: when restoring, they bring that value and not the original one.',
     'Alguno de los valores no es válido: revise que los números estén dentro de sus límites, que se guarde al menos un respaldo reciente y que las tablas elegidas existan.' => 'One of the values is not valid: check that the numbers are within their limits, that at least one recent backup is kept and that the chosen tables exist.',
     'Cancelar' => 'Cancel',
     'El logotipo, el favicon y las imágenes que identifican la plataforma.' => 'The logo, the favicon and the images that identify the platform.',

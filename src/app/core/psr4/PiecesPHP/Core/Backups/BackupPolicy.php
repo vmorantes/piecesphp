@@ -57,6 +57,14 @@ class BackupPolicy
     protected static array $codeExcludedDataTables = [];
 
     /**
+     * Las columnas que un módulo o un clon sustituye en el volcado desde código: tabla => columna =>
+     * función y motivo.
+     *
+     * @var array<string,array<string,array{transform:callable,reason:string}>>
+     */
+    protected static array $codeColumnTransforms = [];
+
+    /**
      * La política por omisión, que rige mientras no haya ninguna guardada.
      *
      * @return array{enabled:bool,interval_minutes:int,rotate:bool,keep_recent:int,keep_daily:int,keep_weekly:int,keep_monthly:int,data_excluded_tables:string[]}
@@ -197,6 +205,77 @@ class BackupPolicy
     public static function codeExcludedDataTables(): array
     {
         return self::$codeExcludedDataTables;
+    }
+
+    /**
+     * Declara, desde código, que el valor de una columna se sustituye en el volcado.
+     *
+     * La tabla sigue en el respaldo con todas sus filas; solo cambia lo que se escribe de esa
+     * columna, y la base no se toca. Para un módulo o un clon, desde `config/extensions/`, como
+     * `excludeDataOf()`. Una segunda llamada para la misma tabla y columna sustituye a la primera.
+     *
+     * @param string $table
+     * @param string $column
+     * @param callable $transform Recibe `($value, $column)` y devuelve el valor que se escribe (`null` sale como `NULL`).
+     * @param string $reason Por qué, para que quien lea la pantalla, y quien restaure, lo sepa.
+     * @return void
+     */
+    public static function transformColumn(string $table, string $column, callable $transform, string $reason): void
+    {
+        $table = trim($table);
+        $column = trim($column);
+        if ($table === '' || $column === '') {
+            return;
+        }
+        self::$codeColumnTransforms[$table][$column] = [
+            'transform' => $transform,
+            'reason' => $reason,
+        ];
+    }
+
+    /**
+     * Las columnas sustituidas declaradas en código, tabla => columna => motivo, para la pantalla.
+     *
+     * @return array<string,array<string,string>>
+     */
+    public static function codeColumnTransforms(): array
+    {
+        $reasons = [];
+        foreach (self::$codeColumnTransforms as $table => $columns) {
+            foreach ($columns as $column => $entry) {
+                $reasons[$table][$column] = $entry['reason'];
+            }
+        }
+        return $reasons;
+    }
+
+    /**
+     * Las sustituciones con la forma que pide el exportador (`transformations`): tabla => columna
+     * => función `($value, $column)`.
+     *
+     * Cada función va envuelta: el exportador solo captura `Exception`, así que un `Error` de PHP
+     * dentro de una función de un módulo rompería el respaldo con un fatal en lugar de darlo por
+     * fallido. El mensaje nombra la tabla y la columna, nunca el valor: puede ser justo el dato que
+     * no debe salir. Por eso la original no se encadena: su mensaje podría llevarlo al registro.
+     *
+     * @return array<string,array<string,callable>>
+     */
+    public static function transformations(): array
+    {
+        $transformations = [];
+        foreach (self::$codeColumnTransforms as $table => $columns) {
+            foreach ($columns as $column => $entry) {
+                $transform = $entry['transform'];
+                $transformations[$table][$column] = static function (mixed $value, mixed $columnName) use ($transform, $table, $column): mixed {
+                    try {
+                        return $transform($value, $columnName);
+                    } catch (\Throwable $e) {
+                        throw new \Exception("La sustitución de la columna {$table}.{$column} del respaldo falló (" . get_class($e) . ').');
+                    }
+                };
+            }
+        }
+        return $transformations;
     }
 
     /**

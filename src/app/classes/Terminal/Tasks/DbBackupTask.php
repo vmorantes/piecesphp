@@ -192,9 +192,9 @@ class DbBackupTask extends TerminalTaskAbstract
                     'exclude_tables' => self::EXCLUDED_TABLES,
                     //El `where` solo entra en el SELECT de los datos: la estructura sale entera.
                     'where' => array_fill_keys(BackupPolicy::dataExcludedTables(), '1=0'),
-                    //No cifres el password al exportar: se cifraba y NADIE lo descifraba al
-                    //restaurar, asi que la restauracion dejaba a todos sin poder entrar.
-                    'transformations' => [],
+                    //Solo las columnas de BackupPolicy::transformColumn(). El password NO se cifra: nadie lo
+                    //descifraba al restaurar, asi que la restauracion dejaba a todos sin poder entrar.
+                    'transformations' => BackupPolicy::transformations(),
                 ]);
                 //Si el plugin no dice qué escribió, se informa sobre el que se le pidió.
                 $outputPath = $outputPlugin->getFilename();
@@ -206,7 +206,7 @@ class DbBackupTask extends TerminalTaskAbstract
                     $errors = implode("\n", $exporter->getErrors());
                     $responseText = "El respaldo FALLÓ: el exportador devolvió false.\r\n";
                     $responseText .= $errors !== '' ? "Motivo:\n{$errors}\r\n" : "Sin motivo declarado.\r\n";
-                    $responseText .= "Archivo INCOMPLETO: " . basename($outputPath) . "\r\n";
+                    $responseText .= "Archivo INCOMPLETO: " . self::setAsideFailed($outputPath) . "\r\n";
                     $exceptionToThrow = new \Exception($responseText);
                 } elseif (!file_exists($outputPath)) {
                     $errors = implode("\n", $exporter->getErrors());
@@ -230,7 +230,7 @@ class DbBackupTask extends TerminalTaskAbstract
                         $responseText = "El respaldo está INCOMPLETO: faltan " . count($missing);
                         $responseText .= " de " . count($expected) . " objeto(s).\r\n";
                         $responseText .= "Faltan: " . implode(', ', $missing) . "\r\n";
-                        $responseText .= "Archivo NO fiable: " . basename($outputPath) . "\r\n";
+                        $responseText .= "Archivo NO fiable: " . self::setAsideFailed($outputPath) . "\r\n";
                         $exceptionToThrow = new \Exception($responseText);
                     } else {
                         if ($changePermissions) {
@@ -255,6 +255,12 @@ class DbBackupTask extends TerminalTaskAbstract
             } catch (\Exception $e) {
                 $exceptionToThrow = $e;
                 $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+                $writtenPath = $outputPlugin->getFilename();
+                $writtenPath = is_string($writtenPath) ? $writtenPath : $outputFile;
+                //Si ya había salido bien (lanzó un escuchador de BackupCreated), el archivo es bueno y no se aparta.
+                if (!$success && file_exists($writtenPath)) {
+                    $responseText .= "Archivo a medias: " . self::setAsideFailed($writtenPath) . "\r\n";
+                }
                 log_exception($e);
             }
 
@@ -287,6 +293,26 @@ class DbBackupTask extends TerminalTaskAbstract
         }
 
         return $success;
+    }
+
+    /**
+     * Aparta el archivo de un respaldo fallido: lo renombra a `<nombre>.fallido` en la misma carpeta.
+     *
+     * Con su nombre de respaldo, `BackupRotation::latestDate()` lo contaría como el último: `isDue()` no
+     * reintentaría hasta pasado un intervalo entero y la rotación podría conservarlo en lugar de uno bueno.
+     * Si el renombrado falla no se lanza nada: el respaldo ya ha fallado, y el texto lo dice.
+     *
+     * @param string $path
+     * @return string El nombre con el que queda, para el texto del fallo.
+     */
+    protected static function setAsideFailed(string $path): string
+    {
+        $failedPath = $path . '.fallido';
+        //Con @: un aviso de rename() aborta en local, y aquí el fallo se informa en el texto.
+        if (@rename($path, $failedPath)) {
+            return basename($failedPath);
+        }
+        return basename($path) . ' (NO se pudo renombrar a ' . basename($failedPath) . ': sigue contando como el último respaldo; renómbrelo o bórrelo a mano)';
     }
 
     /**

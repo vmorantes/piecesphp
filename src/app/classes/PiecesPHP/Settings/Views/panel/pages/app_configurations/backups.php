@@ -10,6 +10,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var array{keep:int,delete:int,ignored:int} $plan
  * @var string[] $tables
  * @var array<string,string> $codeExcluded
+ * @var array<string,array<string,string>> $codeTransformed
  * @var string $title
  * @var string $description
  * @var string $indexLink
@@ -171,6 +172,27 @@ $numberField = function (string $name, string $label, string $help) use ($escape
                 </div>
             </div>
             <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if (count($codeTransformed) > 0): ?>
+        <div class="ui section divider"></div>
+
+        <h2 class="ui header"><?= __($langGroup, 'Columnas que salen sustituidas'); ?></h2>
+
+        <div class="ui warning visible message">
+            <?= __($langGroup, 'La tabla se guarda con todas sus filas, pero esas columnas salen con otro valor: al restaurar, traen ese valor y no el original.'); ?>
+        </div>
+
+        <div class="backup-code-transformed">
+        <p><strong><?= __($langGroup, 'Fijadas desde el código, no se pueden cambiar aquí:'); ?></strong></p>
+        <ul class="ui list">
+            <?php foreach ($codeTransformed as $table => $columns): ?>
+            <?php foreach ($columns as $column => $reason): ?>
+            <li><code><?= $tableName($table); ?>.<?= $escape($column); ?></code> — <?= $escape($reason); ?></li>
+            <?php endforeach; ?>
+            <?php endforeach; ?>
+        </ul>
         </div>
         <?php endif; ?>
 

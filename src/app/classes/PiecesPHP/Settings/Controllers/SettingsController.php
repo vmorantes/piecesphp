@@ -2176,6 +2176,7 @@ class SettingsController extends AdminPanelController
             ],
             'tables' => self::databaseTables(),
             'codeExcluded' => BackupPolicy::codeExcludedDataTables(),
+            'codeTransformed' => BackupPolicy::codeColumnTransforms(),
         ] + $this->sectionHeader(
             __(self::LANG_GROUP, 'Respaldos'),
             __(self::LANG_GROUP, 'Cada cuánto se respalda la base de datos, cuántos respaldos se guardan y qué tablas salen sin sus filas.')

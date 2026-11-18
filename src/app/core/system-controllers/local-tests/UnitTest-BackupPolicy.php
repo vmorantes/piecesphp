@@ -1,12 +1,14 @@
 <?php
 
-//La política de respaldos: normalización, intervalo, conservación, ajenos y el fallo que NO rota.
+//La política de respaldos: normalización, intervalo, conservación, ajenos, el fallo que NO rota y las columnas sustituidas.
 //Corre sobre carpetas temporales propias; de `src/dumps/` solo borra el archivo que ella escribe.
 //@areas nucleo
 
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\Backups\BackupRotation;
+use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\Export\Plugins\SqlFormat;
 use PiecesPHP\Terminal\CliActions;
 use Terminal\Tasks\DbBackupTask;
 
@@ -336,6 +338,187 @@ CliActions::make('unit-tests:core/backup-policy', function ($args) {
         }
     }
 
+    //──── i) Columnas sustituidas: el registro y el envoltorio ──────────────────────────────────
+    echoTerminal('');
+    echoTerminal("\e[36m i) transformColumn registra, sustituye y envuelve cada función\e[39m");
+
+    //El registro es estático: se guarda el de antes y se devuelve en la limpieza, para que una
+    //función de prueba que lanza no rompa los respaldos de lo que corra después en el proceso.
+    $transformsProperty = new \ReflectionProperty(BackupPolicy::class, 'codeColumnTransforms');
+    $originalTransforms = $transformsProperty->getValue();
+    $transformsProperty->setValue(null, []);
+
+    BackupPolicy::transformColumn('zz_t1_tabla', 'col', fn(mixed $value): string => 'A', 'motivo uno');
+    $check(BackupPolicy::codeColumnTransforms() === ['zz_t1_tabla' => ['col' => 'motivo uno']], 'i1 transformColumn registra tabla, columna y motivo');
+    BackupPolicy::transformColumn('zz_t1_tabla', 'col', fn(mixed $value): string => 'B', 'motivo dos');
+    $transformations = BackupPolicy::transformations();
+    $check(BackupPolicy::codeColumnTransforms() === ['zz_t1_tabla' => ['col' => 'motivo dos']], 'i2 una segunda llamada para la misma tabla y columna sustituye a la primera');
+    $check(array_keys($transformations) === ['zz_t1_tabla'] && array_keys($transformations['zz_t1_tabla']) === ['col'] && is_callable($transformations['zz_t1_tabla']['col']), 'i3 transformations() tiene la forma del exportador: tabla => columna => función');
+    $check($transformations['zz_t1_tabla']['col']('x', 'col') === 'B', 'i4 y la función que queda es la de la segunda llamada');
+    BackupPolicy::transformColumn(' zz_t1_tabla ', ' otra ', fn(mixed $value, mixed $column): mixed => $column, 'motivo tres');
+    $check((BackupPolicy::transformations()['zz_t1_tabla']['otra'] ?? null) !== null && BackupPolicy::transformations()['zz_t1_tabla']['otra']('x', 'otra') === 'otra', 'i5 tabla y columna se recortan, y la función recibe ($value, $column)');
+    $before = BackupPolicy::codeColumnTransforms();
+    BackupPolicy::transformColumn('', 'col', fn(mixed $value): mixed => $value, 'vacía');
+    BackupPolicy::transformColumn('   ', 'col', fn(mixed $value): mixed => $value, 'vacía');
+    BackupPolicy::transformColumn('zz_t1_tabla_vacia', '  ', fn(mixed $value): mixed => $value, 'vacía');
+    $check(BackupPolicy::codeColumnTransforms() === $before, 'i6 con tabla o columna vacías no se registra nada');
+
+    $secretT2 = 'zz-valor-secreto-t2';
+    BackupPolicy::transformColumn('zz_t2_tabla', 'zz_t2_columna', function (mixed $value) use ($secretT2): mixed {
+        throw new \TypeError("tipo inesperado para {$secretT2}");
+    }, 'lanza');
+    $wrappedError = null;
+    try {
+        BackupPolicy::transformations()['zz_t2_tabla']['zz_t2_columna']($secretT2, 'zz_t2_columna');
+    } catch (\Throwable $e) {
+        $wrappedError = $e;
+    }
+    $check($wrappedError !== null && get_class($wrappedError) === \Exception::class, 'i7 una función que lanza un TypeError sale como Exception, que el exportador sí captura', $wrappedError === null ? 'no lanzó' : get_class($wrappedError));
+    $wrappedMessage = $wrappedError !== null ? $wrappedError->getMessage() : '';
+    $check(str_contains($wrappedMessage, 'zz_t2_tabla.zz_t2_columna'), 'i8 el mensaje nombra la tabla y la columna', $wrappedMessage);
+    $check(!str_contains($wrappedMessage, $secretT2) && ($wrappedError === null || $wrappedError->getPrevious() === null), 'i9 y no lleva el valor, ni en el mensaje ni en una excepción encadenada');
+    $transformsProperty->setValue(null, []);
+
+    //Lee un volcado, comprimido o no.
+    $readDump = function (string $file): string {
+        if (substr($file, -3) !== '.gz') {
+            return (string) file_get_contents($file);
+        }
+        $content = '';
+        $handle = gzopen($file, 'rb');
+        while ($handle !== false && !gzeof($handle)) {
+            $chunk = gzread($handle, 262144);
+            if ($chunk === false) {
+                break;
+            }
+            $content .= $chunk;
+        }
+        if ($handle !== false) {
+            //RETORNO-IGNORADO: el archivo ya está leído; lo que importe se comprueba sobre el contenido.
+            gzclose($handle);
+        }
+        return $content;
+    };
+
+    $probeTable = 'zz_backup_transform_probe';
+    $probeSecret = 'zz-secreto-sintetico-jlo';
+    $marker = '[RETIRADO DEL RESPALDO]';
+    $probeDumps = [];
+    $dumpsDirectory = BackupPolicy::dumpsDirectory();
+    $dumpNames = fn(): array => is_dir($dumpsDirectory) ? array_values(array_diff(scandir($dumpsDirectory) ?: [], ['.', '..'])) : [];
+    $failedReasons = [];
+    //El escuchador no se puede quitar: solo apunta mientras la suite lo enciende.
+    $listener = new \stdClass();
+    $listener->on = false;
+    BaseEventDispatcher::listen('BackupFailed', function (mixed $payload) use (&$failedReasons, $listener): void {
+        if ($listener->on === true) {
+            $failedReasons[] = is_array($payload) ? (string) ($payload['reason'] ?? '') : '';
+        }
+    }, 'Backups');
+
+    if ($database !== null) {
+        try {
+            //RETORNO-IGNORADO: la conexión va en ERRMODE_EXCEPTION, así que un DDL que falla LANZA, y j1 cuenta las filas.
+            $database->exec("DROP TABLE IF EXISTS `{$probeTable}`");
+            $database->exec("CREATE TABLE `{$probeTable}` (`id` INT NOT NULL AUTO_INCREMENT, `secret` VARCHAR(100) NULL, `nota` VARCHAR(50) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            //RETORNO-IGNORADO: lo mismo; j1 cuenta las filas que este INSERT deja.
+            $database->exec("INSERT INTO `{$probeTable}` (`id`, `secret`, `nota`) VALUES (1, " . $database->quote($probeSecret) . ", 'fila-1'), (2, NULL, 'fila-2'), (3, '', 'fila-3')");
+            $rows = (int) $database->query("SELECT COUNT(*) FROM `{$probeTable}`")->fetchColumn();
+            $check($rows === 3, 'j1 la tabla de prueba tiene sus 3 filas: el secreto sintético, NULL y vacío');
+
+            //──── j) Sin sustituciones, el volcado de la tabla es el de siempre ─────────────────
+            echoTerminal('');
+            echoTerminal("\e[36m j) Sin sustituciones registradas, la tabla sale byte a byte como antes del cambio\e[39m");
+
+            //DbBackupTask pasaba `'transformations' => []` y ahora transformations(): con el registro vacío,
+            //o con sustituciones de OTRA tabla, la salida de esta tiene que ser la misma.
+            $format = new SqlFormat();
+            $asBefore = $format->getTableData($database, $probeTable, ['transformations' => []]);
+            $asNowEmpty = $format->getTableData($database, $probeTable, ['transformations' => BackupPolicy::transformations()]);
+            $check(BackupPolicy::transformations() === [] && $asNowEmpty === $asBefore, 'j2 con el registro vacío, la salida es idéntica a la de transformations => []');
+            BackupPolicy::transformColumn('zz_otra_tabla', 'secret', fn(mixed $value): string => $marker, 'otra tabla');
+            $asNowOther = $format->getTableData($database, $probeTable, ['transformations' => BackupPolicy::transformations()]);
+            $check($asNowOther === $asBefore, 'j3 una sustitución de otra tabla no toca esta');
+            $check(is_string($asBefore) && str_contains($asBefore, $probeSecret), 'j4 y en esa salida el valor está tal cual: la comparación mira datos reales');
+            $transformsProperty->setValue(null, []);
+
+            //──── k) El respaldo real ───────────────────────────────────────────────────────────
+            echoTerminal('');
+            echoTerminal("\e[36m k) En un respaldo real, la columna sale sustituida; y si la función falla, falla el respaldo\e[39m");
+
+            //Como el ejemplo de backups.md.
+            BackupPolicy::transformColumn(
+                $probeTable,
+                'secret',
+                fn(mixed $value): mixed => ($value === null || trim((string) $value) === '') ? $value : $marker,
+                'Tabla de la suite UnitTest-BackupPolicy.'
+            );
+            $backupDone = DbBackupTask::main(null, null, [], true);
+            $transformedDump = DbBackupTask::lastWrittenFile();
+            if ($transformedDump !== null) {
+                $probeDumps[] = $transformedDump;
+            }
+            $check($backupDone === true && $transformedDump !== null && is_file($transformedDump), 'k1 el respaldo real con la sustitución termina bien');
+            $content = $transformedDump !== null && is_file($transformedDump) ? $readDump($transformedDump) : '';
+            $check(str_contains($content, "INSERT INTO `{$probeTable}`"), 'k2 la tabla sale con sus filas');
+            $check(str_contains($content, "(1, '{$marker}', 'fila-1')"), 'k3 la fila con el secreto sale con el marcador');
+            $check(!str_contains($content, $probeSecret), 'k4 y el valor NO está en el volcado');
+            $check(str_contains($content, "(2, NULL, 'fila-2')") && str_contains($content, "(3, '', 'fila-3')"), 'k5 NULL y el vacío quedan intactos');
+            //Fuera antes del fallo: los nombres van por segundos, y si el fallo cae en el mismo segundo pisaría este
+            //archivo y no aparecería como nuevo en dumps/.
+            if ($transformedDump !== null && is_file($transformedDump)) {
+                //RETORNO-IGNORADO: z2 comprueba que no quede ninguno de los respaldos de la suite.
+                unlink($transformedDump);
+            }
+
+            $secretK = 'zz-valor-secreto-k';
+            BackupPolicy::transformColumn($probeTable, 'secret', function (mixed $value) use ($secretK): mixed {
+                throw new \TypeError("tipo inesperado para {$secretK}");
+            }, 'Lanza: suite UnitTest-BackupPolicy.');
+            $namesBefore = $dumpNames();
+            $listener->on = true;
+            $failedDone = null;
+            $failure = null;
+            try {
+                $failedDone = DbBackupTask::main(null, null, [], true);
+            } catch (\Throwable $e) {
+                $failure = $e;
+            }
+            $listener->on = false;
+            $leftOver = array_values(array_diff($dumpNames(), $namesBefore));
+            foreach ($leftOver as $name) {
+                $probeDumps[] = "{$dumpsDirectory}/{$name}";
+            }
+            $failureMessage = $failure !== null ? $failure->getMessage() : '';
+            $check($failure instanceof \Exception && $failedDone === null, 'k6 si la función lanza un TypeError, el respaldo falla con una Exception, no con un fatal', $failure === null ? 'no lanzó' : get_class($failure));
+            $check(str_contains($failureMessage, 'El respaldo FALLÓ') && str_contains($failureMessage, "{$probeTable}.secret"), 'k7 el aviso dice que falló y nombra la tabla y la columna', mb_substr($failureMessage, 0, 300));
+            $check(count($failedReasons) === 1 && str_contains($failedReasons[0], "{$probeTable}.secret"), 'k8 se emite BackupFailed, una vez, con la tabla y la columna', (string) count($failedReasons));
+            $check(!str_contains($failureMessage, $secretK) && !str_contains(implode("\n", $failedReasons), $secretK), 'k9 ni el aviso ni el evento llevan el valor');
+            echoTerminal('      lo que dejó en dumps/ el respaldo fallido: ' . ($leftOver === [] ? 'nada' : implode(', ', $leftOver)));
+            $check(count($leftOver) === 1 && str_ends_with($leftOver[0], '.fallido') && !file_exists($dumpsDirectory . '/' . substr($leftOver[0], 0, -strlen('.fallido'))), 'k11 el archivo del respaldo fallido queda como <nombre>.fallido, y <nombre> ya no está', implode(', ', $leftOver));
+            $check($leftOver !== [] && str_contains($failureMessage, $leftOver[0]), 'k12 el aviso del fallo nombra el archivo apartado');
+
+            //Lo que deja el fallo, junto a un respaldo bueno de hace dos días: el siguiente intento no tiene que esperar.
+            $policyBefore = get_config(BackupPolicy::CONFIG_NAME);
+            set_config(BackupPolicy::CONFIG_NAME, json_encode(BackupPolicy::defaults()));
+            $nowK = new \DateTimeImmutable();
+            $oldGood = $nowK->modify('-2 days')->format('d-m-Y_H-i-s-A') . '.sql.gz';
+            $afterFailure = $makeDirectory('tras-fallo');
+            $touchAll($afterFailure, array_merge([$oldGood], $leftOver));
+            $latestAfterFailure = BackupRotation::latestDate($afterFailure);
+            $check($latestAfterFailure !== null && $latestAfterFailure->format('d-m-Y_H-i-s-A') . '.sql.gz' === $oldGood, 'k13 latestDate() no cuenta el archivo del fallo: el último sigue siendo el bueno de hace dos días', $latestAfterFailure === null ? 'null' : $latestAfterFailure->format('c'));
+            $check(BackupPolicy::isDue($nowK, $afterFailure) === true, 'k14 justo después del fallo, isDue() da true: el siguiente intento no espera un intervalo entero');
+            //El control: con su nombre de respaldo, el archivo del fallo sí contaría y el intento esperaría.
+            $asBackup = $makeDirectory('fallo-con-nombre');
+            $touchAll($asBackup, array_merge([$oldGood], array_map(fn(string $name): string => preg_replace('/\.fallido$/', '', $name) ?? $name, $leftOver)));
+            $check(BackupPolicy::isDue($nowK, $asBackup) === false, 'k15 control: con su nombre de respaldo, isDue() daría false');
+            set_config(BackupPolicy::CONFIG_NAME, $policyBefore);
+        } catch (\Throwable $e) {
+            $check(false, 'k10 los apartados j y k corren enteros', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
+        }
+    }
+    $transformsProperty->setValue(null, $originalTransforms);
+
     //──── z) Limpieza ───────────────────────────────────────────────────────────────────────────
     echoTerminal('');
     echoTerminal("\e[36m z) Limpieza: la base y las carpetas quedan como estaban\e[39m");
@@ -344,9 +527,11 @@ CliActions::make('unit-tests:core/backup-policy', function ($args) {
     if ($database !== null) {
         try {
             //RETORNO-IGNORADO: z1 comprueba en information_schema que la tabla ya no está.
+            $database->exec("DROP TABLE IF EXISTS `{$probeTable}`");
+            //RETORNO-IGNORADO: z1 comprueba en information_schema que la tabla ya no está.
             $database->exec("DROP TABLE IF EXISTS `{$testTable}`");
-            $stillThere = (int) $database->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = " . $database->quote($testTable))->fetchColumn();
-            $check($stillThere === 0, 'z1 la tabla de prueba se retiró de la base');
+            $stillThere = (int) $database->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN (" . $database->quote($testTable) . ', ' . $database->quote($probeTable) . ')')->fetchColumn();
+            $check($stillThere === 0, 'z1 las tablas de prueba se retiraron de la base');
         } catch (\Throwable $e) {
             $check(false, 'z1 la tabla de prueba se retiró de la base', $e->getMessage());
         }
@@ -357,7 +542,15 @@ CliActions::make('unit-tests:core/backup-policy', function ($args) {
         //RETORNO-IGNORADO: z2 comprueba que el archivo ya no está, que es lo que importa.
         unlink($writtenDump);
     }
-    $check($writtenDump === null || !is_file($writtenDump), 'z2 el respaldo que escribió esta suite se borró: ' . ($cleaned === [] ? 'ninguno' : implode(', ', $cleaned)));
+    foreach ($probeDumps as $probeDump) {
+        if (is_file($probeDump)) {
+            $cleaned[] = basename($probeDump);
+            //RETORNO-IGNORADO: z2 comprueba que el archivo ya no está, que es lo que importa.
+            unlink($probeDump);
+        }
+    }
+    $remainingDumps = array_filter(array_merge([$writtenDump], $probeDumps), fn(?string $file): bool => $file !== null && is_file($file));
+    $check($remainingDumps === [], 'z2 los respaldos que escribió esta suite se borraron: ' . ($cleaned === [] ? 'ninguno' : implode(', ', $cleaned)));
 
     //RETORNO-IGNORADO: z3 comprueba que no quede ninguna carpeta de la prueba, que es la medida que vale.
     foreach (array_keys($temporaryDirectories) as $directory) {
@@ -383,4 +576,4 @@ CliActions::make('unit-tests:core/backup-policy', function ($args) {
 
     return $balance();
 
-})->setDescription('La política de respaldos: normalización por campo, isDue por intervalo, la conservación por niveles sobre tres años, los ajenos intactos, el recién escrito que no se borra, el fallo que no rota y una tabla sin filas.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();
+})->setDescription('La política de respaldos: normalización por campo, isDue por intervalo, la conservación por niveles sobre tres años, los ajenos intactos, el recién escrito que no se borra, el fallo que no rota, una tabla sin filas y una columna sustituida en el volcado.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();

@@ -161,7 +161,7 @@ formatos SQL/JSON/CSV/PHP/XML y compresión ZIP/Gzip/Bzip2.
 `PiecesPHP\Core\Backups\BackupPolicy` (opción `backup_policy`) y `BackupRotation`, en
 `src/app/core/psr4/PiecesPHP/Core/Backups/`. La edita el usuario principal en «Configuración → Sistema → Respaldos»;
 sin nada guardado rigen los valores por omisión (un día de intervalo; 24 recientes, 30 días, 12 semanas, 24 meses;
-rotación activa). Un módulo declara tablas que salen sin filas con `BackupPolicy::excludeDataOf()`. Detalle para
+rotación activa). Un módulo declara tablas que salen sin filas con `BackupPolicy::excludeDataOf()`. Y sustituye el valor de una columna en el volcado con `BackupPolicy::transformColumn()` (el exportador lo aplica por `transformations`, `SqlFormat.php:123-124`; el exportador solo captura `Exception`, así que `transformations()` envuelve cada función y convierte cualquier `Throwable` en fallo del respaldo). Detalle para
 desarrolladores en `source-docs/project/docs/piecesphp/new-features/backups.md`.
 
 > **Trampa CONFIRMADA (medida el 2026-10-02, `#759`): el nombre de un respaldo no se parsea con su propio formato.**

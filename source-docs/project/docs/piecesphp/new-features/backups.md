@@ -98,6 +98,10 @@ BackupRotation::apply(BackupPolicy::dumpsDirectory(), BackupPolicy::current(), $
 **Tras un respaldo fallido no se borra nada.** Esa decisión vive en `BackupRotation::afterBackup()`, que es lo que
 llama el cronjob: un fallo repetido no puede llevarse los respaldos buenos.
 
+**El archivo de un respaldo fallido se renombra a `<nombre>.fallido`**, en la misma carpeta: queda para mirarlo, pero ya
+no tiene nombre de respaldo, así que no cuenta como el último (el siguiente intento no espera un intervalo entero) ni
+entra en la rotación. La rotación tampoco lo borra: se borra a mano.
+
 ### Verlo sin borrar nada
 
 ```bash
@@ -128,6 +132,32 @@ La pantalla las enseña con su motivo y **no se pueden desmarcar desde ahí**: l
 
 No confunda esto con `Terminal\Tasks\DbBackupTask::EXCLUDED_TABLES`, que saca tablas **del respaldo por completo**, ni
 estructura ni datos, y es para andamiaje de pruebas.
+
+
+## 🔒 Columnas que salen sustituidas
+
+Cuando una tabla tiene que estar en el respaldo pero una de sus columnas no puede salir del servidor (un dato de pago
+cifrado, un token), el código sustituye el valor de esa columna **en el volcado**. La base no cambia; solo el archivo.
+
+```php
+use PiecesPHP\Core\Backups\BackupPolicy;
+
+BackupPolicy::transformColumn(
+    'monthly_commitments',
+    'paymentData',
+    fn(mixed $value): mixed => ($value === null || trim((string) $value) === '') ? $value : '[RETIRADO DEL RESPALDO]',
+    'Datos de pago cifrados: no salen del servidor.'
+);
+```
+
+- Va en `src/app/config/extensions/`, como `excludeDataOf()`. La función recibe el valor de la columna y devuelve el que
+  se escribe (`null` se escribe como `NULL`).
+- **Si la función falla, falla el respaldo**, como cualquier respaldo fallido: el aviso dice la tabla y la columna, y se
+  emite `BackupFailed`. Es mejor no tener un respaldo que tener uno con el dato dentro.
+- La pantalla Respaldos las enseña con su tabla, su columna y su motivo, y no se pueden quitar desde ahí.
+- **Lo sustituido no se recupera desde ese respaldo**: al restaurar, la columna trae lo que devolvió la función. Escribe
+  el precio en el motivo, para que lo lea quien restaure.
+- Una segunda llamada para la misma tabla y columna sustituye a la primera.
 
 ---
 
