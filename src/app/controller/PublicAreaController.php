@@ -401,6 +401,25 @@ class PublicAreaController extends BaseController
     }
 
     /**
+     * Las rutas públicas del framework que el proyecto sustituye, por nombre: `$config['public_area_ignore_routes']` (H371).
+     * Lo que no sea una lista de cadenas no quita nada y queda en el registro de errores.
+     *
+     * @return string[]
+     */
+    public static function projectIgnoredRoutes(): array
+    {
+        $names = get_config('public_area_ignore_routes');
+        if ($names === false || $names === null || $names === []) {
+            return [];
+        }
+        if (!is_array($names) || !array_is_list($names) || count(array_filter($names, 'is_string')) !== count($names)) {
+            log_exception(new \RuntimeException("\$config['public_area_ignore_routes'] tiene que ser una lista de nombres de ruta: se ignora."));
+            return [];
+        }
+        return $names;
+    }
+
+    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -423,10 +442,10 @@ class PublicAreaController extends BaseController
         //──── GET ─────────────────────────────────────────────────────────────────────────
 
         //Generales
-        $ignoreRoutes = [
+        $ignoreRoutes = array_merge([
             //Vistas para ignorar
             "{$namePrefix}-SAMPLE",
-        ];
+        ], self::projectIgnoredRoutes());
         $routes = array_filter([
             new Route(
                 "{$startRoute}[/]",

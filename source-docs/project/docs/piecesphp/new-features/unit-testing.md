@@ -56,17 +56,18 @@ a un proyecto:
   `bin/cli verify-integrity update-permissions=yes`.
 - **La línea base del proyecto**, en `files/clone/verify-integrity.json`. La crea el proyecto, fuera de `src/` (ni se
   despliega ni se sirve). Sirve para dos cosas:
-  - **Congelar los fallos de ESTILO de su propio código**: COMENTARIO, COLOR SUELTO, STYLE EN VISTA y ORDEN. Lo
+  - **Congelar los fallos de ESTILO de su propio código**: COMENTARIO, COLOR SUELTO, STYLE EN VISTA, ORDEN y DOCBLOCK
+    HUÉRFANO. Lo
     escribe `bin/cli verify-integrity update-clone-baseline=yes`. Es un trinquete por regla y por archivo: lo que ya
     estaba no cae, lo nuevo o lo que crece cae, y lo que baja avisa para regenerar. Las reglas de funcionamiento y de
     seguridad (por ejemplo INSTANTÁNEA, RUTA o NÚMERO DE REGISTRO) nunca se congelan: un archivo que lo intente es un
     error.
   - **Declarar sus sobreescrituras de `routeName`, `allowedRoute` o `_allowedRoute`**, cada una con su motivo, en
-    `sobreescrituras_de_ruta`, a mano:
+    `route_overrides`, a mano:
 
 ```json
 {
-    "sobreescrituras_de_ruta": {
+    "route_overrides": {
         "MiModulo\\Controllers\\MiController::_allowedRoute": "Borrar: solo quien lo creó."
     }
 }
@@ -74,6 +75,9 @@ a un proyecto:
 
     Pasan por el mismo clasificador que las del framework: una sobreescritura declarada que no decide nada sigue cayendo.
     `update-clone-baseline=yes` conserva esta sección.
+  - **Declarar sus usos de ofuscación** (`BaseHashEncryption::obfuscate()`/`deobfuscate()`), en `obfuscation`, cada uno
+    como `Clase::método` con su motivo. Ofuscar sirve para que un id no se lea en una URL; **no protege un secreto**: para
+    guardar un dato que no se debe leer se usa `Sealed` con su propósito registrado, y eso no se declara aquí.
 
 El repositorio del framework no tiene ese archivo, y `verify-integrity` falla si aparece en él.
 

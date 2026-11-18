@@ -558,7 +558,7 @@ class PublicationsCategoryController extends AdminPanelController
                     $isUncategorized = $uncategorizedMapper->id == $id;
 
                     if ($isUncategorized) {
-                        throw new \Exception($notAllowedDelete);
+                        throw new SafeException($notAllowedDelete);
                     }
 
                     $transactionSQLDeleteQueries = [
@@ -618,6 +618,9 @@ class PublicationsCategoryController extends AdminPanelController
                     $resultOperation->setMessage($notExistsMessage);
                 }
 
+            } catch (SafeException $e) {
+                //El motivo es para quien borra (H370): no es un fallo del sistema.
+                $resultOperation->setMessage($e->getMessage());
             } catch (\Exception $e) {
                 $reference = log_exception($e);
 

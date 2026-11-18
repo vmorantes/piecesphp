@@ -68,13 +68,13 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
         //──── 3. Con la línea base del clon ───────────────────────────────────────────────────
         echoTerminal('[3] Con la línea base: lo congelado no cae, lo nuevo sí');
         $written = file_put_contents($baselineFile, json_encode([
-            'estilo' => [
+            'style' => [
                 'COMENTARIO' => ['src/app/zz/A.php' => 5],
                 'COLOR SUELTO' => ['src/app/zz/panel.scss' => 1],
                 'STYLE EN VISTA' => ['src/app/zz/Views/a.php' => 3],
                 'ORDEN' => ['piecesphp/src/app/zz/B.php' => 1],
             ],
-            'sobreescrituras_de_ruta' => [
+            'route_overrides' => [
                 "ZzCloneTest{$suffix}\\ZzDecides::_allowedRoute" => 'zz: solo el creador',
                 "ZzCloneTest{$suffix}\\ZzInert::_allowedRoute" => 'zz: no decide nada',
             ],
@@ -98,22 +98,22 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
 
         //──── 4. Las de funcionamiento no se congelan ─────────────────────────────────────────
         echoTerminal('[4] Funcionamiento y seguridad no entran en la línea base');
-        $written = file_put_contents($baselineFile, json_encode(['estilo' => ['INSTANTÁNEA' => ['src/app/zz/A.php' => 1], 'RUTA' => ['src/app/zz/A.php' => 1]]], \JSON_UNESCAPED_UNICODE));
+        $written = file_put_contents($baselineFile, json_encode(['style' => ['INSTANTÁNEA' => ['src/app/zz/A.php' => 1], 'RUTA' => ['src/app/zz/A.php' => 1]]], \JSON_UNESCAPED_UNICODE));
         if ($written === false) {
             throw new \RuntimeException("no se pudo escribir {$baselineFile}");
         }
         $baseline = $call('cloneBaseline');
-        $check($baseline['estilo'] === [] && count($baseline['errores']) === 2, '4a INSTANTÁNEA y RUTA en la línea base del clon son un error del archivo, no se congelan', implode(' | ', $baseline['errores']));
-        $check(VerifyIntegrityTask::CLONE_STYLE_RULES === ['COMENTARIO', 'COLOR SUELTO', 'STYLE EN VISTA', 'ORDEN'], '4b solo las cuatro reglas de estilo (NÚMERO DE REGISTRO es de funcionamiento)');
+        $check($baseline['style'] === [] && count($baseline['errors']) === 2, '4a INSTANTÁNEA y RUTA en la línea base del clon son un error del archivo, no se congelan', implode(' | ', $baseline['errors']));
+        $check(VerifyIntegrityTask::CLONE_STYLE_RULES === ['COMENTARIO', 'COLOR SUELTO', 'STYLE EN VISTA', 'ORDEN', 'DOCBLOCK HUÉRFANO'], '4b solo las cinco reglas de estilo (NÚMERO DE REGISTRO es de funcionamiento)');
         $source = (string) file_get_contents(basepath('app/classes/Terminal/Tasks/VerifyIntegrityTask.php'));
-        $check(str_contains($source, "\$styleFailures = ['COMENTARIO' => \$narrativeFailures, 'COLOR SUELTO' => \$looseColorFailures, 'STYLE EN VISTA' => \$inlineStyleFailures, 'ORDEN' => \$orderFailures];"), '4c la tarea solo pasa a la línea base del clon los fallos de esas cuatro');
+        $check(str_contains($source, "\$styleFailures = ['COMENTARIO' => \$narrativeFailures, 'COLOR SUELTO' => \$looseColorFailures, 'STYLE EN VISTA' => \$inlineStyleFailures, 'ORDEN' => \$orderFailures, 'DOCBLOCK HUÉRFANO' => \$orphanFailures];"), '4c la tarea solo pasa a la línea base del clon los fallos de esas cinco');
         echoTerminal(' ');
 
         //──── 5. Sobreescrituras de ruta del clon ─────────────────────────────────────────────
         echoTerminal('[5] Sobreescrituras de ruta del clon, con el mismo clasificador');
         $written = file_put_contents($baselineFile, json_encode([
-            'estilo' => [],
-            'sobreescrituras_de_ruta' => [
+            'style' => [],
+            'route_overrides' => [
                 "ZzCloneTest{$suffix}\\ZzDecides::_allowedRoute" => 'zz: solo el creador',
                 "ZzCloneTest{$suffix}\\ZzInert::_allowedRoute" => 'zz: no decide nada',
                 'Zz\\SinMotivo::_allowedRoute' => '',
@@ -135,7 +135,7 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
             $controller('ZzUndeclared', "        \$allow = \$route !== '';\n        if (\$name === 'zz') {\n            \$allow = false;\n        }\n        return \$allow;\n"),
         ];
         $baseline = $call('cloneBaseline');
-        $check(count($baseline['errores']) === 1 && str_contains($baseline['errores'][0], 'Zz\\SinMotivo'), '5a una sobreescritura sin motivo es un error del archivo', implode(' | ', $baseline['errores']));
+        $check(count($baseline['errors']) === 1 && str_contains($baseline['errors'][0], 'Zz\\SinMotivo'), '5a una sobreescritura sin motivo es un error del archivo', implode(' | ', $baseline['errors']));
         $mine = array_values(array_filter($call('checkRouteOverrides', [$files]), fn (string $line): bool => str_starts_with($line, "ZzCloneTest{$suffix}\\")));
         $about = fn (string $class): array => array_values(array_filter($mine, fn (string $line): bool => str_starts_with($line, "ZzCloneTest{$suffix}\\{$class}::")));
         $check($about('ZzDecides') === [], '5b una sobreescritura declarada que decide pasa', implode(' | ', $about('ZzDecides')));
@@ -146,14 +146,58 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
         //──── 6. update-clone-baseline escribe y conserva las sobreescrituras ─────────────────
         echoTerminal('[6] Escribir la línea base del clon');
         $check($call('writeCloneBaseline', [$style]) === false, '6a con el archivo mal (la sobreescritura sin motivo) no se escribe');
-        $written = file_put_contents($baselineFile, json_encode(['sobreescrituras_de_ruta' => ["ZzCloneTest{$suffix}\\ZzDecides::_allowedRoute" => 'zz: solo el creador']], \JSON_UNESCAPED_UNICODE));
+        $written = file_put_contents($baselineFile, json_encode(['route_overrides' => ["ZzCloneTest{$suffix}\\ZzDecides::_allowedRoute" => 'zz: solo el creador']], \JSON_UNESCAPED_UNICODE));
         if ($written === false) {
             throw new \RuntimeException("no se pudo escribir {$baselineFile}");
         }
         $check($call('writeCloneBaseline', [$style]) === true, '6b se escribe');
         $document = json_decode((string) file_get_contents($baselineFile), true);
-        $check(($document['estilo']['ORDEN']['piecesphp/src/app/zz/B.php'] ?? null) === 1 && ($document['estilo']['COMENTARIO']['src/app/zz/A.php'] ?? null) === 5 && ($document['estilo']['STYLE EN VISTA']['src/app/zz/Views/a.php'] ?? null) === 3, '6c con la cifra de cada archivo por regla', (string) json_encode($document['estilo'] ?? null, \JSON_UNESCAPED_UNICODE));
-        $check(isset($document['sobreescrituras_de_ruta']["ZzCloneTest{$suffix}\\ZzDecides::_allowedRoute"]), '6d y conserva las sobreescrituras de ruta');
+        $check(($document['style']['ORDEN']['piecesphp/src/app/zz/B.php'] ?? null) === 1 && ($document['style']['COMENTARIO']['src/app/zz/A.php'] ?? null) === 5 && ($document['style']['STYLE EN VISTA']['src/app/zz/Views/a.php'] ?? null) === 3, '6c con la cifra de cada archivo por regla', (string) json_encode($document['style'] ?? null, \JSON_UNESCAPED_UNICODE));
+        $check(isset($document['route_overrides']["ZzCloneTest{$suffix}\\ZzDecides::_allowedRoute"]), '6d y conserva las sobreescrituras de ruta');
+        echoTerminal(' ');
+
+        //──── 8. DOCBLOCK HUÉRFANO, de estilo (H369) ───────────────────────────────────────────
+        echoTerminal('[8] DOCBLOCK HUÉRFANO se congela como las demás de estilo');
+        $orphan = 'src/app/zz/C.php:12 — un docblock con @param/@return va seguido de otro docblock: quedó separado de lo que documenta.';
+        if (file_put_contents($baselineFile, json_encode(['style' => ['DOCBLOCK HUÉRFANO' => ['src/app/zz/C.php' => 1]]], \JSON_UNESCAPED_UNICODE)) === false) {
+            throw new \RuntimeException("no se pudo escribir {$baselineFile}");
+        }
+        [$kept] = $call('applyCloneBaseline', [['DOCBLOCK HUÉRFANO' => [$orphan]]]);
+        $check($kept['DOCBLOCK HUÉRFANO'] === [], '8a uno en la línea base no cae');
+        [$kept] = $call('applyCloneBaseline', [['DOCBLOCK HUÉRFANO' => [$orphan, str_replace(':12', ':40', $orphan)]]]);
+        $check(count($kept['DOCBLOCK HUÉRFANO']) === 2, '8b uno más en el mismo archivo cae');
+        echoTerminal(' ');
+
+        //──── 9. Los usos de ofuscación del proyecto (H369) ────────────────────────────────────
+        echoTerminal('[9] La ofuscación del proyecto se declara como Clase::método con su motivo');
+        $namespace = "ZzCloneObf{$suffix}";
+        $obfuscatorCode = "<?php\n\nnamespace {$namespace};\n\nuse PiecesPHP\\Core\\BaseHashEncryption;\n\nclass ZzSlug\n{\n    public static function slug(int \$id): string\n    {\n        return BaseHashEncryption::obfuscate((string) \$id, 'zz');\n    }\n}\n";
+        if (file_put_contents("{$directory}/ZzSlug.php", $obfuscatorCode) === false) {
+            throw new \RuntimeException('no se pudo escribir ZzSlug.php');
+        }
+        $check($call('methodAtLine', [$obfuscatorCode, 11]) === "{$namespace}\\ZzSlug::slug", '9a methodAtLine() da la clase y el método de la llamada', (string) $call('methodAtLine', [$obfuscatorCode, 11]));
+        $mineObf = fn (): array => array_values(array_filter($call('checkSealedPurposes'), fn (string $line): bool => str_contains($line, $namespace) || str_contains($line, "zz-vi-clone-{$suffix}")));
+        if (file_put_contents($baselineFile, '{}') === false) {
+            throw new \RuntimeException("no se pudo escribir {$baselineFile}");
+        }
+        $undeclared = $mineObf();
+        $check(count($undeclared) === 1 && str_contains($undeclared[0], 'ofusca fuera de la lista'), '9b sin declararlo, el uso cae', implode(' | ', $undeclared));
+        if (file_put_contents($baselineFile, json_encode(['obfuscation' => ["{$namespace}\\ZzSlug::slug" => 'zz: el id corto de la dirección', "{$namespace}\\ZzSlug::otro" => 'zz: ya no existe']], \JSON_UNESCAPED_UNICODE)) === false) {
+            throw new \RuntimeException("no se pudo escribir {$baselineFile}");
+        }
+        $declared = $mineObf();
+        $check(count($declared) === 1 && str_contains($declared[0], 'ZzSlug::otro') && str_contains($declared[0], 'ya no ofusca'), '9c declarado, el uso pasa; y uno declarado que ya no existe cae', implode(' | ', $declared));
+        if (file_put_contents($baselineFile, json_encode(['obfuscation' => ["{$namespace}\\ZzSlug::slug" => '']], \JSON_UNESCAPED_UNICODE)) === false) {
+            throw new \RuntimeException("no se pudo escribir {$baselineFile}");
+        }
+        $baseline = $call('cloneBaseline');
+        $check($baseline['obfuscation'] === [] && count($baseline['errors']) === 1, '9d un uso sin motivo es un error del archivo y no se acepta', implode(' | ', $baseline['errors']));
+        if (file_put_contents($baselineFile, json_encode(['obfuscation' => ["{$namespace}\\ZzSlug::slug" => 'zz: el id corto']], \JSON_UNESCAPED_UNICODE)) === false) {
+            throw new \RuntimeException("no se pudo escribir {$baselineFile}");
+        }
+        $call('writeCloneBaseline', [[]]);
+        $document = json_decode((string) file_get_contents($baselineFile), true);
+        $check(isset($document['obfuscation']["{$namespace}\\ZzSlug::slug"]), '9e update-clone-baseline conserva «obfuscation»');
         echoTerminal(' ');
 
         //──── 7. En el repositorio del framework, el archivo del clon es un fallo ─────────────

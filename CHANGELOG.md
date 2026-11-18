@@ -1,8 +1,19 @@
+# 10.49.0 (17-11-2026)
+
+- **`robots.txt`, `sitemap.xml`, `llms.txt` y `humans.txt` ya no los tapa el comodín de un módulo del proyecto**: se
+  registran antes que los módulos del proyecto.
+- **Un proyecto que sustituye rutas públicas del framework** las quita con `$config['public_area_ignore_routes']`.
+- **La línea base del proyecto de `verify-integrity`** admite también DOCBLOCK HUÉRFANO y sus usos declarados de
+  ofuscación, cada uno con su motivo.
+- **Borrar una categoría de Publicaciones que no se puede borrar** vuelve a decir por qué, en lugar de un aviso genérico.
+- **Al actualizar**: si tienes `$config` propio en `config.php`, añade `public_area_ignore_routes` solo si lo necesitas;
+  sin él, todo sigue igual.
+
 # 10.48.0 (17-11-2026)
 
-- **Apagar Publicaciones ya no tumba el sitio**: con `PUBLICATIONS_MODULE` apagado (o las aprobaciones apagadas), el
-  arranque, las aprobaciones, la tarea programada de visibilidad de las publicaciones, los archivos protegidos, la API y
-  los informes dejan de tocar sus tablas. Antes, sin las tablas `publications_*`, cada página y cada orden de la terminal
+- **Apagar Publicaciones ya no tumba el sitio**: con `PUBLICATIONS_MODULE` apagado, el arranque, las aprobaciones, la
+  tarea programada de visibilidad de las publicaciones, los archivos protegidos, la API, los informes y la página «Acerca
+  de» dejan de tocar sus tablas; y con las aprobaciones apagadas, las publicaciones ya no se registran para aprobar. Antes, sin las tablas `publications_*`, cada página y cada orden de la terminal
   daba un error 500.
 - **Un proyecto con su propio módulo de publicaciones** protege su carpeta de subidas con su validador:
   `ProtectFileMiddleware::protect()` en su `src/app/config/extensions/protected-files.php`. Con Publicaciones apagado,

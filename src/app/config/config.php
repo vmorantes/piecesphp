@@ -76,6 +76,8 @@ $config['other_problems_recipients'] = [];
 $config['support_form_recipients'] = ['help@example.org'];
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
+//Rutas públicas del framework que tu proyecto sustituye, por nombre (public-index, public-generic…); vacía, ninguna.
+$config['public_area_ignore_routes'] = [];
 //La llave del cron (CronJobKey) no va aquí: la pone secure-keys/cronjob (core/extensions/api-keys.php). Sin ella, la ruta
 //del cron no acepta ninguna.
 

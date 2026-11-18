@@ -212,16 +212,15 @@ ReportsManageRoutes::routes($zona_administrativa);
 //Helpers
 HelpersSystemRoutes::routes($zona_administrativa);
 
+//Archivos para buscadores, antes que tus módulos: su comodín los taparía; con prefijo vacío, en la zona pública (H371).
+SiteFilesController::routes($prefix_lang === '' ? $zona_publica : new PiecesRouteGroup(''));
+
 //── Del clon ──
 //Tus módulos: TusRutas::routes($zona_administrativa, $zona_publica);
 
 //──── PÚBLICA ───────────────────────────────────────────────────────────────────────────
 
 //── Del framework: no lo edites ──
-
-//robots.txt, humans.txt y llms.txt, en la raíz. Los grupos se guardan por prefijo: con el de la zona pública vacío, un
-//`new PiecesRouteGroup('')` perdería sus rutas en silencio. Van antes que la zona pública, que acaba en una ruta comodín.
-SiteFilesController::routes($prefix_lang === '' ? $zona_publica : new PiecesRouteGroup(''));
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

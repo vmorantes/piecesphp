@@ -557,7 +557,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
 
         //──── El código propio de un clon (H366): línea base SOLO para las reglas de estilo ─
-        $styleFailures = ['COMENTARIO' => $narrativeFailures, 'COLOR SUELTO' => $looseColorFailures, 'STYLE EN VISTA' => $inlineStyleFailures, 'ORDEN' => $orderFailures];
+        $styleFailures = ['COMENTARIO' => $narrativeFailures, 'COLOR SUELTO' => $looseColorFailures, 'STYLE EN VISTA' => $inlineStyleFailures, 'ORDEN' => $orderFailures, 'DOCBLOCK HUÉRFANO' => $orphanFailures];
         if (TerminalData::instance()->getArgument('update-clone-baseline', 'no') === 'yes') {
             exit(self::writeCloneBaseline($styleFailures) ? 0 : 1);
         }
@@ -570,6 +570,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $looseColorFailures = $styleFailures['COLOR SUELTO'];
         $inlineStyleFailures = $styleFailures['STYLE EN VISTA'];
         $orderFailures = $styleFailures['ORDEN'];
+        $orphanFailures = $styleFailures['DOCBLOCK HUÉRFANO'];
 
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($cloneFailures) + count($sealedFailures) + count($docblockFailures) + count($signatureFailures)
@@ -1396,7 +1397,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     /** La línea base del código propio de un clon (H366): la crea el clon con update-clone-baseline=yes; en el framework no existe. */
     const CLONE_BASELINE_RELATIVE_PATH = 'files/clone/verify-integrity.json';
     /** Las reglas de estilo que admite esa línea base. Las de funcionamiento y seguridad nunca. */
-    const CLONE_STYLE_RULES = ['COMENTARIO', 'COLOR SUELTO', 'STYLE EN VISTA', 'ORDEN'];
+    const CLONE_STYLE_RULES = ['COMENTARIO', 'COLOR SUELTO', 'STYLE EN VISTA', 'ORDEN', 'DOCBLOCK HUÉRFANO'];
 
     const KNOWN_ROUTE_OVERRIDES = [
         //──── Propiedad del recurso ────────────────────────────────────────────────────
@@ -1420,40 +1421,48 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     ];
 
     /**
-     * La línea base del clon (H366): `estilo` (regla => archivo => cifra) y `sobreescrituras` (`Clase::método` => motivo), y
+     * La línea base del clon (H366): `style` (regla => archivo => cifra), `overrides` (`Clase::método` => motivo) y `obfuscation`, y
      * lo que no se pudo leer. Sin archivo, todo vacío y nada cambia. `PCSPHP_CLONE_BASELINE` cambia la ruta (las pruebas).
      *
-     * @return array{existe:bool,ruta:string,estilo:array<string,array<string,int>>,sobreescrituras:array<string,string>,errores:string[]}
+     * @return array{exists:bool,path:string,style:array<string,array<string,int>>,overrides:array<string,string>,obfuscation:array<string,string>,errors:string[]}
      */
     protected static function cloneBaseline(): array
     {
         $path = getenv('PCSPHP_CLONE_BASELINE') ?: Distribution::root() . '/' . self::CLONE_BASELINE_RELATIVE_PATH;
-        $result = ['existe' => is_file($path), 'ruta' => $path, 'estilo' => [], 'sobreescrituras' => [], 'errores' => []];
-        if (!$result['existe']) {
+        $result = ['exists' => is_file($path), 'path' => $path, 'style' => [], 'overrides' => [], 'obfuscation' => [], 'errors' => []];
+        if (!$result['exists']) {
             return $result;
         }
         $data = json_decode((string) file_get_contents($path), true);
         if (!is_array($data)) {
-            $result['errores'][] = "{$path} no es JSON válido: la línea base del clon no se aplica";
+            $result['errors'][] = "{$path} no es JSON válido: la línea base del clon no se aplica";
             return $result;
         }
-        foreach ((array) ($data['estilo'] ?? []) as $rule => $files) {
+        foreach ((array) ($data['style'] ?? []) as $rule => $files) {
             if (!in_array($rule, self::CLONE_STYLE_RULES, true)) {
-                $result['errores'][] = "{$path}: «{$rule}» no es una regla de estilo; solo admite " . implode(', ', self::CLONE_STYLE_RULES);
+                $result['errors'][] = "{$path}: «{$rule}» no es una regla de estilo; solo admite " . implode(', ', self::CLONE_STYLE_RULES);
                 continue;
             }
             foreach ((array) $files as $file => $count) {
                 if (is_string($file) && is_int($count) && $count > 0) {
-                    $result['estilo'][$rule][$file] = $count;
+                    $result['style'][$rule][$file] = $count;
                 }
             }
         }
-        foreach ((array) ($data['sobreescrituras_de_ruta'] ?? []) as $key => $reason) {
+        foreach ((array) ($data['route_overrides'] ?? []) as $key => $reason) {
             if (!is_string($key) || preg_match('/^[\\\\\w]+::(routeName|allowedRoute|_allowedRoute)$/', $key) !== 1 || !is_string($reason) || trim($reason) === '') {
-                $result['errores'][] = "{$path}: la sobreescritura «" . (is_string($key) ? $key : '?') . '» necesita la forma Clase::routeName|allowedRoute|_allowedRoute y su motivo';
+                $result['errors'][] = "{$path}: la sobreescritura «" . (is_string($key) ? $key : '?') . '» necesita la forma Clase::routeName|allowedRoute|_allowedRoute y su motivo';
                 continue;
             }
-            $result['sobreescrituras'][$key] = $reason;
+            $result['overrides'][$key] = $reason;
+        }
+        //Los usos de obfuscate()/deobfuscate() del proyecto (H369), como Clase::método: ofuscar no guarda un secreto.
+        foreach ((array) ($data['obfuscation'] ?? []) as $key => $reason) {
+            if (!is_string($key) || preg_match('/^[\\\\\w]+::\w+$/', $key) !== 1 || !is_string($reason) || trim($reason) === '') {
+                $result['errors'][] = "{$path}: el uso de ofuscación «" . (is_string($key) ? $key : '?') . '» necesita la forma Clase::método y su motivo';
+                continue;
+            }
+            $result['obfuscation'][$key] = $reason;
         }
         return $result;
     }
@@ -1484,7 +1493,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function cloneStyleEntry(string $rule, string $line): ?array
     {
         return match ($rule) {
-            'ORDEN', 'COLOR SUELTO' => preg_match('/^(\S+?):\d+ — /u', $line, $m) === 1 ? [$m[1], 1] : null,
+            'ORDEN', 'COLOR SUELTO', 'DOCBLOCK HUÉRFANO' => preg_match('/^(\S+?):\d+ — /u', $line, $m) === 1 ? [$m[1], 1] : null,
             'COMENTARIO' => preg_match('/^(\S+) — (?:\d+ bloque\(s\) narrativo\(s\), (\d+) líneas de prosa|la prosa narrativa CRECIÓ de \d+ a (\d+) líneas)/u', $line, $m) === 1
                 ? [$m[1], (int) (($m[3] ?? '') !== '' ? $m[3] : ($m[2] ?? '0'))] : null,
             'STYLE EN VISTA' => preg_match('/^(\S+): \d+ -> (\d+)$/u', $line, $m) === 1 ? [$m[1], (int) $m[2]] : null,
@@ -1493,7 +1502,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * La cifra de cada archivo en los fallos de una regla de estilo: ORDEN y COLOR SUELTO cuentan líneas; COMENTARIO, las
+     * La cifra de cada archivo en los fallos de una regla de estilo: ORDEN, COLOR SUELTO y DOCBLOCK HUÉRFANO cuentan líneas; COMENTARIO, las
      * líneas de prosa; STYLE EN VISTA, los style=".
      *
      * @param string $rule
@@ -1506,7 +1515,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($lines as $line) {
             $entry = self::cloneStyleEntry($rule, $line);
             if ($entry !== null) {
-                $counts[$entry[0]] = in_array($rule, ['ORDEN', 'COLOR SUELTO'], true) ? ($counts[$entry[0]] ?? 0) + $entry[1] : max($counts[$entry[0]] ?? 0, $entry[1]);
+                $counts[$entry[0]] = in_array($rule, ['ORDEN', 'COLOR SUELTO', 'DOCBLOCK HUÉRFANO'], true) ? ($counts[$entry[0]] ?? 0) + $entry[1] : max($counts[$entry[0]] ?? 0, $entry[1]);
             }
         }
         ksort($counts);
@@ -1524,13 +1533,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function applyCloneBaseline(array $styleFailures): array
     {
         $baseline = self::cloneBaseline();
-        if (!$baseline['existe']) {
+        if (!$baseline['exists']) {
             return [$styleFailures, []];
         }
         $suppressed = 0;
         $lower = [];
         foreach ($styleFailures as $rule => $lines) {
-            $frozen = $baseline['estilo'][$rule] ?? [];
+            $frozen = $baseline['style'][$rule] ?? [];
             $counts = self::cloneStyleCounts($rule, $lines);
             $kept = [];
             $keptFile = false;
@@ -1560,13 +1569,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
             $styleFailures[$rule] = $kept;
         }
-        echoTerminal("\e[94mINFO:\e[39m línea base del clon ({$baseline['ruta']}): {$suppressed} fallo(s) de estilo congelado(s) en "
-            . implode(', ', self::CLONE_STYLE_RULES) . '; ' . count($baseline['sobreescrituras']) . ' sobreescritura(s) de ruta del clon.');
+        echoTerminal("\e[94mINFO:\e[39m línea base del clon ({$baseline['path']}): {$suppressed} fallo(s) de estilo congelado(s) en "
+            . implode(', ', self::CLONE_STYLE_RULES) . '; ' . count($baseline['overrides']) . ' sobreescritura(s) de ruta del clon.');
         if ($lower !== []) {
             echoTerminal("\e[33mAVISO:\e[39m la línea base del clon BAJA en " . count($lower) . ' archivo(s): ' . implode('; ', $lower)
                 . '. Regenera con bin/cli verify-integrity update-clone-baseline=yes');
         }
-        return [$styleFailures, $baseline['errores']];
+        return [$styleFailures, $baseline['errors']];
     }
 
     /**
@@ -1578,8 +1587,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function writeCloneBaseline(array $styleFailures): bool
     {
         $baseline = self::cloneBaseline();
-        if ($baseline['errores'] !== []) {
-            foreach ($baseline['errores'] as $error) {
+        if ($baseline['errors'] !== []) {
+            foreach ($baseline['errors'] as $error) {
                 echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$error}");
             }
             echoTerminal("\e[31mNo se escribe: arregla primero el archivo.\e[39m");
@@ -1592,27 +1601,28 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 $style[$rule] = $counts;
             }
         }
-        $previous = $baseline['existe'] ? json_decode((string) file_get_contents($baseline['ruta']), true) : [];
+        $previous = $baseline['exists'] ? json_decode((string) file_get_contents($baseline['path']), true) : [];
         $document = [
-            'medido' => [
-                'fecha' => date('Y-m-d H:i'),
-                'metodo' => 'bin/cli verify-integrity update-clone-baseline=yes: los fallos de ' . implode(', ', self::CLONE_STYLE_RULES)
-                    . ' por archivo (ORDEN y COLOR SUELTO, líneas; COMENTARIO, líneas de prosa; STYLE EN VISTA, style=")',
+            'measured' => [
+                'date' => date('Y-m-d H:i'),
+                'method' => 'bin/cli verify-integrity update-clone-baseline=yes: los fallos de ' . implode(', ', self::CLONE_STYLE_RULES)
+                    . ' por archivo (ORDEN, COLOR SUELTO y DOCBLOCK HUÉRFANO, líneas; COMENTARIO, líneas de prosa; STYLE EN VISTA, style=")',
             ],
-            'estilo' => (object) $style,
-            'sobreescrituras_de_ruta' => (object) (is_array($previous['sobreescrituras_de_ruta'] ?? null) ? $previous['sobreescrituras_de_ruta'] : []),
+            'style' => (object) $style,
+            'route_overrides' => (object) (is_array($previous['route_overrides'] ?? null) ? $previous['route_overrides'] : []),
+            'obfuscation' => (object) (is_array($previous['obfuscation'] ?? null) ? $previous['obfuscation'] : []),
         ];
-        $directory = dirname($baseline['ruta']);
+        $directory = dirname($baseline['path']);
         if (!is_dir($directory) && !mkdir($directory, 0775, true)) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m no se pudo crear {$directory}");
             return false;
         }
         $json = json_encode($document, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
-        if (!is_string($json) || file_put_contents($baseline['ruta'], $json . "\n") === false) {
-            echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m no se pudo escribir {$baseline['ruta']}");
+        if (!is_string($json) || file_put_contents($baseline['path'], $json . "\n") === false) {
+            echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m no se pudo escribir {$baseline['path']}");
             return false;
         }
-        echoTerminal("\e[34mLínea base del clon escrita:\e[39m " . array_sum(array_map('count', $style)) . " archivo(s) con fallos de estilo en {$baseline['ruta']}.");
+        echoTerminal("\e[34mLínea base del clon escrita:\e[39m " . array_sum(array_map('count', $style)) . " archivo(s) con fallos de estilo en {$baseline['path']}.");
         return true;
     }
 
@@ -1658,7 +1668,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $found = [];
         $plantillas = 0;
         //Las del clon (H366) entran con las mismas reglas: registradas con su motivo y con el mismo clasificador.
-        $known = self::KNOWN_ROUTE_OVERRIDES + self::cloneBaseline()['sobreescrituras'];
+        $known = self::KNOWN_ROUTE_OVERRIDES + self::cloneBaseline()['overrides'];
 
         foreach ($files as $relative) {
             $relative = str_replace('\\', '/', $relative);
@@ -1695,7 +1705,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
                 if (!array_key_exists($key, $known)) {
                     $failures[] = $key . ' — sobreescribe un método del trait sin estar registrado.'
-                        . ' Si decide algo, va a KNOWN_ROUTE_OVERRIDES con su razón (en un clon, a «sobreescrituras_de_ruta» de '
+                        . ' Si decide algo, va a KNOWN_ROUTE_OVERRIDES con su razón (en un clon, a «route_overrides» de '
                         . self::CLONE_BASELINE_RELATIVE_PATH . '); si no, se borra.';
                     continue;
                 }
@@ -6646,6 +6656,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $failures = [];
         $sealedCalls = 0;
         $obfuscating = [];
+        $cloneObfuscation = self::cloneBaseline()['obfuscation'];
+        $cloneSeen = [];
         foreach ($archivos as $archivo) {
             $contenido = (string) file_get_contents($archivo);
             if (mb_strpos($contenido, 'Sealed') === false && mb_strpos($contenido, 'obfuscate') === false) {
@@ -6656,8 +6668,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 $sitio = "{$relativo}:{$llamada['line']}";
                 if ($llamada['kind'] === 'obfuscate') {
                     $obfuscating[$relativo] = true;
+                    $method = self::methodAtLine($contenido, (int) $llamada['line']);
+                    if ($method !== null && array_key_exists($method, $cloneObfuscation)) {
+                        $cloneSeen[$method] = true;
+                        continue;
+                    }
                     if (!array_key_exists($relativo, self::OBFUSCATION_ALLOWED)) {
-                        $failures[] = "{$sitio}: ofusca fuera de la lista; un secreto va con Crypto\\Sealed y un propósito declarado";
+                        $failures[] = "{$sitio}: ofusca fuera de la lista" . ($method !== null ? " ({$method})" : '')
+                            . '; un secreto va con Crypto\\Sealed y un propósito declarado. En un proyecto, se declara en «obfuscation» de ' . self::CLONE_BASELINE_RELATIVE_PATH;
                     }
                     continue;
                 }
@@ -6677,11 +6695,86 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 $failures[] = "OBFUSCATION_ALLOWED: {$permitido} ya no ofusca; la lista solo encoge";
             }
         }
+        foreach (array_keys($cloneObfuscation) as $declarado) {
+            if (!array_key_exists($declarado, $cloneSeen)) {
+                $failures[] = self::CLONE_BASELINE_RELATIVE_PATH . ": {$declarado} figura en «obfuscation» y ya no ofusca; retira la entrada";
+            }
+        }
 
         if (count($failures) === 0) {
             echoTerminal("\e[94mINFO:\e[39m cifrado: " . count($archivos) . " archivo(s) en el universo (src/app y src/index.php, sin vendor, logs ni local-tests); {$sealedCalls} llamada(s) a Sealed, todas con un propósito declarado (" . count($declared) . '); ' . count($obfuscating) . ' archivo(s) que ofuscan, todos en la lista.');
         }
         return $failures;
+    }
+
+    /**
+     * La clase y el método (`Espacio\Clase::método`) que contienen una línea de un código PHP, o null si la línea no está dentro
+     * de un método de una clase. Por tokens, siguiendo las llaves.
+     *
+     * @param string $code
+     * @param int $line
+     * @return string|null
+     */
+    protected static function methodAtLine(string $code, int $line): ?string
+    {
+        $tokens = token_get_all($code);
+        $namespace = '';
+        $depth = 0;
+        $stack = [];
+        $pending = null;
+        $count = count($tokens);
+        for ($i = 0; $i < $count; $i++) {
+            $token = $tokens[$i];
+            $tokenLine = is_array($token) ? $token[2] : null;
+            if ($tokenLine !== null && $tokenLine >= $line) {
+                break;
+            }
+            if (is_array($token)) {
+                if ($token[0] === \T_NAMESPACE) {
+                    $name = '';
+                    for ($j = $i + 1; $j < $count && $tokens[$j] !== ';' && $tokens[$j] !== '{'; $j++) {
+                        $name .= is_array($tokens[$j]) ? trim($tokens[$j][1]) : '';
+                    }
+                    $namespace = $name;
+                } elseif (in_array($token[0], [\T_CLASS, \T_TRAIT, \T_INTERFACE, \T_ENUM], true) || $token[0] === \T_FUNCTION) {
+                    for ($j = $i + 1; $j < $count && is_array($tokens[$j]) && in_array($tokens[$j][0], [\T_WHITESPACE, \T_COMMENT], true); $j++) {
+                    }
+                    if (is_array($tokens[$j] ?? null) && $tokens[$j][0] === \T_STRING) {
+                        $pending = [$token[0] === \T_FUNCTION ? 'function' : 'class', $tokens[$j][1]];
+                    } elseif ($tokens[$j] === '&' && is_array($tokens[$j + 1] ?? null) && $tokens[$j + 1][0] === \T_STRING) {
+                        $pending = ['function', $tokens[$j + 1][1]];
+                    }
+                } elseif (in_array($token[0], [\T_CURLY_OPEN, \T_DOLLAR_OPEN_CURLY_BRACES], true)) {
+                    $depth++;
+                }
+                continue;
+            }
+            if ($token === ';' && $pending !== null && $pending[0] === 'function') {
+                $pending = null;
+            } elseif ($token === '{') {
+                $depth++;
+                if ($pending !== null) {
+                    $stack[] = [$pending[0], $pending[1], $depth];
+                    $pending = null;
+                }
+            } elseif ($token === '}') {
+                while ($stack !== [] && end($stack)[2] >= $depth) {
+                    array_pop($stack);
+                }
+                $depth--;
+            }
+        }
+        $class = null;
+        $method = null;
+        foreach ($stack as [$kind, $name]) {
+            if ($kind === 'class') {
+                $class = $name;
+                $method = null;
+            } elseif ($class !== null && $method === null) {
+                $method = $name;
+            }
+        }
+        return $class !== null && $method !== null ? ($namespace !== '' ? $namespace . '\\' : '') . $class . '::' . $method : null;
     }
 
     /**

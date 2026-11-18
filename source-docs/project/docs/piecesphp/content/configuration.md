@@ -517,6 +517,13 @@ Slim atiende la primera ruta que casa. `RouteGroup` registra los grupos en el or
 
 - Declara de lo más específico a lo menos específico, tanto los grupos como las rutas dentro de un grupo.
 - Los servicios y el backoffice van antes que la zona pública.
+- **`robots.txt`, `sitemap.xml`, `llms.txt` y `humans.txt` van antes que el hueco «Del clon»** (desde la 10.49.0): un
+  comodín de tu proyecto (`/{name}`) ya no los tapa. El contenido de esos archivos se edita en Configuración › Archivos
+  para buscadores, no con rutas.
+- **Si tu módulo sustituye rutas públicas del framework** (la portada `public-index`, las genéricas `public-generic` y
+  `public-generic-2`…), quítalas del framework con `$config['public_area_ignore_routes']` en `config.php`, una lista
+  de nombres de ruta: así cada URL tiene un solo nombre. El formulario de contacto se apaga entero con
+  `define('PUBLIC_AREA_CONTACT_FORMS', false)` en `constants.php`.
 - Un grupo al que nunca llamas `register()` no aporta rutas. Dos grupos con el mismo prefijo son dos entradas
   distintas.
 
