@@ -2,11 +2,8 @@
 @use 'sass:meta';
 @use 'imports/functions' as *;
 @use 'imports/variables' as *;
-@use '../core/sass/includes/reset-font-family-fomantic' with ($fontGlobal: $fontGlobal);
 @use 'imports/components' as *;
 @use 'imports/overwrites' as *;
-@import url(static-url('../fonts/public-sans/public-sans.css'));
-@import url(static-url('../fonts/poppins/poppins.css'));
 
 html {
     overflow-x: hidden;
@@ -45,7 +42,6 @@ img {
 body {
 
     position: relative;
-    font-family: $fontGlobal;
     font-weight: $fwRegular;
     font-size: 18px;
     line-height: 25px;

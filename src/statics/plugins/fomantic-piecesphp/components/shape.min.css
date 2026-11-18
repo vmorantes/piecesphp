@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.16.1 - Shape
+ * # Fomantic-UI 0.18.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

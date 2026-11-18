@@ -3,7 +3,7 @@
 
 //Lo que un proyecto cambia sin tocar el JS: los colores salen de los tokens del tema, y geo-viewer.js lee los de las fuentes.
 body.geo-viewer {
-    --geo-persons-color: var(--accent);
+    --geo-persons-color: var(--accent-1, var(--accent));
     --geo-organizations-color: var(--accent-2);
     --geo-text-color: var(--theme-text);
     --geo-on-color: var(--accent-contrast);
@@ -99,7 +99,7 @@ body.geo-viewer {
             box-shadow: 0 1px 6px var(--geo-panel-shadow);
 
             &.active {
-                background: var(--accent);
+                background: var(--accent-1, var(--accent));
                 color: var(--geo-on-color);
             }
         }

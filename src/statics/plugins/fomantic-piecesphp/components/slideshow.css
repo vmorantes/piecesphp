@@ -237,7 +237,7 @@
   background: color-mix(in srgb, currentColor 45%, transparent);
 }
 .ui.slideshow:where(:not(:has(.slides .slide img, .slides .slide .image)), :has(.slides > .active.slide):not(:has(.slides > .active.slide img, .slides > .active.slide .image))) .indicators > .active.indicator {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 
 
@@ -337,7 +337,7 @@
   background: light-dark(#99a1af, #737c8c);
 }
 .ui.outside.slideshow .indicators > .active.indicator {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 
 /* --------------
@@ -345,62 +345,86 @@
 --------------- */
 .ui.primary.slideshow .indicators > .active.indicator,
 .ui.primary.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.primary.slideshow > .control:focus-visible,
 .ui.primary.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-1, var(--accent, #356dca));
+  outline-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.primary.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 .ui.secondary.slideshow .indicators > .active.indicator,
 .ui.secondary.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.secondary.slideshow > .control:focus-visible,
 .ui.secondary.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-2, #7a5af8);
+  outline-color: var(--accent-2, #0b7a77);
 }
 .ui.secondary.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 .ui.accent-1.slideshow .indicators > .active.indicator,
 .ui.accent-1.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.accent-1.slideshow > .control:focus-visible,
 .ui.accent-1.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-1, var(--accent, #356dca));
+  outline-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.accent-1.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 .ui.accent-2.slideshow .indicators > .active.indicator,
 .ui.accent-2.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.accent-2.slideshow > .control:focus-visible,
 .ui.accent-2.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-2, #7a5af8);
+  outline-color: var(--accent-2, #0b7a77);
 }
 .ui.accent-2.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  color: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 .ui.accent-3.slideshow .indicators > .active.indicator,
 .ui.accent-3.slideshow .indicators > .active.indicator:hover {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3, #e8730c);
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.accent-3.slideshow > .control:focus-visible,
 .ui.accent-3.slideshow .indicators > .indicator:focus-visible {
-  outline-color: var(--accent-3, #c11574);
+  outline-color: var(--accent-3, #e8730c);
 }
 .ui.accent-3.outside.slideshow > .control:hover {
-  color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  color: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
 }
 .ui.red.slideshow .indicators > .active.indicator,
 .ui.red.slideshow .indicators > .active.indicator:hover {
   background: #f04438;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.red.slideshow > .control:focus-visible,
 .ui.red.slideshow .indicators > .indicator:focus-visible {
@@ -412,6 +436,10 @@
 .ui.orange.slideshow .indicators > .active.indicator,
 .ui.orange.slideshow .indicators > .active.indicator:hover {
   background: #ef6820;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.orange.slideshow > .control:focus-visible,
 .ui.orange.slideshow .indicators > .indicator:focus-visible {
@@ -423,6 +451,10 @@
 .ui.yellow.slideshow .indicators > .active.indicator,
 .ui.yellow.slideshow .indicators > .active.indicator:hover {
   background: #f79009;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.yellow.slideshow > .control:focus-visible,
 .ui.yellow.slideshow .indicators > .indicator:focus-visible {
@@ -434,6 +466,10 @@
 .ui.olive.slideshow .indicators > .active.indicator,
 .ui.olive.slideshow .indicators > .active.indicator:hover {
   background: #84a11b;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.olive.slideshow > .control:focus-visible,
 .ui.olive.slideshow .indicators > .indicator:focus-visible {
@@ -445,6 +481,10 @@
 .ui.green.slideshow .indicators > .active.indicator,
 .ui.green.slideshow .indicators > .active.indicator:hover {
   background: #17b26a;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.green.slideshow > .control:focus-visible,
 .ui.green.slideshow .indicators > .indicator:focus-visible {
@@ -456,6 +496,10 @@
 .ui.teal.slideshow .indicators > .active.indicator,
 .ui.teal.slideshow .indicators > .active.indicator:hover {
   background: #06aed4;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.teal.slideshow > .control:focus-visible,
 .ui.teal.slideshow .indicators > .indicator:focus-visible {
@@ -467,6 +511,10 @@
 .ui.blue.slideshow .indicators > .active.indicator,
 .ui.blue.slideshow .indicators > .active.indicator:hover {
   background: #2e90fa;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.blue.slideshow > .control:focus-visible,
 .ui.blue.slideshow .indicators > .indicator:focus-visible {
@@ -478,6 +526,10 @@
 .ui.violet.slideshow .indicators > .active.indicator,
 .ui.violet.slideshow .indicators > .active.indicator:hover {
   background: #7a5af8;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.violet.slideshow > .control:focus-visible,
 .ui.violet.slideshow .indicators > .indicator:focus-visible {
@@ -489,6 +541,10 @@
 .ui.purple.slideshow .indicators > .active.indicator,
 .ui.purple.slideshow .indicators > .active.indicator:hover {
   background: #9e4cc9;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.purple.slideshow > .control:focus-visible,
 .ui.purple.slideshow .indicators > .indicator:focus-visible {
@@ -500,6 +556,10 @@
 .ui.pink.slideshow .indicators > .active.indicator,
 .ui.pink.slideshow .indicators > .active.indicator:hover {
   background: #c11574;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.pink.slideshow > .control:focus-visible,
 .ui.pink.slideshow .indicators > .indicator:focus-visible {
@@ -511,6 +571,10 @@
 .ui.brown.slideshow .indicators > .active.indicator,
 .ui.brown.slideshow .indicators > .active.indicator:hover {
   background: #6e4a2e;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.brown.slideshow > .control:focus-visible,
 .ui.brown.slideshow .indicators > .indicator:focus-visible {
@@ -522,6 +586,10 @@
 .ui.grey.slideshow .indicators > .active.indicator,
 .ui.grey.slideshow .indicators > .active.indicator:hover {
   background: #687181;
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.grey.slideshow > .control:focus-visible,
 .ui.grey.slideshow .indicators > .indicator:focus-visible {
@@ -533,6 +601,10 @@
 .ui.black.slideshow .indicators > .active.indicator,
 .ui.black.slideshow .indicators > .active.indicator:hover {
   background: light-dark(#1f2430, #535c6e);
+  
+/* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
+               (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 .ui.black.slideshow > .control:focus-visible,
 .ui.black.slideshow .indicators > .indicator:focus-visible {

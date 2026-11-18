@@ -1,7 +1,7 @@
 window.addEventListener('load', function () {
 
 	//Intentos por día (attempts.php): área apilada, fallidos abajo y exitosos encima. Los colores salen del tema en el
-	//navegador: el acento, la variable; el rojo, el de `ui red` leído con getComputedStyle (el tema no lo da en variable).
+	//navegador: el acento de cada modo, la variable; el rojo, el de `ui red` leído con getComputedStyle (el tema no lo da en variable).
 	for (const container of document.querySelectorAll('[data-access-days-chart]')) {
 		if (typeof echarts === 'undefined') {
 			break
@@ -19,7 +19,7 @@ window.addEventListener('load', function () {
 		document.body.appendChild(probe)
 		const red = getComputedStyle(probe).color
 		probe.remove()
-		const [accent, errorColor, muted, border] = statisticsChartThemeColors(['var(--accent)', red, 'var(--theme-text-muted)', 'var(--theme-border)'])
+		const [accent, errorColor, muted, border] = statisticsChartThemeColors(['var(--accent-1, var(--accent))', red, 'var(--theme-text-muted)', 'var(--theme-border)'])
 		//El punto de la leyenda de los fallidos, del mismo rojo que su serie.
 		if (items[1] !== undefined) {
 			items[1].style.setProperty('--custom-color', errorColor)

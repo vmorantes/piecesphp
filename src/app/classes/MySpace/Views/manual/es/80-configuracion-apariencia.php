@@ -78,7 +78,12 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 <tr>
 <td>Color de acento</td>
 <td>No</td>
-<td>El color principal de tu organización.</td>
+<td>El color principal de tu organización. Si es demasiado claro u oscuro para leerse, el panel lo ajusta solo, sin cambiar su tono.</td>
+</tr>
+<tr>
+<td>Acento en modo oscuro</td>
+<td>No</td>
+<td>El acento cuando el panel está en modo oscuro. Con <strong>«Automático»</strong> lo calcula el panel a partir del acento; debajo se ve el color que sale y su contraste.</td>
 </tr>
 <tr>
 <td>Personalizados, Análogos, Tríada, Complementario</td>
@@ -103,7 +108,7 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 <tr>
 <td>Fuente</td>
 <td>No</td>
-<td>La tipografía del panel.</td>
+<td>La tipografía del panel: Atkinson Hyperlegible Next (la de fábrica), Red Hat Text, IBM Plex Sans u Onest.</td>
 </tr>
 <tr>
 <td>Tamaño base</td>

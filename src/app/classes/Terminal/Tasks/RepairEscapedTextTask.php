@@ -207,6 +207,10 @@ class RepairEscapedTextTask extends SchemeSqlTask
                 $updated += $update->rowCount();
             }
         }
+        //Un UPDATE directo sobre la tabla de opciones no lo ve la foto de SettingsModel (ADR 0080).
+        if ($updated > 0 && $table === (string) SettingsModel::model()->getTable()) {
+            SettingsModel::forgetCache();
+        }
         return ['candidates' => $candidates, 'updated' => $updated];
     }
 

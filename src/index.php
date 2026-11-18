@@ -910,8 +910,11 @@ if (APP_CONFIGURATION_MODULE) {
     //Configuraciones de la aplicación tomadas desde la base de datos
     $configurations = SettingsModel::getConfigurations();
 
+    //ADR 0081: las órdenes que la terminal despacha sin usuario no sellan lo de antes; la misma regla que su gancho, más abajo.
+    $sealLegacy = PHP_SAPI !== 'cli' || \Terminal\SessionlessDatabaseTasks::sealsSecretsOnBoot(PHP_SAPI, TerminalData::getInstance()->isTerminal() === true, $actionName ?? '', get_route_info(TerminalController::routeID($actionName ?? '')));
+
     //Solo lo declarado (ADR 0055, segunda versión); $configurations sigue entero para el aviso de lo no declarado.
-    ConfigOptions::applyDeclared($configurations);
+    ConfigOptions::applyDeclared($configurations, $sealLegacy);
 
     //Configuración de correo
     (function ($config) {

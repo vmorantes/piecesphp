@@ -1,11 +1,185 @@
 /* Tokens del tema (variables CSS y color-scheme) sin reglas de elementos, generado por
    examples/catalogo/dependencias.mjs desde site.css. Para componentes sueltos en una página con estilo propio. */
 @font-face {
-  font-family: "Inter";
-  src: url("./../themes/piecesphp/assets/fonts/Inter-Variable.woff2") format("woff2");
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-ext-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-ext-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-ext-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-ext-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-ext-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-ext-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Onest";
+  src: url("./../themes/piecesphp/assets/fonts/onest/onest-latin-ext-wght-normal.woff2") format("woff2");
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
+  size-adjust: 102%;
+  ascent-override: 95%;
+  descent-override: 23.6%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Onest";
+  src: url("./../themes/piecesphp/assets/fonts/onest/onest-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  size-adjust: 102%;
+  ascent-override: 95%;
+  descent-override: 23.6%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 .ui[hidden],
@@ -25,11 +199,11 @@
 }
 
 html {
-  --accent-1: var(--accent, #356dca);
-  --accent-2: #7a5af8;
-  --accent-3: #c11574;
-  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-heading: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --accent-1: light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h));
+  --accent-2: #0b7a77;
+  --accent-3: #e8730c;
+  --font-body: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-size-site: 14px;
   --font-size-base: var(--font-size-site);
 }
@@ -78,9 +252,9 @@ html {
   --theme-border: color-mix(in srgb, var(--theme-text) 55%, transparent);
   --ink-light-max: 0.34;
   --ink-dark-min: 0.86;
-  --accent-1-fill: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
-  --accent-2-fill: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
-  --accent-3-fill: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-1-fill: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-2-fill: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-3-fill: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
   --accent-solid: var(--accent-1-fill);
   --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 62%, #000), color-mix(in oklab, var(--accent-1) 40%, #fff));
   --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 52%, #000), color-mix(in oklab, var(--accent-1) 32%, #fff));
@@ -89,19 +263,19 @@ html {
 
 html {
   --accent-solid: var(--accent-1);
-  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
-  --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
-  --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
-  --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));
-  --accent-200: color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface));
-  --accent-300: color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface));
-  --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 88%, #000), color-mix(in oklab, var(--accent-1) 70%, #fff));
-  --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 72%, #000), color-mix(in oklab, var(--accent-1) 55%, #fff));
-  --accent-text: light-dark(color-mix(in oklab, var(--accent-1) 70%, #1f2430), color-mix(in oklab, var(--accent-1) 55%, #fff));
+  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  --accent-25: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface)) max(l, 0.982) a b), color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface)));
+  --accent-50: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface)) max(l, 0.964) a b), color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface)));
+  --accent-100: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface)) max(l, 0.937) a b), color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface)));
+  --accent-200: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface)) max(l, 0.883) a b), color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface)));
+  --accent-300: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface)) max(l, 0.797) a b), color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface)));
+  --accent-600: light-dark(oklch(from var(--accent-1) min(l, 0.5) c h), oklch(from var(--accent-1) max(l, 0.72) min(c, 0.16) h));
+  --accent-700: light-dark(oklch(from var(--accent-1) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  --accent-text: var(--accent-700);
   --accent-ring: color-mix(in srgb, var(--accent-1) 22%, transparent);
   --data-1: var(--accent-1);
-  --data-2: #7a5af8;
-  --data-3: #c11574;
+  --data-2: #0b7a77;
+  --data-3: #e8730c;
   --data-4: #6e4a2e;
   --data-5: light-dark(#1d2939, #cfd5de);
   --r-xs: 4px;
@@ -114,6 +288,12 @@ html {
   --shadow-md: 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3));
   --shadow-lg: 0 24px 48px -12px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 8px 16px -8px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4));
   --shadow-modal: 0 24px 60px light-dark(rgba(17, 21, 30, 0.28), rgba(0, 0, 0, 0.6));
+}
+
+:root[data-contrast="more"] {
+  --accent-600: light-dark(oklch(from var(--accent-1) min(l, 0.5) c h), oklch(from var(--accent-1) max(l, 0.72) min(c, 0.16) h));
+  --accent-700: light-dark(oklch(from var(--accent-1) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  --accent-text: var(--accent-700);
 }
 
 .ui.tinted.segment,
@@ -130,4 +310,24 @@ html {
 :root[data-contrast="more"] .ui.card > .checkered.image,
 :root[data-contrast="more"] .ui.cards > .card > .checkered.image {
   --theme-text-muted: color-mix(in srgb, var(--theme-text) 88%, transparent);
+}
+
+:root[data-font="atkinson-hyperlegible-next"] {
+  --font-body: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+:root[data-font="red-hat-text"] {
+  --font-body: "Red Hat Text", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Red Hat Text", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+:root[data-font="ibm-plex-sans"] {
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+:root[data-font="onest"] {
+  --font-body: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }

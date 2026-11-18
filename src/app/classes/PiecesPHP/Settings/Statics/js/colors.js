@@ -9,6 +9,7 @@ window.addEventListener('load', () => {
 	const DARK = '#1F2430'
 	const form = $('form[colors-form]')
 	const accentInput = form.find('#colors-accent')
+	const accentDarkInput = form.find('#colors-accent-dark')
 	const seriesInputs = form.find('input[data-series]')
 	const tokenInputs = form.find('input[data-token]')
 	const fontSelect = form.find('[name="theme_font"]')
@@ -46,8 +47,16 @@ window.addEventListener('load', () => {
 		})
 		return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
 	}
-	function ratio(hex) {
-		return 1.05 / (luminance(hex) + 0.05)
+	function contrastBetween(a, b) {
+		const values = [luminance(a), luminance(b)].sort((x, y) => y - x)
+		return (values[0] + 0.05) / (values[1] + 0.05)
+	}
+	//Lo que el tema da de verdad en cada modo, medido en el navegador: el acento ajustado no se recalcula aquí a mano.
+	function measured(scheme) {
+		return statisticsChartThemeColors(['var(--accent-1, var(--accent))', 'var(--theme-surface)'], scheme).map((color) => {
+			const channels = (color.match(/[\d.]+/g) || []).slice(0, 3).map(Number)
+			return channels.length === 3 ? toHex(channels) : null
+		})
 	}
 	function formatRatio(value) {
 		return value.toFixed(1).replace('.', ',') + ':1'
@@ -110,9 +119,11 @@ window.addEventListener('load', () => {
 		meta.attr('content', color)
 	}
 
-	//Avisos: series muy parecidas o con poco contraste sobre blanco (solo informativos)
+	//Avisos: series muy parecidas o con poco contraste sobre la superficie clara medida (solo informativos). La serie 1 es
+	//el acento que pinta el tema, no el escrito.
 	function reviewPalette() {
-		const colors = [accent].concat(seriesInputs.map(function () { return normal(this.value) }).get())
+		const [light, surface] = measured('light')
+		const colors = [light || accent].concat(seriesInputs.map(function () { return normal(this.value) }).get())
 		const warnings = []
 		for (let i = 0; i < colors.length; i++) {
 			for (let j = i + 1; j < colors.length; j++) {
@@ -122,32 +133,76 @@ window.addEventListener('load', () => {
 			}
 		}
 		colors.forEach((color, index) => {
-			if (color && ratio(color) < 3) {
-				warnings.push(formatStr(_i18n(LANG_GROUP, 'Serie %r tiene poco contraste sobre fondo blanco (%r; mínimo 3:1).'), [index + 1, formatRatio(ratio(color))]))
+			const value = color && surface ? contrastBetween(color, surface) : null
+			if (value !== null && value < 3) {
+				warnings.push(formatStr(_i18n(LANG_GROUP, 'Serie %r tiene poco contraste sobre fondo blanco (%r; mínimo 3:1).'), [index + 1, formatRatio(value)]))
 			}
 		})
 		form.find('[colors-palette-warnings]').empty().append(warnings.map((warning) => $('<span class="ui yellow basic label"></span>').text(warning)))
 	}
 
-	//Contraste contra texto blanco: solo informativo, no se corrige ni se sugiere otro tono
+	//El acento es un relleno (botones, barras): se juzga a 3:1 contra la superficie; su texto lo garantiza el tema.
+	function judgeFill(label, value) {
+		if (value >= 3) {
+			label.attr('class', 'ui green basic label').text(formatStr(_i18n(LANG_GROUP, 'Cumple AA · %r'), [formatRatio(value)]))
+		} else {
+			label.attr('class', 'ui yellow basic label').text(_i18n(LANG_GROUP, 'Contraste bajo - por favor ajuste a un valor AA'))
+		}
+		return value >= 3
+	}
+
 	function setAccent(hex) {
 		accent = hex
 		root.style.setProperty('--accent', hex)
 		setField(accentInput, hex)
 		setField(form.find('#colors-series-1'), hex)
 		form.find('[colors-accent-hero]').text(hex)
-		const value = ratio(hex)
+		const [light, surface] = measured('light')
 		const contrast = form.find('#colors-accent-contrast')
 		const help = form.find('[colors-accent-help]')
-		if (value >= 4.5) {
-			contrast.attr('class', 'ui green basic label').text(formatStr(_i18n(LANG_GROUP, 'Cumple AA · %r'), [formatRatio(value)]))
-			help.text(_i18n(LANG_GROUP, 'Con texto blanco encima (botones, etiquetas).'))
+		contrast.prop('hidden', !light || !surface)
+		if (light && surface) {
+			const value = contrastBetween(light, surface)
+			if (!judgeFill(contrast, value)) {
+				help.text(formatStr(_i18n(LANG_GROUP, 'El acento sobre la superficie clara: %r (mínimo 3:1).'), [formatRatio(value)]))
+			} else if (light !== hex) {
+				help.text(formatStr(_i18n(LANG_GROUP, 'El panel lo ajusta a %r para que se lea.'), [light]))
+			} else {
+				help.text(_i18n(LANG_GROUP, 'Contra la superficie del modo claro.'))
+			}
 		} else {
-			contrast.attr('class', 'ui yellow basic label').text(_i18n(LANG_GROUP, 'Contraste bajo - por favor ajuste a un valor AA'))
-			help.text(formatStr(_i18n(LANG_GROUP, 'Texto blanco sobre el acento: %r (mínimo 4,5:1).'), [formatRatio(value)]))
+			help.text('')
 		}
 		setBrowserBar()
 		reviewPalette()
+		setAccentDark()
+	}
+
+	//Como SettingsController::themeTokens(): vacío, el oscuro lo calcula el tema del acento. «initial» y no removeProperty():
+	//el :root de los tokens guardados puede traer un --accent-dark, y solo el valor inválido hace caer al calculado.
+	function setAccentDark() {
+		const own = normal(accentDarkInput.val())
+		const label = form.find('#colors-accent-dark-contrast')
+		const help = form.find('[colors-accent-dark-help]')
+		root.style.setProperty('--accent-dark', own || 'initial')
+		const [dark, surface] = measured('dark')
+		label.prop('hidden', !dark || !surface)
+		if (!dark || !surface) {
+			help.text('')
+			return
+		}
+		const value = contrastBetween(dark, surface)
+		if (!judgeFill(label, value)) {
+			help.text(own
+				? formatStr(_i18n(LANG_GROUP, 'El acento sobre la superficie oscura: %r (mínimo 3:1).'), [formatRatio(value)])
+				: formatStr(_i18n(LANG_GROUP, 'Automático: calculado del acento, %r, con %r sobre la superficie oscura (mínimo 3:1).'), [dark, formatRatio(value)]))
+		} else if (!own) {
+			help.text(formatStr(_i18n(LANG_GROUP, 'Automático: calculado del acento, %r.'), [dark]))
+		} else if (own !== dark) {
+			help.text(formatStr(_i18n(LANG_GROUP, 'El panel lo ajusta a %r para que se lea.'), [dark]))
+		} else {
+			help.text(_i18n(LANG_GROUP, 'Contra la superficie del modo oscuro.'))
+		}
 	}
 
 	//El valor de fábrica no se fija: la serie 5 del tema es light-dark(), y se apagaría en oscuro.
@@ -211,6 +266,7 @@ window.addEventListener('load', () => {
 	function currentValues() {
 		return {
 			accent: accent,
+			accentDark: normal(accentDarkInput.val()) || '',
 			series: seriesInputs.map(function () { return normal(this.value) }).get(),
 			tokens: tokenInputs.map(function () { return normal(this.value) }).get(),
 			bar: barInputs.filter(':checked').val(),
@@ -235,6 +291,7 @@ window.addEventListener('load', () => {
 		setFont()
 		setFontSize()
 		setRadius()
+		accentDarkInput.val(values.accentDark.toLowerCase())
 		setAccent(values.accent)
 	}
 
@@ -243,6 +300,15 @@ window.addEventListener('load', () => {
 		if (hex) {
 			setAccent(hex)
 		}
+	})
+	accentDarkInput.on('input', function () {
+		if (this.value.trim() === '' || normal(this.value)) {
+			setAccentDark()
+		}
+	})
+	form.find('[colors-accent-dark-auto]').on('click', function () {
+		accentDarkInput.val('')
+		setAccentDark()
 	})
 	seriesInputs.on('input', function () {
 		const hex = normal(this.value)

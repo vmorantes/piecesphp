@@ -91,11 +91,7 @@ Una dirección a un archivo propio dentro de una hoja (una imagen de fondo, otra
 }
 ```
 
-Una hoja de CSS importada va igual, dentro de `@import url(…)`, y sale como un `@import` de CSS con su huella:
-
-```scss
-@import url(static-url('../fonts/poppins/poppins.css'));
-```
+Una hoja de CSS importada va igual, dentro de `@import url(static-url(…))`, y sale como un `@import` de CSS con su huella.
 
 Al compilar, la dirección sale con la huella del contenido del archivo (`…/masc.svg?cacheStamp=<16 caracteres>`): si la
 imagen cambia, cambia la hoja, su versión, y el navegador pide las dos. Con la huella, el servidor les da un año de

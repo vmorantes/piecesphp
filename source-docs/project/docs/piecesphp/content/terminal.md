@@ -130,6 +130,11 @@ bin/cli db-backup gz=yes
 
 **Restaurar:** `bin/cli db-restore file=<volcado.sql> confirm=yes` (ver la tabla de abajo).
 
+**Contra una base de una versión anterior** (antes de aplicar sus actualizaciones), `db-backup`, `db-update` y
+`db-restore` arrancan sin leer al usuario y sin cifrar las claves de servicios guardadas en claro: el respaldo sigue
+sirviendo para volver atrás. Las demás órdenes necesitan la base al día (`bin/cli version` lo comprueba). Si un proyecto
+añade un middleware a la ruta de una de estas tres, esa vuelve a arrancar como las demás.
+
 > **AVISO — copias anteriores a esta versión NO restauran las contraseñas.** La base restaurada
 > dejaría a todos los usuarios sin poder entrar. Si necesitas restaurar una copia de ese tipo,
 > pide el procedimiento de recuperación a quien mantiene el framework.

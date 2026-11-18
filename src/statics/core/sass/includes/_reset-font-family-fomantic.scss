@@ -1,5 +1,5 @@
-$fontGlobal: 'Poppins',
-sans-serif !default;
+//En desuso hasta la 11.0.0: la fuente es la del tema.
+$fontGlobal: var(--font-body, "Atkinson Hyperlegible Next", sans-serif) !default;
 
 body {
     font-family: $fontGlobal;

@@ -155,11 +155,15 @@ function fitStatisticsChart(chart, inner = 0) {
  * y un lienzo los pasa a sRGB (un token hecho con color-mix() se lee como oklab()).
  *
  * @param {string[]} values
+ * @param {'light'|'dark'|null} [scheme] Fuerza un modo en la sonda: un light-dark() se resuelve con ese, no con el de la página
  * @returns {string[]}
  */
-function statisticsChartThemeColors(values) {
+function statisticsChartThemeColors(values, scheme = null) {
 	const probe = document.createElement('span')
 	probe.hidden = true
+	if (scheme !== null) {
+		probe.style.colorScheme = scheme
+	}
 	document.body.appendChild(probe)
 	const context = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
 	const resolved = values.map(function (value) {

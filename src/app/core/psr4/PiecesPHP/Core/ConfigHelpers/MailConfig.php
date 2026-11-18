@@ -487,7 +487,7 @@ class MailConfig
             return;
         }
         try {
-            if (SettingsModel::getConfigValue(self::CONFIG_NAME) !== $stored) {
+            if (SettingsModel::readFromDatabase(self::CONFIG_NAME) !== $stored) {
                 return;
             }
             $sealed = self::encrypt($compressed);

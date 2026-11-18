@@ -177,6 +177,7 @@ class SettingsController extends AdminPanelController
      */
     const COLOR_OPTIONS = [
         'main_brand_color',
+        'main_brand_color_dark',
         'second_brand_color',
         'third_brand_color',
         'meta_theme_color',
@@ -186,7 +187,8 @@ class SettingsController extends AdminPanelController
         'data_color_5',
     ];
     /**
-     * Los tres acentos: se publican siempre, y un valor inválido cae a su valor de fábrica.
+     * Los tres acentos. Un valor inválido cae a su valor de fábrica; el primero se publica siempre y los otros dos solo si
+     * se apartan de fábrica (themeTokens()).
      *
      * @var array<string,string> token del tema => opción
      */
@@ -212,11 +214,12 @@ class SettingsController extends AdminPanelController
      * @var array<string,string>
      */
     const FACTORY_COLORS = [
-        'main_brand_color' => '#356DCA',
-        'second_brand_color' => '#7A5AF8',
-        'third_brand_color' => '#C11574',
-        'data_color_2' => '#7A5AF8',
-        'data_color_3' => '#C11574',
+        'main_brand_color' => '#00008B',
+        'main_brand_color_dark' => '',
+        'second_brand_color' => '#0B7A77',
+        'third_brand_color' => '#E8730C',
+        'data_color_2' => '#0B7A77',
+        'data_color_3' => '#E8730C',
         'data_color_4' => '#6E4A2E',
         'data_color_5' => '#1D2939',
     ];
@@ -227,28 +230,29 @@ class SettingsController extends AdminPanelController
     const BROWSER_BAR_ACCENT = 'accent';
     const BROWSER_BAR_DARK = 'dark';
     /**
-     * Las fuentes que se pueden elegir. Una que no sea del tema lleva su hoja, relativa a la raíz pública.
+     * Las fuentes que se pueden elegir: todas las trae el tema, con su clave de data-font y su stack copiado del tema.
      *
-     * @var array<string,array{name:string,stack:string,stylesheet:string|null}>
+     * @var array<string,array{name:string,stack:string}>
      */
     const THEME_FONTS = [
-        'inter' => [
-            'name' => 'Inter',
-            'stack' => '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-            'stylesheet' => null,
+        'atkinson-hyperlegible-next' => [
+            'name' => 'Atkinson Hyperlegible Next',
+            'stack' => '"Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
         ],
-        'poppins' => [
-            'name' => 'Poppins',
-            'stack' => "'Poppins', sans-serif",
-            'stylesheet' => 'statics/fonts/poppins/poppins.css',
+        'red-hat-text' => [
+            'name' => 'Red Hat Text',
+            'stack' => '"Red Hat Text", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
         ],
-        'public-sans' => [
-            'name' => 'Public Sans',
-            'stack' => "'Public Sans', sans-serif",
-            'stylesheet' => 'statics/fonts/public-sans/public-sans.css',
+        'ibm-plex-sans' => [
+            'name' => 'IBM Plex Sans',
+            'stack' => '"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+        ],
+        'onest' => [
+            'name' => 'Onest',
+            'stack' => '"Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
         ],
     ];
-    const THEME_FONT_FACTORY = 'inter';
+    const THEME_FONT_FACTORY = 'atkinson-hyperlegible-next';
     /**
      * @var int[] En píxeles
      */
@@ -930,10 +934,8 @@ class SettingsController extends AdminPanelController
                 $text = mb_substr(trim(strip_tags($texts[$lang])), 0, self::PARTNERS_TEXT_MAX_LENGTH);
                 $optionName = self::partnersTextOptionName($lang);
                 if ($lang !== Config::get_default_lang() && $text === '') {
-                    $model = SettingsModel::model();
-                    $model->resetAll();
                     //RETORNO-IGNORADO: si no existía, no hay nada que borrar; partnersText() cae al del idioma por omisión igual.
-                    $model->delete(new \PiecesPHP\Core\Database\ORM\Statements\WhereSegment([\PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem::isEqual('name', $optionName)]))->execute();
+                    SettingsModel::deleteConfigValue($optionName);
                     continue;
                 }
                 $saved = SettingsModel::setConfigValue($optionName, $text) && $saved;
@@ -1289,7 +1291,7 @@ class SettingsController extends AdminPanelController
                     $success = true;
                     $sameValue = fn ($current, $new): bool => json_encode($current) === json_encode($new);
 
-                    if (is_string($xAccount) && !$sameValue(SettingsModel::getConfigValue(self::SEO_OPTION_X_ACCOUNT), $xAccount)) {
+                    if (is_string($xAccount) && !$sameValue(SettingsModel::readFromDatabase(self::SEO_OPTION_X_ACCOUNT), $xAccount)) {
                         $success = SettingsModel::setConfigValue(self::SEO_OPTION_X_ACCOUNT, $xAccount) && $success;
                     }
 
@@ -2860,9 +2862,9 @@ class SettingsController extends AdminPanelController
 
         set_title(__(self::LANG_GROUP, 'Colores'));
 
-        //Las fuentes que no trae el tema, para la vista previa: solo en esta pantalla.
-        set_custom_assets(array_map('base_url', array_values(array_filter(array_column(self::THEME_FONTS, 'stylesheet')))), 'css');
         set_custom_assets([
+            //statisticsChartThemeColors(): colors.js mide con él el acento de oscuro que calcula el tema.
+            'statics/core/js/statistics-chart-legend.js',
             SettingsRoutes::staticRoute('js/colors.js'),
         ], 'js');
 
@@ -2876,8 +2878,9 @@ class SettingsController extends AdminPanelController
             'langGroup' => self::LANG_GROUP,
             'actionURL' => self::routeName('appearance-colors-save'),
             'accentColor' => $tokens['accent'],
-            'secondColor' => $tokens['accent-2'],
-            'thirdColor' => $tokens['accent-3'],
+            'accentDarkColor' => self::accentDarkColor(),
+            'secondColor' => $tokens['accent-2'] ?? self::FACTORY_COLORS['second_brand_color'],
+            'thirdColor' => $tokens['accent-3'] ?? self::FACTORY_COLORS['third_brand_color'],
             'seriesColors' => $seriesColors,
             'browserBar' => mb_strtoupper((string) get_config('meta_theme_color')) === self::META_THEME_DARK ? self::BROWSER_BAR_DARK : self::BROWSER_BAR_ACCENT,
             'themeFont' => self::themeFont(),
@@ -2915,6 +2918,13 @@ class SettingsController extends AdminPanelController
             $color('main_brand_color'),
             $color('second_brand_color'),
             $color('third_brand_color'),
+            new Parameter(
+                'main_brand_color_dark',
+                '',
+                fn ($value): bool => self::isBrandColorValue('main_brand_color_dark', $value),
+                true,
+                fn (string $value): string => mb_strtoupper($value)
+            ),
             ...array_map(fn (string $name): Parameter => new Parameter(
                 $name,
                 '',
@@ -2943,6 +2953,7 @@ class SettingsController extends AdminPanelController
             $accent = $expectedParameters->getValue('main_brand_color');
             $options = [
                 'main_brand_color' => $accent,
+                'main_brand_color_dark' => $expectedParameters->getValue('main_brand_color_dark'),
                 'second_brand_color' => $expectedParameters->getValue('second_brand_color'),
                 'third_brand_color' => $expectedParameters->getValue('third_brand_color'),
                 'meta_theme_color' => $expectedParameters->getValue('browser_bar') === self::BROWSER_BAR_DARK ? self::META_THEME_DARK : $accent,
@@ -2974,6 +2985,7 @@ class SettingsController extends AdminPanelController
                 $resultOperation->setSuccessOnSingleOperation(true);
             } else {
                 $pdo->rollBack();
+                SettingsModel::forgetCache();
                 $resultOperation->setMessage(__($langGroup, 'Ha ocurrido un error desconocido, intente más tarde.'));
             }
 
@@ -2985,6 +2997,7 @@ class SettingsController extends AdminPanelController
 
             if ($pdo !== null && $pdo->inTransaction()) {
                 $pdo->rollBack();
+                SettingsModel::forgetCache();
             }
             $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage(log_exception($e)));
 
@@ -3089,6 +3102,7 @@ class SettingsController extends AdminPanelController
                 $resultOperation->setSuccessOnSingleOperation(true);
             } else {
                 $pdo->rollBack();
+                SettingsModel::forgetCache();
                 $resultOperation->setMessage(__($langGroup, 'Ha ocurrido un error desconocido, intente más tarde.'));
             }
 
@@ -3100,6 +3114,7 @@ class SettingsController extends AdminPanelController
 
             if ($pdo !== null && $pdo->inTransaction()) {
                 $pdo->rollBack();
+                SettingsModel::forgetCache();
             }
             $resultOperation->setMessage(CustomSlimErrorHandler::genericMessage(log_exception($e)));
 
@@ -3120,7 +3135,16 @@ class SettingsController extends AdminPanelController
         $tokens = [];
         foreach (self::ACCENT_TOKENS as $token => $option) {
             $value = get_config($option);
-            $tokens[$token] = self::isBrandColorValue($option, $value) ? $value : self::FACTORY_COLORS[$option];
+            $value = self::isBrandColorValue($option, $value) ? $value : self::FACTORY_COLORS[$option];
+            //--accent siempre: hojas y JS lo leen sin reserva. Los otros dos, solo si cambian.
+            if ($token === 'accent' || mb_strtoupper($value) !== self::FACTORY_COLORS[$option]) {
+                $tokens[$token] = $value;
+            }
+        }
+        $accentDark = self::accentDarkColor();
+        //Vacío no se publica nunca: el oscuro lo calcula el tema del acento, también el de fábrica.
+        if ($accentDark !== '') {
+            $tokens['accent-dark'] = $accentDark;
         }
         foreach (self::DATA_TOKENS as $token => $option) {
             $value = get_config($option);
@@ -3148,6 +3172,17 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * El acento de modo oscuro guardado, o '' si es automático o no vale.
+     *
+     * @return string
+     */
+    public static function accentDarkColor(): string
+    {
+        $value = get_config('main_brand_color_dark');
+        return is_string($value) && $value !== '' && self::isBrandColorValue('main_brand_color_dark', $value) ? $value : '';
+    }
+
+    /**
      * La fuente del panel: una clave de THEME_FONTS.
      *
      * @return string
@@ -3159,13 +3194,14 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * La hoja de la fuente elegida, relativa a la raíz pública; null si es la del tema.
+     * Ya no hay fuentes con hoja propia: todas las trae el tema.
      *
+     * @deprecated 11.0.0 Siempre null; se conserva para el código de los clones que la llame.
      * @return string|null
      */
     public static function themeFontStylesheet(): ?string
     {
-        return self::THEME_FONTS[self::themeFont()]['stylesheet'];
+        return null;
     }
 
     /**
@@ -3650,7 +3686,7 @@ class SettingsController extends AdminPanelController
             return false;
         }
         if ($value === '') {
-            return in_array($name, self::DATA_TOKENS, true);
+            return $name === 'main_brand_color_dark' || in_array($name, self::DATA_TOKENS, true);
         }
         return preg_match('/^#[0-9A-Fa-f]{6}\z/', $value) === 1;
     }

@@ -6,7 +6,7 @@ $-subtitleGreyColor: #4A494A;
 @mixin titleZoneBaseLegacy {
 
     position: relative;
-    color: var(--accent);
+    color: var(--accent-1, var(--accent));
     text-align: center;
     font-size: 2rem;
     margin: 0px auto;

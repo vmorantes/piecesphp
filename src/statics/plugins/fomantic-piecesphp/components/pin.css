@@ -82,7 +82,7 @@
 
 /* Casilla activa con el foco y cursor dibujado si está vacía */
 .ui.pin.input.focus > .cells > .active.cell {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   box-shadow: 0 0 0 3px var(--accent-ring);
 }
 .ui.pin.input.focus > .cells > .active.cell:empty::after {

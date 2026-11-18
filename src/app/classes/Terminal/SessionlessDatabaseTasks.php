@@ -52,4 +52,18 @@ class SessionlessDatabaseTasks
         }
         return $class;
     }
+
+    /**
+     * Si el arranque sella las claves guardadas en claro (ADR 0081): no, exactamente cuando taskFor() despacha sin usuario.
+     *
+     * @param string $sapi PHP_SAPI
+     * @param bool $isTerminal
+     * @param string $action El nombre de la acción, sin el prefijo de las rutas de la terminal
+     * @param array<string,mixed>|null $routeInfo Lo que devuelve get_route_info() para esa acción
+     * @return bool
+     */
+    public static function sealsSecretsOnBoot(string $sapi, bool $isTerminal, string $action, ?array $routeInfo): bool
+    {
+        return self::taskFor($sapi, $isTerminal, $action, $routeInfo) === null;
+    }
 }

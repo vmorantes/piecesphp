@@ -48,8 +48,8 @@ $assets['fomantic-piecesphp']['plugins'] = [
 ];
 
 /**
- * DataTables v3.1.4 (https://datatables.net/), con su integración de Fomantic (datatables.net-se 3.1.4) y Responsive v4.1.1
- * con la suya. Licencia MIT. Copiados de https://cdn.datatables.net/ con la versión exacta en la dirección.
+ * DataTables v3.1.4 con su integración de Fomantic (-se), Responsive v4.1.1, RowReorder v2.1.1 y ColReorder v3.1.2 (piden
+ * DataTables 3.1 o posterior), MIT, de https://cdn.datatables.net/ con la versión exacta en la dirección.
  */
 //Sin hojas: las tablas las dibuja el tema (su componente «datatables», en semantic.min.css).
 $assets['datatables']['css'] = [];
@@ -66,6 +66,25 @@ $assets['datatables']['plugins'] = [
         'js' => [
             'statics/plugins/datatables/dataTables.responsive.min.js',
             'statics/plugins/datatables/responsive.semanticui.min.js',
+        ],
+    ],
+    //Con hoja: el tema no dibuja el arrastre de filas ni el de columnas.
+    'rowReorder' => [
+        'css' => [
+            'statics/plugins/datatables/rowReorder.semanticui.min.css',
+        ],
+        'js' => [
+            'statics/plugins/datatables/dataTables.rowReorder.min.js',
+            'statics/plugins/datatables/rowReorder.semanticui.min.js',
+        ],
+    ],
+    'colReorder' => [
+        'css' => [
+            'statics/plugins/datatables/colReorder.semanticui.min.css',
+        ],
+        'js' => [
+            'statics/plugins/datatables/dataTables.colReorder.min.js',
+            'statics/plugins/datatables/colReorder.semanticui.min.js',
         ],
     ],
 ];

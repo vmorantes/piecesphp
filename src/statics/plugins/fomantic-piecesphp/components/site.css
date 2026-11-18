@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.16.1 - Site
+ * # Fomantic-UI 0.18.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -14,11 +14,172 @@
 *******************************/
 
 @font-face {
-  font-family: "Inter";
-  src: url("./../themes/piecesphp/assets/fonts/Inter-Variable.woff2") format("woff2");
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-ext-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-ext-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./../themes/piecesphp/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  size-adjust: 107.5%;
+  ascent-override: 90.1%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-ext-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-ext-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("./../themes/piecesphp/assets/fonts/red-hat-text/red-hat-text-latin-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  size-adjust: 106.4%;
+  ascent-override: 91.1%;
+  descent-override: 22.7%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-ext-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-ext-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("./../themes/piecesphp/assets/fonts/ibm-plex-sans/ibm-plex-sans-latin-wght-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 700;
+  font-display: swap;
+  size-adjust: 105.3%;
+  ascent-override: 92%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Onest";
+  src: url("./../themes/piecesphp/assets/fonts/onest/onest-latin-ext-wght-normal.woff2") format("woff2");
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
+  size-adjust: 102%;
+  ascent-override: 95%;
+  descent-override: 23.6%;
+  line-gap-override: 0%;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Onest";
+  src: url("./../themes/piecesphp/assets/fonts/onest/onest-latin-wght-normal.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  size-adjust: 102%;
+  ascent-override: 95%;
+  descent-override: 23.6%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 html,
 body {
@@ -114,11 +275,11 @@ p:last-child {
         Links
 -------------------- */
 a {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 a:hover {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 
@@ -258,11 +419,11 @@ input::selection {
    funcione también en el CSS del proyecto. En html (especificidad menor que :root): el
    :root { --accent-N; --font-size-base… } del proyecto gana se cargue antes o después del tema. */
 html {
-  --accent-1: var(--accent, #356dca);
-  --accent-2: #7a5af8;
-  --accent-3: #c11574;
-  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-heading: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --accent-1: light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h));
+  --accent-2: #0b7a77;
+  --accent-3: #e8730c;
+  --font-body: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   
 /* Base del sitio (D95): el proyecto la cambia aquí; --font-size-base sale de ella y data-text-size le suma */
   --font-size-site: 14px;
@@ -329,7 +490,7 @@ select[size]:not([size="1"]) optgroup {
    oscura: el inverted de algunos temas es un gris medio (el cristal de glass-ios, 3,5:1 con 0,78). */
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
+  color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, 0.86) c h);
 }
 
 /* `small` en rem: anidado o dentro de un texto pequeño bajaba hasta 9–10px */
@@ -381,9 +542,9 @@ mark {
        (--accent-solid y las reglas por componente de abajo), no en @accentN: el acento sigue siendo indicador y texto. El acento que elija el
        sitio, con luminosidad OKLCH ≤ 0,42 y croma ≤ 0,13 (sin el tope de croma, un verde saturado cae fuera de sRGB y el recorte lo aclara a 6,5:1), da al menos 7:1 con texto blanco: medido de 7,35 (#00c2a8) a 8,99 (#ff0000) con acentos claros y saturados.
        Un acento ya más oscuro no cambia. Tono y croma se conservan */
-  --accent-1-fill: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
-  --accent-2-fill: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
-  --accent-3-fill: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-1-fill: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-2-fill: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+  --accent-3-fill: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
   --accent-solid: var(--accent-1-fill);
   --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 62%, #000), color-mix(in oklab, var(--accent-1) 40%, #fff));
   --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 52%, #000), color-mix(in oklab, var(--accent-1) 32%, #fff));
@@ -403,9 +564,9 @@ mark {
        (--accent-solid y las reglas por componente de abajo), no en @accentN: el acento sigue siendo indicador y texto. El acento que elija el
        sitio, con luminosidad OKLCH ≤ 0,42 y croma ≤ 0,13 (sin el tope de croma, un verde saturado cae fuera de sRGB y el recorte lo aclara a 6,5:1), da al menos 7:1 con texto blanco: medido de 7,35 (#00c2a8) a 8,99 (#ff0000) con acentos claros y saturados.
        Un acento ya más oscuro no cambia. Tono y croma se conservan */
-    --accent-1-fill: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
-    --accent-2-fill: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
-    --accent-3-fill: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+    --accent-1-fill: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+    --accent-2-fill: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
+    --accent-3-fill: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h);
     --accent-solid: var(--accent-1-fill);
     --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 62%, #000), color-mix(in oklab, var(--accent-1) 40%, #fff));
     --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 52%, #000), color-mix(in oklab, var(--accent-1) 32%, #fff));
@@ -475,14 +636,30 @@ mark {
   overflow-wrap: anywhere;
 }
 
+/* En un menú estrecho (el lateral del shell, un menú vertical) una palabra larga partida por cualquier letra se leía mal
+   («Publicacion|es», PiecesPHP 2026-11-17): por sílabas y con guion donde el navegador tenga el diccionario del idioma
+   de la página (lang en <html>; supuesto: Chrome y Safari de escritorio para el español, el Chrome sin ventanas de las
+   herramientas no lo trae), y si no, solo cuando la palabra no cabe entera. */
+:root[data-text-spacing="wide"] :is(.ui.shell > .navigation, .ui.vertical.menu) {
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+      -ms-hyphens: auto;
+          hyphens: auto;
+}
+
 /* Las celdas `collapsing` de una tabla no saltan de línea (nowrap de Fomantic): con las letras más anchas, a 390 sacaban
    la tabla de la ventana. */
 :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing {
   white-space: normal;
 }
 
-/* El código en línea no saca su caja de la ventana: una ruta larga sin espacios se parte si no cabe (a 390 salía hasta
-   100px en todos los temas menos piecesphp, que ya lo hacía). break-word no cambia el ancho mínimo de lo que lo contiene. */
+/* Una palabra larga sin espacios (una ruta, un correo, un nombre de clase) no saca su caja de la ventana: se parte si no
+   cabe en su línea. En el código en línea salía hasta 100px a 390; en un texto, con una fuente algo más ancha (data-font, D112),
+   10px. break-word no cambia el ancho mínimo de lo que lo contiene: nada que quepa se parte. */
+
+/* En los elementos de texto, no en todo el body: heredado por todo, partía letra a letra el texto de una celda diminuta
+   (una columna de rejilla de 4px útiles), que antes solo desbordaba */
+:where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text),
 :not(pre) > code {
   overflow-wrap: break-word;
 }
@@ -533,8 +710,8 @@ mark {
    cada tema. */
 [role="radiogroup"] > [aria-checked="true"],
 [role="radiogroup"] > [aria-checked="true"]:hover {
-  background: var(--accent-1, var(--accent, #356dca)) !important;
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) !important;
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) !important;
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) !important;
   box-shadow: none !important;
 }
 [role="radiogroup"] > [aria-checked="true"] > .icon {
@@ -2186,21 +2363,21 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.primary.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.primary.card,
 :root[data-contrast="more"] .ui.inverted.primary.cards > .card {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 /* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
 :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted):not(.corner),
 :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted)::before {
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.primary.corner.label:not(.basic):not(.inverted) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 /* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
@@ -2212,11 +2389,11 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.primary.popup::before,
 :root[data-contrast="more"] .ui.basic.primary.card:not(.inverted),
 :root[data-contrast="more"] .ui.basic.primary.cards > .card:not(.inverted) {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 :root[data-contrast="more"] .ui.inverted.primary.label:not(.basic)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.basic.primary.card:not(.inverted) :is(.header, .meta, .description) {
   color: #000 !important;
@@ -2224,7 +2401,7 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.primary.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
@@ -2263,21 +2440,21 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.secondary.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.secondary.card,
 :root[data-contrast="more"] .ui.inverted.secondary.cards > .card {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 /* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
 :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted):not(.corner),
 :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted)::before {
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.secondary.corner.label:not(.basic):not(.inverted) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 /* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
@@ -2289,11 +2466,11 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.secondary.popup::before,
 :root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted),
 :root[data-contrast="more"] .ui.basic.secondary.cards > .card:not(.inverted) {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 :root[data-contrast="more"] .ui.inverted.secondary.label:not(.basic)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted) :is(.header, .meta, .description) {
   color: #000 !important;
@@ -2301,7 +2478,7 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.secondary.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
@@ -2342,21 +2519,21 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.accent-1.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.accent-1.card,
 :root[data-contrast="more"] .ui.inverted.accent-1.cards > .card {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 /* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
 :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted):not(.corner),
 :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted)::before {
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.accent-1.corner.label:not(.basic):not(.inverted) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 /* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
@@ -2368,11 +2545,11 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.accent-1.popup::before,
 :root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted),
 :root[data-contrast="more"] .ui.basic.accent-1.cards > .card:not(.inverted) {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 :root[data-contrast="more"] .ui.inverted.accent-1.label:not(.basic)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted) :is(.header, .meta, .description) {
   color: #000 !important;
@@ -2380,7 +2557,7 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.accent-1.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
@@ -2419,21 +2596,21 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.accent-2.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.accent-2.card,
 :root[data-contrast="more"] .ui.inverted.accent-2.cards > .card {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 /* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
 :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted):not(.corner),
 :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted)::before {
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.accent-2.corner.label:not(.basic):not(.inverted) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 /* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
@@ -2445,11 +2622,11 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.accent-2.popup::before,
 :root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted),
 :root[data-contrast="more"] .ui.basic.accent-2.cards > .card:not(.inverted) {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 :root[data-contrast="more"] .ui.inverted.accent-2.label:not(.basic)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted) :is(.header, .meta, .description) {
   color: #000 !important;
@@ -2457,7 +2634,7 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.accent-2.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
@@ -2496,21 +2673,21 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.accent-3.segment:not(.basic),
 :root[data-contrast="more"] .ui.inverted.accent-3.card,
 :root[data-contrast="more"] .ui.inverted.accent-3.cards > .card {
-  background-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 /* Flecha de pointing y triángulo de corner y ribbon: el mismo relleno */
 :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted):not(.corner),
 :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted)::before {
-  border-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted)::before {
-  background-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.accent-3.corner.label:not(.basic):not(.inverted) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 /* Variantes inverted (rellenos claros con texto negro): al revés, luminosidad ≥ 0,76, ≥ 7:1 con negro */
@@ -2522,11 +2699,11 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 :root[data-contrast="more"] .ui.inverted.accent-3.popup::before,
 :root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted),
 :root[data-contrast="more"] .ui.basic.accent-3.cards > .card:not(.inverted) {
-  background-color: oklch(from var(--accent-3, #c11574) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 :root[data-contrast="more"] .ui.inverted.accent-3.label:not(.basic)::before {
-  background-color: oklch(from var(--accent-3, #c11574) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 :root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted) :is(.header, .meta, .description) {
   color: #000 !important;
@@ -2534,7 +2711,7 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 
 /* Franja de striped: más honda que el relleno (la aclarada bajaba el blanco de 7:1) */
 :root[data-contrast="more"] .ui.inverted.accent-3.striped.table > tbody > tr:nth-child(2n) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 /* Las celdas, encabezados y textos de dentro traen su propio color */
@@ -2570,19 +2747,27 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
    superficie oscura (inferido). */
 html {
   --accent-solid: var(--accent-1);
-  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
-  --accent-25: color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface));
-  --accent-50: color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface));
-  --accent-100: color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface));
-  --accent-200: color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface));
-  --accent-300: color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface));
-  --accent-600: light-dark(color-mix(in oklab, var(--accent-1) 88%, #000), color-mix(in oklab, var(--accent-1) 70%, #fff));
-  --accent-700: light-dark(color-mix(in oklab, var(--accent-1) 72%, #000), color-mix(in oklab, var(--accent-1) 55%, #fff));
-  --accent-text: light-dark(color-mix(in oklab, var(--accent-1) 70%, #1f2430), color-mix(in oklab, var(--accent-1) 55%, #fff));
+  --accent-contrast: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  
+/* Tintes: en claro, como poco la luminosidad que daban con un acento medio (L 0,55): con uno oscuro (el marino del
+       logo) salían más oscuros y el texto atenuado encima bajaba a 4,46:1 (D109). En OKLab, no en OKLCH: con el croma
+       casi nulo de los tintes del 4 y el 8 %, OKLCH perdía el tono (none = 0) y salían rosas */
+  --accent-25: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface)) max(l, 0.982) a b), color-mix(in oklab, var(--accent-1) 4%, var(--theme-surface)));
+  --accent-50: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface)) max(l, 0.964) a b), color-mix(in oklab, var(--accent-1) 8%, var(--theme-surface)));
+  --accent-100: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface)) max(l, 0.937) a b), color-mix(in oklab, var(--accent-1) 14%, var(--theme-surface)));
+  --accent-200: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface)) max(l, 0.883) a b), color-mix(in oklab, var(--accent-1) 26%, var(--theme-surface)));
+  --accent-300: light-dark(oklab(from color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface)) max(l, 0.797) a b), color-mix(in oklab, var(--accent-1) 45%, var(--theme-surface)));
+  
+/* Matices y texto de acento con contraste garantizado (D109): la luminosidad OKLCH acotada como la tinta de core
+       (claro, como mucho --ink-light-max; oscuro, como poco --ink-dark-min), en vez de mezclas fijas que con un acento
+       oscuro daban 4,03:1. 600 (foco, día de hoy, marcas) un escalón menos acotado que el texto */
+  --accent-600: light-dark(oklch(from var(--accent-1) min(l, 0.5) c h), oklch(from var(--accent-1) max(l, 0.72) min(c, 0.16) h));
+  --accent-700: light-dark(oklch(from var(--accent-1) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  --accent-text: var(--accent-700);
   --accent-ring: color-mix(in srgb, var(--accent-1) 22%, transparent);
   --data-1: var(--accent-1);
-  --data-2: #7a5af8;
-  --data-3: #c11574;
+  --data-2: #0b7a77;
+  --data-3: #e8730c;
   --data-4: #6e4a2e;
   --data-5: light-dark(#1d2939, #cfd5de);
   --r-xs: 4px;
@@ -2595,6 +2780,22 @@ html {
   --shadow-md: 0 4px 12px -2px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)), 0 2px 4px -2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3));
   --shadow-lg: 0 24px 48px -12px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 8px 16px -8px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4));
   --shadow-modal: 0 24px 60px light-dark(rgba(17, 21, 30, 0.28), rgba(0, 0, 0, 0.6));
+}
+
+/* Con contraste reforzado, los mismos matices con la cota de tinta del modo (core la pone en 0,34 y 0,86, unos 7:1):
+   las mezclas fijas de core en .a11y-more-contrast() ganaban por especificidad a las de arriba y con un acento claro
+   el texto bajaba a 5,12:1 (#FFFFFF, 2026-11-18) */
+:root[data-contrast="more"] {
+  --accent-600: light-dark(oklch(from var(--accent-1) min(l, 0.5) c h), oklch(from var(--accent-1) max(l, 0.72) min(c, 0.16) h));
+  --accent-700: light-dark(oklch(from var(--accent-1) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  --accent-text: var(--accent-700);
+}
+@media (prefers-contrast: more) {
+  :root[data-contrast="auto"] {
+    --accent-600: light-dark(oklch(from var(--accent-1) min(l, 0.5) c h), oklch(from var(--accent-1) max(l, 0.72) min(c, 0.16) h));
+    --accent-700: light-dark(oklch(from var(--accent-1) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+    --accent-text: var(--accent-700);
+  }
 }
 
 /* Párrafos y cifras como el diseño: interlineado de Cuerpo, cifras tabulares en tablas,
@@ -2731,4 +2932,42 @@ pre > code {
 b,
 strong {
   font-weight: 600;
+}
+
+/* Fuente elegida por el usuario (D112): data-font en <html>, solo entre las empaquetadas en el tema. Gana a la fuente del
+   sitio que publique el host en :root (0,2,0 frente a 0,1,0); sin atributo, la del sitio o la base (Atkinson). */
+:root[data-font="atkinson-hyperlegible-next"] {
+  --font-body: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+:root[data-font="red-hat-text"] {
+  --font-body: "Red Hat Text", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Red Hat Text", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+:root[data-font="ibm-plex-sans"] {
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+:root[data-font="onest"] {
+  --font-body: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Enlaces dentro de un texto (párrafo, letra pequeña, celda, descripción): subrayados. Con el marino del logo, el enlace
+   y el texto tienen casi la misma luminancia (1,01:1) y el color solo no los distingue (WCAG 1.4.1); los menús, botones,
+   ítems y cabeceras no cambian (D109) */
+:where(p, small, td, dd, blockquote, figcaption, .description) a:not(.ui):not(.item):not(.header) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+/* Párrafos y títulos sin una palabra sola en la última línea (con Atkinson, a 390 quedaban «… | pantalla») */
+:where(p, h1, h2, h3, h4, h5, .ui.header, .description) {
+  text-wrap: pretty;
+}
+
+/* Casillas, radios, rangos y barras de progreso nativos con el acento, no con el azul del navegador */
+:root {
+  accent-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }

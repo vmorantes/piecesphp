@@ -44,8 +44,6 @@ COMPILADOS = [
 ]
 DUDOSOS = {
     'src/statics/core/own-plugins/FormJsonSchema.js': 'salida de tsc (ES5, «/** @class */ (function»), compilada fuera de este gulp',
-    'src/statics/fonts/poppins/poppins.css': '@font-face generado por un servicio de fuentes',
-    'src/statics/fonts/public-sans/public-sans.css': '@font-face generado por un servicio de fuentes',
     'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Collection.php': 'código de Slim 3 adaptado, con su licencia',
     'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/NotFoundException.php': 'código de Slim 3 adaptado, con su licencia',
     'src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Http/Environment.php': 'código de Slim 3 adaptado, con su licencia',

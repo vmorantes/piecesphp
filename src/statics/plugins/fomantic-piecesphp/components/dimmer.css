@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.16.1 - Dimmer
+ * # Fomantic-UI 0.18.0 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -380,6 +380,13 @@ body.dimmable > .dimmer {
      Core: Dimmer Overrides
 *******************************/
 
+
+/* --theme-scrim: el velo del dimmer de página de este tema (@backgroundColor del dimmer), publicado en :root para que un
+   CSS ajeno al tema (el cargador de PiecesPHP, D111) use el mismo velo con una reserva: var(--theme-scrim, …). Es de
+   lectura: cambiarlo no cambia el dimmer. */
+:root {
+  --theme-scrim: rgba(0, 0, 0, 0.85);
+}
 
 /* Velos claros (light, very light): lo de detrás se ve, así que el texto va en el del modo y no en el
    blanco fijo de Fomantic. Los inverted claros son blancos en los dos modos: conservan su texto oscuro. */

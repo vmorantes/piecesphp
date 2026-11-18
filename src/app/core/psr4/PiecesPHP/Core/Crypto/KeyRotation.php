@@ -5,6 +5,8 @@
  */
 namespace PiecesPHP\Core\Crypto;
 
+use PiecesPHP\Settings\ORM\SettingsModel;
+
 /**
  * KeyRotation - Cambiar la clave de la aplicación sin perder nada (ADR 0061 §7).
  *
@@ -86,6 +88,9 @@ final class KeyRotation
                 $this->restoreKeyring($keyringPath, $previousContent, $from);
             }
             throw $exception;
+        } finally {
+            //Las opciones reescritas, o deshechas, por SQL directo: la foto de SettingsModel no las vería (ADR 0080).
+            SettingsModel::forgetCache();
         }
         return $report;
     }
@@ -118,6 +123,8 @@ final class KeyRotation
                 $this->database->rollBack();
             }
             throw $exception;
+        } finally {
+            SettingsModel::forgetCache();
         }
         return $report;
     }

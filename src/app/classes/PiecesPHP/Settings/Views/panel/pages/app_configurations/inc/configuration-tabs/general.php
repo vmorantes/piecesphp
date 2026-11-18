@@ -9,6 +9,7 @@ use PiecesPHP\Settings\Controllers\SettingsController;
  * @var string $langGroup
  * @var string $actionURL
  * @var string $accentColor
+ * @var string $accentDarkColor '' = automático
  * @var string $secondColor
  * @var string $thirdColor
  * @var array<string,array{value:string,factory:string}> $seriesColors Por opción
@@ -64,16 +65,28 @@ $liveSeries = range(1, 5);
                                 </div>
                             </div>
                         </div>
+                        <div class="field">
+                            <label for="colors-accent-dark"><?= __($langGroup, 'Acento en modo oscuro'); ?></label>
+                            <div class="ui vertical left aligned flex">
+                                <div class="inline field">
+                                    <?php //Vacío es automático: el servidor lo acepta solo en este campo, y el selector, solo aquí. ?>
+                                    <?php $colorField(['id' => 'colors-accent-dark', 'inputName' => 'main_brand_color_dark', 'value' => $accentDarkColor, 'attributes' => ['placeholder' => __($langGroup, 'Automático'), 'data-colorpicker-allow-empty' => 'true', 'aria-describedby' => 'colors-accent-dark-contrast']]); ?>
+                                    <button type="button" class="ui basic button" colors-accent-dark-auto><?= __($langGroup, 'Automático'); ?></button>
+                                    <span class="ui basic label" id="colors-accent-dark-contrast" aria-live="polite"></span>
+                                </div>
+                                <small class="ui muted text" colors-accent-dark-help></small>
+                            </div>
+                        </div>
                         <div class="ui divider"></div>
                         <div class="field">
                             <label><?= __($langGroup, 'Tonos derivados'); ?> <span class="ui muted text">· <?= __($langGroup, 'automáticos, solo lectura'); ?></span></label>
                             <div class="ui relaxed flex">
-                                <?php //El title dice cómo sale cada tono (semantic.css: color-mix del acento sobre la superficie del tema). ?>
+                                <?php //El title dice cómo sale cada tono en semantic.css (sobre --accent-1): cambia con el tema. ?>
                                 <?php foreach ([
-                                        '--accent-100' => ['100', __($langGroup, '14 % sobre el fondo')],
-                                        '--accent-300' => ['300', __($langGroup, '45 % sobre el fondo')],
-                                        '--accent-600' => ['600', __($langGroup, '88 % sobre negro; 70 % sobre blanco en oscuro')],
-                                        '--accent-50' => [__($langGroup, 'Tinte 8 %'), __($langGroup, 'Fondos activos · 8 % sobre el fondo')],
+                                        '--accent-100' => ['100', __($langGroup, '14 % sobre el fondo; en claro, con un mínimo de luminosidad')],
+                                        '--accent-300' => ['300', __($langGroup, '45 % sobre el fondo; en claro, con un mínimo de luminosidad')],
+                                        '--accent-600' => ['600', __($langGroup, 'El acento con la luminosidad acotada: como mucho 0,5 en claro; como poco 0,72 en oscuro, con el croma limitado')],
+                                        '--accent-50' => [__($langGroup, 'Tinte 8 %'), __($langGroup, 'Fondos activos · 8 % sobre el fondo; en claro, con un mínimo de luminosidad')],
                                 ] as $toneVariable => [$toneLabel, $toneTitle]): ?>
                                 <div class="ui vertical centered tight flex" title="<?= escape_html($toneTitle); ?>" data-colors-tone="<?= escape_html($toneVariable); ?>"><svg width="36" height="36" aria-hidden="true"><rect x=".5" y=".5" width="35" height="35" rx="6" fill="var(<?= $toneVariable; ?>)" stroke="var(--theme-border)"/></svg><small class="ui muted text"><?= $toneLabel; ?></small></div>
                                 <?php endforeach; ?>
@@ -244,9 +257,9 @@ $liveSeries = range(1, 5);
                                                 <div class="ui small primary progress" data-percent="64"><div class="bar"></div></div>
                                                 <div class="fluid ui tall chart">
                                                     <svg class="canvas" width="100%" height="100%" viewBox="0 0 240 60" preserveAspectRatio="none">
-                                                        <defs><linearGradient id="colors-live-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity=".02"/></linearGradient></defs>
+                                                        <defs><linearGradient id="colors-live-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent-1, var(--accent))" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent-1, var(--accent))" stop-opacity=".02"/></linearGradient></defs>
                                                         <path d="M0 44 C30 30 50 38 80 26 S130 34 160 18 S210 22 240 10 V60 H0Z" fill="url(#colors-live-area)"/>
-                                                        <path d="M0 44 C30 30 50 38 80 26 S130 34 160 18 S210 22 240 10" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+                                                        <path d="M0 44 C30 30 50 38 80 26 S130 34 160 18 S210 22 240 10" fill="none" stroke="var(--accent-1, var(--accent))" stroke-width="2" vector-effect="non-scaling-stroke"/>
                                                     </svg>
                                                 </div>
                                             </div>

@@ -61,12 +61,13 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
-| Color de acento | No | El color principal de tu organización. |
+| Color de acento | No | El color principal de tu organización. Si es demasiado claro u oscuro para leerse, el panel lo ajusta solo, sin cambiar su tono. |
+| Acento en modo oscuro | No | El acento cuando el panel está en modo oscuro. Con **«Automático»** lo calcula el panel a partir del acento; debajo se ve el color que sale y su contraste. |
 | Personalizados, Análogos, Tríada, Complementario | No | Cómo se generan los colores de las gráficas a partir del acento, o «Personalizados» para elegirlos tú. La serie 1 es siempre el acento. |
 | Serie 2, Serie 3, Serie 4, Serie 5 | No | Los colores de las series de las gráficas. |
 | Usar acento, Neutro oscuro | No | El color de la barra superior del navegador en los celulares. |
 | Acento 2, Acento 3 | No | Colores para realces puntuales: el panel no los usa por su cuenta. |
-| Fuente | No | La tipografía del panel. |
+| Fuente | No | La tipografía del panel: Atkinson Hyperlegible Next (la de fábrica), Red Hat Text, IBM Plex Sans u Onest. |
 | Tamaño base | No | El tamaño base del texto. |
 | Radio | No | Lo redondeadas que salen las esquinas en todo el panel. |
 

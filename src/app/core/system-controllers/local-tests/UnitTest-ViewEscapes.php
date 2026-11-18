@@ -485,7 +485,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             return $valor === false ? null : (string) $valor;
         };
         //Un cuerpo válido, para que lo que se mide sea lo de más: las filas se reponen en crudo al final (z3).
-        $cuerpoColores = ['main_brand_color' => '#356DCA', 'second_brand_color' => '#7A5AF8', 'third_brand_color' => '#C11574', 'browser_bar' => 'accent', 'theme_font' => 'inter', 'theme_font_size' => '14', 'theme_radius' => '8'];
+        $cuerpoColores = ['main_brand_color' => '#00008B', 'second_brand_color' => '#0B7A77', 'third_brand_color' => '#E8730C', 'browser_bar' => 'accent', 'theme_font' => 'atkinson-hyperlegible-next', 'theme_font_size' => '14', 'theme_radius' => '8'];
         $intrusa = fn (string $nombre): array => $cuerpoColores + ['name' => $nombre, 'value' => 'zz-no-debe-guardarse', $nombre => 'zz-no-debe-guardarse'];
         foreach (['mail', MailDelivery::CONFIG_NAME, 'osTicketAPI', 'osTicketAPIKey'] as $n => $nombre) {
             $antes = $crudoDe($nombre);

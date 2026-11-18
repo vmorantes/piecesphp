@@ -61,12 +61,13 @@ the accent and the palette will look in the panel. At the end, **“Cancel”** 
 
 | Field | Required | Purpose |
 | --- | --- | --- |
-| Accent color | No | Your organization's main color. |
+| Accent color | No | Your organization's main color. If it is too light or too dark to read, the panel adjusts it on its own, without changing its hue. |
+| Dark mode accent | No | The accent when the panel is in dark mode. With **“Automatic”** the panel calculates it from the accent; below it you see the resulting color and its contrast. |
 | Custom, Analogous, Triad, Complementary | No | How the chart colors are generated from the accent, or “Custom” to choose them yourself. Series 1 is always the accent. |
 | Series 2, Series 3, Series 4, Series 5 | No | The colors of the chart series. |
 | Use the accent, Dark neutral | No | The color of the browser's top bar on phones. |
 | Accent 2, Accent 3 | No | Colors for occasional highlights: the panel does not use them on its own. |
-| Font | No | The panel's typeface. |
+| Font | No | The panel's typeface: Atkinson Hyperlegible Next (the default), Red Hat Text, IBM Plex Sans or Onest. |
 | Base size | No | The base size of the text. |
 | Radius | No | How rounded the corners are across the whole panel. |
 

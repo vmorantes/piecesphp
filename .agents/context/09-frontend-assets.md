@@ -149,9 +149,13 @@ la política de su carpeta y lo sirve con caché privada.
 `PiecesPHP\CSSVariables::instance('global')` recoge la paleta desde `config.php`
 (en el servicio DI `foundHandler`) y la expone como CSS:
 
-los tokens del contrato del tema que devuelve `SettingsController::themeTokens()` (JCP y JCQ, H106): siempre `--accent`,
-`--accent-2` y `--accent-3`, y `--data-2..5`, `--font-body`, `--font-heading`, `--font-size-base` y `--r-xs/sm/md/lg` solo si
-difieren de fábrica. Una fuente que no sea Inter añade su hoja con `themeFontStylesheet()`. Las 20 variables propias de antes
+los tokens del contrato del tema que devuelve `SettingsController::themeTokens()` (JCP y JCQ, H106; JMC): siempre `--accent`
+(lo leen hojas y JS sin reserva); `--accent-dark` solo si «Acento en modo oscuro» tiene valor (vacío: lo calcula el tema,
+`semantic.css`, `--accent-1`: mismo tono, luz mínima `--accent-dark-min` 0,6; desde la 0.18.0, en claro luz máxima
+`--accent-light-max` 0,58, y el texto de acento con la fórmula de tinta, ≥ 4,5:1); `--accent-2`, `--accent-3`, `--data-2..5`, `--font-body`,
+`--font-heading`, `--font-size-base` y `--r-xs/sm/md/lg` solo si difieren de fábrica. Las fuentes vienen todas en el tema
+(desde la 0.17.1; las cuatro de `data-font`, sin Inter): `themeFontStylesheet()`, en desuso hasta la 11.0.0, devuelve siempre `null`. **Una hoja propia lee `var(--accent-1, var(--accent))`, no
+`var(--accent)`**: el crudo no cambia con el modo y el marino de fábrica no se ve en oscuro (1,09:1). Las 20 variables propias de antes
 salieron; las hojas del panel y del acceso leen los tokens del tema, y la zona pública y las páginas de error llevan sus
 valores fijos en su hoja.
 

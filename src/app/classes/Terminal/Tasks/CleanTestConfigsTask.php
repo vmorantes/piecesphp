@@ -142,7 +142,7 @@ class CleanTestConfigsTask extends TerminalTaskAbstract
             $fallidas = [];
             foreach ($candidatas as $nombre) {
                 //Por marcador, que el nombre viene de la línea de órdenes.
-                $borrado = SettingsModel::model()->delete(['name' => $nombre])->execute();
+                $borrado = SettingsModel::deleteConfigValue($nombre);
                 if ($borrado) {
                     $borradas[] = $nombre;
                 } else {

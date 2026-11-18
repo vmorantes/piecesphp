@@ -101,8 +101,14 @@ final class SystemAlertRegistry
     public static function nagsFor(int $userType): array
     {
         $nags = [];
+        $hidden = null;
         foreach (self::$alerts as $key => $alert) {
-            if ($alert->showAsNag() && in_array($userType, $alert->audience(), true) && !self::isHidden($key) && self::isActive($alert)) {
+            if (!$alert->showAsNag() || !in_array($userType, $alert->audience(), true)) {
+                continue;
+            }
+            //La lista de ocultos se lee una vez, y solo si algún aviso llega hasta aquí.
+            $hidden ??= self::hidden();
+            if (!self::isHidden($key, $hidden) && self::isActive($alert)) {
                 $nags[] = $alert;
             }
         }
@@ -126,21 +132,24 @@ final class SystemAlertRegistry
     }
 
     /**
+     * @param bool $fromDatabase Sin la foto de la petición: para leer, modificar y escribir (ADR 0080)
      * @return string[]
      */
-    public static function hidden(): array
+    public static function hidden(bool $fromDatabase = false): array
     {
-        $value = json_decode((string) json_encode(SettingsModel::getConfigValue(self::HIDDEN_CONFIG)), true);
+        $raw = $fromDatabase ? SettingsModel::readFromDatabase(self::HIDDEN_CONFIG) : SettingsModel::getConfigValue(self::HIDDEN_CONFIG);
+        $value = json_decode((string) json_encode($raw), true);
         return is_array($value) ? array_values(array_filter($value, 'is_string')) : [];
     }
 
     /**
      * @param string $key
+     * @param string[]|null $hidden La lista de hidden() ya leída; null la lee
      * @return bool
      */
-    public static function isHidden(string $key): bool
+    public static function isHidden(string $key, ?array $hidden = null): bool
     {
-        if (in_array($key, self::hidden(), true)) {
+        if (in_array($key, $hidden ?? self::hidden(), true)) {
             return true;
         }
         $legacy = self::$legacyHidden[$key] ?? null;
@@ -157,7 +166,7 @@ final class SystemAlertRegistry
         if ($alert === null || !$alert->isDismissible()) {
             return false;
         }
-        $hidden = array_values(array_unique(array_merge(self::hidden(), [$key])));
+        $hidden = array_values(array_unique(array_merge(self::hidden(true), [$key])));
         return (bool) SettingsModel::setConfigValue(self::HIDDEN_CONFIG, $hidden);
     }
 
@@ -175,7 +184,7 @@ final class SystemAlertRegistry
         if ($legacyShow !== null) {
             $legacyShow();
         }
-        $hidden = array_values(array_diff(self::hidden(), [$key]));
+        $hidden = array_values(array_diff(self::hidden(true), [$key]));
         return (bool) SettingsModel::setConfigValue(self::HIDDEN_CONFIG, $hidden);
     }
 

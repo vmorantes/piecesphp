@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.16.1 - Button
+ * # Fomantic-UI 0.18.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1318,8 +1318,8 @@
 /* Fork: grey basic inverted con su borde y su tinta clara; con el borde neutro de black no se distinguía */
 .ui.primary.buttons .button,
 .ui.primary.button {
-  background-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
   background-image: none;
 }
@@ -1328,28 +1328,28 @@
 }
 .ui.primary.buttons .button:hover,
 .ui.primary.button:hover {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.primary.buttons .button:focus,
 .ui.primary.button:focus {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.primary.buttons .button:active,
 .ui.primary.button:active {
-  background-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.primary.buttons .active.button,
 .ui.primary.buttons .active.button:active,
 .ui.primary.active.button,
 .ui.primary.button .active.button:active {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 84%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 
@@ -1357,20 +1357,20 @@
 .ui.basic.primary.buttons .button,
 .ui.basic.primary.button {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.primary.buttons .button:hover,
 .ui.basic.primary.button:hover {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.primary.buttons .button:focus,
 .ui.basic.primary.button:focus {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
@@ -1378,13 +1378,13 @@
 .ui.basic.primary.buttons .active.button,
 .ui.basic.primary.active.button {
   background: color-mix(in srgb, currentColor 8%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 84%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.primary.buttons .button:active,
 .ui.basic.primary.button:active {
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
@@ -1393,15 +1393,15 @@
 .ui.basic.primary.buttons .active.button:hover {
   background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Inverted */
 .ui.inverted.primary.buttons .button,
 .ui.inverted.primary.button {
   background-color: transparent;
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -1414,33 +1414,33 @@
 .ui.inverted.primary.buttons .button:active,
 .ui.inverted.primary.button:active {
   box-shadow: none;
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.primary.buttons .button:hover,
 .ui.inverted.primary.button:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.primary.buttons .button:focus,
 .ui.inverted.primary.button:focus {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 86%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.primary.buttons .active.button,
 .ui.inverted.primary.active.button {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 75%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 75%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.primary.buttons .button:active,
 .ui.inverted.primary.button:active {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 80%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
@@ -1452,22 +1452,22 @@
   background-color: transparent;
   
 /* Fork: el color se ve también en reposo, no solo al pasar el ratón */
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: grey con su gris medio de borde, distinto del borde claro de black */
 }
 .ui.inverted.primary.basic.buttons .button:hover,
 .ui.inverted.primary.buttons .basic.button:hover,
 .ui.inverted.primary.basic.button:hover {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.primary.basic.buttons .button:focus,
 .ui.inverted.primary.basic.buttons .button:focus,
 .ui.inverted.primary.basic.button:focus {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 86%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.primary.basic.buttons .active.button,
 .ui.inverted.primary.buttons .basic.active.button,
@@ -1475,8 +1475,8 @@
   background: color-mix(in srgb, currentColor 8%, transparent);
   
 /* Fork: el activo suelto, tintado como en grupo */
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 75%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
@@ -1488,8 +1488,8 @@
 .ui.inverted.primary.basic.buttons .button:active,
 .ui.inverted.primary.buttons .basic.button:active,
 .ui.inverted.primary.basic.button:active {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 80%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -1498,13 +1498,13 @@
 .ui.tertiary.primary.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.tertiary.primary.buttons .button:hover,
 .ui.tertiary.primary.buttons button:hover,
 .ui.tertiary.primary.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -1513,7 +1513,7 @@
 .ui.tertiary.primary.buttons .tertiary.button:focus,
 .ui.tertiary.primary.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -1525,7 +1525,7 @@
 .ui.tertiary.primary.buttons .tertiary.button:active,
 .ui.tertiary.primary.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -1536,8 +1536,8 @@
 /* Fork: grey basic inverted con su borde y su tinta clara; con el borde neutro de black no se distinguía */
 .ui.secondary.buttons .button,
 .ui.secondary.button {
-  background-color: var(--accent-2, #7a5af8);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-2, #0b7a77);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
   background-image: none;
 }
@@ -1546,28 +1546,28 @@
 }
 .ui.secondary.buttons .button:hover,
 .ui.secondary.button:hover {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.secondary.buttons .button:focus,
 .ui.secondary.button:focus {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.secondary.buttons .button:active,
 .ui.secondary.button:active {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 78%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.secondary.buttons .active.button,
 .ui.secondary.buttons .active.button:active,
 .ui.secondary.active.button,
 .ui.secondary.button .active.button:active {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 
@@ -1575,20 +1575,20 @@
 .ui.basic.secondary.buttons .button,
 .ui.basic.secondary.button {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px var(--accent-2, #0b7a77) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.secondary.buttons .button:hover,
 .ui.basic.secondary.button:hover {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.secondary.buttons .button:focus,
 .ui.basic.secondary.button:focus {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
@@ -1596,13 +1596,13 @@
 .ui.basic.secondary.buttons .active.button,
 .ui.basic.secondary.active.button {
   background: color-mix(in srgb, currentColor 8%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.secondary.buttons .button:active,
 .ui.basic.secondary.button:active {
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 78%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
@@ -1611,15 +1611,15 @@
 .ui.basic.secondary.buttons .active.button:hover {
   background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Inverted */
 .ui.inverted.secondary.buttons .button,
 .ui.inverted.secondary.button {
   background-color: transparent;
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -1632,33 +1632,33 @@
 .ui.inverted.secondary.buttons .button:active,
 .ui.inverted.secondary.button:active {
   box-shadow: none;
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.secondary.buttons .button:hover,
 .ui.inverted.secondary.button:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.secondary.buttons .button:focus,
 .ui.inverted.secondary.button:focus {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 86%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.secondary.buttons .active.button,
 .ui.inverted.secondary.active.button {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 84%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 84%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.secondary.buttons .button:active,
 .ui.inverted.secondary.button:active {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 80%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
@@ -1670,22 +1670,22 @@
   background-color: transparent;
   
 /* Fork: el color se ve también en reposo, no solo al pasar el ratón */
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: grey con su gris medio de borde, distinto del borde claro de black */
 }
 .ui.inverted.secondary.basic.buttons .button:hover,
 .ui.inverted.secondary.buttons .basic.button:hover,
 .ui.inverted.secondary.basic.button:hover {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.secondary.basic.buttons .button:focus,
 .ui.inverted.secondary.basic.buttons .button:focus,
 .ui.inverted.secondary.basic.button:focus {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 86%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.secondary.basic.buttons .active.button,
 .ui.inverted.secondary.buttons .basic.active.button,
@@ -1693,8 +1693,8 @@
   background: color-mix(in srgb, currentColor 8%, transparent);
   
 /* Fork: el activo suelto, tintado como en grupo */
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 84%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
@@ -1706,8 +1706,8 @@
 .ui.inverted.secondary.basic.buttons .button:active,
 .ui.inverted.secondary.buttons .basic.button:active,
 .ui.inverted.secondary.basic.button:active {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 80%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -1716,13 +1716,13 @@
 .ui.tertiary.secondary.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.tertiary.secondary.buttons .button:hover,
 .ui.tertiary.secondary.buttons button:hover,
 .ui.tertiary.secondary.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -1731,7 +1731,7 @@
 .ui.tertiary.secondary.buttons .tertiary.button:focus,
 .ui.tertiary.secondary.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -1743,7 +1743,7 @@
 .ui.tertiary.secondary.buttons .tertiary.button:active,
 .ui.tertiary.secondary.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -1754,8 +1754,8 @@
 /* Fork: grey basic inverted con su borde y su tinta clara; con el borde neutro de black no se distinguía */
 .ui.accent-1.buttons .button,
 .ui.accent-1.button {
-  background-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
   background-image: none;
 }
@@ -1764,28 +1764,28 @@
 }
 .ui.accent-1.buttons .button:hover,
 .ui.accent-1.button:hover {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-1.buttons .button:focus,
 .ui.accent-1.button:focus {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-1.buttons .button:active,
 .ui.accent-1.button:active {
-  background-color: var(--accent-1, var(--accent, #356dca));
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-1.buttons .active.button,
 .ui.accent-1.buttons .active.button:active,
 .ui.accent-1.active.button,
 .ui.accent-1.button .active.button:active {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black);
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 84%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 
@@ -1793,20 +1793,20 @@
 .ui.basic.accent-1.buttons .button,
 .ui.basic.accent-1.button {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-1.buttons .button:hover,
 .ui.basic.accent-1.button:hover {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-1.buttons .button:focus,
 .ui.basic.accent-1.button:focus {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
@@ -1814,13 +1814,13 @@
 .ui.basic.accent-1.buttons .active.button,
 .ui.basic.accent-1.active.button {
   background: color-mix(in srgb, currentColor 8%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 84%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-1.buttons .button:active,
 .ui.basic.accent-1.button:active {
-  box-shadow: 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
@@ -1829,15 +1829,15 @@
 .ui.basic.accent-1.buttons .active.button:hover {
   background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Inverted */
 .ui.inverted.accent-1.buttons .button,
 .ui.inverted.accent-1.button {
   background-color: transparent;
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -1850,33 +1850,33 @@
 .ui.inverted.accent-1.buttons .button:active,
 .ui.inverted.accent-1.button:active {
   box-shadow: none;
-  color: color(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.accent-1.buttons .button:hover,
 .ui.inverted.accent-1.button:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-1.buttons .button:focus,
 .ui.inverted.accent-1.button:focus {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 86%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-1.buttons .active.button,
 .ui.inverted.accent-1.active.button {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 75%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 75%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-1.buttons .button:active,
 .ui.inverted.accent-1.button:active {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 80%, black);
+  color: color(from color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
@@ -1888,22 +1888,22 @@
   background-color: transparent;
   
 /* Fork: el color se ve también en reposo, no solo al pasar el ratón */
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: grey con su gris medio de borde, distinto del borde claro de black */
 }
 .ui.inverted.accent-1.basic.buttons .button:hover,
 .ui.inverted.accent-1.buttons .basic.button:hover,
 .ui.inverted.accent-1.basic.button:hover {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-1.basic.buttons .button:focus,
 .ui.inverted.accent-1.basic.buttons .button:focus,
 .ui.inverted.accent-1.basic.button:focus {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 86%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-1.basic.buttons .active.button,
 .ui.inverted.accent-1.buttons .basic.active.button,
@@ -1911,8 +1911,8 @@
   background: color-mix(in srgb, currentColor 8%, transparent);
   
 /* Fork: el activo suelto, tintado como en grupo */
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 75%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 75%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
@@ -1924,8 +1924,8 @@
 .ui.inverted.accent-1.basic.buttons .button:active,
 .ui.inverted.accent-1.buttons .basic.button:active,
 .ui.inverted.accent-1.basic.button:active {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 80%, black) inset;
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -1934,13 +1934,13 @@
 .ui.tertiary.accent-1.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.tertiary.accent-1.buttons .button:hover,
 .ui.tertiary.accent-1.buttons button:hover,
 .ui.tertiary.accent-1.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -1949,7 +1949,7 @@
 .ui.tertiary.accent-1.buttons .tertiary.button:focus,
 .ui.tertiary.accent-1.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -1961,7 +1961,7 @@
 .ui.tertiary.accent-1.buttons .tertiary.button:active,
 .ui.tertiary.accent-1.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -1972,8 +1972,8 @@
 /* Fork: grey basic inverted con su borde y su tinta clara; con el borde neutro de black no se distinguía */
 .ui.accent-2.buttons .button,
 .ui.accent-2.button {
-  background-color: var(--accent-2, #7a5af8);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-2, #0b7a77);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
   background-image: none;
 }
@@ -1982,28 +1982,28 @@
 }
 .ui.accent-2.buttons .button:hover,
 .ui.accent-2.button:hover {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-2.buttons .button:focus,
 .ui.accent-2.button:focus {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-2.buttons .button:active,
 .ui.accent-2.button:active {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 78%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-2.buttons .active.button,
 .ui.accent-2.buttons .active.button:active,
 .ui.accent-2.active.button,
 .ui.accent-2.button .active.button:active {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black);
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 
@@ -2011,20 +2011,20 @@
 .ui.basic.accent-2.buttons .button,
 .ui.basic.accent-2.button {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--accent-2, #7a5af8) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px var(--accent-2, #0b7a77) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-2.buttons .button:hover,
 .ui.basic.accent-2.button:hover {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-2.buttons .button:focus,
 .ui.basic.accent-2.button:focus {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
@@ -2032,13 +2032,13 @@
 .ui.basic.accent-2.buttons .active.button,
 .ui.basic.accent-2.active.button {
   background: color-mix(in srgb, currentColor 8%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 84%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-2.buttons .button:active,
 .ui.basic.accent-2.button:active {
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #7a5af8) 78%, black) inset;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2, #0b7a77) 78%, black) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
@@ -2047,15 +2047,15 @@
 .ui.basic.accent-2.buttons .active.button:hover {
   background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Inverted */
 .ui.inverted.accent-2.buttons .button,
 .ui.inverted.accent-2.button {
   background-color: transparent;
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -2068,33 +2068,33 @@
 .ui.inverted.accent-2.buttons .button:active,
 .ui.inverted.accent-2.button:active {
   box-shadow: none;
-  color: color(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.accent-2.buttons .button:hover,
 .ui.inverted.accent-2.button:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-2.buttons .button:focus,
 .ui.inverted.accent-2.button:focus {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 86%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-2.buttons .active.button,
 .ui.inverted.accent-2.active.button {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 84%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 84%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-2.buttons .button:active,
 .ui.inverted.accent-2.button:active {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 80%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
@@ -2106,22 +2106,22 @@
   background-color: transparent;
   
 /* Fork: el color se ve también en reposo, no solo al pasar el ratón */
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: grey con su gris medio de borde, distinto del borde claro de black */
 }
 .ui.inverted.accent-2.basic.buttons .button:hover,
 .ui.inverted.accent-2.buttons .basic.button:hover,
 .ui.inverted.accent-2.basic.button:hover {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-2.basic.buttons .button:focus,
 .ui.inverted.accent-2.basic.buttons .button:focus,
 .ui.inverted.accent-2.basic.button:focus {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 86%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-2.basic.buttons .active.button,
 .ui.inverted.accent-2.buttons .basic.active.button,
@@ -2129,8 +2129,8 @@
   background: color-mix(in srgb, currentColor 8%, transparent);
   
 /* Fork: el activo suelto, tintado como en grupo */
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 84%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 84%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
@@ -2142,8 +2142,8 @@
 .ui.inverted.accent-2.basic.buttons .button:active,
 .ui.inverted.accent-2.buttons .basic.button:active,
 .ui.inverted.accent-2.basic.button:active {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 80%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2152,13 +2152,13 @@
 .ui.tertiary.accent-2.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.tertiary.accent-2.buttons .button:hover,
 .ui.tertiary.accent-2.buttons button:hover,
 .ui.tertiary.accent-2.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -2167,7 +2167,7 @@
 .ui.tertiary.accent-2.buttons .tertiary.button:focus,
 .ui.tertiary.accent-2.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -2179,7 +2179,7 @@
 .ui.tertiary.accent-2.buttons .tertiary.button:active,
 .ui.tertiary.accent-2.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-2, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -2190,8 +2190,8 @@
 /* Fork: grey basic inverted con su borde y su tinta clara; con el borde neutro de black no se distinguía */
 .ui.accent-3.buttons .button,
 .ui.accent-3.button {
-  background-color: var(--accent-3, #c11574);
-  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: var(--accent-3, #e8730c);
+  color: var(--accent-3-text, color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
   background-image: none;
 }
@@ -2200,28 +2200,28 @@
 }
 .ui.accent-3.buttons .button:hover,
 .ui.accent-3.button:hover {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
-  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
+  color: var(--accent-3-text, color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-3.buttons .button:focus,
 .ui.accent-3.button:focus {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 84%, black);
-  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-3, #e8730c) 84%, black);
+  color: var(--accent-3-text, color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-3.buttons .button:active,
 .ui.accent-3.button:active {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 78%, black);
-  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-3, #e8730c) 78%, black);
+  color: var(--accent-3-text, color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 .ui.accent-3.buttons .active.button,
 .ui.accent-3.buttons .active.button:active,
 .ui.accent-3.active.button,
 .ui.accent-3.button .active.button:active {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 84%, black);
-  color: var(--accent-3-text, color(from var(--accent-3, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-color: color-mix(in oklab, var(--accent-3, #e8730c) 84%, black);
+  color: var(--accent-3-text, color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   text-shadow: none;
 }
 
@@ -2229,20 +2229,20 @@
 .ui.basic.accent-3.buttons .button,
 .ui.basic.accent-3.button {
   background: transparent;
-  box-shadow: 0 0 0 1px var(--accent-3, #c11574) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px var(--accent-3, #e8730c) inset;
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-3.buttons .button:hover,
 .ui.basic.accent-3.button:hover {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 88%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #e8730c) 88%, black) inset;
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-3.buttons .button:focus,
 .ui.basic.accent-3.button:focus {
   background: transparent;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #e8730c) 84%, black) inset;
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: el activo suelto lleva el mismo tinte que el activo en grupo (solo con el borde algo más oscuro no se
@@ -2250,13 +2250,13 @@
 .ui.basic.accent-3.buttons .active.button,
 .ui.basic.accent-3.active.button {
   background: color-mix(in srgb, currentColor 8%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 84%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #e8730c) 84%, black) inset;
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.accent-3.buttons .button:active,
 .ui.basic.accent-3.button:active {
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #c11574) 78%, black) inset;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-3, #e8730c) 78%, black) inset;
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: en un grupo, el activo se marca con un tinte de su tinta (currentColor, que en oscuro ya es clara) y no con un recuadro propio,
@@ -2265,15 +2265,15 @@
 .ui.basic.accent-3.buttons .active.button:hover {
   background: color-mix(in srgb, currentColor 8%, transparent);
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Inverted */
 .ui.inverted.accent-3.buttons .button,
 .ui.inverted.accent-3.button {
   background-color: transparent;
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
 }
@@ -2286,33 +2286,33 @@
 .ui.inverted.accent-3.buttons .button:active,
 .ui.inverted.accent-3.button:active {
   box-shadow: none;
-  color: color(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.inverted.accent-3.buttons .button:hover,
 .ui.inverted.accent-3.button:hover {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 90%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 90%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-3.buttons .button:focus,
 .ui.inverted.accent-3.button:focus {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 86%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 86%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 86%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-3.buttons .active.button,
 .ui.inverted.accent-3.active.button {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 84%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 84%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 84%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 84%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
 .ui.inverted.accent-3.buttons .button:active,
 .ui.inverted.accent-3.button:active {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 80%, black);
-  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 80%, black);
+  color: color(from color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 80%, black) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   
 /* Fork: texto según el relleno del estado (D36) */
 }
@@ -2324,22 +2324,22 @@
   background-color: transparent;
   
 /* Fork: el color se ve también en reposo, no solo al pasar el ratón */
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-3, #c11574) 72%, white) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: grey con su gris medio de borde, distinto del borde claro de black */
 }
 .ui.inverted.accent-3.basic.buttons .button:hover,
 .ui.inverted.accent-3.buttons .basic.button:hover,
 .ui.inverted.accent-3.basic.button:hover {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 90%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-3.basic.buttons .button:focus,
 .ui.inverted.accent-3.basic.buttons .button:focus,
 .ui.inverted.accent-3.basic.button:focus {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 86%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 86%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.accent-3.basic.buttons .active.button,
 .ui.inverted.accent-3.buttons .basic.active.button,
@@ -2347,8 +2347,8 @@
   background: color-mix(in srgb, currentColor 8%, transparent);
   
 /* Fork: el activo suelto, tintado como en grupo */
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 84%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 84%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Fork: en un grupo, también en inverted, el activo va tintado de su tinta; conserva el contorno de color que
@@ -2360,8 +2360,8 @@
 .ui.inverted.accent-3.basic.buttons .button:active,
 .ui.inverted.accent-3.buttons .basic.button:active,
 .ui.inverted.accent-3.basic.button:active {
-  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 80%, black) inset;
-  color: oklch(from color-mix(in oklab, var(--accent-3, #c11574) 72%, white) max(l, 0.8) min(c, 0.14) h);
+  box-shadow: 0 0 0 2px color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 80%, black) inset;
+  color: oklch(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Tertiary */
@@ -2370,13 +2370,13 @@
 .ui.tertiary.accent-3.button {
   background: transparent;
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.tertiary.accent-3.buttons .button:hover,
 .ui.tertiary.accent-3.buttons button:hover,
 .ui.tertiary.accent-3.button:hover {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: el tinte de hover del tertiary del tema (p. ej. material3) también en los de color */
   background: light-dark(#eef1f5, #262b36);
@@ -2385,7 +2385,7 @@
 .ui.tertiary.accent-3.buttons .tertiary.button:focus,
 .ui.tertiary.accent-3.button:focus {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para focus */
   background: light-dark(#eef1f5, #262b36);
@@ -2397,7 +2397,7 @@
 .ui.tertiary.accent-3.buttons .tertiary.button:active,
 .ui.tertiary.accent-3.button:active {
   box-shadow: none;
-  color: light-dark(oklch(from var(--accent-3, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: ídem para active */
   background: light-dark(#eef1f5, #262b36);
@@ -5729,16 +5729,16 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   border-color: color-mix(in srgb, var(--theme-text) 20%, transparent);
 }
 .ui.primary.loading.button:not(.basic):not(.inverted):not(.tertiary)::after {
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 .ui.secondary.loading.button:not(.basic):not(.inverted):not(.tertiary)::after {
-  color: var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 .ui.primary.loading.button:not(.basic):not(.inverted):not(.tertiary)::before {
-  border-color: color-mix(in srgb, var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
+  border-color: color-mix(in srgb, var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
 }
 .ui.secondary.loading.button:not(.basic):not(.inverted):not(.tertiary)::before {
-  border-color: color-mix(in srgb, var(--accent-2-text, color(from var(--accent-2, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
+  border-color: color-mix(in srgb, var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) 25%, transparent);
 }
 
 /* Grupos que saltan de línea (wrapping, no spaced): una rejilla de esquinas rectas. Con radios en el primer y el último
@@ -5951,7 +5951,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   color: var(--theme-text-muted);
 }
 .ui.basic.labeled.icon.button:not(.negative):not(.red):hover > .icon {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fluid: el contenido centrado sigue ocupando todo el ancho */
@@ -6035,23 +6035,23 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
 
 /* Colores: el relleno y el texto de la variante */
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).primary:not(.basic):not(.tertiary):is(:hover, :focus, :active) {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).secondary:not(.basic):not(.tertiary):is(:hover, :focus, :active) {
-  background-color: var(--accent-2, #7a5af8);
+  background-color: var(--accent-2, #0b7a77);
   box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).accent-1:not(.basic):not(.tertiary):is(:hover, :focus, :active) {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).accent-2:not(.basic):not(.tertiary):is(:hover, :focus, :active) {
-  background-color: var(--accent-2, #7a5af8);
+  background-color: var(--accent-2, #0b7a77);
   box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).accent-3:not(.basic):not(.tertiary):is(:hover, :focus, :active) {
-  background-color: var(--accent-3, #c11574);
+  background-color: var(--accent-3, #e8730c);
   box-shadow: var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).red:not(.basic):not(.tertiary):is(:hover, :focus, :active) {
@@ -6138,19 +6138,19 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   --pcsphp-inactive-fill: transparent;
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).primary:not(.basic):not(.tertiary) {
-  --pcsphp-inactive-fill: var(--accent-1, var(--accent, #356dca));
+  --pcsphp-inactive-fill: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).secondary:not(.basic):not(.tertiary) {
-  --pcsphp-inactive-fill: var(--accent-2, #7a5af8);
+  --pcsphp-inactive-fill: var(--accent-2, #0b7a77);
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).accent-1:not(.basic):not(.tertiary) {
-  --pcsphp-inactive-fill: var(--accent-1, var(--accent, #356dca));
+  --pcsphp-inactive-fill: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).accent-2:not(.basic):not(.tertiary) {
-  --pcsphp-inactive-fill: var(--accent-2, #7a5af8);
+  --pcsphp-inactive-fill: var(--accent-2, #0b7a77);
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).accent-3:not(.basic):not(.tertiary) {
-  --pcsphp-inactive-fill: var(--accent-3, #c11574);
+  --pcsphp-inactive-fill: var(--accent-3, #e8730c);
 }
 :is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).red:not(.basic):not(.tertiary) {
   --pcsphp-inactive-fill: #f04438;

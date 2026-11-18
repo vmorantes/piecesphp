@@ -1,3 +1,48 @@
+# 10.52.0 (18-11-2026)
+
+## ⚠ Rompe — el tema 0.18.0: los colores del logo, la fuente Atkinson y el acento que se corrige solo
+
+- **El panel y el acceso pasan al tema 0.18.0**: la fuente base es **Atkinson Hyperlegible Next** y los colores de
+  fábrica son los del logo de PiecesPHP: acento `#00008B`, realces `#0B7A77` y `#E8730C` (también las series 2 y 3 de las
+  gráficas). Los enlaces dentro de un texto van subrayados, los controles nativos toman el acento y los textos largos
+  parten mejor. Todo el panel cambia de aspecto.
+- **El acento tiene su versión para el modo oscuro**: Configuración › Colores › «Acento en modo oscuro». Vacío
+  («Automático»), el tema lo calcula del acento: el mismo tono, con una luz mínima (con el de fábrica, `#4076F5`). Con
+  valor, manda el elegido, también corregido si hace falta. La pantalla enseña el contraste del relleno.
+- **Cualquier acento se corrige solo en los dos modos**: en claro, uno demasiado claro se oscurece lo justo (un amarillo
+  sale dorado), y en oscuro, uno demasiado oscuro se aclara, sin cambiar el tono. Los rellenos quedan a 3:1 o más sobre el
+  fondo y el texto de acento, a 4,5:1 o más, para cualquier color (medido por el tema con unos 1.300 acentos).
+- **Elegir la fuente**: Atkinson Hyperlegible Next, Red Hat Text, IBM Plex Sans u Onest, todas dentro del tema. **Inter,
+  Poppins y Public Sans salen** de la lista y del framework (`src/statics/fonts/`), también de la zona pública, que usa la
+  fuente base del tema.
+- **Al actualizar**:
+  - aplica las actualizaciones de la base: `bin/cli db-update`. Los colores guardados que son exactamente los de fábrica
+    anteriores (`#356DCA`, `#7A5AF8`, `#C11574`) pasan a los del logo; un color propio no se toca. Si elegiste a mano uno de
+    esos tres, también cambia: vuelve a ponerlo en Colores;
+  - otra pasa a Atkinson una fuente guardada `inter` (la de fábrica anterior), y otra deja vacías («las del tema») las
+    series 2 y 3 guardadas con los colores nuevos de fábrica; una fuente `poppins` o `public-sans` guardada cae a la de
+    fábrica;
+  - si tu proyecto usaba en su SCSS `$fontGlobal`, `$fontGlobalText`, `$fontPoppins`, `$fontPublicSans`, `$pFontFamily` o
+    `$listFontFamily`, o el parcial `_reset-font-family-fomantic`, siguen existiendo en desuso hasta la 11.0.0 y ahora dan la
+    fuente del tema; y `SettingsController::themeFontStylesheet()` devuelve siempre `null`;
+  - si tu proyecto cargaba `statics/fonts/poppins/poppins.css` o `public-sans.css`, ya no existen: usa la fuente del tema o
+    trae la tuya en tu módulo;
+  - una hoja propia que pinte con el acento debe leer `var(--accent-1, var(--accent))`, que cambia con el modo; el
+    `var(--accent)` crudo es el de claro, y el azul de fábrica casi no se ve sobre fondo oscuro.
+
+## También
+
+- **RowReorder y ColReorder vuelven** a `import_datatables()`, en sus versiones para DataTables 3 y con su integración del
+  tema: arrastrar filas para ordenarlas y reordenar columnas. Salieron en la 10.0 sin que hiciera falta.
+- **El panel lee la configuración una sola vez por página**: cargar la tabla de opciones costaba una consulta por opción
+  (98 en una instalación de pruebas con 93); ahora, una, y las lecturas sueltas de la misma página no van a la base. Lo que se guarda se ve en la página siguiente, como antes.
+  Si tu proyecto escribe la tabla `pcsphp_app_config` sin pasar por `SettingsModel`, llama después a
+  `SettingsModel::forgetCache()`; y si lee una opción para modificarla y guardarla en la misma petición, léela con
+  `SettingsModel::readFromDatabase()`.
+- **`bin/cli db-backup`, `db-update` y `db-restore` ya no cifran al arrancar las claves de servicios guardadas en claro**
+  de una base de una versión anterior: un respaldo hecho así sigue sirviendo para volver atrás. Cualquier otra orden o
+  petición las cifra como siempre.
+
 # 10.51.0 (18-11-2026)
 
 - **`bin/cli db-backup`, `db-update` y `db-restore` arrancan contra una base de una versión anterior**: ya no leen al

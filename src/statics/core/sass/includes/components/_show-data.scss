@@ -53,7 +53,7 @@ $-dividerDescriptionColor: #AAAAAA;
 
                 i.icon {
                     font-size: pxToRem(24);
-                    color: var(--accent);
+                    color: var(--accent-1, var(--accent));
 
                     &,
                     &::before,
@@ -74,7 +74,7 @@ $-dividerDescriptionColor: #AAAAAA;
         > .title {
             font-weight: $fwMedium;
             font-size: pxToRem(22);
-            color: var(--accent);
+            color: var(--accent-1, var(--accent));
             margin-bottom: pxToRem(20);
 
             &.small {
@@ -115,7 +115,7 @@ $-dividerDescriptionColor: #AAAAAA;
                                 width: 20px;
                                 height: 20px;
                                 font-size: pxToRem(16);
-                                color: var(--accent);
+                                color: var(--accent-1, var(--accent));
 
                                 &,
                                 &::before,
@@ -165,7 +165,7 @@ $-dividerDescriptionColor: #AAAAAA;
                     justify-content: space-evenly;
                     max-width: 100%;
                     padding: pxToRem(8);
-                    color: var(--accent);
+                    color: var(--accent-1, var(--accent));
                     cursor: pointer;
 
                     > .icon {
@@ -235,7 +235,7 @@ $-dividerDescriptionColor: #AAAAAA;
 
                     i.icon {
                         font-size: pxToRem(24);
-                        color: var(--accent);
+                        color: var(--accent-1, var(--accent));
 
                         &,
                         &::before,
@@ -252,7 +252,7 @@ $-dividerDescriptionColor: #AAAAAA;
                     font-weight: $fwMedium;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+5);
-                    color: var(--accent);
+                    color: var(--accent-1, var(--accent));
                 }
 
                 > .description {
@@ -288,7 +288,7 @@ $-dividerDescriptionColor: #AAAAAA;
         > .title {
 
             font-weight: $fwMedium;
-            color: var(--accent);
+            color: var(--accent-1, var(--accent));
             word-break: break-word;
 
             &.h1 {

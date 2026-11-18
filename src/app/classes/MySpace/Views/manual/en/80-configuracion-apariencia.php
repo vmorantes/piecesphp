@@ -78,7 +78,12 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <tr>
 <td>Accent color</td>
 <td>No</td>
-<td>Your organization's main color.</td>
+<td>Your organization's main color. If it is too light or too dark to read, the panel adjusts it on its own, without changing its hue.</td>
+</tr>
+<tr>
+<td>Dark mode accent</td>
+<td>No</td>
+<td>The accent when the panel is in dark mode. With <strong>“Automatic”</strong> the panel calculates it from the accent; below it you see the resulting color and its contrast.</td>
 </tr>
 <tr>
 <td>Custom, Analogous, Triad, Complementary</td>
@@ -103,7 +108,7 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <tr>
 <td>Font</td>
 <td>No</td>
-<td>The panel's typeface.</td>
+<td>The panel's typeface: Atkinson Hyperlegible Next (the default), Red Hat Text, IBM Plex Sans or Onest.</td>
 </tr>
 <tr>
 <td>Base size</td>

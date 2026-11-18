@@ -1,5 +1,5 @@
 //Colors: los tokens del tema (H106); el acceso es panel y carga el tema.
-$mainBrandColor: var(--accent);
+$mainBrandColor: var(--accent-1, var(--accent));
 $secondBrandColor: var(--accent-2);
 
 $login-overlay-color: rgba(0, 0, 0, 0.55);
@@ -47,14 +47,13 @@ $height-logo-footer-mobile: 120px;
 $color-text-mailto: $mainBrandColor;
 
 //Font
-$fontPublicSans: 'Public Sans',
-sans-serif;
-$fontPoppins: 'Poppins',
-sans-serif;
-$fontGlobal: $fontPoppins;
-$fontGlobalText: $fontPoppins;
-$pFontFamily: $fontGlobalText;
-$listFontFamily: $fontGlobalText;
+//En desuso hasta la 11.0.0: la fuente es la del tema.
+$fontPublicSans: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$fontPoppins: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$fontGlobal: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$fontGlobalText: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$pFontFamily: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$listFontFamily: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
 $fsize: 16;
 
 //Weights

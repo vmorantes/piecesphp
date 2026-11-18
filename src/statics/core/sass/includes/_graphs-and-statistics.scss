@@ -22,7 +22,7 @@ $statisticsLegendShadow: var(--statistics-legend-shadow, rgba(0, 0, 0, 0.541));
 $statisticsTooltipShadow: var(--statistics-tooltip-shadow, rgba(0, 0, 0, 0.1));
 $statisticsTooltipMutedColor: var(--statistics-tooltip-muted-color, #AFAFAF);
 //El color primario del panel, el acento del tema (el del ui primary button), para el pie y la flecha de las tarjetas.
-$statisticsPrimaryColor: var(--accent);
+$statisticsPrimaryColor: var(--accent-1, var(--accent));
 $statisticsOnPrimaryColor: var(--accent-contrast);
 //EN DESUSO: sin uso en el framework desde la 10.20.0 (la rejilla de las tarjetas la da el tema). Siguen aquí porque un clon
 //puede cargarlas con este parcial; se retiran en la 11.0.0.
@@ -115,7 +115,7 @@ $dashboardCardGap: pxToRem(16);
         width: 200px;
         height: 200px;
         border-radius: 50%;
-        background: conic-gradient(var(--accent) calc(var(--progress) * 1%), #{$statisticsTrackColor} 0);
+        background: conic-gradient(var(--accent-1, var(--accent)) calc(var(--progress) * 1%), #{$statisticsTrackColor} 0);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -200,7 +200,7 @@ $dashboardCardGap: pxToRem(16);
                 &,
                 > .legend {
                     > .color {
-                        background-color: var(--custom-color, var(--accent));
+                        background-color: var(--custom-color, var(--accent-1, var(--accent)));
                     }
 
                     > .value {
@@ -432,7 +432,7 @@ $dashboardCardGap: pxToRem(16);
                 column-gap: 8px;
                 font-size: pxToRem(16);
                 line-height: pxToRem(16);
-                color: var(--accent);
+                color: var(--accent-1, var(--accent));
             }
 
             > .action-button {

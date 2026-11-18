@@ -1,10 +1,8 @@
 @use '../variables' as *;
 @use '../functions' as *;
-$fontModule: $fontGlobal;
 
 @mixin simple-title {
 
-    font-family: $fontModule;
     font-weight: $fwExtraBold;
     font-size: pxToRem(30);
     line-height: pxToRem(30);
@@ -104,7 +102,6 @@ $fontModule: $fontGlobal;
         &::before,
         &::after {
             position: absolute;
-            font-family: $fontModule;
             font-weight: $fwExtraBold;
             top: 50%;
             transform: translateY(-50%);
@@ -149,7 +146,6 @@ $fontModule: $fontGlobal;
 }
 
 @mixin basic-custom-list {
-    font-family: $fontModule;
     text-align: left;
     color: $defaultTextColor;
     margin: 1.5rem 0 1rem 0;
@@ -164,7 +160,6 @@ $fontModule: $fontGlobal;
             padding: 0 0 0 0;
 
             &::before {
-                font-family: $fontModule;
                 display: grid;
                 align-self: center;
                 align-items: center;

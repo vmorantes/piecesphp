@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.16.1 - Checkbox
+ * # Fomantic-UI 0.18.0 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90,7 +90,7 @@
   height: 1.14285714rem;
   text-align: center;
   opacity: 0;
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
   transition: border 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .ui.right.aligned.checkbox label {
@@ -145,7 +145,7 @@
   border-color: var(--accent-300);
 }
 .ui.checkbox label:active::after {
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 .ui.checkbox:not(.invisible) input:active ~ label {
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
@@ -159,7 +159,7 @@
   border-color: light-dark(#cfd5de, #3a4150);
 }
 .ui.checkbox input:focus ~ label::after {
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 .ui.checkbox:not(.invisible) input:focus ~ label {
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
@@ -169,24 +169,24 @@
      Active
 --------------- */
 .ui.checkbox input:checked ~ label::before {
-  background: var(--accent-1, var(--accent, #356dca));
-  border-color: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.checkbox input:checked ~ label::after {
   opacity: 1;
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* --------------
       Indeterminate
     --------------- */
 .ui.checkbox input:not([type="radio"]):indeterminate ~ label::before {
-  background: var(--accent-1, var(--accent, #356dca));
-  border-color: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.checkbox input:not([type="radio"]):indeterminate ~ label::after {
   opacity: 1;
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 .ui.indeterminate.toggle.checkbox input:not([type="radio"]):indeterminate ~ label::before {
   background: light-dark(#cfd5de, #3a4150);
@@ -204,12 +204,12 @@
 --------------- */
 .ui.checkbox input:not([type="radio"]):indeterminate:focus ~ label::before,
 .ui.checkbox input:checked:focus ~ label::before {
-  background: var(--accent-1, var(--accent, #356dca));
-  border-color: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.checkbox input:not([type="radio"]):indeterminate:focus ~ label::after,
 .ui.checkbox input:checked:focus ~ label::after {
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* --------------
@@ -288,7 +288,12 @@
 }
 
 /* Bullet */
-.ui.radio.checkbox label::after {
+
+/* Fork: el punto del radio no se aplica a un radio con aspecto de toggle o de slider (`ui toggle radio checkbox`),
+       que conserva el tirador de su variación, también el de marcado de cada tema. Le ponía su escala (@bulletScale) y,
+       marcado, su color (en lumen, un punto diminuto del acento sobre el raíl del acento) y, en un grupo sin nada elegido
+       (:indeterminate), lo escondía. :where() no cambia la especificidad de estas reglas ni la de las de los temas. */
+.ui.radio.checkbox:where(:not(.toggle):not(.slider)) label::after {
   border: none;
   content: "" !important;
   line-height: 1.14285714rem;
@@ -305,28 +310,28 @@
 .ui.radio.checkbox input:focus ~ label::before {
   background-color: var(--theme-surface);
 }
-.ui.radio.checkbox input:focus ~ label::after {
+.ui.radio.checkbox:where(:not(.toggle):not(.slider)) input:focus ~ label::after {
   background-color: var(--theme-surface);
 }
 
 /* Indeterminate */
-.ui.radio.checkbox input:indeterminate ~ label::after {
+.ui.radio.checkbox:where(:not(.toggle):not(.slider)) input:indeterminate ~ label::after {
   opacity: 0;
 }
 
 /* Active */
 .ui.radio.checkbox input:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
-.ui.radio.checkbox input:checked ~ label::after {
+.ui.radio.checkbox:where(:not(.toggle):not(.slider)) input:checked ~ label::after {
   background-color: var(--theme-surface);
 }
 
 /* Active Focus */
 .ui.radio.checkbox input:focus:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
-.ui.radio.checkbox input:focus:checked ~ label::after {
+.ui.radio.checkbox:where(:not(.toggle):not(.slider)) input:focus:checked ~ label::after {
   background-color: var(--theme-surface);
 }
 
@@ -414,7 +419,7 @@
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.slider.checkbox input:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.slider.checkbox input:checked ~ label::after {
   left: 1.42857143em;
@@ -425,7 +430,7 @@
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.slider.checkbox input:focus:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.right.aligned.slider.checkbox label {
   padding-left: 0;
@@ -527,7 +532,7 @@
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.toggle.checkbox input:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.toggle.checkbox input:checked ~ label::after {
   left: 1.28571429em;
@@ -539,7 +544,7 @@
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 .ui.toggle.checkbox input:focus:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.right.aligned.toggle.checkbox label {
   padding-left: 0;
@@ -636,7 +641,7 @@
   color: #ffffff;
 }
 .ui.ui.inverted.toggle.checkbox input:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 
 /* Toggle Active Focus */
@@ -644,7 +649,7 @@
   color: #ffffff;
 }
 .ui.ui.inverted.toggle.checkbox input:focus:checked ~ label::before {
-  background-color: var(--accent-1, var(--accent, #356dca));
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 
 /* --------------
@@ -855,7 +860,7 @@
 
 /* Slider marcado: el borde del mando pasa a acento */
 .ui.slider.checkbox input:checked ~ label::after {
-  box-shadow: 0 1px 2px light-dark(rgba(20, 28, 45, 0.18), rgba(0, 0, 0, 0.4)), 0 0 0 1px var(--accent-1, var(--accent, #356dca)) inset;
+  box-shadow: 0 1px 2px light-dark(rgba(20, 28, 45, 0.18), rgba(0, 0, 0, 0.4)), 0 0 0 1px var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) inset;
 }
 
 /* Mando con la curva del tema y con el tamaño de letra de la etiqueta (no el de la marca), para
@@ -876,4 +881,21 @@
 .ui.right.aligned.slider.checkbox input:not([type="radio"]):indeterminate ~ label::after {
   left: auto;
   right: 0.71428571em;
+}
+
+/* Sobre superficie invertida (form inverted o checkbox inverted) el marino de fábrica no se ve contra el fondo oscuro:
+   la caja, el aro del radio y la pista del toggle y del slider marcados toman el acento claro, como la barra del
+   progress inverted, y el check pasa a negro */
+.ui.ui.inverted.form .ui.checkbox input:checked ~ label::before,
+.ui.ui.ui.inverted.checkbox input:checked ~ label::before {
+  background-color: oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h);
+  border-color: oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h);
+}
+.ui.ui.inverted.form .ui.checkbox:not(.radio):not(.toggle):not(.slider) input:checked ~ label::after,
+.ui.ui.ui.inverted.checkbox:not(.radio):not(.toggle):not(.slider) input:checked ~ label::after {
+  color: #1f2430;
+}
+.ui.ui.inverted.form .ui.slider.checkbox input:checked ~ label::after,
+.ui.ui.ui.inverted.slider.checkbox input:checked ~ label::after {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) inset;
 }

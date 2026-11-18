@@ -35,7 +35,7 @@ $gray: #4D525A;
 
         .mark {
             font-weight: 600;
-            color: var(--accent);
+            color: var(--accent-1, var(--accent));
         }
     }
 

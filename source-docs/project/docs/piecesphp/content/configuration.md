@@ -154,16 +154,17 @@ La configuración general de la instalación. Se carga el tercero y rellena `$co
 | `owner` | `string` | `"Nombre Plataforma"` | Titular: pie de página, correos, etiquetas SEO. |
 | `keywords` | `string[]` | `['Website', 'Application']` | Palabras clave. |
 | `description` | `string` | `"Descripción de la página."` | Descripción. |
-| `main_brand_color` | `string` | `"#356DCA"` | El color de marca: el panel y el acceso lo publican como `--accent`, el token del tema; el correo lo lee por PHP. Se edita en Configuración › Colores, como todas las de esta tabla. |
-| `second_brand_color` | `string` | `"#7A5AF8"` | Primer color de realce: se publica como `--accent-2`. |
-| `third_brand_color` | `string` | `"#C11574"` | Segundo color de realce: se publica como `--accent-3`. |
+| `main_brand_color` | `string` | `"#00008B"` | El color de marca (el azul del logo de PiecesPHP): el panel y el acceso lo publican como `--accent`, el token del tema; el correo lo lee por PHP. Se edita en Configuración › Colores, como todas las de esta tabla. |
+| `main_brand_color_dark` | `string` | `""` | El acento en modo oscuro. Vacío, «Automático»: el tema lo calcula del acento, con el mismo tono y una luz mínima (con el de fábrica, `#4076F5`). Con valor, se publica como `--accent-dark`. En los dos modos el tema corrige el acento para que el relleno quede a 3:1 o más y el texto de acento a 4,5:1 o más; Configuración › Colores enseña el contraste del relleno. |
+| `second_brand_color` | `string` | `"#0B7A77"` | Primer color de realce: se publica como `--accent-2` si no es el de fábrica. |
+| `third_brand_color` | `string` | `"#E8730C"` | Segundo color de realce: se publica como `--accent-3` si no es el de fábrica. |
 | `data_color_2` … `data_color_5` | `string` | `""` | Las series 2 a 5 de las gráficas (`--data-2` a `--data-5`). Vacías, valen las del tema, que en la serie 5 cambian con el modo oscuro. |
-| `meta_theme_color` | `string` | `"#356DCA"` | El color de la barra del navegador en el móvil (`<meta name="theme-color">`): el acento o el neutro oscuro `#1F2430`. |
-| `theme_font` | `string` | `"inter"` | La fuente del panel y del acceso: `inter`, `poppins` o `public-sans`. |
+| `meta_theme_color` | `string` | `"#00008B"` | El color de la barra del navegador en el móvil (`<meta name="theme-color">`): el acento o el neutro oscuro `#1F2430`. |
+| `theme_font` | `string` | `"atkinson-hyperlegible-next"` | La fuente del panel y del acceso, de las que trae el tema: `atkinson-hyperlegible-next`, `red-hat-text`, `ibm-plex-sans` u `onest`. Un valor que ya no existe (`inter`, `poppins`, `public-sans`) cae a la de fábrica. |
 | `theme_font_size` | `int` | `14` | El tamaño base en píxeles (14, 15 o 16). Escala textos, espaciados y controles. |
 | `theme_radius` | `int` | `8` | El radio general en píxeles (0, 4, 6, 8 o 12). |
 
-La zona pública y las páginas de error no leen estas opciones: llevan sus colores y su fuente fijos en su hoja.
+La zona pública y las páginas de error no leen estas opciones. La zona pública usa la fuente base del tema (Atkinson Hyperlegible Next), sin opción para cambiarla.
 
 ### Seguridad
 
@@ -633,10 +634,10 @@ Los componentes que pongas DENTRO de otro (un botón o un icono dentro de un toa
 
 !!! warning "Trampas"
     - **Un nombre que no está en el catálogo se ignora en silencio** con `import_front_library()`. Con
-      `import_datatables()`, el plugin que no existe tampoco se carga, pero queda constancia en el registro de errores
-      (desde la `10.0.0`, porque RowReorder y ColReorder dejaron de venir con DataTables 3).
-    - **Importar de nuevo con otra lista de plugins quita los que ya no pides.** Si llamas `import_datatables()` (hoy,
-      solo `responsive`) y luego `import_datatables([])`, `responsive` se retira. Un archivo que otro plugin importado sigue
+      `import_datatables()`, el plugin que no existe tampoco se carga, pero queda constancia en el registro de errores.
+    - **Importar de nuevo con otra lista de plugins quita los que ya no pides.** Si llamas
+      `import_datatables(['responsive'])` y luego `import_datatables([])`, `responsive` se retira. Los plugins que hay:
+      `responsive`, `rowReorder` y `colReorder`. Un archivo que otro plugin importado sigue
       pidiendo no se retira.
     - **Instanciar un `BaseController` vacía las librerías ya importadas.** Su constructor limpia los assets globales,
       las importaciones y el título salvo que `lock_assets` sea `true`. El framework lo pone en `true` mientras corre el

@@ -67,7 +67,7 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
 
     try {
 
-        echoTerminal('[1/6] Del panel a la base');
+        echoTerminal('[1/7] Del panel a la base');
         $reset();
         import_front_library('zz-gates-panel', ['wide']);
         import_front_library('zz-gates-panel', ['base']);
@@ -75,7 +75,7 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         $check(!$has($exclusive), 'a2 admin_app_base.css NO: era exclusivo del que sale');
         echoTerminal(' ');
 
-        echoTerminal('[2/6] De la base al panel, y la misma lista dos veces');
+        echoTerminal('[2/7] De la base al panel, y la misma lista dos veces');
         $reset();
         import_front_library('zz-gates-panel', ['base']);
         import_front_library('zz-gates-panel', ['wide']);
@@ -86,7 +86,7 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         $check($count($shared) === 1 && $count($exclusive) === 1, 'c1 importar dos veces la misma lista no duplica ningún archivo', "{$count($shared)} y {$count($exclusive)}");
         echoTerminal(' ');
 
-        echoTerminal('[3/6] Otra librería que pide el mismo archivo');
+        echoTerminal('[3/7] Otra librería que pide el mismo archivo');
         $reset();
         import_front_library('zz-gates-other', ['base']);
         import_front_library('zz-gates-panel', ['wide']);
@@ -95,7 +95,7 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         $check(!$has($exclusive), 'd2 y el exclusivo se quita');
         echoTerminal(' ');
 
-        echoTerminal('[4/6] Quitar a mano un archivo de un plugin y reimportar');
+        echoTerminal('[4/7] Quitar a mano un archivo de un plugin y reimportar');
         $reset();
         import_front_library('zz-gates-panel', ['wide']);
         remove_global_asset($exclusive, 'css');
@@ -104,14 +104,14 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         $check($quitado && $has($exclusive), 'e1 el archivo vuelve: reimportar pasa otra vez los del plugin por add_global_assets()');
         echoTerminal(' ');
 
-        echoTerminal('[5/6] Con $all, un plugin que se llama como otra librería');
+        echoTerminal('[5/7] Con $all, un plugin que se llama como otra librería');
         $reset();
         import_front_library('zz-gates-other', ['base']);
         import_front_library('zz-gates-all', [], true);
         $check(in_array('base', get_config('imported_assets')['zz-gates-other'] ?? [], true) && $has($shared), 'f1 la otra librería conserva su plugin y su archivo: el borrado mira la lista de la que se importa');
         echoTerminal(' ');
 
-        echoTerminal('[6/6] import_datatables() con un plugin que no existe');
+        echoTerminal('[6/7] import_datatables() con un plugin que no existe');
         set_config('default_assets', $savedDefaults);
         $entriesFile = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/' . \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler::FILE_ENTRIES;
         $before = is_file($entriesFile) ? (int) filesize($entriesFile) : 0;
@@ -122,6 +122,51 @@ CliActions::make('unit-tests:core/import-front-library', function ($args) {
         import_datatables(['responsive']);
         $after = is_file($entriesFile) ? (string) file_get_contents($entriesFile, false, null, $before) : '';
         $check(!str_contains($after, 'import_datatables()'), 'g2 con un plugin que existe, nada');
+        echoTerminal(' ');
+
+        echoTerminal('[7/7] import_datatables() con RowReorder y ColReorder');
+        set_config('default_assets', $savedDefaults);
+        //La lista esperada va escrita aquí: si assets.php pierde un archivo o un plugin, la suite cae.
+        $reorderPlugins = [
+            'rowReorder' => [
+                'header' => 'RowReorder 2.1.1 for DataTables',
+                'css' => ['statics/plugins/datatables/rowReorder.semanticui.min.css'],
+                'js' => ['statics/plugins/datatables/dataTables.rowReorder.min.js', 'statics/plugins/datatables/rowReorder.semanticui.min.js'],
+            ],
+            'colReorder' => [
+                'header' => 'ColReorder 3.1.2 for DataTables',
+                'css' => ['statics/plugins/datatables/colReorder.semanticui.min.css'],
+                'js' => ['statics/plugins/datatables/dataTables.colReorder.min.js', 'statics/plugins/datatables/colReorder.semanticui.min.js'],
+            ],
+        ];
+        foreach ($reorderPlugins as $plugin => $expectedFiles) {
+            $declared = $savedDefaults['datatables']['plugins'][$plugin] ?? null;
+            $declaredCss = is_array($declared) ? ($declared['css'] ?? []) : [];
+            $declaredJs = is_array($declared) ? ($declared['js'] ?? []) : [];
+            $check($declaredCss === $expectedFiles['css'] && $declaredJs === $expectedFiles['js'], "h1 {$plugin}: assets.php declara sus archivos", json_encode($declared) ?: 'null');
+            $missing = array_filter(array_merge($expectedFiles['css'], $expectedFiles['js']), fn($file) => !is_file(basepath($file)));
+            $check($missing === [], "h2 {$plugin}: sus archivos están en disco", implode(', ', $missing));
+            $mainJs = basepath($expectedFiles['js'][0]);
+            $head = is_file($mainJs) ? (string) file_get_contents($mainJs, false, null, 0, 80) : '';
+            $check(str_contains($head, $expectedFiles['header']), "h3 {$plugin}: la cabecera del archivo dice «{$expectedFiles['header']}»", trim($head));
+            //Cada plugin desde los globales de partida: encadenar importaciones distintas pisa archivos
+            //(add_global_asset() indexa con count() tras un unset() de remove_global_asset()), y eso no es lo que se mide aquí.
+            set_config('global_assets', $savedGlobals);
+            set_config('imported_assets', $savedImported);
+            $before = is_file($entriesFile) ? (int) filesize($entriesFile) : 0;
+            import_datatables([$plugin]);
+            $after = is_file($entriesFile) ? (string) file_get_contents($entriesFile, false, null, $before) : '';
+            $notLoaded = [];
+            foreach (['css', 'js'] as $type) {
+                foreach ($expectedFiles[$type] as $file) {
+                    if (has_global_asset($file, $type) === false) {
+                        $notLoaded[] = $file;
+                    }
+                }
+            }
+            $check($notLoaded === [], "h4 {$plugin}: import_datatables(['{$plugin}']) los pone en los globales", implode(', ', $notLoaded));
+            $check(!str_contains($after, 'import_datatables()'), "h5 {$plugin}: sin aviso en el registro de errores", mb_substr($after, 0, 200));
+        }
         echoTerminal(' ');
 
     } catch (\Throwable $e) {

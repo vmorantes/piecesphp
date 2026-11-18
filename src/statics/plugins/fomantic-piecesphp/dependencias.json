@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "6586a7f5",
+  "commit": "41d7bbcb",
   "fuenteSinCambios": true,
-  "generado": "2026-11-17T22:14:04.369Z",
+  "generado": "2026-11-18T17:16:22.827Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -89,6 +89,7 @@
         "suelto": {
           "piezas": 143,
           "propiedades": {
+            "accent-color": 183,
             "font-size": 183,
             "line-height": 183,
             "scrollbar-color": 183,
@@ -99,18 +100,18 @@
             "perspective-origin": 148,
             "transform-origin": 148,
             "width": 148,
-            "scrollbar-width": 143,
-            "box-sizing": 119
+            "scrollbar-width": 143
           },
           "muestras": [
-            "button.ui.button en div.: appearance button → auto",
-            "a.ui.button en div.: block-size 40px → 22.8594px",
-            "div.ui.button en div.: block-size 40px → 22.8594px"
+            "button.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 143,
           "propiedades": {
+            "accent-color": 183,
             "font-size": 183,
             "line-height": 183,
             "block-size": 148,
@@ -121,18 +122,24 @@
             "width": 148,
             "min-block-size": 89,
             "min-height": 89,
-            "padding-block-end": 80,
-            "padding-block-start": 80
+            "padding-block-end": 80
           },
           "muestras": [
-            "button.ui.button en div.: block-size 40px → 45.7031px",
-            "a.ui.button en div.: block-size 40px → 45.7031px",
-            "div.ui.button en div.: block-size 40px → 45.7031px"
+            "button.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 143,
+          "propiedades": {
+            "accent-color": 183
+          },
+          "muestras": [
+            "button.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -164,6 +171,7 @@
         "suelto": {
           "piezas": 18,
           "propiedades": {
+            "accent-color": 18,
             "border-block-end-color": 18,
             "border-block-start-color": 18,
             "border-bottom-color": 18,
@@ -174,22 +182,35 @@
             "border-top-color": 18,
             "caret-color": 18,
             "color": 18,
-            "column-rule-color": 18,
-            "font-family": 18
+            "column-rule-color": 18
           },
           "muestras": [
-            "div.ui.chart en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "svg.canvas en div.ui.chart: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "polyline. en svg.canvas: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.chart en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "svg.canvas en div.ui.chart: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "polyline. en svg.canvas: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 18,
+          "propiedades": {
+            "accent-color": 18
+          },
+          "muestras": [
+            "div.ui.chart en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "svg.canvas en div.ui.chart: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "polyline. en svg.canvas: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 18,
+          "propiedades": {
+            "accent-color": 18
+          },
+          "muestras": [
+            "div.ui.chart en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "svg.canvas en div.ui.chart: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "polyline. en svg.canvas: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -231,6 +252,7 @@
         "suelto": {
           "piezas": 275,
           "propiedades": {
+            "accent-color": 275,
             "border-block-end-color": 275,
             "border-block-start-color": 275,
             "border-bottom-color": 275,
@@ -241,18 +263,18 @@
             "border-top-color": 275,
             "box-sizing": 275,
             "caret-color": 275,
-            "color": 275,
-            "column-rule-color": 275
+            "color": 275
           },
           "muestras": [
-            "div.ui.container en div.: block-size 20px → 18px",
-            "p. en div.ui.container: block-size 20px → 18px",
-            "div.ui.text.container en div.: block-size 147.438px → 173.672px"
+            "div.ui.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.container: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.text.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 267,
+          "piezas": 275,
           "propiedades": {
+            "accent-color": 275,
             "perspective-origin": 267,
             "transform-origin": 267,
             "inline-size": 263,
@@ -263,18 +285,24 @@
             "margin-inline-start": 16,
             "margin-left": 16,
             "margin-right": 16,
-            "padding-block-end": 12,
-            "padding-block-start": 12
+            "padding-block-end": 12
           },
           "muestras": [
-            "div.ui.container en div.: inline-size 1136px → 1126.84px",
-            "p. en div.ui.container: inline-size 1136px → 1126.84px",
-            "div.ui.text.container en div.: block-size 147.438px → 168.484px"
+            "div.ui.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.container: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.text.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 275,
+          "propiedades": {
+            "accent-color": 275
+          },
+          "muestras": [
+            "div.ui.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.container: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.text.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -314,6 +342,7 @@
         "suelto": {
           "piezas": 55,
           "propiedades": {
+            "accent-color": 137,
             "box-sizing": 137,
             "font-size": 137,
             "scrollbar-color": 137,
@@ -324,18 +353,18 @@
             "perspective-origin": 109,
             "transform-origin": 109,
             "-webkit-font-smoothing": 105,
-            "inline-size": 81,
-            "width": 81
+            "inline-size": 81
           },
           "muestras": [
-            "div.ui.divider en div.: block-size 1px → 0px",
-            "div.ui.vertical.divider en div.: box-sizing border-box → content-box",
-            "div.ui.vertical.divider en div.: box-sizing border-box → content-box"
+            "div.ui.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 55,
           "propiedades": {
+            "accent-color": 137,
             "font-size": 137,
             "line-height": 125,
             "perspective-origin": 109,
@@ -346,27 +375,27 @@
             "width": 73,
             "background-position": 58,
             "background-size": 58,
-            "bottom": 56,
-            "inset-block-end": 56
+            "bottom": 56
           },
           "muestras": [
-            "div.ui.divider en div.: font-size 12px → 13.7143px",
-            "div.ui.vertical.divider en div.: font-size 12px → 13.7143px",
-            "div.ui.vertical.divider en div.: font-size 12px → 13.7143px"
+            "div.ui.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 4,
+          "piezas": 55,
           "propiedades": {
+            "accent-color": 137,
             "inset-inline-end": 4,
             "inset-inline-start": 4,
             "left": 4,
             "right": 4
           },
           "muestras": [
-            "div.ui.vertical.divider en div.: inset-inline-end 687.688px → 685.188px",
-            "div.ui.vertical.divider en div.: inset-inline-end 687.938px → 685.438px",
-            "div.ui.vertical.divider en div.: inset-inline-end 677.5px → 675px"
+            "div.ui.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -397,6 +426,7 @@
         "suelto": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "border-block-end-color": 160,
             "border-block-start-color": 160,
             "border-bottom-color": 160,
@@ -407,18 +437,18 @@
             "border-top-color": 160,
             "box-sizing": 160,
             "caret-color": 160,
-            "color": 160,
-            "column-rule-color": 160
+            "color": 160
           },
           "muestras": [
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "border-block-end-color": 160,
             "border-block-start-color": 160,
             "border-bottom-color": 160,
@@ -429,18 +459,18 @@
             "border-top-color": 160,
             "box-sizing": 160,
             "caret-color": 160,
-            "color": 160,
-            "column-rule-color": 160
+            "color": 160
           },
           "muestras": [
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "border-block-end-color": 160,
             "border-block-start-color": 160,
             "border-bottom-color": 160,
@@ -451,13 +481,12 @@
             "border-top-color": 160,
             "box-sizing": 160,
             "caret-color": 160,
-            "color": 160,
-            "column-rule-color": 160
+            "color": 160
           },
           "muestras": [
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "em. en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "em. en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -488,6 +517,7 @@
         "suelto": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "border-block-end-color": 160,
             "border-block-start-color": 160,
             "border-bottom-color": 160,
@@ -498,18 +528,18 @@
             "border-top-color": 160,
             "box-sizing": 160,
             "caret-color": 160,
-            "color": 160,
-            "column-rule-color": 160
+            "color": 160
           },
           "muestras": [
-            "i.ve.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.es.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.mx.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "i.ve.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.es.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.mx.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "border-block-end-color": 160,
             "border-block-start-color": 160,
             "border-bottom-color": 160,
@@ -520,18 +550,18 @@
             "border-top-color": 160,
             "box-sizing": 160,
             "caret-color": 160,
-            "color": 160,
-            "column-rule-color": 160
+            "color": 160
           },
           "muestras": [
-            "i.ve.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.es.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.mx.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "i.ve.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.es.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.mx.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "border-block-end-color": 160,
             "border-block-start-color": 160,
             "border-bottom-color": 160,
@@ -542,13 +572,12 @@
             "border-top-color": 160,
             "box-sizing": 160,
             "caret-color": 160,
-            "color": 160,
-            "column-rule-color": 160
+            "color": 160
           },
           "muestras": [
-            "i.ve.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.es.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.mx.flag en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "i.ve.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.es.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.mx.flag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -594,6 +623,7 @@
         "suelto": {
           "piezas": 36,
           "propiedades": {
+            "accent-color": 37,
             "border-block-end-color": 37,
             "border-block-start-color": 37,
             "border-bottom-color": 37,
@@ -604,18 +634,18 @@
             "border-top-color": 37,
             "box-sizing": 37,
             "caret-color": 37,
-            "color": 37,
-            "column-rule-color": 37
+            "color": 37
           },
           "muestras": [
-            "div.ui.flex en div.: block-size 40px → 45.7031px",
-            "div.ui.nowrap.flex en div.: block-size 40px → 45.7031px",
-            "div.ui.flex en div.: block-size 40px → 45.7031px"
+            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.nowrap.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 28,
+          "piezas": 36,
           "propiedades": {
+            "accent-color": 37,
             "perspective-origin": 27,
             "transform-origin": 27,
             "column-gap": 26,
@@ -628,14 +658,21 @@
             "min-height": 2
           },
           "muestras": [
-            "div.ui.flex en div.: block-size 40px → 45.7031px",
-            "div.ui.nowrap.flex en div.: block-size 40px → 45.7031px",
-            "div.ui.flex en div.: column-gap 8px → 9.14286px"
+            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.nowrap.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 36,
+          "propiedades": {
+            "accent-color": 37
+          },
+          "muestras": [
+            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.nowrap.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -675,28 +712,29 @@
         "suelto": {
           "piezas": 122,
           "propiedades": {
+            "accent-color": 143,
             "box-sizing": 143,
             "font-size": 143,
             "line-height": 143,
             "scrollbar-color": 143,
             "text-size-adjust": 143,
+            "text-wrap-style": 142,
             "perspective-origin": 128,
             "transform-origin": 128,
             "block-size": 122,
             "height": 122,
-            "scrollbar-width": 122,
-            "-webkit-font-smoothing": 115,
-            "inline-size": 61
+            "scrollbar-width": 122
           },
           "muestras": [
-            "h1.ui.header en div.: block-size 32px → 36.5469px",
-            "h2.ui.header en div.: block-size 24px → 27.4219px",
-            "h3.ui.header en div.: block-size 24px → 27.4219px"
+            "h1.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h2.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h3.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 122,
           "propiedades": {
+            "accent-color": 143,
             "font-size": 143,
             "line-height": 143,
             "perspective-origin": 128,
@@ -707,18 +745,24 @@
             "width": 39,
             "padding-block-end": 27,
             "padding-bottom": 27,
-            "padding-inline-start": 27,
-            "padding-left": 27
+            "padding-inline-start": 27
           },
           "muestras": [
-            "h1.ui.header en div.: block-size 32px → 36.5469px",
-            "h2.ui.header en div.: block-size 24px → 27.4219px",
-            "h3.ui.header en div.: block-size 24px → 27.4219px"
+            "h1.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h2.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h3.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 122,
+          "propiedades": {
+            "accent-color": 143
+          },
+          "muestras": [
+            "h1.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h2.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h3.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -748,6 +792,7 @@
         "suelto": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "box-sizing": 160,
             "font-size": 160,
             "line-height": 160,
@@ -758,18 +803,18 @@
             "border-bottom-color": 156,
             "border-inline-end-color": 156,
             "border-inline-start-color": 156,
-            "border-left-color": 156,
-            "border-right-color": 156
+            "border-left-color": 156
           },
           "muestras": [
-            "i.home.icon en div.: block-size 14px → 16px",
-            "i.user.icon en div.: block-size 14px → 16px",
-            "i.heart.icon en div.: block-size 14px → 16px"
+            "i.home.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.user.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.heart.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "box-sizing": 160,
             "font-size": 160,
             "line-height": 160,
@@ -780,18 +825,18 @@
             "border-bottom-color": 156,
             "border-inline-end-color": 156,
             "border-inline-start-color": 156,
-            "border-left-color": 156,
-            "border-right-color": 156
+            "border-left-color": 156
           },
           "muestras": [
-            "i.home.icon en div.: block-size 14px → 16px",
-            "i.user.icon en div.: block-size 14px → 16px",
-            "i.heart.icon en div.: block-size 14px → 16px"
+            "i.home.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.user.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.heart.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 160,
             "box-sizing": 160,
             "scrollbar-color": 160,
             "text-size-adjust": 160,
@@ -802,13 +847,12 @@
             "border-inline-start-color": 156,
             "border-left-color": 156,
             "border-right-color": 156,
-            "border-top-color": 156,
-            "caret-color": 156
+            "border-top-color": 156
           },
           "muestras": [
-            "i.home.icon en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.user.icon en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.heart.icon en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "i.home.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.user.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.heart.icon en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -847,6 +891,7 @@
         "suelto": {
           "piezas": 93,
           "propiedades": {
+            "accent-color": 93,
             "caret-color": 93,
             "color": 93,
             "column-rule-color": 93,
@@ -857,18 +902,18 @@
             "row-rule-color": 93,
             "scrollbar-color": 93,
             "scrollbar-width": 93,
-            "text-decoration-color": 93,
-            "text-emphasis-color": 93
+            "text-decoration-color": 93
           },
           "muestras": [
-            "img.ui.small.image en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "div.ui.small.image en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "img. en div.ui.small.image: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "img.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img. en div.ui.small.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 46,
+          "piezas": 93,
           "propiedades": {
+            "accent-color": 93,
             "font-size": 44,
             "border-bottom-left-radius": 4,
             "border-bottom-right-radius": 4,
@@ -879,18 +924,24 @@
             "border-top-left-radius": 4,
             "border-top-right-radius": 4,
             "margin-inline-end": 3,
-            "margin-inline-start": 3,
-            "margin-left": 3
+            "margin-inline-start": 3
           },
           "muestras": [
-            "img.ui.small.image en div.: font-size 13px → 14.8571px",
-            "div.ui.small.image en div.: font-size 13px → 14.8571px",
-            "img. en div.ui.small.image: font-size 13px → 14.8571px"
+            "img.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img. en div.ui.small.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 93,
+          "propiedades": {
+            "accent-color": 93
+          },
+          "muestras": [
+            "img.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img. en div.ui.small.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -939,6 +990,7 @@
         "suelto": {
           "piezas": 191,
           "propiedades": {
+            "accent-color": 261,
             "block-size": 261,
             "font-size": 261,
             "height": 261,
@@ -949,18 +1001,18 @@
             "transform-origin": 261,
             "box-sizing": 260,
             "inline-size": 242,
-            "width": 242,
-            "scrollbar-width": 191
+            "width": 242
           },
           "muestras": [
-            "div.ui.input en div.: block-size 40px → 38.1719px",
-            "input. en div.ui.input: appearance none → auto",
-            "div.ui.input en div.: block-size 40px → 38.1719px"
+            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input. en div.ui.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 191,
           "propiedades": {
+            "accent-color": 261,
             "block-size": 261,
             "font-size": 261,
             "height": 261,
@@ -971,18 +1023,18 @@
             "line-height": 185,
             "inset-inline-start": 105,
             "left": 105,
-            "bottom": 75,
-            "inset-block-end": 75
+            "bottom": 75
           },
           "muestras": [
-            "div.ui.input en div.: block-size 40px → 45.4219px",
-            "input. en div.ui.input: block-size 40px → 45.4219px",
-            "div.ui.input en div.: block-size 40px → 45.4219px"
+            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input. en div.ui.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 4,
+          "piezas": 191,
           "propiedades": {
+            "accent-color": 261,
             "bottom": 4,
             "font-family": 4,
             "inline-size": 4,
@@ -994,9 +1046,9 @@
             "width": 4
           },
           "muestras": [
-            "input.ui.invisible.file.input en div.: bottom -8430.09px → -8296.28px",
-            "input.ui.invisible.file.input en div.: bottom -8430.09px → -8296.28px",
-            "input.ui.invisible.file.input en div.: bottom -9070.09px → -8936.28px"
+            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input. en div.ui.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -1039,6 +1091,7 @@
         "suelto": {
           "piezas": 110,
           "propiedades": {
+            "accent-color": 215,
             "font-size": 215,
             "line-height": 215,
             "scrollbar-color": 215,
@@ -1049,18 +1102,18 @@
             "inline-size": 193,
             "perspective-origin": 193,
             "transform-origin": 193,
-            "width": 193,
-            "font-family": 171
+            "width": 193
           },
           "muestras": [
-            "div.ui.label en div.: block-size 22px → 13.7188px",
-            "div.ui.label en div.: block-size 22px → 13.7188px",
-            "i.mail.icon en div.ui.label: block-size 12px → 13.7031px"
+            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.mail.icon en div.ui.label: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 110,
           "propiedades": {
+            "accent-color": 215,
             "font-size": 215,
             "line-height": 215,
             "block-size": 193,
@@ -1071,18 +1124,18 @@
             "width": 193,
             "bottom": 121,
             "inset-block-end": 121,
-            "inset-inline-start": 100,
-            "left": 100
+            "inset-inline-start": 100
           },
           "muestras": [
-            "div.ui.label en div.: block-size 22px → 25.125px",
-            "div.ui.label en div.: block-size 22px → 25.125px",
-            "i.mail.icon en div.ui.label: block-size 12px → 13.7031px"
+            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.mail.icon en div.ui.label: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 19,
+          "piezas": 110,
           "propiedades": {
+            "accent-color": 215,
             "bottom": 19,
             "inset-block-end": 19,
             "inset-inline-start": 17,
@@ -1091,9 +1144,9 @@
             "right": 2
           },
           "muestras": [
-            "a.ui.left.corner.label en div.: bottom 2209px → 2194px",
-            "a.ui.right.corner.label en div.: bottom 2209px → 2194px",
-            "a.ui.left.corner.red.label en div.: bottom 2209px → 2194px"
+            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.mail.icon en div.ui.label: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -1136,6 +1189,7 @@
         "suelto": {
           "piezas": 464,
           "propiedades": {
+            "accent-color": 767,
             "box-sizing": 767,
             "scrollbar-color": 767,
             "text-size-adjust": 767,
@@ -1143,21 +1197,21 @@
             "font-size": 744,
             "-webkit-font-smoothing": 705,
             "font-family": 667,
-            "transform-origin": 649,
             "perspective-origin": 648,
-            "inline-size": 565,
-            "width": 565,
-            "block-size": 519
+            "transform-origin": 648,
+            "inline-size": 564,
+            "width": 564
           },
           "muestras": [
-            "div.ui.list en div.: block-size 72px → 82.2188px",
-            "div.item en div.ui.list: block-size 23px → 22.8438px",
-            "div.item en div.ui.list: block-size 26px → 22.8438px"
+            "div.ui.list en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 464,
           "propiedades": {
+            "accent-color": 767,
             "font-size": 744,
             "line-height": 685,
             "perspective-origin": 629,
@@ -1168,18 +1222,24 @@
             "width": 496,
             "padding-block-start": 181,
             "padding-top": 181,
-            "padding-block-end": 180,
-            "padding-bottom": 180
+            "padding-block-end": 180
           },
           "muestras": [
-            "div.ui.list en div.: block-size 72px → 82.2188px",
-            "div.item en div.ui.list: block-size 23px → 26.2656px",
-            "div.item en div.ui.list: block-size 26px → 29.6875px"
+            "div.ui.list en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 464,
+          "propiedades": {
+            "accent-color": 767
+          },
+          "muestras": [
+            "div.ui.list en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1209,6 +1269,7 @@
         "suelto": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 240,
             "box-sizing": 240,
             "font-family": 240,
             "font-size": 240,
@@ -1219,18 +1280,18 @@
             "block-size": 231,
             "height": 231,
             "inline-size": 230,
-            "width": 230,
-            "perspective-origin": 195
+            "width": 230
           },
           "muestras": [
-            "div.ui.loader en div.: block-size 32px → 36.5714px",
-            "div.ui.loader en div.: block-size 32px → 36.5714px",
-            "div.ui.active.loader en div.: block-size 32px → 36.5625px"
+            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.active.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 80,
           "propiedades": {
+            "accent-color": 240,
             "font-size": 240,
             "block-size": 231,
             "height": 231,
@@ -1241,27 +1302,27 @@
             "margin-inline-start": 161,
             "margin-left": 161,
             "border-block-end-width": 160,
-            "border-block-start-width": 160,
-            "border-bottom-left-radius": 160
+            "border-block-start-width": 160
           },
           "muestras": [
-            "div.ui.loader en div.: block-size 32px → 36.5714px",
-            "div.ui.loader en div.: block-size 32px → 36.5714px",
-            "div.ui.active.loader en div.: block-size 32px → 36.5625px"
+            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.active.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 4,
+          "piezas": 80,
           "propiedades": {
+            "accent-color": 240,
             "inset-inline-end": 4,
             "inset-inline-start": 4,
             "left": 4,
             "right": 4
           },
           "muestras": [
-            "div.ui.active.loader en div.: inset-inline-end 663px → 660.5px",
-            "div.ui.active.text.loader en div.: inset-inline-end 620.484px → 617.984px",
-            "div.ui.active.loader en div.: inset-inline-end 663px → 660.5px"
+            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.active.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -1292,6 +1353,7 @@
         "suelto": {
           "piezas": 114,
           "propiedades": {
+            "accent-color": 250,
             "border-block-end-color": 250,
             "border-block-start-color": 250,
             "border-bottom-color": 250,
@@ -1302,18 +1364,18 @@
             "border-top-color": 250,
             "box-sizing": 250,
             "caret-color": 250,
-            "color": 250,
-            "column-rule-color": 250
+            "color": 250
           },
           "muestras": [
-            "div.ui.placeholder en div.: block-size 145px → 165.625px",
-            "div.image.header en div.ui.placeholder: block-size 42px → 47.9688px",
-            "div.line en div.image.header: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.placeholder en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image.header en div.ui.placeholder: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.line en div.image.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 100,
+          "piezas": 114,
           "propiedades": {
+            "accent-color": 250,
             "inline-size": 159,
             "perspective-origin": 159,
             "transform-origin": 159,
@@ -1324,18 +1386,24 @@
             "left": 55,
             "max-inline-size": 22,
             "max-width": 22,
-            "block-size": 10,
-            "height": 10
+            "block-size": 10
           },
           "muestras": [
-            "div.ui.placeholder en div.: inline-size 420px → 480px",
-            "div.image.header en div.ui.placeholder: inline-size 420px → 480px",
-            "div.line en div.image.header: inline-size 378px → 438px"
+            "div.ui.placeholder en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image.header en div.ui.placeholder: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.line en div.image.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 114,
+          "propiedades": {
+            "accent-color": 250
+          },
+          "muestras": [
+            "div.ui.placeholder en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image.header en div.ui.placeholder: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.line en div.image.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1368,6 +1436,7 @@
         "suelto": {
           "piezas": 30,
           "propiedades": {
+            "accent-color": 30,
             "block-size": 30,
             "border-block-end-color": 30,
             "border-block-start-color": 30,
@@ -1378,18 +1447,18 @@
             "color": 30,
             "column-rule-color": 30,
             "font-family": 30,
-            "font-size": 30,
-            "height": 30
+            "font-size": 30
           },
           "muestras": [
-            "div.ui.left.rail en div.: block-size 2257px → 2242px",
-            "div.ui.right.rail en div.: block-size 2257px → 2242px",
-            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
+            "div.ui.left.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.right.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.left.internal.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 30,
           "propiedades": {
+            "accent-color": 30,
             "block-size": 30,
             "font-size": 30,
             "height": 30,
@@ -1400,18 +1469,18 @@
             "left": 27,
             "right": 27,
             "margin-inline-end": 13,
-            "margin-right": 13,
-            "padding-inline-end": 13
+            "margin-right": 13
           },
           "muestras": [
-            "div.ui.left.rail en div.: block-size 2257px → 2242px",
-            "div.ui.right.rail en div.: block-size 2257px → 2242px",
-            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
+            "div.ui.left.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.right.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.left.internal.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
           "piezas": 30,
           "propiedades": {
+            "accent-color": 30,
             "block-size": 30,
             "height": 30,
             "perspective-origin": 30,
@@ -1422,9 +1491,9 @@
             "left": 15
           },
           "muestras": [
-            "div.ui.left.rail en div.: block-size 2257px → 2242px",
-            "div.ui.right.rail en div.: block-size 2257px → 2242px",
-            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
+            "div.ui.left.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.right.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.left.internal.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -1466,6 +1535,7 @@
         "suelto": {
           "piezas": 111,
           "propiedades": {
+            "accent-color": 111,
             "border-block-end-color": 111,
             "border-block-start-color": 111,
             "border-bottom-color": 111,
@@ -1476,18 +1546,18 @@
             "border-top-color": 111,
             "box-sizing": 111,
             "caret-color": 111,
-            "color": 111,
-            "column-rule-color": 111
+            "color": 111
           },
           "muestras": [
-            "div.ui.small.fade.reveal.image en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "img.visible.content en div.ui.small.fade.reveal.image: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "img.hidden.content en div.ui.small.fade.reveal.image: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.small.fade.reveal.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.visible.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.hidden.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 111,
           "propiedades": {
+            "accent-color": 111,
             "font-size": 101,
             "block-size": 30,
             "height": 30,
@@ -1498,18 +1568,24 @@
             "border-end-end-radius": 15,
             "border-end-start-radius": 15,
             "border-start-end-radius": 15,
-            "border-start-start-radius": 15,
-            "border-top-left-radius": 15
+            "border-start-start-radius": 15
           },
           "muestras": [
-            "div.ui.small.fade.reveal.image en div.: font-size 13px → 14.8571px",
-            "img.visible.content en div.ui.small.fade.reveal.image: font-size 13px → 14.8571px",
-            "img.hidden.content en div.ui.small.fade.reveal.image: font-size 13px → 14.8571px"
+            "div.ui.small.fade.reveal.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.visible.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.hidden.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 111,
+          "propiedades": {
+            "accent-color": 111
+          },
+          "muestras": [
+            "div.ui.small.fade.reveal.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.visible.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.hidden.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1572,6 +1648,7 @@
         "suelto": {
           "piezas": 127,
           "propiedades": {
+            "accent-color": 149,
             "box-sizing": 149,
             "font-family": 149,
             "font-size": 149,
@@ -1582,18 +1659,18 @@
             "perspective-origin": 146,
             "transform-origin": 146,
             "block-size": 141,
-            "height": 141,
-            "scrollbar-width": 127
+            "height": 141
           },
           "muestras": [
-            "div.ui.segment en div.: block-size 62px → 50px",
-            "p. en div.ui.segment: block-size 20px → 18px",
-            "div.ui.placeholder.segment en div.: block-size 260px → 297.141px"
+            "div.ui.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.placeholder.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 127,
           "propiedades": {
+            "accent-color": 149,
             "font-size": 149,
             "block-size": 140,
             "height": 140,
@@ -1604,18 +1681,24 @@
             "padding-bottom": 81,
             "padding-top": 81,
             "padding-inline-end": 76,
-            "padding-inline-start": 76,
-            "padding-left": 76
+            "padding-inline-start": 76
           },
           "muestras": [
-            "div.ui.segment en div.: block-size 62px → 70.5469px",
-            "p. en div.ui.segment: block-size 20px → 22.8594px",
-            "div.ui.placeholder.segment en div.: block-size 260px → 297.141px"
+            "div.ui.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.placeholder.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 127,
+          "propiedades": {
+            "accent-color": 149
+          },
+          "muestras": [
+            "div.ui.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.placeholder.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1652,6 +1735,7 @@
         "suelto": {
           "piezas": 866,
           "propiedades": {
+            "accent-color": 1303,
             "box-sizing": 1303,
             "font-size": 1303,
             "line-height": 1303,
@@ -1662,18 +1746,18 @@
             "-webkit-font-smoothing": 1201,
             "inline-size": 1200,
             "width": 1200,
-            "block-size": 1132,
-            "height": 1132
+            "block-size": 1132
           },
           "muestras": [
-            "div.ui.steps en div.: block-size 50px → 54.8438px",
-            "div.step en div.ui.steps: block-size 48px → 18.2812px",
-            "div.ui.steps en div.: block-size 69px → 76.5625px"
+            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.step en div.ui.steps: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 834,
+          "piezas": 866,
           "propiedades": {
+            "accent-color": 1303,
             "font-size": 1223,
             "perspective-origin": 1177,
             "transform-origin": 1177,
@@ -1684,18 +1768,24 @@
             "line-height": 536,
             "bottom": 323,
             "inset-block-end": 323,
-            "inset-block-start": 323,
-            "top": 323
+            "inset-block-start": 323
           },
           "muestras": [
-            "div.ui.steps en div.: block-size 50px → 54.5625px",
-            "div.step en div.ui.steps: block-size 48px → 52.5625px",
-            "div.ui.steps en div.: block-size 69px → 78.5625px"
+            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.step en div.ui.steps: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 866,
+          "propiedades": {
+            "accent-color": 1303
+          },
+          "muestras": [
+            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.step en div.ui.steps: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1725,6 +1815,7 @@
         "suelto": {
           "piezas": 13,
           "propiedades": {
+            "accent-color": 13,
             "font-family": 13,
             "font-size": 13,
             "line-height": 13,
@@ -1735,18 +1826,18 @@
             "padding-block-end": 1,
             "padding-block-start": 1,
             "padding-bottom": 1,
-            "padding-inline-end": 1,
-            "padding-inline-start": 1
+            "padding-inline-end": 1
           },
           "muestras": [
-            "span.ui.swatch en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\"",
-            "span.ui.swatch en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\"",
-            "span.ui.swatch en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\""
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 13,
           "propiedades": {
+            "accent-color": 13,
             "font-size": 13,
             "line-height": 13,
             "padding-block-end": 1,
@@ -1759,14 +1850,21 @@
             "padding-top": 1
           },
           "muestras": [
-            "span.ui.swatch en div.: font-size 13px → 14.8571px",
-            "span.ui.swatch en div.: font-size 13px → 14.8571px",
-            "span.ui.swatch en div.: font-size 13px → 14.8571px"
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 13,
+          "propiedades": {
+            "accent-color": 13
+          },
+          "muestras": [
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1796,6 +1894,7 @@
         "suelto": {
           "piezas": 76,
           "propiedades": {
+            "accent-color": 76,
             "box-sizing": 76,
             "font-family": 76,
             "font-size": 76,
@@ -1804,33 +1903,40 @@
             "scrollbar-width": 76,
             "text-size-adjust": 76,
             "-webkit-font-smoothing": 76,
+            "overflow-wrap": 75,
             "border-block-end-color": 24,
-            "border-block-start-color": 24,
-            "border-bottom-color": 24,
-            "border-inline-end-color": 24
+            "border-block-start-color": 24
           },
           "muestras": [
-            "span.ui.text en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.disabled.text en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "span.ui.muted.text en div.: box-sizing border-box → content-box"
+            "span.ui.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.disabled.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.muted.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 17,
+          "piezas": 76,
           "propiedades": {
+            "accent-color": 76,
             "font-size": 17,
             "line-height": 17,
             "letter-spacing": 6
           },
           "muestras": [
-            "span.ui.small.muted.text en div.: font-size 13px → 14.8571px",
-            "span.ui.mini.text en div.: font-size 12px → 13.7143px",
-            "span.ui.tiny.text en div.: font-size 12px → 13.7143px"
+            "span.ui.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.disabled.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.muted.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 76,
+          "propiedades": {
+            "accent-color": 76
+          },
+          "muestras": [
+            "span.ui.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.disabled.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.ui.muted.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1875,6 +1981,7 @@
         "suelto": {
           "piezas": 105,
           "propiedades": {
+            "accent-color": 122,
             "box-sizing": 122,
             "font-size": 122,
             "line-height": 122,
@@ -1885,18 +1992,18 @@
             "height": 104,
             "inline-size": 104,
             "perspective-origin": 104,
-            "transform-origin": 104,
-            "width": 104
+            "transform-origin": 104
           },
           "muestras": [
-            "div.ui.breadcrumb en div.: block-size 16px → 18.2812px",
-            "a.section en div.ui.breadcrumb: block-size 16px → 18.2812px",
-            "div.divider en div.ui.breadcrumb: block-size 14.8438px → 16.9688px"
+            "div.ui.breadcrumb en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.section en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.divider en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 105,
           "propiedades": {
+            "accent-color": 122,
             "font-size": 122,
             "line-height": 122,
             "block-size": 104,
@@ -1907,18 +2014,24 @@
             "width": 104,
             "margin-inline-end": 34,
             "margin-inline-start": 34,
-            "margin-left": 34,
-            "margin-right": 34
+            "margin-left": 34
           },
           "muestras": [
-            "div.ui.breadcrumb en div.: block-size 16px → 18.9688px",
-            "a.section en div.ui.breadcrumb: block-size 16px → 18.2812px",
-            "div.divider en div.ui.breadcrumb: block-size 14.8438px → 16.9688px"
+            "div.ui.breadcrumb en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.section en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.divider en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 105,
+          "propiedades": {
+            "accent-color": 122
+          },
+          "muestras": [
+            "div.ui.breadcrumb en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.section en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.divider en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -1967,6 +2080,7 @@
         "suelto": {
           "piezas": 49,
           "propiedades": {
+            "accent-color": 50,
             "font-size": 50,
             "scrollbar-color": 50,
             "text-size-adjust": 50,
@@ -1977,18 +2091,18 @@
             "line-height": 46,
             "block-size": 40,
             "height": 40,
-            "perspective-origin": 40,
-            "transform-origin": 40
+            "perspective-origin": 40
           },
           "muestras": [
-            "div.dt-container.dt-semanticUI en div.: block-size 370px → 426.75px",
-            "div.dt-layout-row en div.dt-container.dt-semanticUI: block-size 60px → 43.1406px",
-            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: block-size 36px → 43.1406px"
+            "div.dt-container.dt-semanticUI en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.dt-layout-row en div.dt-container.dt-semanticUI: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 44,
+          "piezas": 49,
           "propiedades": {
+            "accent-color": 50,
             "block-size": 35,
             "height": 35,
             "perspective-origin": 35,
@@ -1999,18 +2113,24 @@
             "inline-size": 10,
             "width": 10,
             "line-height": 8,
-            "padding-block-end": 7,
-            "padding-block-start": 7
+            "padding-block-end": 7
           },
           "muestras": [
-            "div.dt-container.dt-semanticUI en div.: block-size 370px → 422.75px",
-            "div.dt-layout-row en div.dt-container.dt-semanticUI: block-size 60px → 68.5469px",
-            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: block-size 36px → 41.1406px"
+            "div.dt-container.dt-semanticUI en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.dt-layout-row en div.dt-container.dt-semanticUI: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 49,
+          "propiedades": {
+            "accent-color": 50
+          },
+          "muestras": [
+            "div.dt-container.dt-semanticUI en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.dt-layout-row en div.dt-container.dt-semanticUI: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2025,10 +2145,11 @@
       }
     },
     "form": {
-      "css": [],
+      "css": [
+        "input"
+      ],
       "js": [],
       "opcional": {
-        "input": "CSS: solo si el marcado lleva esa pieza (1 de 64 ejemplos): input ← .ui.form .field > input[type=\"file\"]",
         "loader": "CSS: solo si el marcado lleva esa pieza (3 de 64 ejemplos): form.ui.loading.form.initial ← .ui.ui.ui.ui.loading:not(.usual)",
         "segment": "CSS: solo si el marcado lleva esa pieza (4 de 64 ejemplos): form.ui.form.segment.initial ← .ui.segment",
         "checkbox": "JS: su uso normal (4 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 5 veces y lo comprueba 0 (sin guarda)",
@@ -2067,7 +2188,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "input": "20 piezas cambian sin él",
+          "input": "174 piezas cambian sin él",
           "loader": "3 piezas cambian sin él",
           "segment": "20 piezas cambian sin él"
         },
@@ -2077,6 +2198,7 @@
         "suelto": {
           "piezas": 865,
           "propiedades": {
+            "accent-color": 880,
             "font-size": 880,
             "text-size-adjust": 880,
             "-webkit-font-smoothing": 880,
@@ -2087,18 +2209,18 @@
             "transform-origin": 862,
             "block-size": 861,
             "height": 861,
-            "box-sizing": 856,
-            "font-family": 722
+            "box-sizing": 856
           },
           "muestras": [
-            "form.ui.form.initial en div.: block-size 239.094px → 268.094px",
-            "div.field en form.ui.form.initial: block-size 63.5469px → 72.3438px",
-            "label. en div.field: block-size 17.9844px → 20.5625px"
+            "form.ui.form.initial en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.field en form.ui.form.initial: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "label. en div.field: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 865,
           "propiedades": {
+            "accent-color": 880,
             "font-size": 880,
             "perspective-origin": 826,
             "transform-origin": 826,
@@ -2109,18 +2231,24 @@
             "line-height": 413,
             "margin-block-end": 373,
             "margin-bottom": 373,
-            "padding-inline-end": 364,
-            "padding-right": 364
+            "padding-inline-end": 364
           },
           "muestras": [
-            "form.ui.form.initial en div.: block-size 239.094px → 269.234px",
-            "div.field en form.ui.form.initial: block-size 63.5469px → 72.3438px",
-            "label. en div.field: block-size 17.9844px → 20.5625px"
+            "form.ui.form.initial en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.field en form.ui.form.initial: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "label. en div.field: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 865,
+          "propiedades": {
+            "accent-color": 880
+          },
+          "muestras": [
+            "form.ui.form.initial en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.field en form.ui.form.initial: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "label. en div.field: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": [
           "error: Form: Field identifier undefined not found"
@@ -2136,6 +2264,7 @@
         "css": [
           "reset",
           "site",
+          "input",
           "form"
         ],
         "js": [
@@ -2164,6 +2293,7 @@
         "suelto": {
           "piezas": 561,
           "propiedades": {
+            "accent-color": 569,
             "box-sizing": 569,
             "font-family": 569,
             "font-size": 569,
@@ -2174,18 +2304,18 @@
             "transform-origin": 569,
             "-webkit-font-smoothing": 569,
             "scrollbar-width": 561,
-            "block-size": 548,
-            "height": 548
+            "block-size": 548
           },
           "muestras": [
-            "div.ui.grid en div.: block-size 82px → 177.062px",
-            "div.column en div.ui.grid: block-size 82px → 65.6875px",
-            "div.column en div.ui.grid: block-size 82px → 65.6875px"
+            "div.ui.grid en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 561,
           "propiedades": {
+            "accent-color": 569,
             "perspective-origin": 543,
             "transform-origin": 543,
             "block-size": 533,
@@ -2196,18 +2326,24 @@
             "padding-inline-start": 353,
             "padding-left": 353,
             "padding-right": 353,
-            "padding-block-end": 268,
-            "padding-block-start": 268
+            "padding-block-end": 268
           },
           "muestras": [
-            "div.ui.grid en div.: block-size 82px → 90.5312px",
-            "div.column en div.ui.grid: block-size 82px → 90.5312px",
-            "div.column en div.ui.grid: block-size 82px → 90.5312px"
+            "div.ui.grid en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 561,
+          "propiedades": {
+            "accent-color": 569
+          },
+          "muestras": [
+            "div.ui.grid en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2255,6 +2391,7 @@
         "suelto": {
           "piezas": 365,
           "propiedades": {
+            "accent-color": 735,
             "box-sizing": 735,
             "font-size": 735,
             "line-height": 735,
@@ -2265,18 +2402,18 @@
             "transform-origin": 528,
             "block-size": 501,
             "height": 501,
-            "inline-size": 405,
-            "width": 405
+            "inline-size": 405
           },
           "muestras": [
-            "div.ui.menu en div.: block-size 52px → 56.8281px",
-            "a.item en div.ui.menu: block-size 50px → 27.1406px",
-            "a.active.item en div.ui.menu: block-size 50px → 27.1406px"
+            "div.ui.menu en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.active.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 365,
           "propiedades": {
+            "accent-color": 735,
             "font-size": 735,
             "line-height": 567,
             "perspective-origin": 526,
@@ -2287,18 +2424,18 @@
             "width": 364,
             "padding-inline-end": 231,
             "padding-inline-start": 231,
-            "padding-left": 231,
-            "padding-right": 231
+            "padding-left": 231
           },
           "muestras": [
-            "div.ui.menu en div.: block-size 52px → 58.8281px",
-            "a.item en div.ui.menu: block-size 50px → 56.8281px",
-            "a.active.item en div.ui.menu: block-size 50px → 56.8281px"
+            "div.ui.menu en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.active.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 6,
+          "piezas": 365,
           "propiedades": {
+            "accent-color": 735,
             "inline-size": 3,
             "perspective-origin": 3,
             "transform-origin": 3,
@@ -2309,13 +2446,12 @@
             "border-inline-end-color": 2,
             "border-inline-start-color": 2,
             "border-left-color": 2,
-            "border-right-color": 2,
-            "border-top-color": 2
+            "border-right-color": 2
           },
           "muestras": [
-            "a.item en div.ui.secondary.two.item.menu: background-color rgb(53, 109, 202) → rgba(0, 0, 0, 0)",
-            "div.ui.top.fixed.menu en div.: inline-size 1390px → 1385px",
-            "div.ui.bottom.fixed.menu en div.: inline-size 1390px → 1385px"
+            "div.ui.menu en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.active.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         }
       },
@@ -2355,6 +2491,7 @@
         "suelto": {
           "piezas": 274,
           "propiedades": {
+            "accent-color": 314,
             "box-sizing": 314,
             "font-size": 314,
             "line-height": 314,
@@ -2365,18 +2502,18 @@
             "perspective-origin": 276,
             "transform-origin": 276,
             "scrollbar-width": 274,
-            "inline-size": 253,
-            "width": 253
+            "inline-size": 253
           },
           "muestras": [
-            "div.ui.message en div.: block-size 66px → 47.9844px",
-            "div.header en div.ui.message: block-size 20px → 22.8438px",
-            "p. en div.ui.message: block-size 20px → 22.8594px"
+            "div.ui.message en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 274,
           "propiedades": {
+            "accent-color": 314,
             "font-size": 314,
             "line-height": 314,
             "block-size": 276,
@@ -2387,18 +2524,24 @@
             "width": 199,
             "min-block-size": 81,
             "min-height": 81,
-            "padding-block-end": 81,
-            "padding-block-start": 81
+            "padding-block-end": 81
           },
           "muestras": [
-            "div.ui.message en div.: block-size 66px → 75.3906px",
-            "div.header en div.ui.message: block-size 20px → 22.8438px",
-            "p. en div.ui.message: block-size 20px → 22.8594px"
+            "div.ui.message en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 274,
+          "propiedades": {
+            "accent-color": 314
+          },
+          "muestras": [
+            "div.ui.message en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2449,6 +2592,7 @@
         "suelto": {
           "piezas": 1394,
           "propiedades": {
+            "accent-color": 1441,
             "font-size": 1441,
             "line-height": 1441,
             "scrollbar-color": 1441,
@@ -2459,18 +2603,18 @@
             "height": 1397,
             "scrollbar-width": 1394,
             "-webkit-font-smoothing": 1365,
-            "box-sizing": 1361,
-            "font-family": 1358
+            "box-sizing": 1361
           },
           "muestras": [
-            "table.ui.table en div.: block-size 240px → 285.766px",
-            "thead. en table.ui.table: block-size 38px → 52.2344px",
-            "tr. en thead.: block-size 38px → 52.2344px"
+            "table.ui.table en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "thead. en table.ui.table: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "tr. en thead.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 1394,
           "propiedades": {
+            "accent-color": 1441,
             "font-size": 1441,
             "perspective-origin": 1400,
             "transform-origin": 1400,
@@ -2480,19 +2624,25 @@
             "padding-inline-start": 846,
             "padding-left": 846,
             "padding-right": 846,
-            "inline-size": 841,
-            "width": 841,
-            "line-height": 242
+            "inline-size": 811,
+            "width": 811
           },
           "muestras": [
-            "table.ui.table en div.: block-size 240px → 273.953px",
-            "thead. en table.ui.table: block-size 38px → 43.4219px",
-            "tr. en thead.: block-size 38px → 43.4219px"
+            "table.ui.table en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "thead. en table.ui.table: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "tr. en thead.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 1394,
+          "propiedades": {
+            "accent-color": 1441
+          },
+          "muestras": [
+            "table.ui.table en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "thead. en table.ui.table: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "tr. en thead.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2534,6 +2684,7 @@
         "suelto": {
           "piezas": 27,
           "propiedades": {
+            "accent-color": 53,
             "box-sizing": 53,
             "font-size": 53,
             "line-height": 53,
@@ -2544,18 +2695,18 @@
             "transform-origin": 48,
             "font-family": 47,
             "scrollbar-width": 27,
-            "caret-color": 24,
-            "color": 24
+            "caret-color": 24
           },
           "muestras": [
-            "div.ui.medium.rectangle.ad en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "div.ui.leaderboard.test.ad en div.: box-sizing border-box → content-box",
-            "div.ui.large.leaderboard.test.ad en div.: box-sizing border-box → content-box"
+            "div.ui.medium.rectangle.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.large.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 26,
+          "piezas": 27,
           "propiedades": {
+            "accent-color": 53,
             "font-size": 29,
             "line-height": 29,
             "block-size": 24,
@@ -2566,18 +2717,24 @@
             "transform": 24,
             "transform-origin": 24,
             "min-block-size": 3,
-            "min-height": 3,
-            "padding-block-end": 3
+            "min-height": 3
           },
           "muestras": [
-            "div.ui.leaderboard.test.ad::after en div.: block-size 16px → 18.2812px",
-            "div.ui.large.leaderboard.test.ad::after en div.: block-size 16px → 18.2812px",
-            "div.ui.medium.rectangle.test.ad::after en div.: block-size 16px → 18.2812px"
+            "div.ui.medium.rectangle.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.large.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 27,
+          "propiedades": {
+            "accent-color": 53
+          },
+          "muestras": [
+            "div.ui.medium.rectangle.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.large.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2628,6 +2785,7 @@
         "suelto": {
           "piezas": 359,
           "propiedades": {
+            "accent-color": 549,
             "font-size": 549,
             "line-height": 549,
             "scrollbar-color": 549,
@@ -2638,18 +2796,18 @@
             "inline-size": 520,
             "width": 520,
             "-webkit-font-smoothing": 519,
-            "font-family": 442,
-            "scrollbar-width": 359
+            "font-family": 442
           },
           "muestras": [
-            "div.ui.card en div.: block-size 370.719px → 418.453px",
-            "div.image en div.ui.card: block-size 219.719px → 251.094px",
-            "img. en div.image: block-size 219.719px → 251.094px"
+            "div.ui.card en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image en div.ui.card: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img. en div.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 355,
+          "piezas": 359,
           "propiedades": {
+            "accent-color": 549,
             "perspective-origin": 510,
             "transform-origin": 510,
             "inline-size": 504,
@@ -2660,18 +2818,24 @@
             "line-height": 158,
             "margin-block-start": 123,
             "margin-top": 123,
-            "padding-block-end": 94,
-            "padding-block-start": 94
+            "padding-block-end": 94
           },
           "muestras": [
-            "div.ui.card en div.: block-size 370.719px → 420.453px",
-            "div.image en div.ui.card: block-size 219.719px → 251.094px",
-            "img. en div.image: block-size 219.719px → 251.094px"
+            "div.ui.card en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image en div.ui.card: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img. en div.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 359,
+          "propiedades": {
+            "accent-color": 549
+          },
+          "muestras": [
+            "div.ui.card en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image en div.ui.card: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img. en div.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2713,6 +2877,7 @@
         "suelto": {
           "piezas": 307,
           "propiedades": {
+            "accent-color": 309,
             "box-sizing": 309,
             "font-size": 309,
             "line-height": 309,
@@ -2723,18 +2888,18 @@
             "-webkit-font-smoothing": 305,
             "block-size": 265,
             "height": 265,
-            "perspective-origin": 264,
-            "transform-origin": 264
+            "perspective-origin": 264
           },
           "muestras": [
-            "div.ui.comments en div.: block-size 534.422px → 655.906px",
-            "div.comment en div.ui.comments: block-size 73.1406px → 74.4062px",
-            "a.avatar en div.comment: block-size 32px → 36.5625px"
+            "div.ui.comments en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.comment en div.ui.comments: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.avatar en div.comment: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 307,
           "propiedades": {
+            "accent-color": 309,
             "font-size": 309,
             "line-height": 287,
             "block-size": 265,
@@ -2745,18 +2910,24 @@
             "width": 201,
             "margin-inline-start": 51,
             "margin-left": 51,
-            "margin-block-start": 43,
-            "margin-top": 43
+            "margin-block-start": 43
           },
           "muestras": [
-            "div.ui.comments en div.: block-size 534.422px → 610.484px",
-            "div.comment en div.ui.comments: block-size 73.1406px → 83.5469px",
-            "a.avatar en div.comment: block-size 32px → 36.5625px"
+            "div.ui.comments en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.comment en div.ui.comments: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.avatar en div.comment: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 307,
+          "propiedades": {
+            "accent-color": 309
+          },
+          "muestras": [
+            "div.ui.comments en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.comment en div.ui.comments: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.avatar en div.comment: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2796,6 +2967,7 @@
         "suelto": {
           "piezas": 751,
           "propiedades": {
+            "accent-color": 935,
             "box-sizing": 935,
             "font-size": 935,
             "line-height": 935,
@@ -2806,18 +2978,18 @@
             "perspective-origin": 842,
             "transform-origin": 842,
             "font-family": 808,
-            "-webkit-font-smoothing": 808,
-            "scrollbar-width": 751
+            "-webkit-font-smoothing": 808
           },
           "muestras": [
-            "div.ui.feed en div.: block-size 337.641px → 357.703px",
-            "div.event en div.ui.feed: block-size 61px → 59.375px",
-            "div.label en div.event: block-size 53px → 59.375px"
+            "div.ui.feed en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.event en div.ui.feed: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.label en div.event: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 751,
           "propiedades": {
+            "accent-color": 935,
             "font-size": 935,
             "perspective-origin": 842,
             "transform-origin": 842,
@@ -2828,18 +3000,24 @@
             "line-height": 432,
             "padding-block-start": 224,
             "padding-top": 224,
-            "margin-block-end": 219,
-            "margin-bottom": 219
+            "margin-block-end": 219
           },
           "muestras": [
-            "div.ui.feed en div.: block-size 337.641px → 380.562px",
-            "div.event en div.ui.feed: block-size 61px → 68.5156px",
-            "div.label en div.event: block-size 53px → 59.375px"
+            "div.ui.feed en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.event en div.ui.feed: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.label en div.event: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 751,
+          "propiedades": {
+            "accent-color": 935
+          },
+          "muestras": [
+            "div.ui.feed en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.event en div.ui.feed: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.label en div.event: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2886,6 +3064,7 @@
         "suelto": {
           "piezas": 259,
           "propiedades": {
+            "accent-color": 375,
             "box-sizing": 375,
             "font-size": 375,
             "line-height": 375,
@@ -2896,18 +3075,18 @@
             "perspective-origin": 261,
             "transform-origin": 261,
             "scrollbar-width": 259,
-            "inline-size": 207,
-            "width": 207
+            "inline-size": 207
           },
           "muestras": [
-            "div.ui.items en div.: block-size 304.188px → 306.188px",
-            "div.item en div.ui.items: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "div.image en div.item: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.items en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.items: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image en div.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 58,
+          "piezas": 259,
           "propiedades": {
+            "accent-color": 375,
             "block-size": 38,
             "height": 38,
             "perspective-origin": 38,
@@ -2918,18 +3097,24 @@
             "margin-right": 9,
             "margin-block-end": 6,
             "margin-bottom": 6,
-            "margin-inline-start": 1,
-            "margin-left": 1
+            "margin-inline-start": 1
           },
           "muestras": [
-            "div.content en div.item: block-size 95.8125px → 96.8125px",
-            "div.extra en div.content: margin-block-start 7px → 8px",
-            "div.content en div.item: block-size 95.8125px → 96.8125px"
+            "div.ui.items en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.items: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image en div.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 259,
+          "propiedades": {
+            "accent-color": 375
+          },
+          "muestras": [
+            "div.ui.items en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.item en div.ui.items: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.image en div.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -2959,6 +3144,7 @@
         "suelto": {
           "piezas": 96,
           "propiedades": {
+            "accent-color": 98,
             "block-size": 98,
             "box-sizing": 98,
             "font-size": 98,
@@ -2969,18 +3155,18 @@
             "text-size-adjust": 98,
             "transform-origin": 98,
             "-webkit-font-smoothing": 98,
-            "scrollbar-width": 96,
-            "inline-size": 93
+            "scrollbar-width": 96
           },
           "muestras": [
-            "div.ui.statistic en div.: block-size 50px → 57.1094px",
-            "div.value en div.ui.statistic: block-size 32px → 36.5469px",
-            "div.label en div.ui.statistic: block-size 16px → 18.2812px"
+            "div.ui.statistic en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.value en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.label en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 96,
           "propiedades": {
+            "accent-color": 98,
             "block-size": 98,
             "height": 98,
             "perspective-origin": 98,
@@ -2991,18 +3177,24 @@
             "line-height": 66,
             "letter-spacing": 34,
             "margin-block-start": 25,
-            "margin-top": 25,
-            "margin-inline-start": 9
+            "margin-top": 25
           },
           "muestras": [
-            "div.ui.statistic en div.: block-size 50px → 57.1094px",
-            "div.value en div.ui.statistic: block-size 32px → 36.5469px",
-            "div.label en div.ui.statistic: block-size 16px → 18.2812px"
+            "div.ui.statistic en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.value en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.label en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 96,
+          "propiedades": {
+            "accent-color": 98
+          },
+          "muestras": [
+            "div.ui.statistic en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.value en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.label en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         }
       },
       "cargar": {
@@ -3022,6 +3214,7 @@
       ],
       "js": [],
       "opcional": {
+        "input": "CSS: solo si el marcado lleva esa pieza (1 de 28 ejemplos): input ← input:not([size]):is(:not([type]), [type=\"text\"], [type=\"search\"], [type=\"email\"], [type=\"password\"], [type=\"tel\"], [type=\"url\"], [type=\"number\"])",
         "menu": "CSS: solo si el marcado lleva esa pieza (2 de 28 ejemplos): div.ui.vertical.accordion.menu ← .ui.menu",
         "transition": "JS: su uso normal (2 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 3 veces y lo comprueba 3 (con guarda $.fn)"
       },
@@ -3037,6 +3230,7 @@
         "piezas": 303,
         "muestras": {
           "icon": "i.dropdown.icon ← i.icon",
+          "input": "input ← input:not([size]):is(:not([type]), [type=\"text\"], [type=\"search\"], [type=\"email\"], [type=\"password\"], [type=\"tel\"], [type=\"url\"], [type=\"number\"])",
           "menu": "div.ui.vertical.accordion.menu ← .ui.menu"
         },
         "conDependencias": {
@@ -3045,11 +3239,13 @@
         },
         "necesidad": {
           "icon": "65 piezas cambian sin él",
+          "input": "1 piezas cambian sin él",
           "menu": "25 piezas cambian sin él"
         },
         "suelto": {
           "piezas": 303,
           "propiedades": {
+            "accent-color": 375,
             "font-size": 375,
             "line-height": 375,
             "scrollbar-color": 375,
@@ -3060,18 +3256,18 @@
             "perspective-origin": 231,
             "transform-origin": 231,
             "block-size": 227,
-            "height": 227,
-            "inline-size": 167
+            "height": 227
           },
           "muestras": [
-            "div.ui.accordion en div.: block-size 143px → 190.531px",
-            "div.active.title en div.ui.accordion: block-size 34px → 22.8438px",
-            "i.dropdown.icon en div.active.title: block-size 14px → 16px"
+            "div.ui.accordion en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.active.title en div.ui.accordion: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.dropdown.icon en div.active.title: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 197,
+          "piezas": 303,
           "propiedades": {
+            "accent-color": 375,
             "perspective-origin": 173,
             "transform-origin": 173,
             "font-size": 157,
@@ -3082,18 +3278,24 @@
             "width": 109,
             "padding-inline-end": 80,
             "padding-inline-start": 80,
-            "padding-left": 80,
-            "padding-right": 80
+            "padding-left": 80
           },
           "muestras": [
-            "i.dropdown.icon en div.active.title: block-size 14px → 16px",
-            "i.dropdown.icon en div.title: block-size 14px → 16px",
-            "i.dropdown.icon en div.title: block-size 14px → 16px"
+            "div.ui.accordion en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.active.title en div.ui.accordion: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.dropdown.icon en div.active.title: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 303,
+          "propiedades": {
+            "accent-color": 375
+          },
+          "muestras": [
+            "div.ui.accordion en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.active.title en div.ui.accordion: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.dropdown.icon en div.active.title: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -3147,7 +3349,7 @@
         "necesidad": {
           "icon": "206 piezas cambian sin él",
           "table": "4651 piezas cambian sin él",
-          "popup": "2556 piezas cambian sin él",
+          "popup": "2492 piezas cambian sin él",
           "grid": "258 piezas cambian sin él"
         },
         "sinEfecto": [
@@ -3156,6 +3358,7 @@
         "suelto": {
           "piezas": 4716,
           "propiedades": {
+            "accent-color": 4918,
             "font-size": 4918,
             "line-height": 4918,
             "scrollbar-color": 4918,
@@ -3166,18 +3369,18 @@
             "-webkit-font-smoothing": 4638,
             "block-size": 4162,
             "height": 4162,
-            "padding-block-end": 3410,
-            "padding-block-start": 3410
+            "overflow-wrap": 3909
           },
           "muestras": [
-            "div.ui.calendar en div.: block-size 40px → 38.1719px",
-            "div.ui.calendar en div.: block-size 40px → 38.1719px",
-            "div.ui.calendar en div.: block-size 40px → 38.1719px"
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 4698,
+          "piezas": 4716,
           "propiedades": {
+            "accent-color": 4918,
             "block-size": 4144,
             "height": 4144,
             "font-size": 3415,
@@ -3188,18 +3391,24 @@
             "padding-top": 2322,
             "padding-inline-end": 2250,
             "padding-inline-start": 2250,
-            "padding-left": 2250,
-            "padding-right": 2250
+            "padding-left": 2250
           },
           "muestras": [
-            "div.ui.calendar en div.: block-size 40px → 45.7031px",
-            "div.ui.popup.calendar en div.ui.calendar: font-size 14px → 16px",
-            "table.ui.celled.center.aligned.unstackable.table.day.seven.column en div.ui.popup.calendar: font-size 14px → 16px"
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 4716,
+          "propiedades": {
+            "accent-color": 4918
+          },
+          "muestras": [
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores",
         "sin popup": [
@@ -3263,6 +3472,7 @@
         "suelto": {
           "piezas": 160,
           "propiedades": {
+            "accent-color": 199,
             "font-size": 199,
             "line-height": 199,
             "scrollbar-color": 199,
@@ -3273,49 +3483,49 @@
             "perspective-origin": 154,
             "transform-origin": 154,
             "-webkit-font-smoothing": 153,
-            "box-sizing": 146,
-            "block-size": 142
+            "box-sizing": 146
           },
           "muestras": [
-            "div.ui.visible.chat en div.: font-family Inter, ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif → \"Times New Roman\"",
-            "div.header en div.ui.visible.chat: block-size 62px → 45.7031px",
-            "h2.title en div.header: block-size 24px → 21px"
+            "div.ui.visible.chat en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.visible.chat: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h2.title en div.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 138,
+          "piezas": 160,
           "propiedades": {
-            "inline-size": 138,
-            "width": 138,
-            "perspective-origin": 131,
-            "transform-origin": 131,
+            "accent-color": 199,
+            "inline-size": 140,
+            "width": 140,
+            "perspective-origin": 133,
+            "transform-origin": 133,
             "font-size": 113,
-            "block-size": 93,
-            "height": 93,
+            "block-size": 95,
+            "height": 95,
             "line-height": 92,
             "padding-block-end": 50,
             "padding-block-start": 50,
-            "padding-bottom": 50,
-            "padding-inline-end": 50
+            "padding-bottom": 50
           },
           "muestras": [
-            "div.ui.visible.chat en div.: inline-size 364px → 416px",
-            "div.header en div.ui.visible.chat: block-size 62px → 67.7031px",
-            "h2.title en div.header: inline-size 248px → 288.625px"
+            "div.ui.visible.chat en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.visible.chat: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h2.title en div.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 7,
+          "piezas": 160,
           "propiedades": {
+            "accent-color": 199,
             "inset-inline-start": 5,
             "left": 5,
             "inset-inline-end": 2,
             "right": 2
           },
           "muestras": [
-            "div.ui.visible.chat en div.: inset-inline-start 1026px → 1021px",
-            "div.ui.visible.chat en div.: inset-inline-start 1026px → 1021px",
-            "div.ui.visible.chat.thinking en div.: inset-inline-start 1026px → 1021px"
+            "div.ui.visible.chat en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.visible.chat: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "h2.title en div.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "nota": "JS sin uso de prueba definido"
@@ -3326,6 +3536,7 @@
           "site",
           "button",
           "icon",
+          "input",
           "form",
           "popup",
           "transition",
@@ -3357,6 +3568,7 @@
         "suelto": {
           "piezas": 233,
           "propiedades": {
+            "accent-color": 364,
             "line-height": 364,
             "scrollbar-color": 364,
             "text-size-adjust": 364,
@@ -3367,18 +3579,18 @@
             "inline-size": 355,
             "width": 355,
             "perspective-origin": 353,
-            "transform-origin": 353,
-            "font-family": 305
+            "transform-origin": 353
           },
           "muestras": [
-            "div.ui.checkbox.checked en div.: align-content center → normal",
-            "input.hidden en div.ui.checkbox.checked: block-size 16px → 18.2812px",
-            "label. en div.ui.checkbox.checked: block-size 20px → 22.8594px"
+            "div.ui.checkbox.checked en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input.hidden en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "label. en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 233,
           "propiedades": {
+            "accent-color": 364,
             "line-height": 364,
             "font-size": 361,
             "inline-size": 355,
@@ -3389,18 +3601,24 @@
             "height": 288,
             "bottom": 206,
             "inset-block-end": 206,
-            "inset-inline-end": 187,
-            "right": 187
+            "inset-inline-end": 187
           },
           "muestras": [
-            "div.ui.checkbox.checked en div.: font-size 14px → 16px",
-            "input.hidden en div.ui.checkbox.checked: block-size 16px → 18.2812px",
-            "label. en div.ui.checkbox.checked: block-size 20px → 22.8594px"
+            "div.ui.checkbox.checked en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input.hidden en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "label. en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 233,
+          "propiedades": {
+            "accent-color": 364
+          },
+          "muestras": [
+            "div.ui.checkbox.checked en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input.hidden en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "label. en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -3440,12 +3658,13 @@
           "propiedades": {}
         },
         "necesidad": {
-          "input": "50 piezas cambian sin él",
+          "input": "51 piezas cambian sin él",
           "button": "2 piezas cambian sin él"
         },
         "suelto": {
           "piezas": 66,
           "propiedades": {
+            "accent-color": 66,
             "font-size": 66,
             "line-height": 66,
             "scrollbar-color": 66,
@@ -3456,18 +3675,18 @@
             "transform-origin": 65,
             "block-size": 64,
             "height": 64,
-            "inline-size": 64,
-            "width": 64
+            "inline-size": 64
           },
           "muestras": [
-            "div.ui.colorpicker.input en div.: block-size 40px → 38.1719px",
-            "button.trigger en div.ui.colorpicker.input: appearance button → auto",
-            "input. en div.ui.colorpicker.input: appearance none → auto"
+            "div.ui.colorpicker.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "button.trigger en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input. en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 66,
           "propiedades": {
+            "accent-color": 66,
             "perspective-origin": 65,
             "transform-origin": 65,
             "inline-size": 64,
@@ -3478,23 +3697,25 @@
             "line-height": 48,
             "padding-inline-start": 20,
             "padding-left": 20,
-            "padding-inline-end": 18,
-            "padding-right": 18
+            "padding-inline-end": 18
           },
           "muestras": [
-            "div.ui.colorpicker.input en div.: block-size 40px → 45.4219px",
-            "button.trigger en div.ui.colorpicker.input: block-size 24px → 27.4219px",
-            "input. en div.ui.colorpicker.input: block-size 40px → 45.4219px"
+            "div.ui.colorpicker.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "button.trigger en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input. en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 1,
+          "piezas": 66,
           "propiedades": {
+            "accent-color": 66,
             "inset-inline-end": 1,
             "right": 1
           },
           "muestras": [
-            "div.ui.colorpicker.panel.visible en div.: inset-inline-end 789px → 784px"
+            "div.ui.colorpicker.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "button.trigger en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input. en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "jsConTodo": "sin errores"
@@ -3541,6 +3762,7 @@
         "suelto": {
           "piezas": 81,
           "propiedades": {
+            "accent-color": 81,
             "box-sizing": 81,
             "font-family": 81,
             "font-size": 81,
@@ -3551,18 +3773,18 @@
             "-webkit-font-smoothing": 81,
             "block-size": 46,
             "height": 46,
-            "perspective-origin": 46,
-            "transform-origin": 46
+            "perspective-origin": 46
           },
           "muestras": [
-            "div.ui.active.dimmer en div.: block-size 2257px → 2242px",
-            "div.ui.active.dimmer en div.: block-size 2257px → 2242px",
-            "div.content en div.ui.active.dimmer: block-size 169px → 186.266px"
+            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.active.dimmer: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 34,
+          "piezas": 81,
           "propiedades": {
+            "accent-color": 81,
             "perspective-origin": 32,
             "transform-origin": 32,
             "inline-size": 29,
@@ -3573,14 +3795,15 @@
             "right": 2
           },
           "muestras": [
-            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
-            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
-            "div.content en div.ui.active.dimmer: block-size 169px → 188.266px"
+            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.active.dimmer: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 27,
+          "piezas": 81,
           "propiedades": {
+            "accent-color": 81,
             "inline-size": 25,
             "perspective-origin": 25,
             "transform-origin": 25,
@@ -3589,9 +3812,9 @@
             "right": 2
           },
           "muestras": [
-            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
-            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
-            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px"
+            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.active.dimmer: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "jsConTodo": "sin errores"
@@ -3619,6 +3842,7 @@
       "opcional": {
         "button": "CSS: solo si el marcado lleva esa pieza (12 de 80 ejemplos): div.ui.floating.labeled.icon.dropdown.button ← .ui.button",
         "flag": "CSS: solo si el marcado lleva esa pieza (4 de 80 ejemplos): i.ar.flag ← i.flag:not(.icon)",
+        "input": "CSS: solo si el marcado lleva esa pieza (9 de 80 ejemplos): input.search ← input:not([size]):is(:not([type]), [type=\"text\"], [type=\"search\"], [type=\"email\"], [type=\"password\"], [type=\"tel\"], [type=\"url\"], [type=\"number\"]",
         "label": "CSS: solo si el marcado lleva esa pieza (4 de 80 ejemplos): div.ui.label.dropdown ← .ui.label",
         "loader": "CSS: solo si el marcado lleva esa pieza (4 de 80 ejemplos): div.ui.loading.selection.dropdown ← .ui.ui.ui.ui.loading:not(.usual)",
         "message": "CSS: solo si el marcado lleva esa pieza (1 de 80 ejemplos): div.message ← .ui.dropdown .menu > .message",
@@ -3643,6 +3867,7 @@
           "button": "div.ui.floating.labeled.icon.dropdown.button ← .ui.button",
           "flag": "i.ar.flag ← i.flag:not(.icon)",
           "icon": "i.dropdown.icon ← i.icon",
+          "input": "input.search ← input:not([size]):is(:not([type]), [type=\"text\"], [type=\"search\"], [type=\"email\"], [type=\"password\"], [type=\"tel\"], [type=\"url\"], [type=\"number\"]",
           "label": "div.ui.label.dropdown ← .ui.label",
           "loader": "div.ui.loading.selection.dropdown ← .ui.ui.ui.ui.loading:not(.usual)",
           "message": "div.message ← .ui.dropdown .menu > .message",
@@ -3658,6 +3883,7 @@
           "transition": "459 piezas cambian sin él",
           "button": "46 piezas cambian sin él",
           "flag": "25 piezas cambian sin él",
+          "input": "9 piezas cambian sin él",
           "label": "21 piezas cambian sin él",
           "loader": "5 piezas cambian sin él",
           "message": "1 piezas cambian sin él"
@@ -3668,6 +3894,7 @@
         "suelto": {
           "piezas": 781,
           "propiedades": {
+            "accent-color": 928,
             "font-size": 928,
             "scrollbar-color": 928,
             "text-size-adjust": 928,
@@ -3678,18 +3905,18 @@
             "font-family": 585,
             "padding-block-end": 572,
             "padding-block-start": 572,
-            "padding-bottom": 572,
-            "padding-top": 572
+            "padding-bottom": 572
           },
           "muestras": [
-            "div.ui.dropdown en div.: block-size 20px → 19px",
-            "div.text en div.ui.dropdown: block-size 20px → 18px",
-            "i.dropdown.icon en div.ui.dropdown: block-size 14px → 16px"
+            "div.ui.dropdown en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.text en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.dropdown.icon en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 781,
           "propiedades": {
+            "accent-color": 928,
             "font-size": 928,
             "line-height": 863,
             "padding-block-end": 572,
@@ -3700,18 +3927,18 @@
             "padding-right": 528,
             "padding-inline-start": 525,
             "padding-left": 525,
-            "min-block-size": 367,
-            "min-height": 367
+            "min-block-size": 367
           },
           "muestras": [
-            "div.ui.dropdown en div.: font-size 14px → 16px",
-            "div.text en div.ui.dropdown: font-size 14px → 16px",
-            "i.dropdown.icon en div.ui.dropdown: block-size 14px → 16px"
+            "div.ui.dropdown en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.text en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.dropdown.icon en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 17,
+          "piezas": 781,
           "propiedades": {
+            "accent-color": 928,
             "caret-color": 23,
             "color": 23,
             "column-rule-color": 23,
@@ -3722,13 +3949,12 @@
             "-webkit-text-fill-color": 23,
             "-webkit-text-stroke-color": 23,
             "border-block-start-color": 18,
-            "border-top-color": 18,
-            "border-block-end-color": 17
+            "border-top-color": 18
           },
           "muestras": [
-            "div.ui.clearable.inline.dropdown en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "div.text en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.dropdown.icon en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.dropdown en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.text en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.dropdown.icon en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "jsConTodo": "sin errores",
@@ -3775,6 +4001,7 @@
         "suelto": {
           "piezas": 51,
           "propiedades": {
+            "accent-color": 77,
             "box-sizing": 77,
             "font-size": 77,
             "line-height": 77,
@@ -3785,18 +4012,18 @@
             "border-bottom-color": 64,
             "border-inline-end-color": 64,
             "border-inline-start-color": 64,
-            "border-left-color": 64,
-            "border-right-color": 64
+            "border-left-color": 64
           },
           "muestras": [
-            "div.ui.embed.active en div.: block-size 675px → 0px",
-            "i.video.play.icon en div.ui.embed.active: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "img.placeholder en div.ui.embed.active: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.embed.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.video.play.icon en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.placeholder en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 13,
+          "piezas": 51,
           "propiedades": {
+            "accent-color": 77,
             "margin-inline-end": 13,
             "margin-right": 13,
             "font-size": 13,
@@ -3807,18 +4034,24 @@
             "bottom": 4,
             "height": 4,
             "inline-size": 4,
-            "inset-block-end": 4,
-            "perspective-origin": 4
+            "inset-block-end": 4
           },
           "muestras": [
-            "i.video.play.icon en div.ui.embed.active: margin-inline-end 3.5px → 4px",
-            "i.video.play.icon en div.ui.embed: inset-inline-end -3.5px → -4px",
-            "i.video.play.icon en div.ui.embed: inset-inline-end -3.5px → -4px"
+            "div.ui.embed.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.video.play.icon en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.placeholder en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 51,
+          "propiedades": {
+            "accent-color": 77
+          },
+          "muestras": [
+            "div.ui.embed.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.video.play.icon en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "img.placeholder en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": [
           "error: Embed: No URL specified [object Object]"
@@ -3850,7 +4083,8 @@
         "checkbox",
         "form",
         "header",
-        "icon"
+        "icon",
+        "input"
       ],
       "comprobacion": {
         "ejemplos": 36,
@@ -3874,6 +4108,7 @@
         "suelto": {
           "piezas": 185,
           "propiedades": {
+            "accent-color": 231,
             "box-sizing": 231,
             "font-size": 231,
             "line-height": 231,
@@ -3884,18 +4119,18 @@
             "inline-size": 214,
             "width": 214,
             "block-size": 186,
-            "height": 186,
-            "scrollbar-width": 185
+            "height": 186
           },
           "muestras": [
-            "div.ui.visible.left.overlay.flyout en div.: block-size 2257px → 2242px",
-            "i.close.icon en div.ui.visible.left.overlay.flyout: block-size 32px → 36.5625px",
-            "div.content en div.ui.visible.left.overlay.flyout: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.visible.left.overlay.flyout en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.close.icon en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 185,
           "propiedades": {
+            "accent-color": 231,
             "inline-size": 214,
             "perspective-origin": 214,
             "transform-origin": 214,
@@ -3906,18 +4141,18 @@
             "line-height": 88,
             "padding-inline-end": 59,
             "padding-inline-start": 59,
-            "padding-left": 59,
-            "padding-right": 59
+            "padding-left": 59
           },
           "muestras": [
-            "div.ui.visible.left.overlay.flyout en div.: inline-size 440px → 502.844px",
-            "i.close.icon en div.ui.visible.left.overlay.flyout: block-size 32px → 36.5625px",
-            "div.content en div.ui.visible.left.overlay.flyout: inline-size 440px → 502.844px"
+            "div.ui.visible.left.overlay.flyout en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.close.icon en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 89,
+          "piezas": 185,
           "propiedades": {
+            "accent-color": 231,
             "inline-size": 54,
             "perspective-origin": 54,
             "transform-origin": 54,
@@ -3929,9 +4164,9 @@
             "transform": 9
           },
           "muestras": [
-            "div.ui.visible.left.overlay.flyout en div.: inset-inline-end 950px → 945px",
-            "div.ui.left.flyout.cat-flyout-local en div.: inset-inline-end 950px → 945px",
-            "div.ui.right.flyout.cat-flyout-local en div.: inset-inline-start 950px → 945px"
+            "div.ui.visible.left.overlay.flyout en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.close.icon en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "jsConTodo": [
@@ -3971,7 +4206,8 @@
         "form",
         "header",
         "icon",
-        "image"
+        "image",
+        "input"
       ],
       "comprobacion": {
         "ejemplos": 41,
@@ -3997,6 +4233,7 @@
         "suelto": {
           "piezas": 233,
           "propiedades": {
+            "accent-color": 247,
             "box-sizing": 247,
             "font-size": 247,
             "line-height": 247,
@@ -4007,18 +4244,18 @@
             "font-family": 183,
             "padding-block-start": 125,
             "padding-top": 125,
-            "padding-inline-start": 120,
-            "padding-left": 120
+            "padding-inline-start": 120
           },
           "muestras": [
-            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: block-size 217.859px → 280.922px",
-            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: block-size 52px → 54.8438px",
-            "p. en div.content: block-size 20px → 22.8438px"
+            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.content: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 233,
           "propiedades": {
+            "accent-color": 247,
             "font-size": 247,
             "line-height": 173,
             "padding-block-start": 125,
@@ -4029,18 +4266,24 @@
             "padding-right": 112,
             "padding-block-end": 76,
             "padding-bottom": 76,
-            "block-size": 25,
-            "height": 25
+            "block-size": 25
           },
           "muestras": [
-            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: block-size 217.859px → 248.938px",
-            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: block-size 52px → 59.4062px",
-            "p. en div.content: block-size 20px → 22.8594px"
+            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.content: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 233,
+          "propiedades": {
+            "accent-color": 247
+          },
+          "muestras": [
+            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.content: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores",
         "sin dimmer": [
@@ -4091,6 +4334,7 @@
         "suelto": {
           "piezas": 185,
           "propiedades": {
+            "accent-color": 250,
             "box-sizing": 250,
             "font-size": 250,
             "line-height": 250,
@@ -4101,18 +4345,18 @@
             "perspective-origin": 241,
             "transform-origin": 241,
             "inline-size": 187,
-            "width": 187,
-            "scrollbar-width": 185
+            "width": 187
           },
           "muestras": [
-            "div.ui.nag en div.: block-size 45px → 22.8438px",
-            "span.title en div.ui.nag: block-size 20px → 22.8438px",
-            "i.close.icon en div.ui.nag: align-items center → normal"
+            "div.ui.nag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.title en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.close.icon en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 185,
           "propiedades": {
+            "accent-color": 250,
             "font-size": 250,
             "line-height": 250,
             "block-size": 241,
@@ -4123,18 +4367,18 @@
             "width": 187,
             "bottom": 61,
             "inset-block-end": 61,
-            "inset-block-start": 60,
-            "top": 60
+            "inset-block-start": 60
           },
           "muestras": [
-            "div.ui.nag en div.: block-size 45px → 51.25px",
-            "span.title en div.ui.nag: block-size 20px → 22.8438px",
-            "i.close.icon en div.ui.nag: block-size 24px → 27.4219px"
+            "div.ui.nag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.title en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.close.icon en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 10,
+          "piezas": 185,
           "propiedades": {
+            "accent-color": 250,
             "inline-size": 5,
             "perspective-origin": 5,
             "transform-origin": 5,
@@ -4143,9 +4387,9 @@
             "left": 5
           },
           "muestras": [
-            "div.ui.overlay.nag en div.: inline-size 1390px → 1385px",
-            "i.close.icon en div.ui.overlay.nag: inset-inline-start 1354px → 1349px",
-            "div.ui.bottom.overlay.nag en div.: inline-size 1390px → 1385px"
+            "div.ui.nag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.title en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.close.icon en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "jsConTodo": "sin errores"
@@ -4186,6 +4430,7 @@
         "suelto": {
           "piezas": 119,
           "propiedades": {
+            "accent-color": 120,
             "block-size": 120,
             "height": 120,
             "perspective-origin": 120,
@@ -4196,18 +4441,18 @@
             "scrollbar-width": 119,
             "inline-size": 117,
             "width": 117,
-            "font-family": 105,
-            "font-size": 105
+            "font-family": 105
           },
           "muestras": [
-            "div.ui.pin.input en div.: block-size 62.5625px → 71.5px",
-            "span.cells en div.ui.pin.input: block-size 62.5625px → 71.5px",
-            "span.cell.active en span.cells: block-size 62.5625px → 71.5px"
+            "div.ui.pin.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.cells en div.ui.pin.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.cell.active en span.cells: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 119,
           "propiedades": {
+            "accent-color": 120,
             "perspective-origin": 120,
             "transform-origin": 120,
             "block-size": 119,
@@ -4218,18 +4463,24 @@
             "line-height": 75,
             "column-gap": 15,
             "row-gap": 15,
-            "margin-inline-end": 1,
-            "margin-right": 1
+            "margin-inline-end": 1
           },
           "muestras": [
-            "div.ui.pin.input en div.: block-size 62.5625px → 71.5px",
-            "span.cells en div.ui.pin.input: block-size 62.5625px → 71.5px",
-            "span.cell.active en span.cells: block-size 62.5625px → 71.5px"
+            "div.ui.pin.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.cells en div.ui.pin.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.cell.active en span.cells: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 119,
+          "propiedades": {
+            "accent-color": 120
+          },
+          "muestras": [
+            "div.ui.pin.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.cells en div.ui.pin.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "span.cell.active en span.cells: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "nota": "JS sin uso de prueba definido"
       },
@@ -4283,6 +4534,7 @@
         "suelto": {
           "piezas": 105,
           "propiedades": {
+            "accent-color": 171,
             "box-sizing": 171,
             "font-size": 171,
             "line-height": 171,
@@ -4293,18 +4545,18 @@
             "height": 162,
             "inline-size": 158,
             "width": 158,
-            "perspective-origin": 157,
-            "font-family": 151
+            "perspective-origin": 157
           },
           "muestras": [
-            "div.ui.visible.bottom.left.popup en div.: block-size 46px → 22.8594px",
-            "div.ui.visible.bottom.left.popup en div.: block-size 70px → 50.2656px",
-            "div.header en div.ui.visible.bottom.left.popup: block-size 20px → 22.8438px"
+            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.visible.bottom.left.popup: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 105,
           "propiedades": {
+            "accent-color": 171,
             "font-size": 171,
             "line-height": 171,
             "block-size": 162,
@@ -4315,18 +4567,24 @@
             "transform-origin": 107,
             "padding-block-start": 82,
             "padding-top": 82,
-            "margin-block-start": 65,
-            "margin-inline-start": 65
+            "margin-block-start": 65
           },
           "muestras": [
-            "div.ui.visible.bottom.left.popup en div.: block-size 46px → 52.2656px",
-            "div.ui.visible.bottom.left.popup en div.: block-size 70px → 79.6719px",
-            "div.header en div.ui.visible.bottom.left.popup: block-size 20px → 22.8438px"
+            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.visible.bottom.left.popup: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 105,
+          "propiedades": {
+            "accent-color": 171
+          },
+          "muestras": [
+            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.header en div.ui.visible.bottom.left.popup: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores",
         "sin transition": [
@@ -4363,6 +4621,7 @@
         "suelto": {
           "piezas": 279,
           "propiedades": {
+            "accent-color": 357,
             "block-size": 357,
             "box-sizing": 357,
             "font-family": 357,
@@ -4373,18 +4632,18 @@
             "scrollbar-color": 357,
             "text-size-adjust": 357,
             "transform-origin": 357,
-            "-webkit-font-smoothing": 357,
-            "scrollbar-width": 279
+            "-webkit-font-smoothing": 357
           },
           "muestras": [
-            "div.ui.progress.active en div.: block-size 20px → 22.8438px",
-            "div.bar en div.ui.progress.active: block-size 20px → 22.8438px",
-            "div.ui.indicating.progress en div.: block-size 20px → 22.8438px"
+            "div.ui.progress.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.bar en div.ui.progress.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.indicating.progress en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 279,
           "propiedades": {
+            "accent-color": 357,
             "block-size": 357,
             "font-size": 357,
             "height": 357,
@@ -4395,18 +4654,24 @@
             "inset-block-end": 113,
             "inset-block-start": 113,
             "margin-block-start": 113,
-            "margin-top": 113,
-            "top": 113
+            "margin-top": 113
           },
           "muestras": [
-            "div.ui.progress.active en div.: block-size 20px → 22.8438px",
-            "div.bar en div.ui.progress.active: block-size 20px → 22.8438px",
-            "div.ui.indicating.progress en div.: block-size 20px → 22.8438px"
+            "div.ui.progress.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.bar en div.ui.progress.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.indicating.progress en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 279,
+          "propiedades": {
+            "accent-color": 357
+          },
+          "muestras": [
+            "div.ui.progress.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.bar en div.ui.progress.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.indicating.progress en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -4440,6 +4705,7 @@
         "suelto": {
           "piezas": 1023,
           "propiedades": {
+            "accent-color": 1574,
             "box-sizing": 1574,
             "font-family": 1574,
             "font-size": 1574,
@@ -4450,22 +4716,35 @@
             "transform-origin": 1574,
             "-webkit-font-smoothing": 1574,
             "block-size": 1466,
-            "height": 1466,
-            "bottom": 1276
+            "height": 1466
           },
           "muestras": [
-            "div.ui.slider en div.: block-size 46px → 20.5625px",
-            "div.inner en div.ui.slider: block-size 18px → 20.5625px",
-            "div.track en div.inner: block-size 6px → 6.84375px"
+            "div.ui.slider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.inner en div.ui.slider: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.track en div.inner: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 1023,
+          "propiedades": {
+            "accent-color": 1574
+          },
+          "muestras": [
+            "div.ui.slider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.inner en div.ui.slider: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.track en div.inner: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 1023,
+          "propiedades": {
+            "accent-color": 1574
+          },
+          "muestras": [
+            "div.ui.slider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.inner en div.ui.slider: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.track en div.inner: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -4504,6 +4783,7 @@
         "suelto": {
           "piezas": 399,
           "propiedades": {
+            "accent-color": 726,
             "font-size": 726,
             "line-height": 726,
             "scrollbar-color": 726,
@@ -4514,18 +4794,18 @@
             "block-size": 337,
             "height": 337,
             "padding-block-end": 308,
-            "padding-block-start": 308,
-            "padding-bottom": 308
+            "padding-block-start": 308
           },
           "muestras": [
-            "div.ui.rating en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "i.star.icon.active en div.ui.rating: block-size 14px → 16px",
-            "i.star.icon.active en div.ui.rating: block-size 14px → 16px"
+            "div.ui.rating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 399,
           "propiedades": {
+            "accent-color": 726,
             "font-size": 726,
             "line-height": 654,
             "inline-size": 338,
@@ -4536,18 +4816,24 @@
             "padding-block-start": 308,
             "padding-bottom": 308,
             "padding-top": 308,
-            "padding-inline-end": 298,
-            "padding-inline-start": 298
+            "padding-inline-end": 298
           },
           "muestras": [
-            "div.ui.rating en div.: font-size 14px → 16px",
-            "i.star.icon.active en div.ui.rating: block-size 14px → 16px",
-            "i.star.icon.active en div.ui.rating: block-size 14px → 16px"
+            "div.ui.rating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 399,
+          "propiedades": {
+            "accent-color": 726
+          },
+          "muestras": [
+            "div.ui.rating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -4569,6 +4855,7 @@
       "js": [],
       "opcional": {
         "icon": "CSS: solo si el marcado lleva esa pieza (1 de 41 ejemplos): i.search.icon ← i.icon",
+        "input": "CSS: solo si el marcado lleva esa pieza (2 de 41 ejemplos): input.prompt ← input:not([size]):is(:not([type]), [type=\"text\"], [type=\"search\"], [type=\"email\"], [type=\"password\"], [type=\"tel\"], [type=\"url\"], [type=\"number\"]",
         "transition": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 2 veces y lo comprueba 1 (con guarda $.fn)",
         "api": "JS: su uso normal (3 pasos: iniciar, mostrar, ocultar…) va sin errores sin él; lo llama 5 veces y lo comprueba 1 (con guarda $.fn)"
       },
@@ -4583,6 +4870,7 @@
         "piezas": 184,
         "muestras": {
           "icon": "i.search.icon ← i.icon",
+          "input": "input.prompt ← input:not([size]):is(:not([type]), [type=\"text\"], [type=\"search\"], [type=\"email\"], [type=\"password\"], [type=\"tel\"], [type=\"url\"], [type=\"number\"]",
           "loader": "div.ui.loading.search ← .ui.ui.ui.ui.loading:not(.usual)",
           "transition": "div.results.transition.visible ← .transition"
         },
@@ -4592,6 +4880,7 @@
         },
         "necesidad": {
           "icon": "3 piezas cambian sin él",
+          "input": "45 piezas cambian sin él",
           "transition": "62 piezas cambian sin él"
         },
         "sinEfecto": [
@@ -4600,6 +4889,7 @@
         "suelto": {
           "piezas": 184,
           "propiedades": {
+            "accent-color": 187,
             "box-sizing": 187,
             "font-size": 187,
             "line-height": 187,
@@ -4610,40 +4900,46 @@
             "font-family": 158,
             "perspective-origin": 140,
             "transform-origin": 140,
-            "block-size": 136,
-            "height": 136
+            "block-size": 138
           },
           "muestras": [
-            "div.ui.search en div.: block-size 40px → 45.4219px",
-            "input.prompt en div.ui.search: block-size 40px → 22.8594px",
-            "div.results en div.ui.search: box-sizing border-box → content-box"
+            "div.ui.search en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input.prompt en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.results en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 184,
           "propiedades": {
+            "accent-color": 187,
             "font-size": 187,
             "perspective-origin": 137,
             "transform-origin": 137,
             "block-size": 134,
             "height": 134,
-            "inline-size": 130,
-            "width": 130,
+            "inline-size": 128,
+            "width": 128,
             "line-height": 82,
             "padding-block-end": 59,
             "padding-block-start": 59,
-            "padding-bottom": 59,
-            "padding-inline-end": 59
+            "padding-bottom": 59
           },
           "muestras": [
-            "div.ui.search en div.: block-size 40px → 45.4219px",
-            "input.prompt en div.ui.search: block-size 40px → 45.4219px",
-            "div.results en div.ui.search: font-size 14px → 16px"
+            "div.ui.search en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input.prompt en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.results en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 184,
+          "propiedades": {
+            "accent-color": 187
+          },
+          "muestras": [
+            "div.ui.search en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "input.prompt en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.results en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -4684,6 +4980,7 @@
         "suelto": {
           "piezas": 36,
           "propiedades": {
+            "accent-color": 36,
             "box-sizing": 36,
             "font-family": 36,
             "font-size": 36,
@@ -4694,18 +4991,18 @@
             "-webkit-font-smoothing": 36,
             "border-block-end-color": 18,
             "border-block-start-color": 18,
-            "border-bottom-color": 18,
-            "border-inline-end-color": 18
+            "border-bottom-color": 18
           },
           "muestras": [
-            "div.ui.shape en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "div.sides en div.ui.shape: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "div.active.side en div.sides: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
+            "div.ui.shape en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.sides en div.ui.shape: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.active.side en div.sides: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 8,
+          "piezas": 36,
           "propiedades": {
+            "accent-color": 36,
             "block-size": 8,
             "height": 8,
             "inline-size": 8,
@@ -4714,14 +5011,21 @@
             "width": 8
           },
           "muestras": [
-            "div.ui.shape en div.: block-size 400px → 453.922px",
-            "div.sides en div.ui.shape: block-size 400px → 453.922px",
-            "div.active.side en div.sides: block-size 400px → 453.922px"
+            "div.ui.shape en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.sides en div.ui.shape: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.active.side en div.sides: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 36,
+          "propiedades": {
+            "accent-color": 36
+          },
+          "muestras": [
+            "div.ui.shape en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.sides en div.ui.shape: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.active.side en div.sides: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -4781,6 +5085,7 @@
         "suelto": {
           "piezas": 125,
           "propiedades": {
+            "accent-color": 246,
             "box-sizing": 246,
             "font-size": 246,
             "line-height": 246,
@@ -4791,18 +5096,18 @@
             "transform-origin": 184,
             "inline-size": 144,
             "width": 144,
-            "scrollbar-width": 125,
-            "block-size": 120
+            "scrollbar-width": 125
           },
           "muestras": [
-            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: box-sizing border-box → content-box",
-            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: block-size 40px → 16px",
-            "i.home.icon en a.active.item: block-size 14px → 16px"
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.home.icon en a.active.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 125,
           "propiedades": {
+            "accent-color": 246,
             "font-size": 246,
             "line-height": 191,
             "perspective-origin": 184,
@@ -4813,18 +5118,18 @@
             "height": 120,
             "padding-inline-end": 68,
             "padding-inline-start": 68,
-            "padding-left": 68,
-            "padding-right": 68
+            "padding-left": 68
           },
           "muestras": [
-            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: font-size 14px → 16px",
-            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: block-size 40px → 45.6875px",
-            "i.home.icon en a.active.item: block-size 14px → 16px"
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.home.icon en a.active.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 28,
+          "piezas": 125,
           "propiedades": {
+            "accent-color": 246,
             "inset-inline-end": 16,
             "right": 16,
             "inset-inline-start": 6,
@@ -4835,9 +5140,9 @@
             "width": 6
           },
           "muestras": [
-            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: inset-inline-end 1134px → 1129px",
-            "div.ui.right.vertical.menu.sidebar en div.: inset-inline-start 1134px → 1129px",
-            "div.ui.top.inverted.labeled.icon.menu.sidebar en div.: inline-size 1390px → 1385px"
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "i.home.icon en a.active.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "jsConTodo": [
@@ -4899,6 +5204,7 @@
         "suelto": {
           "piezas": 54,
           "propiedades": {
+            "accent-color": 63,
             "font-size": 63,
             "line-height": 63,
             "scrollbar-color": 63,
@@ -4909,18 +5215,18 @@
             "box-sizing": 46,
             "perspective-origin": 35,
             "transform-origin": 35,
-            "inline-size": 34,
-            "width": 34
+            "inline-size": 34
           },
           "muestras": [
-            "div.ui.shell en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "nav.navigation en div.ui.shell: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
-            "div.brand en nav.navigation: column-gap 12px → 13.7143px"
+            "div.ui.shell en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "nav.navigation en div.ui.shell: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.brand en nav.navigation: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 48,
+          "piezas": 54,
           "propiedades": {
+            "accent-color": 63,
             "font-size": 37,
             "line-height": 37,
             "inline-size": 36,
@@ -4931,18 +5237,24 @@
             "height": 19,
             "column-gap": 13,
             "row-gap": 13,
-            "padding-inline-end": 11,
-            "padding-inline-start": 11
+            "padding-inline-end": 11
           },
           "muestras": [
-            "nav.navigation en div.ui.shell: inline-size 256px → 292.562px",
-            "div.brand en nav.navigation: column-gap 12px → 13.7143px",
-            "span.name en div.brand: block-size 24px → 27.4219px"
+            "div.ui.shell en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "nav.navigation en div.ui.shell: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.brand en nav.navigation: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 54,
+          "propiedades": {
+            "accent-color": 63
+          },
+          "muestras": [
+            "div.ui.shell en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "nav.navigation en div.ui.shell: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.brand en nav.navigation: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -4984,28 +5296,29 @@
         "suelto": {
           "piezas": 463,
           "propiedades": {
+            "accent-color": 577,
             "font-size": 577,
             "line-height": 577,
             "scrollbar-color": 577,
             "text-size-adjust": 577,
+            "block-size": 522,
+            "height": 522,
             "perspective-origin": 522,
             "transform-origin": 522,
             "inline-size": 521,
             "width": 521,
-            "block-size": 511,
-            "height": 511,
-            "-webkit-font-smoothing": 483,
-            "box-sizing": 463
+            "-webkit-font-smoothing": 483
           },
           "muestras": [
-            "div.ui.slideshow en div.: block-size 378px → 432px",
-            "div.viewport en div.ui.slideshow: block-size 378px → 432px",
-            "div.slides en div.viewport: block-size 378px → 432px"
+            "div.ui.slideshow en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.viewport en div.ui.slideshow: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.slides en div.viewport: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 405,
+          "piezas": 463,
           "propiedades": {
+            "accent-color": 577,
             "inline-size": 293,
             "perspective-origin": 293,
             "transform-origin": 293,
@@ -5016,18 +5329,24 @@
             "top": 74,
             "border-bottom-left-radius": 67,
             "border-bottom-right-radius": 67,
-            "border-end-end-radius": 67,
-            "border-end-start-radius": 67
+            "border-end-end-radius": 67
           },
           "muestras": [
-            "div.ui.slideshow en div.: block-size 378px → 432px",
-            "div.viewport en div.ui.slideshow: block-size 378px → 432px",
-            "div.slides en div.viewport: block-size 378px → 432px"
+            "div.ui.slideshow en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.viewport en div.ui.slideshow: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.slides en div.viewport: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 463,
+          "propiedades": {
+            "accent-color": 577
+          },
+          "muestras": [
+            "div.ui.slideshow en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.viewport en div.ui.slideshow: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.slides en div.viewport: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -5066,6 +5385,7 @@
         "suelto": {
           "piezas": 5,
           "propiedades": {
+            "accent-color": 5,
             "block-size": 5,
             "border-block-end-color": 5,
             "border-block-start-color": 5,
@@ -5076,32 +5396,39 @@
             "border-right-color": 5,
             "border-top-color": 5,
             "box-sizing": 5,
-            "caret-color": 5,
-            "color": 5
+            "caret-color": 5
           },
           "muestras": [
-            "div.ui.sticky en div.: block-size 134px → 147.938px",
-            "div.ui.native.sticky en div.: block-size 60px → 63.6875px",
-            "div.ui.sticky en div.: block-size 190px → 216.766px"
+            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.native.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 5,
           "propiedades": {
+            "accent-color": 5,
             "block-size": 5,
             "height": 5,
             "perspective-origin": 5,
             "transform-origin": 5
           },
           "muestras": [
-            "div.ui.sticky en div.: block-size 134px → 152.797px",
-            "div.ui.native.sticky en div.: block-size 60px → 65.6875px",
-            "div.ui.sticky en div.: block-size 190px → 216.766px"
+            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.native.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 5,
+          "propiedades": {
+            "accent-color": 5
+          },
+          "muestras": [
+            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.native.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -5153,6 +5480,7 @@
         "suelto": {
           "piezas": 55,
           "propiedades": {
+            "accent-color": 59,
             "box-sizing": 59,
             "caret-color": 59,
             "color": 59,
@@ -5163,18 +5491,18 @@
             "outline-color": 59,
             "row-rule-color": 59,
             "scrollbar-color": 59,
-            "text-decoration-color": 59,
-            "text-emphasis-color": 59
+            "text-decoration-color": 59
           },
           "muestras": [
-            "div.ui.bottom.attached.active.tab.segment en div.: block-size 142px → 116px",
-            "p. en div.ui.bottom.attached.active.tab.segment: block-size 20px → 18px",
-            "div.ui.bottom.attached.tab.segment en div.: box-sizing border-box → content-box"
+            "div.ui.bottom.attached.active.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.bottom.attached.active.tab.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.bottom.attached.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 46,
+          "piezas": 55,
           "propiedades": {
+            "accent-color": 59,
             "font-size": 47,
             "padding-block-start": 34,
             "padding-top": 34,
@@ -5185,18 +5513,24 @@
             "padding-inline-end": 30,
             "padding-inline-start": 30,
             "padding-left": 30,
-            "padding-right": 30,
-            "block-size": 19
+            "padding-right": 30
           },
           "muestras": [
-            "div.ui.bottom.attached.active.tab.segment en div.: block-size 142px → 152.547px",
-            "p. en div.ui.bottom.attached.active.tab.segment: block-size 20px → 22.8594px",
-            "div.ui.bottom.attached.tab.segment en div.: font-size 14px → 16px"
+            "div.ui.bottom.attached.active.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.bottom.attached.active.tab.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.bottom.attached.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 55,
+          "propiedades": {
+            "accent-color": 59
+          },
+          "muestras": [
+            "div.ui.bottom.attached.active.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "p. en div.ui.bottom.attached.active.tab.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.ui.bottom.attached.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores"
       },
@@ -5255,6 +5589,7 @@
         "suelto": {
           "piezas": 323,
           "propiedades": {
+            "accent-color": 338,
             "box-sizing": 338,
             "line-height": 338,
             "scrollbar-color": 338,
@@ -5265,18 +5600,18 @@
             "transform-origin": 321,
             "font-family": 318,
             "-webkit-font-smoothing": 318,
-            "block-size": 317,
-            "height": 317
+            "block-size": 317
           },
           "muestras": [
-            "div.floating.toast-box.compact en div.ui.toast-container: block-size 67.875px → 75.2188px",
-            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: block-size 66px → 47.9688px",
-            "div.content en div.neutral.ui.toast.compact: block-size 42px → 47.9688px"
+            "div.floating.toast-box.compact en div.ui.toast-container: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.neutral.ui.toast.compact: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUi": {
           "piezas": 323,
           "propiedades": {
+            "accent-color": 338,
             "perspective-origin": 318,
             "transform-origin": 318,
             "block-size": 314,
@@ -5287,18 +5622,24 @@
             "line-height": 94,
             "padding-inline-start": 81,
             "padding-left": 81,
-            "margin-block-end": 79,
-            "margin-bottom": 79
+            "margin-block-end": 79
           },
           "muestras": [
-            "div.floating.toast-box.compact en div.ui.toast-container: block-size 67.875px → 77.25px",
-            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: block-size 66px → 75.375px",
-            "div.content en div.neutral.ui.toast.compact: block-size 42px → 47.9688px"
+            "div.floating.toast-box.compact en div.ui.toast-container: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.neutral.ui.toast.compact: accent-color oklch(0.287803 0.199439 264.051) → auto"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 0,
-          "propiedades": {}
+          "piezas": 323,
+          "propiedades": {
+            "accent-color": 338
+          },
+          "muestras": [
+            "div.floating.toast-box.compact en div.ui.toast-container: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: accent-color oklch(0.287803 0.199439 264.051) → auto",
+            "div.content en div.neutral.ui.toast.compact: accent-color oklch(0.287803 0.199439 264.051) → auto"
+          ]
         },
         "jsConTodo": "sin errores",
         "sin transition": [

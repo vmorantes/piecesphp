@@ -102,7 +102,7 @@ class SettingsMigrateExtraScriptsTask extends TerminalTaskAbstract
         }
 
         foreach (array_keys($oldOptions) as $name) {
-            $deleted = SettingsModel::model()->delete(['name' => $name])->execute();
+            $deleted = SettingsModel::deleteConfigValue($name);
             echoTerminal($deleted ? "\e[34mRETIRADA:\e[39m {$name}" : "\e[31mNO SE PUDO RETIRAR:\e[39m {$name}");
         }
 

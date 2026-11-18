@@ -38,10 +38,6 @@ $container_configurations = [
         //CSS de variables globales del área administrativa
         //Con la huella de su contenido como versión: cambia al cambiar un color, y con ella se guarda un año.
         add_global_required_asset(CSSVariables::globalVersionedURL(), 'css');
-        $themeFontStylesheet = SettingsController::themeFontStylesheet();
-        if ($themeFontStylesheet !== null) {
-            add_global_required_asset(base_url($themeFontStylesheet), 'css');
-        }
 
         //Antes de ejecutar el método de la ruta
         InvocationStrategy::appendBeforeCallMethod(function () {

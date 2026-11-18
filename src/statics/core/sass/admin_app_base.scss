@@ -196,7 +196,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
             font-weight: $fwBold;
             font-size: pxToRem(35);
             line-height: pxToRem(35+5);
-            color: var(--accent);
+            color: var(--accent-1, var(--accent));
             max-width: 100%;
             text-wrap: wrap;
 

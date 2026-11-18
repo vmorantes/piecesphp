@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.16.1 - Form
+ * # Fomantic-UI 0.18.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -455,7 +455,7 @@
 .ui.form input[type="url"]:focus,
 .ui.form input[type="week"]:focus {
   color: var(--theme-text);
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   border-radius: var(--r-md, 8px);
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -500,7 +500,7 @@
 }
 .ui.form textarea:focus {
   color: var(--theme-text);
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   border-radius: var(--r-md, 8px);
   background: var(--theme-surface);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -2210,6 +2210,14 @@
   padding: 0.5em 0.25em;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, currentcolor 35%, transparent) transparent;
+}
+
+/* Texto de ayuda bajo el control de un campo: un `.ui.text` como último hijo del `.field` (p. ej.
+   `<p class="ui small grey text">Como el sitio: Claro</p>`, enlazado al control con aria-describedby). Separado del
+   control, sin el margen de un párrafo */
+.ui.form .field > .ui.text:last-child:not(:first-child) {
+  display: block;
+  margin: 0.5em 0 0;
 }
 
 /* -------------------

@@ -13,11 +13,9 @@ $rsTablet: 780px;
 $rsMobile: 480px;
 
 //──── Fonts ─────────────────────────────────────────────────────────────────────────────
-$fontPublicSans: 'Public Sans',
-sans-serif;
-$fontPoppins: 'Poppins',
-sans-serif;
-
+//En desuso hasta la 11.0.0: la fuente es la del tema.
+$fontPublicSans: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$fontPoppins: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
 // Weights
 $fwHairLine: 100;
 $fwLight: 300;
@@ -29,7 +27,7 @@ $fwExtraBold: 800;
 
 //──── Colors ────────────────────────────────────────────────────────────────────────────
 //Tokens del tema (H106): la instalación escribe --accent y --accent-2; --theme-text y --accent-contrast son de lectura.
-$colorFirst: var(--accent);
+$colorFirst: var(--accent-1, var(--accent));
 $colorSecond: var(--accent-2);
 $colorThird: var(--theme-text);
 $colorFirstOver: var(--accent-contrast);

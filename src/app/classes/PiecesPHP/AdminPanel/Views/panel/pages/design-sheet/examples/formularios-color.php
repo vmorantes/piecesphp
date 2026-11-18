@@ -4,7 +4,7 @@
             $this->helpController->_render('panel/built-in/content/color-field.php', [
                 'id' => 'example-color',
                 'inputName' => 'color',
-                'value' => '#356DCA',
+                'value' => '#00008B',
                 'label' => __($langGroup, 'Color de la categoría'),
             ]);
         ?>
@@ -13,7 +13,7 @@
         <?php
             $this->helpController->_render('panel/built-in/content/color-field.php', [
                 'id' => 'example-color-locked',
-                'value' => '#7A5AF8',
+                'value' => '#0B7A77',
                 'label' => __($langGroup, 'Color fijo'),
                 'disabled' => true,
             ]);

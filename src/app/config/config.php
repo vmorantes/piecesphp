@@ -49,16 +49,18 @@ $config['keywords'] = [
 $config['description'] = "Descripción de la página.";
 
 //Colors and fonts
-$config['main_brand_color'] = "#356DCA";
-$config['second_brand_color'] = "#7A5AF8";
-$config['third_brand_color'] = "#C11574";
-$config['meta_theme_color'] = "#356DCA";
+$config['main_brand_color'] = "#00008B";
+//Vacío: automático (con el acento de fábrica, el oscuro del logo; con uno propio, lo deriva el tema).
+$config['main_brand_color_dark'] = "";
+$config['second_brand_color'] = "#0B7A77";
+$config['third_brand_color'] = "#E8730C";
+$config['meta_theme_color'] = "#00008B";
 //Vacío, no se publica y manda el tema: la serie 5 es light-dark(), y fijarla rompería el modo oscuro.
 $config['data_color_2'] = "";
 $config['data_color_3'] = "";
 $config['data_color_4'] = "";
 $config['data_color_5'] = "";
-$config['theme_font'] = "inter";
+$config['theme_font'] = "atkinson-hyperlegible-next";
 $config['theme_font_size'] = 14;
 $config['theme_radius'] = 8;
 $config['accessibility_text_size'] = 'normal';

@@ -46,7 +46,7 @@ $markerDotColor: #800E11;
 
         > button {
 
-            background-color: var(--accent);
+            background-color: var(--accent-1, var(--accent));
             color: white;
             outline: none;
             border: none;
@@ -60,7 +60,7 @@ $markerDotColor: #800E11;
             &:hover,
             &:active {
                 background-color: whitesmoke;
-                color: var(--accent);
+                color: var(--accent-1, var(--accent));
             }
 
             //Varios botones

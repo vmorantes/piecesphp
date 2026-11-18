@@ -4,10 +4,18 @@ Todo vive en **`src/app/config/`**. La configuración se lee y escribe con los
 helpers globales `get_config($name)` / `set_config($name, $value)` (y
 `Config::get_config()` / `Config::set_config()`).
 
-> Orden de precedencia efectivo: `config.php` → `Config::init()` →
-> **configuraciones guardadas en base de datos** (`AppConfigModel`, si
-> `APP_CONFIGURATION_MODULE`) → `extensions/`.
-> Es decir, lo que el usuario cambia en el panel gana sobre el archivo.
+> Orden efectivo de carga (`src/index.php`, medido el 2026-11-18): `config.php` → `Config::init()` → la siembra de la
+> tabla de opciones si está vacía (`SettingsModel::initializateConfigurations()`, ~`:154`) → `final-configurations.php` y
+> las **extensiones** (~`:838`) → las rutas (`initRoutes`, ~`:900`) → las **opciones guardadas en la base**, solo las
+> declaradas (`SettingsModel::getConfigurations()` + `ConfigOptions::applyDeclared()`, ~`:910-917`, ADR 0055).
+> Lo que el usuario cambia en el panel gana sobre el archivo; **una extensión aún no ve las opciones de la base** (stc, H401).
+>
+> **La tabla de opciones se lee una vez por petición web** (ADR 0080): `SettingsModel` guarda una foto cruda que olvida
+> al escribir (`save()`, `update()`, `setConfigValue()`, `deleteConfigValue()`, `cleanAll()`, el `model()` público,
+> `forgetCache()`). La terminal y las pruebas leen la base siempre. **Quien escriba `pcsphp_app_config` por otro camino
+> llama a `SettingsModel::forgetCache()`** (lo vigila t13 de `core/settings-snapshot`, por tokens, solo en los archivos que
+> nombran `SettingsModel`). **Lo que lee, modifica y escribe una opción usa `SettingsModel::readFromDatabase()`**, no
+> `getConfigValue()`. La búsqueda es la del ORM: `trim()` del nombre pedido contra `rtrim(nombre guardado, ' ')`.
 
 ## Archivos
 

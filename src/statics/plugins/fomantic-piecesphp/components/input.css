@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.16.1 - Input
+ * # Fomantic-UI 0.18.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -182,7 +182,7 @@
 --------------------- */
 .ui.input.focus > input,
 .ui.input > input:focus {
-  border-color: var(--accent-1, var(--accent, #356dca));
+  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   background: var(--theme-surface);
   color: var(--theme-text);
   box-shadow: 0 0 0 3px var(--accent-ring);
@@ -509,7 +509,7 @@
   border-left-color: transparent;
 }
 .ui.labeled.input:not([class*="corner labeled"]) .label:first-child + input:focus {
-  border-left-color: var(--accent-1, var(--accent, #356dca));
+  border-left-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 
 /* Regular Label on Right */
@@ -523,7 +523,7 @@
   border-bottom-left-radius: 0;
 }
 .ui[class*="right labeled"].input > input:focus {
-  border-right-color: var(--accent-1, var(--accent, #356dca)) !important;
+  border-right-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) !important;
 }
 
 /* Corner Label */
@@ -843,11 +843,11 @@
 /* Input Focus */
 .ui.action.input:not([class*="left action"]) > input:focus,
 .ui.action.input:not([class*="left action"]) > textarea:focus {
-  border-right-color: var(--accent-1, var(--accent, #356dca));
+  border-right-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 .ui.ui[class*="left action"].input > input:focus,
 .ui.ui[class*="left action"].input > textarea:focus {
-  border-left-color: var(--accent-1, var(--accent, #356dca));
+  border-left-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 
 /* --------------------
@@ -1003,48 +1003,48 @@ input[type="file"].ui.file.input:focus + label.ui.button:not(.basic):not(.tertia
 /* this is related to existing buttons, so the button color variable is used here! */
 input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.primary.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.secondary.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-1.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-2.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #7a5af8) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary) {
-  background-color: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background-color: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.accent-3.button:not(.basic):not(.tertiary).inverted {
-  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #c11574) 72%, white) 90%, black);
+  background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) 90%, black);
 }
 input[type="file"].ui.file.input:focus + label.ui.red.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.red.button:not(.basic):not(.tertiary) {
@@ -1165,173 +1165,173 @@ input[type="file"].ui.file.input:focus + label.ui.black.button:not(.basic):not(.
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button,
 .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover,
 .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.primary.file.input::-ms-browse,
 .ui.primary.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-ms-browse:hover,
 .ui.primary.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::file-selector-button,
 .ui.primary.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.primary.file.input::file-selector-button:hover,
 .ui.primary.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button,
 .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover,
 .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-ms-browse,
 .ui.secondary.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-ms-browse:hover,
 .ui.secondary.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::file-selector-button,
 .ui.secondary.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.secondary.file.input::file-selector-button:hover,
 .ui.secondary.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button,
 .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover,
 .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.accent-1.file.input::-ms-browse,
 .ui.accent-1.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-ms-browse:hover,
 .ui.accent-1.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::file-selector-button,
 .ui.accent-1.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-1, var(--accent, #356dca));
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
   color: #fff;
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.accent-1.file.input::file-selector-button:hover,
 .ui.accent-1.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-1, var(--accent, #356dca)) 88%, black);
+  background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button,
 .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover,
 .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-ms-browse,
 .ui.accent-2.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-ms-browse:hover,
 .ui.accent-2.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::file-selector-button,
 .ui.accent-2.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-2, #7a5af8);
+  background: var(--accent-2, #0b7a77);
   color: #fff;
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.accent-2.file.input::file-selector-button:hover,
 .ui.accent-2.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-2, #7a5af8) 88%, black);
+  background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button,
 .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3, #e8730c);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover,
 .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-ms-browse,
 .ui.accent-3.file.input input[type="file"]::-ms-browse {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3, #e8730c);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-ms-browse:hover,
 .ui.accent-3.file.input input[type="file"]::-ms-browse:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3, #e8730c);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::file-selector-button,
 .ui.accent-3.file.input input[type="file"]::file-selector-button {
-  background: var(--accent-3, #c11574);
+  background: var(--accent-3, #e8730c);
   color: #fff;
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
 }
 input[type="file"].ui.accent-3.file.input::file-selector-button:hover,
 .ui.accent-3.file.input input[type="file"]::file-selector-button:hover {
-  background: color-mix(in oklab, var(--accent-3, #c11574) 88%, black);
+  background: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button,
 .ui.red.file.input input[type="file"]::-webkit-file-upload-button {
@@ -1931,4 +1931,14 @@ input[type="file"].ui.black.file.input::file-selector-button:hover,
    la palabra contra el botón */
 .ui.action.input > input {
   text-overflow: ellipsis;
+}
+
+/* Input de texto sin `size`: su ancho propio lo da el ancho medio de carácter de la fuente (size=20 por defecto) y con
+   Atkinson Hyperlegible Next era 45px más estrecho que con Inter (los placeholders se cortaban, y también los campos de un
+   `fields` que se ajustan a él). La contención fija ese ancho propio en el de antes (218px de contenido a 14px, en em
+   para que escale; el relleno y el borde se suman), sin tocar ningún `width` explícito: los campos a todo el ancho, los
+   compactos y los fluid conservan el suyo. Solo los tipos de texto: fecha, hora, color… tienen su propio ancho */
+input:not([size]):is(:not([type]), [type="text"], [type="search"], [type="email"], [type="password"], [type="tel"], [type="url"], [type="number"]) {
+  contain: inline-size;
+  contain-intrinsic-inline-size: 15.57em;
 }

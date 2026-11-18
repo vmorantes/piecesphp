@@ -44,13 +44,11 @@ $overlayEffectBGColorAlt: white;
 $genericBGColor1: #EBEBEB;
 
 //──── Fonts ─────────────────────────────────────────────────────────────────────────────
-$fontPublicSans: 'Public Sans',
-sans-serif;
-$fontPoppins: 'Poppins',
-sans-serif;
-$fontGlobal: $fontPoppins;
-$fontGlobalText: $fontPoppins;
-
+//En desuso hasta la 11.0.0: la fuente es la del tema.
+$fontPublicSans: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$fontPoppins: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$fontGlobal: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
+$fontGlobalText: var(--font-body, "Atkinson Hyperlegible Next", sans-serif);
 // Weights
 $fwHairLine: 100;
 $fwLight: 300;

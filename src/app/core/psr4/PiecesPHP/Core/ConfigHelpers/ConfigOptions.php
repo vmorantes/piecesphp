@@ -162,22 +162,23 @@ class ConfigOptions
      * Segunda versión del ADR 0055: una fila sin dueño deja de pisar la configuración.
      *
      * @param array<int|string,mixed> $configurations nombre => valor, lo que cargó el arranque de la base
+     * @param bool $sealLegacy false: lo de antes se aplica en claro y no se escribe en la base (ADR 0081)
      * @return string[] Los nombres que no se aplicaron, en el orden en que llegan
      */
-    public static function applyDeclared(array $configurations): array
+    public static function applyDeclared(array $configurations, bool $sealLegacy = true): array
     {
         $skipped = [];
         foreach ($configurations as $name => $value) {
             $name = (string) $name;
             if (self::isFixedByFile($name)) {
                 //Manda el archivo de claves (P318): la fila no se aplica, pero si es un secreto en claro se sella igual (P310 a).
-                if ((self::$options[$name]['shape'] ?? null) === self::SHAPE_SECRET && is_string($value) && $value !== '' && !Sealed::isSealed($value)) {
+                if ($sealLegacy && (self::$options[$name]['shape'] ?? null) === self::SHAPE_SECRET && is_string($value) && $value !== '' && !Sealed::isSealed($value)) {
                     self::sealLegacySecret($name, $value);
                 }
                 continue;
             }
             if (self::isDeclared($name)) {
-                set_config($name, self::$options[$name]['shape'] === self::SHAPE_SECRET ? self::loadSecret($name, $value) : $value);
+                set_config($name, self::$options[$name]['shape'] === self::SHAPE_SECRET ? self::loadSecret($name, $value, $sealLegacy) : $value);
             } else {
                 $skipped[] = $name;
             }
@@ -285,15 +286,16 @@ class ConfigOptions
      *
      * @param string $name
      * @param mixed $stored
+     * @param bool $sealLegacy false: lo de antes se devuelve igual, sin sellarlo en la base (ADR 0081)
      * @return mixed
      */
-    protected static function loadSecret(string $name, mixed $stored): mixed
+    protected static function loadSecret(string $name, mixed $stored, bool $sealLegacy = true): mixed
     {
         $opened = is_string($stored) && Sealed::isSealed($stored) ? Sealed::open($stored, Sealed::PURPOSE_CONFIG_SECRET) : null;
         [$value, $state] = self::decideSecret($stored, $opened);
         if ($state === self::SECRET_UNREADABLE) {
             self::warnUnreadableSecret($name);
-        } elseif ($state === self::SECRET_LEGACY && is_string($stored)) {
+        } elseif ($sealLegacy && $state === self::SECRET_LEGACY && is_string($stored)) {
             self::sealLegacySecret($name, $stored);
         }
         return $value;
@@ -310,7 +312,7 @@ class ConfigOptions
     protected static function sealLegacySecret(string $name, string $stored): void
     {
         try {
-            if (SettingsModel::getConfigValue($name) !== $stored) {
+            if (SettingsModel::readFromDatabase($name) !== $stored) {
                 return;
             }
             if (self::$failSealLegacyForTesting) {

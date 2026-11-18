@@ -92,7 +92,7 @@ $-controlsDividerColor: #e1e1e1;
                     align-items: center;
                     font-size: pxToRem(16);
                     font-weight: $fwMedium;
-                    text-decoration: 1px solid var(--accent);
+                    text-decoration: 1px solid var(--accent-1, var(--accent));
                     border: none;
                     color: var(--accent-text);
 
@@ -114,17 +114,17 @@ $-controlsDividerColor: #e1e1e1;
 }
 
 .cropper-point {
-    background-color: var(--accent);
+    background-color: var(--accent-1, var(--accent));
     height: 8px;
     opacity: .85;
     width: 8px;
 }
 
 .cropper-dashed {
-    border: 0 dashed var(--accent);
+    border: 0 dashed var(--accent-1, var(--accent));
 }
 
 .cropper-view-box {
     outline: 1.5px solid;
-    outline-color: var(--accent);
+    outline-color: var(--accent-1, var(--accent));
 }

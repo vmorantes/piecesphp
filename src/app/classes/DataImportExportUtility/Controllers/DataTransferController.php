@@ -764,11 +764,12 @@ class DataTransferController extends AdminPanelController
     }
 
     /**
+     * @param bool $fromDatabase Sin la foto de la petición: para leer, modificar y escribir (ADR 0080)
      * @return array{import:string[],export:string[]}
      */
-    public static function disabledKeys(): array
+    public static function disabledKeys(bool $fromDatabase = false): array
     {
-        $raw = SettingsModel::getConfigValue(self::DISABLED_CONFIG);
+        $raw = $fromDatabase ? SettingsModel::readFromDatabase(self::DISABLED_CONFIG) : SettingsModel::getConfigValue(self::DISABLED_CONFIG);
         $value = json_decode((string) json_encode($raw), true);
         $value = is_array($value) ? $value : [];
         $keys = [];
@@ -798,7 +799,7 @@ class DataTransferController extends AdminPanelController
      */
     private static function setDisabled(string $kind, string $key, bool $disabled): bool
     {
-        $keys = self::disabledKeys();
+        $keys = self::disabledKeys(true);
         $list = array_values(array_diff($keys[$kind], [$key]));
         if ($disabled) {
             $list[] = $key;

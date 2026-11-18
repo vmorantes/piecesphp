@@ -276,12 +276,12 @@
 }
 
 :where(.ui, .dt-container) a, a:where(.ui, .dt-container) {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 
 :where(.ui, .dt-container) a:hover, a:hover:where(.ui, .dt-container) {
-  color: light-dark(oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   text-decoration: none;
 }
 
@@ -385,7 +385,7 @@
 
 .ui.inverted a:not(.ui):not(.item):not(.header),
 .ui.inverted .content a:not(.ui):not(.item) {
-  color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, 0.86) c h);
+  color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, 0.86) c h);
 }
 
 :where(.ui, .dt-container) small, small:where(.ui, .dt-container) {
@@ -450,10 +450,18 @@
   overflow-wrap: anywhere;
 }
 
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] :is(.ui.shell > .navigation, .ui.vertical.menu), :root[data-text-spacing="wide"] :is(.ui.shell > .navigation, .ui.vertical.menu):where(.ui, .dt-container) {
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+}
+
 :where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing, :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing:where(.ui, .dt-container) {
   white-space: normal;
 }
 
+:where(.ui, .dt-container) :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text), :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text):where(.ui, .dt-container),
 :where(.ui, .dt-container) :not(pre) > code, :not(pre) > code:where(.ui, .dt-container) {
   overflow-wrap: break-word;
 }
@@ -491,8 +499,8 @@
 
 :where(.ui, .dt-container) [role="radiogroup"] > [aria-checked="true"], [role="radiogroup"] > [aria-checked="true"]:where(.ui, .dt-container),
 :where(.ui, .dt-container) [role="radiogroup"] > [aria-checked="true"]:hover, [role="radiogroup"] > [aria-checked="true"]:hover:where(.ui, .dt-container) {
-  background: var(--accent-1, var(--accent, #356dca)) !important;
-  color: var(--accent-1-text, color(from var(--accent-1, var(--accent, #356dca)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) !important;
+  background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) !important;
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) !important;
   box-shadow: none !important;
 }
 
@@ -2145,22 +2153,22 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.primary.segment:not(.basic):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.card, :root[data-contrast="more"] .ui.inverted.primary.card:where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.cards > .card, :root[data-contrast="more"] .ui.inverted.primary.cards > .card:where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.primary.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.primary.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.primary.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.label:not(.basic), :root[data-contrast="more"] .ui.inverted.primary.label:not(.basic):where(.ui, .dt-container),
@@ -2171,12 +2179,12 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.popup::before, :root[data-contrast="more"] .ui.inverted.primary.popup:where(.ui, .dt-container)::before,
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.primary.card:not(.inverted), :root[data-contrast="more"] .ui.basic.primary.card:not(.inverted):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.primary.cards > .card:not(.inverted), :root[data-contrast="more"] .ui.basic.primary.cards > .card:not(.inverted):where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.label:not(.basic)::before, :root[data-contrast="more"] .ui.inverted.primary.label:not(.basic):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.primary.card:not(.inverted) :is(.header, .meta, .description), :root[data-contrast="more"] .ui.basic.primary.card:not(.inverted) :is(.header, .meta, .description):where(.ui, .dt-container) {
@@ -2184,7 +2192,7 @@
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.primary.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.primary.table :is(th, td), :root[data-contrast="more"] .ui.inverted.primary.table :is(th, td):where(.ui, .dt-container),
@@ -2224,22 +2232,22 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.secondary.segment:not(.basic):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.card, :root[data-contrast="more"] .ui.inverted.secondary.card:where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.cards > .card, :root[data-contrast="more"] .ui.inverted.secondary.cards > .card:where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.secondary.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.secondary.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.secondary.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.label:not(.basic), :root[data-contrast="more"] .ui.inverted.secondary.label:not(.basic):where(.ui, .dt-container),
@@ -2250,12 +2258,12 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.popup::before, :root[data-contrast="more"] .ui.inverted.secondary.popup:where(.ui, .dt-container)::before,
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted), :root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.secondary.cards > .card:not(.inverted), :root[data-contrast="more"] .ui.basic.secondary.cards > .card:not(.inverted):where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.label:not(.basic)::before, :root[data-contrast="more"] .ui.inverted.secondary.label:not(.basic):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted) :is(.header, .meta, .description), :root[data-contrast="more"] .ui.basic.secondary.card:not(.inverted) :is(.header, .meta, .description):where(.ui, .dt-container) {
@@ -2263,7 +2271,7 @@
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.secondary.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.secondary.table :is(th, td), :root[data-contrast="more"] .ui.inverted.secondary.table :is(th, td):where(.ui, .dt-container),
@@ -2303,22 +2311,22 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.accent-1.segment:not(.basic):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.card, :root[data-contrast="more"] .ui.inverted.accent-1.card:where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.cards > .card, :root[data-contrast="more"] .ui.inverted.accent-1.cards > .card:where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.accent-1.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-1.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.accent-1.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.label:not(.basic), :root[data-contrast="more"] .ui.inverted.accent-1.label:not(.basic):where(.ui, .dt-container),
@@ -2329,12 +2337,12 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.popup::before, :root[data-contrast="more"] .ui.inverted.accent-1.popup:where(.ui, .dt-container)::before,
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted), :root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-1.cards > .card:not(.inverted), :root[data-contrast="more"] .ui.basic.accent-1.cards > .card:not(.inverted):where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.label:not(.basic)::before, :root[data-contrast="more"] .ui.inverted.accent-1.label:not(.basic):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-1, var(--accent, #356dca)) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted) :is(.header, .meta, .description), :root[data-contrast="more"] .ui.basic.accent-1.card:not(.inverted) :is(.header, .meta, .description):where(.ui, .dt-container) {
@@ -2342,7 +2350,7 @@
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.accent-1.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-1, var(--accent, #356dca)) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-1.table :is(th, td), :root[data-contrast="more"] .ui.inverted.accent-1.table :is(th, td):where(.ui, .dt-container),
@@ -2382,22 +2390,22 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.accent-2.segment:not(.basic):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.card, :root[data-contrast="more"] .ui.inverted.accent-2.card:where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.cards > .card, :root[data-contrast="more"] .ui.inverted.accent-2.cards > .card:where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.accent-2.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-2.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.accent-2.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.label:not(.basic), :root[data-contrast="more"] .ui.inverted.accent-2.label:not(.basic):where(.ui, .dt-container),
@@ -2408,12 +2416,12 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.popup::before, :root[data-contrast="more"] .ui.inverted.accent-2.popup:where(.ui, .dt-container)::before,
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted), :root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-2.cards > .card:not(.inverted), :root[data-contrast="more"] .ui.basic.accent-2.cards > .card:not(.inverted):where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.label:not(.basic)::before, :root[data-contrast="more"] .ui.inverted.accent-2.label:not(.basic):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-2, #7a5af8) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-2, #0b7a77) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted) :is(.header, .meta, .description), :root[data-contrast="more"] .ui.basic.accent-2.card:not(.inverted) :is(.header, .meta, .description):where(.ui, .dt-container) {
@@ -2421,7 +2429,7 @@
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.accent-2.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-2, #7a5af8) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-2, #0b7a77) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-2.table :is(th, td), :root[data-contrast="more"] .ui.inverted.accent-2.table :is(th, td):where(.ui, .dt-container),
@@ -2461,22 +2469,22 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.segment:not(.basic), :root[data-contrast="more"] .ui.inverted.accent-3.segment:not(.basic):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.card, :root[data-contrast="more"] .ui.inverted.accent-3.card:where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.cards > .card, :root[data-contrast="more"] .ui.inverted.accent-3.cards > .card:where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #fff !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted):not(.corner), :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted):not(.corner):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  border-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted)::before, :root[data-contrast="more"] .ui.accent-3.label:not(.basic):not(.inverted):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.accent-3.corner.label:not(.basic):not(.inverted), :root[data-contrast="more"] .ui.accent-3.corner.label:not(.basic):not(.inverted):where(.ui, .dt-container) {
   background-color: transparent !important;
-  border-color: oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  border-color: oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.label:not(.basic), :root[data-contrast="more"] .ui.inverted.accent-3.label:not(.basic):where(.ui, .dt-container),
@@ -2487,12 +2495,12 @@
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.popup::before, :root[data-contrast="more"] .ui.inverted.accent-3.popup:where(.ui, .dt-container)::before,
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted), :root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted):where(.ui, .dt-container),
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-3.cards > .card:not(.inverted), :root[data-contrast="more"] .ui.basic.accent-3.cards > .card:not(.inverted):where(.ui, .dt-container) {
-  background-color: oklch(from var(--accent-3, #c11574) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
   color: #000 !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.label:not(.basic)::before, :root[data-contrast="more"] .ui.inverted.accent-3.label:not(.basic):where(.ui, .dt-container)::before {
-  background-color: oklch(from var(--accent-3, #c11574) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
+  background-color: oklch(from var(--accent-3, #e8730c) max(l, var(--fill-dark-min, 0.76)) min(c, var(--fill-chroma-max, 0.13)) h) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted) :is(.header, .meta, .description), :root[data-contrast="more"] .ui.basic.accent-3.card:not(.inverted) :is(.header, .meta, .description):where(.ui, .dt-container) {
@@ -2500,7 +2508,7 @@
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.striped.table > tbody > tr:nth-child(2n), :root[data-contrast="more"] .ui.inverted.accent-3.striped.table > tbody > tr:nth-child(2n):where(.ui, .dt-container) {
-  background-color: color-mix(in oklab, oklch(from var(--accent-3, #c11574) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
+  background-color: color-mix(in oklab, oklch(from var(--accent-3, #e8730c) min(l, var(--fill-light-max, 0.42)) min(c, var(--fill-chroma-max, 0.13)) h) 82%, black) !important;
 }
 
 :where(.ui, .dt-container) :root[data-contrast="more"] .ui.inverted.accent-3.table :is(th, td), :root[data-contrast="more"] .ui.inverted.accent-3.table :is(th, td):where(.ui, .dt-container),
@@ -2621,4 +2629,14 @@
 :where(.ui, .dt-container) b, b:where(.ui, .dt-container),
 :where(.ui, .dt-container) strong, strong:where(.ui, .dt-container) {
   font-weight: 600;
+}
+
+:where(.ui, .dt-container) :where(p, small, td, dd, blockquote, figcaption, .description) a:not(.ui):not(.item):not(.header), :where(p, small, td, dd, blockquote, figcaption, .description) a:not(.ui):not(.item):not(.header):where(.ui, .dt-container) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+:where(.ui, .dt-container) :where(p, h1, h2, h3, h4, h5, .ui.header, .description), :where(p, h1, h2, h3, h4, h5, .ui.header, .description):where(.ui, .dt-container) {
+  text-wrap: pretty;
 }

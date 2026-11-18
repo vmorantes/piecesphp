@@ -2134,12 +2134,11 @@ function import_fomantic_components(array $components): void
  */
 function import_datatables(array $plugins = [], bool $all = false)
 {
-    //RowReorder y ColReorder salieron con DataTables 3 (ningún listado los usaba): un plugin que no está en assets.php no
-    //carga nada, y sin esto se ignoraba en silencio.
+    //Un plugin que no está en assets.php no carga nada, y sin esto se ignoraba en silencio.
     $known = get_config('default_assets')['datatables']['plugins'] ?? [];
     foreach ($plugins as $plugin) {
         if (is_string($plugin) && !array_key_exists($plugin, $known)) {
-            log_exception(new \InvalidArgumentException("import_datatables(): el plugin «{$plugin}» no existe: no se carga. RowReorder y ColReorder ya no vienen con DataTables desde su versión 3."));
+            log_exception(new \InvalidArgumentException("import_datatables(): el plugin «{$plugin}» no existe: no se carga. Los que hay: " . implode(', ', array_keys($known)) . '.'));
         }
     }
     import_front_library('datatables', $plugins, $all);

@@ -8,8 +8,6 @@ $footerBorderColor: rgba(0, 0, 0, 0.14);
 $imageActionHoverBackground: #7070700d;
 $imageActionHoverColor: #5b5b5b;
 
-@import url(static-url('../../fonts/public-sans/public-sans.css'));
-
 * {
     box-sizing: border-box;
 }
@@ -456,7 +454,7 @@ a.ui.button {
     > .divider {
         height: 100px;
         width: 100%;
-        background-color: var(--accent);
+        background-color: var(--accent-1, var(--accent));
     }
 
     /* Estilos para las inputs cards images */
