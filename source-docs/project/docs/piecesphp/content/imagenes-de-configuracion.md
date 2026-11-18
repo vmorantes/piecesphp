@@ -21,6 +21,15 @@ contenido**, no por su ruta: `SettingsController::FACTORY_BRAND_IMAGES` guarda, 
 (el de hoy y los anteriores), y `isFactoryBrandImage()` la usa para que el de fábrica se invierta en modo oscuro sin
 opción guardada. **Quien cambie una imagen de fábrica añade su sha1 nuevo a esa lista** y conserva los viejos.
 
+**Las ocho PNG de fábrica se regeneran con `bin/imagenes-de-fabrica`** (en el repositorio de desarrollo; no viaja): las
+renderiza con Chromium desde los dos SVG, con un 8 % de margen y fondo transparente, a su tamaño de hoy. La marca
+(`main_mark.svg`) da `logo.png`, `loader-logo.png` y `white-logo.png` (esta, con sus dos azules en blanco) a 400 × 400,
+`favicon.png` y `favicon-back.png` a 500 × 500, y la favicon de la documentación
+(`source-docs/starlight/public/favicon.png`), a 500 × 500; el rótulo (`main_logo.svg`) da `navbar-logo.png` a 400 × 62
+y `mailing-logo.png` a 500 × 172. Sin cambiar los SVG, regenerar no cambia ni un píxel. Tras regenerar con un SVG nuevo, el
+sha1 de las de `FACTORY_BRAND_IMAGES` se añade a su lista. `bin/imagenes-de-fabrica --medir <svg>` lista la caja de cada
+trazado, para separar la marca del rótulo.
+
 ## Del navegador a la base, en orden
 
 1. **La tarjeta** (`panel/built-in/content/image-card.php`) lleva en sus `data-*` el ancho, el alto, el formato, la

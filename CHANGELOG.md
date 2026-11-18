@@ -1,3 +1,9 @@
+# 10.43.1 (17-11-2026)
+
+- **Sin cambios en lo que viaja**, salvo el número de versión. Es la versión con la que se publica la nueva página de
+  presentación de PiecesPHP en su sitio, que se escribe en el repositorio de desarrollo y no forma parte de la
+  distribución.
+
 # 10.43.0 (17-11-2026)
 
 - **`bin/cli db-update` sabe qué está aplicado y para en el primer fallo.** Registra cada actualización en una tabla nueva,
