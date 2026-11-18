@@ -208,6 +208,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     const MANUAL_NOT_SCREENS_RELATIVE_PATH = 'files/dev/manual-not-screens.json';
     /** El trinquete de pantallas sin capítulo del manual (comprobación 61). */
     const MANUAL_COVERAGE_BASELINE_RELATIVE_PATH = 'files/dev/manual-coverage-baseline.json';
+    /** Rutas sueltas que solo se registran con su constante en verdadero (H400): en falso, no aplican, como las de un módulo apagado. La suite vigila que el registro siga usándola. */
+    const OFF_ROUTES_BY_CONSTANT = ['helpers-system-generic-content-admin-forms-home-image' => 'HOME_IMAGE_BANNER'];
 
     /** Las extensiones de PHPStan del núcleo, relativas a `src/`: cargan solo con bin/tools/vendor, así que no viajan (comprobación 47). */
     const PHPSTAN_EXTENSIONS_DIR = 'app/core/psr4/PiecesPHP/Core/PHPStan/';
@@ -3492,59 +3494,122 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * Los módulos apagados de esta instalación (H364) y los prefijos de los nombres de sus rutas: cada clase `*Routes` de
-     * `src/app/classes` con `ENABLE` en falso apaga su carpeta, y los nombres salen del `$baseRouteName` de los controladores
-     * de esa carpeta y del nombre de la propia clase `*Routes` (el de sus estáticos). Se lee el código, sin registrar nada.
+     * Los módulos apagados de esta instalación (H364, H400) y los prefijos de los nombres de sus rutas. Apaga su carpeta una
+     * clase `*Routes` con una constante `ENABLE` o `…_ENABLE` en falso; las `ENABLE_…` apagan una parte, no la carpeta.
+     * Si la clase tiene `ENABLE` en verdadero, sus `…_ENABLE` no apagan la carpeta. Apaga lo de su archivo un
+     * `->active(CONSTANTE)` con la constante global en falso. Los nombres salen del `$baseRouteName` de los controladores y
+     * del nombre de la clase (el de sus estáticos). Se lee el código, sin registrar nada; los interruptores, por tokens.
      *
-     * @return array<string,string[]> Clase `*Routes` => prefijos
+     * @param string|null $classesRoot Otra raíz que `src/app/classes`, para las pruebas; sin caché
+     * @return array<string,string[]> Clase => prefijos
      */
-    protected static function offModuleRoutePrefixes(): array
+    protected static function offModuleRoutePrefixes(?string $classesRoot = null): array
     {
         static $cache = null;
-        if (is_array($cache)) {
+        if ($classesRoot === null && is_array($cache)) {
             return $cache;
         }
-        $cache = [];
-        $classesRoot = rtrim(str_replace('\\', '/', basepath('app/classes')), '/');
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($classesRoot, \FilesystemIterator::SKIP_DOTS));
+        $found = [];
+        $baseRouteNames = static function (string $source): array {
+            return preg_match_all('/static\s+\$baseRouteName\s*=\s*[\'"]([^\'"]+)[\'"]/', $source, $names) > 0 ? $names[1] : [];
+        };
+        $root = rtrim(str_replace('\\', '/', $classesRoot ?? basepath('app/classes')), '/');
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
         foreach ($iterator as $file) {
             $path = str_replace('\\', '/', (string) $file);
-            if (!str_ends_with($path, 'Routes.php')) {
+            if (!str_ends_with($path, '.php')) {
                 continue;
             }
             $source = (string) file_get_contents($path);
-            if (preg_match('/^namespace\s+([^;]+);/m', $source, $namespace) !== 1 || preg_match('/^class\s+(\w+)/m', $source, $class) !== 1 || !str_contains($source, 'const ENABLE')) {
+            if (preg_match('/^namespace\s+([^;]+);/m', $source, $namespace) !== 1 || preg_match('/^class\s+(\w+)/m', $source, $class) !== 1) {
                 continue;
             }
-            $routesClass = trim($namespace[1]) . '\\' . $class[1];
-            if (!class_exists($routesClass) || !defined($routesClass . '::ENABLE') || constant($routesClass . '::ENABLE') !== false) {
+            $className = trim($namespace[1]) . '\\' . $class[1];
+            $switchesIn = self::offSwitchesIn($source);
+            foreach ($switchesIn['actives'] as $constantName) {
+                if (defined($constantName) && constant($constantName) === false) {
+                    $found[$className] = array_merge($found[$className] ?? [$className], $baseRouteNames($source));
+                    break;
+                }
+            }
+            $switches = $switchesIn['enables'];
+            if (!str_ends_with($path, 'Routes.php') || $switches === [] || !class_exists($className)) {
                 continue;
             }
-            $prefixes = [$routesClass];
-            $moduleIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(dirname($path), \FilesystemIterator::SKIP_DOTS));
-            foreach ($moduleIterator as $moduleFile) {
-                if (!str_ends_with((string) $moduleFile, '.php')) {
+            //Con `ENABLE` en verdadero la clase está encendida: un `…_ENABLE` en falso apaga una parte, no la carpeta (A6).
+            if (in_array('ENABLE', $switches, true) && defined($className . '::ENABLE') && constant($className . '::ENABLE') !== false) {
+                $switches = ['ENABLE'];
+            }
+            foreach ($switches as $switch) {
+                if (!defined($className . '::' . $switch) || constant($className . '::' . $switch) !== false) {
                     continue;
                 }
-                if (preg_match_all('/static\s+\$baseRouteName\s*=\s*[\'"]([^\'"]+)[\'"]/', (string) file_get_contents((string) $moduleFile), $names) > 0) {
-                    $prefixes = array_merge($prefixes, $names[1]);
+                $prefixes = [$className];
+                $moduleIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(dirname($path), \FilesystemIterator::SKIP_DOTS));
+                foreach ($moduleIterator as $moduleFile) {
+                    if (str_ends_with((string) $moduleFile, '.php')) {
+                        $prefixes = array_merge($prefixes, $baseRouteNames((string) file_get_contents((string) $moduleFile)));
+                    }
                 }
+                $found[$className] = array_merge($found[$className] ?? [], $prefixes);
+                break;
             }
-            $cache[$routesClass] = array_values(array_unique($prefixes));
         }
-        ksort($cache);
-        return $cache;
+        $found = array_map(static fn (array $prefixes): array => array_values(array_unique($prefixes)), $found);
+        ksort($found);
+        if ($classesRoot === null) {
+            $cache = $found;
+        }
+        return $found;
     }
 
     /**
-     * La clase `*Routes` del módulo apagado al que pertenece un nombre de ruta, o null si no es de ninguno (H364).
+     * Los interruptores de un código PHP, por tokens: lo que esté en un comentario o en una cadena no cuenta.
+     *
+     * @param string $source
+     * @return array{actives: string[], enables: string[]} Las CONSTANTES de `->active(CONSTANTE)` y los nombres de las
+     *                                                     constantes de clase `ENABLE` y `…_ENABLE`
+     */
+    protected static function offSwitchesIn(string $source): array
+    {
+        $tokens = array_values(array_filter(
+            \PhpToken::tokenize($source),
+            static fn (\PhpToken $t): bool => !$t->is([\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT])
+        ));
+        $actives = [];
+        $enables = [];
+        foreach ($tokens as $i => $token) {
+            [$t1, $t2, $t3, $t4] = [$tokens[$i + 1] ?? null, $tokens[$i + 2] ?? null, $tokens[$i + 3] ?? null, $tokens[$i + 4] ?? null];
+            if (
+                $token->is([\T_OBJECT_OPERATOR, \T_NULLSAFE_OBJECT_OPERATOR])
+                    && $t1?->is(\T_STRING) && $t1->text === 'active' && $t2?->text === '('
+                    && $t3?->is(\T_STRING) && preg_match('/^[A-Z][A-Z0-9_]*$/', $t3->text) === 1 && $t4?->text === ')'
+            ) {
+                $actives[] = $t3->text;
+            }
+            if ($token->is(\T_CONST) && $t1?->is(\T_STRING) && preg_match('/^(?:\w+_)?ENABLE$/', $t1->text) === 1 && $t2?->text === '=') {
+                $enables[] = $t1->text;
+            }
+        }
+        return ['actives' => array_values(array_unique($actives)), 'enables' => array_values(array_unique($enables))];
+    }
+
+    /**
+     * El módulo apagado al que pertenece un nombre de ruta (su clase), o la constante en falso de una ruta de
+     * `OFF_ROUTES_BY_CONSTANT`; null si no es de ninguno (H364, H400).
      *
      * @param string $routeName
+     * @param string|null $classesRoot Para las pruebas: ver offModuleRoutePrefixes()
+     * @param array<string,string>|null $routesByConstant Para las pruebas: en lugar de `OFF_ROUTES_BY_CONSTANT`
      * @return string|null
      */
-    protected static function offModuleOfRoute(string $routeName): ?string
+    protected static function offModuleOfRoute(string $routeName, ?string $classesRoot = null, ?array $routesByConstant = null): ?string
     {
-        foreach (self::offModuleRoutePrefixes() as $routesClass => $prefixes) {
+        $constantName = ($routesByConstant ?? self::OFF_ROUTES_BY_CONSTANT)[$routeName] ?? null;
+        if (is_string($constantName) && defined($constantName) && constant($constantName) === false) {
+            return $constantName;
+        }
+        foreach (self::offModuleRoutePrefixes($classesRoot) as $routesClass => $prefixes) {
             foreach ($prefixes as $prefix) {
                 if ($routeName === $prefix || str_starts_with($routeName, $prefix . '-')) {
                     return $routesClass;
@@ -4134,9 +4199,16 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $sugerencia = ' Si es intencionado, regenera con: bin/cli verify-integrity update-permissions=yes';
 
+        $noAplica = [];
         foreach ($baseline['rutas'] as $nombre => $antes) {
             $nombre = (string) $nombre;
             if (!isset($ahora[$nombre])) {
+                //La de un módulo apagado no aplica (H400): se cuenta y no falla.
+                $modulo = self::offModuleOfRoute($nombre);
+                if ($modulo !== null) {
+                    $noAplica[$modulo] = ($noAplica[$modulo] ?? 0) + 1;
+                    continue;
+                }
                 $fallos[] = $nombre . ' — estaba en la línea base y YA NO EXISTE.' . $sugerencia;
                 continue;
             }
@@ -4165,6 +4237,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 $fallos[] = $nombre . ' — ruta NUEVA, sin línea base. La abren: ' . $conNombre($datos['roles'])
                     . '.' . $sugerencia;
             }
+        }
+
+        if ($noAplica !== []) {
+            echoTerminal("\e[94mINFO:\e[39m permisos: " . array_sum($noAplica) . ' ruta(s) de la línea base no aplica(n), módulo apagado: ' . implode(', ', array_map(
+                static fn (string $modulo, int $cuantas): string => "{$modulo} ({$cuantas})",
+                array_keys($noAplica),
+                $noAplica
+            )) . '.');
         }
 
         return $fallos;

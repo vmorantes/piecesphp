@@ -11,8 +11,8 @@ Los layouts públicos (`view/layout/header.php` y `view/webflow/layout/header.ph
   las **alternativas por idioma** (`hreflang`, más `x-default`).
 - `MetaTags::getMetaTagsOpenGraph()`: Open Graph (`og:locale` del idioma de la página, la imagen con sus dimensiones
   y su texto alternativo) y las etiquetas de X/Twitter.
-- `StructuredData::get()`: un bloque JSON-LD con `WebSite` y `Organization`. La organización se puede ampliar desde el
-  proyecto (abajo, «La organización del proyecto»).
+- `StructuredData::get()`: un bloque JSON-LD con `WebSite` y `Organization` (con la imagen para compartir del sitio,
+  si la hay). La organización se puede ampliar desde el proyecto (abajo, «La organización del proyecto»).
 
 Los valores por omisión salen de **Configuración → Apariencia → Identidad y SEO**: título del sitio, propietario,
 descripción, palabras clave, imagen para compartir, título y descripción para compartir, y la cuenta de X.
@@ -46,7 +46,8 @@ StructuredData::add([
 - **`MetaTags::setShareTitle()`** fija el título de la tarjeta al compartir sin tocar el `<title>`. La portada del
   framework lo usa con «Título para compartir»; si tu clon tiene su propia portada, llámalo desde su controlador.
 - **`MetaTags::setURL()`** fija la canónica. Por omisión es la URL actual sin consulta; con el idioma en la consulta
-  (`lang_by_cookie`, lo de fábrica), con `?i18n=<idioma>`. Una página cuyo contenido dependa de otra consulta tiene
+  (`lang_by_cookie`, lo de fábrica) y más de un idioma permitido, con `?i18n=<idioma>`. Con un solo idioma en
+  `allowed_langs`, sin consulta y sin alternativas por idioma (ADR 0082). Una página cuyo contenido dependa de otra consulta tiene
   que fijar la suya.
 - **Alternativas por idioma:** si tu página no existe en todos los idiomas, deja las suyas en
   `Config::set_config('alternatives_url', …)`, como hace la publicación, y no se anunciará un idioma en que no existe.

@@ -113,7 +113,8 @@ mismas defensas que el servidor MCP).
   terceros (una noticia, un motivo de rechazo). Los enlaces, solo los de `links`, que son del propio sitio.
 
 Para probarlo contra el proveedor configurado hay un banco de preguntas, dentro y fuera de tema:
-`bin/cli assistant-bench confirm=yes user=<id>` (solo en local; llama al proveedor de verdad y gasta). Con `fake=yes`
+`bin/cli assistant-bench confirm=yes user=<id>` (solo en local; llama al proveedor de verdad y gasta). **Solo existe en el
+repositorio del framework**: la acción no viaja en la distribución, así que en un proyecto clonado no está. Con `fake=yes`
 usa un proveedor simulado que no gasta nada.
 
 ## La ventana

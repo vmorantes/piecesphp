@@ -168,7 +168,8 @@ el caso a8 de `core/injected-scripts`.
 `MetaTags` (núcleo) emite canónica, `hreflang` con `x-default`, `og:locale` desde `$config['og_locales']`, Twitter,
 dimensiones de la imagen local y `robots`; `StructuredData` emite UN JSON-LD con `@graph` (`WebSite`, `Organization`, y
 lo que añada la página). **Invariantes:** la canónica y el `hreflang` del idioma actual son la misma cadena; con
-`lang_by_cookie` llevan `?i18n=`; las páginas `noindex` (panel, tokens, acceso) no emiten canónica; el JSON-LD se
+`lang_by_cookie` y más de un idioma llevan `?i18n=`; con un solo idioma en `allowed_langs`, la canónica va limpia y no hay
+`hreflang` (ADR 0082); el mapa del sitio y la redirección de publicaciones salen de `canonicalFor()`; las páginas `noindex` (panel, tokens, acceso) no emiten canónica; el JSON-LD se
 codifica con `JSON_HEX_TAG` y, si falla, no imprime nada. Lo vigilan `core/meta-tags` y `core/seo-metadata`.
 Guía para desarrolladores: `source-docs/project/docs/piecesphp/new-features/seo-y-scripts.md`.
 

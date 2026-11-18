@@ -27,6 +27,7 @@ CliActions::make('unit-tests:core/structured-data', function ($args) {
     //El estado es estático: se guarda y se devuelve, para no dejar una organización extendida a quien corra después.
     $clase = new \ReflectionClass(StructuredData::class);
     $previo = $clase->getStaticProperties();
+    $imagenPrevia = get_config('open_graph_image');
     $limpiar = function () use ($clase): void {
         foreach (array_keys($clase->getStaticProperties()) as $nombre) {
             $clase->setStaticPropertyValue($nombre, []);
@@ -89,12 +90,28 @@ CliActions::make('unit-tests:core/structured-data', function ($args) {
         $limpiar();
         StructuredData::extendOrganization([0 => 'zz-x']);
         $check(count(StructuredData::errors()) === 1 && !array_key_exists(0, $organizaciones()[0] ?? []), 's6 una clave numérica ([0 => …]) se rechaza y no llega al nodo', implode(' | ', StructuredData::errors()) . ' · ' . (string) json_encode($organizaciones()[0] ?? null));
+        echoTerminal(' ');
+
+        echoTerminal('[7] La imagen del sitio (open_graph_image) va al nodo de la organización');
+        $limpiar();
+        set_config('open_graph_image', '/zz-og.png');
+        $check(($organizaciones()[0]['image'] ?? null) === baseurl('zz-og.png'), 's7a una imagen relativa sale absoluta, como el logo', (string) json_encode($organizaciones()[0]['image'] ?? null));
+        StructuredData::extendOrganization(['image' => 'https://zz.test/zz-propia.png']);
+        $check(($organizaciones()[0]['image'] ?? null) === 'https://zz.test/zz-propia.png', 's7b la de extendOrganization() gana a la del sitio', (string) json_encode($organizaciones()[0]['image'] ?? null));
+        StructuredData::extendOrganization(['image' => 'statics/zz.png']);
+        $check(($organizaciones()[0]['image'] ?? null) === baseurl('statics/zz.png'), 's7d una imagen relativa de extendOrganization() sale absoluta, como el logo', (string) json_encode($organizaciones()[0]['image'] ?? null));
+        foreach (['vacía' => '', 'false' => false, 'sin opción' => null] as $caso => $valor) {
+            $limpiar();
+            set_config('open_graph_image', $valor);
+            $check(!array_key_exists('image', $organizaciones()[0] ?? []), "s7c {$caso}: el nodo va sin image", (string) json_encode($organizaciones()[0] ?? null));
+        }
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
         foreach ($previo as $nombre => $valor) {
             $clase->setStaticPropertyValue($nombre, $valor);
         }
+        set_config('open_graph_image', $imagenPrevia === false ? null : $imagenPrevia);
     }
 
     echoTerminal(' ');
@@ -105,4 +122,4 @@ CliActions::make('unit-tests:core/structured-data', function ($args) {
 
     return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('StructuredData::extendOrganization() amplía la organización del JSON-LD sin cambiar su @id, y rechaza @id, @context, un @type fuera de la lista y un sameAs que no sea de URL http(s).')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('StructuredData::extendOrganization() amplía la organización del JSON-LD sin cambiar su @id, y rechaza @id, @context, un @type fuera de la lista y un sameAs que no sea de URL http(s); la imagen del sitio va al nodo por omisión.')->setEffects([CliActions::EFFECT_NONE])->register();

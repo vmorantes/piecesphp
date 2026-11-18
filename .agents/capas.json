@@ -131,6 +131,7 @@
         ".agents/docs/adr/0079-*",
         ".agents/docs/adr/0080-*",
         ".agents/docs/adr/0081-*",
+        ".agents/docs/adr/0082-*",
         ".agents/docs/auditorias/*",
         ".agents/estado/AHORA.md",
         ".agents/estado/PO.md",

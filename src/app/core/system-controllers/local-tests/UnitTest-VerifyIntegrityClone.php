@@ -51,6 +51,96 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
         $check($call('validateDeclaredPermissions', [$many]) === [], '1d con 311 rutas no cae');
         echoTerminal(' ');
 
+        //──── 1bis. Las tres formas de apagar (H400), sobre un árbol de mentira ───────────────
+        echoTerminal('[1bis] Módulos apagados por `…ENABLE`, por `->active()` y por la lista declarada');
+        $upper = strtoupper($suffix);
+        $offConstant = "ZZ_VI_OFF_{$upper}";
+        $onConstant = "ZZ_VI_ON_{$upper}";
+        define($offConstant, false);
+        define($onConstant, true);
+        $namespace = "ZzViOff{$suffix}";
+        $classesRoot = "{$directory}/clases";
+        $fakeFiles = [
+            'A/ZzSwitchRoutes.php' => "<?php\nnamespace {$namespace}\\A;\nclass ZzSwitchRoutes\n{\n    const ZZ_FEATURE_ENABLE = {$offConstant};\n}\n",
+            'A/ZzAController.php' => "<?php\nnamespace {$namespace}\\A;\nclass ZzAController\n{\n    protected static \$baseRouteName = 'zz-vi-a';\n}\n",
+            'B/ZzPartRoutes.php' => "<?php\nnamespace {$namespace}\\B;\nclass ZzPartRoutes\n{\n    const ENABLE = {$onConstant};\n    const ENABLE_ZZ_PART = {$offConstant};\n}\n",
+            'B/ZzBController.php' => "<?php\nnamespace {$namespace}\\B;\nclass ZzBController\n{\n    protected static \$baseRouteName = 'zz-vi-b';\n}\n",
+            'C/ZzGroup.php' => "<?php\nnamespace {$namespace}\\C;\nclass ZzGroup\n{\n    protected static \$baseRouteName = 'zz-vi-c';\n    public static function routes(\$group)\n    {\n        \$group->active({$offConstant});\n    }\n}\n",
+            'D/ZzGroupOn.php' => "<?php\nnamespace {$namespace}\\D;\nclass ZzGroupOn\n{\n    protected static \$baseRouteName = 'zz-vi-d';\n    public static function routes(\$group)\n    {\n        \$group->active({$onConstant});\n    }\n}\n",
+            'E/ZzCommented.php' => "<?php\nnamespace {$namespace}\\E;\nclass ZzCommented\n{\n    protected static \$baseRouteName = 'zz-vi-e';\n    /** No `->active({$offConstant})` aquí. */\n    public static function routes(\$group)\n    {\n        // \$group->active({$offConstant});\n    }\n}\n",
+            'F/ZzQuoted.php' => "<?php\nnamespace {$namespace}\\F;\nclass ZzQuoted\n{\n    protected static \$baseRouteName = 'zz-vi-f';\n    const TEXT = '\$group->active({$offConstant})';\n}\n",
+            'G/ZzOnRoutes.php' => "<?php\nnamespace {$namespace}\\G;\nclass ZzOnRoutes\n{\n    const ENABLE = {$onConstant};\n    const ZZ_PART_ENABLE = {$offConstant};\n}\n",
+            'G/ZzGController.php' => "<?php\nnamespace {$namespace}\\G;\nclass ZzGController\n{\n    protected static \$baseRouteName = 'zz-vi-g';\n}\n",
+        ];
+        foreach ($fakeFiles as $relative => $content) {
+            $fakePath = "{$classesRoot}/{$relative}";
+            if ((!is_dir(dirname($fakePath)) && !mkdir(dirname($fakePath), 0775, true)) || file_put_contents($fakePath, $content) === false) {
+                throw new \RuntimeException("no se pudo escribir {$fakePath}");
+            }
+        }
+        require_once "{$classesRoot}/A/ZzSwitchRoutes.php";
+        require_once "{$classesRoot}/B/ZzPartRoutes.php";
+        require_once "{$classesRoot}/G/ZzOnRoutes.php";
+        $check($call('offModuleOfRoute', ['zz-vi-a-list', $classesRoot]) === "{$namespace}\\A\\ZzSwitchRoutes", '1e `const …_ENABLE` en falso apaga la carpeta de su clase *Routes');
+        $check($call('offModuleOfRoute', ['zz-vi-b-list', $classesRoot]) === null, '1f `const ENABLE_…` en falso apaga una parte, no la carpeta');
+        $check($call('offModuleOfRoute', ['zz-vi-c-list', $classesRoot]) === "{$namespace}\\C\\ZzGroup", '1g `->active(CONSTANTE)` en falso apaga el $baseRouteName de su archivo');
+        $check($call('offModuleOfRoute', ["{$namespace}\\C\\ZzGroup", $classesRoot]) === "{$namespace}\\C\\ZzGroup", '1h y el nombre de su clase, el de sus estáticos');
+        $check($call('offModuleOfRoute', ['zz-vi-d-list', $classesRoot]) === null, '1i `->active(CONSTANTE)` en verdadero no apaga nada');
+        $check($call('offModuleOfRoute', ['zz-vi-e-list', $classesRoot]) === null, '1i2 `->active(CONSTANTE)` en falso dentro de un comentario no apaga nada');
+        $check($call('offModuleOfRoute', ['zz-vi-f-list', $classesRoot]) === null, '1i3 `->active(CONSTANTE)` en falso dentro de una cadena no apaga nada');
+        $check($call('offModuleOfRoute', ['zz-vi-g-list', $classesRoot]) === null, '1i4 con `ENABLE` en verdadero, un `…_ENABLE` en falso no apaga la carpeta');
+        $check($call('offModuleOfRoute', ['zz-vi-suelta', $classesRoot, ['zz-vi-suelta' => $offConstant]]) === $offConstant, '1j una ruta de la lista declarada con su constante en falso no aplica');
+        $check($call('offModuleOfRoute', ['zz-vi-suelta', $classesRoot, ['zz-vi-suelta' => $onConstant]]) === null, '1k con su constante en verdadero, sí aplica');
+        echoTerminal(' ');
+
+        //──── 1ter. La lista declarada sigue lo que registra el código ────────────────────────
+        echoTerminal('[1ter] OFF_ROUTES_BY_CONSTANT: la ruta se registra detrás de esa constante');
+        /** Si `$file` registra `$route` con `CONSTANTE ? new Route(…, <sufijo>, …) : …`, por tokens. */
+        $registeredBehind = static function (string $file, string $constantName, string $route): bool {
+            $tokens = array_values(array_filter(
+                \PhpToken::tokenize((string) file_get_contents($file)),
+                fn (\PhpToken $t): bool => !$t->is([\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT])
+            ));
+            $base = null;
+            foreach ($tokens as $i => $token) {
+                if ($token->is(\T_VARIABLE) && $token->text === '$baseRouteName' && ($tokens[$i + 1]->text ?? '') === '=' && ($tokens[$i + 2] ?? null)?->is(\T_CONSTANT_ENCAPSED_STRING)) {
+                    $base = substr($tokens[$i + 2]->text, 1, -1);
+                    break;
+                }
+            }
+            if ($base === null || !str_starts_with($route, $base)) {
+                return false;
+            }
+            $tail = "'" . substr($route, strlen($base)) . "'";
+            foreach ($tokens as $i => $token) {
+                if (!$token->is(\T_STRING) || $token->text !== $constantName || ($tokens[$i + 1]->text ?? '') !== '?' || !($tokens[$i + 2] ?? null)?->is(\T_NEW)) {
+                    continue;
+                }
+                $depth = 0;
+                for ($j = $i + 3; $j < count($tokens); $j++) {
+                    $depth += $tokens[$j]->text === '(' ? 1 : ($tokens[$j]->text === ')' ? -1 : 0);
+                    if ($tokens[$j]->text === $tail) {
+                        return true;
+                    }
+                    if ($depth === 0 && $tokens[$j]->text === ')') {
+                        break;
+                    }
+                }
+            }
+            return false;
+        };
+        $declared = VerifyIntegrityTask::OFF_ROUTES_BY_CONSTANT;
+        $homeImage = 'helpers-system-generic-content-admin-forms-home-image';
+        $genericContent = basepath('app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php');
+        $check(array_keys($declared) === [$homeImage], '1l la lista declarada tiene solo las rutas que esta prueba vigila', implode(', ', array_keys($declared)));
+        $check(defined((string) ($declared[$homeImage] ?? '')), '1m su constante existe', (string) ($declared[$homeImage] ?? ''));
+        $check($registeredBehind($genericContent, (string) ($declared[$homeImage] ?? ''), $homeImage), '1n GenericContentController registra la ruta detrás de esa constante');
+        $check($call('offModuleOfRoute', [$homeImage]) === (HOME_IMAGE_BANNER ? null : 'HOME_IMAGE_BANNER'), '1o offModuleOfRoute() la sigue según el valor de la constante');
+        $copy = "{$directory}/GenericContentController.php";
+        $written = file_put_contents($copy, str_replace('HOME_IMAGE_BANNER ?', 'OTRA_CONSTANTE ?', (string) file_get_contents($genericContent)));
+        $check($written !== false && !$registeredBehind($copy, 'HOME_IMAGE_BANNER', $homeImage), '1p canario: con otra constante en la ternaria, la comprobación cae');
+        echoTerminal(' ');
+
         //──── 2. Sin archivo del clon, todo sigue igual ───────────────────────────────────────
         echoTerminal('[2] Sin línea base del clon, los fallos de estilo caen como siempre');
         //RETORNO-IGNORADO: si putenv() fallara, 2a y 3a lo dirían: la tarea leería el archivo del clon de verdad, que no existe.
@@ -233,6 +323,16 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
             //RETORNO-IGNORADO: carpetas propias vacías en app/cache.
             @rmdir($path);
         }
+        foreach (['A', 'B', 'C', 'D', 'E', 'F', 'G'] as $folder) {
+            foreach ((array) glob("{$directory}/clases/{$folder}/*.php") as $path) {
+                //RETORNO-IGNORADO: limpieza de lo propio en app/cache; lo que quede no afecta al resultado.
+                @unlink((string) $path);
+            }
+            //RETORNO-IGNORADO: carpetas propias vacías en app/cache.
+            @rmdir("{$directory}/clases/{$folder}");
+        }
+        //RETORNO-IGNORADO: carpeta propia vacía en app/cache.
+        @rmdir("{$directory}/clases");
         foreach ((array) glob("{$directory}/*") as $path) {
             //RETORNO-IGNORADO: limpieza de lo propio en app/cache; lo que quede no afecta al resultado.
             @unlink((string) $path);

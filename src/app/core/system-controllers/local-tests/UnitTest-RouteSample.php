@@ -94,6 +94,21 @@ CliActions::make('unit-tests:core/route-sample', function ($args) {
     }
     $check($compared > 0 && $different === [], "r5 {$compared} rutas comparadas, todas iguales", implode(', ', array_slice($different, 0, 5)));
 
+    echoTerminal('[r6] Los parámetros declarados de una ruta salen de FastRoute: get_route(), el inventario y la 61 dependen de ellos');
+    $staticsParameters = get_routes()['statics-files']['parameters'] ?? null;
+    $check($staticsParameters === ['params' => null], 'r6 statics-files («/[{params:.*}]») declara params', var_export($staticsParameters, true));
+    //Sin register(): la ruta no entra en el router.
+    $adapter = new \PiecesPHP\Core\Routing\RouteAdapter('/zz/{x:\d{4}}/{y}', fn () => null, 'zz-route-sample-llaves', 'GET', false, null, [], ['y' => 'def', 'zz' => 'ignorado']);
+    $check($adapter->getParameters() === ['x' => null, 'y' => 'def'], 'r6b {x:\d{4}} da x (no «4») y el valor por omisión de y se conserva', var_export($adapter->getParameters(), true));
+    $mismatched = [];
+    foreach (get_routes() as $routeName => $information) {
+        $routePattern = get_router()->getRouteCollector()->getNamedRoute((string) $routeName)->getPattern();
+        if (array_keys((array) $information['parameters']) !== get_route_pattern_placeholders($routePattern)) {
+            $mismatched[] = (string) $routeName;
+        }
+    }
+    $check($mismatched === [], 'r6c en todas las rutas registradas, los parámetros son los marcadores del patrón de Slim', implode(', ', array_slice($mismatched, 0, 5)));
+
     echoTerminal(' ');
     $total = $passed + $failed;
     echoTerminal($failed === 0

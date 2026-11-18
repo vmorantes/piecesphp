@@ -9,6 +9,7 @@ namespace Terminal\Tasks;
 use PiecesPHP\Core\Backups\BackupPolicy;
 use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\Database;
 use PiecesPHP\Core\Database\Export\Enums\DataStyle;
 use PiecesPHP\Core\Database\Export\Enums\TableStyle;
 use PiecesPHP\Core\Database\Export\Exporter;
@@ -62,6 +63,15 @@ class DbBackupTask extends TerminalTaskAbstract
     protected static ?string $lastWrittenFile = null;
 
     /**
+     * Las vistas rotas que omitió el último respaldo correcto de este proceso.
+     *
+     * Se vacía al empezar cada pasada, como lastWrittenFile(): la tarea programada la lee para dejarla en su registro.
+     *
+     * @var string[]
+     */
+    protected static array $lastSkippedViews = [];
+
+    /**
      * La ruta del último respaldo correcto de este proceso, o null si no hubo ninguno.
      *
      * @return string|null
@@ -69,6 +79,16 @@ class DbBackupTask extends TerminalTaskAbstract
     public static function lastWrittenFile(): ?string
     {
         return self::$lastWrittenFile;
+    }
+
+    /**
+     * Las vistas rotas omitidas por el último respaldo correcto de este proceso.
+     *
+     * @return string[]
+     */
+    public static function lastSkippedViews(): array
+    {
+        return self::$lastSkippedViews;
     }
 
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
@@ -116,7 +136,9 @@ class DbBackupTask extends TerminalTaskAbstract
         $responseText = "";
         $success = false;
         $exceptionToThrow = null;
+        $brokenViewsNotice = "";
         self::$lastWrittenFile = null;
+        self::$lastSkippedViews = [];
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -170,6 +192,18 @@ class DbBackupTask extends TerminalTaskAbstract
                 file_put_contents($htaccess, $htaccessContent);
             }
 
+            //Una vista sin sus tablas (un módulo apagado que borró las suyas) tumbaba el respaldo
+            //entero con 1356: se omite y se avisa. Cualquier otro error de una vista sigue cayendo. Ver H399.
+            $tables = $exporter->getTables();
+            $brokenViews = [];
+            if ($withViews) {
+                $brokenViews = self::brokenViews($db, $format, array_diff($tables, self::EXCLUDED_TABLES));
+                foreach ($brokenViews as $brokenView => $reason) {
+                    $brokenViewsNotice .= "Vista rota omitida: {$brokenView} ({$reason})\r\n";
+                }
+            }
+            $composition = self::backupComposition($tables, self::EXCLUDED_TABLES, array_keys($brokenViews));
+
             try {
 
                 $changePermissions = !file_exists($outputFile);
@@ -189,7 +223,7 @@ class DbBackupTask extends TerminalTaskAbstract
                     'single_transaction' => true,
                     'auto_increment' => true,
                     'triggers' => true,
-                    'exclude_tables' => self::EXCLUDED_TABLES,
+                    'exclude_tables' => $composition['exclude_tables'],
                     //El `where` solo entra en el SELECT de los datos: la estructura sale entera.
                     'where' => array_fill_keys(BackupPolicy::dataExcludedTables(), '1=0'),
                     //Solo las columnas de BackupPolicy::transformColumn(). El password NO se cifra: nadie lo
@@ -215,7 +249,8 @@ class DbBackupTask extends TerminalTaskAbstract
                 } else {
 
                     //Lo esperado sale de la BASE y lo escrito se lee del ARCHIVO: dos caminos.
-                    $expected = array_diff($exporter->getTables(), self::EXCLUDED_TABLES);
+                    //Las rotas omitidas no se esperan: se cuentan aparte, no como ausencias.
+                    $expected = $composition['expected'];
                     if (!$withViews) {
                         //`views=no` es una petición legítima: lo que no se pidió no se echa
                         //en falta. Medido: sin esto, `views=no` reportaba 5 ausencias falsas.
@@ -239,14 +274,17 @@ class DbBackupTask extends TerminalTaskAbstract
                         $responseText = "Operación exitosa\r\n";
                         $responseText .= "Archivo generado: " . basename($outputPath) . "\r\n";
                         $responseText .= "Verificado: " . count($expected) . " objeto(s) esperados, ";
-                        $responseText .= count($expected) . " escrito(s).\r\n";
+                        $responseText .= count($expected) . " escrito(s)";
+                        $responseText .= count($brokenViews) > 0 ? "; " . count($brokenViews) . " vista(s) rota(s) omitida(s).\r\n" : ".\r\n";
                         $success = true;
                         self::$lastWrittenFile = $outputPath;
+                        self::$lastSkippedViews = array_keys($brokenViews);
                         $size = @filesize($outputPath);
                         BaseEventDispatcher::dispatch('Backups', 'BackupCreated', [
                             'file' => $outputPath,
                             'size' => is_int($size) ? $size : null,
                             'tables' => count($expected),
+                            'skipped_views' => array_keys($brokenViews),
                         ]);
                     }
 
@@ -280,7 +318,7 @@ class DbBackupTask extends TerminalTaskAbstract
             ]);
         }
 
-        systemOutFormatted($responseText);
+        systemOutFormatted($brokenViewsNotice . $responseText);
 
         if ($throwExceptions && $exceptionToThrow !== null) {
             throw $exceptionToThrow;
@@ -293,6 +331,159 @@ class DbBackupTask extends TerminalTaskAbstract
         }
 
         return $success;
+    }
+
+    /**
+     * Las vistas que no se pueden volcar porque faltan sus tablas, con su motivo.
+     *
+     * Se pregunta con `SHOW COLUMNS`, la misma consulta con la que el exportador escribe la vista
+     * provisional: lo que pasa aquí es lo que pasaría allí. Un 1356 solo omite la vista si de verdad
+     * falta una tabla o vista de su definición (missingViewTables()); si están todas, el 1356 es de permisos
+     * o de una columna, y se relanza. Cualquier otro error se relanza también: el respaldo cae.
+     * Una vista sobre otra vista rota nombra una que existe: por eso las rotas cuentan como ausentes y
+     * el recorrido se repite hasta que ninguna vuelta añade otra, con tantas vueltas como vistas fallan.
+     *
+     * @param Database $db
+     * @param SqlFormat $format
+     * @param string[] $objects Tablas y vistas que entrarían en el respaldo.
+     * @return array<string,string> Nombre de la vista => motivo.
+     * @throws \PDOException
+     */
+    protected static function brokenViews(Database $db, SqlFormat $format, array $objects): array
+    {
+        $failing = [];
+        foreach ($objects as $object) {
+            if (!$format->isView($db, $object)) {
+                continue;
+            }
+            try {
+                $db->query('SHOW COLUMNS FROM `' . str_replace('`', '``', $object) . '`');
+            } catch (\PDOException $e) {
+                if (!self::isBrokenViewError($e)) {
+                    throw $e;
+                }
+                $failing[$object] = $e;
+            }
+        }
+        if ($failing === []) {
+            return [];
+        }
+
+        $databaseName = (string) $db->query('SELECT DATABASE()')->fetchColumn();
+        $existingTables = $db->query('SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()')->fetchAll(\PDO::FETCH_COLUMN);
+        //Una función de la base nombrada sin su «(» no es una tabla que falte: ante la duda, existe.
+        $routines = $db->query('SELECT ROUTINE_NAME FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA = DATABASE()')->fetchAll(\PDO::FETCH_COLUMN);
+        $definitionQuery = $db->prepare('SELECT VIEW_DEFINITION FROM information_schema.VIEWS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?');
+        $definitions = [];
+        foreach (array_keys($failing) as $view) {
+            $definition = $definitionQuery->execute([$view]) ? $definitionQuery->fetchColumn() : false;
+            $definitions[$view] = is_string($definition) ? $definition : '';
+        }
+
+        $broken = [];
+        for ($round = 0; $round < count($failing); $round++) {
+            //La foto es de la vuelta entera: el orden de las vistas no cambia el resultado.
+            $present = array_merge(array_diff($existingTables, array_keys($broken)), $routines);
+            $added = [];
+            foreach ($failing as $view => $e) {
+                if (isset($broken[$view])) {
+                    continue;
+                }
+                $missing = self::missingViewTables($definitions[$view], $databaseName, $present);
+                if ($missing !== []) {
+                    $added[$view] = 'error 1356; faltan: ' . implode(', ', $missing);
+                }
+            }
+            if ($added === []) {
+                break;
+            }
+            $broken = array_merge($broken, $added);
+        }
+        foreach ($failing as $view => $e) {
+            if (!isset($broken[$view])) {
+                throw $e;
+            }
+        }
+        return $broken;
+    }
+
+    /**
+     * Las tablas de la base actual que nombra la definición de una vista y no están entre las existentes.
+     *
+     * MariaDB y MySQL guardan la definición con cada referencia completa: `base`.`tabla` y `base`.`tabla`.`columna`.
+     * Solo cuentan las que empiezan por la base actual: un alias (`t1`.`columna`) o una base ajena no son
+     * prueba de que falte nada, y una definición vacía (sin SHOW VIEW) tampoco. Sin prueba, la lista sale
+     * vacía y el respaldo cae: omitir una vista sana daría por bueno un respaldo incompleto.
+     * Las mayúsculas no distinguen, por lo mismo: ante la duda, «existe».
+     * Lo que va seguido de «(» es una llamada (`base`.`funcion`(…)), no una tabla.
+     *
+     * @param string $definition La de information_schema.VIEWS.VIEW_DEFINITION.
+     * @param string $databaseName La base actual.
+     * @param array<int,mixed> $existingTables Tablas, vistas sanas y rutinas de la base actual.
+     * @return string[] Las que faltan, sin repetir, en el orden de la definición.
+     */
+    public static function missingViewTables(string $definition, string $databaseName, array $existingTables): array
+    {
+        $existing = [];
+        foreach ($existingTables as $table) {
+            if (is_string($table)) {
+                $existing[mb_strtolower($table)] = true;
+            }
+        }
+        $database = mb_strtolower($databaseName);
+
+        $missing = [];
+        $matched = preg_match_all('/`((?:[^`]|``)++)`\s*\.\s*`((?:[^`]|``)++)`(?!\s*\()/u', $definition, $matches, PREG_SET_ORDER);
+        if ($matched === false || $database === '') {
+            return [];
+        }
+        foreach ($matches as $match) {
+            if (mb_strtolower(str_replace('``', '`', $match[1])) !== $database) {
+                continue;
+            }
+            $table = str_replace('``', '`', $match[2]);
+            if (!isset($existing[mb_strtolower($table)])) {
+                $missing[$table] = true;
+            }
+        }
+        return array_keys($missing);
+    }
+
+    /**
+     * Qué se excluye del volcado y qué se espera encontrar en él, desde las mismas listas.
+     *
+     * Las dos salen de aquí para que no puedan separarse: una vista rota que se excluye pero se espera
+     * daría el respaldo por incompleto, y una que se espera sin excluir lo tumbaría en el exportador.
+     *
+     * @param string[] $tables Tablas y vistas de la base.
+     * @param string[] $excluded Las de EXCLUDED_TABLES.
+     * @param string[] $brokenViews Las vistas rotas que se omiten.
+     * @return array{exclude_tables: string[], expected: string[]}
+     */
+    public static function backupComposition(array $tables, array $excluded, array $brokenViews): array
+    {
+        return [
+            'exclude_tables' => array_values(array_unique(array_merge($excluded, $brokenViews))),
+            'expected' => array_values(array_diff($tables, $excluded, $brokenViews)),
+        ];
+    }
+
+    /**
+     * Si el error es el de MySQL/MariaDB 1356: la vista referencia tablas o columnas no válidas, o le faltan permisos.
+     *
+     * Es solo el primer filtro: el mismo 1356 sale por un permiso que falta, así que brokenViews()
+     * exige además que falte una tabla de la definición. Un permiso de otro tipo o una base caída
+     * no pasan ni este filtro: omitirlos daría por bueno un respaldo al que le falta algo.
+     *
+     * @param \Throwable $e
+     * @return bool
+     */
+    public static function isBrokenViewError(\Throwable $e): bool
+    {
+        if (!$e instanceof \PDOException || !is_array($e->errorInfo)) {
+            return false;
+        }
+        return ($e->errorInfo[0] ?? null) === 'HY000' && (int) ($e->errorInfo[1] ?? 0) === 1356;
     }
 
     /**

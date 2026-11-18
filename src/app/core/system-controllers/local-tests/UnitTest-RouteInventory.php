@@ -98,6 +98,42 @@ CliActions::make('unit-tests:core/route-inventory', function ($args) {
     $conCampoAlias = array_keys(array_filter((array) get_routes(), fn ($entrada) => is_array($entrada) && array_key_exists('route_alias', $entrada)));
     $check(count((array) get_routes()) > 0 && $conCampoAlias === [], 'd4 ninguna entrada del catálogo lleva el campo route_alias', count($conCampoAlias) . ' con el campo, p. ej. ' . implode(', ', array_slice($conCampoAlias, 0, 3)));
 
+    //──── e · La URL: un parámetro opcional no la impide; uno obligatorio, sí ─────────────────────
+    //Sobre inventory() vivo, no sobre el artefacto: así cae sin regenerarlo.
+    echoTerminal('');
+    echoTerminal('[e] La URL se resuelve salvo que falte un parámetro obligatorio');
+    $vivo = \Terminal\Tasks\RouteInventoryTask::inventory();
+    $vivo = is_array($vivo) ? $vivo : [];
+    //Un `{` fuera de todo `[…]` es obligatorio; el contenido de `{…}` (expresiones) no cuenta.
+    $tieneObligatorio = static function (string $patron): bool {
+        $profundidad = 0;
+        $dentroDeLlave = 0;
+        foreach (str_split($patron) as $caracter) {
+            if ($caracter === '{') {
+                if ($dentroDeLlave === 0 && $profundidad === 0) {
+                    return true;
+                }
+                $dentroDeLlave++;
+            } elseif ($caracter === '}') {
+                $dentroDeLlave--;
+            } elseif ($dentroDeLlave === 0 && $caracter === '[') {
+                $profundidad++;
+            } elseif ($dentroDeLlave === 0 && $caracter === ']') {
+                $profundidad--;
+            }
+        }
+        return false;
+    };
+    $porNombre = array_column($vivo, null, 'name');
+    $deEstaticos = array_filter($vivo, fn (array $fila): bool => str_contains($fila['pattern'], '[{params:.*}]'));
+    $check(count($deEstaticos) >= 1, 'e1 CANARIO: hay rutas de estáticos con parámetro opcional: ' . count($deEstaticos));
+    $check(($porNombre['statics-files']['url'] ?? '') !== '', 'e2 statics-files (`/[{params:.*}]`) tiene URL', var_export($porNombre['statics-files']['url'] ?? null, true));
+    $sinUrlSinObligatorio = array_column(array_filter($vivo, fn (array $fila): bool => !$tieneObligatorio($fila['pattern']) && $fila['url'] === ''), 'name');
+    $check($sinUrlSinObligatorio === [], 'e3 toda ruta sin parámetro obligatorio tiene URL', count($sinUrlSinObligatorio) . ', p. ej. ' . implode(', ', array_slice($sinUrlSinObligatorio, 0, 3)));
+    $conId = array_filter($vivo, fn (array $fila): bool => preg_match('#/\{id\}(/|\[|$)#', $fila['pattern']) === 1 && !str_contains(strstr($fila['pattern'], '{id}', true) ?: '', '['));
+    $conIdConUrl = array_column(array_filter($conId, fn (array $fila): bool => $fila['url'] !== ''), 'name');
+    $check(count($conId) > 0 && $conIdConUrl === [], 'e4 y una ruta con `{id}` obligatorio sigue sin URL (' . count($conId) . ' rutas)', implode(', ', array_slice($conIdConUrl, 0, 3)));
+
     return $balance();
 
 })->setDescription('El inventario de rutas refleja el router: ningún nombre repetido ni omitido, y ninguna entrada con clave distinta de su nombre, porque el mecanismo de alias se retiró.')->setEffects([CliActions::EFFECT_NONE])->register();

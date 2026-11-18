@@ -45,9 +45,11 @@ $cronjobs[] = CronJobTask::make('Respaldar base de datos', function () {
         BackupPolicy::current()
     );
 
+    //El libro de tareas solo guarda `message`: las vistas omitidas van ahí o no quedan en ningún registro.
+    $skippedViews = $success ? DbBackupTask::lastSkippedViews() : [];
     $response = [
         'success' => $success,
-        'message' => $success ? $rotation['message'] : $message,
+        'message' => $success ? $rotation['message'] . ($skippedViews !== [] ? ' ' . strReplaceTemplate(__(\PiecesPHP\SystemStatus\SystemStatusLang::LANG_GROUP, 'Vistas rotas omitidas: ${views}.'), ['${views}' => implode(', ', $skippedViews)]) : '') : $message,
         'extra_data' => $rotation,
     ];
 

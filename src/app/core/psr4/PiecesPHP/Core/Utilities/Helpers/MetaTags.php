@@ -433,7 +433,8 @@ class MetaTags
 
     /**
      * La URL canónica de la página actual: sin consulta ni fragmento, y con `?i18n=<idioma>` si el idioma viaja ahí
-     * (`lang_by_cookie`). Sin eso, la página en inglés se declararía copia de la española, que comparte su ruta.
+     * (`lang_by_cookie`). Sin eso, la página en inglés se declararía copia de la española, que comparte su ruta. Con un
+     * solo idioma permitido, sin consulta: no hay copia que evitar (ADR 0082).
      *
      * @return string
      */
@@ -453,6 +454,10 @@ class MetaTags
     public static function canonicalFor(string $url, string $lang): string
     {
         $url = remove_url_params($url, []);
+        //Con un solo idioma no hay copia que evitar: `?i18n=` solo cambiaría la URL indexada (ADR 0082).
+        if (count(Config::get_allowed_langs()) === 1) {
+            return $url;
+        }
         if (get_config('lang_by_cookie') === true) {
             return convert_lang_url($url, $lang, $lang);
         }
@@ -597,7 +602,8 @@ class MetaTags
 
         //Una página que no se indexa no anuncia canónica ni idiomas.
         $indexable = self::$robots === null || !str_contains(mb_strtolower(self::$robots), 'noindex');
-        $languageURLs = $indexable ? self::languageURLs() : [];
+        //Con un solo idioma no hay alternativas: ni hreflang ni x-default (ADR 0082).
+        $languageURLs = $indexable && count(Config::get_allowed_langs()) > 1 ? self::languageURLs() : [];
         if ($indexable) {
             $html[] = "\t<link rel='canonical' href='" . self::escape(self::$url) . "' />";
         }

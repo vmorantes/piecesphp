@@ -2604,23 +2604,15 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
  */
 function get_route_pattern_placeholders(string $pattern): array
 {
-    $names = [];
-    foreach ((new \FastRoute\RouteParser\Std())->parse($pattern) as $routeData) {
-        foreach ($routeData as $segment) {
-            if (is_array($segment) && !in_array($segment[0], $names, true)) {
-                $names[] = $segment[0];
-            }
-        }
-    }
-    return $names;
+    return \PiecesPHP\Core\Routing\RouteAdapter::placeholderNames($pattern);
 }
 
 /**
  * La URL de muestra de una ruta: cada marcador de su patrón, opcionales incluidos, se rellena con su propio nombre
  * entre llaves (`/user/{name}/{id}`).
  *
- * Los marcadores salen del patrón completo que tiene Slim, no de los parámetros declarados en la ruta: esos no
- * recogen los que llevan expresión (`{x:...}`).
+ * Los marcadores salen del patrón que tiene Slim con RouteAdapter::placeholderNames(), como los parámetros declarados
+ * de la ruta: también los que llevan expresión (`{x:...}`).
  *
  * @param string $name Nombre de la ruta
  * @param bool $silentOnNotExists Si es true, una ruta inexistente devuelve null sin avisos

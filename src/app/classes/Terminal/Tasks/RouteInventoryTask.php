@@ -83,11 +83,11 @@ class RouteInventoryTask extends TerminalTaskAbstract
         file_put_contents($output, $json . "\n");
 
         $withUrl = count(array_filter($inventory, fn (array $r) => $r['url'] !== ''));
-        $withParameters = count(array_filter($inventory, fn (array $r) => count($r['parameters']) > 0));
+        $withoutUrl = count($inventory) - $withUrl;
 
         echoTerminal("\e[94mINFO:\e[39m " . count($inventory) . " rutas registradas.");
-        echoTerminal("\e[94mINFO:\e[39m {$withUrl} con URL resoluble sin parámetros.");
-        echoTerminal("\e[94mINFO:\e[39m {$withParameters} exigen parámetros y NO se resuelven aquí.");
+        echoTerminal("\e[94mINFO:\e[39m {$withUrl} con URL resoluble sin dar parámetros.");
+        echoTerminal("\e[94mINFO:\e[39m {$withoutUrl} sin URL: exigen un parámetro obligatorio o no resolvieron.");
         echoTerminal("\e[34mEscrito:\e[39m {$output}");
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(0);
@@ -97,7 +97,7 @@ class RouteInventoryTask extends TerminalTaskAbstract
      * El inventario de rutas del registro vivo (get_routes()), ordenado por nombre: lo vuelca main() a
      * files/dev/route-inventory.json y lo lee bin/mcp (DevServer). Null si el framework no devolvió registro.
      *
-     * @param bool $withUrls Si resuelve la dirección de las rutas sin parámetros (en la terminal, sobre localhost)
+     * @param bool $withUrls Si resuelve la dirección de las rutas sin parámetros obligatorios (en la terminal, sobre localhost)
      * @return array<int,array{name:string,method:string,pattern:string,requireLogin:bool,rolesAllowed:array<int,mixed>,parameters:array<int,mixed>,url:string}>|null
      */
     public static function inventory(bool $withUrls = true): ?array
@@ -119,9 +119,10 @@ class RouteInventoryTask extends TerminalTaskAbstract
 
             $parametersOfRoute = (array) ($route['parameters'] ?? []);
 
-            //En modo silencioso: una ruta que no resuelva devuelve cadena vacía en vez de lanzar.
+            //Siempre, no por count($parametersOfRoute): un opcional (`[{params:.*}]`) cuenta ahí y no impide la URL.
+            //En modo silencioso, si falta un obligatorio da null.
             $url = '';
-            if ($withUrls && count($parametersOfRoute) === 0) {
+            if ($withUrls) {
                 $resolved = get_route($name, [], true);
                 $url = is_string($resolved) ? $resolved : '';
             }

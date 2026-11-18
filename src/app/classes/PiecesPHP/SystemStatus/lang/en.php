@@ -261,6 +261,7 @@ return [
     'Revisadas ${publications} publicación(es) activas: ${renamed} archivo(s) renombrados, ${conflicts} conflicto(s), ${failed} fallo(s).' => 'Reviewed ${publications} active publication(s): ${renamed} file(s) renamed, ${conflicts} conflict(s), ${failed} failure(s).',
     'Otra ejecución tenía la cola: esta pasada no procesó nada.' => 'Another run had the queue: this pass processed nothing.',
     'Procesadas ${processed} tarea(s) de la cola.' => 'Processed ${processed} queue task(s).',
+    'Vistas rotas omitidas: ${views}.' => 'Broken views skipped: ${views}.',
     'Borrados ${soft} contador(es) de suaves, ${traces} traza(s), ${completed} trabajo(s) terminado(s) y ${failed} fallido(s) de la cola.' => 'Deleted ${soft} soft counter(s), ${traces} trace(s), ${completed} finished job(s) and ${failed} failed job(s) from the queue.',
     'Omitida. No cumple con la condición de ejecución.' => 'Skipped. It does not meet its run condition.',
     'Excepción durante la ejecución: ' => 'Exception during the run: ',

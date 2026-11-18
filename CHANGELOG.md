@@ -1,3 +1,19 @@
+# 10.53.0 (18-11-2026)
+
+- **Un sitio de un solo idioma declara su canónica sin `?i18n=`**: con un único idioma en `allowed_langs`, la canónica,
+  el mapa del sitio y la redirección de las publicaciones usan la URL limpia, y la página ya no anuncia alternativas por
+  idioma. Con más de un idioma, nada cambia. Si tu sitio es de un idioma y tenía indexadas las URL con `?i18n=`, los
+  buscadores pasarán a la limpia.
+- **Un respaldo ya no falla por una vista rota**: una vista cuyas tablas ya no existen (por ejemplo, tras apagar un módulo
+  y borrar sus tablas) se omite con un aviso, y el resto del respaldo sigue. Cualquier otro error sigue deteniéndolo.
+- **El nodo de organización de los datos estructurados lleva la imagen para compartir del sitio** si la hay; la que fije
+  el proyecto con `extendOrganization()` manda.
+- **`verify-integrity` con módulos apagados** reconoce también Ubicaciones, el Gestor de archivos y la imagen principal:
+  el manual y los permisos de lo apagado ya no dan fallos.
+- **Las rutas con un marcador con expresión** (`{name:[^/.]+}`) dan sus parámetros a `get_route_info()` y a
+  `get_route()`.
+- **Al actualizar**: nada que hacer, salvo lo de la canónica si tu sitio es de un idioma.
+
 # 10.52.0 (18-11-2026)
 
 ## ⚠ Rompe — el tema 0.18.0: los colores del logo, la fuente Atkinson y el acento que se corrige solo

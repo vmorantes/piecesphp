@@ -256,14 +256,13 @@ class RouteAdapter
             $this->route = str_replace(' ', '', $value);
 
             $paramsSetted = $this->params;
-            $params = [];
-            preg_match_all('/\{[a-z|A-Z|0-9|_|-]*\}/', $this->route, $params);
             $this->params = [];
-            if (count($params[0] ?? []) > 0) {
-                foreach ($params[0] as $param) {
-                    $param = str_replace(['{', '}'], '', $param);
+            try {
+                foreach (self::placeholderNames($this->route) as $param) {
                     $this->params[$param] = null;
                 }
+            } catch (\Throwable $e) {
+                //Un patrón ilegible lo trata checkPattern(), justo debajo, con su nombre y su archivo.
             }
 
             foreach ($paramsSetted as $paramName => $paramValue) {
@@ -328,6 +327,30 @@ class RouteAdapter
             $this->params[$name] = $value;
         }
         return $this;
+    }
+
+    /**
+     * Los nombres de los marcadores de un patrón de ruta, en orden de aparición y sin repetir, con el analizador de
+     * FastRoute que usa Slim: cuenta los opcionales y los que llevan expresión, también con llaves dentro
+     * (`{x:\d{2,4}}`). Una expresión regular propia no ve `{x:...}` y toma `{4}` de `\d{4}` por un marcador.
+     *
+     * Vive aquí y no en AppHelpers.php porque routeSegment() la necesita aunque los ayudantes no estén cargados.
+     *
+     * @param string $pattern Patrón de ruta, p. ej. `/user/{name}[/{id:[0-9]+}]`
+     * @return string[]
+     * @throws \FastRoute\BadRouteException Si FastRoute no puede analizar el patrón
+     */
+    public static function placeholderNames(string $pattern): array
+    {
+        $names = [];
+        foreach ((new Std())->parse($pattern) as $routeData) {
+            foreach ($routeData as $segment) {
+                if (is_array($segment) && !in_array($segment[0], $names, true)) {
+                    $names[] = $segment[0];
+                }
+            }
+        }
+        return $names;
     }
 
     /**

@@ -112,7 +112,7 @@ class StructuredData
                 }
                 $value = array_values(array_unique(array_merge(self::$organization['sameAs'] ?? [], $value)));
             }
-            if ($key === 'logo' && is_string($value) && $value !== '' && !str_contains($value, '://')) {
+            if (($key === 'logo' || $key === 'image') && is_string($value) && $value !== '' && !str_contains($value, '://')) {
                 $value = baseurl(ltrim($value, '/'));
             }
             self::$organization[$key] = $value;
@@ -162,6 +162,12 @@ class StructuredData
         if (is_string($logo) && $logo !== '') {
             $organization['logo'] = str_contains($logo, '://') ? $logo : baseurl(ltrim($logo, '/'));
         }
+        //Aquí y no en extendOrganization(): config/extensions/ carga antes que las opciones de la base (H401).
+        $image = get_config('open_graph_image');
+        if (is_string($image) && $image !== '') {
+            $organization['image'] = str_contains($image, '://') ? $image : baseurl(ltrim($image, '/'));
+        }
+        //Después de lo de omisión: lo que fije extendOrganization() gana.
         $organization = array_merge($organization, self::$organization);
         return [
             [

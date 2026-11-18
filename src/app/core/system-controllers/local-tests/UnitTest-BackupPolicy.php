@@ -415,6 +415,12 @@ CliActions::make('unit-tests:core/backup-policy', function ($args) {
             $failedReasons[] = is_array($payload) ? (string) ($payload['reason'] ?? '') : '';
         }
     }, 'Backups');
+    $createdPayloads = [];
+    BaseEventDispatcher::listen('BackupCreated', function (mixed $payload) use (&$createdPayloads, $listener): void {
+        if ($listener->on === true) {
+            $createdPayloads[] = $payload;
+        }
+    }, 'Backups');
 
     if ($database !== null) {
         try {
@@ -453,12 +459,16 @@ CliActions::make('unit-tests:core/backup-policy', function ($args) {
                 fn(mixed $value): mixed => ($value === null || trim((string) $value) === '') ? $value : $marker,
                 'Tabla de la suite UnitTest-BackupPolicy.'
             );
+            $listener->on = true;
             $backupDone = DbBackupTask::main(null, null, [], true);
+            $listener->on = false;
             $transformedDump = DbBackupTask::lastWrittenFile();
             if ($transformedDump !== null) {
                 $probeDumps[] = $transformedDump;
             }
             $check($backupDone === true && $transformedDump !== null && is_file($transformedDump), 'k1 el respaldo real con la sustitución termina bien');
+            $createdPayload = $createdPayloads[0] ?? null;
+            $check(count($createdPayloads) === 1 && is_array($createdPayload) && ($createdPayload['skipped_views'] ?? null) === DbBackupTask::lastSkippedViews(), 'k16 BackupCreated lleva skipped_views, las mismas vistas omitidas que lastSkippedViews()', json_encode($createdPayload) ?: '');
             $content = $transformedDump !== null && is_file($transformedDump) ? $readDump($transformedDump) : '';
             $check(str_contains($content, "INSERT INTO `{$probeTable}`"), 'k2 la tabla sale con sus filas');
             $check(str_contains($content, "(1, '{$marker}', 'fila-1')"), 'k3 la fila con el secreto sale con el marcador');
@@ -518,6 +528,104 @@ CliActions::make('unit-tests:core/backup-policy', function ($args) {
         }
     }
     $transformsProperty->setValue(null, $originalTransforms);
+
+    //──── l) Vista rota: solo el 1356 se omite ──────────────────────────────────────────────────
+    //Pura: la vista rota real necesita DDL, y en MariaDB la DDL confirma sola (sin ROLLBACK posible).
+    echoTerminal('');
+    echoTerminal("\e[36m l) Una vista sin sus tablas (1356) se omite; cualquier otro error de la base no\e[39m");
+
+    $pdoError = static function (string $sqlState, int $driverCode): \PDOException {
+        $error = new \PDOException("SQLSTATE[{$sqlState}]: {$driverCode}");
+        $error->errorInfo = [$sqlState, $driverCode, 'zz'];
+        return $error;
+    };
+    $check(DbBackupTask::isBrokenViewError($pdoError('HY000', 1356)), 'l1 HY000/1356 es una vista rota');
+    $check(!DbBackupTask::isBrokenViewError($pdoError('42000', 1142)), 'l2 un permiso que falta (1142) NO es una vista rota');
+    $check(!DbBackupTask::isBrokenViewError($pdoError('42S02', 1146)), 'l3 una tabla inexistente (1146) NO es una vista rota');
+    $check(!DbBackupTask::isBrokenViewError($pdoError('HY000', 2006)), 'l4 la base caída (2006) NO es una vista rota');
+    $check(!DbBackupTask::isBrokenViewError(new \PDOException('1356')), 'l5 un PDOException sin errorInfo NO es una vista rota');
+    $check(!DbBackupTask::isBrokenViewError(new \RuntimeException('1356', 1356)), 'l6 otra excepción con código 1356 NO es una vista rota');
+
+    //El 1356 también sale por permisos: la vista solo se omite si falta una tabla de su definición.
+    //Definiciones con la forma que guarda MariaDB en information_schema.VIEWS.
+    $viewDefinition = 'select `zz_base`.`zz_t1`.`id` AS `id`,`t2`.`nota` AS `nota` from (`zz_base`.`zz_t1` join `zz_base`.`zz_t2` `t2` on(`t2`.`id` = `zz_base`.`zz_t1`.`id`))';
+    $missingAllThere = DbBackupTask::missingViewTables($viewDefinition, 'zz_base', ['zz_t1', 'zz_t2', 'otra']);
+    $check($missingAllThere === [], 'l7 con todas sus tablas, no falta ninguna: el 1356 es de permisos y el respaldo cae', implode(', ', $missingAllThere));
+    $missingOne = DbBackupTask::missingViewTables($viewDefinition, 'zz_base', ['zz_t1']);
+    $check($missingOne === ['zz_t2'], 'l8 sin una de sus tablas, devuelve esa y solo esa, una vez', implode(', ', $missingOne));
+    $missingBoth = DbBackupTask::missingViewTables($viewDefinition, 'zz_base', []);
+    $check($missingBoth === ['zz_t1', 'zz_t2'], 'l9 sin ninguna, las dos, sin repetir y en su orden', implode(', ', $missingBoth));
+    $check(DbBackupTask::missingViewTables('select `t2`.`nota` AS `nota` from `otra_base`.`zz_t9` `t2`', 'zz_base', []) === [], 'l10 un alias y una base ajena no prueban que falte nada');
+    $check(DbBackupTask::missingViewTables('', 'zz_base', []) === [], 'l11 una definición vacía (sin SHOW VIEW) no prueba nada: el respaldo cae');
+    $check(DbBackupTask::missingViewTables('select 1 AS `x` from `ZZ_Base`.`ZZ_T1`', 'zz_base', ['zz_t1']) === [], 'l12 las mayúsculas no distinguen: ante la duda, existe');
+    $check(DbBackupTask::missingViewTables('select 1 AS `x` from `zz_base`.`zz``raro`', 'zz_base', ['zz`raro']) === [] && DbBackupTask::missingViewTables('select 1 AS `x` from `zz_base`.`zz``raro`', 'zz_base', []) === ['zz`raro'], 'l13 una comilla invertida doblada en el nombre se lee como una');
+
+    //exclude_tables y lo esperado salen de la misma función: una vista rota fuera de una y dentro de la otra rompe el respaldo.
+    $composition = DbBackupTask::backupComposition(['zz_a', 'zz_excluida', 'zz_vista_rota', 'zz_vista_sana'], ['zz_excluida'], ['zz_vista_rota']);
+    $check(in_array('zz_excluida', $composition['exclude_tables'], true) && in_array('zz_vista_rota', $composition['exclude_tables'], true), 'l14 se excluyen del volcado las excluidas y las vistas rotas', implode(', ', $composition['exclude_tables']));
+    $check($composition['expected'] === ['zz_a', 'zz_vista_sana'], 'l15 y no se esperan en él: se espera todo lo demás, y solo eso', implode(', ', $composition['expected']));
+
+    //Una llamada a función no es una tabla, guarde MariaDB la base delante o no.
+    $check(DbBackupTask::missingViewTables('select `zz_base`.`zz_fn`(`zz_base`.`zz_t1`.`id`) AS `x` from `zz_base`.`zz_t1`', 'zz_base', ['zz_t1']) === [], 'l16 `base`.`funcion`( no cuenta como tabla que falta');
+    $check(DbBackupTask::missingViewTables('select `zz_base`.`zz_fn` (1) AS `x` from `zz_base`.`zz_t1`', 'zz_base', []) === ['zz_t1'], 'l17 tampoco con espacios antes de «(»; la tabla que falta sí sale');
+
+    //──── m) Vistas rotas reales: en cadena, y una sana con función ─────────────────────────────
+    echoTerminal('');
+    echoTerminal("\e[36m m) Una vista sobre otra rota también se omite; una sana con función, no\e[39m");
+
+    //Los nombres ordenan la de fuera antes que la de dentro: con una sola vuelta, la de fuera relanzaría.
+    $chainTable = 'zz_bkv_base';
+    $innerView = 'zz_bkv_b_inner';
+    $outerView = 'zz_bkv_a_outer';
+    $functionTable = 'zz_bkv_fn_base';
+    $functionView = 'zz_bkv_c_fn';
+    $chainDump = null;
+    if ($database !== null) {
+        try {
+            //RETORNO-IGNORADO: la conexión va en ERRMODE_EXCEPTION, así que un DDL que falla LANZA, y m1 lo comprueba.
+            $database->exec("DROP VIEW IF EXISTS `{$outerView}`, `{$innerView}`, `{$functionView}`");
+            //RETORNO-IGNORADO: lo mismo.
+            $database->exec("DROP TABLE IF EXISTS `{$chainTable}`, `{$functionTable}`");
+            $database->exec("CREATE TABLE `{$chainTable}` (`id` INT NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            $database->exec("CREATE TABLE `{$functionTable}` (`id` INT NOT NULL, `nota` VARCHAR(20) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            $database->exec("CREATE VIEW `{$innerView}` AS SELECT `id` FROM `{$chainTable}`");
+            $database->exec("CREATE VIEW `{$outerView}` AS SELECT `id` FROM `{$innerView}`");
+            $database->exec("CREATE VIEW `{$functionView}` AS SELECT `id`, UPPER(CONCAT(`nota`, '-zz')) AS `nota` FROM `{$functionTable}`");
+            //RETORNO-IGNORADO: m1 comprueba en information_schema que ya no está.
+            $database->exec("DROP TABLE `{$chainTable}`");
+            $definitionQuery = $database->prepare('SELECT VIEW_DEFINITION FROM information_schema.VIEWS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?');
+            $definitionQuery->execute([$functionView]);
+            echoTerminal('      VIEW_DEFINITION de la vista con función: ' . (string) $definitionQuery->fetchColumn());
+            $chainLeft = (int) $database->query('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ' . $database->quote($chainTable))->fetchColumn();
+            $check($chainLeft === 0, 'm1 la tabla de la cadena ya no está: las dos vistas quedan rotas');
+
+            $chainDone = DbBackupTask::main(null, null, [], true);
+            $chainDump = DbBackupTask::lastWrittenFile();
+            $skipped = DbBackupTask::lastSkippedViews();
+            sort($skipped);
+            $check($chainDone === true && $chainDump !== null && is_file($chainDump), 'm2 el respaldo termina bien con una vista sobre otra rota');
+            $check(array_values(array_intersect($skipped, [$outerView, $innerView, $functionView])) === [$outerView, $innerView], 'm3 se omiten las dos vistas rotas, también la de fuera, y la de la función no', implode(', ', $skipped));
+            $chainContent = $chainDump !== null && is_file($chainDump) ? $readDump($chainDump) : '';
+            $check(str_contains($chainContent, $functionView) && !str_contains($chainContent, $innerView) && !str_contains($chainContent, $outerView), 'm4 el volcado trae la vista con función y ninguna de las rotas');
+        } catch (\Throwable $e) {
+            $check(false, 'm5 el apartado m corre entero', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
+        } finally {
+            try {
+                //RETORNO-IGNORADO: m6 comprueba en information_schema que no queda nada.
+                $database->exec("DROP VIEW IF EXISTS `{$outerView}`, `{$innerView}`, `{$functionView}`");
+                //RETORNO-IGNORADO: lo mismo.
+                $database->exec("DROP TABLE IF EXISTS `{$chainTable}`, `{$functionTable}`");
+                $names = implode(', ', array_map(fn(string $name): string => $database->quote($name), [$chainTable, $functionTable, $innerView, $outerView, $functionView]));
+                $objectsLeft = (int) $database->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN ({$names})")->fetchColumn();
+                $check($objectsLeft === 0, 'm6 las tablas y vistas del apartado se retiraron de la base');
+            } catch (\Throwable $e) {
+                $check(false, 'm6 las tablas y vistas del apartado se retiraron de la base', $e->getMessage());
+            }
+            if ($chainDump !== null) {
+                $probeDumps[] = $chainDump;
+            }
+        }
+    }
 
     //──── z) Limpieza ───────────────────────────────────────────────────────────────────────────
     echoTerminal('');

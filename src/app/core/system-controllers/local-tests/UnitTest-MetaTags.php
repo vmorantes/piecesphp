@@ -31,7 +31,7 @@ CliActions::make('unit-tests:core/meta-tags', function ($args) {
         $previo[$propiedad->getName()] = $propiedad->getValue();
     }
     $configPrevia = [];
-    foreach (['title', 'lang_by_cookie', 'alternatives_url', 'x_account', 'owner', 'title_app', 'description', 'keywords', 'meta_theme_color', 'share_description'] as $nombre) {
+    foreach (['title', 'lang_by_cookie', 'allowed_langs', 'alternatives_url', 'x_account', 'owner', 'title_app', 'description', 'keywords', 'meta_theme_color', 'share_description'] as $nombre) {
         $configPrevia[$nombre] = \PiecesPHP\Core\Config::get_config($nombre);
     }
 
@@ -176,6 +176,8 @@ CliActions::make('unit-tests:core/meta-tags', function ($args) {
         $fijarReferencia = function (?string $robots) use ($limpiar): string {
             $limpiar();
             set_config('lang_by_cookie', false);
+            //Dos idiomas como mínimo, sean cuales sean los de la instalación: con uno no salen idiomas (ADR 0082).
+            set_config('allowed_langs', array_values(array_unique([\PiecesPHP\Core\Config::get_default_lang(), \PiecesPHP\Core\Config::get_lang(), 'zz'])));
             set_config('alternatives_url', ['zz' => 'https://ejemplo.test/zz/pagina/']);
             set_config('x_account', '@zz_cuenta');
             set_config('owner', 'zz-Dueño');
@@ -226,6 +228,57 @@ CliActions::make('unit-tests:core/meta-tags', function ($args) {
                 $check(false, "m5 owner y meta_theme_color con {$caso}: getOwner() da '' y getThemeColor() null", 'TypeError: ' . $error->getMessage());
             }
         }
+
+        echoTerminal(' ');
+        echoTerminal('[9] Con un solo idioma, la canónica va limpia y no hay alternativas (ADR 0082)');
+        $lang = \PiecesPHP\Core\Config::get_lang();
+        $sucia = 'https://ejemplo.test/pagina/?i18n=' . $lang . '&zz=1#zz-fragmento';
+        $limpia = 'https://ejemplo.test/pagina/';
+        $pintar = function () use ($limpiar, $limpia): string {
+            $limpiar();
+            set_config('alternatives_url', ['zz' => 'https://ejemplo.test/zz/pagina/']);
+            MetaTags::setURL($limpia);
+            return MetaTags::getMetaTagsGeneric();
+        };
+        set_config('allowed_langs', [$lang]);
+        foreach ([true, false] as $porCookie) {
+            set_config('lang_by_cookie', $porCookie);
+            $canonica = MetaTags::canonicalFor($sucia, $lang);
+            $check($canonica === $limpia, 'i1 un idioma, lang_by_cookie ' . var_export($porCookie, true) . ': canonicalFor() sin consulta ni fragmento', $canonica);
+        }
+        set_config('lang_by_cookie', true);
+        $html = $pintar();
+        $check(str_contains($html, "<link rel='canonical' href='{$limpia}' />") && !str_contains($html, 'hreflang'), 'i2 un idioma: la canónica sale y no hay ningún hreflang, tampoco x-default', var_export($html, true));
+
+        $otro = $lang === 'zz' ? 'yy' : 'zz';
+        set_config('allowed_langs', [$lang, $otro]);
+        set_config('lang_by_cookie', true);
+        $canonica = MetaTags::canonicalFor($sucia, $lang);
+        $check($canonica === $limpia . '?i18n=' . $lang, 'i3 dos idiomas con lang_by_cookie: la canónica lleva ?i18n= (ADR 0037)', $canonica);
+        set_config('lang_by_cookie', false);
+        $canonica = MetaTags::canonicalFor($sucia, $lang);
+        $check($canonica === $limpia, 'i4 dos idiomas con el idioma en la ruta: sin consulta', $canonica);
+        $html = $pintar();
+        $conXDefault = $lang === \PiecesPHP\Core\Config::get_default_lang();
+        $check(str_contains($html, "hreflang='zz'") && str_contains($html, "hreflang='{$lang}'") && str_contains($html, "hreflang='x-default'") === $conXDefault, 'i5 dos idiomas: salen los hreflang' . ($conXDefault ? ' y x-default' : ''), var_export($html, true));
+
+        //El sitemap y la redirección de publicaciones tienen que dar la misma cadena que la canónica.
+        set_config('allowed_langs', [$lang]);
+        set_config('lang_by_cookie', true);
+        $fuentes = [
+            'el sitemap del núcleo' => [\PiecesPHP\Settings\Controllers\SiteFilesController::class, 'new SitemapItem(MetaTags::canonicalFor($url, $lang))'],
+            'la redirección de publicaciones' => [\Publications\Controllers\PublicationsPublicController::class, 'return MetaTags::canonicalFor(self::routeName($name, $params), Config::get_lang());'],
+        ];
+        foreach ($fuentes as $quien => [$claseFuente, $llamada]) {
+            $codigo = (string) file_get_contents((string) (new \ReflectionClass($claseFuente))->getFileName());
+            $check(str_contains($codigo, $llamada), "i6 {$quien} sigue pidiendo su URL a canonicalFor()", $llamada);
+        }
+        $items = \PiecesPHP\Settings\Controllers\SiteFilesController::coreSitemapItems();
+        $portada = MetaTags::canonicalFor(baseurl(), $lang);
+        $ubicaciones = array_map(fn($item) => $item->getLocation(), $items);
+        $check(in_array($portada, $ubicaciones, true) && array_filter($ubicaciones, fn($u) => str_contains($u, 'i18n=')) === [], 'i7 un idioma: el sitemap anuncia la portada con la canónica limpia y ninguna URL con i18n=', implode(' | ', array_slice($ubicaciones, 0, 5)));
+        $redireccion = (new \ReflectionMethod(\Publications\Controllers\PublicationsPublicController::class, 'trueURL'))->invoke(null, 'single', ['slug' => 'zz-agente-slug']);
+        $check(is_string($redireccion) && !str_contains($redireccion, '?') && str_contains($redireccion, 'zz-agente-slug'), 'i8 un idioma: la redirección de publicaciones va a la URL limpia', var_export($redireccion, true));
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
