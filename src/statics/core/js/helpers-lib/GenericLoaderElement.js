@@ -138,25 +138,52 @@ class GenericLoaderElement extends HTMLElement {
 		this.textMessage.classList.add(`${this.classPrefix}text-message`)
 		this.progressContainer.classList.add(`${this.classPrefix}progress-container`)
 
+		//Las imágenes salen de los `data-loader-*` del <html> (SettingsController::loaderHtmlAttributes()): sin ellos (un clon
+		//con su propia cabecera), las rutas fijas de siempre. Con oscura, las dos y helpers.scss enseña una según el tema.
+		const root = document.documentElement
+		const brandImages = (name, fallback) => {
+			const source = (root.getAttribute(`data-loader-${name}`) ?? '').trim()
+			//Con el atributo y vacío (el «Logo del cargador» es opcional), nada; sin el atributo, la ruta fija de siempre.
+			if (source === '' && root.hasAttribute(`data-loader-${name}`)) {
+				return []
+			}
+			const dark = source !== '' ? (root.getAttribute(`data-loader-${name}-dark`) ?? '').trim() : ''
+			const invert = source !== '' && root.getAttribute(`data-loader-${name}-invert`) === '1'
+			const images = [[source !== '' ? source : fallback, dark !== '' ? 'brand-image-light' : (invert ? 'invert-on-dark' : '')]]
+			if (dark !== '') {
+				images.push([dark, 'brand-image-dark'])
+			}
+			return images.map(([path, className]) => {
+				const image = new Image()
+				image.alt = ''
+				if (className !== '') {
+					image.classList.add(className)
+				}
+				const loaded = new Promise((resolve, reject) => {
+					image.onload = () => resolve()
+					image.onerror = () => reject()
+				})
+				image.src = new URL(path, pcsphpGlobals.baseURL).href
+				return { image, loaded }
+			})
+		}
 		//Configurar logo
-		const logoURL = new URL('statics/images/loader-logo.png', pcsphpGlobals.baseURL)
-		const logoImage = new Image()
-		logoImage.src = logoURL.href
-		const logoPromise = new Promise((resolve, reject) => {
-			logoImage.onload = () => resolve()
-			logoImage.onerror = () => reject()
-		})
-		this.logoLoader.appendChild(logoImage)
+		const logoImages = brandImages('logo', 'statics/images/loader-logo.png')
+		logoImages.forEach(({ image }) => this.logoLoader.appendChild(image))
+		if (logoImages.length === 0) {
+			this.logoLoader.hidden = true
+		}
+
+		//Movimiento reducido (la preferencia del panel o la del sistema): sin animación ni aro y queda el logo quieto; sin
+		//logo, la animación se queda para que el cargador no salga vacío (un SVG respeta además la preferencia del sistema).
+		const reduceMotion = logoImages.length > 0 && (root.dataset.motion === 'reduce' || (typeof window.matchMedia == 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches))
 
 		//Configurar loader
-		const loaderURL = new URL('statics/images/loader-animation.gif', pcsphpGlobals.baseURL)
-		const loaderImage = new Image()
-		loaderImage.src = loaderURL.href
-		const loaderPromise = new Promise((resolve, reject) => {
-			loaderImage.onload = () => resolve()
-			loaderImage.onerror = () => reject()
-		})
-		this.loaderElement.appendChild(loaderImage)
+		const loaderImages = reduceMotion ? [] : brandImages('animation', 'statics/images/loader-animation.gif')
+		loaderImages.forEach(({ image }) => this.loaderElement.appendChild(image))
+		if (reduceMotion) {
+			this.loaderElement.classList.add(`${this.classPrefix}loader-reduced`)
+		}
 
 		//Ensamblar estructura
 		this.boxLoader.appendChild(this.progressContainer)
@@ -168,14 +195,17 @@ class GenericLoaderElement extends HTMLElement {
 		}
 		this.boxLoader.appendChild(this.logoLoader)
 
-		//Verificar carga del logo
-		logoPromise.catch(() => {
-			this.logoLoader.style.display = 'none'
+		//Verificar carga del logo: una que falla no se pinta rota; si fallan todas, sin logo.
+		logoImages.forEach(({ image, loaded }) => loaded.catch(() => image.remove()))
+		Promise.allSettled(logoImages.map(({ loaded }) => loaded)).then((results) => {
+			if (results.every((result) => result.status === 'rejected')) {
+				this.logoLoader.style.display = 'none'
+			}
 		})
 
-		//Verificar carga del loader
-		loaderPromise.catch(() => {
-			loaderImage.style.display = 'none'
+		//Verificar carga del loader: si una falla, el aro (nunca una animación rota en un tema y no en el otro).
+		Promise.all(loaderImages.map(({ loaded }) => loaded)).catch(() => {
+			loaderImages.forEach(({ image }) => image.remove())
 			this.loaderElement.setAttribute('class', `${this.classPrefix}loader-fallback`)
 		})
 

@@ -66,7 +66,7 @@ tiene configurado, el formulario para **contactar a soporte**.
 
 ## El asistente
 
-Si quien administra lo ha encendido para ti, junto a la campana de notificaciones tienes el botón del **asistente**. En
+Si quien administra lo ha encendido para ti, en la barra de arriba tienes el botón del **asistente**. En
 el móvil está en el menú de tu nombre. Abre una ventana donde le preguntas en lenguaje normal sobre la plataforma: dónde
 se hace algo («¿Dónde creo un usuario nuevo?»), dónde lo explica este manual («¿Dónde está el manual de
 publicaciones?») o lo que tienes pendiente («¿Tengo notificaciones sin leer?»).

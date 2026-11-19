@@ -13,11 +13,13 @@ use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Statics\ProtectedUploadsMigration;
 use PiecesPHP\Core\Statics\ProtectFileMiddleware;
+use PiecesPHP\SystemStatus\SystemStatusLang;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationMapper;
+use Publications\PublicationsRoutes;
 
 /**
  * StaticsProtectMigrateTask.
@@ -76,7 +78,7 @@ class StaticsProtectMigrateTask extends TerminalTaskAbstract
         }
         $mode = $revert ? 'revert' : ($run ? 'run' : 'dry-run');
 
-        [$folders, $roots, $census] = self::inventory();
+        [$folders, $roots, $census, $skipped] = self::inventory();
         $steps = ProtectedUploadsMigration::plan($folders, $roots, $revert);
 
         //Entre paso y paso, nada privado puede quedar servible: si pasara, el orden estaría roto, y se dice.
@@ -91,6 +93,9 @@ class StaticsProtectMigrateTask extends TerminalTaskAbstract
             "Carpetas protegidas: " . count($roots) . " · pasos: " . count($steps)
                 . " · publications: {$census['visibles']} visible(s), {$census['privadas']} privada(s), {$census['huerfanas']} huérfana(s)",
         ];
+        foreach ($skipped as $directory) {
+            $lines[] = "- {$directory}: " . __(SystemStatusLang::LANG_GROUP, 'Omitida: el módulo Publicaciones está apagado; la sella su dueño.');
+        }
         $failures = 0;
         foreach ($report as $module => $row) {
             $failures += count($row['conflicts']) + count($row['failed']);
@@ -110,18 +115,26 @@ class StaticsProtectMigrateTask extends TerminalTaskAbstract
     }
 
     /**
-     * Las carpetas y su visibilidad, las raíces protegidas y el recuento de publications.
+     * Las carpetas y su visibilidad, las raíces protegidas, el recuento de publications y lo omitido.
      *
-     * @return array{0: array<int, array{module: string, directory: string, public: bool, recursive?: bool}>, 1: array<int, array{module: string, directory: string}>, 2: array{visibles: int, privadas: int, huerfanas: int}}
+     * @param bool|null $publicationsEnabled Null: PublicationsRoutes::ENABLE
+     * @return array{0: array<int, array{module: string, directory: string, public: bool, recursive?: bool}>, 1: array<int, array{module: string, directory: string}>, 2: array{visibles: int, privadas: int, huerfanas: int}, 3: string[]}
      */
-    private static function inventory(): array
+    public static function inventory(?bool $publicationsEnabled = null): array
     {
+        $publicationsEnabled ??= PublicationsRoutes::ENABLE;
         $publicationsRoot = realpath(append_to_path_system((string) get_config('upload_dir'), PublicationsController::UPLOAD_DIR));
         $folders = [];
         $roots = [];
         $census = ['visibles' => 0, 'privadas' => 0, 'huerfanas' => 0];
+        $skipped = [];
         foreach (ProtectFileMiddleware::getPolicies() as $directory => $policy) {
             $module = basename($directory);
+            //Apagado, otro módulo puede subir aquí con su validador: sellarla o clasificarla por PublicationMapper la rompería.
+            if (!$publicationsEnabled && $directory === $publicationsRoot) {
+                $skipped[] = $directory;
+                continue;
+            }
             $roots[] = ['module' => $module, 'directory' => $directory];
             if ($directory !== $publicationsRoot) {
                 $folders[] = ['module' => $module, 'directory' => $directory, 'public' => false];
@@ -153,7 +166,7 @@ class StaticsProtectMigrateTask extends TerminalTaskAbstract
                 $folders[] = ['module' => $module, 'directory' => $path, 'public' => $visible];
             }
         }
-        return [$folders, $roots, $census];
+        return [$folders, $roots, $census, $skipped];
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

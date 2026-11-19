@@ -3,7 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Aquí personalizas cómo se ve y cómo se presenta la plataforma. Se llega por el botón de engranajes de la barra superior, <strong>«Configuración del sistema»</strong>. Imágenes de
-marca, Fondos del inicio de sesión, Colores y Accesibilidad están en el grupo <strong>«Apariencia»</strong>; Identidad y SEO y
+marca, Fondos del inicio de sesión y Estilo del panel están en el grupo <strong>«Apariencia»</strong>; Identidad y SEO y
 Archivos para buscadores, en <strong>«SEO y Scripts»</strong>.</p>
 <div class="ui styled fluid accordion" data-section-accordion>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-brand-images'])): ?>
@@ -12,14 +12,21 @@ Archivos para buscadores, en <strong>«SEO y Scripts»</strong>.</p>
 <p>Entra por <strong>«Imágenes de marca»</strong>. La plataforma es de marca blanca: estas imágenes identifican a tu organización en
 todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.</p>
 <p><img class="ui image" alt="Imágenes de marca" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images.webp')); ?>"></p>
-<p>Para editar una imagen, púlsala. Además, cada una tiene el botón <strong>«Cambiar imagen»</strong> y un icono para descargarla o verla. Las imágenes son:</p>
+<p>Para editar una imagen, púlsala. Además, cada una tiene el botón <strong>«Cambiar imagen»</strong> y un icono para descargarla o verla.
+Cada tarjeta dice dónde se usa su imagen y enseña cómo se ve, a su tamaño real: en <strong>«Modo claro»</strong> y, en las que lo
+tienen, en <strong>«Modo oscuro»</strong>, una al lado de la otra. Las imágenes son:</p>
 <ul>
-<li>Logo</li>
-<li>Favicon zona administrativa</li>
-<li>Favicon zona pública / sitio web</li>
-<li>Correos electrónicos</li>
-<li>Bandera horizontal</li>
-<li>Bandera vertical</li>
+<li><strong>Logo</strong>.</li>
+<li><strong>Favicon zona administrativa</strong> y <strong>Favicon zona pública / sitio web</strong>.</li>
+<li><strong>Animación de carga</strong>: la que se ve mientras carga una pantalla, en el panel y en el sitio público. Acepta GIF,
+  de cualquier tamaño (se recomiendan 360 px de alto), y se sube tal cual, sin recortar. El usuario principal puede subir
+  también un SVG, que se revisa al subirlo. De fábrica es
+  el logo dibujándose.</li>
+<li><strong>Logo del cargador</strong>: una imagen fija que acompaña a la animación, debajo. De fábrica es la «P» del logo (en modo
+  oscuro, en blanco y celeste). Es opcional: con <strong>«Eliminar»</strong> el cargador deja de enseñarla y se queda solo con la
+  animación; para volver a tener una, súbela.</li>
+<li><strong>Correos electrónicos</strong>.</li>
+<li>En <strong>«Terceros»</strong>: <strong>Bandera horizontal</strong> y <strong>Bandera vertical</strong>.</li>
 </ul>
 <table class="ui celled table">
 <thead>
@@ -36,9 +43,9 @@ todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos
 <td>Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Hay un campo por cada idioma activo del sitio. En el idioma principal, vacío, no se pinta; en los demás, vacío usa el del idioma principal.</td>
 </tr>
 <tr>
-<td>Invertir colores en modo oscuro</td>
+<td>En modo oscuro</td>
 <td>No</td>
-<td>Está en algunas imágenes. Necesita un PNG con fondo transparente: un fondo opaco saldría como un rectángulo blanco.</td>
+<td>Está en el logo, las dos banderas, la animación de carga y el logo del cargador. <strong>«Igual»</strong> enseña la misma imagen; <strong>«Invertir en blanco»</strong> la vuelve blanca (necesita fondo transparente: un fondo opaco saldría como un rectángulo blanco); <strong>«Otra imagen»</strong> te deja subir una versión para el modo oscuro con <strong>«Elegir imagen oscura»</strong>. Se guarda al cambiarlo.</td>
 </tr>
 </tbody>
 </table>
@@ -59,13 +66,26 @@ agregas un fondo. Siempre queda al menos uno: con un solo fondo, «Eliminar» es
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-colors'])): ?>
-<h2 class="title" id="colores"><span role="button" tabindex="0" aria-expanded="false" aria-controls="colores-contenido"><i class="dropdown icon" aria-hidden="true"></i>Colores</span></h2>
-<div class="content" id="colores-contenido">
-<p>Entra por <strong>«Colores»</strong>. El color de tu organización se usa solo como acento (botones, selección, enlaces y foco). Los
-colores complementarios se usan únicamente en gráficas y datos.</p>
-<p><img class="ui image" alt="Colores" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-colors.webp')); ?>"></p>
-<p>Junto a cada color, <strong>«Elegir color»</strong> abre el selector. Abajo, la <strong>«Muestra en vivo»</strong> enseña cómo se verán
-el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <strong>«Guardar»</strong>.</p>
+<h2 class="title" id="estilo-del-panel"><span role="button" tabindex="0" aria-expanded="false" aria-controls="estilo-del-panel-contenido"><i class="dropdown icon" aria-hidden="true"></i>Estilo del panel</span></h2>
+<div class="content" id="estilo-del-panel-contenido">
+<p>Entra por <strong>«Estilo del panel»</strong>. Es una sola pantalla con tres pestañas: <strong>«Colores»</strong>, <strong>«Tipografía y forma»</strong> y
+<strong>«Accesibilidad»</strong>. La pestaña elegida se queda en la dirección, así que puedes guardarla o compartirla, y la
+pantalla la recuerda al volver.</p>
+<p><img class="ui image" alt="Estilo del panel" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-colors.webp')); ?>"></p>
+<p>Debajo de las pestañas, la <strong>«Muestra en vivo»</strong> enseña el panel en <strong>«Modo claro»</strong> y <strong>«Modo oscuro»</strong> lado a lado
+(apiladas en el móvil), y se actualiza al momento con lo que cambias en cualquiera de las tres pestañas, antes de
+guardar.</p>
+<p>Cada pestaña tiene <strong>«Restablecer»</strong>: te dice qué vuelve a los valores de fábrica, te pide confirmación y lo guarda al
+momento. Solo restablece lo de esa pestaña; lo que hubieras cambiado sin guardar en la pantalla se pierde.</p>
+<div class="ui info message">
+<div class="header">Colores y tipografía se guardan juntos</div>
+<p>«Colores» y «Tipografía y forma» son un mismo formulario: el botón <strong>«Guardar colores y tipografía»</strong> guarda lo de
+las dos pestañas. Si dejas cambios sin guardar en la otra, junto al botón lo avisa. «Accesibilidad» se guarda aparte,
+con su propio <strong>«Guardar»</strong>.</p>
+</div>
+<h3 class="ui header">Colores</h3>
+<p>El color de tu organización se usa solo como acento (botones, selección, enlaces y foco). Los colores complementarios
+se usan únicamente en gráficas y datos. Junto a cada color, <strong>«Elegir color»</strong> abre el selector.</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -105,6 +125,18 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 <td>No</td>
 <td>Colores para realces puntuales: el panel no los usa por su cuenta.</td>
 </tr>
+</tbody>
+</table>
+<h3 class="ui header">Tipografía y forma</h3>
+<table class="ui celled table">
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td>Fuente</td>
 <td>No</td>
@@ -125,13 +157,13 @@ el acento y la paleta en el panel. Al final, <strong>«Cancelar»</strong> o <st
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-accessibility'])): ?>
-<h2 class="title" id="accesibilidad"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accesibilidad-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accesibilidad</span></h2>
-<div class="content" id="accesibilidad-contenido">
-<p>Entra por <strong>«Accesibilidad»</strong>. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta» ›
-«Preferencias» (ver «Tu cuenta», «Tus preferencias»). Tiene las mismas dos tarjetas que las preferencias de cada
-persona: <strong>Apariencia</strong> y <strong>Lectura y movimiento</strong>.</p>
+<h2 class="title" id="accesibilidad-del-panel"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accesibilidad-del-panel-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accesibilidad del panel</span></h2>
+<div class="content" id="accesibilidad-del-panel-contenido">
+<p>Es la pestaña <strong>«Accesibilidad»</strong> de «Estilo del panel» (la dirección antigua de «Accesibilidad» lleva a ella). Aquí
+eliges cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta» › «Preferencias» (ver «Tu cuenta», «Tus
+preferencias»). Tiene las mismas dos tarjetas que las preferencias de cada persona: <strong>Apariencia</strong> y <strong>Lectura y
+movimiento</strong>.</p>
 <p><img class="ui image" alt="Accesibilidad" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
-<p>Al final, <strong>«Cancelar»</strong> o <strong>«Guardar»</strong>.</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -149,7 +181,7 @@ persona: <strong>Apariencia</strong> y <strong>Lectura y movimiento</strong>.</p
 <tr>
 <td>Tamaño de letra por omisión</td>
 <td>No</td>
-<td><strong>«Normal»</strong>, <strong>«Grande»</strong> o <strong>«Más grande»</strong>. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de Colores.</td>
+<td><strong>«Normal»</strong>, <strong>«Grande»</strong> o <strong>«Más grande»</strong>. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de «Tipografía y forma».</td>
 </tr>
 <tr>
 <td>Espaciado del texto por omisión</td>

@@ -138,7 +138,8 @@ $container_configurations = [
             $dataController = $extraData;
             $dataController['url'] = $url;
             $controller = new PiecesPHP\Core\BaseController(false);
-            $controller->render('pages/404', $dataController);
+            //Al cuerpo, nunca con eco: una página mayor que el búfer de salida enviaría las cabeceras con 200.
+            $response->getBody()->write($controller->render('pages/404', $dataController, false));
         }
 
         return $response;
@@ -200,7 +201,8 @@ $container_configurations = [
             $dataController['url'] = $url;
 
             $controller = new PiecesPHP\Core\BaseController(false);
-            $controller->render('pages/403', $dataController);
+            //Al cuerpo, nunca con eco: una página mayor que el búfer de salida enviaría las cabeceras con 200.
+            $response->getBody()->write($controller->render('pages/403', $dataController, false));
 
         }
 

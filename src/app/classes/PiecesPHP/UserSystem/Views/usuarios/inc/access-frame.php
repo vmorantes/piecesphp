@@ -24,15 +24,15 @@ $accessPartners = trim((string) get_config('partners'));
 //El propietario de Identidad y SEO, en el idioma de la página (get_config() ya lo resuelve); vacío, el nombre de la aplicación.
 $accessOwner = trim((string) get_config('owner'));
 $accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
-$accessLogoClass = \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') ? ' invert-on-dark' : '';
 ?>
+<?php $themeTogglePart = 'button'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>
 <div class="ui very relaxed internally celled stackable stretched equal width fullscreen grid">
 
     <section class="computer only tinted column access-brand" aria-label="<?= escape_html(__($accessLang, 'Plataforma y aliados')); ?>" bg-js="<?= base64EncodeOrDefault(jsonEncodeFallbackNull($accessBackgrounds) ?? '[]'); ?>">
-        <div class="ui vertical wide flex">
+        <div class="ui vertical wide centered flex">
             <div class="fluid ui centered flex">
                 <div class="ui vertical centered very relaxed flex">
-                    <div class="ui raised segment"><img class="ui tiny image<?= $accessLogoClass; ?>" src="<?= escape_html((string) get_config('logo')); ?>" alt=""></div>
+                    <div class="ui raised segment"><?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'ui tiny image'); ?></div>
                     <div class="ui huge center aligned header"><?= escape_html($accessTitle); ?>
                         <?php if ($accessDescription !== ''): ?>
                         <div class="sub header"><span class="ui large text"><?= escape_html($accessDescription); ?></span></div>
@@ -43,22 +43,27 @@ $accessLogoClass = \PiecesPHP\Settings\Controllers\SettingsController::brandImag
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="ui vertical centered relaxed flex" role="group" aria-label="<?= escape_html(__($accessLang, 'Patrocinador')); ?>">
-                <?php if ($accessPartnersText !== ''): ?>
-                <small class="ui muted text"><strong><?= escape_html($accessPartnersText); ?></strong></small>
-                <?php endif; ?>
-                <?php if ($accessPartners !== ''): ?>
-                <img class="ui small image" src="<?= escape_html($accessPartners); ?>" alt="">
-                <?php endif; ?>
-                <?php if ($accessDeveloperName !== ''): ?>
-                <small class="ui muted text tight nowrap centered flex developer-credit">
-                    <?php if ($accessDeveloperLogo !== ''): ?>
-                    <img class="ui mini image<?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoInvertsOnDark() ? ' invert-on-dark' : ''; ?>" src="<?= escape_html($accessDeveloperLogo); ?>" alt="">
+            <?php if ($accessPartnersText !== '' || $accessPartners !== '' || $accessDeveloperName !== ''): ?>
+            <?php //Superficie propia que sigue el modo: sobre la foto, una imagen de marca del modo contrario no se vería. ?>
+            <div class="ui raised segment" role="group" aria-label="<?= escape_html(__($accessLang, 'Patrocinador')); ?>">
+                <div class="ui vertical centered relaxed flex">
+                    <?php if ($accessPartnersText !== ''): ?>
+                    <small class="ui muted text"><strong><?= escape_html($accessPartnersText); ?></strong></small>
                     <?php endif; ?>
-                    <span><?= __('general', 'Desarrollado por'); ?> <?= $accessDeveloperName; ?></span>
-                </small>
-                <?php endif; ?>
+                    <?php if ($accessPartners !== ''): ?>
+                    <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('partners', 'ui small image'); ?>
+                    <?php endif; ?>
+                    <?php if ($accessDeveloperName !== ''): ?>
+                    <small class="ui muted text tight nowrap centered flex developer-credit">
+                        <?php if ($accessDeveloperLogo !== ''): ?>
+                        <?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoTag('ui mini image'); ?>
+                        <?php endif; ?>
+                        <span><?= __('general', 'Desarrollado por'); ?> <?= $accessDeveloperName; ?></span>
+                    </small>
+                    <?php endif; ?>
+                </div>
             </div>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -69,7 +74,7 @@ $accessLogoClass = \PiecesPHP\Settings\Controllers\SettingsController::brandImag
                 <div class="mobile tablet only row">
                     <div class="column">
                         <div class="ui relaxed nowrap flex">
-                            <img class="ui mini image<?= $accessLogoClass; ?>" src="<?= escape_html((string) get_config('logo')); ?>" alt="">
+                            <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'ui mini image'); ?>
                             <div class="ui medium header"><?= escape_html($accessTitle); ?></div>
                         </div>
                     </div>
@@ -89,7 +94,7 @@ $accessLogoClass = \PiecesPHP\Settings\Controllers\SettingsController::brandImag
                         <?php if ($accessPartnersText !== ''): ?>
                         <p><small class="ui muted text"><strong><?= escape_html($accessPartnersText); ?></strong></small></p>
                         <?php endif; ?>
-                        <img class="ui small centered image" src="<?= escape_html($accessPartners); ?>" alt="">
+                        <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('partners', 'ui small centered image'); ?>
                     </div>
                 </div>
                 <?php endif; ?>

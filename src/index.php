@@ -659,10 +659,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             return $maintenanceResponse->write("El sitio está en mantenimiento \r\n");
         }
 
-        //Se hace `echo` de la vista y se devuelve la respuesta con el 503, igual que el 404 de
-        //`config/containers.php`: esa es la forma que ya tiene el proyecto de servir una pantalla
-        //de error con su código.
-        (new BaseController(false))->render(MaintenanceMode::VIEW);
+        //Al cuerpo, nunca con eco, igual que el 404 de config/containers.php: con eco, una página mayor que el búfer sale con 200.
+        $maintenanceResponse->getBody()->write((new BaseController(false))->render(MaintenanceMode::VIEW, [], false));
 
         return $maintenanceResponse;
     }
@@ -860,6 +858,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     $responseExpectedLang = $request->getHeaderLine('PCSPHP-Response-Expected-Language');
     if (!is_string($responseExpectedLang) || mb_strlen(trim($responseExpectedLang)) < 1) {
         $responseExpectedLang = null;
+    }
+    //Solo un idioma de la lista, o el de por omisión: el valor acaba en <html lang> y en la API.
+    if (is_string($responseExpectedLang) && !in_array($responseExpectedLang, Config::get_allowed_langs(), true)) {
+        $responseExpectedLang = Config::get_default_lang();
     }
     set_config('responseExpectedLang', $responseExpectedLang);
     //Definir el idioma basado en la solicitud

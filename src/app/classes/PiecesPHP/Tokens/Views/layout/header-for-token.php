@@ -29,7 +29,9 @@ $alternativesURL = Config::get_config('alternatives_url');
             'custom_url' => "",
     ]) ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'head'); ?>
+    <?php $themeTogglePart = 'head'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>
 </head>
 
 <body class="<?=isset($bodyClasses) && is_string($bodyClasses) ? $bodyClasses : '';?>">
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScriptsFor('public', 'body_start'); ?>
+    <?php $themeTogglePart = 'button'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>

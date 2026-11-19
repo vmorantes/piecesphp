@@ -4,6 +4,7 @@
 //memoria. Anota consumo «zz-ventana» y lo borra.
 //@areas nucleo
 //@areas src/app/classes/PiecesPHP/Mcp/
+//@requires-module PiecesPHP\Mcp\McpRoutes
 
 use PiecesPHP\AI\AIGateway;
 use PiecesPHP\AI\Mappers\AIUsageMapper;

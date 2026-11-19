@@ -42,38 +42,45 @@ $globalClassPcs: 'ui-pcs';
         width: 100%;
         max-width: 800px;
 
+        //El «Logo del cargador», debajo y con su propio alto (H345). `hidden` cuando no hay: el tema no lo oculta aquí.
         .#{$globalClassPcs}-logo {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            width: 70px;
-            height: 70px;
-            margin: 50px auto 0px auto;
+            margin: 0.75rem auto 0 auto;
 
-            &,
+            &[hidden] {
+                display: none;
+            }
+
             img {
-                border-radius: 0%;
+                width: auto;
+                height: 48px;
+                max-width: min(320px, 80vw);
+                object-fit: contain;
+                border-radius: 0;
             }
         }
 
+        //La animación a su tamaño, sin forzar alto: el logo completo cabe a 640 px de ancho; una «P» o un aro, en 240.
         .#{$globalClassPcs}-loader {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            margin-top: 15px;
 
             img {
-                width: 120px;
-                height: 120px;
+                width: auto;
+                height: auto;
+                max-width: min(640px, 90vw);
+                max-height: 240px;
+                object-fit: contain;
             }
         }
 
         .#{$globalClassPcs}-loader-fallback {
             position: relative;
             border: 16px solid var(--theme-border, $-loaderBorder);
-            border-top: 16px solid var(--accent, $-loaderMark);
+            border-top: 16px solid var(--accent-1, var(--accent, $-loaderMark));
             border-radius: 50%;
             width: 120px;
             height: 120px;
@@ -89,21 +96,26 @@ $globalClassPcs: 'ui-pcs';
             .#{$globalClassPcs}-progress {
                 font-weight: $fwBold;
                 text-align: center;
-                color: black;
+                color: var(--theme-text, black);
                 font-size: 25px;
             }
         }
 
         .#{$globalClassPcs}-text-message {
             text-align: center;
-            padding: 15px 5px;
+            padding: 0.5rem 5px;
             font-weight: $fwBold;
-            color: black;
+            color: var(--theme-text, black);
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
         }
 
+    }
+
+    //Movimiento reducido (GenericLoaderElement.js): ni animación ni aro, solo el logo quieto.
+    .#{$globalClassPcs}-loader-reduced {
+        display: none;
     }
 
     @keyframes spin {
@@ -126,6 +138,38 @@ $globalClassPcs: 'ui-pcs';
         }
     }
 
+}
+
+//Las imágenes del cargador con su modo oscuro (H345): las reglas de ui-pcs.scss, repetidas y acotadas al cargador porque
+//la zona pública carga esta hoja sin ui-pcs.css. Por el elemento y no por su clase: el prefijo de la clase es opcional.
+$-loaderInvertOnDark: brightness(0) invert(1);
+
+generic-loader-element {
+
+    html:not([data-theme="dark"]):not([data-theme="auto"]) & .brand-image-dark,
+    [data-theme="dark"] & .brand-image-light {
+        display: none !important;
+    }
+
+    [data-theme="dark"] & .invert-on-dark {
+        filter: $-loaderInvertOnDark;
+    }
+
+    @media (prefers-color-scheme: light) {
+        [data-theme="auto"] & .brand-image-dark {
+            display: none !important;
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        [data-theme="auto"] & .brand-image-light {
+            display: none !important;
+        }
+
+        [data-theme="auto"] & .invert-on-dark {
+            filter: $-loaderInvertOnDark;
+        }
+    }
 }
 
 .mirror-scroll-x {

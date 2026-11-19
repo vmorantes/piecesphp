@@ -768,8 +768,12 @@ $sessionRevocation = function (bool $revokeAllReal) {
             $check(($r['json']['success'] ?? null) === true && $p5 !== [] && array_filter($p5, fn($f) => !$cerradaPorClave($f)) === [] && array_filter($p5Root, fn($f) => $f['closedAt'] !== null) === [],
                 'p5 suplantando, se cierran todas las del suplantado y la de root sigue abierta', "HTTP {$r['status']} · suplantado " . $describe($p5) . ' · root ' . $describe($p5Root) . ' · ' . mb_substr($r['body'], 0, 120));
             //Suplantando, el usuario actual es el suplantado, pero quien actúa es root: el suplantado recibe el aviso.
-            $avisos = fn(int $id): int => (int) $bd->query('SELECT COUNT(*) FROM `' . \PiecesPHP\Notifications\Mappers\NotificationMapper::TABLE . "` WHERE `user` = {$id} AND kind = '" . \PiecesPHP\UserSystem\AccountChangeNotice::KIND . "'")->fetchColumn();
-            $check($avisos($ids['pwSup']) === 1 && $avisos($ids['rootP']) === 0, 'p5 y el suplantado recibe el aviso de que un administrador cambió su contraseña; root, ninguno', $avisos($ids['pwSup']) . ' / ' . $avisos($ids['rootP']));
+            if (!\PiecesPHP\Notifications\NotificationsRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m p5 (el aviso): esta instalación tiene Notificaciones apagado y no se escriben avisos.");
+            } else {
+                $avisos = fn(int $id): int => (int) $bd->query('SELECT COUNT(*) FROM `' . \PiecesPHP\Notifications\Mappers\NotificationMapper::TABLE . "` WHERE `user` = {$id} AND kind = '" . \PiecesPHP\UserSystem\AccountChangeNotice::KIND . "'")->fetchColumn();
+                $check($avisos($ids['pwSup']) === 1 && $avisos($ids['rootP']) === 0, 'p5 y el suplantado recibe el aviso de que un administrador cambió su contraseña; root, ninguno', $avisos($ids['pwSup']) . ' / ' . $avisos($ids['rootP']));
+            }
         }
         //Los intentos que anota la recuperación apuntan al usuario: van antes que él.
         $intentos = $bd->prepare('DELETE FROM `' . \PiecesPHP\UserSystem\ORM\LoginAttemptsModel::TABLE . '` WHERE userID = ?');

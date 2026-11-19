@@ -432,9 +432,12 @@
 }
 
 :where(.ui, .dt-container) :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label), :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label):where(.ui, .dt-container) {
-  line-height: 1.5 !important;
   letter-spacing: 0.12em !important;
   word-spacing: 0.16em !important;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label, input, select, .ui.labeled.input > .label, .ui.selection.dropdown:not(.multiple), .ui.selection.dropdown:not(.multiple) > *), :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label, input, select, .ui.labeled.input > .label, .ui.selection.dropdown:not(.multiple), .ui.selection.dropdown:not(.multiple) > *):where(.ui, .dt-container) {
+  line-height: 1.5 !important;
 }
 
 :where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.circular.label, :root[data-text-spacing="wide"] .ui.circular.label:where(.ui, .dt-container) {
@@ -459,6 +462,23 @@
 
 :where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing, :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing:where(.ui, .dt-container) {
   white-space: normal;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.single.line.table :is(th, td), :root[data-text-spacing="wide"] .ui.single.line.table :is(th, td):where(.ui, .dt-container) {
+  white-space: normal;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.secondary.pointing.menu:not(.vertical), :root[data-text-spacing="wide"] .ui.secondary.pointing.menu:not(.vertical):where(.ui, .dt-container) {
+  flex-wrap: wrap;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] .ui.buttons:not(.vertical) > .button, :root[data-text-spacing="wide"] .ui.buttons:not(.vertical) > .button:where(.ui, .dt-container) {
+  flex-shrink: 1;
+  white-space: normal;
+}
+
+:where(.ui, .dt-container) :root[data-text-spacing="wide"] :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text), :root[data-text-spacing="wide"] :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text):where(.ui, .dt-container) {
+  overflow-wrap: anywhere;
 }
 
 :where(.ui, .dt-container) :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text), :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text):where(.ui, .dt-container),

@@ -2272,8 +2272,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                         if ($t === '' || str_starts_with($t, '<reference') || str_starts_with($t, '@ts-')) {
                             continue;
                         }
-                        //@areas solo en local-tests/: allí la 53 valida cada una.
-                        if ($isSuite && str_starts_with($t, '@areas ')) {
+                        //@areas y @requires-module solo en local-tests/: son declaraciones que leen la 53 y GatesTask.
+                        if ($isSuite && (str_starts_with($t, '@areas ') || str_starts_with($t, '@requires-module '))) {
                             continue;
                         }
                         $prosa++;
@@ -4518,6 +4518,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         $failures = self::validateAnnouncedCapabilities($capacidades, $rutas, $root, $claves);
+        $apagadas = self::announcedRoutesOff($capacidades, $rutas);
+        if ($apagadas !== []) {
+            echoTerminal("\e[94mINFO:\e[39m capacidades: " . array_sum($apagadas) . ' ruta(s) anunciada(s) no aplica(n), módulo apagado: ' . implode(', ', array_map(
+                static fn (string $modulo, int $n): string => "{$modulo} ({$n})",
+                array_keys($apagadas),
+                $apagadas
+            )) . '.');
+        }
 
         //El CHANGELOG: cada «## Nuevo» de la mayor en curso, cubierto; cada `changelog`, un encabezado que existe.
         $changelogPath ??= $root . '/CHANGELOG.md';
@@ -5622,9 +5630,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @param string $root La raíz del repositorio, para los anuncios.
      * @param string[] $claves Las claves de configuración que el código lee.
      * @param string|null $gulpfile El texto donde se buscan las funciones de Sass; sin él, src/gulpfile.js.
+     * @param array<string,string>|null $routesByConstant Para las pruebas: ver offModuleOfRoute()
      * @return string[]
      */
-    protected static function validateAnnouncedCapabilities(array $capacidades, array $rutas, string $root, array $claves = [], ?string $gulpfile = null): array
+    protected static function validateAnnouncedCapabilities(array $capacidades, array $rutas, string $root, array $claves = [], ?string $gulpfile = null, ?array $routesByConstant = null): array
     {
         if ($gulpfile === null) {
             $leido = @file_get_contents($root . '/src/gulpfile.js');
@@ -5674,6 +5683,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
             foreach ($servidas as $ruta) {
                 if (!isset($existentes[(string) $ruta])) {
+                    //La de un módulo apagado no aplica (H404): la cuenta announcedRoutesOff() y no falla.
+                    if (self::offModuleOfRoute((string) $ruta, null, $routesByConstant) !== null) {
+                        continue;
+                    }
                     $failures[] = "{$nombre}: la ruta `{$ruta}` NO EXISTE; se anuncia una función que nadie sirve";
                 }
             }
@@ -5690,6 +5703,30 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
         return $failures;
+    }
+
+    /**
+     * Las rutas de las capacidades que no existen porque su módulo está apagado, por módulo: las que
+     * validateAnnouncedCapabilities() deja pasar.
+     *
+     * @param array<mixed> $capacidades
+     * @param array<int|string> $rutas Los nombres de `get_routes()`.
+     * @param array<string,string>|null $routesByConstant Para las pruebas: ver offModuleOfRoute()
+     * @return array<string,int>
+     */
+    protected static function announcedRoutesOff(array $capacidades, array $rutas, ?array $routesByConstant = null): array
+    {
+        $existentes = array_flip(array_map('strval', $rutas));
+        $off = [];
+        foreach ($capacidades as $capacidad) {
+            foreach ((array) (is_array($capacidad) ? ($capacidad['routes'] ?? []) : []) as $ruta) {
+                $modulo = isset($existentes[(string) $ruta]) ? null : self::offModuleOfRoute((string) $ruta, null, $routesByConstant);
+                if ($modulo !== null) {
+                    $off[$modulo] = ($off[$modulo] ?? 0) + 1;
+                }
+            }
+        }
+        return $off;
     }
 
     /**

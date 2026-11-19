@@ -62,6 +62,13 @@ final class Notifications
     private static $failForTesting = false;
 
     /**
+     * Solo para las suites: simula NOTIFICATIONS_MODULE en falso, que es una constante y no cambia en proceso.
+     *
+     * @var bool
+     */
+    private static $offForTesting = false;
+
+    /**
      * Las no leídas por usuario en esta petición: la barra las pide más de una vez.
      *
      * @var array<int,int>
@@ -74,11 +81,14 @@ final class Notifications
      *
      * @param int|int[] $users
      * @param NotificationMessage $message
-     * @return int Cuántas se crearon
+     * @return int Cuántas se crearon; 0 con el módulo apagado (NOTIFICATIONS_MODULE)
      */
     public static function notify(int|array $users, NotificationMessage $message): int
     {
         $created = 0;
+        if (!NotificationsRoutes::ENABLE || self::$offForTesting) {
+            return 0;
+        }
         try {
             if (self::$failForTesting) {
                 throw new \RuntimeException('Fallo de notify() provocado por una prueba.');
@@ -126,6 +136,15 @@ final class Notifications
     public static function failForTesting(bool $fail): void
     {
         self::$failForTesting = $fail;
+    }
+
+    /**
+     * @param bool $off
+     * @return void
+     */
+    public static function offForTesting(bool $off): void
+    {
+        self::$offForTesting = $off;
     }
 
     /**

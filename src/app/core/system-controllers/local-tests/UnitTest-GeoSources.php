@@ -6,6 +6,7 @@
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/SystemApprovals/
 
+use Directory\DirectoryRoutes;
 use Directory\Geo\PersonsGeoSource;
 use Organizations\Geo\OrganizationsGeoSource;
 use Organizations\Mappers\OrganizationMapper;
@@ -19,6 +20,7 @@ use PiecesPHP\Geo\GeoFilter;
 use PiecesPHP\Geo\GeoPointsResult;
 use PiecesPHP\Geo\GeoQuery;
 use PiecesPHP\Geo\GeoQueryException;
+use PiecesPHP\Geo\GeoRoutes;
 use PiecesPHP\Geo\GeoSource;
 use PiecesPHP\Geo\GeoSourceRegistry;
 use PiecesPHP\Geo\GeoThumbnail;
@@ -322,16 +324,24 @@ CliActions::make('unit-tests:core/geo-sources', function ($args) {
         $check($cota->total() === 2 && count($cota->points()) === 1 && $cota->truncated(), 'c6 con cota 1: total 2, devuelve 1 y dice que recortó', "total {$cota->total()}, devueltos " . count($cota->points()));
         $check(!$enRincon->truncated() && $enRincon->total() === 2, 'c7 CANARIO: sin cota no recorta');
         $check(!in_array($p7, $ids($enRincon), true) && in_array($p7, $ids($mundo), true), 'c8 el encuadre deja fuera un punto que el mundo sí ve');
-        $orgRincon = $empresas->points($rincon);
-        $check($ids($orgRincon) === [$o1], 'c9 organizaciones: en el rincón solo la visible', (string) json_encode($ids($orgRincon)) . " (esperaba [{$o1}])");
-        $orgPunto = $orgRincon->points()[0] ?? null;
-        $check($orgPunto !== null && $orgPunto->lng === 150.7 && $orgPunto->lat === -40.7, 'c10 organizaciones: [lng, lat] leído de meta', $orgPunto !== null ? "[{$orgPunto->lng}, {$orgPunto->lat}]" : 'sin punto');
-        $orgMundo = $empresas->points(new GeoQuery(null, 0, ['search' => $nombre]));
-        $check(!in_array($o3, $ids($orgMundo), true) && !in_array($o2, $ids($orgMundo), true) && in_array($o1, $ids($orgMundo), true), 'c11 organizaciones: ni el (0,0) ni la oculta', (string) json_encode($ids($orgMundo)));
-        $check($orgMundo->total() === count($orgMundo->points()), 'c11b organizaciones: el total no cuenta el (0,0)', "total {$orgMundo->total()}, devueltos " . count($orgMundo->points()));
+        if (!GeoRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m c9-c11b: esta instalación tiene Geo apagado y el punto de una organización con logo pide la ruta de miniaturas.");
+        } else {
+            $orgRincon = $empresas->points($rincon);
+            $check($ids($orgRincon) === [$o1], 'c9 organizaciones: en el rincón solo la visible', (string) json_encode($ids($orgRincon)) . " (esperaba [{$o1}])");
+            $orgPunto = $orgRincon->points()[0] ?? null;
+            $check($orgPunto !== null && $orgPunto->lng === 150.7 && $orgPunto->lat === -40.7, 'c10 organizaciones: [lng, lat] leído de meta', $orgPunto !== null ? "[{$orgPunto->lng}, {$orgPunto->lat}]" : 'sin punto');
+            $orgMundo = $empresas->points(new GeoQuery(null, 0, ['search' => $nombre]));
+            $check(!in_array($o3, $ids($orgMundo), true) && !in_array($o2, $ids($orgMundo), true) && in_array($o1, $ids($orgMundo), true), 'c11 organizaciones: ni el (0,0) ni la oculta', (string) json_encode($ids($orgMundo)));
+            $check($orgMundo->total() === count($orgMundo->points()), 'c11b organizaciones: el total no cuenta el (0,0)', "total {$orgMundo->total()}, devueltos " . count($orgMundo->points()));
+        }
         $check($personas->pointDetail($p3) === null && $personas->pointDetail($p2) === null && $empresas->pointDetail($o2) === null, 'c12 el detalle de una oculta o en el (0,0) no existe');
-        $detalle = $personas->pointDetail($p1);
-        $check(is_array($detalle) && str_contains((string) $detalle['name'], $nombre) && is_string($detalle['url']) && $detalle['url'] !== '', 'c13 CANARIO: el detalle de una visible trae su nombre y su URL');
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m c13: esta instalación tiene Directorio apagado y el detalle enlaza a su perfil.");
+        } else {
+            $detalle = $personas->pointDetail($p1);
+            $check(is_array($detalle) && str_contains((string) $detalle['name'], $nombre) && is_string($detalle['url']) && $detalle['url'] !== '', 'c13 CANARIO: el detalle de una visible trae su nombre y su URL');
+        }
         //El filtro de organizaciones, bajo demanda (G6): filters() ya no consulta, y las opciones se buscan con su límite.
         $deOrganizaciones = array_filter(array_merge($personas->filters(), $empresas->filters()), fn(GeoFilter $f): bool => $f->key() === 'organizations');
         $remotos = array_filter($deOrganizaciones, fn(GeoFilter $f): bool => $f->type() === GeoFilter::TYPE_REMOTE_OPTIONS && $f->options() === []);
@@ -352,23 +362,28 @@ CliActions::make('unit-tests:core/geo-sources', function ($args) {
         echoTerminal(' ');
 
         //──── [i] La imagen de cada punto (P189): la original, o null para que el cliente pinte las iniciales ──
-        echoTerminal('[i] La imagen de cada punto');
-        $carpetaAvatar = AvatarModel::getFolderUser($p1);
-        if (!is_dir($carpetaAvatar)) {
-            $avatares[] = $carpetaAvatar;
-            //RETORNO-IGNORADO: si no la crea, la copia de abajo falla e i0 lo dice.
-            mkdir($carpetaAvatar, 0777, true);
+        //Las miniaturas y las rutas son del módulo Geo; los puntos de personas, de Directorio.
+        if (!GeoRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m i0-i5: esta instalación tiene Geo apagado y no hay ruta de miniaturas.");
+        } else {
+            echoTerminal('[i] La imagen de cada punto');
+            $carpetaAvatar = AvatarModel::getFolderUser($p1);
+            if (!is_dir($carpetaAvatar)) {
+                $avatares[] = $carpetaAvatar;
+                //RETORNO-IGNORADO: si no la crea, la copia de abajo falla e i0 lo dice.
+                mkdir($carpetaAvatar, 0777, true);
+            }
+            $avatares[] = AvatarModel::getUserAvatarName($p1);
+            $check(copy(basepath('statics/images/default-avatar.png'), AvatarModel::getUserAvatarName($p1)), 'i0 CANARIO: el avatar de la prueba se escribe');
+            $conAvatar = $personas->points($rincon);
+            $urlAvatar = $imagen($conAvatar, $p1);
+            $check($esSegura($urlAvatar) && str_contains((string) $urlAvatar, "/geo/thumbnail/persons/{$p1}/64/?v="), 'i1 una persona con avatar lleva su miniatura a 64, con sello y una URL que el cliente pinta', (string) json_encode($urlAvatar));
+            $check($imagen($conAvatar, $p6) === null, 'i2 una persona sin avatar lleva null', (string) json_encode($imagen($conAvatar, $p6)));
+            $urlLogo = $imagen($empresas->points($rincon), $o1);
+            $check($esSegura($urlLogo) && str_contains((string) $urlLogo, "/geo/thumbnail/organizations/{$o1}/64/?v="), 'i3 una organización con logo (relativo, de la aplicación) lleva su miniatura a 64', (string) json_encode($urlLogo));
+            $check(str_contains((string) $imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o5), "/geo/thumbnail/organizations/{$o5}/64/?v="), 'i5 una organización con el logo privado (el del formulario) también lleva su miniatura', (string) json_encode($imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o5)));
+            $check($imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o4) === null, 'i4 una organización sin logo lleva null', (string) json_encode($imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o4)));
         }
-        $avatares[] = AvatarModel::getUserAvatarName($p1);
-        $check(copy(basepath('statics/images/default-avatar.png'), AvatarModel::getUserAvatarName($p1)), 'i0 CANARIO: el avatar de la prueba se escribe');
-        $conAvatar = $personas->points($rincon);
-        $urlAvatar = $imagen($conAvatar, $p1);
-        $check($esSegura($urlAvatar) && str_contains((string) $urlAvatar, "/geo/thumbnail/persons/{$p1}/64/?v="), 'i1 una persona con avatar lleva su miniatura a 64, con sello y una URL que el cliente pinta', (string) json_encode($urlAvatar));
-        $check($imagen($conAvatar, $p6) === null, 'i2 una persona sin avatar lleva null', (string) json_encode($imagen($conAvatar, $p6)));
-        $urlLogo = $imagen($orgRincon, $o1);
-        $check($esSegura($urlLogo) && str_contains((string) $urlLogo, "/geo/thumbnail/organizations/{$o1}/64/?v="), 'i3 una organización con logo (relativo, de la aplicación) lleva su miniatura a 64', (string) json_encode($urlLogo));
-        $check(str_contains((string) $imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o5), "/geo/thumbnail/organizations/{$o5}/64/?v="), 'i5 una organización con el logo privado (el del formulario) también lleva su miniatura', (string) json_encode($imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o5)));
-        $check($imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o4) === null, 'i4 una organización sin logo lleva null', (string) json_encode($imagen($empresas->points(new GeoQuery(null, 0, ['search' => $nombre])), $o4)));
         echoTerminal(' ');
 
         //──── [e] La búsqueda va por marcador ─────────────────────────────────────────────
@@ -381,107 +396,128 @@ CliActions::make('unit-tests:core/geo-sources', function ($args) {
         echoTerminal(' ');
 
         //──── [h] Las dos rutas, por HTTP ─────────────────────────────────────────────────
-        echoTerminal('[h] Las rutas, por HTTP como root');
-        $jwt = UserSessions::issueToken($crearUsuario('root', UsersModel::TYPE_USER_ROOT));
-        $puntos = $camino(GeoController::routeName('points', [], true));
-        $r = $pedir($puntos . '?' . http_build_query(['bbox' => '150,-41,151,-40', 'limit' => 1, 'sources' => ['persons', 'organizations']]), $jwt);
-        $json = json_decode($r['body'], true);
-        $features = is_array($json) ? ($json['features'] ?? []) : [];
-        $coordenadas = [];
-        foreach ($features as $f) {
-            $coordenadas[$f['properties']['source'] . ':' . $f['properties']['id']] = $f['geometry']['coordinates'];
-        }
-        $check($r['status'] === 200 && ($json['type'] ?? null) === 'FeatureCollection' && ($json['sources']['persons']['returned'] ?? null) === 2, 'h1 200, GeoJSON, y el limit de la petición no recorta', "HTTP {$r['status']}");
-        $check(($coordenadas["persons:{$p1}"] ?? null) === [150.1234, -40.5678], 'h2 las coordenadas viajan [lng, lat]', (string) json_encode($coordenadas["persons:{$p1}"] ?? null));
-        $r = $pedir($puntos . '?' . http_build_query(['sources' => ['zz-no-existe']]), $jwt);
-        $check($r['status'] === 404, 'h3 una fuente que no existe: 404', "HTTP {$r['status']}");
-        $r = $pedir($puntos . '?' . http_build_query(['bbox' => '151,-41,150,-40']), $jwt);
-        $check($r['status'] === 400, 'h4 un encuadre invertido: 400, no un recorte', "HTTP {$r['status']}");
-        $r = $pedir($camino(GeoController::routeName('point', ['source' => 'persons', 'id' => $p3], true)), $jwt);
-        $check($r['status'] === 404, 'h5 el detalle de un perfil oculto: 404', "HTTP {$r['status']}");
-        $r = $pedir($camino(GeoController::routeName('point', ['source' => 'persons', 'id' => $p1], true)), $jwt);
-        $check($r['status'] === 200 && str_contains($r['body'], $nombre), 'h6 CANARIO: el de una visible, 200 con su nombre', "HTTP {$r['status']}");
-        $r = $pedir($puntos . '?' . http_build_query(['bbox' => '150,-41,151,-40', 'sources' => ['persons']]), $jwt);
-        $json = json_decode($r['body'], true);
-        $miniaturas = [];
-        foreach (is_array($json) ? ($json['features'] ?? []) : [] as $f) {
-            //Sin ??: un null que viaja es justo lo que se mide.
-            $miniaturas[$f['properties']['id']] = array_key_exists('thumbnail', $f['properties']) ? $f['properties']['thumbnail'] : 'zz-sin-clave';
-        }
-        $check($esSegura($miniaturas[$p1] ?? null) && array_key_exists($p6, $miniaturas) && $miniaturas[$p6] === null, 'h7 la imagen viaja en el JSON: la URL del avatar, y null sin él', (string) json_encode($miniaturas));
-        $opciones = $camino(GeoController::routeName('filter-options', ['key' => 'organizations'], true));
-        $r = $pedir($opciones . '?' . http_build_query(['search' => $nombre]), $jwt);
-        $json = json_decode($r['body'], true);
-        $porValor = is_array($json) ? array_column($json['results'] ?? [], 'name', 'value') : [];
-        $check($r['status'] === 200 && ($json['success'] ?? null) === true && ($porValor[(string) $o1] ?? null) === escape_html("{$nombre} {$prefijo}-org-visible"), 'h8 las opciones de organizaciones, buscadas por HTTP: 200 y {value, name}', "HTTP {$r['status']}, " . mb_substr($r['body'], 0, 200));
-        $todas = GeoController::remoteFilterSource('organizations', GeoSourceRegistry::visibleFor(UsersModel::TYPE_USER_ROOT));
-        $esperadas = $todas !== null ? min(GeoController::FILTER_OPTIONS_LIMIT, count($todas->filterOptions('organizations', '', 100000))) : -1;
-        $r = $pedir($opciones, $jwt);
-        $json = json_decode($r['body'], true);
-        $devueltas = is_array($json) ? count($json['results'] ?? []) : -1;
-        $check($r['status'] === 200 && $devueltas === $esperadas, 'h9 sin búsqueda, como mucho ' . GeoController::FILTER_OPTIONS_LIMIT, "devueltas {$devueltas}, esperadas {$esperadas}");
-        $r = $pedir($camino(GeoController::routeName('filter-options', ['key' => 'search'], true)), $jwt);
-        $otro = $pedir($camino(GeoController::routeName('filter-options', ['key' => 'zz-no-existe'], true)), $jwt);
-        $check($r['status'] === 404 && $otro['status'] === 404, 'h10 un filtro de texto o que no existe: 404', "HTTP {$r['status']} y {$otro['status']}");
-        $jwtComunicaciones = UserSessions::issueToken($crearUsuario('comunicaciones', UsersModel::TYPE_USER_COMUNICACIONES));
-        $r = $pedir($opciones . '?search=zz', $jwtComunicaciones);
-        $pantalla = $pedir($camino(GeoController::routeName('viewer', [], true)), $jwtComunicaciones);
-        $check($r['status'] === 403 && $pantalla['status'] === 403, 'h11 quien no ve la pantalla del geovisor tampoco pide sus opciones: 403', "opciones HTTP {$r['status']}, pantalla HTTP {$pantalla['status']}");
-        echoTerminal(' ');
+        if (!GeoRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m h1-h11 y t1-t10: esta instalación tiene Geo apagado y sus rutas no existen.");
+        } else {
+            echoTerminal('[h] Las rutas, por HTTP como root');
+            $jwt = UserSessions::issueToken($crearUsuario('root', UsersModel::TYPE_USER_ROOT));
+            $puntos = $camino(GeoController::routeName('points', [], true));
+            if (!DirectoryRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m h1-h2: esta instalación tiene Directorio apagado y la fuente persons no está registrada.");
+            } else {
+                $r = $pedir($puntos . '?' . http_build_query(['bbox' => '150,-41,151,-40', 'limit' => 1, 'sources' => ['persons', 'organizations']]), $jwt);
+                $json = json_decode($r['body'], true);
+                $features = is_array($json) ? ($json['features'] ?? []) : [];
+                $coordenadas = [];
+                foreach ($features as $f) {
+                    $coordenadas[$f['properties']['source'] . ':' . $f['properties']['id']] = $f['geometry']['coordinates'];
+                }
+                $check($r['status'] === 200 && ($json['type'] ?? null) === 'FeatureCollection' && ($json['sources']['persons']['returned'] ?? null) === 2, 'h1 200, GeoJSON, y el limit de la petición no recorta', "HTTP {$r['status']}");
+                $check(($coordenadas["persons:{$p1}"] ?? null) === [150.1234, -40.5678], 'h2 las coordenadas viajan [lng, lat]', (string) json_encode($coordenadas["persons:{$p1}"] ?? null));
+            }
+            $r = $pedir($puntos . '?' . http_build_query(['sources' => ['zz-no-existe']]), $jwt);
+            $check($r['status'] === 404, 'h3 una fuente que no existe: 404', "HTTP {$r['status']}");
+            $r = $pedir($puntos . '?' . http_build_query(['bbox' => '151,-41,150,-40']), $jwt);
+            $check($r['status'] === 400, 'h4 un encuadre invertido: 400, no un recorte', "HTTP {$r['status']}");
+            if (!DirectoryRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m h5-h7: esta instalación tiene Directorio apagado y la fuente persons no está registrada.");
+            } else {
+                $r = $pedir($camino(GeoController::routeName('point', ['source' => 'persons', 'id' => $p3], true)), $jwt);
+                $check($r['status'] === 404, 'h5 el detalle de un perfil oculto: 404', "HTTP {$r['status']}");
+                $r = $pedir($camino(GeoController::routeName('point', ['source' => 'persons', 'id' => $p1], true)), $jwt);
+                $check($r['status'] === 200 && str_contains($r['body'], $nombre), 'h6 CANARIO: el de una visible, 200 con su nombre', "HTTP {$r['status']}");
+                $r = $pedir($puntos . '?' . http_build_query(['bbox' => '150,-41,151,-40', 'sources' => ['persons']]), $jwt);
+                $json = json_decode($r['body'], true);
+                $miniaturas = [];
+                foreach (is_array($json) ? ($json['features'] ?? []) : [] as $f) {
+                    //Sin ??: un null que viaja es justo lo que se mide.
+                    $miniaturas[$f['properties']['id']] = array_key_exists('thumbnail', $f['properties']) ? $f['properties']['thumbnail'] : 'zz-sin-clave';
+                }
+                $check($esSegura($miniaturas[$p1] ?? null) && array_key_exists($p6, $miniaturas) && $miniaturas[$p6] === null, 'h7 la imagen viaja en el JSON: la URL del avatar, y null sin él', (string) json_encode($miniaturas));
+            }
+            $opciones = $camino(GeoController::routeName('filter-options', ['key' => 'organizations'], true));
+            $r = $pedir($opciones . '?' . http_build_query(['search' => $nombre]), $jwt);
+            $json = json_decode($r['body'], true);
+            $porValor = is_array($json) ? array_column($json['results'] ?? [], 'name', 'value') : [];
+            $check($r['status'] === 200 && ($json['success'] ?? null) === true && ($porValor[(string) $o1] ?? null) === escape_html("{$nombre} {$prefijo}-org-visible"), 'h8 las opciones de organizaciones, buscadas por HTTP: 200 y {value, name}', "HTTP {$r['status']}, " . mb_substr($r['body'], 0, 200));
+            $todas = GeoController::remoteFilterSource('organizations', GeoSourceRegistry::visibleFor(UsersModel::TYPE_USER_ROOT));
+            $esperadas = $todas !== null ? min(GeoController::FILTER_OPTIONS_LIMIT, count($todas->filterOptions('organizations', '', 100000))) : -1;
+            $r = $pedir($opciones, $jwt);
+            $json = json_decode($r['body'], true);
+            $devueltas = is_array($json) ? count($json['results'] ?? []) : -1;
+            $check($r['status'] === 200 && $devueltas === $esperadas, 'h9 sin búsqueda, como mucho ' . GeoController::FILTER_OPTIONS_LIMIT, "devueltas {$devueltas}, esperadas {$esperadas}");
+            $r = $pedir($camino(GeoController::routeName('filter-options', ['key' => 'search'], true)), $jwt);
+            $otro = $pedir($camino(GeoController::routeName('filter-options', ['key' => 'zz-no-existe'], true)), $jwt);
+            $check($r['status'] === 404 && $otro['status'] === 404, 'h10 un filtro de texto o que no existe: 404', "HTTP {$r['status']} y {$otro['status']}");
+            $jwtComunicaciones = UserSessions::issueToken($crearUsuario('comunicaciones', UsersModel::TYPE_USER_COMUNICACIONES));
+            $r = $pedir($opciones . '?search=zz', $jwtComunicaciones);
+            $pantalla = $pedir($camino(GeoController::routeName('viewer', [], true)), $jwtComunicaciones);
+            $check($r['status'] === 403 && $pantalla['status'] === 403, 'h11 quien no ve la pantalla del geovisor tampoco pide sus opciones: 403', "opciones HTTP {$r['status']}, pantalla HTTP {$pantalla['status']}");
+            echoTerminal(' ');
 
-        //──── [t] Las miniaturas: tamaños, permiso, caché en disco y regeneración ──────────────────
-        echoTerminal('[t] Las miniaturas, por HTTP');
-        $miniatura = fn(string $fuente, int $id, int $ancho): string => $camino(GeoController::routeName('thumbnail', ['source' => $fuente, 'id' => $id, 'size' => $ancho], true));
-        $anchoDe = function (string $cuerpo): int {
-            $info = @getimagesizefromstring($cuerpo);
-            return is_array($info) ? (int) $info[0] : 0;
-        };
-        $patronP1 = basepath(GeoThumbnail::DIRECTORY . "/persons/{$p1}-64-*.png");
-        array_push($generadas, $patronP1, basepath(GeoThumbnail::DIRECTORY . "/persons/{$p1}-128-*.png"), basepath(GeoThumbnail::DIRECTORY . "/organizations/{$o1}-64-*.png"));
-        $r = $pedir($miniatura('persons', $p1, 64), $jwt);
-        $check($r['status'] === 200 && $anchoDe($r['body']) === 64, 't1 la de 64 es una imagen de 64 de ancho', "HTTP {$r['status']}, ancho {$anchoDe($r['body'])}");
-        $r = $pedir($miniatura('persons', $p1, 128), $jwt);
-        $check($r['status'] === 200 && $anchoDe($r['body']) === 128, 't2 la de 128, de 128', "HTTP {$r['status']}, ancho {$anchoDe($r['body'])}");
-        $r = $pedir($miniatura('persons', $p1, 65), $jwt);
-        $check($r['status'] === 404, 't3 un tamaño que no es 64 ni 128: 404', "HTTP {$r['status']}");
-        $r = $pedir($miniatura('persons', $p6, 64), $jwt);
-        $check($r['status'] === 404, 't4 un punto sin imagen: 404', "HTTP {$r['status']}");
-        clearstatcache();
-        $cacheP1 = $unaEnDisco($patronP1);
-        $nodo = $cacheP1 !== null ? fileinode($cacheP1) : false;
-        $pedir($miniatura('persons', $p1, 64), $jwt);
-        clearstatcache();
-        $check($nodo !== false && $cacheP1 !== null && $unaEnDisco($patronP1) === $cacheP1 && fileinode($cacheP1) === $nodo, 't5 la segunda petición la sirve del disco: el archivo generado es el mismo', (string) json_encode([$cacheP1, $nodo]));
-        //RETORNO-IGNORADO: si no cambiara la fecha, t6 lo diría.
-        touch(AvatarModel::getUserAvatarName($p1), time() + 5);
-        $r = $pedir($miniatura('persons', $p1, 64), $jwt);
-        clearstatcache();
-        $cacheT6 = $unaEnDisco($patronP1);
-        $check($r['status'] === 200 && $cacheT6 !== null && $cacheT6 !== $cacheP1 && !is_file((string) $cacheP1), 't6 un original más nuevo da otra huella, y la vieja se borra', (string) json_encode([$cacheP1, glob($patronP1)]));
-        //Con la caché por fecha, un original SUSTITUIDO por otro de fecha más vieja seguía sirviendo la miniatura vieja.
-        $antes = sha1($r['body']);
-        $otro = imagecreatetruecolor(200, 200);
-        $check($otro !== false && imagefill($otro, 0, 0, (int) imagecolorallocate($otro, 200, 30, 30)) && imagepng($otro, AvatarModel::getUserAvatarName($p1)), 't6a el original se sustituye por otra imagen');
-        //RETORNO-IGNORADO: si no cambiara la fecha, la prueba no mediría nada y t6b lo diría por la huella.
-        touch(AvatarModel::getUserAvatarName($p1), time() - 3600);
-        $r = $pedir($miniatura('persons', $p1, 64), $jwt);
-        clearstatcache();
-        $check($r['status'] === 200 && sha1($r['body']) !== $antes && $unaEnDisco($patronP1) !== null && !is_file((string) $cacheT6), 't6b otro original con una fecha MÁS VIEJA da otra miniatura, y la del primero ya no está', (string) json_encode([$r['status'], $antes, sha1($r['body']), $cacheT6, glob($patronP1)]));
-        $r = $pedir($miniatura('organizations', $o1, 64), $jwt);
-        $check($r['status'] === 200 && $anchoDe($r['body']) === 64, 't7 la de una organización sale de su logo', "HTTP {$r['status']}");
-        $generadas[] = basepath(GeoThumbnail::DIRECTORY . "/organizations/{$o5}-64-*.png");
-        $r = $pedir($miniatura('organizations', $o5, 64), $jwt);
-        $check($r['status'] === 200 && $anchoDe($r['body']) === 64, 't7b y la de un logo privado, también', "HTTP {$r['status']}");
-        $check($pedir($miniatura('persons', $p1, 64), '')['status'] === $pedir($puntos, '')['status'], 't8 sin sesión, lo mismo que points');
-        //El barrido de clean-cache (G9): la miniatura de un punto que ya no existe se va; la de uno visible se queda. Barre
-        //las fuentes REALES: lo que quite de la instalación es caché de puntos que no se ven, y se regenera al pedirse.
-        $huerfana = basepath(GeoThumbnail::DIRECTORY . '/persons/2147483000-64-0123456789ab.png');
-        $generadas[] = $huerfana;
-        $check($unaEnDisco($patronP1) !== null && copy((string) $unaEnDisco($patronP1), $huerfana), 't9a banco: una miniatura de un punto que no existe, copiada de la de uno visible');
-        $barrido = GeoThumbnail::sweep();
-        clearstatcache();
-        $check(!is_file($huerfana) && in_array('persons/2147483000-64-0123456789ab.png', $barrido['deleted'], true), 't9 el barrido borra la del punto que no existe, y lo dice', (string) json_encode($barrido['deleted']));
-        $check($unaEnDisco($patronP1) !== null && glob(basepath(GeoThumbnail::DIRECTORY . "/organizations/{$o1}-64-*.png")) !== [], 't10 CANARIO: las de los puntos visibles siguen');
+            //──── [t] Las miniaturas: tamaños, permiso, caché en disco y regeneración ──────────────────
+            echoTerminal('[t] Las miniaturas, por HTTP');
+            $miniatura = fn(string $fuente, int $id, int $ancho): string => $camino(GeoController::routeName('thumbnail', ['source' => $fuente, 'id' => $id, 'size' => $ancho], true));
+            $anchoDe = function (string $cuerpo): int {
+                $info = @getimagesizefromstring($cuerpo);
+                return is_array($info) ? (int) $info[0] : 0;
+            };
+            $patronP1 = basepath(GeoThumbnail::DIRECTORY . "/persons/{$p1}-64-*.png");
+            $generadas[] = basepath(GeoThumbnail::DIRECTORY . "/organizations/{$o1}-64-*.png");
+            if (!DirectoryRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m t1-t6b: esta instalación tiene Directorio apagado y la fuente persons no está registrada.");
+            } else {
+                array_push($generadas, $patronP1, basepath(GeoThumbnail::DIRECTORY . "/persons/{$p1}-128-*.png"));
+                $r = $pedir($miniatura('persons', $p1, 64), $jwt);
+                $check($r['status'] === 200 && $anchoDe($r['body']) === 64, 't1 la de 64 es una imagen de 64 de ancho', "HTTP {$r['status']}, ancho {$anchoDe($r['body'])}");
+                $r = $pedir($miniatura('persons', $p1, 128), $jwt);
+                $check($r['status'] === 200 && $anchoDe($r['body']) === 128, 't2 la de 128, de 128', "HTTP {$r['status']}, ancho {$anchoDe($r['body'])}");
+                $r = $pedir($miniatura('persons', $p1, 65), $jwt);
+                $check($r['status'] === 404, 't3 un tamaño que no es 64 ni 128: 404', "HTTP {$r['status']}");
+                $r = $pedir($miniatura('persons', $p6, 64), $jwt);
+                $check($r['status'] === 404, 't4 un punto sin imagen: 404', "HTTP {$r['status']}");
+                clearstatcache();
+                $cacheP1 = $unaEnDisco($patronP1);
+                $nodo = $cacheP1 !== null ? fileinode($cacheP1) : false;
+                $pedir($miniatura('persons', $p1, 64), $jwt);
+                clearstatcache();
+                $check($nodo !== false && $cacheP1 !== null && $unaEnDisco($patronP1) === $cacheP1 && fileinode($cacheP1) === $nodo, 't5 la segunda petición la sirve del disco: el archivo generado es el mismo', (string) json_encode([$cacheP1, $nodo]));
+                //RETORNO-IGNORADO: si no cambiara la fecha, t6 lo diría.
+                touch(AvatarModel::getUserAvatarName($p1), time() + 5);
+                $r = $pedir($miniatura('persons', $p1, 64), $jwt);
+                clearstatcache();
+                $cacheT6 = $unaEnDisco($patronP1);
+                $check($r['status'] === 200 && $cacheT6 !== null && $cacheT6 !== $cacheP1 && !is_file((string) $cacheP1), 't6 un original más nuevo da otra huella, y la vieja se borra', (string) json_encode([$cacheP1, glob($patronP1)]));
+                //Con la caché por fecha, un original SUSTITUIDO por otro de fecha más vieja seguía sirviendo la miniatura vieja.
+                $antes = sha1($r['body']);
+                $otro = imagecreatetruecolor(200, 200);
+                $check($otro !== false && imagefill($otro, 0, 0, (int) imagecolorallocate($otro, 200, 30, 30)) && imagepng($otro, AvatarModel::getUserAvatarName($p1)), 't6a el original se sustituye por otra imagen');
+                //RETORNO-IGNORADO: si no cambiara la fecha, la prueba no mediría nada y t6b lo diría por la huella.
+                touch(AvatarModel::getUserAvatarName($p1), time() - 3600);
+                $r = $pedir($miniatura('persons', $p1, 64), $jwt);
+                clearstatcache();
+                $check($r['status'] === 200 && sha1($r['body']) !== $antes && $unaEnDisco($patronP1) !== null && !is_file((string) $cacheT6), 't6b otro original con una fecha MÁS VIEJA da otra miniatura, y la del primero ya no está', (string) json_encode([$r['status'], $antes, sha1($r['body']), $cacheT6, glob($patronP1)]));
+            }
+            $r = $pedir($miniatura('organizations', $o1, 64), $jwt);
+            $check($r['status'] === 200 && $anchoDe($r['body']) === 64, 't7 la de una organización sale de su logo', "HTTP {$r['status']}");
+            $generadas[] = basepath(GeoThumbnail::DIRECTORY . "/organizations/{$o5}-64-*.png");
+            $r = $pedir($miniatura('organizations', $o5, 64), $jwt);
+            $check($r['status'] === 200 && $anchoDe($r['body']) === 64, 't7b y la de un logo privado, también', "HTTP {$r['status']}");
+            if (!DirectoryRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m t8-t10: esta instalación tiene Directorio apagado y la fuente persons no está registrada.");
+            } else {
+                $check($pedir($miniatura('persons', $p1, 64), '')['status'] === $pedir($puntos, '')['status'], 't8 sin sesión, lo mismo que points');
+                //El barrido de clean-cache (G9): la miniatura de un punto que ya no existe se va; la de uno visible se queda. Barre
+                //las fuentes REALES: lo que quite de la instalación es caché de puntos que no se ven, y se regenera al pedirse.
+                $huerfana = basepath(GeoThumbnail::DIRECTORY . '/persons/2147483000-64-0123456789ab.png');
+                $generadas[] = $huerfana;
+                $check($unaEnDisco($patronP1) !== null && copy((string) $unaEnDisco($patronP1), $huerfana), 't9a banco: una miniatura de un punto que no existe, copiada de la de uno visible');
+                $barrido = GeoThumbnail::sweep();
+                clearstatcache();
+                $check(!is_file($huerfana) && in_array('persons/2147483000-64-0123456789ab.png', $barrido['deleted'], true), 't9 el barrido borra la del punto que no existe, y lo dice', (string) json_encode($barrido['deleted']));
+                $check($unaEnDisco($patronP1) !== null && glob(basepath(GeoThumbnail::DIRECTORY . "/organizations/{$o1}-64-*.png")) !== [], 't10 CANARIO: las de los puntos visibles siguen');
+            }
+        }
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

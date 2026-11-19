@@ -140,12 +140,14 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                             </div>
                             <div class="middle aligned content">
                                 <div class="header"><span class="ui breaking text"><?= escape_html($adminUser->getMapper()->getFullName()); ?></span></div>
+                                <?php if (ProfileController::allowedRoute('profile', ['userID' => $adminUser->id])) : ?>
                                 <div class="extra">
                                     <a class="ui basic small labeled icon button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
                                         <i class="plus icon"></i>
                                         <?= __($langGroup, 'Ver perfil'); ?>
                                     </a>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -182,12 +184,14 @@ $contactInformation = array_filter($contactInformation, fn($e) => is_string($e->
                             </div>
                             <div class="middle aligned content">
                                 <div class="header"><span class="ui breaking text"><?= escape_html($adminUser->getMapper()->getFullName()); ?></span></div>
+                                <?php if (ProfileController::allowedRoute('profile', ['userID' => $adminUser->id])) : ?>
                                 <div class="extra">
                                     <a class="ui basic small labeled icon button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
                                         <i class="plus icon"></i>
                                         <?= __($langGroup, 'Ver perfil'); ?>
                                     </a>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

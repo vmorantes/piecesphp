@@ -371,7 +371,8 @@ class AdminPanelController extends BaseController
     /**
      * Los atributos de apariencia y accesibilidad del `<html>` del panel (data-theme, data-text-size, data-contrast,
      * data-motion, data-focus, data-text-spacing y data-transparency), ya escapados y con un espacio delante: los de la persona si hay sesión, los del sitio si
-     * no. Los usan los encabezados del panel y las páginas con `<html>` propio (el acceso, sus problemas, los tokens, el error).
+     * no. Detrás, las imágenes del cargador (`data-loader-*`, SettingsController::loaderHtmlAttributes()). Los usan los
+     * encabezados del panel y las páginas con `<html>` propio (el acceso, sus problemas, los tokens, el error).
      *
      * @return string
      */
@@ -405,7 +406,7 @@ class AdminPanelController extends BaseController
         foreach ($values as $name => $value) {
             $attributes .= ' ' . $name . '="' . escape_html($value) . '"';
         }
-        return $attributes;
+        return $attributes . SettingsController::loaderHtmlAttributes();
     }
 
     /**
@@ -470,7 +471,7 @@ class AdminPanelController extends BaseController
 
     /**
      * @param string $level Uno de TEXT_SIZES; otro cuenta como normal
-     * @return int El tamaño base de Colores más el paso del nivel, en píxeles
+     * @return int El tamaño base de «Tipografía y forma» más el paso del nivel, en píxeles
      */
     public static function textSizePixels(string $level): int
     {

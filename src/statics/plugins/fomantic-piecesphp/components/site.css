@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.18.0 - Site
+ * # Fomantic-UI 0.19.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -616,9 +616,17 @@ mark {
    interlineado solo los hacía más altos que anchos), los grupos de íconos (`i.icons`) y las etiquetas circulares (un número
    o una letra en un círculo: con 1,5 pasaban de 24×24 a 24×30). */
 :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label) {
-  line-height: 1.5 !important;
   letter-spacing: 0.12em !important;
   word-spacing: 0.16em !important;
+}
+
+/* El interlineado, no en los controles de una sola línea (campos de texto, select, la etiqueta de un labeled input, el
+   dropdown de una selección y su texto; las opciones de su menú sí lo llevan): ahí
+   no separa líneas, solo los hacía más altos, y cada tema crecía distinto que el dropdown de alto fijo de la misma fila
+   (fluent: input 45px junto a un dropdown de 33; 90 fallos de altura en los cinco temas, 2026-11-18). Conservan el
+   interlineado de su componente; el texto, el espaciado de letras y palabras. */
+:root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled), .ui.icon.buttons > .button:not(.labeled), .ui.circular.label, input, select, .ui.labeled.input > .label, .ui.selection.dropdown:not(.multiple), .ui.selection.dropdown:not(.multiple) > *) {
+  line-height: 1.5 !important;
 }
 
 /* Lo excluido no toma el espaciado, pero lo heredaría del padre: la etiqueta circular con dos cifras pasaba a 28,7×24 */
@@ -651,6 +659,28 @@ mark {
    la tabla de la ventana. */
 :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing {
   white-space: normal;
+}
+
+/* Con las letras más anchas (2026-11-18, geometría con data-text-spacing="wide" en los cinco temas):
+   - las celdas de una tabla `single line` (nowrap de Fomantic) sacaban la tabla 125px de la ventana a 1400 (material3);
+   - las pestañas de un `secondary pointing` menu, de una sola fila, salían 87px de la ventana (material3, seis
+     escaparates del marco de piecesphp): saltan de fila;
+   - los botones de un `ui buttons` no encogían (flex: 1 0 auto de Fomantic) y a 390 el grupo salía hasta 24px de la
+     ventana: encogen y parten su texto;
+   - el texto de los elementos de :where(p, li, …, .description) volvía a break-word (la regla de abajo) en vez del
+     anywhere del body, y un correo largo en una lista sacaba el contenido 23px de su segmento a 390. */
+:root[data-text-spacing="wide"] .ui.single.line.table :is(th, td) {
+  white-space: normal;
+}
+:root[data-text-spacing="wide"] .ui.secondary.pointing.menu:not(.vertical) {
+  flex-wrap: wrap;
+}
+:root[data-text-spacing="wide"] .ui.buttons:not(.vertical) > .button {
+  flex-shrink: 1;
+  white-space: normal;
+}
+:root[data-text-spacing="wide"] :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text) {
+  overflow-wrap: anywhere;
 }
 
 /* Una palabra larga sin espacios (una ruta, un correo, un nombre de clase) no saca su caja de la ventana: se parte si no

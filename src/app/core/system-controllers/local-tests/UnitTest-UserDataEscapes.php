@@ -337,29 +337,46 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         echoTerminal('[c] Los perfiles de persona y de organización, incompletos y completos; los enlaces sin http(s) no van al href');
         $rutaPerfil = $camino(\Directory\Controllers\ProfileController::routeName('profile', ['userID' => $adminID], true));
         $rutaPerfilOrg = $camino(\Organizations\Controllers\OrganizationProfileController::routeName('profile', ['organizationID' => $orgID], true));
-        $r = $pedir($rutaPerfil, $jwtRoot);
-        $escapado($r['body'], 'zzn', 'c1 profile/profile-not-completed.php: el nombre del usuario', $r['status']);
+        if (!\Directory\DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m c1: esta instalación tiene Directorio apagado y no hay perfil de persona.");
+        } else {
+            $r = $pedir($rutaPerfil, $jwtRoot);
+            $escapado($r['body'], 'zzn', 'c1 profile/profile-not-completed.php: el nombre del usuario', $r['status']);
+        }
         $r = $pedir($rutaPerfilOrg, $jwtRoot);
         $escapado($r['body'], 'zzo', 'c2 profile-organization/profile-not-completed.php: el nombre de la organización', $r['status']);
         $database->prepare("UPDATE `{$tablaPerfiles}` SET nationality = ? WHERE belongsTo = ?")->execute(['zz-nacionalidad', $adminID]);
         $database->prepare("UPDATE `{$tablaOrganizaciones}` SET logo = ? WHERE id = ?")->execute(['statics/images/zz-prueba.jpg', $orgID]);
-        $perfil = $pedir($rutaPerfil, $jwtRoot);
-        foreach (['zzn' => 'el nombre', 'zzjob' => 'el cargo', 'zzuinst' => 'una institución', 'zzpn' => 'el teléfono', 'zzm' => 'el correo'] as $clave => $que) {
-            $escapado($perfil['body'], $clave, "c3 profile/profile.php: {$que}", $perfil['status']);
+        $perfil = ['body' => '', 'status' => 0];
+        if (!\Directory\DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m c3: esta instalación tiene Directorio apagado y no hay perfil de persona.");
+        } else {
+            $perfil = $pedir($rutaPerfil, $jwtRoot);
+            foreach (['zzn' => 'el nombre', 'zzjob' => 'el cargo', 'zzuinst' => 'una institución', 'zzpn' => 'el teléfono', 'zzm' => 'el correo'] as $clave => $que) {
+                $escapado($perfil['body'], $clave, "c3 profile/profile.php: {$que}", $perfil['status']);
+            }
         }
         $perfilOrg = $pedir($rutaPerfilOrg, $jwtRoot);
         //El contacto es el de la organización, no el de su encargado (#1433 H2).
         foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzn' => 'el administrador', 'zzinst' => 'una institución', 'zzph' => 'el teléfono', 'zzie' => 'el correo informativo', 'zzowe' => 'la web', 'zzoli' => 'LinkedIn'] as $clave => $que) {
             $escapado($perfilOrg['body'], $clave, "c4 profile-organization/profile.php: {$que}", $perfilOrg['status']);
         }
-        $check(!str_contains($perfil['body'], "href='javascript:") && str_contains($perfil['body'], $esc("javascript:zzWeb('" . $crudo('zzweb') . "')")), 'c5 profile.php: la web «javascript:» sale como texto, sin enlace', "HTTP {$perfil['status']}");
-        $check(str_contains($perfil['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzlin')) . "'"), 'c6 profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfil['status']}");
+        if (!\Directory\DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m c5 y c6 de profile.php: esta instalación tiene Directorio apagado y no hay perfil de persona.");
+        } else {
+            $check(!str_contains($perfil['body'], "href='javascript:") && str_contains($perfil['body'], $esc("javascript:zzWeb('" . $crudo('zzweb') . "')")), 'c5 profile.php: la web «javascript:» sale como texto, sin enlace', "HTTP {$perfil['status']}");
+            $check(str_contains($perfil['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzlin')) . "'"), 'c6 profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfil['status']}");
+        }
         $check(!str_contains($perfilOrg['body'], "href='javascript:") && !str_contains($perfilOrg['body'], "href='" . $esc($m('zzowe'))) && str_contains($perfilOrg['body'], $esc($m('zzowe'))), 'c5 profile-organization/profile.php: la web sin http(s) sale como texto, sin enlace', "HTTP {$perfilOrg['status']}");
         $check(str_contains($perfilOrg['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzoli')) . "'"), 'c6 profile-organization/profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfilOrg['status']}");
 
-        $database->prepare("UPDATE `{$tablaPerfiles}` SET websiteLink = ? WHERE belongsTo = ?")->execute(["JaVaScRiPt:zzWeb('" . $crudo('zzweb') . "')", $adminID]);
-        $r = $pedir($rutaPerfil, $jwtRoot);
-        $check($r['status'] === 200 && stripos($r['body'], "href='javascript:") === false && str_contains($r['body'], $esc("JaVaScRiPt:zzWeb('" . $crudo('zzweb') . "')")), 'c7 profile.php: «JaVaScRiPt:» en mayúsculas mixtas tampoco llega al href', "HTTP {$r['status']}");
+        if (!\Directory\DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m c7: esta instalación tiene Directorio apagado y no hay perfil de persona.");
+        } else {
+            $database->prepare("UPDATE `{$tablaPerfiles}` SET websiteLink = ? WHERE belongsTo = ?")->execute(["JaVaScRiPt:zzWeb('" . $crudo('zzweb') . "')", $adminID]);
+            $r = $pedir($rutaPerfil, $jwtRoot);
+            $check($r['status'] === 200 && stripos($r['body'], "href='javascript:") === false && str_contains($r['body'], $esc("JaVaScRiPt:zzWeb('" . $crudo('zzweb') . "')")), 'c7 profile.php: «JaVaScRiPt:» en mayúsculas mixtas tampoco llega al href', "HTTP {$r['status']}");
+        }
 
         //──── [d] Mi organización y la asignación de administrador ─────────────────────────────
         echoTerminal('');
@@ -471,32 +488,44 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //──── [h] El geovisor ──────────────────────────────────────────────────────────────
         //Los puntos y el detalle viajan en JSON tal cual: el cliente los pone con textContent.
         echoTerminal('');
-        echoTerminal('[h] El geovisor: el filtro de organizaciones, los puntos y el detalle');
-        $r = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('viewer', [], true)), $jwtRoot);
-        $check($r['status'] === 200 && !str_contains($r['body'], $crudo('zzo')), 'h1 Geo/Views/viewer.php: la organización no sale cruda en la pantalla', "HTTP {$r['status']}");
-        //Las opciones del filtro llegan al escribir (GeoController::filterOptions) y Fomantic pinta su name como HTML.
-        $opciones = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('filter-options', ['key' => 'organizations'], true)) . '?' . http_build_query(['search' => $m('zzo')]), $jwtRoot);
-        $nombresOpciones = implode("\n", array_column((array) (json_decode($opciones['body'], true)['results'] ?? []), 'name'));
-        $escapado($nombresOpciones, 'zzo', 'h1b GeoController::filterOptions: la organización en la opción de su filtro', $opciones['status']);
-        $puntos = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('points', [], true)) . '?' . http_build_query(['bbox' => '-75,10,-74,11', 'sources' => ['persons', 'organizations']]), $jwtRoot);
-        $geo = json_decode($puntos['body'], true);
-        $deFuente = ['persons' => null, 'organizations' => null];
-        foreach ((is_array($geo) && is_array($geo['features'] ?? null) ? $geo['features'] : []) as $feature) {
-            $titulo = (string) ($feature['properties']['title'] ?? '');
-            $clave = $feature['properties']['source'] === 'persons' ? 'zzn' : 'zzo';
-            //Por el marcador exacto: «zzo» también está dentro de «zzot».
-            if (str_contains($titulo, $crudo($clave)) && !str_contains($titulo, $crudo('zzot'))) {
-                $deFuente[$feature['properties']['source']] = $feature;
+        if (!\PiecesPHP\Geo\GeoRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m h1-h4: esta instalación tiene Geo apagado y no hay geovisor.");
+        } else {
+            echoTerminal('[h] El geovisor: el filtro de organizaciones, los puntos y el detalle');
+            $r = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('viewer', [], true)), $jwtRoot);
+            $check($r['status'] === 200 && !str_contains($r['body'], $crudo('zzo')), 'h1 Geo/Views/viewer.php: la organización no sale cruda en la pantalla', "HTTP {$r['status']}");
+            //Las opciones del filtro llegan al escribir (GeoController::filterOptions) y Fomantic pinta su name como HTML.
+            $opciones = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('filter-options', ['key' => 'organizations'], true)) . '?' . http_build_query(['search' => $m('zzo')]), $jwtRoot);
+            $nombresOpciones = implode("\n", array_column((array) (json_decode($opciones['body'], true)['results'] ?? []), 'name'));
+            $escapado($nombresOpciones, 'zzo', 'h1b GeoController::filterOptions: la organización en la opción de su filtro', $opciones['status']);
+            $puntos = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('points', [], true)) . '?' . http_build_query(['bbox' => '-75,10,-74,11', 'sources' => \Directory\DirectoryRoutes::ENABLE ? ['persons', 'organizations'] : ['organizations']]), $jwtRoot);
+            $geo = json_decode($puntos['body'], true);
+            $deFuente = ['persons' => null, 'organizations' => null];
+            foreach ((is_array($geo) && is_array($geo['features'] ?? null) ? $geo['features'] : []) as $feature) {
+                $titulo = (string) ($feature['properties']['title'] ?? '');
+                $clave = $feature['properties']['source'] === 'persons' ? 'zzn' : 'zzo';
+                //Por el marcador exacto: «zzo» también está dentro de «zzot».
+                if (str_contains($titulo, $crudo($clave)) && !str_contains($titulo, $crudo('zzot'))) {
+                    $deFuente[$feature['properties']['source']] = $feature;
+                }
+            }
+            $sinHTML = fn (?array $feature, string $clave): bool => $feature !== null && str_contains((string) $feature['properties']['title'], $crudo($clave))
+                && !str_contains((string) $feature['properties']['title'], $esc($crudo($clave))) && count(array_diff(array_keys($feature['properties']), ['source', 'id', 'title', 'thumbnail'])) === 0;
+            if (!\Directory\DirectoryRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m h2: esta instalación tiene Directorio apagado y la fuente persons no está registrada.");
+            } else {
+                $check($sinHTML($deFuente['persons'], 'zzn'), 'h2 el punto de la persona: su nombre viaja tal cual, sin HTML que escapar en el servidor', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['persons']), 0, 200));
+            }
+            $check($sinHTML($deFuente['organizations'], 'zzo'), 'h4 el de la organización, igual', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['organizations']), 0, 200));
+            if (!\Directory\DirectoryRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m h3: esta instalación tiene Directorio apagado y la fuente persons no está registrada.");
+            } else {
+                $idPersona = (int) ($deFuente['persons']['properties']['id'] ?? 0);
+                $detalle = json_decode($pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('point', ['source' => 'persons', 'id' => $idPersona], true)), $jwtRoot)['body'], true);
+                $cargo = is_array($detalle) ? (string) ($detalle['detail']['jobPosition'] ?? '') : '';
+                $check(str_contains($cargo, $crudo('zzjob')) && !str_contains($cargo, $esc($crudo('zzjob'))), 'h3 el detalle de la persona: el cargo, tal cual', mb_substr($cargo, 0, 120));
             }
         }
-        $sinHTML = fn (?array $feature, string $clave): bool => $feature !== null && str_contains((string) $feature['properties']['title'], $crudo($clave))
-            && !str_contains((string) $feature['properties']['title'], $esc($crudo($clave))) && count(array_diff(array_keys($feature['properties']), ['source', 'id', 'title', 'thumbnail'])) === 0;
-        $check($sinHTML($deFuente['persons'], 'zzn'), 'h2 el punto de la persona: su nombre viaja tal cual, sin HTML que escapar en el servidor', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['persons']), 0, 200));
-        $check($sinHTML($deFuente['organizations'], 'zzo'), 'h4 el de la organización, igual', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['organizations']), 0, 200));
-        $idPersona = (int) ($deFuente['persons']['properties']['id'] ?? 0);
-        $detalle = json_decode($pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('point', ['source' => 'persons', 'id' => $idPersona], true)), $jwtRoot)['body'], true);
-        $cargo = is_array($detalle) ? (string) ($detalle['detail']['jobPosition'] ?? '') : '';
-        $check(str_contains($cargo, $crudo('zzjob')) && !str_contains($cargo, $esc($crudo('zzjob'))), 'h3 el detalle de la persona: el cargo, tal cual', mb_substr($cargo, 0, 120));
 
         //──── [i] Banner, autor de la publicación y registro de actividad ──────────────────────
         echoTerminal('');
@@ -700,6 +729,11 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             'categorías de Formularios' => [\Forms\Categories\Controllers\CategoriesController::routeName('datatables', [], true), ['zzcat' => 'el nombre']],
             'perfiles' => [\Directory\Controllers\AllProfilesController::routeName('datatables', [], true), ['zzn' => 'el nombre de la persona', 'zzo' => 'el nombre de la organización']],
         ];
+        //El listado de perfiles es del Directorio.
+        if (!\Directory\DirectoryRoutes::ENABLE) {
+            unset($entidades['perfiles']);
+            echoTerminal("   \e[33m[OMITIDA]\e[39m q1 listado de perfiles: esta instalación tiene Directorio apagado.");
+        }
         foreach ($entidades as $listado => [$ruta, $claves]) {
             $r = $pedir($camino($ruta), $jwtRoot, $tabla);
             $celdas = $celdasDe($r['body']);
@@ -841,7 +875,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //Esperados: 15 sitios = 14 atributos + 1 nodo de texto. Cada uno por su forma escapada literal.
         $sitios = [
             'app/view/panel/built-in/content/image-card.php' => [
-                '<img class="ui small image" src="<?= escape_html($imageURL); ?>"' => 1,
+                ' src="<?= escape_html($imageURL); ?>" alt="' => 1,
             ],
             'app/view/panel/built-in/utilities/simple-upload-placeholder/workspace.php' => [
                 'href="<?= escape_html($currentFileURL); ?>"' => 1,

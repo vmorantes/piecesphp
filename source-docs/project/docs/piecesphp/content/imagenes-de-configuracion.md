@@ -23,7 +23,7 @@ opción guardada. **Quien cambie una imagen de fábrica añade su sha1 nuevo a e
 
 **Las ocho PNG de fábrica se regeneran con `bin/imagenes-de-fabrica`** (en el repositorio de desarrollo; no viaja): las
 renderiza con Chromium desde los dos SVG, con un 8 % de margen y fondo transparente, a su tamaño de hoy. La marca
-(`main_mark.svg`) da `logo.png`, `loader-logo.png` y `white-logo.png` (esta, con sus dos azules en blanco) a 400 × 400,
+(`main_mark.svg`) da `logo.png`, `loader-logo.png` y `white-logo.png` (esta, la versión de modo oscuro: el marino en blanco y el celeste igual; la instalada se dibujó aparte, y regenerarla da una equivalente, no idéntica, así que cambia su sha1) a 400 × 400,
 `favicon.png` y `favicon-back.png` a 500 × 500, y la favicon de la documentación
 (`source-docs/starlight/public/favicon.png`), a 500 × 500; el rótulo (`main_logo.svg`) da `navbar-logo.png` a 400 × 62
 y `mailing-logo.png` a 500 × 172. Sin cambiar los SVG, regenerar no cambia ni un píxel. Tras regenerar con un SVG nuevo, el
@@ -50,10 +50,13 @@ trazado, para separar la marca del rótulo.
 
 | Imagen | Ruta | Opción | Archivo | Tamaño de salida | La lee |
 | :-- | :-- | :-- | :-- | :-- | :-- |
-| Fondos del acceso (1 a 5) | `configurations-appearance-backgrounds` | `backgrounds` (lista) | `login-backgrounds/bg<n>-<huella>` | 1000 × 1080, JPEG | El acceso (`login.js` elige uno al azar) |
+| Fondos del acceso (1 a 5) | `configurations-appearance-backgrounds` | `backgrounds` (lista) | `login-backgrounds/bg<n>-<huella>` | 1600 × 1800, JPEG | El acceso (`login.js` elige uno al azar) |
 | Fondo de la ayuda para entrar | la misma | `backgoundProblems` (así, con la errata) | `login-backgrounds/problems-background-<huella>` | 1920 × 1080 | La ayuda para entrar |
 | Favicon del sitio / del panel | `configurations-appearance-brand-images` | `favicon` / `favicon-back` | `brand/favicon[-back]-<huella>` | 400 × 400, PNG | Las cabeceras pública y del panel |
 | Logo | la misma | `logo` | `brand/logo-<huella>` | 400 × 400, PNG | El menú, el acceso, las páginas de error, los datos estructurados |
+| Modo oscuro de una imagen de marca | la misma | `<imagen>DarkMode` (`same`, `invert`, `image`) y `<imagen>Dark` | `brand/<nombre>-dark-<huella>` | la de su imagen | `SettingsController::brandImageTag()` y `brandImageDarkView()`; sin modo guardado, sale de las `*InvertOnDark` de antes; el logo de fábrica, `white-logo.png` |
+| Animación de carga | la misma | `loaderAnimation` (+ `loaderAnimationDarkMode`, `loaderAnimationDark`) | `brand/loader-animation[-dark]-<huella>` | cualquier tamaño, GIF; SVG (validado) solo el usuario principal (`SettingsController::ROLES_SVG_BRAND_IMAGES`), hasta 2 MB | El cargador, por los atributos `data-loader-*` del `<html>`; de fábrica, `loader-animation.svg` y `-dark.svg` |
+| Logo del cargador | la misma | `loaderLogo` (+ `loaderLogoDarkMode`, `loaderLogoDark`) | `brand/loader-logo[-dark]-<huella>` | 400 × 400, PNG | El cargador. De fábrica `loader-logo.png` (la «P») y, en oscuro, `white-logo.png`; sin opción guardada, la de fábrica; **guardada vacía, apagado** (`BRAND_IMAGES_EMPTY_IS_OFF`: «Eliminar» guarda `''`, y `brandImagePath()` devuelve vacío) |
 | Patrocinador, horizontal / vertical | la misma | `partners` / `partnersVertical` | `brand/partners[-vertical]-<huella>` | 280 × 50 / 50 × 280 | El pie del menú y el acceso |
 | Logo de los correos | la misma | `mailingLogo` | `brand/mailing-logo-<huella>` | 500 × 172 | `mailing_logo()` (abajo) |
 | Imagen para compartir | `configurations-appearance-seo` | `open_graph_image`, y `open_graph_image_<idioma>` fuera del idioma base | `open-graph/open_graph[_<idioma>]-<huella>` | 1200 × 630, JPEG | `og:image` y `twitter:image` de la cabecera pública |

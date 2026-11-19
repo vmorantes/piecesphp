@@ -7,6 +7,11 @@ $devCssModeBackground: rgba(255, 0, 0, .1);
 $footerBorderColor: rgba(0, 0, 0, 0.14);
 $imageActionHoverBackground: #7070700d;
 $imageActionHoverColor: #5b5b5b;
+//Las reservas del botón luna/sol si el tema no está cargado: los tokens claros del tema 0.19.0.
+$themeToggleBorderFallback: #e7eaf0;
+$themeToggleSurfaceFallback: #ffffff;
+$themeToggleTextFallback: #1f2430;
+$themeToggleHoverFallback: #eef1f5;
 
 * {
     box-sizing: border-box;
@@ -54,6 +59,25 @@ $-invertOnDark: brightness(0) invert(1);
 @media (prefers-color-scheme: dark) {
     [data-theme="auto"] .invert-on-dark {
         filter: $-invertOnDark;
+    }
+}
+
+//«Otra imagen» en modo oscuro (H340, SettingsController::brandImageTag()): van las dos y se ve una, con el mismo criterio
+//que `.invert-on-dark`; sin `data-theme`, la clara. `!important`: `ui image` y las del menú ponen su propio `display`.
+html:not([data-theme="dark"]):not([data-theme="auto"]) .brand-image-dark,
+[data-theme="dark"] .brand-image-light {
+    display: none !important;
+}
+
+@media (prefers-color-scheme: light) {
+    [data-theme="auto"] .brand-image-dark {
+        display: none !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    [data-theme="auto"] .brand-image-light {
+        display: none !important;
     }
 }
 
@@ -620,5 +644,42 @@ a.ui.button {
             font-size: 27px;
             color: $colorFirst;
         }
+    }
+}
+
+//El botón luna/sol de las pantallas sin sesión (theme-toggle.php): sin Fomantic, con los tokens del tema y su reserva.
+.theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--theme-border, #{$themeToggleBorderFallback});
+    border-radius: 50%;
+    background: var(--theme-surface, #{$themeToggleSurfaceFallback});
+    color: var(--theme-text, #{$themeToggleTextFallback});
+    cursor: pointer;
+
+    &:hover {
+        background: var(--theme-fill, #{$themeToggleHoverFallback});
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--theme-text, #{$themeToggleTextFallback});
+        outline-offset: 2px;
+    }
+
+    &[hidden] {
+        display: none;
+    }
+
+    &[data-target-theme="dark"] .sun,
+    &[data-target-theme="light"] .moon {
+        display: none;
     }
 }

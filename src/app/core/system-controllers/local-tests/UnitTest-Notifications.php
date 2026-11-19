@@ -4,6 +4,7 @@
 //Crea usuarios y noticias zz-prueba-notif-*, y sus notificaciones; lo retira todo y lo comprueba.
 //@areas src/app/classes/PiecesPHP/Notifications/
 //@areas src/app/classes/News/
+//@requires-module PiecesPHP\Notifications\NotificationsRoutes
 
 use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;
@@ -170,6 +171,19 @@ CliActions::make('unit-tests:core/notifications', function ($args) {
         $inexistente = (int) $bd->query('SELECT COALESCE(MAX(id), 0) + 1000 FROM `' . UsersModel::TABLE . '`')->fetchColumn();
         $creadas = Notifications::notify([$a, $inexistente], $mensaje('zz-n1b'));
         $check($creadas === 1 && count($filas($a)) === 2, 'n1 con un id que no existe, crea la válida y no lanza', "devolvió {$creadas}");
+        echoTerminal(' ');
+
+        //─── n1bis · con el módulo apagado (H404) ─────────────────────────────────────────────────
+        echoTerminal('[n1bis] Con NOTIFICATIONS_MODULE en falso, notify() devuelve 0 y no escribe');
+        $filasAntes = count($filas($a));
+        Notifications::offForTesting(true);
+        try {
+            $creadas = Notifications::notify([$a, $b], $mensaje('zz-n1-apagado'));
+        } finally {
+            Notifications::offForTesting(false);
+        }
+        $check($creadas === 0 && count($filas($a)) === $filasAntes, 'n1bis DISCRIMINANTE: apagado, 0 y ninguna fila', "devolvió {$creadas}, filas {$filasAntes} → " . count($filas($a)));
+        $check(Notifications::notify($a, $mensaje('zz-n1-encendido')) === 1, 'n1bis CANARIO: encendido otra vez, crea');
         echoTerminal(' ');
 
         //─── n2 · el idioma de quien lee ──────────────────────────────────────────────────────────

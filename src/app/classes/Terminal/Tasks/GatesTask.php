@@ -225,6 +225,7 @@ class GatesTask extends TerminalTaskAbstract
         $suitesDirectory = rtrim(str_replace('\\', '/', basepath('')), '/') . '/' . self::SUITES_DIRECTORY . '/';
         $suites = [];
         $suiteAreas = [];
+        $suiteModules = [];
         $suiteFiles = [];
         $repoRoot = rtrim(str_replace('\\', '/', basepath('..')), '/');
         foreach (CliActions::listActionNames() as $name) {
@@ -237,6 +238,7 @@ class GatesTask extends TerminalTaskAbstract
             }
             $suites[] = $name;
             $suiteAreas[$name] = self::areasOf($action->definedIn());
+            $suiteModules[$name] = self::requiredModulesOf($action->definedIn());
             $suiteFiles[$name] = ltrim(str_replace($repoRoot, '', str_replace('\\', '/', $action->definedIn())), '/');
         }
         sort($suites);
@@ -298,6 +300,7 @@ class GatesTask extends TerminalTaskAbstract
 
         $skipped = [];
         $notApplicable = [];
+        $moduleOff = [];
 
         //UNA SUITE QUE NO CARGÓ NO REGISTRÓ SU ACCIÓN: la enumeración de arriba no la ve. Sin esto
         //desaparecería en silencio y el total saldría verde. Cuenta como fallo, nunca como omitida.
@@ -386,6 +389,19 @@ class GatesTask extends TerminalTaskAbstract
                 echoTerminal("   \e[33mAVISO:\e[39m {$short} va a SALIR AL EXTERIOR: " . implode(', ', $external));
             }
 
+            //Una suite que prueba un módulo no tiene nada que probar si esta instalación lo apagó (H404).
+            $modules = self::moduleStates($suiteModules[$suite] ?? []);
+            if ($modules['invalid'] !== []) {
+                $failed[] = $suite;
+                echoTerminal("   \e[31m[SIN DECLARAR]\e[39m  {$label} //@requires-module nombra lo que no es una clase *Routes con ENABLE: " . implode(', ', $modules['invalid']));
+                continue;
+            }
+            if ($modules['off'] !== []) {
+                $moduleOff[] = $suite;
+                echoTerminal("   \e[33m[OMITIDA]\e[39m      {$label} pide " . implode(', ', $modules['off']) . ', apagado(s) en esta instalación (//@requires-module)');
+                continue;
+            }
+
             if (Distribution::isDistribution()) {
                 $faltan = Distribution::missing(self::SUITE_DISTRIBUTION_REQUIREMENTS[$suite] ?? []);
                 //La matriz solo les da la base HTTP: con PCSPHP_WALK_BASE no la necesitan.
@@ -439,6 +455,7 @@ class GatesTask extends TerminalTaskAbstract
         echoTerminal('');
         echoTerminal('   ' . (count($suites) + count(LoadFailures::all(LoadFailures::TYPE_SUITE))) . ' suite(s), ' . count($failed) . ' sin veredicto o con fallos, '
             . count($skipped) . ' no corridas por declarar efectos externos'
+            . (count($moduleOff) > 0 ? ', ' . count($moduleOff) . ' omitidas por un módulo apagado' : '')
             . (count($notApplicable) > 0 ? ', ' . count($notApplicable) . ' que no aplican en la distribución.' : '.'));
 
         //─── QUIÉN DEJÓ ALGO (ADR 0047 §4) ──────────────────────────────────────────────────────
@@ -743,6 +760,42 @@ class GatesTask extends TerminalTaskAbstract
         //RETORNO-IGNORADO: lo que cuenta es la primera línea, y se comprueba.
         exec('git -C ' . escapeshellarg($repoRoot) . ' hash-object -- ' . escapeshellarg($file) . ' 2>/dev/null', $output);
         return isset($output[0]) ? trim($output[0]) : null;
+    }
+
+    /**
+     * Los módulos que pide una suite: las líneas `//@requires-module <Clase *Routes>` de su cabecera, antes de
+     * CliActions::make, con la clase entera y sin la barra inicial.
+     *
+     * @param string $file La ruta absoluta del archivo de la suite
+     * @return string[]
+     */
+    public static function requiredModulesOf(string $file): array
+    {
+        $source = (string) @file_get_contents($file);
+        $head = strstr($source, 'CliActions::make', true);
+        $head = $head !== false ? $head : $source;
+        //RETORNO-IGNORADO: lo que cuenta son las coincidencias; sin ninguna, la suite no pide módulo.
+        preg_match_all('/^\s*\/\/@requires-module\s+\\\\?(\S+)\s*$/m', $head, $matches);
+        return array_values(array_unique($matches[1]));
+    }
+
+    /**
+     * Cuáles de esos módulos están apagados (su `ENABLE` en false) y cuáles no son una clase con `ENABLE`.
+     *
+     * @param string[] $classes
+     * @return array{off:string[],invalid:string[]}
+     */
+    public static function moduleStates(array $classes): array
+    {
+        $states = ['off' => [], 'invalid' => []];
+        foreach ($classes as $class) {
+            if (!class_exists($class) || !defined("{$class}::ENABLE")) {
+                $states['invalid'][] = $class;
+            } elseif (constant("{$class}::ENABLE") === false) {
+                $states['off'][] = $class;
+            }
+        }
+        return $states;
     }
 
     /**

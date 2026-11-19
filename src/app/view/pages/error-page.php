@@ -24,7 +24,7 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>" class="no-js"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
+<html lang="<?= escape_html((string) get_config('app_lang')); ?>" dlang="<?= escape_html((string) get_config('default_lang')); ?>" class="no-js"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
 
 <head>
     <meta charset="UTF-8" />
@@ -36,15 +36,17 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
     <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/plugins/fomantic-piecesphp/semantic.min.css'); ?>">
     <link rel="stylesheet" href="<?= \PiecesPHP\CSSVariables::globalVersionedURL(); ?>">
     <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/core/css/ui-pcs.css'); ?>">
+    <?php $themeTogglePart = 'head'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>
 </head>
 
 <body>
 
+    <?php $themeTogglePart = 'button'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>
     <div class="ui fullscreen vertical flex">
 
         <header class="ui basic center aligned segment">
             <a class="ui medium header inline relaxed flex" href="<?= base_url(); ?>">
-                <img class="ui mini image<?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') ? ' invert-on-dark' : ''; ?>" src="<?= escape_html((string) get_config('logo')); ?>" alt="">
+                <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'ui mini image'); ?>
                 <?= escape_html((string) get_config('title_app')); ?>
             </a>
         </header>
@@ -83,7 +85,7 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
                 <?php if ($errorDeveloperName !== ''): ?>
                 <small class="ui muted text tight nowrap centered flex developer-credit" data-error-developer>
                     <?php if ($errorDeveloperLogo !== ''): ?>
-                    <img class="ui mini image<?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoInvertsOnDark() ? ' invert-on-dark' : ''; ?>" src="<?= escape_html($errorDeveloperLogo); ?>" alt="">
+                    <?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoTag('ui mini image'); ?>
                     <?php endif; ?>
                     <span><?= __('general', 'Desarrollado por'); ?> <?= $errorDeveloperName; ?></span>
                 </small>

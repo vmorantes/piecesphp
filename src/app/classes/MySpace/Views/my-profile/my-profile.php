@@ -11,6 +11,7 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * @var string $action
  * @var string $title
  * @var string $description
+ * @var string|null $publicVisibleLabel Null si el perfil no sale en ningún sitio: sin la casilla.
  * @var array<string|int,string|array{url:string}> $breadcrumbs
  * @var \MySpace\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
@@ -148,14 +149,16 @@ $currentNationality = is_string($currentNationality) ? $currentNationality : nul
                         <label><?= __($langGroup, 'Instituciones a las que pertenece actualmente'); ?></label>
                         <select name="affiliatedInstitutions[]" multiple class="ui dropdown multiple auto additions search"><?= array_to_html_options($affiliatedInstitutionsOptions, $affiliatedInstitutions, true); ?></select>
                     </div>
+                    <?php if ($publicVisibleLabel !== null): ?>
                     <div class="field">
                         <?php //P136: el oculto manda «0» cuando la casilla no va marcada; marcada, gana el «1» que va detrás. ?>
                         <input type="hidden" name="publicVisible" value="0">
                         <div class="ui checkbox">
                             <input type="checkbox" name="publicVisible" value="1" id="my-profile-public-visible"<?= (int) ($currentUser->profile->publicVisible ?? 1) === 1 ? ' checked' : ''; ?>>
-                            <label for="my-profile-public-visible"><?= __($langGroup, 'Mostrar mi perfil en el directorio y en el mapa'); ?></label>
+                            <label for="my-profile-public-visible"><?= escape_html($publicVisibleLabel); ?></label>
                         </div>
                     </div>
+                    <?php endif; ?>
 
             </div>
 

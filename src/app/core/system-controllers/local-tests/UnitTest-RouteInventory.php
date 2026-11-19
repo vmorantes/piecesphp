@@ -76,6 +76,7 @@ CliActions::make('unit-tests:core/route-inventory', function ($args) {
     sort($faltanEnArtefacto);
     sort($sobranEnArtefacto);
     $check($faltanEnArtefacto === [], 'c1 ninguna ruta del router falta en el inventario', implode(', ', array_slice($faltanEnArtefacto, 0, 6)) . (count($faltanEnArtefacto) > 6 ? '…' : '') . ' — regenera con: bin/cli route-inventory');
+    //Esta suite no corre en la distribución (gates): aquí el framework va con todo encendido, y un módulo apagado es un fallo.
     $check($sobranEnArtefacto === [], 'c2 el inventario no inventa ninguna que el router no tenga', implode(', ', array_slice($sobranEnArtefacto, 0, 6)));
     $check(count($nombresDelArtefacto) === count($nombresDelRouter), 'c3 y son tantas como el router: ' . count($nombresDelArtefacto) . ' contra ' . count($nombresDelRouter));
 

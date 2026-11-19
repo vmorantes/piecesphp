@@ -258,6 +258,53 @@ CliActions::make('unit-tests:core/mail-catalog', function ($args) {
         $check($respuesta->getStatusCode() === 409 && is_array($cuerpo) && ($cuerpo['success'] ?? null) === false && $sinRetenerEnBandeja === 0,
             'd8 sin la entrega retenida, el servidor la rechaza aunque se pida a mano, y no envía nada', "HTTP {$respuesta->getStatusCode()}, {$sinRetenerEnBandeja} en Mailpit");
 
+        //─── e · Los controles de «Enviar prueba» siguen al permiso de su ruta (H406) ─────────────
+        //En proceso y en memoria: por HTTP no se separa, las dos rutas llevan los mismos roles.
+        echoTerminal(' ');
+        echoTerminal('[e] Enviar prueba y su permiso');
+        $usuarioPrevio = get_config('current_user');
+        $guardadoPrevio = get_config('pcsphp_current_user_stored');
+        $rolesPrevios = \PiecesPHP\Core\Roles::getRoles();
+        $rutaEnvio = 'mail-catalog-send-test';
+        $pintar = function (int $userID): string {
+            set_config('current_user', (object) ['id' => $userID]);
+            set_config('pcsphp_current_user_stored', null);
+            $controlador = new MailCatalogController();
+            return (string) $controlador->render('list', [
+                'langGroup' => MailCatalogController::LANG_GROUP,
+                'title' => 'Zz',
+                'description' => '',
+                'groups' => [['module' => 'Zz', 'mails' => [['key' => 'zz-correo', 'name' => 'Zz', 'trigger' => '', 'recipients' => '', 'subject' => 'Zz', 'body' => '<p>Zz</p>', 'error' => null]]]],
+                'canSendTest' => true,
+                'cannotSendReason' => '',
+                'sendTestURL' => MailCatalogController::routeName('send-test'),
+                'currentEmail' => '',
+                'helpController' => new \PiecesPHP\AdminPanel\Controllers\HelperController(null, $controlador->getGlobalVariables()),
+            ], false);
+        };
+        try {
+            $conRuta = $pintar($usuarios['gral']);
+            $check(str_contains($conRuta, 'data-mail-catalog-send="zz-correo"') && str_contains($conRuta, 'data-mail-catalog-to'),
+                'e1 con la ruta del envío, el administrador general ve el destinatario y el botón');
+            $sinEnvio = array_map(function (array $rol) use ($rutaEnvio): array {
+                if ((int) $rol['code'] === UsersModel::TYPE_USER_ADMIN_GRAL) {
+                    $rol['allowed_routes'] = array_values(array_diff($rol['allowed_routes'], [$rutaEnvio]));
+                }
+                return $rol;
+            }, $rolesPrevios);
+            \PiecesPHP\Core\Roles::registerRoles($sinEnvio, true);
+            $canario = \PiecesPHP\Core\Roles::hasPermissions($rutaEnvio, UsersModel::TYPE_USER_ADMIN_GRAL, true) === false
+                && \PiecesPHP\Core\Roles::hasPermissions('mail-catalog-list', UsersModel::TYPE_USER_ADMIN_GRAL, true);
+            $sinRuta = $pintar($usuarios['gral']);
+            $check($canario && str_contains($sinRuta, 'data-mail-catalog-card="zz-correo"')
+                && !str_contains($sinRuta, 'data-mail-catalog-send') && !str_contains($sinRuta, 'data-mail-catalog-to'),
+                'e2 sin la ruta del envío (y con la de la pantalla), ve la tarjeta pero ni el destinatario ni el botón', 'canario ' . var_export($canario, true));
+        } finally {
+            \PiecesPHP\Core\Roles::registerRoles($rolesPrevios, true);
+            set_config('current_user', $usuarioPrevio);
+            set_config('pcsphp_current_user_stored', $guardadoPrevio);
+        }
+
     } catch (\Throwable $e) {
         $check(false, 'z0 la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

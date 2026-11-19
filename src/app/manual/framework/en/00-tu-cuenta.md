@@ -64,7 +64,7 @@ configured, the form to **contact support**.
 
 ## The assistant
 
-If the administrator has turned it on for you, next to the notifications bell you have the **assistant** button. On a
+If the administrator has turned it on for you, you have the **assistant** button in the top bar. On a
 phone it is in the menu under your name. It opens a window where you ask in plain language about the platform: where
 something is done (“Where do I create a new user?”), where this manual explains it (“Where is the manual for
 publications?”) or what you have pending (“Do I have unread notifications?”).

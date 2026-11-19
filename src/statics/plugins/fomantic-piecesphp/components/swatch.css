@@ -28,6 +28,29 @@
   line-height: 1.33;
 }
 
+/* Series de datos sin `style` (pedido de PiecesPHP, 2026-11-18: sus vistas no admiten style=): `data-series="1"`…`"5"`
+   toma la serie --data-N de la capa común, la misma con que las gráficas pintan sus series, y `data-series="other"` el
+   resto, --theme-border (el neutro con que el donut pinta lo que no es una serie). Un `style="--swatch: …"` sigue
+   mandando; en un tema sin la capa común, sin --data-N, queda el color por defecto. */
+.ui.swatch[data-series="1"] {
+  --swatch: var(--data-1);
+}
+.ui.swatch[data-series="2"] {
+  --swatch: var(--data-2);
+}
+.ui.swatch[data-series="3"] {
+  --swatch: var(--data-3);
+}
+.ui.swatch[data-series="4"] {
+  --swatch: var(--data-4);
+}
+.ui.swatch[data-series="5"] {
+  --swatch: var(--data-5);
+}
+.ui.swatch[data-series="other"] {
+  --swatch: var(--theme-border);
+}
+
 
 /*******************************
           Variations

@@ -16,6 +16,7 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * @var string $action
  * @var string $title
  * @var string $description
+ * @var string $publicVisibleLabel
  * @var array<string|int,string|array{url:string}> $breadcrumbs
  * @var \Organizations\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
@@ -167,10 +168,12 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                                     <div class="ui header name"><span class="ui breaking text"><?= escape_html($adminUser->getMapper()->getFullName()); ?></span></div>
                                     <div class="meta email"><?= escape_html($adminUser->getMapper()->email); ?></div>
                                     <div class="extra actions">
+                                        <?php if (ProfileController::allowedRoute('profile', ['userID' => $adminUser->id])) : ?>
                                         <a class="ui right labeled icon primary button" href="<?= ProfileController::routeName('profile', ['userID' => $adminUser->id]); ?>">
                                             <?= __($langGroup, 'Ver perfil'); ?>
                                             <i class="angle right icon"></i>
                                         </a>
+                                        <?php endif; ?>
                                         <button class="ui basic button" change-organization-admin-trigger>
                                             <?= __($langGroup, 'Cambiar'); ?>
                                         </button>
@@ -228,7 +231,7 @@ $classNumberFieldByQty = $classNumberFieldByQty[count($allowedLangs)];
                         <input type="hidden" name="publicVisible" value="0">
                         <div class="ui checkbox">
                             <input type="checkbox" name="publicVisible" value="1" id="my-organization-public-visible"<?= (int) ($organizationMapper->publicVisible ?? 1) === 1 ? ' checked' : ''; ?>>
-                            <label for="my-organization-public-visible"><?= __($langGroup, 'Mostrar el perfil de la organización en el directorio y en el mapa'); ?></label>
+                            <label for="my-organization-public-visible"><?= escape_html($publicVisibleLabel); ?></label>
                         </div>
                     </div>
                 </div>

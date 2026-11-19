@@ -1,9 +1,9 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 /**
- * El inicio del panel: las tarjetas que registró cada módulo y que este usuario ve (DashboardCardRegistry), pintadas con
- * las piezas de estadística de la hoja de diseño: cifras (number-cards.php en statistic-card.php), acción (action-card.php)
- * o HTML. Plegada, una tarjeta no trae su contenido: su barra (título, ayuda y botón) y, si lo declara, su pie.
+ * El inicio del panel: las tarjetas que registró cada módulo y que este usuario ve (DashboardCardRegistry), pintadas como
+ * la tarjeta de resumen del tema (statistic-card.php con `figure`): cifras, acceso directo o HTML, sin iconos. Plegada,
+ * una tarjeta no trae su contenido: su título, su ayuda, su botón y, si lo declara, su pie.
  *
  * @var string $langGroup
  * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController
@@ -19,60 +19,47 @@ $toggleOf = function (array $item) use ($langGroup): string {
         return '';
     }
     $text = $item['collapsed'] ? __($langGroup, 'Desplegar') : __($langGroup, 'Plegar');
-    return '<button type="button" class="ui mini basic icon button" data-dashboard-card-toggle="' . escape_html($card->key()) . '" data-collapsed="' . ($item['collapsed'] ? 'no' : 'yes') . '" title="' . escape_html($text) . '" aria-label="' . escape_html($text) . '"><i class="' . ($item['collapsed'] ? 'chevron down' : 'chevron up') . ' icon"></i></button>';
+    return '<button type="button" class="ui right floated mini tertiary icon button" data-dashboard-card-toggle="' . escape_html($card->key()) . '" data-collapsed="' . ($item['collapsed'] ? 'no' : 'yes') . '" title="' . escape_html($text) . '" aria-label="' . escape_html($text) . '"><i class="' . ($item['collapsed'] ? 'chevron down' : 'chevron up') . ' icon" aria-hidden="true"></i></button>';
 };
-//Una tarjeta, como en la hoja de diseño (examples/estadisticas-*.php).
-$cardOf = function (array $item) use ($helpController, $toggleOf, $langGroup): string {
+//Sin texto, un pie con enlace no se vería: el de la tarjeta del tema es un enlace de texto, sin flecha.
+$footerOf = function (?string $caption, ?string $url) use ($langGroup): ?array {
+    if ($caption === null && $url === null) {
+        return null;
+    }
+    return ['caption' => $caption ?? __($langGroup, 'Ver más'), 'url' => $url];
+};
+//`icon` y `color` de la tarjeta y de sus cifras ya no se pintan (en desuso hasta la 11.0.0).
+$cardOf = function (array $item) use ($helpController, $toggleOf, $footerOf, $langGroup): string {
     $card = $item['card'];
     $body = $item['body'];
-    $attributes = ['data-dashboard-card' => $card->key()];
-    if ($body !== null && $body->kind() === DashboardCardBody::KIND_ACTION) {
-        return (string) $helpController->_render('panel/built-in/statistics/action-card.php', [
-            'url' => $body->url(),
-            'icon' => $card->icon(),
-            'title' => $card->title(),
-            'description' => $body->description(),
-            'caption' => $body->footerCaption(),
-        ], false, false);
-    }
-    $content = '';
-    $footer = null;
-    //Sin `tall`: la rejilla de la sección ya da a la fila el alto de la más alta y a todas el mismo ancho, sin el mínimo de
-    //250 px. Sin `wide`: las cifras se apilan, como en la hoja de diseño. Plegada, una frase en vez de las cifras.
-    $modifiers = [];
-    if ($body === null) {
-        $caption = $card->collapsedFooterCaption();
-        $footer = $caption !== null ? ['caption' => $caption, 'url' => $card->collapsedFooterUrl()] : null;
-        $content = '<p class="ui muted text">' . escape_html(__($langGroup, 'Despliégala para ver las cifras.')) . '</p>';
-    } else {
-        if ($body->kind() === DashboardCardBody::KIND_NUMBERS) {
-            $items = [];
-            foreach ($body->items() as $index => $number) {
-                $items[] = array_filter([
-                    'dataType' => $card->key() . '-' . $index,
-                    'initial' => (string) $number['value'],
-                    'concept' => $number['concept'],
-                    'subconcept' => $number['subconcept'],
-                    'icon' => $number['icon'],
-                    'color' => $number['color'],
-                ], fn($value) => $value !== null);
-            }
-            $content = (string) $helpController->_render('panel/built-in/statistics/number-cards.php', ['items' => $items], false, false);
-        } else {
-            $content = $body->htmlContent();
-        }
-        $footer = $body->footerCaption() !== null || $body->footerUrl() !== null ? ['caption' => $body->footerCaption(), 'url' => $body->footerUrl()] : null;
-    }
-    return (string) $helpController->_render('panel/built-in/statistics/statistic-card.php', [
-        'modifiers' => $modifiers,
-        'attributes' => $attributes,
+    $data = [
+        'attributes' => ['data-dashboard-card' => $card->key()],
         'title' => $card->title(),
-        'titleModifiers' => ['medium', 'wide'],
         'toolbarExtra' => $toggleOf($item),
         'help' => $card->help(),
-        'content' => $content,
-        'footer' => $footer,
-    ], false, false);
+    ];
+    if ($body === null) {
+        $data['footer'] = $footerOf($card->collapsedFooterCaption(), $card->collapsedFooterUrl());
+        $data['figure'] = ['statistics' => [], 'description' => __($langGroup, 'Despliégala para ver las cifras.')];
+    } elseif ($body->kind() === DashboardCardBody::KIND_ACTION) {
+        $data['footer'] = $footerOf($body->footerCaption(), null);
+        $data['figure'] = ['url' => $body->url(), 'description' => $body->description()];
+    } elseif ($body->kind() === DashboardCardBody::KIND_NUMBERS) {
+        $statistics = [];
+        $details = [];
+        foreach ($body->items() as $index => $number) {
+            $statistics[] = ['value' => (string) $number['value'], 'dataType' => $card->key() . '-' . $index, 'label' => $number['concept']];
+            if ($number['subconcept'] !== null) {
+                $details[] = $number['subconcept'];
+            }
+        }
+        $data['footer'] = $footerOf($body->footerCaption(), $body->footerUrl());
+        $data['figure'] = ['statistics' => $statistics, 'description' => implode(' · ', $details)];
+    } else {
+        $data['footer'] = $footerOf($body->footerCaption(), $body->footerUrl());
+        $data['figure'] = ['content' => $body->htmlContent()];
+    }
+    return (string) $helpController->_render('panel/built-in/statistics/statistic-card.php', $data, false, false);
 };
 ?>
 <section class="module-view-container" data-dashboard data-collapse-url="<?= escape_html($collapseURL); ?>">

@@ -1,0 +1,13 @@
+.style-panel-view {
+
+    //La caja recorta el iframe escalado; transform, width y height los calcula style-panel.js.
+    .style-preview-frame {
+        overflow: hidden;
+
+        iframe {
+            display: block;
+            transform-origin: 0 0;
+        }
+    }
+
+}

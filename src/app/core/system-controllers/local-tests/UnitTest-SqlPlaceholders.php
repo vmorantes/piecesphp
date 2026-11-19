@@ -687,8 +687,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $viaRechazo('organizations · name', fn (?string $v): int => \Organizations\Controllers\OrganizationsController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
     //EL GEOVISOR BUSCA EN DOS COLUMNAS con el mismo valor: dos comillas sueltas se emparejan y el SQL concatenado
     //seguiría siendo válido. `'(` no se empareja.
-    $viaRechazo('geovisor · search (personas)', fn (?string $v): int => (new \Directory\Geo\PersonsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
-    $viaRechazo('geovisor · search (organizaciones)', fn (?string $v): int => (new \Organizations\Geo\OrganizationsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
+    if (!\PiecesPHP\Geo\GeoRoutes::ENABLE) {
+        echoTerminal("   \e[33m[OMITIDA]\e[39m geovisor · search (personas y organizaciones): esta instalación tiene Geo apagado y los puntos piden la ruta de miniaturas.");
+    } else {
+        $viaRechazo('geovisor · search (personas)', fn (?string $v): int => (new \Directory\Geo\PersonsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
+        $viaRechazo('geovisor · search (organizaciones)', fn (?string $v): int => (new \Organizations\Geo\OrganizationsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
+    }
 
     //SIN BASE: la búsqueda del geovisor deja la comilla fuera del SQL y el valor en los reemplazos.
     try {

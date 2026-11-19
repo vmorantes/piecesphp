@@ -181,11 +181,15 @@ CliActions::make('unit-tests:core/dashboard-cards', function ($args) {
         };
         $r = $pedir();
         $bloque = $tarjeta($r['body']);
-        $check($r['status'] === 200 && $bloque !== '' && !str_contains($bloque, 'class="numbers-cards"'), 'e3 el inicio de root pinta la tarjeta de errores plegada, sin ninguna cifra', "HTTP {$r['status']}");
-        $check(str_contains($bloque, 'class="footer') && str_contains($bloque, 'data-dashboard-card-toggle="errors-alerts"') && str_contains($bloque, 'class="help"'), 'e3b plegada pinta su barra (botón y ayuda) y su pie con el enlace');
+        $check($r['status'] === 200 && $bloque !== '' && str_contains($bloque, 'statistic card') && !str_contains($bloque, 'data-type="errors-alerts-0"'), 'e3 el inicio de root pinta la tarjeta de errores plegada, sin ninguna cifra', "HTTP {$r['status']}");
+        $check(preg_match('/class="extra content">\s*<a href="[^"]+">/', $bloque) === 1 && str_contains($bloque, 'data-dashboard-card-toggle="errors-alerts"') && str_contains($bloque, 'question circle icon'), 'e3b plegada pinta su botón, su ayuda y su pie con el enlace');
+        $check(preg_match('/<button type="button" class="ui right floated mini tertiary icon button" data-dashboard-card-toggle="errors-alerts"/', $bloque) === 1, 'e3c el botón de plegar va a la esquina con el estilo del tema (`right floated`), como la ayuda');
         $check(DashboardCardRegistry::setCollapsed('errors-alerts', $root, false), 'e4 se despliega para ese usuario');
         $r = $pedir();
-        $check($r['status'] === 200 && str_contains($tarjeta($r['body']), 'class="numbers-cards"'), 'e5 CANARIO: desplegada, sí enseña sus cifras', "HTTP {$r['status']}");
+        $check($r['status'] === 200 && str_contains($tarjeta($r['body']), 'data-type="errors-alerts-0"'), 'e5 CANARIO: desplegada, sí enseña sus cifras', "HTTP {$r['status']}");
+        $seccion = (string) strstr((string) strstr($r['body'], 'data-dashboard '), '</section>', true);
+        $sinBotones = (string) preg_replace('#<button\b.*?</button>#s', '', $seccion);
+        $check(str_contains($seccion, 'statistic card') && str_contains($seccion, '<button') && !str_contains($sinBotones, '<i '), 'e6 las tarjetas del inicio no llevan iconos fuera de sus botones (ni en las cifras ni en el acceso directo)');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

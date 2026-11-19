@@ -93,6 +93,35 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $mixto = $comoUsuario($idGeneral, $sinVe);
         $check($mixto === ['zz-30-mixto-sin-ve'], 'v5 sin `ve`, el mixto lo ve el general: deciden todas sus rutas', json_encode($mixto) ?: '');
 
+        //Un módulo apagado no registra sus rutas. Un capítulo que explica también una pantalla de OTRO módulo (el del
+        //Directorio, la ficha de organización) lo arrastraría esa ruta; su `ve` con la suya lo quita.
+        $deModuloApagado = 'zz-ruta-de-un-modulo-apagado';
+        $apagadoConVe = $comoUsuario($idRoot, [$capitulo('zz-40-apagado-con-ve', [$deModuloApagado, $soloAdministracion], [$deModuloApagado])]);
+        $check(!array_key_exists($deModuloApagado, get_routes()) && $apagadoConVe === [], 'v7 DISCRIMINANTE: con su módulo apagado, root no ve el capítulo cuyo `ve` es de ese módulo, aunque otra de sus rutas exista', json_encode($apagadoConVe) ?: '');
+        $apagadoSinVe = $comoUsuario($idRoot, [$capitulo('zz-40-apagado-sin-ve', [$deModuloApagado, $soloAdministracion])]);
+        $check($apagadoSinVe === ['zz-40-apagado-sin-ve'], 'v8 sin `ve`, la ruta del otro módulo lo arrastra: por eso el capítulo mixto lo lleva', json_encode($apagadoSinVe) ?: '');
+        //El caso real (stc): el capítulo del Directorio, en cada idioma, lo decide su listado y no la ficha de organización.
+        $indiceReal = require __DIR__ . '/../../../classes/MySpace/Views/manual/index.php';
+        $veDirectorio = array_map(fn(array $e): mixed => $e['ve'] ?? null, array_values(array_filter(is_array($indiceReal) ? $indiceReal : [], fn($e): bool => is_array($e) && ($e['slug'] ?? null) === '56-directorio')));
+        $check($veDirectorio !== [] && array_unique($veDirectorio, SORT_REGULAR) === [['directory-admin-list', 'profile-admin-profile']], 'v9 DISCRIMINANTE: el capítulo real del Directorio lleva `ve: [directory-admin-list, profile-admin-profile]` en todos sus idiomas', json_encode($veDirectorio) ?: '');
+        //`ve` es «cualquiera de»: quien solo tiene el perfil (el rol 4 de stc) ve el capítulo. Con el `ve` de antes, solo el
+        //listado, no lo veía (H406); la variante con ese `ve` es el contraste que hace caer el caso si el índice vuelve atrás.
+        $soloPerfil = 0;
+        foreach ([UsersModel::TYPE_USER_COMUNICACIONES, UsersModel::TYPE_USER_INSTITUCIONAL, UsersModel::TYPE_USER_ADMIN_ORG, $general] as $tipo) {
+            if (Roles::hasPermissions('profile-admin-profile', $tipo) && !Roles::hasPermissions('directory-admin-list', $tipo) && $unoDe($tipo) > 0) {
+                $soloPerfil = $unoDe($tipo);
+                break;
+            }
+        }
+        $directorio56 = array_values(array_filter(is_array($indiceReal) ? $indiceReal : [], fn($e): bool => is_array($e) && ($e['slug'] ?? null) === '56-directorio'));
+        $encendido = array_key_exists('directory-admin-list', get_routes()) && array_key_exists('profile-admin-profile', get_routes());
+        if ($check($soloPerfil > 0 && $encendido && $directorio56 !== [], 'v10 CANARIO: el Directorio está encendido y hay en la base un usuario de un tipo con el perfil y sin el listado (solo se lee)', "usuario {$soloPerfil}")) {
+            $conPerfil = $comoUsuario($soloPerfil, $directorio56);
+            $soloListado = $comoUsuario($soloPerfil, array_map(fn(array $e): array => ['ve' => ['directory-admin-list']] + $e, $directorio56));
+            $check($conPerfil === ['56-directorio'] && $soloListado === [],
+                'v11 DISCRIMINANTE: quien tiene el perfil y no el listado ve el capítulo real del Directorio, y con `ve: [directory-admin-list]` no lo vería', 'real ' . (json_encode($conPerfil) ?: '') . ', solo el listado ' . (json_encode($soloListado) ?: ''));
+        }
+
         $real = $comoUsuario($idRoot, null);
         $check(count($real) > 3 && array_filter($real, fn(string $slug): bool => str_starts_with($slug, 'zz-')) === [], 'v6 sin índice, el real: el sintético no se queda pegado', count($real) . ' capítulo(s)');
     } finally {

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.18.0 - List
+ * # Fomantic-UI 0.19.0 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -71,6 +71,23 @@ ul.ui.list li:last-child,
 ol.ui.list li:last-child,
 .ui.list .list > .item:last-child,
 .ui.list > .item:last-child {
+  padding-bottom: 0;
+}
+
+/* Fork: los enlaces de una lista vertical (objetivos de 24px con el contenido centrado, core) sin relleno vertical: todos
+   miden 24px con el texto en el centro. Con el de Fomantic, que quita el de arriba al primero y el de abajo al último, el
+   texto de esos dos quedaba 1,5px descentrado y el paso entre enlaces variaba (23/24/24/23 en fluent; 2026-11-18); el
+   primero y el último ya medían 24px por el min-height, así que la lista no cambia de alto. Y en una lista que mezcla
+   enlaces e ítems sin enlace, todos miden lo que un enlace (el paso era 25,5/23). Con :where(), justo por encima de
+   Fomantic y por debajo de cualquier tema: el relleno propio de un tema (la caja de 36px de piecesphp) sigue mandando */
+.ui.list:where(:not(.horizontal):not(.selection):not(.celled):not(.divided)) > a.item {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.ui.list:where(:not(.horizontal):not(.selection):not(.celled):not(.divided):has(> a.item)) > div.item {
+  min-height: 24px;
+  align-content: center;
+  padding-top: 0;
   padding-bottom: 0;
 }
 
@@ -974,8 +991,10 @@ ol.ui.suffixed.list li::before,
 
 /* Link list vertical como los enlaces del panel de Configuración (.pp-cfg-link): caja de
    36px, padding 0 10px, radio md; fondo --accent-50 al pasar por encima, con foco o activo.
-   La horizontal (pies, migas) solo cambia de color. */
-.ui.link.list:not(.horizontal) > a.item {
+   La horizontal (pies, migas) solo cambia de color. La caja, en todos los ítems de la lista, también los que no son
+   enlace (el activo de la página en un div, un div con un enlace dentro): con 24px y sin relleno lateral, el paso entre
+   textos era 31,5/36/36/32 y su texto quedaba 10px a la izquierda de los demás (2026-11-18). */
+.ui.link.list:not(.horizontal) > .item {
   display: flex;
   align-items: center;
   gap: 0.57142857rem;
@@ -989,17 +1008,17 @@ ol.ui.suffixed.list li::before,
   color: var(--accent-text);
   text-decoration: none;
 }
-.ui.ui.link.list:not(.horizontal):not(.inverted) > a.active.item {
+.ui.ui.link.list:not(.horizontal):not(.inverted) > .active.item {
   background: var(--accent-50);
   color: var(--accent-text);
   font-weight: 600;
 }
 
 /* Ícono y contenido dentro de la caja flexible (en el default son celdas de tabla) */
-.ui.link.list:not(.horizontal) > a.item > .icon {
+.ui.link.list:not(.horizontal) > .item > .icon {
   padding: 0;
   color: inherit;
 }
-.ui.link.list:not(.horizontal) > a.item > .content {
+.ui.link.list:not(.horizontal) > .item > .content {
   padding: 0;
 }

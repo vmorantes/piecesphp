@@ -59,6 +59,17 @@ function ContentImageEditor(scope = '') {
 	const $apply = $editor.find('.approve.button')
 	const text = (name) => editor.getAttribute(`data-text-${name}`)
 	const sizeOf = (element) => `${element.dataset.width} × ${element.dataset.height} px`
+	//Lo de esa tarjeta y no lo de una anidada en ella (la imagen oscura de una imagen de marca va dentro de la suya).
+	const own = (element, selector) => Array.from(element.querySelectorAll(selector)).find((node) => node.closest('[data-image-card]') === element) ?? null
+	//Vacía es sin imagen; o, si la tarjeta lo dice (`data-image-card-has-image="no"`), con una vista previa que no es suya.
+	//El <img> del damero vacío (`data-image-card-placeholder`) no es la imagen de la tarjeta.
+	const PREVIEW_IMAGE = 'img:not([data-image-card-placeholder])'
+	const isEmpty = (element) => element.dataset.imageCardHasImage === 'no' || own(element, `.checkered.image ${PREVIEW_IMAGE}`) === null
+	const markFilled = (element) => {
+		if (element.dataset.imageCardHasImage !== undefined) {
+			element.dataset.imageCardHasImage = 'yes'
+		}
+	}
 
 	/**
 	 * El zoom de Cropper manda: el deslizador lo refleja sin volver a llamarlo.
@@ -179,8 +190,9 @@ function ContentImageEditor(scope = '') {
 	}
 
 	const updateCard = function (file, url) {
-		const holder = card.querySelector('.checkered.image')
-		let image = holder.querySelector('img')
+		const holder = own(card, '.checkered.image')
+		const below = card.closest('.content-image-card-below') !== null
+		let image = holder.querySelector(PREVIEW_IMAGE)
 		//El texto de la tarjeta vacía («Sin foto»), si lo lleva: la imagen ocupa su sitio.
 		const empty = holder.querySelector('[data-image-card-empty]')
 		if (empty !== null) {
@@ -193,16 +205,31 @@ function ContentImageEditor(scope = '') {
 			edit.setAttribute('aria-label', card.dataset.editLabel)
 			edit.dataset.imageCardEdit = ''
 			image = document.createElement('img')
-			image.className = 'ui small image'
+			//La variante con las vistas previas debajo pinta la imagen con su proporción y su tamaño máximo, no a 150 px.
+			if (below) {
+				image.width = Number(card.dataset.width)
+				image.height = Number(card.dataset.height)
+			} else {
+				image.className = 'ui small image'
+			}
 			image.alt = card.dataset.title
 			edit.appendChild(image)
 			holder.appendChild(edit)
 		}
+		//En esa variante, una imagen subida tal cual (de otra medida que la anterior) toma la suya al cargar.
+		if (below) {
+			image.addEventListener('load', () => {
+				if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+					image.width = image.naturalWidth
+					image.height = image.naturalHeight
+				}
+			}, { once: true })
+		}
 		image.src = url
-		card.querySelector('input[type=file]').required = false
-		let download = card.querySelector('[data-image-card-download]')
+		own(card, 'input[type=file]').required = false
+		let download = own(card, '[data-image-card-download]')
 		if (download === null) {
-			const template = card.querySelector('[data-image-card-download-template]')
+			const template = own(card, '[data-image-card-download-template]')
 			download = template.content.firstElementChild.cloneNode(true)
 			template.replaceWith(download)
 		}
@@ -220,10 +247,11 @@ function ContentImageEditor(scope = '') {
 		const formData = new FormData()
 		formData.set(card.dataset.field, file)
 		//Antes de pintarla: una tarjeta vacía que se llena es «agregada», no «reemplazada».
-		const added = card.querySelector('.checkered.image img') === null
+		const added = isEmpty(card)
 		postRequest(card.dataset.action, formData).done((response) => {
 			finishApply()
 			if (response.success) {
+				markFilled(card)
 				updateCard(file, url)
 				$editor.modal('hide')
 				successMessage(text(added ? 'added' : 'replaced'), text(added ? 'added-detail' : 'replaced-detail'))
@@ -234,6 +262,26 @@ function ContentImageEditor(scope = '') {
 			finishApply()
 			errorMessage(text('error'), text('error-detail'))
 		})
+	}
+
+	/**
+	 * La tarjeta que se sube tal cual (`data-direct-upload`, la animación de carga): sin editor, el archivo va al servidor
+	 * y la tarjeta se llena si lo acepta.
+	 */
+	const sendDirect = function (file, element) {
+		const formData = new FormData()
+		formData.set(element.dataset.field, file)
+		const added = isEmpty(element)
+		postRequest(element.dataset.action, formData).done((response) => {
+			if (response.success) {
+				card = element
+				markFilled(card)
+				updateCard(file, URL.createObjectURL(file))
+				successMessage(text(added ? 'added' : 'replaced'), text(added ? 'added-detail' : 'replaced-detail'))
+			} else {
+				errorMessage(text('error'), response.message)
+			}
+		}).fail(() => errorMessage(text('error'), text('error-detail')))
 	}
 
 	const apply = function () {
@@ -342,20 +390,26 @@ function ContentImageEditor(scope = '') {
 	})
 
 	document.querySelectorAll(`[data-image-card="${scope}"]`).forEach((element) => {
-		const input = element.querySelector('input[type=file]')
-		const button = element.querySelector('[data-input]')
+		const input = own(element, 'input[type=file]')
+		const button = own(element, '[data-input]')
 		button.addEventListener('click', () => input.click())
 		//En la tarjeta y no en el botón: el de una tarjeta vacía nace al aplicar.
 		element.addEventListener('click', (event) => {
 			const edit = event.target.closest('[data-image-card-edit]')
-			if (edit !== null) {
-				openCurrent(edit.querySelector('img'), element, edit)
+			if (edit !== null && edit.closest('[data-image-card]') === element) {
+				if (element.dataset.directUpload === 'yes') {
+					input.click()
+				} else {
+					openCurrent(edit.querySelector('img'), element, edit)
+				}
 			}
 		})
 		input.addEventListener('change', () => {
 			const file = input.files[0]
 			input.value = ''
-			if (file !== undefined) {
+			if (file !== undefined && element.dataset.directUpload === 'yes') {
+				sendDirect(file, element)
+			} else if (file !== undefined) {
 				openWith(file, element, button)
 			}
 		})

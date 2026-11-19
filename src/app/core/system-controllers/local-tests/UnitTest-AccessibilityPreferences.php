@@ -280,7 +280,7 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
             }
         }
         $check(($grupos === false ? 0 : $grupos->length) === 7 && $sinSitio === [], 'v4 «Como el sitio» es la primera opción de los siete grupos y cada uno lleva debajo «Como el sitio: …»', 'sin él: ' . implode(', ', $sinSitio));
-        $r = $peticion($relativa(SettingsController::routeName('appearance-accessibility', [], true)), $jwtRoot, null);
+        $r = $peticion($relativa(SettingsController::routeName('appearance-colors', [], true)), $jwtRoot, null);
         $xpath = $dom($r['body']);
         $sitio = [
             'apariencia' => $cuenta($xpath, "//*[@id='accessibility-appearance-title']"),
@@ -363,7 +363,8 @@ CliActions::make('unit-tests:core/accessibility-preferences', function ($args) {
         foreach ($memoriaSitio as $opcion => $valor) {
             set_config($opcion, $valor);
         }
-        $check(count(array_filter($delSitio, fn(string $atributo): bool => str_contains($atributos, $atributo))) === 7 && substr_count($atributos, 'data-') === 7, 'p1 htmlPreferenceAttributes() sin sesión: los siete del sitio, escapados', $atributos);
+        $check(count(array_filter($delSitio, fn(string $atributo): bool => str_contains($atributos, $atributo))) === 7 && substr_count((string) preg_replace('/ data-loader-[a-z-]+="[^"]*"/', '', $atributos), 'data-') === 7, 'p1 htmlPreferenceAttributes() sin sesión: los siete del sitio, escapados', $atributos);
+        $check(preg_match_all('/ data-loader-(animation|logo)(-dark|-invert)?="[^"]*"/', $atributos) === 6, 'p1b y detrás, los seis del cargador (H345)', $atributos);
         $paginas = [
             'p2 la página de acceso' => $relativa(UsersController::routeName('form-login', [], true)),
             'p3 la lista de problemas de acceso' => $relativa(UsersController::routeName('problems-list', [], true)),

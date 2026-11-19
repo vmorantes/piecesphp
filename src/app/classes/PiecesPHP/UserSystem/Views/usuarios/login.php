@@ -16,6 +16,7 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon-back')); ?>" type="image/x-icon">
     <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
     <?php //Sin ExtraScripts a propósito: un script de terceros aquí leería la contraseña mientras se teclea. ?>
+    <?php $themeTogglePart = 'head'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>
 </head>
 
 <body>

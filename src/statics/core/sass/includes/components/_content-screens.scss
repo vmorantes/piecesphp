@@ -80,8 +80,84 @@ $-stackedCellLabelColor: rgba(0, 0, 0, 0.6);
 }
 
 //La vista previa de la casilla «Invertir colores en modo oscuro», también en el tema claro: el mismo filtro que `.invert-on-dark`.
+// @en-desuso 11.0.0: solo la pone `invertOnDark` de image-card.php, que Imágenes de marca ya no usa (H340); se borra en la 11.0.0
 .content-image-card-inverted img {
     filter: brightness(0) invert(1);
+}
+
+//El rótulo de una vista previa («Modo claro», «Modo oscuro»; `previewCaption`), en su esquina y sin mover la imagen.
+.checkered.image:has(> .content-image-card-caption) {
+    position: relative;
+}
+
+.content-image-card-caption {
+    position: absolute;
+    inset-block-start: 0.5rem;
+    inset-inline-start: 0.5rem;
+}
+
+//La vista en modo oscuro de una imagen de marca (H340), dentro del contenido de su tarjeta: «Invertir en blanco», en
+//los dos temas, con el filtro de `.invert-on-dark`.
+.content-image-card-dark-invert {
+    filter: brightness(0) invert(1);
+}
+
+//La variante con las vistas previas debajo (`previewsBelow`, Imágenes de marca): lado a lado y alineadas arriba,
+//una sola a todo el ancho y apiladas en el móvil. Cada imagen, con la proporción y como mucho el tamaño de los
+//`width`/`height` de su `<img>`, reducida entera si no cabe; el damero, solo en su área y con un borde discontinuo.
+.content-image-card-below > .content.content-image-card-previews {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+
+    @media only screen and (max-width: 767.98px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    > .ui.card {
+        width: auto;
+        margin: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    > .ui.card:only-child {
+        grid-column: 1 / -1;
+    }
+
+    > .ui.card > .content-image-card-caption {
+        position: static;
+        align-self: flex-start;
+        margin: 0 0 0.5rem;
+    }
+
+    //`!important` en el borde y las esquinas: el tema quita con `!important` el borde de arriba a la primera hija de una
+    //tarjeta y redondea la primera, la última y la única; aquí el borde marca dónde acaba la imagen.
+    > .ui.card > .checkered.image {
+        display: block;
+        width: fit-content;
+        max-width: 100%;
+        height: auto;
+        min-height: 0;
+        padding: 0;
+        border: 1px dashed var(--theme-border) !important;
+        border-radius: 0 !important;
+    }
+
+    > .ui.card > .checkered.image > button {
+        max-width: 100%;
+    }
+
+    > .ui.card > .checkered.image img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        border-radius: 0;
+    }
 }
 
 //Cropper mide la caja del resultado y pinta dentro la imagen entera: sin esto se vería lo que queda fuera del recuadro.

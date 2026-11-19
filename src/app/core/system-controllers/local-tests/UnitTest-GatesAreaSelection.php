@@ -162,6 +162,37 @@ CliActions::make('unit-tests:core/gates-area-selection', function ($args) {
     //AdminPanelController vive en PiecesPHP/AdminPanel/, que no es un módulo de la lista.
     $check(array_key_exists('admin', $modules) && $modules['admin'] === null, 'b6 admin no cae en ningún módulo: null', json_encode($modules['admin'] ?? 'falta') ?: '');
 
+    echoTerminal(' ');
+    echoTerminal('[m] Una suite que pide un módulo apagado se omite (//@requires-module, H404)');
+    $mSuffix = bin2hex(random_bytes(4));
+    $mDir = basepath("app/cache/zz-gates-modules-{$mSuffix}");
+    try {
+        if (!is_dir($mDir) && !mkdir($mDir, 0775, true)) {
+            throw new \RuntimeException("no se pudo crear {$mDir}");
+        }
+        $suiteFile = "{$mDir}/UnitTest-ZzModulo.php";
+        $wrote = file_put_contents($suiteFile, "<?php\n//@areas nucleo\n//@requires-module \\Zz\\UnoRoutes\n//@requires-module Zz\\DosRoutes\nCliActions::make('zz', fn () => 1);\n//@requires-module Zz\\TrasMakeRoutes\n");
+        $check($wrote !== false && GatesTask::requiredModulesOf($suiteFile) === ['Zz\\UnoRoutes', 'Zz\\DosRoutes'], 'm1 lee las líneas de la cabecera, sin la barra inicial y solo antes de CliActions::make', implode(', ', GatesTask::requiredModulesOf($suiteFile)));
+        $off = "ZzGatesOff{$mSuffix}Routes";
+        $on = "ZzGatesOn{$mSuffix}Routes";
+        $classes = "{$mDir}/classes.php";
+        $wrote = file_put_contents($classes, "<?php\nclass {$off} { const ENABLE = false; }\nclass {$on} { const ENABLE = true; }\n");
+        if ($wrote !== false) {
+            require_once $classes;
+        }
+        $states = GatesTask::moduleStates([$off, $on, 'Zz\\NoExisteRoutes']);
+        $check($states === ['off' => [$off], 'invalid' => ['Zz\\NoExisteRoutes']], 'm2 el apagado se omite, el encendido corre y lo que no es una clase con ENABLE es un error', json_encode($states) ?: '');
+        $real = \PiecesPHP\Notifications\NotificationsRoutes::class;
+        $check(GatesTask::moduleStates([$real]) === ['off' => \PiecesPHP\Notifications\NotificationsRoutes::ENABLE ? [] : [$real], 'invalid' => []], 'm3 CANARIO: con un *Routes real, sigue su ENABLE');
+    } finally {
+        foreach (glob("{$mDir}/*") ?: [] as $leftover) {
+            //RETORNO-IGNORADO: limpieza de un temporal propio; z1 de abajo no lo vigila porque está en app/cache.
+            @unlink($leftover);
+        }
+        //RETORNO-IGNORADO: limpieza de un temporal propio; si queda la carpeta vacía en app/cache, no estorba.
+        @rmdir($mDir);
+    }
+
     return $balance();
 
 })->setDescription('La selección por área de gates (ADR 0062 y 0065), sobre GatesTask::selectByArea(): News/ no elige Newsletter/, lo sin @areas corre siempre, el núcleo y lo que no está en la lista de módulos las corre todas, la documentación no elige ninguna, el archivo de una suite la elige a ella, un área archivo casa por igualdad, un artefacto de instrumento elige solo las suites que lo leen y una suite «@areas nucleo» no corre con un cambio solo de módulos. Sin base ni git.')->setEffects([CliActions::EFFECT_NONE])->register();

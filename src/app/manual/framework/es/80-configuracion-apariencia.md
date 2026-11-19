@@ -6,7 +6,7 @@ rutas: [configurations-appearance-brand-images, configurations-appearance-backgr
 # Configuración de la apariencia
 
 Aquí personalizas cómo se ve y cómo se presenta la plataforma. Se llega por el botón de engranajes de la barra superior, **«Configuración del sistema»**. Imágenes de
-marca, Fondos del inicio de sesión, Colores y Accesibilidad están en el grupo **«Apariencia»**; Identidad y SEO y
+marca, Fondos del inicio de sesión y Estilo del panel están en el grupo **«Apariencia»**; Identidad y SEO y
 Archivos para buscadores, en **«SEO y Scripts»**.
 
 ## Imágenes de marca
@@ -17,19 +17,26 @@ todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos
 
 ![Imágenes de marca](img/configurations-appearance-brand-images.webp)
 
-Para editar una imagen, púlsala. Además, cada una tiene el botón **«Cambiar imagen»** y un icono para descargarla o verla. Las imágenes son:
+Para editar una imagen, púlsala. Además, cada una tiene el botón **«Cambiar imagen»** y un icono para descargarla o verla.
+Cada tarjeta dice dónde se usa su imagen y enseña cómo se ve, a su tamaño real: en **«Modo claro»** y, en las que lo
+tienen, en **«Modo oscuro»**, una al lado de la otra. Las imágenes son:
 
-- Logo
-- Favicon zona administrativa
-- Favicon zona pública / sitio web
-- Correos electrónicos
-- Bandera horizontal
-- Bandera vertical
+- **Logo**.
+- **Favicon zona administrativa** y **Favicon zona pública / sitio web**.
+- **Animación de carga**: la que se ve mientras carga una pantalla, en el panel y en el sitio público. Acepta GIF,
+  de cualquier tamaño (se recomiendan 360 px de alto), y se sube tal cual, sin recortar. El usuario principal puede subir
+  también un SVG, que se revisa al subirlo. De fábrica es
+  el logo dibujándose.
+- **Logo del cargador**: una imagen fija que acompaña a la animación, debajo. De fábrica es la «P» del logo (en modo
+  oscuro, en blanco y celeste). Es opcional: con **«Eliminar»** el cargador deja de enseñarla y se queda solo con la
+  animación; para volver a tener una, súbela.
+- **Correos electrónicos**.
+- En **«Terceros»**: **Bandera horizontal** y **Bandera vertical**.
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Texto sobre el patrocinador | No | Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Hay un campo por cada idioma activo del sitio. En el idioma principal, vacío, no se pinta; en los demás, vacío usa el del idioma principal. |
-| Invertir colores en modo oscuro | No | Está en algunas imágenes. Necesita un PNG con fondo transparente: un fondo opaco saldría como un rectángulo blanco. |
+| En modo oscuro | No | Está en el logo, las dos banderas, la animación de carga y el logo del cargador. **«Igual»** enseña la misma imagen; **«Invertir en blanco»** la vuelve blanca (necesita fondo transparente: un fondo opaco saldría como un rectángulo blanco); **«Otra imagen»** te deja subir una versión para el modo oscuro con **«Elegir imagen oscura»**. Se guarda al cambiarlo. |
 
 Cuando termines, pulsa **«Guardar»**.
 
@@ -48,16 +55,31 @@ agregas un fondo. Siempre queda al menos uno: con un solo fondo, «Eliminar» es
 
 Aparte está el **Fondo problemas de inicio**, que se cambia igual y no se puede eliminar.
 
-## Colores
+## Estilo del panel
 <!-- ve: configurations-appearance-colors -->
 
-Entra por **«Colores»**. El color de tu organización se usa solo como acento (botones, selección, enlaces y foco). Los
-colores complementarios se usan únicamente en gráficas y datos.
+Entra por **«Estilo del panel»**. Es una sola pantalla con tres pestañas: **«Colores»**, **«Tipografía y forma»** y
+**«Accesibilidad»**. La pestaña elegida se queda en la dirección, así que puedes guardarla o compartirla, y la
+pantalla la recuerda al volver.
 
-![Colores](img/configurations-appearance-colors.webp)
+![Estilo del panel](img/configurations-appearance-colors.webp)
 
-Junto a cada color, **«Elegir color»** abre el selector. Abajo, la **«Muestra en vivo»** enseña cómo se verán
-el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
+Debajo de las pestañas, la **«Muestra en vivo»** enseña el panel en **«Modo claro»** y **«Modo oscuro»** lado a lado
+(apiladas en el móvil), y se actualiza al momento con lo que cambias en cualquiera de las tres pestañas, antes de
+guardar.
+
+Cada pestaña tiene **«Restablecer»**: te dice qué vuelve a los valores de fábrica, te pide confirmación y lo guarda al
+momento. Solo restablece lo de esa pestaña; lo que hubieras cambiado sin guardar en la pantalla se pierde.
+
+!!! note "Colores y tipografía se guardan juntos"
+    «Colores» y «Tipografía y forma» son un mismo formulario: el botón **«Guardar colores y tipografía»** guarda lo de
+    las dos pestañas. Si dejas cambios sin guardar en la otra, junto al botón lo avisa. «Accesibilidad» se guarda aparte,
+    con su propio **«Guardar»**.
+
+### Colores
+
+El color de tu organización se usa solo como acento (botones, selección, enlaces y foco). Los colores complementarios
+se usan únicamente en gráficas y datos. Junto a cada color, **«Elegir color»** abre el selector.
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
@@ -67,25 +89,29 @@ el acento y la paleta en el panel. Al final, **«Cancelar»** o **«Guardar»**.
 | Serie 2, Serie 3, Serie 4, Serie 5 | No | Los colores de las series de las gráficas. |
 | Usar acento, Neutro oscuro | No | El color de la barra superior del navegador en los celulares. |
 | Acento 2, Acento 3 | No | Colores para realces puntuales: el panel no los usa por su cuenta. |
+
+### Tipografía y forma
+
+| Campo | Obligatorio | Para qué |
+| --- | --- | --- |
 | Fuente | No | La tipografía del panel: Atkinson Hyperlegible Next (la de fábrica), Red Hat Text, IBM Plex Sans u Onest. |
 | Tamaño base | No | El tamaño base del texto. |
 | Radio | No | Lo redondeadas que salen las esquinas en todo el panel. |
 
-## Accesibilidad
+## Accesibilidad del panel
 <!-- ve: configurations-appearance-accessibility -->
 
-Entra por **«Accesibilidad»**. Aquí eliges cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta» ›
-«Preferencias» (ver «Tu cuenta», «Tus preferencias»). Tiene las mismas dos tarjetas que las preferencias de cada
-persona: **Apariencia** y **Lectura y movimiento**.
+Es la pestaña **«Accesibilidad»** de «Estilo del panel» (la dirección antigua de «Accesibilidad» lleva a ella). Aquí
+eliges cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta» › «Preferencias» (ver «Tu cuenta», «Tus
+preferencias»). Tiene las mismas dos tarjetas que las preferencias de cada persona: **Apariencia** y **Lectura y
+movimiento**.
 
 ![Accesibilidad](img/configurations-appearance-accessibility.webp)
-
-Al final, **«Cancelar»** o **«Guardar»**.
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Modo de color por omisión | No | En **Apariencia**: **«Claro»**, **«Oscuro»** o **«Sistema»** (el que tenga el dispositivo de cada persona). |
-| Tamaño de letra por omisión | No | **«Normal»**, **«Grande»** o **«Más grande»**. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de Colores. |
+| Tamaño de letra por omisión | No | **«Normal»**, **«Grande»** o **«Más grande»**. Grande y Más grande suman 2 y 4 píxeles al «Tamaño base» de «Tipografía y forma». |
 | Espaciado del texto por omisión | No | **«Normal»** o **«Amplio»**: más espacio entre líneas, párrafos, palabras y letras. |
 | Contraste por omisión | No | En **Lectura y movimiento**: **«Automático»** (sigue al dispositivo de cada persona) o **«Más contraste»**. |
 | Movimiento por omisión | No | **«Automático»** o **«Reducir movimiento»**. |

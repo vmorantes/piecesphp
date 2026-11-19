@@ -22,11 +22,14 @@ $items = isset($items) && is_array($items) ? array_values(array_filter($items, '
 $textOf = fn (array $item): string => isset($item['label']) && is_string($item['label']) ? $item['label'] : '';
 $anchorOf = fn (array $item): ?string => isset($item['anchor']) && is_string($item['anchor']) && $item['anchor'] !== '' ? $item['anchor'] : null;
 $urlOf = fn (array $item): ?string => $anchorOf($item) !== null ? '#' . $anchorOf($item) : (isset($item['href']) && is_string($item['href']) && $item['href'] !== '' ? $item['href'] : null);
+//El href de un ancla lleva la ruta de la página (sin host ni esquema, por el proxy TLS; una sola «/» para no volverse otro host): con <base href>, un «#…» suelto va a la portada.
+$page = '/' . ltrim(explode('#', (string) ($_SERVER['REQUEST_URI'] ?? ''), 2)[0], '/');
+$hrefOf = fn (array $item): ?string => $anchorOf($item) !== null ? $page . '#' . $anchorOf($item) : $urlOf($item);
 $activeOf = fn (array $item): bool => ($item['active'] ?? false) === true;
 $childrenOf = fn (array $item): array => isset($item['children']) && is_array($item['children']) ? array_values(array_filter($item['children'], 'is_array')) : [];
 //Un enlace del menú: el ancla lleva su gancho para que el JS lo marque; la página actual, su aria-current.
-$link = function (array $item, string $class) use ($textOf, $anchorOf, $urlOf, $activeOf): string {
-    $url = $urlOf($item);
+$link = function (array $item, string $class) use ($textOf, $anchorOf, $hrefOf, $activeOf): string {
+    $url = $hrefOf($item);
     $anchor = $anchorOf($item);
     $active = $activeOf($item);
     //Sin destino, un rótulo: un href vacío recargaría la página.

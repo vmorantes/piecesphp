@@ -123,6 +123,26 @@ CliActions::make('unit-tests:core/image-card', function ($args) {
     $check($holder instanceof \DOMElement && $holder->getAttribute('data-tooltip') === "Motivo {$comillas}" && $holder->getElementsByTagName('button')->item(0)?->hasAttribute('disabled') === true, 'v14 con motivo, deshabilitado y el envoltorio lo explica en su tooltip');
     echoTerminal(' ');
 
+    echoTerminal('[2b] La variante con las vistas previas debajo (previewsBelow, Imágenes de marca)');
+    $debajo = $pintar(['id' => 'zz-debajo', 'title' => 'x', 'image' => 'statics/zz.png', 'width' => 1, 'height' => 1, 'previewsBelow' => true, 'previewCaption' => 'Zz claro', 'extraPreviewHtml' => '<div class="ui fluid card" data-zz-extra></div>']);
+    $xDebajo = new \DOMXPath((function (string $html): \DOMDocument {
+        $documento = new \DOMDocument();
+        @$documento->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+        return $documento;
+    })($debajo));
+    $check($xDebajo->query('//article[contains(@class,"content-image-card-below")]')?->length === 1, 'b1 DISCRIMINANTE: la tarjeta lleva la clase de la variante');
+    $check($xDebajo->query('//article/div[contains(@class,"checkered")]')?->length === 0 && $xDebajo->query('//article/div[contains(@class,"content-image-card-previews")]/div[contains(@class,"card")]/div[contains(@class,"checkered")]//img')?->length === 1, 'b2 DISCRIMINANTE: la vista previa va debajo, en su propia ui card, y no como hija de la tarjeta');
+    $check($xDebajo->query('//article/div[contains(@class,"content")][1]//h3')?->length === 1 && $xDebajo->query('//article/div[contains(@class,"content-image-card-previews")]/preceding-sibling::div[contains(@class,"content")]')?->length === 1, 'b3 el texto, arriba: el bloque del título va antes que el de las vistas previas');
+    $check($xDebajo->query('//div[contains(@class,"content-image-card-previews")]/div[@data-zz-extra]')?->length === 1 && str_contains($debajo, 'Zz claro'), 'b4 extraPreviewHtml, junto a la vista previa, y su rótulo');
+    $imagenDebajo = $xDebajo->query('//div[contains(@class,"content-image-card-previews")]//div[contains(@class,"checkered")]//img')?->item(0);
+    $check($imagenDebajo instanceof \DOMElement && $imagenDebajo->getAttribute('width') === '1' && $imagenDebajo->getAttribute('height') === '1' && !str_contains($imagenDebajo->getAttribute('class'), 'small'), 'b7 DISCRIMINANTE: en la variante, el img lleva width y height (su proporción y su tamaño máximo) y no la medida fija de ui small image');
+    $check($xDebajo->query('//div[contains(@class,"content-image-card-previews")]/div[contains(@class,"card")]/span[contains(@class,"content-image-card-caption")]')?->length === 1 && $xDebajo->query('//div[contains(@class,"checkered")]/span[contains(@class,"content-image-card-caption")]')?->length === 0, 'b8 el rótulo, fuera del damero: el damero cubre solo la imagen');
+    $sinVariante = $pintar(['id' => 'zz-sin-variante', 'title' => 'x', 'width' => 1, 'height' => 1, 'extraPreviewHtml' => '<div data-zz-extra></div>']);
+    $check(!str_contains($sinVariante, 'data-zz-extra') && !str_contains($sinVariante, 'content-image-card-previews') && str_contains($sinVariante, '<article class="card"'), 'b5 DISCRIMINANTE: sin previewsBelow, la de siempre, y extraPreviewHtml no se pinta');
+    $sinMedida = $pintar(['id' => 'zz-sin-medida', 'title' => 'x', 'width' => 120, 'height' => 120, 'showSize' => false]);
+    $check(!str_contains($sinMedida, '120 × 120 px') && str_contains($pintar(['id' => 'zz-con-medida', 'title' => 'x', 'width' => 120, 'height' => 120]), '120 × 120 px'), 'b6 DISCRIMINANTE: showSize false no pinta la medida; por omisión, sí');
+    echoTerminal(' ');
+
     echoTerminal('[3/4] El editor');
     $editor = (string) (new BaseController())->render('panel/built-in/content/image-editor', [], false);
     $check(str_contains($editor, 'class="ui fullscreen modal"') && str_contains($editor, 'data-image-editor=""'), 'e1 un ui fullscreen modal');

@@ -1,5 +1,5 @@
 //El panel de marca del acceso y de la ayuda (access-open.php). Con imagen, un velo: el texto va encima de una foto cualquiera.
-$-accessScrim: rgba(0, 0, 0, 0.55);
+$-accessScrim: var(--theme-scrim, rgba(0, 0, 0, 0.85));
 $-accessBrandText: #fff;
 
 //La hoja base del panel (ui-pcs.scss) cierra el desplazamiento de html y body; estas páginas no llevan su armazón.
@@ -19,17 +19,19 @@ body {
 }
 
 //El velo sustituye a la trama del tema (`::before`), que sigue encima de la imagen: necesita su misma especificidad.
+//Denso solo detrás del bloque central y casi transparente fuera: 62 % es el mínimo medido con ≥ 4,5:1 para el blanco con los cinco fondos y una foto casi blanca.
 .ui.grid > .tinted.column.access-brand.with-image {
     &::before {
-        background: $-accessScrim;
+        //Sin la máscara de la trama, que lo desvanecía justo donde está el texto.
+        -webkit-mask-image: none;
+        mask-image: none;
+        background: radial-gradient(ellipse 70% 32% at 50% 43%, color-mix(in srgb, #{$-accessScrim} 62%, transparent) 0%, color-mix(in srgb, #{$-accessScrim} 62%, transparent) 60%, color-mix(in srgb, #{$-accessScrim} 6%, transparent) 100%);
     }
 
-    &,
+    //Solo el texto que va sobre la foto: el recuadro del patrocinador lleva el color de su modo.
     .ui.header,
     .ui.header .sub.header,
-    .ui.muted.text,
-    .welcome-msg,
-    a {
+    .welcome-msg {
         color: $-accessBrandText;
     }
 }

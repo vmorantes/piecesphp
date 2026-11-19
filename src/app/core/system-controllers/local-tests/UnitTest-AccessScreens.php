@@ -125,6 +125,9 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
     };
     $propietarioAntes = $crudo('owner');
     $invertirAntes = $crudo(\PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['logo']);
+    $opcionModo = \PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_DARK_MODE['logo']['mode'];
+    $opcionOscura = \PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_DARK_MODE['logo']['image'];
+    $modoAntes = $crudo($opcionModo);
 
     $prefijo = 'zz-prueba-acceso-' . bin2hex(random_bytes(3));
     $correo = "{$prefijo}@example.invalid";
@@ -236,7 +239,7 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
             $check(str_contains($pedir($ruta404)['body'], 'data-error-developer'), 'p5 la página de error lleva el crédito «Desarrollado por», como el menú lateral');
         }
         $partners = trim((string) get_config('partners'));
-        $check($partners === '' || $dom($pedir($rutaAcceso)['body'])->query('//*[@data-access-mobile-partners][contains(@class,"mobile tablet only")]//img')?->length === 1, 'p6 el patrocinador, bajo el formulario en móvil y tableta');
+        $check($partners === '' || $dom($pedir($rutaAcceso)['body'])->query('//*[@data-access-mobile-partners][contains(@class,"mobile tablet only")]//img[not(contains(@class,"brand-image-dark"))]')?->length === 1, 'p6 el patrocinador, bajo el formulario en móvil y tableta');
         echoTerminal(' ');
 
         //─── e · El 404, con y sin sesión ───────────────────────────────────────────────────────────────
@@ -261,6 +264,42 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         $b = $botones($conSesion['body']);
         $check(($b[0]['texto'] ?? '') === __('page404', 'Volver al inicio') && ($b[0]['principal'] ?? false) === true && !in_array(__('page404', 'Iniciar sesión'), array_column($b, 'texto'), true), 'e5 DISCRIMINANTE: con sesión, «Volver al inicio» es el principal y no se ofrece entrar', json_encode($b) ?: '');
 
+        //─── m · Luna/sol en las pantallas sin sesión ────────────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[m] Luna/sol: sin sesión, el script en el <head> y el botón; con sesión, ninguno (H411)');
+        $lunaSol = function (string $html) use ($dom): array {
+            $xpath = $dom($html);
+            $boton = $xpath->query('//body//button[@data-theme-toggle]')?->item(0);
+            return [
+                'script' => $xpath->query('//head/script[not(@src)][contains(., "pcsphp-access-theme")]')->length,
+                'botones' => $xpath->query('//button[@data-theme-toggle]')->length,
+                'etiquetas' => $boton instanceof \DOMElement ? [$boton->getAttribute('data-label-dark'), $boton->getAttribute('data-label-light'), $boton->hasAttribute('hidden')] : null,
+            ];
+        };
+        $pantallasLunaSol = [
+            'acceso' => $rutaAcceso,
+            'ayuda' => $camino(UserProblemsController::routeName('problems-list', [], true)),
+            'olvido' => $camino(UsersController::routeName('forget-form', [], true)),
+            'bloqueo' => $camino(UsersController::routeName('blocked-form', [], true)),
+            'otros' => $camino(UserProblemsController::routeName('other-problems-form', [], true)),
+            'clave' => $camino(\PiecesPHP\UserSystem\Controllers\RecoveryPasswordController::routeName('recovery-form', [], true)),
+            '404' => $ruta404,
+        ];
+        $esperadoLunaSol = ['script' => 1, 'botones' => 1, 'etiquetas' => [__(USER_LOGIN_LANG_GROUP, 'Cambiar a modo oscuro'), __(USER_LOGIN_LANG_GROUP, 'Cambiar a modo claro'), true]];
+        $faltan = array_keys(array_filter(array_map(fn (string $ruta): bool => $lunaSol($pedir($ruta)['body']) !== $esperadoLunaSol, $pantallasLunaSol)));
+        $check($faltan === [], 'm1 DISCRIMINANTE: sin sesión, en las siete pantallas, un script en el <head> y un botón (oculto hasta el script) con sus dos textos', implode(', ', $faltan));
+        $conSesionLunaSol = $lunaSol($pedir($ruta404, $jwt)['body']);
+        $check($conSesionLunaSol['script'] === 0 && $conSesionLunaSol['botones'] === 0, 'm2 DISCRIMINANTE: con sesión, el 404 no lleva ni el script ni el botón: manda la preferencia de la persona', json_encode($conSesionLunaSol) ?: '');
+        $vista = (string) file_get_contents(app_basepath('view/panel/built-in/content/theme-toggle.php'));
+        $incluyen = array_filter([
+            'UserSystem/Views/usuarios/login.php', 'UserSystem/Views/usuarios/problems/problems-list.php', 'UserSystem/Views/usuarios/problems/user_forget.php',
+            'UserSystem/Views/usuarios/problems/user_blocked.php', 'UserSystem/Views/usuarios/problems/other-problems.php', 'UserSystem/Views/usuarios/problems/password.php',
+            'Tokens/Views/layout/header-for-token.php',
+        ], fn (string $archivo): bool => !str_contains((string) file_get_contents(app_basepath('classes/PiecesPHP/' . $archivo)), "\$themeTogglePart = 'head'; include app_basepath('view/panel/built-in/content/theme-toggle.php');"));
+        $check($incluyen === [] && str_contains((string) file_get_contents(app_basepath('classes/PiecesPHP/Tokens/Views/layout/header-for-token.php')), "\$themeTogglePart = 'button';") && str_contains($vista, "add_global_asset('statics/core/js/theme-toggle.js', 'js');"), 'm3 una sola pieza: las cabeceras la incluyen (también la de los tokens), y el mismo JS va además como recurso para una CSP sin lo en línea', implode(', ', $incluyen));
+        $js = (string) file_get_contents(basepath('statics/core/js/theme-toggle.js'));
+        $check(str_contains($js, "const storageKey = 'pcsphp-access-theme'") && substr_count($js, 'try {') === 2 && !str_contains($js, 'jQuery(') && !str_contains($js, '$(') && !str_contains($js, '.dropdown('), 'm4 recordado en el navegador con try/catch, sin jQuery ni Fomantic');
+
         //─── t · La ayuda para entrar, traducida ─────────────────────────────────────────────────────
         echoTerminal(' ');
         echoTerminal('[t] Los títulos y los pasos de la ayuda para entrar pasan por la traducción');
@@ -284,7 +323,7 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
 
         //─── l · El logo de fábrica, en blanco en oscuro también fuera del panel ─────────────────────
         echoTerminal(' ');
-        echoTerminal('[l] El logo lleva invert-on-dark en el acceso, la ayuda (${logoClass}) y el 404, con la condición del panel');
+        echoTerminal('[l] El logo, con su modo oscuro, en el acceso, la ayuda (${logo}) y el 404, como en el panel (H340)');
         $logos = function (string $html) use ($dom): array {
             $x = $dom($html);
             $salida = [];
@@ -299,27 +338,36 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         };
         $opcionLogo = \PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['logo'];
         $deFabrica = \PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('logo');
-        //Con el logo de fábrica, la opción sin guardar ya invierte; con uno propio, se marca.
+        //El modo guardado manda sobre la opción vieja, que se quita para que no decida nada.
         $poner($opcionLogo, null);
-        if (!$deFabrica) {
-            SettingsModel::setConfigValue($opcionLogo, 1);
-        }
+        $poner($opcionModo, 'invert');
         $paginas = ['acceso' => [$rutaAcceso, 2], 'ayuda' => [$rutaAyuda, 3], '404' => [$ruta404, 1]];
         foreach ($paginas as $nombre => [$ruta, $minimo]) {
             $cuerpo = $pedir($ruta)['body'];
             $marcas = $logos($cuerpo);
-            $check(count($marcas) >= $minimo && !in_array(false, $marcas, true) && !str_contains($cuerpo, '${logoClass}'), "l1 DISCRIMINANTE: {$nombre}, sus " . count($marcas) . ' logos llevan invert-on-dark' . ($deFabrica ? ' (de fábrica, sin marcar)' : ' (marcado)'), json_encode($marcas) ?: '');
+            $check(count($marcas) >= $minimo && !in_array(false, $marcas, true) && !str_contains($cuerpo, '${logo'), "l1 DISCRIMINANTE: {$nombre}, sus " . count($marcas) . ' logos llevan invert-on-dark con «Invertir en blanco»', json_encode($marcas) ?: '');
         }
         $check(str_contains($pedir($ruta404)['body'], 'statics/core/css/ui-pcs.css'), 'l2 el 404 carga ui-pcs.css, donde vive la regla');
-        SettingsModel::setConfigValue($opcionLogo, 0);
+        $poner($opcionModo, 'same');
         foreach ($paginas as $nombre => [$ruta, $minimo]) {
             $marcas = $logos($pedir($ruta)['body']);
-            $check(count($marcas) >= $minimo && !in_array(true, $marcas, true), "l3 DISCRIMINANTE: desmarcada, {$nombre} no invierte ninguno", json_encode($marcas) ?: '');
+            $check(count($marcas) >= $minimo && !in_array(true, $marcas, true), "l3 DISCRIMINANTE: con «Igual», {$nombre} no invierte ninguno", json_encode($marcas) ?: '');
+        }
+        //De fábrica y sin modo guardado: «Otra imagen», la clara y la oscura de fábrica, cada una con su clase.
+        if ($deFabrica) {
+            $poner($opcionModo, null);
+            foreach ($paginas as $nombre => [$ruta, $minimo]) {
+                $x = $dom($pedir($ruta)['body']);
+                //Solo el logo: los patrocinadores y el logo del desarrollador traen también su par (P377).
+                $claras = $x->query('//img[contains(@class,"brand-image-light")][contains(@src,"' . \PiecesPHP\Settings\Controllers\SettingsController::brandImagePath('logo') . '")]')->length;
+                $oscuras = $x->query('//img[contains(@class,"brand-image-dark")][contains(@src,"statics/images/white-logo.png")]')->length;
+                $check($claras >= $minimo && $claras === $oscuras && ($x->query('//img[contains(@class,"brand-image-")][contains(@class,"invert-on-dark")]')->length) === 0, "l4 DISCRIMINANTE: de fábrica y sin modo, {$nombre} lleva {$claras} pares clara y oscura, sin invertir", "{$claras} · {$oscuras}");
+            }
         }
 
         //─── k · El logo del desarrollador (config.php, no el panel) ──────────────────────────────────
         echoTerminal(' ');
-        echoTerminal('[k] El logo del desarrollador: invert-on-dark con el de fábrica y sin la clave; 0 y un logo ajeno, no');
+        echoTerminal('[k] El logo del desarrollador: de fábrica y sin la clave, su clara y su oscura; la regla de una imagen, invert-on-dark solo con el de fábrica');
         $logoDesarrollador = trim((string) get_config('developer_logo'));
         $claveDesarrollador = get_config('developer_logo_invert_on_dark');
         $deFabricaDesarrollador = $logoDesarrollador === \PiecesPHP\Settings\Controllers\SettingsController::FACTORY_DEVELOPER_LOGO && $claveDesarrollador === false && trim((string) get_config('developer')) !== '';
@@ -334,10 +382,15 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
                 $imagenes = [];
                 foreach ($dom($pedir($ruta, $token)['body'])->query($consulta) ?: [] as $img) {
                     if ($img instanceof \DOMElement) {
-                        $imagenes[] = str_contains(' ' . $img->getAttribute('class') . ' ', ' invert-on-dark ');
+                        $clases = ' ' . $img->getAttribute('class') . ' ';
+                        $src = (string) preg_replace('/\?.*$/', '', $img->getAttribute('src'));
+                        $imagenes[] = (str_contains($clases, ' invert-on-dark ') ? 'invertida' : (str_contains($clases, ' brand-image-light ') ? 'clara' : (str_contains($clases, ' brand-image-dark ') ? 'oscura' : 'sola'))) . ':' . $src;
                     }
                 }
-                $check(count($imagenes) >= 1 && !in_array(false, $imagenes, true), "k1 DISCRIMINANTE: {$nombre}, el logo del desarrollador lleva invert-on-dark", json_encode($imagenes) ?: '');
+                $clara = 'clara:' . \PiecesPHP\Settings\Controllers\SettingsController::FACTORY_DEVELOPER_LOGO;
+                $oscura = 'oscura:' . \PiecesPHP\Settings\Controllers\SettingsController::FACTORY_DEVELOPER_LOGO_DARK;
+                $pares = count(array_keys($imagenes, $clara, true));
+                $check($pares >= 1 && $pares === count(array_keys($imagenes, $oscura, true)) && count($imagenes) === 2 * $pares, "k1 DISCRIMINANTE: {$nombre}, el logo del desarrollador va en par, la clara y developer-logo-dark.png, sin invertir", json_encode($imagenes) ?: '');
             }
         } else {
             echoTerminal('   k1 no corre: config.php no tiene el logo de fábrica sin la clave, o no hay desarrollador (lo cambió el clon)');
@@ -393,22 +446,59 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         echoTerminal('[f] El logo de fábrica se reconoce por su sha1, el de hoy y el anterior (v10.41.0)');
         $logoAntes = get_config('logo');
         $opcionAntes = get_config($opcionLogo);
+        $modoGetAntes = get_config($opcionModo);
+        $oscuraGetAntes = get_config($opcionOscura);
         $viejo = 'app/cache/zz-logo-de-fabrica-viejo-' . bin2hex(random_bytes(3)) . '.png';
         try {
-            //La opción sin guardar (get_config() da false): decide si el logo es el de fábrica.
+            //Las opciones sin guardar (get_config() da false): decide si el logo es el de fábrica.
             set_config($opcionLogo, false);
+            set_config($opcionModo, false);
+            set_config($opcionOscura, false);
             set_config('logo', 'statics/images/logo.png');
-            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'f1 DISCRIMINANTE: el logo de fábrica de hoy, sin la opción guardada, se invierte en oscuro', (string) sha1_file(basepath('statics/images/logo.png')));
+            $esImagen = fn (): bool => \PiecesPHP\Settings\Controllers\SettingsController::brandImageDarkMode('logo') === 'image' && \PiecesPHP\Settings\Controllers\SettingsController::brandImageDarkImage('logo') === 'statics/images/white-logo.png' && !\PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo');
+            $check($esImagen(), 'f1 DISCRIMINANTE: el logo de fábrica de hoy, sin modo guardado, enseña en oscuro el logo blanco de fábrica (y no se invierte)', (string) sha1_file(basepath('statics/images/logo.png')));
+            set_config($opcionLogo, 1);
+            $check($esImagen(), 'f5 DISCRIMINANTE: y también con la opción vieja a 1: la fábrica gana a la opción vieja');
+            set_config($opcionLogo, false);
             $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
             $git = proc_open(['git', '--no-optional-locks', '-C', $proyecto, 'show', 'v10.41.0:src/statics/images/logo.png'], [1 => ['file', basepath($viejo), 'w'], 2 => ['file', '/dev/null', 'w']], $tuberias);
             $sacado = is_resource($git) && proc_close($git) === 0 && sha1_file(basepath($viejo)) === '9cf27f1fbb82e550d03fbaca632f9c6563eec81a';
             set_config('logo', $viejo);
-            $check($sacado && \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'f2 el logo de fábrica anterior (el de v10.41.0) también', $sacado ? '' : 'no se pudo sacar de git');
+            $check($sacado && $esImagen(), 'f2 el logo de fábrica anterior (el de v10.41.0) también', $sacado ? '' : 'no se pudo sacar de git');
             set_config('logo', 'statics/images/framework/main_logo.svg');
-            $check(!\PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'f3 otra imagen, sin la opción, no');
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageDarkMode('logo') === 'same', 'f3 otra imagen, sin opciones, «Igual»');
+            set_config($opcionLogo, 1);
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'f6 DISCRIMINANTE: otra imagen con la opción vieja a 1 y sin modo, «Invertir en blanco»');
+            set_config($opcionModo, 'image');
+            $una = \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'zz');
+            $check(substr_count($una, '<img') === 1 && !str_contains($una, 'brand-image-') && !str_contains($una, 'invert-on-dark'), 'f7 DISCRIMINANTE: «Otra imagen» sin oscura, una sola imagen, como «Igual» (nunca una rota)', $una);
+            set_config($opcionOscura, 'statics/images/zz-no-existe.png');
+            $check(substr_count(\PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'zz'), '<img') === 1, 'f8 y con una oscura que no existe en disco, también');
+            set_config($opcionOscura, 'statics/images/white-logo.png');
+            $par = \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'zz', 'Alt "x"');
+            $check(substr_count($par, '<img') === 2 && str_contains($par, 'class="zz brand-image-light"') && str_contains($par, 'class="zz brand-image-dark"') && substr_count($par, 'alt="Alt &quot;x&quot;"') === 2, 'f9 DISCRIMINANTE: con oscura que existe, las dos, con sus clases y el alt escapado', $par);
+            //─ r · El marcador viejo `${logoClass}` y el logo de fábrica sin su oscura (revisión de A.1) ─
+            set_config($opcionModo, false);
+            set_config($opcionOscura, false);
+            set_config('logo', 'statics/images/logo.png');
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageLooksInvertedOnDark('logo') && !\PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo'), 'r1 DISCRIMINANTE: de fábrica y sin modo (oscura de fábrica), `${logoClass}` invierte, y brandImageInvertsOnDark() sigue en false');
+            set_config($opcionOscura, 'statics/images/zz-no-existe.png');
+            $sinOscura = \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'zz');
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageEffectiveDarkMode('logo') === 'invert' && \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') && substr_count($sinOscura, '<img') === 1 && str_contains($sinOscura, 'class="zz invert-on-dark"'), 'r2 DISCRIMINANTE: de fábrica en «Otra imagen» sin oscura en disco, se pinta invertido (como antes), no igual', $sinOscura);
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageLooksInvertedOnDark('logo'), 'r3 y `${logoClass}` también invierte');
+            set_config($opcionOscura, 'statics/images/partners.png');
+            $check(!\PiecesPHP\Settings\Controllers\SettingsController::brandImageLooksInvertedOnDark('logo') && \PiecesPHP\Settings\Controllers\SettingsController::brandImageEffectiveDarkMode('logo') === 'image', 'r4 DISCRIMINANTE: con una oscura propia que existe, `${logoClass}` no invierte');
+            set_config('logo', 'statics/images/framework/main_logo.svg');
+            set_config($opcionOscura, 'statics/images/zz-no-existe.png');
+            set_config($opcionModo, 'image');
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::brandImageEffectiveDarkMode('logo') === 'same' && !\PiecesPHP\Settings\Controllers\SettingsController::brandImageLooksInvertedOnDark('logo'), 'r5 DISCRIMINANTE: un logo propio en «Otra imagen» sin oscura se pinta igual: la vuelta a invertir es solo de la fábrica');
+            set_config('logo', 'statics/images/logo.png');
+            $check(\PiecesPHP\Settings\Controllers\SettingsController::isFactoryBrandImage('logo'), 'r6 la caché de isFactoryBrandImage() va por ruta: cambiar la opción en la misma petición se ve sin vaciarla');
         } finally {
             set_config('logo', $logoAntes);
             set_config($opcionLogo, $opcionAntes);
+            set_config($opcionModo, $modoGetAntes);
+            set_config($opcionOscura, $oscuraGetAntes);
             if (is_file(basepath($viejo))) {
                 //RETORNO-IGNORADO: un temporal en app/cache/, que git ignora; f4 lo comprueba.
                 unlink(basepath($viejo));
@@ -422,6 +512,7 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         echoTerminal('[z] Limpieza');
         $poner('owner', $propietarioAntes);
         $poner(\PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['logo'], $invertirAntes);
+        $poner($opcionModo, $modoAntes);
         //RETORNO-IGNORADO: lo comprueba z1 contando lo que queda.
         MailLogMapper::deleteByRecipientMark($prefijo);
         $referencias = $database->query("SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME = '" . UsersModel::TABLE . "' AND REFERENCED_COLUMN_NAME = 'id'")->fetchAll(\PDO::FETCH_NUM);
@@ -436,7 +527,7 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         $database->prepare('DELETE FROM `' . LoginAttemptsModel::TABLE . '` WHERE usernameAttempt LIKE ?')->execute(["{$prefijo}%"]);
         $quedan = (int) $database->query('SELECT COUNT(*) FROM `' . UsersModel::TABLE . '` WHERE username LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn()
          + (int) $database->query('SELECT COUNT(*) FROM `' . LoginAttemptsModel::TABLE . '` WHERE usernameAttempt LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
-        $check($quedan === 0 && $crudo('owner') === $propietarioAntes && $crudo(\PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['logo']) === $invertirAntes, 'z1 no quedan el usuario, sus intentos ni sus sesiones, y el propietario y la inversión del logo vuelven a su valor en crudo', "quedan {$quedan}");
+        $check($quedan === 0 && $crudo('owner') === $propietarioAntes && $crudo(\PiecesPHP\Settings\Controllers\SettingsController::BRAND_IMAGES_INVERT_ON_DARK['logo']) === $invertirAntes && $crudo($opcionModo) === $modoAntes, 'z1 no quedan el usuario, sus intentos ni sus sesiones, y el propietario, la inversión y el modo oscuro del logo vuelven a su valor en crudo', "quedan {$quedan}");
     }
 
     return $balance();

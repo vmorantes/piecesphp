@@ -6,6 +6,7 @@
 //@areas src/app/classes/PiecesPHP/Mcp/
 //@areas src/app/classes/PiecesPHP/Notifications/
 //@areas src/app/classes/API/
+//@requires-module PiecesPHP\Mcp\McpRoutes
 
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;
@@ -22,6 +23,7 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Mcp\Assistant;
 use PiecesPHP\Notifications\Notifications;
+use PiecesPHP\Notifications\NotificationsRoutes;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
@@ -159,7 +161,11 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
         $encendido = Assistant::reply($root, 'zz hola');
         $check($encendido['ok'] === true && $encendido['answer'] === 'zz-respuesta' && count($falso->recibido) === 1 && $encendido['error'] === null, '1b encendida, sin motivo: llama al proveedor y devuelve su respuesta');
         $nombres = array_map(fn(array $t): string => (string) ($t['function']['name'] ?? ''), $falso->recibido[0]['tools'] ?? []);
-        $check(in_array('panel_find', $nombres, true) && in_array('notifications_mine', $nombres, true) && in_array('zz_prueba_solo_root', $nombres, true) && ($falso->recibido[0]['tools'][0]['type'] ?? null) === 'function' && is_array($falso->recibido[0]['tools'][0]['function']['parameters'] ?? null), '1c al modelo le llegan las herramientas de root, en formato function con parameters', implode(', ', $nombres));
+        //notifications_mine es de Notificaciones: con el módulo apagado no se registra.
+        if (!NotificationsRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 1c no pide notifications_mine: esta instalación tiene Notificaciones apagado.");
+        }
+        $check(in_array('panel_find', $nombres, true) && (!NotificationsRoutes::ENABLE || in_array('notifications_mine', $nombres, true)) && in_array('zz_prueba_solo_root', $nombres, true) && ($falso->recibido[0]['tools'][0]['type'] ?? null) === 'function' && is_array($falso->recibido[0]['tools'][0]['function']['parameters'] ?? null), '1c al modelo le llegan las herramientas de root, en formato function con parameters', implode(', ', $nombres));
         echoTerminal(' ');
 
         //─── 2 · Una herramienta por PanelServer ────────────────────────────────────────────────────
@@ -251,14 +257,18 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
         echoTerminal(' ');
 
         //─── 10 · La reconexión ─────────────────────────────────────────────────────────────────────
-        echoTerminal('[10] La base cerrada (como hace chatHandler) y una herramienta que lee de ella');
-        BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
-        $falso->guion([['content' => '', 'toolCalls' => [$llamada('n1', 'notifications_mine', '{"filter":"unread","limit":2}')], 'usage' => 1], ['content' => 'zz', 'toolCalls' => [], 'usage' => 1]]);
-        $tras = Assistant::reply($root, 'zz ¿tengo notificaciones?');
-        $leidas = json_decode((string) $herramientaDe(1, 'n1'), true);
-        $pagina = Notifications::page($idRoot, Notifications::FILTER_UNREAD, 1, 2);
-        $esperadas = json_decode((string) json_encode(['unreadTotal' => (int) ($pagina['counts'][Notifications::FILTER_UNREAD] ?? 0), 'totals' => $pagina['counts'], 'page' => ['filter' => Notifications::FILTER_UNREAD, 'size' => count($pagina['items']), 'hasMore' => $pagina['hasMore'], 'items' => $pagina['items']]]), true);
-        $check($tras['ok'] && is_array($leidas) && $leidas === $esperadas, '10a tras cerrar la conexión, notifications_mine reconecta y devuelve el total y la página de Notifications::page()', mb_substr((string) $herramientaDe(1, 'n1'), 0, 160));
+        if (!NotificationsRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 10a: esta instalación tiene Notificaciones apagado y no hay notifications_mine.");
+        } else {
+            echoTerminal('[10] La base cerrada (como hace chatHandler) y una herramienta que lee de ella');
+            BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
+            $falso->guion([['content' => '', 'toolCalls' => [$llamada('n1', 'notifications_mine', '{"filter":"unread","limit":2}')], 'usage' => 1], ['content' => 'zz', 'toolCalls' => [], 'usage' => 1]]);
+            $tras = Assistant::reply($root, 'zz ¿tengo notificaciones?');
+            $leidas = json_decode((string) $herramientaDe(1, 'n1'), true);
+            $pagina = Notifications::page($idRoot, Notifications::FILTER_UNREAD, 1, 2);
+            $esperadas = json_decode((string) json_encode(['unreadTotal' => (int) ($pagina['counts'][Notifications::FILTER_UNREAD] ?? 0), 'totals' => $pagina['counts'], 'page' => ['filter' => Notifications::FILTER_UNREAD, 'size' => count($pagina['items']), 'hasMore' => $pagina['hasMore'], 'items' => $pagina['items']]]), true);
+            $check($tras['ok'] && is_array($leidas) && $leidas === $esperadas, '10a tras cerrar la conexión, notifications_mine reconecta y devuelve el total y la página de Notifications::page()', mb_substr((string) $herramientaDe(1, 'n1'), 0, 160));
+        }
         echoTerminal(' ');
 
         //─── A · Los topes de gasto ─────────────────────────────────────────────────────────────────

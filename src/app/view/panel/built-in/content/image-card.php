@@ -24,11 +24,26 @@
  * @var bool $required El archivo es obligatorio: la tarjeta va dentro de un `.field` con su `label` oculta, de donde
  * genericFormHandler saca el nombre y donde pinta el error. Al aplicar una imagen deja de serlo.
  * @var bool $invertOnDarkSaved Ya tiene opción guardada: sin ella, una imagen propia recién subida la desmarca (brandImageInvertsOnDark()).
- * @var bool|null $invertOnDark Con valor, pinta la casilla «Invertir colores en modo oscuro» con ese estado (logos-favicons.js la guarda).
+ * @var bool|null $invertOnDark Con valor, pinta la casilla «Invertir colores en modo oscuro» con ese estado y oscurece la
+ * vista previa. @en-desuso 11.0.0: Imágenes de marca lleva desde H340 su selector «En modo oscuro»; se borra en la 11.0.0
+ * @var bool $directUpload Opcional. El archivo se sube tal cual, sin el editor de recorte (un GIF o un SVG animado):
+ * `data-direct-upload`, que lee ContentImageEditor.js.
+ * @var string $previewCaption Opcional. Un rótulo sobre la vista previa (p. ej. «Modo claro»), ya traducido.
+ * @var string $extraContentHtml Opcional. HTML ya escapado por quien llama: nunca datos del usuario sin escapar. Va al
+ * final del contenido (Imágenes de marca, su vista en modo oscuro); una `[data-image-card]` anidada es otra tarjeta del
+ * editor, con su archivo y su recorte.
+ * @var bool $previewsBelow Opcional. La variante de Imágenes de marca: el texto y los botones ARRIBA, a todo el ancho, y
+ * DEBAJO las vistas previas, lado a lado y alineadas arriba (apiladas en el móvil). Cada una, con la proporción y como
+ * mucho el tamaño de `width` × `height` (el `<img>` los lleva), y el damero solo en su área. Por omisión, la horizontal.
+ * @var string $extraPreviewHtml Opcional, solo con `previewsBelow`. HTML ya escapado por quien llama: otra vista previa
+ * junto a la de la imagen (la del modo oscuro, una `[data-image-card]` anidada con su archivo y su recorte).
+ * @var bool $showSize Opcional. Con false no pinta la medida (una imagen de cualquier tamaño). Por omisión, sí.
  * @var string|null $deleteValue Con valor, pinta «Eliminar» con él en `data-value` (oculto mientras no haya imagen); quien
  * la usa escucha `[data-image-card-delete]`. Sin él, la tarjeta no se puede vaciar.
  * @var string $deleteDisabledReason No vacío, «Eliminar» va deshabilitado y el tooltip de su envoltorio lo explica.
  * @var string $emptyText Opcional. Sin imagen, este texto sobre el damero (p. ej. «Sin foto»); el editor lo quita al aplicar.
+ * Con `previewsBelow` y medida, el damero toma la de `width` × `height` y el texto va debajo. Con `deleteValue`, además
+ * un `<template data-image-card-empty-template>` con ese estado, para quien vacía la tarjeta en vivo.
  */
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 
@@ -55,6 +70,12 @@ $invertOnDark = isset($invertOnDark) && is_bool($invertOnDark) ? $invertOnDark :
 $deleteValue = isset($deleteValue) && is_string($deleteValue) ? $deleteValue : null;
 $deleteDisabledReason = isset($deleteDisabledReason) && is_string($deleteDisabledReason) ? $deleteDisabledReason : '';
 $emptyText = isset($emptyText) && is_string($emptyText) ? $emptyText : '';
+$directUpload = isset($directUpload) && $directUpload === true;
+$previewCaption = isset($previewCaption) && is_string($previewCaption) ? $previewCaption : '';
+$extraContentHtml = isset($extraContentHtml) && is_string($extraContentHtml) ? $extraContentHtml : '';
+$previewsBelow = isset($previewsBelow) && $previewsBelow === true;
+$extraPreviewHtml = $previewsBelow && isset($extraPreviewHtml) && is_string($extraPreviewHtml) ? $extraPreviewHtml : '';
+$showSize = !isset($showSize) || $showSize !== false;
 
 $hasImage = $image !== '';
 $imageURL = $hasImage ? add_cache_stamp_to_url($image) : '';
@@ -63,19 +84,41 @@ $titleId = "{$id}-title";
 $downloadText = __($langGroup, 'Descargar / ver');
 $deleteText = __($langGroup, 'Eliminar');
 $editText = strReplaceTemplate(__($langGroup, 'Editar imagen: ${title}'), ['${title}' => escape_html($title)]);
+//El damero vacío a la medida de la caja: un SVG transparente con esa proporción, dentro del vacío para que el editor lo quite con él.
+//`data-image-card-placeholder`: ContentImageEditor.js no lo toma por la imagen de la tarjeta (ni al llenarla ni para «agregada»).
+$emptySized = $previewsBelow && $width > 0 && $height > 0;
+$emptyHtml = $emptyText === '' ? '' : ($emptySized
+    ? '<div class="ui vertical centered tight flex" data-image-card-empty><img width="' . $width . '" height="' . $height . '" data-image-card-placeholder src="' . escape_html("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='{$width}' height='{$height}'/%3E") . '" alt=""><span class="ui muted text">' . escape_html($emptyText) . '</span></div>'
+    : '<div class="fluid ui centered flex" data-image-card-empty><span class="ui muted text">' . escape_html($emptyText) . '</span></div>');
 ?>
-<article class="card" id="<?= escape_html($id); ?>" aria-labelledby="<?= escape_html($titleId); ?>" data-image-card="<?= escape_html($scope); ?>" data-width="<?= $width; ?>" data-height="<?= $height; ?>" data-field="<?= escape_html($field); ?>" data-action="<?= escape_html($action); ?>" data-format="<?= $format; ?>" data-quality="<?= $quality; ?>" data-fill-color="<?= escape_html($fillColor); ?>" data-title="<?= escape_html($title); ?>" data-accept="<?= escape_html($accept); ?>" data-edit-label="<?= $editText; ?>">
+<?php ob_start(); ?>
+    <?php if ($previewsBelow && $previewCaption !== ''): ?>
+    <span class="ui mini label content-image-card-caption"><?= escape_html($previewCaption); ?></span>
+    <?php endif; ?>
     <div class="<?= $dark || $invertOnDark === true ? 'inverted ' : ''; ?><?= $invertOnDark === true ? 'content-image-card-inverted ' : ''; ?>checkered image">
+        <?php if (!$previewsBelow && $previewCaption !== ''): ?>
+        <span class="ui mini label content-image-card-caption"><?= escape_html($previewCaption); ?></span>
+        <?php endif; ?>
         <?php if ($hasImage): ?>
-        <button class="content-image-card-edit" type="button" aria-label="<?= $editText; ?>" data-image-card-edit><img class="ui small image" src="<?= escape_html($imageURL); ?>" alt="<?= escape_html($imageAlt); ?>"></button>
+        <button class="content-image-card-edit" type="button" aria-label="<?= $editText; ?>" data-image-card-edit><img<?= $previewsBelow ? ($width > 0 && $height > 0 ? " width=\"{$width}\" height=\"{$height}\"" : '') : ' class="ui small image"'; ?> src="<?= escape_html($imageURL); ?>" alt="<?= escape_html($imageAlt); ?>"></button>
         <?php elseif ($emptyText !== ''): ?>
-        <div class="fluid ui centered flex" data-image-card-empty><span class="ui muted text"><?= escape_html($emptyText); ?></span></div>
+        <?= $emptyHtml; ?>
+        <?php endif; ?>
+        <?php if ($emptyText !== '' && $deleteValue !== null): ?>
+        <template data-image-card-empty-template><?= $emptyHtml; ?></template>
         <?php endif; ?>
     </div>
+<?php $previewHtml = (string) ob_get_clean(); ?>
+<article class="card<?= $previewsBelow ? ' content-image-card-below' : ''; ?>" id="<?= escape_html($id); ?>" aria-labelledby="<?= escape_html($titleId); ?>" data-image-card="<?= escape_html($scope); ?>" data-width="<?= $width; ?>" data-height="<?= $height; ?>" data-field="<?= escape_html($field); ?>" data-action="<?= escape_html($action); ?>" data-format="<?= $format; ?>" data-quality="<?= $quality; ?>" data-fill-color="<?= escape_html($fillColor); ?>" data-title="<?= escape_html($title); ?>" data-accept="<?= escape_html($accept); ?>" data-edit-label="<?= $editText; ?>"<?= $directUpload ? ' data-direct-upload="yes"' : ''; ?>>
+    <?php if (!$previewsBelow): ?>
+    <?= $previewHtml; ?>
+    <?php endif; ?>
     <div class="ui vertical relaxed flex content">
         <div class="ui vertical left aligned tight flex">
             <<?= $headingTag; ?> class="ui medium header" id="<?= escape_html($titleId); ?>"><?= escape_html($title); ?></<?= $headingTag; ?>>
+            <?php if ($showSize): ?>
             <span class="ui label"><b><?= $width; ?> × <?= $height; ?> px</b></span>
+            <?php endif; ?>
         </div>
         <div class="ui vertical tight flex">
             <?php if ($description !== ''): ?>
@@ -114,5 +157,13 @@ $editText = strReplaceTemplate(__($langGroup, 'Editar imagen: ${title}'), ['${ti
             ]);
         ?>
         <?php endif; ?>
+        <?= $extraContentHtml; ?>
     </div>
+    <?php if ($previewsBelow): ?>
+    <?php //La vista previa va en su propia `ui card`: el damero del tema es de `.card > .checkered.image`. ?>
+    <div class="content content-image-card-previews">
+        <div class="ui fluid card"><?= $previewHtml; ?></div>
+        <?= $extraPreviewHtml; ?>
+    </div>
+    <?php endif; ?>
 </article>

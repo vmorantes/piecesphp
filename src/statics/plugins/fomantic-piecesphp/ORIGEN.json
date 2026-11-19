@@ -1,18 +1,18 @@
 {
     "origen": "/var/www/html/vicsen/Fomantic-UI/dist-temas/piecesphp",
-    "commit": "4a73dd56",
+    "commit": "ecfff176",
     "sin_commitear": 0,
-    "fecha": "2026-11-18T12:29:18",
+    "fecha": "2026-11-18T15:18:32",
     "sha1": {
-        "semantic.min.css": "455c35947f6e49f0bb26bb42f06c9d15aa5f12ce",
-        "semantic.min.js": "d767b92a81b03bea8a4de8e600e5512eea2bfef0"
+        "semantic.min.css": "407543cd97874a05a6f8aafe3a0a3fef5893d038",
+        "semantic.min.js": "10fdc74d1aafedf872f75b44db4add847e77149e"
     },
     "archivos": 252,
-    "sha1_conjunto": "ae753c15fcd36acb792eed3299ee90b1e522e23d",
+    "sha1_conjunto": "691eb7f810ee1e80c4a1a2dc4e1f09d2af152736",
     "version": {
-        "version": "0.18.0",
+        "version": "0.19.0",
         "fomantic": "2.9.4",
-        "commit": "41d7bbcb",
+        "commit": "ebe031d6",
         "sinCommitear": false
     }
 }

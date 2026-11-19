@@ -66,7 +66,7 @@ tiene configurado, el formulario para <strong>contactar a soporte</strong>.</p>
 </div>
 <h2 class="title" id="el-asistente"><span role="button" tabindex="0" aria-expanded="false" aria-controls="el-asistente-contenido"><i class="dropdown icon" aria-hidden="true"></i>El asistente</span></h2>
 <div class="content" id="el-asistente-contenido">
-<p>Si quien administra lo ha encendido para ti, junto a la campana de notificaciones tienes el botón del <strong>asistente</strong>. En
+<p>Si quien administra lo ha encendido para ti, en la barra de arriba tienes el botón del <strong>asistente</strong>. En
 el móvil está en el menú de tu nombre. Abre una ventana donde le preguntas en lenguaje normal sobre la plataforma: dónde
 se hace algo («¿Dónde creo un usuario nuevo?»), dónde lo explica este manual («¿Dónde está el manual de
 publicaciones?») o lo que tienes pendiente («¿Tengo notificaciones sin leer?»).</p>

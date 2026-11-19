@@ -1,6 +1,7 @@
 ---
 titulo: Directory
 rutas: [directory-admin-list, profile-admin-profile, profile-organization-admin-profile]
+ve: [directory-admin-list, profile-admin-profile]
 ---
 
 # Directory

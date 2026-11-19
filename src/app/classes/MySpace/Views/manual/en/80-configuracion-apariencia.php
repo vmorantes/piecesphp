@@ -3,7 +3,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 <p>Here you customize how the platform looks and how it is presented. To get there, use the gear button in the top bar, <strong>“System settings”</strong>. Brand
-images, Login backgrounds, Colors and Accessibility are in the <strong>“Appearance”</strong> group; Identity and SEO and
+images, Login backgrounds and Panel style are in the <strong>“Appearance”</strong> group; Identity and SEO and
 Files for search engines are in <strong>“SEO and scripts”</strong>.</p>
 <div class="ui styled fluid accordion" data-section-accordion>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-brand-images'])): ?>
@@ -12,14 +12,19 @@ Files for search engines are in <strong>“SEO and scripts”</strong>.</p>
 <p>Go to <strong>“Brand images”</strong>. The platform is white label: these images identify your organization across
 the whole system, from the login page and the side menu to the emails and the public site.</p>
 <p><img class="ui image" alt="Brand images" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images.webp')); ?>"></p>
-<p>To edit an image, click it. Each one also has a <strong>“Change image”</strong> button and an icon to download or view it. The images are:</p>
+<p>To edit an image, click it. Each one also has a <strong>“Change image”</strong> button and an icon to download or view it. Each card
+says where its image is used and shows how it looks, at its real size: in <strong>“Light mode”</strong> and, where available, in
+<strong>“Dark mode”</strong>, side by side. The images are:</p>
 <ul>
-<li>Logo</li>
-<li>Favicon, admin area</li>
-<li>Favicon, public area / website</li>
-<li>E-mails</li>
-<li>Horizontal banner</li>
-<li>Vertical banner</li>
+<li><strong>Logo</strong>.</li>
+<li><strong>Favicon, admin area</strong> and <strong>Favicon, public area / website</strong>.</li>
+<li><strong>Loading animation</strong>: the one shown while a screen loads, in the panel and on the public site. It accepts GIF,
+  of any size (360 px high is recommended), and is uploaded as is, without cropping. The main user can also upload an
+  SVG, which is checked on upload. By default it is the logo
+  drawing itself.</li>
+<li><strong>Loader logo</strong>: a still image shown below the animation. By default it is the logo's “P” (white and light blue in dark mode). It is optional: with <strong>“Delete”</strong> the loader stops showing it and keeps only the animation; to have one again, upload it.</li>
+<li><strong>E-mails</strong>.</li>
+<li>Under <strong>“Third parties”</strong>: <strong>Horizontal banner</strong> and <strong>Vertical banner</strong>.</li>
 </ul>
 <table class="ui celled table">
 <thead>
@@ -36,9 +41,9 @@ the whole system, from the login page and the side menu to the emails and the pu
 <td>Optional: it appears in the menu footer, above the sponsor image. There is one field for each active language of the site. In the main language, if empty, nothing is shown; in the others, if empty, the main language's text is used.</td>
 </tr>
 <tr>
-<td>Invert colors in dark mode</td>
+<td>In dark mode</td>
 <td>No</td>
-<td>It is on some of the images. It needs a PNG with a transparent background: an opaque background would show as a white rectangle.</td>
+<td>It is on the logo, both banners, the loading animation and the loader logo. <strong>“Same”</strong> shows the same image; <strong>“Invert to white”</strong> turns it white (it needs a transparent background: an opaque one would show as a white rectangle); <strong>“Another image”</strong> lets you upload a dark-mode version with <strong>“Choose dark image”</strong>. It is saved when you change it.</td>
 </tr>
 </tbody>
 </table>
@@ -59,13 +64,25 @@ you add a background. At least one always remains: with a single background, “
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-colors'])): ?>
-<h2 class="title" id="colors"><span role="button" tabindex="0" aria-expanded="false" aria-controls="colors-contenido"><i class="dropdown icon" aria-hidden="true"></i>Colors</span></h2>
-<div class="content" id="colors-contenido">
-<p>Go to <strong>“Colors”</strong>. Your organization's color is used only as an accent (buttons, selection, links and focus). The
-complementary colors are used only in charts and data.</p>
-<p><img class="ui image" alt="Colors" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-colors.webp')); ?>"></p>
-<p>Next to each color, <strong>“Choose color”</strong> opens the picker. Below, the <strong>“Live preview”</strong> shows how
-the accent and the palette will look in the panel. At the end, <strong>“Cancel”</strong> or <strong>“Save”</strong>.</p>
+<h2 class="title" id="panel-style"><span role="button" tabindex="0" aria-expanded="false" aria-controls="panel-style-contenido"><i class="dropdown icon" aria-hidden="true"></i>Panel style</span></h2>
+<div class="content" id="panel-style-contenido">
+<p>Go to <strong>“Panel style”</strong>. It is a single screen with three tabs: <strong>“Colors”</strong>, <strong>“Typography and shape”</strong> and
+<strong>“Accessibility”</strong>. The chosen tab stays in the address, so you can bookmark or share it, and the screen remembers it
+when you come back.</p>
+<p><img class="ui image" alt="Panel style" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-colors.webp')); ?>"></p>
+<p>Below the tabs, the <strong>“Live preview”</strong> shows the panel in <strong>“Light mode”</strong> and <strong>“Dark mode”</strong> side by side (stacked on
+phones), and it updates right away with what you change in any of the three tabs, before saving.</p>
+<p>Each tab has <strong>“Reset”</strong>: it tells you what goes back to the default values, asks you to confirm and saves it right
+away. It only resets that tab; anything you changed on the screen without saving is lost.</p>
+<div class="ui info message">
+<div class="header">Colors and typography are saved together</div>
+<p>“Colors” and “Typography and shape” are one form: the <strong>“Save colors and typography”</strong> button saves both tabs. If
+you leave unsaved changes in the other one, it warns you next to the button. “Accessibility” is saved separately,
+with its own <strong>“Save”</strong>.</p>
+</div>
+<h3 class="ui header">Colors</h3>
+<p>Your organization's color is used only as an accent (buttons, selection, links and focus). The complementary colors
+are used only in charts and data. Next to each color, <strong>“Choose color”</strong> opens the picker.</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -105,6 +122,18 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <td>No</td>
 <td>Colors for occasional highlights: the panel does not use them on its own.</td>
 </tr>
+</tbody>
+</table>
+<h3 class="ui header">Typography and shape</h3>
+<table class="ui celled table">
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td>Font</td>
 <td>No</td>
@@ -125,13 +154,12 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-accessibility'])): ?>
-<h2 class="title" id="accessibility"><span role="button" tabindex="0" aria-expanded="false" aria-controls="accessibility-contenido"><i class="dropdown icon" aria-hidden="true"></i>Accessibility</span></h2>
-<div class="content" id="accessibility-contenido">
-<p>Go to <strong>“Accessibility”</strong>. Here you choose how the panel looks for whoever has not chosen their own in “My account” ›
-“Preferences” (see “Your account”, “Your preferences”). It has the same two cards as each person's preferences:
-<strong>Appearance</strong> and <strong>Reading and motion</strong>.</p>
+<h2 class="title" id="panel-accessibility"><span role="button" tabindex="0" aria-expanded="false" aria-controls="panel-accessibility-contenido"><i class="dropdown icon" aria-hidden="true"></i>Panel accessibility</span></h2>
+<div class="content" id="panel-accessibility-contenido">
+<p>It is the <strong>“Accessibility”</strong> tab of “Panel style” (the old “Accessibility” address leads to it). Here you choose how
+the panel looks for whoever has not chosen their own in “My account” › “Preferences” (see “Your account”, “Your
+preferences”). It has the same two cards as each person's preferences: <strong>Appearance</strong> and <strong>Reading and motion</strong>.</p>
 <p><img class="ui image" alt="Accessibility" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-accessibility.webp')); ?>"></p>
-<p>At the end, <strong>“Cancel”</strong> or <strong>“Save”</strong>.</p>
 <table class="ui celled table">
 <thead>
 <tr>
@@ -149,7 +177,7 @@ the accent and the palette will look in the panel. At the end, <strong>“Cancel
 <tr>
 <td>Default text size</td>
 <td>No</td>
-<td><strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>. Large and Larger add 2 and 4 pixels to the “Base size” in Colors.</td>
+<td><strong>“Normal”</strong>, <strong>“Large”</strong> or <strong>“Larger”</strong>. Large and Larger add 2 and 4 pixels to the “Base size” in “Typography and shape”.</td>
 </tr>
 <tr>
 <td>Default text spacing</td>

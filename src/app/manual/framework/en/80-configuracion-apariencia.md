@@ -6,7 +6,7 @@ rutas: [configurations-appearance-brand-images, configurations-appearance-backgr
 # Appearance settings
 
 Here you customize how the platform looks and how it is presented. To get there, use the gear button in the top bar, **“System settings”**. Brand
-images, Login backgrounds, Colors and Accessibility are in the **“Appearance”** group; Identity and SEO and
+images, Login backgrounds and Panel style are in the **“Appearance”** group; Identity and SEO and
 Files for search engines are in **“SEO and scripts”**.
 
 ## Brand images
@@ -17,19 +17,24 @@ the whole system, from the login page and the side menu to the emails and the pu
 
 ![Brand images](img/configurations-appearance-brand-images.webp)
 
-To edit an image, click it. Each one also has a **“Change image”** button and an icon to download or view it. The images are:
+To edit an image, click it. Each one also has a **“Change image”** button and an icon to download or view it. Each card
+says where its image is used and shows how it looks, at its real size: in **“Light mode”** and, where available, in
+**“Dark mode”**, side by side. The images are:
 
-- Logo
-- Favicon, admin area
-- Favicon, public area / website
-- E-mails
-- Horizontal banner
-- Vertical banner
+- **Logo**.
+- **Favicon, admin area** and **Favicon, public area / website**.
+- **Loading animation**: the one shown while a screen loads, in the panel and on the public site. It accepts GIF,
+  of any size (360 px high is recommended), and is uploaded as is, without cropping. The main user can also upload an
+  SVG, which is checked on upload. By default it is the logo
+  drawing itself.
+- **Loader logo**: a still image shown below the animation. By default it is the logo's “P” (white and light blue in dark mode). It is optional: with **“Delete”** the loader stops showing it and keeps only the animation; to have one again, upload it.
+- **E-mails**.
+- Under **“Third parties”**: **Horizontal banner** and **Vertical banner**.
 
 | Field | Required | Purpose |
 | --- | --- | --- |
 | Text above the sponsor | No | Optional: it appears in the menu footer, above the sponsor image. There is one field for each active language of the site. In the main language, if empty, nothing is shown; in the others, if empty, the main language's text is used. |
-| Invert colors in dark mode | No | It is on some of the images. It needs a PNG with a transparent background: an opaque background would show as a white rectangle. |
+| In dark mode | No | It is on the logo, both banners, the loading animation and the loader logo. **“Same”** shows the same image; **“Invert to white”** turns it white (it needs a transparent background: an opaque one would show as a white rectangle); **“Another image”** lets you upload a dark-mode version with **“Choose dark image”**. It is saved when you change it. |
 
 When you finish, click **“Save”**.
 
@@ -48,16 +53,30 @@ you add a background. At least one always remains: with a single background, “
 
 Separately there is the **Background login problems**, which is changed the same way and cannot be deleted.
 
-## Colors
+## Panel style
 <!-- ve: configurations-appearance-colors -->
 
-Go to **“Colors”**. Your organization's color is used only as an accent (buttons, selection, links and focus). The
-complementary colors are used only in charts and data.
+Go to **“Panel style”**. It is a single screen with three tabs: **“Colors”**, **“Typography and shape”** and
+**“Accessibility”**. The chosen tab stays in the address, so you can bookmark or share it, and the screen remembers it
+when you come back.
 
-![Colors](img/configurations-appearance-colors.webp)
+![Panel style](img/configurations-appearance-colors.webp)
 
-Next to each color, **“Choose color”** opens the picker. Below, the **“Live preview”** shows how
-the accent and the palette will look in the panel. At the end, **“Cancel”** or **“Save”**.
+Below the tabs, the **“Live preview”** shows the panel in **“Light mode”** and **“Dark mode”** side by side (stacked on
+phones), and it updates right away with what you change in any of the three tabs, before saving.
+
+Each tab has **“Reset”**: it tells you what goes back to the default values, asks you to confirm and saves it right
+away. It only resets that tab; anything you changed on the screen without saving is lost.
+
+!!! note "Colors and typography are saved together"
+    “Colors” and “Typography and shape” are one form: the **“Save colors and typography”** button saves both tabs. If
+    you leave unsaved changes in the other one, it warns you next to the button. “Accessibility” is saved separately,
+    with its own **“Save”**.
+
+### Colors
+
+Your organization's color is used only as an accent (buttons, selection, links and focus). The complementary colors
+are used only in charts and data. Next to each color, **“Choose color”** opens the picker.
 
 | Field | Required | Purpose |
 | --- | --- | --- |
@@ -67,25 +86,28 @@ the accent and the palette will look in the panel. At the end, **“Cancel”** 
 | Series 2, Series 3, Series 4, Series 5 | No | The colors of the chart series. |
 | Use the accent, Dark neutral | No | The color of the browser's top bar on phones. |
 | Accent 2, Accent 3 | No | Colors for occasional highlights: the panel does not use them on its own. |
+
+### Typography and shape
+
+| Field | Required | Purpose |
+| --- | --- | --- |
 | Font | No | The panel's typeface: Atkinson Hyperlegible Next (the default), Red Hat Text, IBM Plex Sans or Onest. |
 | Base size | No | The base size of the text. |
 | Radius | No | How rounded the corners are across the whole panel. |
 
-## Accessibility
+## Panel accessibility
 <!-- ve: configurations-appearance-accessibility -->
 
-Go to **“Accessibility”**. Here you choose how the panel looks for whoever has not chosen their own in “My account” ›
-“Preferences” (see “Your account”, “Your preferences”). It has the same two cards as each person's preferences:
-**Appearance** and **Reading and motion**.
+It is the **“Accessibility”** tab of “Panel style” (the old “Accessibility” address leads to it). Here you choose how
+the panel looks for whoever has not chosen their own in “My account” › “Preferences” (see “Your account”, “Your
+preferences”). It has the same two cards as each person's preferences: **Appearance** and **Reading and motion**.
 
 ![Accessibility](img/configurations-appearance-accessibility.webp)
-
-At the end, **“Cancel”** or **“Save”**.
 
 | Field | Required | Purpose |
 | --- | --- | --- |
 | Default color mode | No | In **Appearance**: **“Light”**, **“Dark”** or **“System”** (each person's device). |
-| Default text size | No | **“Normal”**, **“Large”** or **“Larger”**. Large and Larger add 2 and 4 pixels to the “Base size” in Colors. |
+| Default text size | No | **“Normal”**, **“Large”** or **“Larger”**. Large and Larger add 2 and 4 pixels to the “Base size” in “Typography and shape”. |
 | Default text spacing | No | **“Normal”** or **“Wide”**: more space between lines, paragraphs, words and letters. |
 | Default contrast | No | In **Reading and motion**: **“Automatic”** (it follows each person's device) or **“More contrast”**. |
 | Default motion | No | **“Automatic”** or **“Reduce motion”**. |

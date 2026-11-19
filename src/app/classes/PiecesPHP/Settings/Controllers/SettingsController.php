@@ -53,6 +53,8 @@ use PiecesPHP\Mcp\Assistant;
 use PiecesPHP\Settings\Mail\MailTester;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Settings\SettingsRoutes;
+use PiecesPHP\Settings\Uploads\GifStructureValidator;
+use PiecesPHP\Settings\Uploads\SvgWhitelistValidator;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\ServerDelegatedLinks;
 use PiecesPHP\UserSystem\Controllers\LoginAttemptsController;
@@ -81,14 +83,54 @@ class SettingsController extends AdminPanelController
      */
     const FACTORY_BRAND_IMAGES = [
         'logo' => ['267a9e14146deb1b23e52417da4512737bbceaa2', '98b74efa0dca1da2cbe5a671dd3d940d733319ee', '9cf27f1fbb82e550d03fbaca632f9c6563eec81a'],
-        'partners' => ['f99eed56bd1b37230c3da8219a88aa4ca3e815c1'],
-        'partnersVertical' => ['759ba8f2f55108ad876d8974da1ef0ae3dfbbf0f'],
+        'partners' => ['4035cfe5e931fd5ed7ccf5370a382dcef01e49dd', 'f99eed56bd1b37230c3da8219a88aa4ca3e815c1'],
+        'partnersVertical' => ['4371bf0fda8f73c17624ec88e99b486b6ad64181', '759ba8f2f55108ad876d8974da1ef0ae3dfbbf0f'],
+        //El SVG y el GIF de fábrica de la animación, el de hoy y los anteriores.
+        'loaderAnimation' => ['24e8de007b908f0fe65dd22d561537a3dfaa1a37', '05423f01ecaf50b4a6ebfbdf1e26b439b9c3215a', '8cb66d7d24cd62352b3c021137e3d00db0fbe5ef', '325da5872e027530321fe7bfbfb60ee61183792d'],
+        'loaderLogo' => ['267a9e14146deb1b23e52417da4512737bbceaa2'],
     ];
+
+    /**
+     * La imagen de fábrica de las opciones que pueden no existir en la base: la siembra del arranque solo corre con la
+     * base vacía, y una instalación anterior no las tiene. Ver brandImagePath().
+     */
+    const FACTORY_BRAND_IMAGE_DEFAULTS = [
+        'loaderAnimation' => 'statics/images/loader-animation.svg',
+        'loaderLogo' => 'statics/images/loader-logo.png',
+    ];
+
+    /**
+     * Las imágenes cuya opción guardada vacía es «apagada» y no la de fábrica: «Eliminar» del logo del cargador guarda ''.
+     */
+    const BRAND_IMAGES_EMPTY_IS_OFF = ['loaderLogo'];
+
+    /**
+     * La animación de carga subida (H345): GIF o SVG, tal cual, hasta este tamaño.
+     */
+    const LOADER_ANIMATION_MAX_BYTES = 2 * 1024 * 1024;
+
+    /**
+     * El lado máximo, en píxeles, de un GIF de la animación de carga: un GIF pequeño puede declarar un lienzo enorme, y
+     * el navegador reserva su memoria al pintarlo.
+     */
+    const LOADER_ANIMATION_MAX_SIDE = 4096;
 
     /**
      * El logo del desarrollador que trae el framework (config.php, `developer_logo`).
      */
     const FACTORY_DEVELOPER_LOGO = 'statics/images/developer-logo.png';
+
+    /**
+     * Los sha1 de fábrica del logo del desarrollador, el de hoy y el anterior (67 × 32). Por contenido y no por ruta: un
+     * clon pone su logo en el MISMO archivo de fábrica (isFactoryDeveloperLogo()).
+     */
+    const FACTORY_DEVELOPER_LOGO_SHA1 = ['5e3fe1eb6be62e5c35ede914bcfaa6d4d7da86de', 'b029c66bf76ea8af5ad8f41a1ae3025ba5c46124'];
+
+    /**
+     * Su versión para el modo oscuro: con el logo de fábrica y sin `developer_logo_invert_on_dark`, se pinta esta en vez de
+     * invertir la clara (developerLogoTag()).
+     */
+    const FACTORY_DEVELOPER_LOGO_DARK = 'statics/images/developer-logo-dark.png';
 
     /**
      * Las imágenes que el modo oscuro puede volver blancas (P277 c): imagen => su opción. Se guardan 1 o 0, nunca un
@@ -99,6 +141,48 @@ class SettingsController extends AdminPanelController
         'partners' => 'partnersInvertOnDark',
         'partnersVertical' => 'partnersVerticalInvertOnDark',
     ];
+
+    /**
+     * Imagen => [opción de su modo oscuro, opción de su imagen oscura]; el modo, uno de BRAND_IMAGE_DARK_MODES.
+     * Solo se escriben estas: BRAND_IMAGES_INVERT_ON_DARK se lee para el modo no guardado (brandImageDarkMode()).
+     */
+    const BRAND_IMAGES_DARK_MODE = [
+        'logo' => ['mode' => 'logoDarkMode', 'image' => 'logoDark'],
+        'partners' => ['mode' => 'partnersDarkMode', 'image' => 'partnersDark'],
+        'partnersVertical' => ['mode' => 'partnersVerticalDarkMode', 'image' => 'partnersVerticalDark'],
+        'loaderAnimation' => ['mode' => 'loaderAnimationDarkMode', 'image' => 'loaderAnimationDark'],
+        'loaderLogo' => ['mode' => 'loaderLogoDarkMode', 'image' => 'loaderLogoDark'],
+    ];
+
+    const BRAND_IMAGE_DARK_SAME = 'same';
+    const BRAND_IMAGE_DARK_INVERT = 'invert';
+    const BRAND_IMAGE_DARK_IMAGE = 'image';
+    const BRAND_IMAGE_DARK_MODES = [self::BRAND_IMAGE_DARK_SAME, self::BRAND_IMAGE_DARK_INVERT, self::BRAND_IMAGE_DARK_IMAGE];
+
+    /**
+     * La imagen oscura que trae el framework: con la clara de fábrica y sin modo guardado, el modo es `image` con esta.
+     */
+    const FACTORY_BRAND_IMAGES_DARK = [
+        'logo' => 'statics/images/white-logo.png',
+        'partners' => 'statics/images/partners-dark.png',
+        'partnersVertical' => 'statics/images/partners-vertical-dark.png',
+        'loaderAnimation' => 'statics/images/loader-animation-dark.svg',
+        'loaderLogo' => 'statics/images/white-logo.png',
+    ];
+
+    /**
+     * Las imágenes cuya oscura de fábrica se puede sustituir por la clara invertida: sin ella en disco (white-logo.png,
+     * partners-dark.png…), la de fábrica vuelve a invertirse, como antes de que trajera su oscura.
+     */
+    const FACTORY_BRAND_IMAGES_DARK_IS_INVERTED = ['logo', 'partners', 'partnersVertical'];
+
+    /**
+     * Lo que ya midió isFactoryBrandImage() en esta petición, por clave y ruta: hasta dos sha1_file() por imagen y
+     * llamada, y una página pinta el logo varias veces. Lo vacía clearBrandImageCache() al guardar una imagen.
+     *
+     * @var array<string,bool>
+     */
+    private static array $factoryBrandImageCache = [];
 
     const LANG_GROUP = 'appConfig';
 
@@ -281,6 +365,20 @@ class SettingsController extends AdminPanelController
     const ACCESSIBILITY_TEXT_SPACING_CONFIG = 'accessibility_text_spacing';
     const ACCESSIBILITY_TRANSPARENCY_CONFIG = 'accessibility_transparency';
     /**
+     * La fábrica de «Restablecer» en Estilo del panel y de los siete lectores accessibility*().
+     *
+     * @var array<string,string> opción => valor
+     */
+    const ACCESSIBILITY_FACTORY = [
+        self::ACCESSIBILITY_TEXT_SIZE_CONFIG => AdminPanelController::TEXT_SIZE_NORMAL,
+        self::ACCESSIBILITY_THEME_MODE_CONFIG => AdminPanelController::THEME_MODE_AUTO,
+        self::ACCESSIBILITY_CONTRAST_CONFIG => 'auto',
+        self::ACCESSIBILITY_MOTION_CONFIG => 'auto',
+        self::ACCESSIBILITY_FOCUS_CONFIG => 'normal',
+        self::ACCESSIBILITY_TEXT_SPACING_CONFIG => 'normal',
+        self::ACCESSIBILITY_TRANSPARENCY_CONFIG => 'auto',
+    ];
+    /**
      * La configuración SMTP, cifrada, y las de osTicket.
      */
     const MAIL_CONFIG = 'mail';
@@ -300,6 +398,10 @@ class SettingsController extends AdminPanelController
      * Solo el principal: un script inyectado en el panel lee la sesión de cualquiera, la del principal incluida.
      */
     const ROLES_INJECTED_SCRIPTS = self::ROLES_ROUTES_VIEWS;
+    /**
+     * Quién sube una animación de carga SVG: un SVG validado sigue siendo un documento que el navegador analiza, y la lista blanca no acota el coste de pintarlo.
+     */
+    const ROLES_SVG_BRAND_IMAGES = [UsersModel::TYPE_USER_ROOT];
     /**
      * Solo el principal: un respaldo contiene TODA la base. Constante propia y no la de
      * scripts, porque el motivo es otro y cada una puede cambiar sin la otra.
@@ -909,9 +1011,22 @@ class SettingsController extends AdminPanelController
                 'logo' => get_config('logo'),
                 'partners' => get_config('partners'),
                 'partnersVertical' => get_config('partnersVertical'),
+                'loaderAnimation' => self::brandImagePath('loaderAnimation'),
+                'loaderAnimationSize' => self::imageFileSize(self::brandImagePath('loaderAnimation')),
+                'loaderLogo' => self::brandImagePath('loaderLogo'),
+                'canUploadSvg' => self::canUploadSvgBrandImages(),
                 'mailingLogo' => mailing_logo(),
                 'partnersTexts' => array_combine(Config::get_allowed_langs(), array_map(fn (string $lang): string => self::storedPartnersText($lang), Config::get_allowed_langs())),
-                'invertOnDark' => array_map(fn(string $option) => self::brandImageInvertsOnDark((string) array_search($option, self::BRAND_IMAGES_INVERT_ON_DARK, true)), self::BRAND_IMAGES_INVERT_ON_DARK),
+                'darkModes' => array_combine(array_keys(self::BRAND_IMAGES_DARK_MODE), array_map(fn (string $image): array => [
+                    'mode' => self::brandImageDarkMode($image),
+                    'saved' => get_config(self::BRAND_IMAGES_DARK_MODE[$image]['mode']) !== false,
+                    'onReplace' => self::brandImageDarkModeWithoutSaved($image, false),
+                    'image' => self::brandImageDarkImage($image),
+                    'factoryDark' => self::brandImageDarkImage($image) !== '' && trim((string) get_config(self::BRAND_IMAGES_DARK_MODE[$image]['image'])) === '',
+                    'view' => self::brandImageDarkView($image),
+                    'fallbackMode' => self::brandImageDarkFallbackMode($image),
+                    'field' => self::BRAND_IMAGES_DARK_MODE[$image]['image'],
+                ], array_keys(self::BRAND_IMAGES_DARK_MODE))),
                 'partnersTextMaxLength' => self::PARTNERS_TEXT_MAX_LENGTH,
             ] + $this->sectionHeader(__(self::LANG_GROUP, 'Imágenes de marca'), __(self::LANG_GROUP, 'La plataforma es marca blanca: estas imágenes identifican al cliente en toda la plataforma, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.'));
 
@@ -947,17 +1062,71 @@ class SettingsController extends AdminPanelController
                 ->setSuccessOnSingleOperation($saved);
             $res = $res->withJson($result);
 
-        } elseif ($requestMethod == 'POST' && is_string($req->getParsedBodyParam('invertOnDark', null))) {
+        } elseif ($requestMethod == 'POST' && (is_string($req->getParsedBodyParam('darkMode', null)) || is_string($req->getParsedBodyParam('invertOnDark', null)))) {
 
-            //La casilla «Invertir colores en modo oscuro» de una imagen: se guarda al cambiarla.
-            $image = (string) $req->getParsedBodyParam('invertOnDark', '');
+            //El selector «En modo oscuro» de una imagen: se guarda al cambiarlo. El `invertOnDark` de antes de H340 (con
+            //`checked` a 1 o 0) se sigue aceptando, y también escribe el modo: la opción vieja ya no se escribe.
+            $legacy = !is_string($req->getParsedBodyParam('darkMode', null));
+            $image = (string) $req->getParsedBodyParam($legacy ? 'invertOnDark' : 'darkMode', '');
             $checked = $req->getParsedBodyParam('checked', null);
-            $valid = array_key_exists($image, self::BRAND_IMAGES_INVERT_ON_DARK) && in_array($checked, ['0', '1'], true);
-            $saved = $valid && SettingsModel::setConfigValue(self::BRAND_IMAGES_INVERT_ON_DARK[$image], (int) $checked);
-            $result = new ResultOperations([], __(self::LANG_GROUP, 'Invertir colores en modo oscuro'));
+            $mode = $legacy ? ($checked === '1' ? self::BRAND_IMAGE_DARK_INVERT : ($checked === '0' ? self::BRAND_IMAGE_DARK_SAME : null)) : $req->getParsedBodyParam('mode', null);
+            $valid = array_key_exists($image, self::BRAND_IMAGES_DARK_MODE) && in_array($mode, self::BRAND_IMAGE_DARK_MODES, true);
+            $saved = $valid && SettingsModel::setConfigValue(self::BRAND_IMAGES_DARK_MODE[$image]['mode'], $mode);
+            self::clearBrandImageCache();
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'En modo oscuro'));
             $result->setSingleOperation(true);
             $result
                 ->setMessage($saved ? __(self::LANG_GROUP, 'Preferencia guardada.') : __(self::LANG_GROUP, 'Información faltante o inesperada.'))
+                ->setSuccessOnSingleOperation($saved);
+            $res = $res->withJson($result);
+
+        } elseif ($requestMethod == 'POST' && $req->getParsedBodyParam('deleteBrandImage', null) === 'loaderLogo') {
+
+            //«Eliminar» del logo del cargador (H345): la clara se guarda '' (apagado; borrarla traería la de fábrica), y su oscura y su modo se borran.
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Logo del cargador'));
+            $result->setSingleOperation(true);
+            $saved = true;
+            foreach (['loaderLogo', self::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'], self::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']] as $optionName) {
+                $oldImage = get_config($optionName);
+                if ($optionName === 'loaderLogo') {
+                    $saved = SettingsModel::setConfigValue($optionName, '') && $saved;
+                } elseif ($oldImage === false) {
+                    continue;
+                } else {
+                    $saved = SettingsModel::deleteConfigValue($optionName) && $saved;
+                }
+                if (is_string($oldImage) && $oldImage !== '') {
+                    //RETORNO-IGNORADO: la opción ya no apunta al archivo; uno que no se borra solo ocupa sitio, y deleteSettingsImage() lo registra.
+                    self::deleteSettingsImage($oldImage);
+                }
+            }
+            self::clearBrandImageCache();
+            $result
+                ->setMessage($saved ? __(self::LANG_GROUP, 'Logo del cargador quitado.') : __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'))
+                ->setSuccessOnSingleOperation($saved);
+            $res = $res->withJson($result);
+
+        } elseif ($requestMethod == 'POST' && (isset($_FILES['loaderAnimation']) || isset($_FILES[self::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image']]))) {
+
+            //La animación de carga y su oscura (H345): GIF o SVG tal cual, sin recortador; el SVG, por lista blanca y solo del principal.
+            $optionName = isset($_FILES['loaderAnimation']) ? 'loaderAnimation' : self::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image'];
+            $stored = self::storeLoaderAnimationUpload($optionName, $optionName === 'loaderAnimation' ? 'loader-animation' : 'loader-animation-dark');
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
+            $result->setSingleOperation(true);
+            $saved = false;
+            if ($stored['path'] !== null) {
+                $oldImage = get_config($optionName);
+                $saved = SettingsModel::setConfigValue($optionName, $stored['path']);
+                self::clearBrandImageCache();
+                $saved = $saved && self::saveDarkModeImageFor($optionName);
+                //Solo se borra una subida anterior: la de fábrica no está en la carpeta de subidas.
+                if ($saved && is_string($oldImage) && $oldImage !== '' && $oldImage !== $stored['path']) {
+                    //RETORNO-IGNORADO: la nueva ya está guardada; una anterior que no se borra solo ocupa sitio, y deleteSettingsImage() lo registra.
+                    self::deleteSettingsImage($oldImage);
+                }
+            }
+            $result
+                ->setMessage($saved ? __(self::LANG_GROUP, 'Imagen guardada.') : ($stored['error'] !== '' ? $stored['error'] : __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.')))
                 ->setSuccessOnSingleOperation($saved);
             $res = $res->withJson($result);
 
@@ -970,6 +1139,11 @@ class SettingsController extends AdminPanelController
                 'partners' => 'partners',
                 'partnersVertical' => 'partners-vertical',
                 'mailingLogo' => 'mailing-logo',
+                self::BRAND_IMAGES_DARK_MODE['logo']['image'] => 'logo-dark',
+                self::BRAND_IMAGES_DARK_MODE['partners']['image'] => 'partners-dark',
+                self::BRAND_IMAGES_DARK_MODE['partnersVertical']['image'] => 'partners-vertical-dark',
+                'loaderLogo' => 'loader-logo',
+                self::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'] => 'loader-logo-dark',
             ];
 
             $nameCurrentAllowedImage = '';
@@ -1007,6 +1181,9 @@ class SettingsController extends AdminPanelController
 
                         $logosAndFaviconsMapper->value = $relativePath;
                         $updated = $logosAndFaviconsMapper->id !== null ? $logosAndFaviconsMapper->update() : SettingsModel::setConfigValue($nameCurrentAllowedImage, $relativePath);
+                        self::clearBrandImageCache();
+                        //Subir una oscura es elegir «Otra imagen» (H340): el modo se guarda en la misma petición.
+                        $updated = $updated && self::saveDarkModeImageFor($nameCurrentAllowedImage);
 
                         //Solo se borra una subida anterior: la imagen de fábrica no está en la carpeta de subidas.
                         if ($updated && is_string($oldImage) && $oldImage !== '' && $oldImage !== $relativePath) {
@@ -2778,8 +2955,8 @@ class SettingsController extends AdminPanelController
             __($langGroup, 'Apariencia') => ['palette', [
                 $own('appearance-brand-images', __($langGroup, 'Imágenes de marca'), 'image', __($langGroup, 'logo, logos, favicon, icono, marca')),
                 $own('appearance-backgrounds', __($langGroup, 'Fondos del inicio de sesión'), 'images'),
-                $own('appearance-colors', __($langGroup, 'Colores'), 'fill drip'),
-                $own('appearance-accessibility', __($langGroup, 'Accesibilidad'), 'universal access'),
+                //Colores y Accesibilidad son una pantalla; appearance-accessibility sigue como ruta (es un permiso) y redirige.
+                $own('appearance-colors', __($langGroup, 'Estilo del panel'), 'fill drip', __($langGroup, 'colores, accesibilidad, fuente, tipografía, contraste')),
             ]],
             __($langGroup, 'SEO y Scripts') => ['globe', [
                 $own('appearance-seo', __($langGroup, 'Identidad y SEO'), 'cog'),
@@ -2851,7 +3028,8 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * La pantalla de colores: un solo formulario (acento, series, realces, tipografía, forma y barra del navegador).
+     * Estilo del panel: Colores, Tipografía y forma, y Accesibilidad en pestañas, con la muestra en claro y en oscuro. Los
+     * dos formularios guardan por sus rutas de siempre; Accesibilidad solo sale con el permiso de appearance-accessibility.
      *
      * @param Request $req
      * @param Response $res
@@ -2859,37 +3037,92 @@ class SettingsController extends AdminPanelController
      */
     public function configurationsView(Request $req, Response $res)
     {
+        $langGroup = self::LANG_GROUP;
+        $accessibilityVisible = self::allowedRoute('appearance-accessibility');
 
-        set_title(__(self::LANG_GROUP, 'Colores'));
+        set_title(__($langGroup, 'Estilo del panel'));
 
-        set_custom_assets([
+        set_custom_assets(array_merge([
             //statisticsChartThemeColors(): colors.js mide con él el acento de oscuro que calcula el tema.
             'statics/core/js/statistics-chart-legend.js',
+            SettingsRoutes::staticRoute('js/style-panel.js'),
             SettingsRoutes::staticRoute('js/colors.js'),
-        ], 'js');
+        ], $accessibilityVisible ? [SettingsRoutes::staticRoute('js/accessibility.js')] : []), 'js');
+        set_custom_assets([
+            SettingsRoutes::staticRoute('css/style-panel.css'),
+        ], 'css');
 
         $tokens = self::themeTokens();
         $seriesColors = [];
         foreach (self::DATA_TOKENS as $token => $option) {
             $seriesColors[$option] = ['value' => $tokens[$token] ?? self::FACTORY_COLORS[$option], 'factory' => self::FACTORY_COLORS[$option]];
         }
+        $browserBar = mb_strtoupper((string) get_config('meta_theme_color')) === self::META_THEME_DARK ? self::BROWSER_BAR_DARK : self::BROWSER_BAR_ACCENT;
+
+        //Lo guardado del formulario de colores, por campo: «Restablecer» de una pestaña lo reenvía con lo de fábrica de ESA pestaña encima.
+        $colorsSaved = [
+            'main_brand_color' => $tokens['accent'],
+            'main_brand_color_dark' => self::accentDarkColor(),
+            'second_brand_color' => $tokens['accent-2'] ?? self::FACTORY_COLORS['second_brand_color'],
+            'third_brand_color' => $tokens['accent-3'] ?? self::FACTORY_COLORS['third_brand_color'],
+            'browser_bar' => $browserBar,
+            'theme_font' => self::themeFont(),
+            'theme_font_size' => self::themeFontSize(),
+            'theme_radius' => self::themeRadius(),
+        ];
+        foreach ($seriesColors as $option => $series) {
+            $colorsSaved[$option] = $series['value'];
+        }
+        //Las series de fábrica se guardan vacías (manda el tema), igual que el oscuro automático; la barra de fábrica es el acento.
+        $colorsFactory = [
+            'main_brand_color' => self::FACTORY_COLORS['main_brand_color'],
+            'main_brand_color_dark' => self::FACTORY_COLORS['main_brand_color_dark'],
+            'second_brand_color' => self::FACTORY_COLORS['second_brand_color'],
+            'third_brand_color' => self::FACTORY_COLORS['third_brand_color'],
+            'browser_bar' => self::BROWSER_BAR_ACCENT,
+        ] + array_fill_keys(array_values(self::DATA_TOKENS), '');
+        $typographyFactory = [
+            'theme_font' => self::THEME_FONT_FACTORY,
+            'theme_font_size' => self::THEME_FONT_SIZE_FACTORY,
+            'theme_radius' => self::THEME_RADIUS_FACTORY,
+        ];
+
+        //Los del SITIO (lo guardado en Accesibilidad), no las preferencias de quien edita: sin data-theme, cada muestra fija el suyo.
+        $previewAttributes = '';
+        foreach (['data-text-size' => self::accessibilityTextSize(), 'data-contrast' => self::accessibilityContrast(), 'data-motion' => self::accessibilityMotion(), 'data-focus' => self::accessibilityFocus(), 'data-text-spacing' => self::accessibilityTextSpacing(), 'data-transparency' => self::accessibilityTransparency()] as $previewName => $previewValue) {
+            $previewAttributes .= " {$previewName}=\"" . escape_html($previewValue) . '"';
+        }
+        $previewAttributes .= self::loaderHtmlAttributes();
 
         $data = [
-            'langGroup' => self::LANG_GROUP,
+            'langGroup' => $langGroup,
             'actionURL' => self::routeName('appearance-colors-save'),
             'accentColor' => $tokens['accent'],
-            'accentDarkColor' => self::accentDarkColor(),
-            'secondColor' => $tokens['accent-2'] ?? self::FACTORY_COLORS['second_brand_color'],
-            'thirdColor' => $tokens['accent-3'] ?? self::FACTORY_COLORS['third_brand_color'],
+            'accentDarkColor' => $colorsSaved['main_brand_color_dark'],
+            'secondColor' => $colorsSaved['second_brand_color'],
+            'thirdColor' => $colorsSaved['third_brand_color'],
             'seriesColors' => $seriesColors,
-            'browserBar' => mb_strtoupper((string) get_config('meta_theme_color')) === self::META_THEME_DARK ? self::BROWSER_BAR_DARK : self::BROWSER_BAR_ACCENT,
-            'themeFont' => self::themeFont(),
-            'themeFontSize' => self::themeFontSize(),
-            'themeRadius' => self::themeRadius(),
-        ] + $this->sectionHeader(__(self::LANG_GROUP, 'Colores'), __(self::LANG_GROUP, 'El color del cliente se usa solo como acento (botones, selección, enlaces y foco). Los colores complementarios se usan únicamente en gráficas y datos.'));
+            'browserBar' => $browserBar,
+            'themeFont' => $colorsSaved['theme_font'],
+            'themeFontSize' => $colorsSaved['theme_font_size'],
+            'themeRadius' => $colorsSaved['theme_radius'],
+            'resetColors' => $colorsFactory + $colorsSaved,
+            'resetTypography' => $typographyFactory + $colorsSaved,
+            'accessibilityVisible' => $accessibilityVisible,
+            'accessibilityActionURL' => self::routeName('appearance-accessibility-save'),
+            'textSize' => self::accessibilityTextSize(),
+            'themeMode' => self::accessibilityThemeMode(),
+            'contrast' => self::accessibilityContrast(),
+            'motion' => self::accessibilityMotion(),
+            'focus' => self::accessibilityFocus(),
+            'textSpacing' => self::accessibilityTextSpacing(),
+            'transparency' => self::accessibilityTransparency(),
+            'resetAccessibility' => self::ACCESSIBILITY_FACTORY,
+            'previewAttributes' => $previewAttributes,
+        ] + $this->sectionHeader(__($langGroup, 'Estilo del panel'), __($langGroup, 'Cómo se ve el panel: el acento y la paleta de las gráficas, la letra y la forma, y la accesibilidad de quien no ha elegido la suya.'));
 
         $this->render('panel/layout/header');
-        $this->settingsViews->render('panel/pages/app_configurations/inc/configuration-tabs/general', $data);
+        $this->settingsViews->render('panel/pages/app_configurations/style-panel', $data);
         $this->render('panel/layout/footer');
 
         return $res;
@@ -3007,7 +3240,8 @@ class SettingsController extends AdminPanelController
     }
 
     /**
-     * La pantalla Accesibilidad: el tamaño de letra y el modo de color de quien no ha elegido los suyos.
+     * La ruta de la antigua pantalla Accesibilidad: es un permiso y no se borra. Lleva a Estilo del panel con la pestaña
+     * Accesibilidad abierta (el fragmento lo lee style-panel.js; el servidor no lo ve).
      *
      * @param Request $req
      * @param Response $res
@@ -3015,30 +3249,37 @@ class SettingsController extends AdminPanelController
      */
     public function accessibilityView(Request $req, Response $res)
     {
-        $langGroup = self::LANG_GROUP;
-        set_title(__($langGroup, 'Accesibilidad'));
+        return self::redirectToPanelStyle($req, $res, '#accesibilidad');
+    }
 
-        set_custom_assets([
-            SettingsRoutes::staticRoute('js/accessibility.js'),
-        ], 'js');
+    /**
+     * La dirección vieja de Estilo del panel (appearance/colors): en desuso, se retira en la 11.0.0 (H422). El fragmento
+     * que traiga lo conserva el navegador en el 302.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function panelStyleLegacyView(Request $req, Response $res)
+    {
+        return self::redirectToPanelStyle($req, $res);
+    }
 
-        $data = $this->sectionHeader(__($langGroup, 'Accesibilidad'), __($langGroup, 'Cómo se ve el panel para quien no ha elegido lo suyo en «Mi cuenta › Preferencias».')) + [
-            'langGroup' => $langGroup,
-            'actionURL' => self::routeName('appearance-accessibility-save'),
-            'textSize' => self::accessibilityTextSize(),
-            'themeMode' => self::accessibilityThemeMode(),
-            'contrast' => self::accessibilityContrast(),
-            'motion' => self::accessibilityMotion(),
-            'focus' => self::accessibilityFocus(),
-            'textSpacing' => self::accessibilityTextSpacing(),
-            'transparency' => self::accessibilityTransparency(),
-        ];
-
-        $this->render('panel/layout/header');
-        $this->settingsViews->render('panel/pages/app_configurations/accessibility', $data);
-        $this->render('panel/layout/footer');
-
-        return $res;
+    /**
+     * Lleva a Estilo del panel; sin permiso de appearance-colors responde 403 en vez de redirigir a sí misma.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param string $fragment
+     * @return Response
+     */
+    private static function redirectToPanelStyle(Request $req, Response $res, string $fragment = ''): Response
+    {
+        $url = self::routeName('appearance-colors');
+        if ($url === '') {
+            return throw403($req);
+        }
+        return $res->withRedirect($url . $fragment);
     }
 
     /**
@@ -3226,7 +3467,7 @@ class SettingsController extends AdminPanelController
     public static function accessibilityTextSize(): string
     {
         $size = get_config(self::ACCESSIBILITY_TEXT_SIZE_CONFIG);
-        return is_string($size) && in_array($size, AdminPanelController::TEXT_SIZES, true) ? $size : AdminPanelController::TEXT_SIZE_NORMAL;
+        return is_string($size) && in_array($size, AdminPanelController::TEXT_SIZES, true) ? $size : self::ACCESSIBILITY_FACTORY[self::ACCESSIBILITY_TEXT_SIZE_CONFIG];
     }
 
     /**
@@ -3235,7 +3476,7 @@ class SettingsController extends AdminPanelController
     public static function accessibilityThemeMode(): string
     {
         $mode = get_config(self::ACCESSIBILITY_THEME_MODE_CONFIG);
-        return is_string($mode) && in_array($mode, AdminPanelController::THEME_MODES, true) ? $mode : AdminPanelController::THEME_MODE_AUTO;
+        return is_string($mode) && in_array($mode, AdminPanelController::THEME_MODES, true) ? $mode : self::ACCESSIBILITY_FACTORY[self::ACCESSIBILITY_THEME_MODE_CONFIG];
     }
 
     /**
@@ -3244,7 +3485,7 @@ class SettingsController extends AdminPanelController
     public static function accessibilityContrast(): string
     {
         $value = get_config(self::ACCESSIBILITY_CONTRAST_CONFIG);
-        return is_string($value) && in_array($value, AdminPanelController::CONTRASTS, true) ? $value : 'auto';
+        return is_string($value) && in_array($value, AdminPanelController::CONTRASTS, true) ? $value : self::ACCESSIBILITY_FACTORY[self::ACCESSIBILITY_CONTRAST_CONFIG];
     }
 
     /**
@@ -3253,7 +3494,7 @@ class SettingsController extends AdminPanelController
     public static function accessibilityMotion(): string
     {
         $value = get_config(self::ACCESSIBILITY_MOTION_CONFIG);
-        return is_string($value) && in_array($value, AdminPanelController::MOTIONS, true) ? $value : 'auto';
+        return is_string($value) && in_array($value, AdminPanelController::MOTIONS, true) ? $value : self::ACCESSIBILITY_FACTORY[self::ACCESSIBILITY_MOTION_CONFIG];
     }
 
     /**
@@ -3262,7 +3503,7 @@ class SettingsController extends AdminPanelController
     public static function accessibilityFocus(): string
     {
         $value = get_config(self::ACCESSIBILITY_FOCUS_CONFIG);
-        return is_string($value) && in_array($value, AdminPanelController::FOCUSES, true) ? $value : 'normal';
+        return is_string($value) && in_array($value, AdminPanelController::FOCUSES, true) ? $value : self::ACCESSIBILITY_FACTORY[self::ACCESSIBILITY_FOCUS_CONFIG];
     }
 
     /**
@@ -3271,7 +3512,7 @@ class SettingsController extends AdminPanelController
     public static function accessibilityTextSpacing(): string
     {
         $value = get_config(self::ACCESSIBILITY_TEXT_SPACING_CONFIG);
-        return is_string($value) && in_array($value, AdminPanelController::TEXT_SPACINGS, true) ? $value : 'normal';
+        return is_string($value) && in_array($value, AdminPanelController::TEXT_SPACINGS, true) ? $value : self::ACCESSIBILITY_FACTORY[self::ACCESSIBILITY_TEXT_SPACING_CONFIG];
     }
 
     /**
@@ -3280,7 +3521,7 @@ class SettingsController extends AdminPanelController
     public static function accessibilityTransparency(): string
     {
         $value = get_config(self::ACCESSIBILITY_TRANSPARENCY_CONFIG);
-        return is_string($value) && in_array($value, AdminPanelController::TRANSPARENCIES, true) ? $value : 'auto';
+        return is_string($value) && in_array($value, AdminPanelController::TRANSPARENCIES, true) ? $value : self::ACCESSIBILITY_FACTORY[self::ACCESSIBILITY_TRANSPARENCY_CONFIG];
     }
 
     /**
@@ -3583,32 +3824,375 @@ class SettingsController extends AdminPanelController
      */
     public static function isFactoryBrandImage(string $configName): bool
     {
-        $value = get_config($configName);
-        $file = is_string($value) && $value !== '' ? basepath($value) : '';
-        return array_key_exists($configName, self::FACTORY_BRAND_IMAGES) && $file !== '' && is_file($file)
-            && in_array(sha1_file($file), (array) self::FACTORY_BRAND_IMAGES[$configName], true);
+        $value = self::brandImagePath($configName);
+        $key = "{$configName}\0{$value}";
+        if (!array_key_exists($key, self::$factoryBrandImageCache)) {
+            $file = $value !== '' ? basepath($value) : '';
+            self::$factoryBrandImageCache[$key] = array_key_exists($configName, self::FACTORY_BRAND_IMAGES) && $file !== '' && is_file($file)
+                && in_array(sha1_file($file), (array) self::FACTORY_BRAND_IMAGES[$configName], true);
+        }
+        return self::$factoryBrandImageCache[$key];
     }
 
     /**
-     * Si esa imagen se pinta en blanco en modo oscuro: su opción si existe; si no, solo la de fábrica. Así el logo de
-     * fábrica la trae activa, y un logo propio nunca se invierte sin marcarla.
+     * Si la opción recién guardada es la imagen oscura de una imagen de marca, guarda su modo `image`: subir una oscura
+     * es elegir «Otra imagen». Cualquier otra opción no toca nada.
      *
-     * @param string $configName Una clave de BRAND_IMAGES_INVERT_ON_DARK
+     * @param string $optionName
+     * @return bool Si quedó guardado (true también si no había nada que guardar)
+     */
+    public static function saveDarkModeImageFor(string $optionName): bool
+    {
+        foreach (self::BRAND_IMAGES_DARK_MODE as $options) {
+            if ($options['image'] === $optionName) {
+                return get_config($options['mode']) === self::BRAND_IMAGE_DARK_IMAGE || SettingsModel::setConfigValue($options['mode'], self::BRAND_IMAGE_DARK_IMAGE);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Vacía la caché de isFactoryBrandImage(): la llama quien guarda una imagen de marca en la misma petición.
+     *
+     * @return void
+     */
+    public static function clearBrandImageCache(): void
+    {
+        self::$factoryBrandImageCache = [];
+    }
+
+    /**
+     * Si esa imagen se pinta en blanco en modo oscuro: true solo con el modo EFECTIVO `invert`
+     * (brandImageEffectiveDarkMode()), es decir, con el modo `invert` y, además, con el logo de fábrica en modo `image`
+     * cuando su oscura de fábrica falta en disco. Con el modo `image` y una oscura que existe es false aunque la opción
+     * vieja `*InvertOnDark` diga 1. Para pintarla, brandImageTag().
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_DARK_MODE
      * @return bool
      */
     public static function brandImageInvertsOnDark(string $configName): bool
     {
-        if (!array_key_exists($configName, self::BRAND_IMAGES_INVERT_ON_DARK)) {
-            return false;
+        return self::brandImageEffectiveDarkMode($configName) === self::BRAND_IMAGE_DARK_INVERT;
+    }
+
+    /**
+     * El modo que se PINTA: el elegido (brandImageDarkMode()) salvo con `image` sin oscura que exista, que se pinta como
+     * `same`; o como `invert` si la clara es la de fábrica y está en FACTORY_BRAND_IMAGES_DARK_IS_INVERTED: un clon que
+     * borró white-logo.png sigue viendo el logo invertido.
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_DARK_MODE
+     * @return string
+     */
+    public static function brandImageEffectiveDarkMode(string $configName): string
+    {
+        return self::brandImageDarkView($configName)['mode'];
+    }
+
+    /**
+     * Lo que enseña esa imagen en modo oscuro, resuelto en UN solo sitio: lo pintan brandImageTag(), el cargador
+     * (loaderHtmlAttributes()) y la vista previa oscura de Imágenes de marca, con su «Descargar». `mode`, el que se pinta
+     * (brandImageEffectiveDarkMode()); `image`, lo que se ve: la oscura (la guardada; si no, la de fábrica) con `image`,
+     * y la clara con `same` o `invert` (esta, con el filtro). Vale para cualquier clave de BRAND_IMAGES_DARK_MODE.
+     *
+     * @param string $configName
+     * @return array{mode:string,image:string}
+     */
+    public static function brandImageDarkView(string $configName): array
+    {
+        $mode = self::brandImageDarkMode($configName);
+        $dark = $mode === self::BRAND_IMAGE_DARK_IMAGE ? self::brandImageDarkImage($configName) : '';
+        if ($mode === self::BRAND_IMAGE_DARK_IMAGE && $dark === '') {
+            $mode = self::brandImageDarkFallbackMode($configName);
         }
-        $value = get_config(self::BRAND_IMAGES_INVERT_ON_DARK[$configName]);
-        return $value === false ? self::isFactoryBrandImage($configName) : in_array($value, [1, '1'], true);
+        return ['mode' => $mode, 'image' => $dark !== '' ? $dark : self::brandImagePath($configName)];
+    }
+
+    /**
+     * Cómo se pinta `image` sin oscura que exista: `invert` si la clara es la de fábrica y su oscura de fábrica es la clara
+     * invertida (FACTORY_BRAND_IMAGES_DARK_IS_INVERTED: un clon que borró white-logo.png); si no, `same`.
+     *
+     * @param string $configName
+     * @return string
+     */
+    public static function brandImageDarkFallbackMode(string $configName): string
+    {
+        return in_array($configName, self::FACTORY_BRAND_IMAGES_DARK_IS_INVERTED, true) && self::isFactoryBrandImage($configName) ? self::BRAND_IMAGE_DARK_INVERT : self::BRAND_IMAGE_DARK_SAME;
+    }
+
+    /**
+     * Para el marcador viejo de una sola imagen (`${logoClass}` de una plantilla de «problemas de acceso» de un clon):
+     * si en modo oscuro esa imagen se pinta con el filtro de inversión. Con el modo efectivo `invert`, y también con `image`
+     * cuando la oscura es la de fábrica: el marcador no admite dos imágenes y la inversión es lo más parecido a white-logo.png.
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_DARK_MODE
+     * @return bool
+     */
+    public static function brandImageLooksInvertedOnDark(string $configName): bool
+    {
+        $mode = self::brandImageEffectiveDarkMode($configName);
+        if ($mode === self::BRAND_IMAGE_DARK_INVERT) {
+            return true;
+        }
+        return $mode === self::BRAND_IMAGE_DARK_IMAGE && in_array($configName, self::FACTORY_BRAND_IMAGES_DARK_IS_INVERTED, true)
+            && self::brandImageDarkImage($configName) === (self::FACTORY_BRAND_IMAGES_DARK[$configName] ?? null);
+    }
+
+    /**
+     * El modo oscuro de esa imagen, uno de BRAND_IMAGE_DARK_MODES. Por orden: el guardado; la clara de fábrica con
+     * oscura de fábrica (FACTORY_BRAND_IMAGES_DARK), `image`, aunque haya una `*InvertOnDark` guardada; la opción vieja
+     * `*InvertOnDark` (1, `invert`; 0, `same`); sin ella, `invert` solo la de fábrica. Es el ELEGIDO; el que se pinta
+     * lo da brandImageEffectiveDarkMode().
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_DARK_MODE; otra da `same`
+     * @return string
+     */
+    public static function brandImageDarkMode(string $configName): string
+    {
+        if (!array_key_exists($configName, self::BRAND_IMAGES_DARK_MODE)) {
+            return self::BRAND_IMAGE_DARK_SAME;
+        }
+        $stored = get_config(self::BRAND_IMAGES_DARK_MODE[$configName]['mode']);
+        if (is_string($stored) && in_array($stored, self::BRAND_IMAGE_DARK_MODES, true)) {
+            return $stored;
+        }
+        if (array_key_exists($configName, self::FACTORY_BRAND_IMAGES_DARK) && self::isFactoryBrandImage($configName)) {
+            return self::BRAND_IMAGE_DARK_IMAGE;
+        }
+        return self::brandImageDarkModeWithoutSaved($configName);
+    }
+
+    /**
+     * El modo sin modo guardado y sin oscura de fábrica: el de la opción vieja `*InvertOnDark` si existe (1 o 0); sin
+     * ella, `invert` solo la de fábrica. Con `$factory` false, el que toma una imagen propia recién subida.
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_DARK_MODE
+     * @param bool|null $factory Si la clara es la de fábrica; null, la de hoy (isFactoryBrandImage())
+     * @return string
+     */
+    public static function brandImageDarkModeWithoutSaved(string $configName, ?bool $factory = null): string
+    {
+        $option = self::BRAND_IMAGES_INVERT_ON_DARK[$configName] ?? null;
+        if ($option === null) {
+            return self::BRAND_IMAGE_DARK_SAME;
+        }
+        $value = get_config($option);
+        $inverts = $value === false ? ($factory ?? self::isFactoryBrandImage($configName)) : in_array($value, [1, '1'], true);
+        return $inverts ? self::BRAND_IMAGE_DARK_INVERT : self::BRAND_IMAGE_DARK_SAME;
+    }
+
+    /**
+     * La imagen oscura de esa imagen de marca, guardada o, con la clara de fábrica, la de fábrica; vacía si no hay o
+     * si no existe en disco: nunca una imagen rota. No mira el modo.
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_DARK_MODE
+     * @return string La ruta relativa, o vacía
+     */
+    public static function brandImageDarkImage(string $configName): string
+    {
+        if (!array_key_exists($configName, self::BRAND_IMAGES_DARK_MODE)) {
+            return '';
+        }
+        $stored = get_config(self::BRAND_IMAGES_DARK_MODE[$configName]['image']);
+        $path = is_string($stored) ? trim($stored) : '';
+        if ($path === '' && array_key_exists($configName, self::FACTORY_BRAND_IMAGES_DARK) && self::isFactoryBrandImage($configName)) {
+            $path = self::FACTORY_BRAND_IMAGES_DARK[$configName];
+        }
+        return $path !== '' && is_file(basepath($path)) ? $path : '';
+    }
+
+    /**
+     * La ruta de una imagen de marca: su opción si es un texto no vacío; si no, la de fábrica de
+     * FACTORY_BRAND_IMAGE_DEFAULTS (la animación de carga de una instalación anterior), o vacía. Una de
+     * BRAND_IMAGES_EMPTY_IS_OFF guardada vacía da vacía: está apagada.
+     *
+     * @param string $configName
+     * @return string
+     */
+    public static function brandImagePath(string $configName): string
+    {
+        $value = get_config($configName);
+        $path = is_string($value) ? trim($value) : '';
+        if ($path === '' && is_string($value) && in_array($configName, self::BRAND_IMAGES_EMPTY_IS_OFF, true)) {
+            return '';
+        }
+        return $path !== '' ? $path : (self::FACTORY_BRAND_IMAGE_DEFAULTS[$configName] ?? '');
+    }
+
+    /**
+     * La medida real de una imagen de las subidas o de fábrica, para pintar su vista previa con su proporción: la de un
+     * SVG sale de su `width` y `height` o, sin ellos, de su `viewBox`; la de un GIF, PNG, JPG o WEBP, de getimagesize().
+     *
+     * @param string $relativePath
+     * @return array{width:int,height:int}|null null si no se puede leer, o si la medida no es finita, no es positiva o pasa de LOADER_ANIMATION_MAX_SIDE
+     */
+    public static function imageFileSize(string $relativePath): ?array
+    {
+        $file = $relativePath !== '' ? basepath($relativePath) : '';
+        $bytes = $file !== '' && is_file($file) ? filesize($file) : false;
+        if ($bytes === false || $bytes === 0) {
+            return null;
+        }
+        //Una medida que no es finita, no es positiva o pasa del tope no se pinta: la vista usa la de reserva.
+        $size = function (float $width, float $height): ?array {
+            $valid = fn (float $side): bool => is_finite($side) && $side > 0 && $side <= self::LOADER_ANIMATION_MAX_SIDE;
+            return $valid($width) && $valid($height) ? ['width' => max(1, (int) round($width)), 'height' => max(1, (int) round($height))] : null;
+        };
+        if (mb_strtolower(pathinfo($file, \PATHINFO_EXTENSION)) === 'svg') {
+            $content = (string) file_get_contents($file);
+            if (trim($content) === '') {
+                return null;
+            }
+            $previous = libxml_use_internal_errors(true);
+            $document = new \DOMDocument();
+            $loaded = $document->loadXML($content, \LIBXML_NONET);
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+            $root = $loaded ? $document->documentElement : null;
+            if (!($root instanceof \DOMElement)) {
+                return null;
+            }
+            //Solo longitudes absolutas (un número, o en px): `100%` o `10em` no dicen la medida y se cae al viewBox.
+            $length = fn (string $value): float => preg_match('/^\s*([0-9]*\.?[0-9]+(?:e[+-]?[0-9]+)?)\s*(?:px)?\s*$/i', $value, $match) === 1 ? (float) $match[1] : 0.0;
+            $fromAttributes = $size($length($root->getAttribute('width')), $length($root->getAttribute('height')));
+            if ($fromAttributes !== null) {
+                return $fromAttributes;
+            }
+            $viewBox = preg_split('/[\s,]+/', trim($root->getAttribute('viewBox')));
+            return is_array($viewBox) && count($viewBox) === 4 ? $size($length($viewBox[2]), $length($viewBox[3])) : null;
+        }
+        $information = finfo_open(\FILEINFO_MIME_TYPE);
+        $mime = $information !== false ? finfo_file($information, $file) : false;
+        if (!is_string($mime) || !str_starts_with($mime, 'image/')) {
+            return null;
+        }
+        $dimensions = getimagesize($file);
+        return is_array($dimensions) ? $size((float) $dimensions[0], (float) $dimensions[1]) : null;
+    }
+
+    /**
+     * Las imágenes del cargador (GenericLoaderElement.js) como atributos del `<html>`, ya escapados y con un espacio
+     * delante: `data-loader-animation` y `data-loader-logo` (la clara; el logo es el «Logo del cargador», `loaderLogo`:
+     * de fábrica, loader-logo.png; vacío solo si «Eliminar» lo apagó, y entonces el cargador no pinta logo), con su `-dark` (la oscura, vacía si el modo no es
+     * `image` o no hay una que exista) y su `-invert` (`1` con el modo `invert`, `0` si no), de brandImageDarkView(). Los
+     * ponen AdminPanelController::htmlPreferenceAttributes() y las dos cabeceras públicas; sin ellos, el cargador cae a
+     * sus rutas fijas. Si algo falla (la página de error puede pintarse con la base caída), no pone ninguno.
+     *
+     * @return string
+     */
+    public static function loaderHtmlAttributes(): string
+    {
+        try {
+            $values = [];
+            foreach (['animation' => 'loaderAnimation', 'logo' => 'loaderLogo'] as $suffix => $image) {
+                $view = self::brandImageDarkView($image);
+                $values["data-loader-{$suffix}"] = self::brandImagePath($image);
+                $values["data-loader-{$suffix}-dark"] = $view['mode'] === self::BRAND_IMAGE_DARK_IMAGE ? $view['image'] : '';
+                $values["data-loader-{$suffix}-invert"] = $view['mode'] === self::BRAND_IMAGE_DARK_INVERT ? '1' : '0';
+            }
+        } catch (\Throwable $e) {
+            return '';
+        }
+        $attributes = '';
+        foreach ($values as $name => $value) {
+            $attributes .= ' ' . $name . '="' . escape_html($value) . '"';
+        }
+        return $attributes;
+    }
+
+    /**
+     * Si el usuario actual puede subir una animación de carga SVG (ROLES_SVG_BRAND_IMAGES); sin usuario, no.
+     *
+     * @return bool
+     */
+    public static function canUploadSvgBrandImages(): bool
+    {
+        $user = getLoggedFrameworkUser();
+        return $user !== null && in_array((int) $user->type, self::ROLES_SVG_BRAND_IMAGES, true);
+    }
+
+    /**
+     * Guarda la animación de carga subida (o su oscura): tal cual, sin recortar ni recomprimir, en
+     * SETTINGS_UPLOADS_FOLDER/brand/. El tipo sale del CONTENIDO, nunca del nombre ni del tipo que mande el cliente: un
+     * GIF por su firma y su MIME, o un SVG que pase SvgWhitelistValidator entero y solo de ROLES_SVG_BRAND_IMAGES. El nombre lo pone el servidor.
+     *
+     * @param string $field El campo de $_FILES
+     * @param string $name El de la opción en el archivo (loader-animation, loader-animation-dark)
+     * @return array{path:?string,error:string} La ruta relativa, o null con el motivo ya traducido
+     */
+    public static function storeLoaderAnimationUpload(string $field, string $name): array
+    {
+        $upload = $_FILES[$field] ?? null;
+        $temporary = is_array($upload) && is_string($upload['tmp_name'] ?? null) ? $upload['tmp_name'] : '';
+        $fail = fn (string $message): array => ['path' => null, 'error' => $message];
+        if (!is_array($upload) || ($upload['error'] ?? null) !== \UPLOAD_ERR_OK || $temporary === '' || !is_uploaded_file($temporary)) {
+            return $fail(__(self::LANG_GROUP, 'Información faltante o inesperada.'));
+        }
+        $size = filesize($temporary);
+        if ($size === false || $size > self::LOADER_ANIMATION_MAX_BYTES) {
+            return $fail(__(self::LANG_GROUP, 'La animación pesa más de 2 MB.'));
+        }
+        $content = (string) file_get_contents($temporary);
+        $information = finfo_open(\FILEINFO_MIME_TYPE);
+        $mime = $information !== false ? finfo_buffer($information, $content) : false;
+        if ((str_starts_with($content, 'GIF87a') || str_starts_with($content, 'GIF89a')) && $mime === 'image/gif') {
+            //El lienzo y CADA fotograma, recorriendo sus bloques: un Image Descriptor enorme en un lienzo pequeño también.
+            $gifReason = GifStructureValidator::rejectionReason($content, self::LOADER_ANIMATION_MAX_SIDE);
+            if ($gifReason === GifStructureValidator::REASON_TOO_LARGE || $gifReason === GifStructureValidator::REASON_FRAME_OUTSIDE) {
+                return $fail(__(self::LANG_GROUP, 'La animación no puede pasar de 4096 × 4096 píxeles.'));
+            }
+            if ($gifReason !== null) {
+                return $fail(__(self::LANG_GROUP, 'El GIF está incompleto o mal formado.'));
+            }
+            $extension = 'gif';
+        } elseif (SvgWhitelistValidator::isAllowed($content)) {
+            if (!self::canUploadSvgBrandImages()) {
+                return $fail(__(self::LANG_GROUP, 'Solo el usuario principal puede subir una animación SVG; sube un GIF.'));
+            }
+            $extension = 'svg';
+        } elseif (preg_match('/<svg[\s>]/i', $content) === 1) {
+            return $fail(__(self::LANG_GROUP, 'El SVG trae algo que no está permitido (código, enlaces o recursos externos): se rechaza entero.'));
+        } else {
+            return $fail(__(self::LANG_GROUP, 'La animación tiene que ser un GIF o un SVG.'));
+        }
+        $folder = basepath(self::SETTINGS_UPLOADS_FOLDER . '/brand');
+        if (!is_dir($folder) && !self::makeGroupWritableFolder($folder)) {
+            return $fail(__(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'));
+        }
+        $file = "{$folder}/{$name}-upload-" . bin2hex(random_bytes(6)) . ".{$extension}";
+        if (!move_uploaded_file($temporary, $file)) {
+            return $fail(__(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'));
+        }
+        $relativePath = self::settleSettingsImage($file, 'brand', $name);
+        return $relativePath !== null ? ['path' => $relativePath, 'error' => ''] : $fail(__(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'));
+    }
+
+    /**
+     * El único punto que pinta una imagen de marca (H340), con lo que enseña en modo oscuro: `same`, un `<img>`;
+     * `invert`, el mismo con `invert-on-dark`; `image`, dos, la clara con `brand-image-light` y la oscura con
+     * `brand-image-dark`, y ui-pcs.scss enseña una según `data-theme`. Con `image` sin oscura, lo que diga
+     * brandImageEffectiveDarkMode() (`same`, o `invert` con el logo de fábrica sin su oscura de fábrica).
+     *
+     * @param string $configName Una clave de BRAND_IMAGES_DARK_MODE
+     * @param string $classes Las clases del `<img>`, sin las del modo oscuro
+     * @param string $alt El mismo en las dos: solo una se ve
+     * @return string El HTML, escapado
+     */
+    public static function brandImageTag(string $configName, string $classes = '', string $alt = ''): string
+    {
+        $tag = fn (string $src, string $extra): string => '<img class="' . escape_html(trim("{$classes} {$extra}")) . '" src="' . escape_html($src) . '" alt="' . escape_html($alt) . '">';
+        $light = self::brandImagePath($configName);
+        $view = self::brandImageDarkView($configName);
+        if ($view['mode'] === self::BRAND_IMAGE_DARK_IMAGE) {
+            return $tag($light, 'brand-image-light') . $tag($view['image'], 'brand-image-dark');
+        }
+        return $tag($light, $view['mode'] === self::BRAND_IMAGE_DARK_INVERT ? 'invert-on-dark' : '');
     }
 
     /**
      * Si el logo del desarrollador (`developer_logo`, de config.php) se pinta en blanco en modo oscuro:
      * `developer_logo_invert_on_dark` a 1 o 0 manda; sin ponerla, o a false (get_config() no distingue false de
-     * ausente), solo el logo de fábrica.
+     * ausente), solo el logo de fábrica. Es la regla de UNA imagen: con su oscura (developerLogoDarkImage()),
+     * developerLogoTag() pinta las dos y no invierte.
      *
      * @return bool
      */
@@ -3621,7 +4205,61 @@ class SettingsController extends AdminPanelController
         if (in_array($value, [0, '0'], true)) {
             return false;
         }
-        return trim((string) get_config('developer_logo')) === self::FACTORY_DEVELOPER_LOGO;
+        return self::isFactoryDeveloperLogo();
+    }
+
+    /**
+     * Si el logo del desarrollador (`developer_logo`) es todavía uno de fábrica, por su sha1 (FACTORY_DEVELOPER_LOGO_SHA1),
+     * con la caché de isFactoryBrandImage().
+     *
+     * @return bool
+     */
+    public static function isFactoryDeveloperLogo(): bool
+    {
+        $value = trim((string) get_config('developer_logo'));
+        $key = "developer_logo\0{$value}";
+        if (!array_key_exists($key, self::$factoryBrandImageCache)) {
+            $file = $value !== '' ? basepath($value) : '';
+            self::$factoryBrandImageCache[$key] = $file !== '' && is_file($file) && in_array(sha1_file($file), self::FACTORY_DEVELOPER_LOGO_SHA1, true);
+        }
+        return self::$factoryBrandImageCache[$key];
+    }
+
+    /**
+     * La imagen oscura del logo del desarrollador: FACTORY_DEVELOPER_LOGO_DARK con el logo de fábrica, sin
+     * `developer_logo_invert_on_dark` a 1 o 0 y con ella en disco; si no, vacía.
+     *
+     * @return string
+     */
+    public static function developerLogoDarkImage(): string
+    {
+        if (in_array(get_config('developer_logo_invert_on_dark'), [1, '1', 0, '0'], true) || !self::isFactoryDeveloperLogo()) {
+            return '';
+        }
+        return is_file(basepath(self::FACTORY_DEVELOPER_LOGO_DARK)) ? self::FACTORY_DEVELOPER_LOGO_DARK : '';
+    }
+
+    /**
+     * El único punto que pinta el logo del desarrollador, como brandImageTag(): con su oscura (developerLogoDarkImage()),
+     * dos `<img>`, `brand-image-light` y `brand-image-dark`; si no, uno, con `invert-on-dark` si developerLogoInvertsOnDark().
+     *
+     * @param string $classes Las clases del `<img>`, sin las del modo oscuro
+     * @param string $title Su `title`; vacío, sin él
+     * @return string El HTML, escapado; vacío sin `developer_logo`
+     */
+    public static function developerLogoTag(string $classes = '', string $title = ''): string
+    {
+        $logo = trim((string) get_config('developer_logo'));
+        if ($logo === '') {
+            return '';
+        }
+        $titleAttribute = $title !== '' ? ' title="' . escape_html($title) . '"' : '';
+        $tag = fn (string $src, string $extra): string => '<img class="' . escape_html(trim("{$classes} {$extra}")) . '" src="' . escape_html($src) . '" alt=""' . $titleAttribute . '>';
+        $dark = self::developerLogoDarkImage();
+        if ($dark !== '') {
+            return $tag($logo, 'brand-image-light') . $tag($dark, 'brand-image-dark');
+        }
+        return $tag($logo, self::developerLogoInvertsOnDark() ? 'invert-on-dark' : '');
     }
 
     /**
@@ -4357,11 +4995,21 @@ class SettingsController extends AdminPanelController
         $group->register([
 
             //──── GET ─────────────────────────────────────────────────────────────────────────
-            //Colores
+            //Estilo del panel
             new Route(
-                "{$startRoute}appearance/colors[/]",
+                "{$startRoute}appearance/panel-style[/]",
                 $classname . ':configurationsView',
                 self::$baseRouteName . '-' . 'appearance-colors',
+                'GET',
+                true,
+                null,
+                self::ROLES_VIEW_CONFIGURATIONS_VIEW
+            ),
+            //En desuso: la dirección vieja de Estilo del panel; se retira en la 11.0.0 (H422).
+            new Route(
+                "{$startRoute}appearance/colors[/]",
+                $classname . ':panelStyleLegacyView',
+                self::$baseRouteName . '-' . 'appearance-colors-legacy',
                 'GET',
                 true,
                 null,

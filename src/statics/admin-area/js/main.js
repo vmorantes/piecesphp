@@ -145,7 +145,10 @@ function contentSectionNav() {
 			if (opening > 0) {
 				setTimeout(() => scrollToTarget(target, smooth), opening + 50)
 			}
-			history.replaceState(null, '', '#' + id)
+			//Sobre la dirección de la página: el panel lleva <base href>, y un «#…» suelto se resuelve contra la portada.
+			const url = new URL(window.location.href)
+			url.hash = id
+			history.replaceState(null, '', url)
 		}
 		links.forEach(function (link) {
 			link.addEventListener('click', function (event) {

@@ -40,7 +40,9 @@ $impersonationNotice = $isLoggedOtherUser ? null : ImpersonationController::pull
 <?php endif; ?>
 
 <?php //La campana (ADR 0073): el popup entero sale de notifications-list.php, lo abre el botón de la barra (topbar-bar.php). ?>
+<?php if (\PiecesPHP\Notifications\NotificationsRoutes::ENABLE) : ?>
 <?= \PiecesPHP\Notifications\Controllers\NotificationsController::listMarkup('notifications-popup-list', true); ?>
+<?php endif; ?>
 
 <?php if ($assistantWindow !== null) : ?>
 <?php

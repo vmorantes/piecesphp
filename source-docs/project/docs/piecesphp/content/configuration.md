@@ -755,6 +755,7 @@ Casi todo son banderas de módulos, en `true` o `false`. Cada módulo las lee en
 | `DATA_IMPORT_EXPORT_MODULE` | [Importar y exportar datos](../new-features/data-transfer.md) |
 | `PIECES_PHP_DYNAMIC_IMAGES_ENABLE` | el módulo de imágenes integrado |
 | `LOCATIONS_ENABLED` | Ubicaciones |
+| `DIRECTORY_MODULE`, `GEO_MODULE`, `NOTIFICATIONS_MODULE`, `MCP_MODULE` | El Directorio, el Mapa de contenidos, las notificaciones (con Notificaciones apagada no hay campana ni se guardan avisos nuevos) y el asistente con sus herramientas. Si tu `constants.php` es anterior a la 10.54 y no las tiene, valen `true`. |
 | `SYSTEM_APPROVALS_MODULE` | Aprobaciones |
 | `ORGANIZATIONS_MODULE` | Organizaciones. **Se copia de `CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']`** en `critical-definitions.php`; se cambia allí. |
 | `API_MODULE`, `API_CRONJOBS`, `API_USERS`, `API_REPORTS` | La API y sus partes. `API_CRONJOBS` enciende la ruta del cron aunque las demás estén apagadas. `API_MODULE` también gobierna las cabeceras CORS. |

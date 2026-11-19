@@ -171,7 +171,7 @@ Dos eventos en el contexto `Backups` (ver [Eventos](events.md)):
 
 | Evento | Cuándo | Qué trae |
 | --- | --- | --- |
-| `BackupCreated` | Respaldo escrito y verificado | `file`, `size`, `tables` |
+| `BackupCreated` | Respaldo escrito y verificado | `file`, `size`, `tables`, `skipped_views` (las vistas rotas que se omitieron; vacío si ninguna) |
 | `BackupFailed` | Cualquiera de los caminos de fallo | `reason` |
 
 ```php

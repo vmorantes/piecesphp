@@ -51,6 +51,18 @@ define('FILE_MANAGER_MODULE', true);
 //Publicaciones
 define('PUBLICATIONS_MODULE', true);
 
+//Directorio
+define('DIRECTORY_MODULE', true);
+
+//Datos geográficos (geovisor)
+define('GEO_MODULE', true);
+
+//Notificaciones
+define('NOTIFICATIONS_MODULE', true);
+
+//Servidor MCP y asistente del panel
+define('MCP_MODULE', true);
+
 //Noticias
 define('NEWS_MODULE', true);
 

@@ -64,7 +64,7 @@ configured, the form to <strong>contact support</strong>.</p>
 </div>
 <h2 class="title" id="the-assistant"><span role="button" tabindex="0" aria-expanded="false" aria-controls="the-assistant-contenido"><i class="dropdown icon" aria-hidden="true"></i>The assistant</span></h2>
 <div class="content" id="the-assistant-contenido">
-<p>If the administrator has turned it on for you, next to the notifications bell you have the <strong>assistant</strong> button. On a
+<p>If the administrator has turned it on for you, you have the <strong>assistant</strong> button in the top bar. On a
 phone it is in the menu under your name. It opens a window where you ask in plain language about the platform: where
 something is done (“Where do I create a new user?”), where this manual explains it (“Where is the manual for
 publications?”) or what you have pending (“Do I have unread notifications?”).</p>

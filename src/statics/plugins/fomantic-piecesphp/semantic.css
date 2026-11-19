@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 0.18.0
+ * # Fomantic UI - 0.19.0
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 0.18.0 - Reset
+ * # Fomantic-UI 0.19.0 - Reset
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -426,7 +426,7 @@ template {
   display: none;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Site
+ * # Fomantic-UI 0.19.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1086,9 +1086,25 @@ mark {
 :root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled),
 .ui.icon.buttons > .button:not(.labeled),
 .ui.circular.label) {
-  line-height: 1.5 !important;
   letter-spacing: 0.12em !important;
   word-spacing: 0.16em !important;
+}
+
+/* El interlineado, no en los controles de una sola línea (campos de texto, select, la etiqueta de un labeled input, el
+   dropdown de una selección y su texto; las opciones de su menú sí lo llevan): ahí
+   no separa líneas, solo los hacía más altos, y cada tema crecía distinto que el dropdown de alto fijo de la misma fila
+   (fluent: input 45px junto a un dropdown de 33; 90 fallos de altura en los cinco temas, 2026-11-18). Conservan el
+   interlineado de su componente; el texto, el espaciado de letras y palabras. */
+
+:root[data-text-spacing="wide"] *:not(i.icon, i.icons, i.flag, svg, svg *, .ui.icon.button:not(.labeled),
+.ui.icon.buttons > .button:not(.labeled),
+.ui.circular.label,
+input,
+select,
+.ui.labeled.input > .label,
+.ui.selection.dropdown:not(.multiple),
+.ui.selection.dropdown:not(.multiple) > *) {
+  line-height: 1.5 !important;
 }
 
 /* Lo excluido no toma el espaciado, pero lo heredaría del padre: la etiqueta circular con dos cifras pasaba a 28,7×24 */
@@ -1126,6 +1142,32 @@ mark {
 
 :root[data-text-spacing="wide"] .ui.table :is(th, td).collapsing {
   white-space: normal;
+}
+
+/* Con las letras más anchas (2026-11-18, geometría con data-text-spacing="wide" en los cinco temas):
+   - las celdas de una tabla `single line` (nowrap de Fomantic) sacaban la tabla 125px de la ventana a 1400 (material3);
+   - las pestañas de un `secondary pointing` menu, de una sola fila, salían 87px de la ventana (material3, seis
+     escaparates del marco de piecesphp): saltan de fila;
+   - los botones de un `ui buttons` no encogían (flex: 1 0 auto de Fomantic) y a 390 el grupo salía hasta 24px de la
+     ventana: encogen y parten su texto;
+   - el texto de los elementos de :where(p, li, …, .description) volvía a break-word (la regla de abajo) en vez del
+     anywhere del body, y un correo largo en una lista sacaba el contenido 23px de su segmento a 390. */
+
+:root[data-text-spacing="wide"] .ui.single.line.table :is(th, td) {
+  white-space: normal;
+}
+
+:root[data-text-spacing="wide"] .ui.secondary.pointing.menu:not(.vertical) {
+  flex-wrap: wrap;
+}
+
+:root[data-text-spacing="wide"] .ui.buttons:not(.vertical) > .button {
+  flex-shrink: 1;
+  white-space: normal;
+}
+
+:root[data-text-spacing="wide"] :where(p, li, dd, dt, td, th, label, figcaption, blockquote, .description, .ui.text) {
+  overflow-wrap: anywhere;
 }
 
 /* Una palabra larga sin espacios (una ruta, un correo, un nombre de clase) no saca su caja de la ventana: se parte si no
@@ -3741,7 +3783,7 @@ strong {
   accent-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 /*!
- * # Fomantic-UI 0.18.0 - Button
+ * # Fomantic-UI 0.19.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10881,7 +10923,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   aspect-ratio: 1;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Container
+ * # Fomantic-UI 0.19.0 - Container
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -11258,7 +11300,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Divider
+ * # Fomantic-UI 0.19.0 - Divider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -11601,7 +11643,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.18.0 - Emoji
+ * # Fomantic-UI 0.19.0 - Emoji
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -30721,7 +30763,7 @@ em[data-emoji="regional_indicator_a"]::before {
              Emojis
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Flag
+ * # Fomantic-UI 0.19.0 - Flag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32356,7 +32398,7 @@ i.flag.united.nations::before {
          Flex Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Header
+ * # Fomantic-UI 0.19.0 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -33590,7 +33632,7 @@ h1.ui.header:not(:last-child) {
   color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 /*!
- * # Fomantic-UI 0.18.0 - Icon
+ * # Fomantic-UI 0.19.0 - Icon
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -42936,7 +42978,7 @@ i.huge.bordered.primary.icon.icon.icon.icon.icon.icon:not(.inverted) {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Image
+ * # Fomantic-UI 0.19.0 - Image
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -43357,7 +43399,7 @@ svg.ui.avatar.image,
   box-shadow: 0 0 0 1px var(--theme-border);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Input
+ * # Fomantic-UI 0.19.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -45721,7 +45763,7 @@ input:not([size]):is(:not([type]),
   contain-intrinsic-inline-size: 15.57em;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Label
+ * # Fomantic-UI 0.19.0 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -49258,7 +49300,7 @@ a.ui.ui.ui.basic.teal.label:hover {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 0.18.0 - List
+ * # Fomantic-UI 0.19.0 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -49333,6 +49375,25 @@ ul.ui.list li:last-child,
 ol.ui.list li:last-child,
 .ui.list .list > .item:last-child,
 .ui.list > .item:last-child {
+  padding-bottom: 0;
+}
+
+/* Fork: los enlaces de una lista vertical (objetivos de 24px con el contenido centrado, core) sin relleno vertical: todos
+   miden 24px con el texto en el centro. Con el de Fomantic, que quita el de arriba al primero y el de abajo al último, el
+   texto de esos dos quedaba 1,5px descentrado y el paso entre enlaces variaba (23/24/24/23 en fluent; 2026-11-18); el
+   primero y el último ya medían 24px por el min-height, así que la lista no cambia de alto. Y en una lista que mezcla
+   enlaces e ítems sin enlace, todos miden lo que un enlace (el paso era 25,5/23). Con :where(), justo por encima de
+   Fomantic y por debajo de cualquier tema: el relleno propio de un tema (la caja de 36px de piecesphp) sigue mandando */
+
+.ui.list:where(:not(.horizontal):not(.selection):not(.celled):not(.divided)) > a.item {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.ui.list:where(:not(.horizontal):not(.selection):not(.celled):not(.divided):has(> a.item)) > div.item {
+  min-height: 24px;
+  align-content: center;
+  padding-top: 0;
   padding-bottom: 0;
 }
 
@@ -50380,9 +50441,11 @@ ol.ui.suffixed.list li::before,
 
 /* Link list vertical como los enlaces del panel de Configuración (.pp-cfg-link): caja de
    36px, padding 0 10px, radio md; fondo --accent-50 al pasar por encima, con foco o activo.
-   La horizontal (pies, migas) solo cambia de color. */
+   La horizontal (pies, migas) solo cambia de color. La caja, en todos los ítems de la lista, también los que no son
+   enlace (el activo de la página en un div, un div con un enlace dentro): con 24px y sin relleno lateral, el paso entre
+   textos era 31,5/36/36/32 y su texto quedaba 10px a la izquierda de los demás (2026-11-18). */
 
-.ui.link.list:not(.horizontal) > a.item {
+.ui.link.list:not(.horizontal) > .item {
   display: flex;
   align-items: center;
   gap: 0.57142857rem;
@@ -50398,7 +50461,7 @@ ol.ui.suffixed.list li::before,
   text-decoration: none;
 }
 
-.ui.ui.link.list:not(.horizontal):not(.inverted) > a.active.item {
+.ui.ui.link.list:not(.horizontal):not(.inverted) > .active.item {
   background: var(--accent-50);
   color: var(--accent-text);
   font-weight: 600;
@@ -50406,16 +50469,16 @@ ol.ui.suffixed.list li::before,
 
 /* Ícono y contenido dentro de la caja flexible (en el default son celdas de tabla) */
 
-.ui.link.list:not(.horizontal) > a.item > .icon {
+.ui.link.list:not(.horizontal) > .item > .icon {
   padding: 0;
   color: inherit;
 }
 
-.ui.link.list:not(.horizontal) > a.item > .content {
+.ui.link.list:not(.horizontal) > .item > .content {
   padding: 0;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Loader
+ * # Fomantic-UI 0.19.0 - Loader
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51754,7 +51817,7 @@ ol.ui.suffixed.list li::before,
   border-color: rgba(255, 255, 255, 0.15);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Placeholder
+ * # Fomantic-UI 0.19.0 - Placeholder
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -52060,7 +52123,7 @@ body {
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Rail
+ * # Fomantic-UI 0.19.0 - Rail
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -52218,7 +52281,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Reveal
+ * # Fomantic-UI 0.19.0 - Reveal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -52525,7 +52588,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Segment
+ * # Fomantic-UI 0.19.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -54287,7 +54350,7 @@ body {
   color-scheme: inherit;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Step
+ * # Fomantic-UI 0.19.0 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -57745,6 +57808,35 @@ body {
   line-height: 1.33;
 }
 
+/* Series de datos sin `style` (pedido de PiecesPHP, 2026-11-18: sus vistas no admiten style=): `data-series="1"`…`"5"`
+   toma la serie --data-N de la capa común, la misma con que las gráficas pintan sus series, y `data-series="other"` el
+   resto, --theme-border (el neutro con que el donut pinta lo que no es una serie). Un `style="--swatch: …"` sigue
+   mandando; en un tema sin la capa común, sin --data-N, queda el color por defecto. */
+
+.ui.swatch[data-series="1"] {
+  --swatch: var(--data-1);
+}
+
+.ui.swatch[data-series="2"] {
+  --swatch: var(--data-2);
+}
+
+.ui.swatch[data-series="3"] {
+  --swatch: var(--data-3);
+}
+
+.ui.swatch[data-series="4"] {
+  --swatch: var(--data-4);
+}
+
+.ui.swatch[data-series="5"] {
+  --swatch: var(--data-5);
+}
+
+.ui.swatch[data-series="other"] {
+  --swatch: var(--theme-border);
+}
+
 /*******************************
           Variations
 *******************************/
@@ -57877,7 +57969,7 @@ body {
         Swatch Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Text
+ * # Fomantic-UI 0.19.0 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -58278,7 +58370,7 @@ span.ui.info.text {
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 0.18.0 - Breadcrumb
+ * # Fomantic-UI 0.19.0 - Breadcrumb
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -59473,7 +59565,7 @@ table.dataTable td.dt-type-date {
   }
 }
 /*!
- * # Fomantic-UI 0.18.0 - Form
+ * # Fomantic-UI 0.19.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -62125,7 +62217,7 @@ textarea),
   padding-left: 0.85714286em;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Grid
+ * # Fomantic-UI 0.19.0 - Grid
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -64716,7 +64808,7 @@ textarea),
   }
 }
 /*!
- * # Fomantic-UI 0.18.0 - Menu
+ * # Fomantic-UI 0.19.0 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -66192,7 +66284,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .primary.active.item,
 .ui.ui.primary.menu .active.item:hover,
 .ui.ui.primary.menu .active.item {
-  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66200,7 +66295,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .accent-1.active.item,
 .ui.ui.accent-1.menu .active.item:hover,
 .ui.ui.accent-1.menu .active.item {
-  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66208,7 +66306,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .accent-2.active.item,
 .ui.ui.accent-2.menu .active.item:hover,
 .ui.ui.accent-2.menu .active.item {
-  border-color: var(--accent-2, #0b7a77);
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66216,7 +66317,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .accent-3.active.item,
 .ui.ui.accent-3.menu .active.item:hover,
 .ui.ui.accent-3.menu .active.item {
-  border-color: var(--accent-3, #e8730c);
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66224,7 +66328,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .red.active.item,
 .ui.ui.red.menu .active.item:hover,
 .ui.ui.red.menu .active.item {
-  border-color: #f04438;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -66232,7 +66339,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .orange.active.item,
 .ui.ui.orange.menu .active.item:hover,
 .ui.ui.orange.menu .active.item {
-  border-color: #ef6820;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -66240,7 +66350,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .yellow.active.item,
 .ui.ui.yellow.menu .active.item:hover,
 .ui.ui.yellow.menu .active.item {
-  border-color: #f79009;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
 }
@@ -66248,7 +66361,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .olive.active.item,
 .ui.ui.olive.menu .active.item:hover,
 .ui.ui.olive.menu .active.item {
-  border-color: #84a11b;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66256,7 +66372,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .green.active.item,
 .ui.ui.green.menu .active.item:hover,
 .ui.ui.green.menu .active.item {
-  border-color: #17b26a;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66264,7 +66383,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .teal.active.item,
 .ui.ui.teal.menu .active.item:hover,
 .ui.ui.teal.menu .active.item {
-  border-color: #06aed4;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66272,7 +66394,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .blue.active.item,
 .ui.ui.blue.menu .active.item:hover,
 .ui.ui.blue.menu .active.item {
-  border-color: #2e90fa;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66280,7 +66405,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .violet.active.item,
 .ui.ui.violet.menu .active.item:hover,
 .ui.ui.violet.menu .active.item {
-  border-color: #7a5af8;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66288,7 +66416,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .purple.active.item,
 .ui.ui.purple.menu .active.item:hover,
 .ui.ui.purple.menu .active.item {
-  border-color: #9e4cc9;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66296,7 +66427,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .pink.active.item,
 .ui.ui.pink.menu .active.item:hover,
 .ui.ui.pink.menu .active.item {
-  border-color: #c11574;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66304,7 +66438,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .brown.active.item,
 .ui.ui.brown.menu .active.item:hover,
 .ui.ui.brown.menu .active.item {
-  border-color: #6e4a2e;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66312,7 +66449,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .grey.active.item,
 .ui.ui.grey.menu .active.item:hover,
 .ui.ui.grey.menu .active.item {
-  border-color: #687181;
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
@@ -66320,7 +66460,10 @@ Floated Menu / Item
 .ui.ui.ui.menu .black.active.item,
 .ui.ui.black.menu .active.item:hover,
 .ui.ui.black.menu .active.item {
-  border-color: light-dark(#1f2430, #535c6e);
+  /* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
   /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
 }
@@ -68147,7 +68290,7 @@ Floated Menu / Item
   }
 }
 /*!
- * # Fomantic-UI 0.18.0 - Message
+ * # Fomantic-UI 0.19.0 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -69327,7 +69470,7 @@ Floated Menu / Item
   box-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Table
+ * # Fomantic-UI 0.19.0 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -74907,7 +75050,7 @@ Floated Menu / Item
   color: #4b5363;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Ad
+ * # Fomantic-UI 0.19.0 - Ad
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -75212,7 +75355,7 @@ Floated Menu / Item
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Card
+ * # Fomantic-UI 0.19.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -78971,7 +79114,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   align-self: flex-start;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Comment
+ * # Fomantic-UI 0.19.0 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -79317,7 +79460,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   object-fit: cover;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Feed
+ * # Fomantic-UI 0.19.0 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -80526,7 +80669,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   min-width: 2.28571429rem;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Item
+ * # Fomantic-UI 0.19.0 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81149,7 +81292,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.5;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Statistic
+ * # Fomantic-UI 0.19.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -82001,7 +82144,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   letter-spacing: -0.02em;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Accordion
+ * # Fomantic-UI 0.19.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -82746,7 +82889,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   }
 }
 /*!
- * # Fomantic-UI 0.18.0 - Calendar
+ * # Fomantic-UI 0.19.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83487,7 +83630,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Chat Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Checkbox
+ * # Fomantic-UI 0.19.0 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -85038,7 +85181,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Colorpicker Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Dimmer
+ * # Fomantic-UI 0.19.0 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -85505,7 +85648,7 @@ body.dimmable > .dimmer {
   padding: 1.71428571rem;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Dropdown
+ * # Fomantic-UI 0.19.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88308,16 +88451,8 @@ select.ui.dropdown:focus {
 .ui.multiple.dropdown:not(.selection) > .label ~ .text {
   margin-left: 0.28571429rem;
 }
-
-/* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio el texto pasa a interlineado 1,5 y el relleno del selection,
-   pensado para 1em, lo dejaba 4px más alto que el input de al lado. El relleno vertical del input: misma altura. */
-
-:root[data-text-spacing="wide"] .ui.selection.dropdown {
-  padding-top: 0.64285714em !important;
-  padding-bottom: 0.64285714em !important;
-}
 /*!
- * # Fomantic-UI 0.18.0 - Embed
+ * # Fomantic-UI 0.19.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -88485,7 +88620,7 @@ select.ui.dropdown:focus {
   text-shadow: none;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Flyout
+ * # Fomantic-UI 0.19.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -89331,7 +89466,7 @@ body.pushable > .pusher {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Modal
+ * # Fomantic-UI 0.19.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90306,7 +90441,7 @@ body.pushable > .pusher {
   padding-right: calc(1.14285714rem + 2rem);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Nag
+ * # Fomantic-UI 0.19.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -91203,7 +91338,7 @@ a.ui.nag {
          Pin Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Popup
+ * # Fomantic-UI 0.19.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92838,7 +92973,7 @@ span[data-tooltip] {
   cursor: help;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Progress
+ * # Fomantic-UI 0.19.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -94413,7 +94548,7 @@ span[data-tooltip] {
   text-shadow: 0 0 0.14285714rem rgba(0, 0, 0, 0.7), 0 0 0.28571429rem rgba(0, 0, 0, 0.5);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Slider
+ * # Fomantic-UI 0.19.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -95855,7 +95990,7 @@ span[data-tooltip] {
   height: calc(1.28571429em + 1.6em);
 }
 /*!
- * # Fomantic-UI 0.18.0 - Rating
+ * # Fomantic-UI 0.19.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -96428,7 +96563,7 @@ span[data-tooltip] {
   background-origin: content-box;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Search
+ * # Fomantic-UI 0.19.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97163,7 +97298,7 @@ span[data-tooltip] {
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 /*!
- * # Fomantic-UI 0.18.0 - Shape
+ * # Fomantic-UI 0.19.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -97308,7 +97443,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Sidebar
+ * # Fomantic-UI 0.19.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -99910,7 +100045,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Sticky
+ * # Fomantic-UI 0.19.0 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -99975,7 +100110,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 0.18.0 - Tab
+ * # Fomantic-UI 0.19.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -100064,7 +100199,7 @@ body.pushable > .pusher {
   padding-top: 1.14285714rem;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Toast
+ * # Fomantic-UI 0.19.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -101245,7 +101380,7 @@ body.pushable > .pusher {
   background: transparent;
 }
 /*!
- * # Fomantic-UI 0.18.0 - Transition
+ * # Fomantic-UI 0.19.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

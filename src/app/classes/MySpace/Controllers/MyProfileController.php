@@ -6,6 +6,8 @@
 
 namespace MySpace\Controllers;
 
+use Directory\DirectoryRoutes;
+use Directory\Geo\PersonsGeoSource;
 use MySpace\Exceptions\SafeException;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
@@ -26,6 +28,8 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Geo\GeoRoutes;
+use PiecesPHP\Geo\GeoSourceRegistry;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserTypes;
@@ -90,7 +94,8 @@ class MyProfileController extends AdminPanelController
         $action = self::routeName('actions-save-profile');
 
         $title = __(self::LANG_GROUP, 'Mi perfil');
-        $description = __(self::LANG_GROUP, 'Lo que los demás ven de ti en el Directorio y en el mapa.');
+        $publicVisibilityTexts = self::publicVisibilityTexts(DirectoryRoutes::ENABLE, GeoRoutes::ENABLE && GeoSourceRegistry::get(PersonsGeoSource::KEY) !== null);
+        $description = $publicVisibilityTexts['description'];
         set_title($title);
 
         $data = [];
@@ -99,6 +104,7 @@ class MyProfileController extends AdminPanelController
         $data['currentUser'] = $currentUser;
         $data['title'] = $title;
         $data['description'] = $description;
+        $data['publicVisibleLabel'] = $publicVisibilityTexts['publicVisibleLabel'];
         $data['helpController'] = $this->helpController;
         $data['breadcrumbs'] = [
             __(self::LANG_GROUP, 'Inicio') => [
@@ -114,6 +120,38 @@ class MyProfileController extends AdminPanelController
         $this->helpController->render('panel/layout/footer');
 
         return $response;
+    }
+
+    /**
+     * La frase de la cabecera de «Mi perfil» y la etiqueta de su casilla de visibilidad: nombran solo dónde sale el perfil.
+     * La persona sale en el mapa solo si su fuente está registrada, y la registra el Directorio.
+     *
+     * @param bool $inDirectory Si el Directorio está encendido
+     * @param bool $onMap Si el mapa está encendido y enseña personas
+     * @return array{description:string,publicVisibleLabel:string|null} Sin ninguno de los dos, '' y null: no se pintan, y
+     *         sin la casilla el guardado no toca la visibilidad.
+     */
+    public static function publicVisibilityTexts(bool $inDirectory, bool $onMap): array
+    {
+        if ($inDirectory && $onMap) {
+            return [
+                'description' => __(self::LANG_GROUP, 'Lo que los demás ven de ti en el Directorio y en el mapa.'),
+                'publicVisibleLabel' => __(self::LANG_GROUP, 'Mostrar mi perfil en el directorio y en el mapa'),
+            ];
+        }
+        if ($inDirectory) {
+            return [
+                'description' => __(self::LANG_GROUP, 'Lo que los demás ven de ti en el Directorio.'),
+                'publicVisibleLabel' => __(self::LANG_GROUP, 'Mostrar mi perfil en el directorio'),
+            ];
+        }
+        if ($onMap) {
+            return [
+                'description' => __(self::LANG_GROUP, 'Lo que los demás ven de ti en el mapa.'),
+                'publicVisibleLabel' => __(self::LANG_GROUP, 'Mostrar mi perfil en el mapa'),
+            ];
+        }
+        return ['description' => '', 'publicVisibleLabel' => null];
     }
 
     /**

@@ -1,3 +1,78 @@
+# 10.54.0 (19-11-2026)
+
+- **Directorio, Mapa de contenidos, Notificaciones y el asistente se apagan desde tu proyecto**: `DIRECTORY_MODULE`,
+  `GEO_MODULE`, `NOTIFICATIONS_MODULE` y `MCP_MODULE`, en `src/app/config/constants.php`, como `PUBLICATIONS_MODULE`. Con
+  uno apagado, lo que enlaza a él desaparece (la campana, los «Ver perfil» de Organizaciones, el botón del asistente),
+  sus capítulos del manual no salen y `verify-integrity` no da fallos por él.
+- **Tus imágenes de marca, también en modo oscuro**: el logo, las dos banderas, la animación de carga y el logo del
+  cargador eligen qué enseñan en modo oscuro: **«Igual»**, **«Invertir en blanco»** u **«Otra imagen»** (una versión
+  oscura que subes en la misma tarjeta). La pantalla de Imágenes de marca enseña cada imagen a su tamaño real, en claro y
+  en oscuro lado a lado, dice dónde se usa cada una y las agrupa (logo, favicons, cargador, correos; terceros aparte).
+  El logo de fábrica trae su versión oscura en blanco y celeste (`white-logo.png`).
+- **El cargador, renovado**: de fábrica, el logo completo dibujándose (en oscuro, en líneas blancas); con «Reducir
+  movimiento», quieto. **«Animación de carga»** acepta GIF de cualquier tamaño, sin recortar; un SVG solo lo puede subir
+  el usuario principal, y se revisa al subirlo y se rechaza si trae algo que no sea dibujo o animación. **«Logo del
+  cargador»** (PNG o JPG), la imagen fija de debajo: de fábrica, la «P» del logo (en oscuro, en blanco y celeste); con
+  «Eliminar» se apaga y el cargador enseña solo la animación, hasta que subas otro. El cargador sigue sin depender del tema, y una página sin la información del servidor (una
+  cabecera propia de un proyecto) cae a las imágenes fijas de siempre (`loader-animation.gif`, ahora el logo, y
+  `loader-logo.png`).
+- **El inicio de sesión, con la marca**: cinco fondos de fábrica nuevos con las formas del logo, a 1600 × 1800; el velo que
+  hace legible el texto, más ligero y concentrado detrás del texto central (casi transparente hacia los bordes), con el
+  texto blanco a 4,5:1 o más sobre los cinco fondos; «Con el apoyo de», los patrocinadores y «Desarrollado por», en un
+  recuadro como el del logo que sigue el modo claro u oscuro; y un botón **luna/sol** en las pantallas sin sesión
+  (inicio de sesión, sus pantallas de ayuda y los tokens) que el navegador recuerda.
+- **«Estilo del panel»**: «Colores» y «Accesibilidad» son ahora una sola pantalla con tres pestañas («Colores»,
+  «Tipografía y forma» y «Accesibilidad»), con **«Restablecer»** en cada una (vuelve a los valores de fábrica de esa
+  pestaña, con confirmación) y la **muestra en vivo en modo claro y oscuro lado a lado**, que cambia al momento con lo
+  que tocas (en pantallas anchas, el panel de escritorio a escala; en el móvil, el de móvil). «Colores» y «Tipografía y
+  forma» se guardan con el mismo botón, **«Guardar colores y tipografía»**. Su dirección pasa a
+  `…/admin/configurations/appearance/panel-style/`; la vieja, `…/appearance/colors/`, redirige a la nueva y **queda en
+  desuso hasta la `11.0.0`**, y la de «Accesibilidad» lleva a su pestaña. Los permisos no cambian (el nombre de la ruta
+  sigue siendo `configurations-appearance-colors`).
+- **Las páginas de «no encontrado» y «acceso denegado» responden siempre con su código** (404 y 403), también cuando la
+  página es grande y en peticiones que no son GET; antes, en algunos casos, salían con 200. Y la página de error vuelve a
+  tener el botón luna/sol.
+- **Guardar una publicación en borrador desde su edición la mantiene en borrador**: antes, guardarla sin tocar nada la
+  publicaba. Si tu proyecto copió el formulario de edición de Publicaciones para un módulo propio, revisa que la casilla
+  «Borrador» se envíe con el nombre que lee su guardado.
+- **El índice de secciones** (el del manual, «Correos del sitio» y la hoja de diseño) **conserva la dirección de la
+  página** al saltar a una sección: recargar o copiar el enlace ya no lleva al inicio del sitio.
+- **Patrocinadores y logo del desarrollador de fábrica, nuevos**: tres sellos genéricos (fundación, alcaldía,
+  universidad) en la tira horizontal y la vertical, y un monograma para el desarrollador, cada uno con su versión
+  oscura.
+- **`statics-protect-migrate` respeta un módulo de Publicaciones apagado**: si tu proyecto lo apaga y otro módulo usa su
+  misma carpeta de subidas, la orden la deja sin tocar (ni la lista, ni la renombra, ni le quita su `.htaccess`) y lo dice
+  en su salida; protegerla queda en manos de su dueño.
+- **La imagen para redes de fábrica**, con el logo (1200 × 630, la misma en todos los idiomas).
+- **Las gráficas del panel, interactivas**: al pasar el ratón o enfocar una porción de una dona, se resalta y dice su
+  nombre, su cifra y su porcentaje; la leyenda (`«41 · 71,9 %»`) apaga y enciende cada porción con clic, Enter o Espacio, y
+  el total y los porcentajes se recalculan con lo visible. Las cifras de las tarjetas del Inicio, arriba a la izquierda.
+  Quien necesite la dona quieta lo pide con `drawStatisticsDonut(canvas, items, {static: true})`.
+- **«Correos del sitio» ya no enseña «Enviar prueba» a quien no puede enviarla.**
+- **Para quien desarrolla**: `SettingsController::brandImageTag('<imagen>', '<clases>')` pinta una imagen de marca con lo
+  que toca en modo oscuro (úsalo en lugar de `get_config('logo')` y `brandImageInvertsOnDark()` sueltos); las opciones
+  nuevas son `<imagen>DarkMode` (`same`, `invert` o `image`) y `<imagen>Dark`, y `loaderAnimation*` y `loaderLogo*`. En la
+  plantilla de la página de ayuda del acceso (`PROBLEMS_LIST`), el marcador nuevo `${logo}`; `${logoURL}` y `${logoClass}`
+  siguen valiendo. `image-card.php` admite la variante de Imágenes de marca (`previewsBelow`) y otros parámetros
+  opcionales; el de la casilla vieja `invertOnDark` queda en desuso hasta la `11.0.0`.
+- **Al actualizar (imágenes)**: las opciones viejas `*InvertOnDark` se siguen leyendo, así que lo que tenías se conserva. **Excepción:**
+  si conservas el logo de fábrica, en modo oscuro pasa a verse su versión en blanco y celeste aunque hubieras desmarcado
+  la casilla vieja; elige «Igual» en su tarjeta si no la quieres. Si sustituiste los fondos del acceso o las imágenes de
+  `statics/images/` en los mismos archivos de fábrica, la distribución los pisa: guárdalos antes.
+- **Al actualizar (módulos)**: si conservas tu `constants.php`, no hace falta añadirlas: sin ellas valen `true`.
+- **Al actualizar (cargador y estilo)**: si nunca guardaste un «Logo del cargador», pasarás a ver la «P» de fábrica bajo
+  la animación; quítala con «Eliminar» en Imágenes de marca. Un SVG de «Animación de carga» que ya tuvieras se queda,
+  aunque lo hubiera subido otro usuario. Si un enlace o un marcador tuyo apunta a la dirección de «Accesibilidad», sigue
+  funcionando: lleva a la pestaña.
+- **Al actualizar (patrocinadores)**: si conservas las imágenes de patrocinadores de fábrica (`partners.png` y
+  `partners-vertical.png`), en modo oscuro pasan a verse sus versiones oscuras de fábrica (`partners-dark.png` y
+  `partners-vertical-dark.png`), aunque tuvieras guardada la opción vieja de invertirlas, como ya pasa con el logo. Si
+  guardaste un modo oscuro en su tarjeta de Imágenes de marca, ese modo sigue mandando; elige «Igual» o «Invertir en
+  blanco» si no quieres la versión oscura. Si borras las `-dark`, vuelven a verse invertidas, como antes. El logo del
+  desarrollador de fábrica también trae su versión oscura (`developer-logo-dark.png`) y deja de invertirse, salvo que
+  `developer_logo_invert_on_dark` esté puesto a 1. Si sustituiste esas imágenes en los mismos archivos de fábrica, la
+  distribución los pisa: guárdalos antes.
+
 # 10.53.0 (18-11-2026)
 
 - **Un sitio de un solo idioma declara su canónica sin `?i18n=`**: con un único idioma en `allowed_langs`, la canónica,

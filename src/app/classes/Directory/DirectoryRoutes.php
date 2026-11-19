@@ -28,7 +28,7 @@ use PiecesPHP\Geo\GeoSourceRegistry;
 class DirectoryRoutes
 {
 
-    const ENABLE = true;
+    const ENABLE = DIRECTORY_MODULE;
 
     /**
      * @param RouteGroup $groupAdministration

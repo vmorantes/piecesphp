@@ -7,8 +7,8 @@
 namespace PiecesPHP\AdminPanel;
 
 /**
- * DashboardCardBody - Lo que enseña una tarjeta del inicio, con las piezas de estadística de la hoja de diseño: unas
- * cifras (number-cards.php dentro de statistic-card.php), una acción (action-card.php) o, para lo que no encaje, HTML.
+ * DashboardCardBody - Lo que enseña una tarjeta del inicio, que la pinta como la tarjeta de resumen del tema
+ * (statistic-card.php con `figure`): unas cifras, una acción (acceso directo) o, para lo que no encaje, HTML.
  *
  * Lo devuelve la función de contenido de cada DashboardCard; el inicio lo pinta. Así todas las tarjetas tienen la misma
  * forma sin que cada módulo la escriba.
@@ -23,6 +23,9 @@ final class DashboardCardBody
     const KIND_ACTION = 'action';
     const KIND_HTML = 'html';
 
+    /**
+     * En desuso: el inicio ya no pinta el color de las cifras; se retira en la 11.0.0.
+     */
     const COLORS = ['green', 'orange'];
 
     /**
@@ -66,12 +69,13 @@ final class DashboardCardBody
     }
 
     /**
-     * De una a tres cifras en fila.
+     * De una a tres cifras, en la misma tarjeta.
      *
      * @param array<int,array{value:int|string,concept:string,subconcept?:string|null,icon?:string|null,color?:string|null}> $items
-     *      `concept` y `subconcept`, ya traducidos; `icon`, el de Fomantic; `color`, `green` u `orange` (sin él, el gris).
+     *      `concept` y `subconcept`, ya traducidos. `icon` y `color` (`green` u `orange`), en desuso: el inicio ya no los
+     *      pinta; se retiran en la 11.0.0 (un color fuera de la lista sigue lanzando).
      * @param string|null $footerCaption El texto del pie, ya traducido
-     * @param string|null $footerUrl Adónde lleva la flecha del pie
+     * @param string|null $footerUrl Adónde lleva el enlace del pie
      * @return self
      * @throws \InvalidArgumentException con cero o más de tres cifras, o con una cifra mal formada
      */
@@ -104,11 +108,12 @@ final class DashboardCardBody
     }
 
     /**
-     * Una acción: la tarjeta entera es un enlace, con el icono y el título de la tarjeta y esta frase.
+     * Una acción: la tarjeta entera es un enlace (acceso directo), con el título de la tarjeta y esta frase. Sin icono:
+     * el de la tarjeta está en desuso.
      *
      * @param string $url
      * @param string $description Ya traducida
-     * @param string|null $footerCaption El texto del pie, junto a la flecha, ya traducido; sin él, la flecha sola
+     * @param string|null $footerCaption El texto del pie, ya traducido; sin él, la tarjeta no lleva pie
      * @return self
      */
     public static function action(string $url, string $description, ?string $footerCaption = null): self
@@ -126,7 +131,7 @@ final class DashboardCardBody
      *
      * @param string $html
      * @param string|null $footerCaption El texto del pie, ya traducido
-     * @param string|null $footerUrl Adónde lleva la flecha del pie
+     * @param string|null $footerUrl Adónde lleva el enlace del pie
      * @return self
      */
     public static function html(string $html, ?string $footerCaption = null, ?string $footerUrl = null): self

@@ -168,7 +168,8 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                             <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
                             <div class="field" translatable="<?= $fieldHandler->isTranslatable(); ?>">
                                 <div class="ui toggle checkbox">
-                                    <input type="checkbox" name="<?= $fieldName; ?>" value="yes" <?= $element->isDraft() ? 'checked' : ''; ?>>
+                                    <?php //«draft», no el campo: la acción lee «draft» y, sin él, publica (H421). ?>
+                                    <input type="checkbox" name="draft" value="yes" <?= $element->isDraft() ? 'checked' : ''; ?>>
                                     <label><?= __($langGroup, 'Borrador'); ?></label>
                                 </div>
                             </div>

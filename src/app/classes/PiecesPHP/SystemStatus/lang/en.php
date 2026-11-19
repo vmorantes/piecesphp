@@ -268,4 +268,5 @@ return [
     'El respaldo falló: no se borró ningún respaldo.' => 'The backup failed: no backup was deleted.',
     'Procesado' => 'Processed',
     'Tarea ejecutada con éxito.' => 'Task run successfully.',
+    'Omitida: el módulo Publicaciones está apagado; la sella su dueño.' => 'Skipped: the Publications module is off; its owner seals it.',
 ];

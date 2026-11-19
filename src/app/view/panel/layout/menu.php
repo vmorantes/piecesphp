@@ -18,12 +18,11 @@ $groupAttributes = function (\PiecesPHP\Core\Menu\MenuGroup $group): array {
 };
 //El texto sobre el patrocinador (Configuración › Apariencia › Imágenes de marca, P258): vacío, no se pinta.
 $partnersText = \PiecesPHP\Settings\Controllers\SettingsController::partnersText();
-//La casilla «Invertir colores en modo oscuro» de Imágenes de marca (P277 c).
-$invertOnDark = fn(string $image): string => \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark($image) ? ' invert-on-dark' : '';
+//Las imágenes de marca, con lo que enseñan en modo oscuro (Imágenes de marca, H340).
+$brandImage = fn(string $image, string $classes): string => \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag($image, $classes);
 //El crédito del desarrollador (config.php, P263): fijo por clon; vacío no se pinta.
 $developer = trim((string) get_config('developer'));
 $developerLogo = trim((string) get_config('developer_logo'));
-$developerLogoInverts = \PiecesPHP\Settings\Controllers\SettingsController::developerLogoInvertsOnDark() ? ' invert-on-dark' : '';
 $developerURL = trim((string) get_config('developer_url'));
 $developerName = $developer === '' ? '' : '<strong>' . escape_html($developer) . '</strong>';
 if ($developerName !== '' && $developerURL !== '') {
@@ -33,7 +32,7 @@ if ($developerName !== '' && $developerURL !== '') {
 <nav class="navigation" aria-label="<?= escape_html(__($langGroup, 'Menú principal')); ?>">
 
     <div class="brand">
-        <span class="logo"><img class="<?= trim(($invertOnDark)('logo')); ?>" src="<?= get_config('logo'); ?>" alt=""></span>
+        <span class="logo"><?= ($brandImage)('logo', ''); ?></span>
         <div class="identity">
             <span class="name"><?= escape_html((string) get_config('title_app')); ?></span>
             <small class="meta"><?= escape_html(strReplaceTemplate(__('general', 'Versión {ver}'), ['{ver}' => APP_VERSION])); ?></small>
@@ -89,9 +88,9 @@ if ($developerName !== '' && $developerURL !== '') {
 <?= \PiecesPHP\AdminPanel\SidebarBlockRegistry::renderSlot(\PiecesPHP\AdminPanel\SidebarBlock::SLOT_MENU_AFTER, $sidebarUser); ?>
         <div class="collapsed only">
             <div class="ui vertical centered flex">
-                <img class="partners<?= ($invertOnDark)('partnersVertical'); ?>" src="<?= get_config('partnersVertical'); ?>" alt="">
+                <?= ($brandImage)('partnersVertical', 'partners'); ?>
                 <?php if ($developer !== '' && $developerLogo !== '') : ?>
-                <img class="developer-logo<?= $developerLogoInverts; ?>" src="<?= escape_html($developerLogo); ?>" alt="" title="<?= escape_html(__('general', 'Desarrollado por') . ' ' . $developer); ?>">
+                <?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoTag('developer-logo', __('general', 'Desarrollado por') . ' ' . $developer); ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -104,11 +103,11 @@ if ($developerName !== '' && $developerURL !== '') {
                 <?php if ($partnersText !== '') : ?>
                 <strong><?= escape_html($partnersText); ?></strong>
                 <?php endif; ?>
-                <img class="partners<?= ($invertOnDark)('partners'); ?>" src="<?= get_config('partners'); ?>" alt="">
+                <?= ($brandImage)('partners', 'partners'); ?>
                 <?php if ($developerName !== '') : ?>
                 <span class="developer-credit">
                     <?php if ($developerLogo !== '') : ?>
-                    <img class="developer-logo<?= $developerLogoInverts; ?>" src="<?= escape_html($developerLogo); ?>" alt="">
+                    <?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoTag('developer-logo'); ?>
                     <?php endif; ?>
                     <?= __('general', 'Desarrollado por'); ?> <?= $developerName; ?>
                 </span>

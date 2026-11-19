@@ -1,10 +1,11 @@
 <?php
 
-//El modo mantenimiento. Solo usa `set_config()`, que es memoria del proceso: no escribe en la base ni lo deja encendido.
+//El modo mantenimiento. Usa `set_config()`, memoria del proceso; solo [p] lo enciende en la base, una petición, y lo apaga.
 //@areas src/app/classes/PiecesPHP/Settings/
 //@areas src/app/classes/PiecesPHP/SystemStatus/
 
 use PiecesPHP\Core\MaintenanceMode;
+use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 
@@ -296,7 +297,7 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
         $fuenteIndice = (string) @file_get_contents(basepath('index.php'));
         $posPuerta = mb_strpos($fuenteIndice, 'MaintenanceMode::blocks(');
         $posAlAcceso = $posPuerta !== false ? mb_strpos($fuenteIndice, 'MaintenanceMode::sendsToLogin(', $posPuerta) : false;
-        $posVista = $posPuerta !== false ? mb_strpos($fuenteIndice, 'render(MaintenanceMode::VIEW)', $posPuerta) : false;
+        $posVista = $posPuerta !== false ? mb_strpos($fuenteIndice, 'render(MaintenanceMode::VIEW, [], false)', $posPuerta) : false;
         $check($posAlAcceso !== false && $posVista !== false && $posAlAcceso < $posVista, 'm5 §7bis pregunta sendsToLogin() antes de servir la 503');
         $check(mb_substr_count($fuenteIndice, '($redirectToLogin)()') === 2, 'm6 §7bis y §8 redirigen con la misma closure');
         $vista503 = (string) @file_get_contents(basepath('app/view/' . MaintenanceMode::VIEW . '.php'));
@@ -333,6 +334,63 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
         $fuenteIndice = (string) @file_get_contents(basepath('index.php'));
         $check(str_contains($fuenteIndice, '$maintenanceRole = MaintenanceMode::roleThatCounts(') && str_contains($fuenteIndice, 'Impersonation::isImpersonating());'), 'o7 §7bis saca el rol de roleThatCounts() con la suplantación de la petición');
 
+        //─── p · La 503 por HTTP: código, Retry-After y la página entera (H418) ─────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[p] Sin sesión, la 503 sale con su código, su Retry-After y la página entera en el cuerpo');
+        //`base_url` en el terminal es `http://localhost`: no sirve. Igual que core/error-status.
+        $base = (string) (getenv('PCSPHP_WALK_BASE') ?: '');
+        $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        if ($base === '') {
+            $matrix = is_file("{$proyecto}/files/dev/permissions-matrix.json") ? json_decode((string) file_get_contents("{$proyecto}/files/dev/permissions-matrix.json"), true) : null;
+            $base = is_array($matrix) ? (string) ($matrix['medido']['base'] ?? '') : '';
+        }
+        $base = rtrim($base, '/');
+        $check($base !== '', 'p0 hay una base HTTP para pedir', $base);
+        if ($base !== '') {
+            $existia = SettingsModel::optionExists(MaintenanceMode::ENABLED_CONFIG);
+            $previo = SettingsModel::readFromDatabase(MaintenanceMode::ENABLED_CONFIG);
+            $status = 0;
+            $cabeceras = '';
+            $cuerpo = '';
+            try {
+                //ENCIENDE EL MODO DE LA INSTALACIÓN el tiempo de UNA petición: se apaga en el finally de justo debajo.
+                //RETORNO-IGNORADO: si no se enciende, p3 cae.
+                SettingsModel::setConfigValue(MaintenanceMode::ENABLED_CONFIG, true);
+                $handle = \Terminal\TestRun::curlInit();
+                \Terminal\TestRun::curlSetoptArray($handle, [
+                    CURLOPT_URL => $base . '/',
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HEADER => true,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                    CURLOPT_FOLLOWLOCATION => false,
+                    CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTPHEADER => [],
+                ]);
+                $respuesta = curl_exec($handle);
+                $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+                $tamCabeceras = (int) curl_getinfo($handle, CURLINFO_HEADER_SIZE);
+                //Sin curl_close(): deprecado desde PHP 8.5, y aquí una deprecación aborta.
+                $respuesta = is_string($respuesta) ? $respuesta : '';
+                $cabeceras = substr($respuesta, 0, $tamCabeceras);
+                $cuerpo = substr($respuesta, $tamCabeceras);
+            } finally {
+                if ($existia) {
+                    //RETORNO-IGNORADO: lo comprueba p1.
+                    SettingsModel::setConfigValue(MaintenanceMode::ENABLED_CONFIG, $previo);
+                } else {
+                    //RETORNO-IGNORADO: lo comprueba p1.
+                    SettingsModel::model()->delete(['name' => MaintenanceMode::ENABLED_CONFIG])->execute();
+                }
+            }
+            echoTerminal("      · GET / → HTTP {$status}, " . strlen($cuerpo) . ' B');
+            $check(SettingsModel::optionExists(MaintenanceMode::ENABLED_CONFIG) === $existia && json_encode(SettingsModel::readFromDatabase(MaintenanceMode::ENABLED_CONFIG)) === json_encode($previo), 'p1 el modo de la instalación queda como estaba');
+            $check(strlen($cuerpo) > 4096, 'p2 CANARIO: la 503 sin sesión pesa más de 4096 B (si no, el búfer la tapa y la prueba no discrimina)', strlen($cuerpo) . ' B');
+            $check($status === 503, 'p3 DISCRIMINANTE: sale con 503', "HTTP {$status}");
+            $check(preg_match('/^Retry-After: *' . MaintenanceMode::retryAfter() . '\r?$/mi', $cabeceras) === 1, 'p4 y con su Retry-After', trim(strtok($cabeceras, "\n") ?: ''));
+            $check(str_contains($cuerpo, 'id="error-page-title"') && str_contains($cuerpo, '</html>'), 'p5 y la página entera en el cuerpo');
+        }
+
     } finally {
         //El modo NUNCA se queda encendido por una suite, ni aunque algo lance.
         set_config(MaintenanceMode::ENABLED_CONFIG, $modoPrevio);
@@ -347,4 +405,4 @@ CliActions::make('unit-tests:core/maintenance-mode', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El modo mantenimiento: sus valores por omisión, qué hace con cada configuración inválida y a quién detiene.')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('El modo mantenimiento: sus valores por omisión, qué hace con cada configuración inválida, a quién detiene y la 503 por HTTP con su código y la página entera.')->setEffects([CliActions::EFFECT_DATABASE])->register();

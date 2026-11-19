@@ -2,6 +2,7 @@
 
 return [
     'usuarios generales' => 'General users',
+    'usuarios' => 'users',
     'Otros países' => 'Other countries',
     'organización(es)' => 'organization(s)',
     'Reportes' => 'Reports',

@@ -12,6 +12,7 @@ use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Geo\Controllers\GeoController;
+use PiecesPHP\Geo\GeoRoutes;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
@@ -142,8 +143,12 @@ CliActions::make('unit-tests:core/map-default-center', function ($args) {
         $nuevo = ['longitude' => -75.5658, 'latitude' => 6.2442, 'zoom' => 12.5];
         $r = $guardar($jwtRoot, $nuevo);
         $check($r['success'] && $leer() === $nuevo, 'g1 root guarda un centro dentro de rango', "HTTP {$r['status']}, «{$r['message']}», guardado " . json_encode($leer()));
-        $recibido = $enElGeovisor($jwtRoot);
-        $check($recibido === $nuevo, 'g2 el geovisor lo recibe en su página (meta map-default-center)', (string) json_encode($recibido));
+        if (!GeoRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m g2: esta instalación tiene Geo apagado y no hay geovisor.");
+        } else {
+            $recibido = $enElGeovisor($jwtRoot);
+            $check($recibido === $nuevo, 'g2 el geovisor lo recibe en su página (meta map-default-center)', (string) json_encode($recibido));
+        }
         $check($leer() !== $original, 'g3 CANARIO: el centro de la prueba no es el de antes', (string) json_encode($original));
         echoTerminal(' ');
 

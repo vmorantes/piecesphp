@@ -13,6 +13,7 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\ConfigOptions;
 use PiecesPHP\Mcp\Assistant;
+use PiecesPHP\Mcp\McpRoutes;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -41,7 +42,11 @@ CliActions::make('unit-tests:core/ai-availability', function ($args) {
     $modelo->resetAll();
     $modelo->select(['id'])->where(['type' => UsersModel::TYPE_USER_ROOT, 'status' => UsersModel::STATUS_USER_ACTIVE])->execute(false, 1, 1);
     $idRoot = (int) (((array) (((array) $modelo->result())[0] ?? []))['id'] ?? 0);
-    if (!$check($database !== null && $idRoot > 0 && AICapabilityRegistry::get(AIGateway::TRANSLATION_CAPABILITY) !== null && AICapabilityRegistry::get(Assistant::CAPABILITY) !== null && AICapabilityRegistry::get(AIGateway::SPEECH_CAPABILITY) !== null, 'c0 CANARIO: conexión, un root y las tres capacidades registradas')) {
+    //La del asistente solo se registra con MCP encendido; las demás pruebas no la necesitan.
+    if (!McpRoutes::ENABLE) {
+        echoTerminal("   \e[33m[OMITIDA]\e[39m c0 no pide la capacidad del asistente: esta instalación tiene MCP apagado.");
+    }
+    if (!$check($database !== null && $idRoot > 0 && AICapabilityRegistry::get(AIGateway::TRANSLATION_CAPABILITY) !== null && (!McpRoutes::ENABLE || AICapabilityRegistry::get(Assistant::CAPABILITY) !== null) && AICapabilityRegistry::get(AIGateway::SPEECH_CAPABILITY) !== null, 'c0 CANARIO: conexión, un root y las capacidades registradas (la del asistente, con MCP encendido)')) {
         return ['success' => false, 'message' => "{$passed}/" . ($passed + $failed)];
     }
     $root = new UserDataPackage($idRoot);

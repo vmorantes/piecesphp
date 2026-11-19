@@ -6,6 +6,10 @@ window.addEventListener('load', () => {
 
 	//Del escaparate del tema: todo se ve en vivo en <html> y nada se guarda hasta pulsar Guardar.
 	const root = document.documentElement
+	//Y en las dos muestras de Estilo del panel (claro y oscuro): cada cambio va a los tres <html>, o una muestra mentiría.
+	const roots = () => [root].concat(Array.from(document.querySelectorAll('iframe[data-style-preview]'), (frame) => frame.contentDocument ? frame.contentDocument.documentElement : null).filter((element) => element !== null))
+	const setProperty = (name, value) => roots().forEach((element) => element.style.setProperty(name, value))
+	const removeProperty = (name) => roots().forEach((element) => element.style.removeProperty(name))
 	const DARK = '#1F2430'
 	const form = $('form[colors-form]')
 	const accentInput = form.find('#colors-accent')
@@ -21,7 +25,6 @@ window.addEventListener('load', () => {
 	let initial = null
 
 	form.find('.ui.checkbox').checkbox()
-	form.find('.ui.progress').progress()
 	form.find('select[colors-select]').dropdown()
 
 	function normal(value) {
@@ -153,7 +156,7 @@ window.addEventListener('load', () => {
 
 	function setAccent(hex) {
 		accent = hex
-		root.style.setProperty('--accent', hex)
+		setProperty('--accent', hex)
 		setField(accentInput, hex)
 		setField(form.find('#colors-series-1'), hex)
 		form.find('[colors-accent-hero]').text(hex)
@@ -184,7 +187,7 @@ window.addEventListener('load', () => {
 		const own = normal(accentDarkInput.val())
 		const label = form.find('#colors-accent-dark-contrast')
 		const help = form.find('[colors-accent-dark-help]')
-		root.style.setProperty('--accent-dark', own || 'initial')
+		setProperty('--accent-dark', own || 'initial')
 		const [dark, surface] = measured('dark')
 		label.prop('hidden', !dark || !surface)
 		if (!dark || !surface) {
@@ -209,35 +212,35 @@ window.addEventListener('load', () => {
 	function setSeries(input, hex) {
 		const property = `--data-${input.data('series')}`
 		if (hex === input.data('factory')) {
-			root.style.removeProperty(property)
+			removeProperty(property)
 		} else {
-			root.style.setProperty(property, hex)
+			setProperty(property, hex)
 		}
 		setField(input, hex)
 	}
 
 	function setToken(input, hex) {
-		root.style.setProperty(input.data('token'), hex)
+		setProperty(input.data('token'), hex)
 		setField(input, hex)
 	}
 
 	function setFont() {
 		const stack = fontSelect.find('option:selected').data('fontStack')
-		root.style.setProperty('--font-body', stack)
-		root.style.setProperty('--font-heading', stack)
+		setProperty('--font-body', stack)
+		setProperty('--font-heading', stack)
 	}
 
 	function setFontSize() {
-		root.style.setProperty('--font-size-site', `${fontSizeSelect.val()}px`)
+		setProperty('--font-size-site', `${fontSizeSelect.val()}px`)
 	}
 
 	//Las mismas proporciones que SettingsController::themeTokens()
 	function setRadius() {
 		const radius = parseInt(radiusSelect.val(), 10)
-		root.style.setProperty('--r-xs', `${Math.round(radius / 2)}px`)
-		root.style.setProperty('--r-sm', `${Math.round(radius * 3 / 4)}px`)
-		root.style.setProperty('--r-md', `${radius}px`)
-		root.style.setProperty('--r-lg', `${Math.round(radius * 3 / 2)}px`)
+		setProperty('--r-xs', `${Math.round(radius / 2)}px`)
+		setProperty('--r-sm', `${Math.round(radius * 3 / 4)}px`)
+		setProperty('--r-md', `${radius}px`)
+		setProperty('--r-lg', `${Math.round(radius * 3 / 2)}px`)
 	}
 
 	function setCustomHarmony() {
@@ -340,8 +343,29 @@ window.addEventListener('load', () => {
 	fontSizeSelect.on('change', setFontSize)
 	radiusSelect.on('change', setRadius)
 
+	//Un solo formulario en dos pestañas: si la otra tiene cambios sin guardar, Guardar también los guarda, y se avisa.
+	const OTHER_PANE = { colores: 'tipografia', tipografia: 'colores' }
+	const savedPanes = {}
+	const paneState = (tab) => JSON.stringify(form.find(`.ui.tab[data-tab="${tab}"] [name]`).not('[name="harmony"]').map(function () {
+		return this.type === 'radio' ? (this.checked ? `${this.name}=${this.value}` : null) : `${this.name}=${$(this).val()}`
+	}).get())
+	function reviewUnsaved() {
+		Object.keys(OTHER_PANE).forEach((tab) => {
+			const other = OTHER_PANE[tab]
+			form.find(`.ui.tab[data-tab="${tab}"] [data-style-unsaved]`).prop('hidden', paneState(other) === savedPanes[other])
+		})
+	}
+	function snapshotPanes() {
+		Object.keys(OTHER_PANE).forEach((tab) => {
+			savedPanes[tab] = paneState(tab)
+		})
+		reviewUnsaved()
+	}
+	form.on('input change', reviewUnsaved)
+
 	form.find('[colors-cancel]').on('click', function () {
 		restore(initial)
+		reviewUnsaved()
 	})
 
 	genericFormHandler(form, {
@@ -349,11 +373,13 @@ window.addEventListener('load', () => {
 		ignoreReload: true,
 		onSuccess: function () {
 			initial = currentValues()
+			snapshotPanes()
 		},
 	})
 
 	initial = currentValues()
 	setAccent(accent)
+	snapshotPanes()
 
 	removeGenericLoader('colors')
 

@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "41d7bbcb",
+  "commit": "ebe031d6",
   "fuenteSinCambios": true,
-  "generado": "2026-11-18T17:16:22.827Z",
+  "generado": "2026-11-18T19:35:56.222Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -1197,10 +1197,10 @@
             "font-size": 744,
             "-webkit-font-smoothing": 705,
             "font-family": 667,
-            "perspective-origin": 648,
-            "transform-origin": 648,
-            "inline-size": 564,
-            "width": 564
+            "perspective-origin": 646,
+            "transform-origin": 646,
+            "inline-size": 568,
+            "width": 568
           },
           "muestras": [
             "div.ui.list en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
@@ -1214,15 +1214,15 @@
             "accent-color": 767,
             "font-size": 744,
             "line-height": 685,
-            "perspective-origin": 629,
-            "transform-origin": 629,
-            "block-size": 507,
-            "height": 507,
+            "perspective-origin": 620,
+            "transform-origin": 620,
             "inline-size": 496,
             "width": 496,
-            "padding-block-start": 181,
-            "padding-top": 181,
-            "padding-block-end": 180
+            "block-size": 492,
+            "height": 492,
+            "padding-block-end": 171,
+            "padding-bottom": 171,
+            "padding-block-start": 171
           },
           "muestras": [
             "div.ui.list en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
@@ -1805,24 +1805,24 @@
       "opcional": {},
       "contenido": [],
       "comprobacion": {
-        "ejemplos": 12,
-        "piezas": 13,
+        "ejemplos": 18,
+        "piezas": 19,
         "muestras": {},
         "conDependencias": {
           "piezas": 0,
           "propiedades": {}
         },
         "suelto": {
-          "piezas": 13,
+          "piezas": 19,
           "propiedades": {
-            "accent-color": 13,
-            "font-family": 13,
-            "font-size": 13,
-            "line-height": 13,
-            "scrollbar-color": 13,
-            "scrollbar-width": 13,
-            "text-size-adjust": 13,
-            "-webkit-font-smoothing": 13,
+            "accent-color": 19,
+            "font-family": 19,
+            "font-size": 19,
+            "line-height": 19,
+            "scrollbar-color": 19,
+            "scrollbar-width": 19,
+            "text-size-adjust": 19,
+            "-webkit-font-smoothing": 19,
             "padding-block-end": 1,
             "padding-block-start": 1,
             "padding-bottom": 1,
@@ -1835,11 +1835,11 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 13,
+          "piezas": 19,
           "propiedades": {
-            "accent-color": 13,
-            "font-size": 13,
-            "line-height": 13,
+            "accent-color": 19,
+            "font-size": 19,
+            "line-height": 19,
             "padding-block-end": 1,
             "padding-block-start": 1,
             "padding-bottom": 1,
@@ -1856,9 +1856,9 @@
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 13,
+          "piezas": 19,
           "propiedades": {
-            "accent-color": 13
+            "accent-color": 19
           },
           "muestras": [
             "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",

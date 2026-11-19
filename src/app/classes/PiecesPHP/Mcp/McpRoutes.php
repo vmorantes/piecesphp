@@ -29,7 +29,7 @@ use PiecesPHP\UserSystem\UserDataPackage;
  */
 class McpRoutes
 {
-    const ENABLE = true;
+    const ENABLE = MCP_MODULE;
 
     /**
      * La herramienta que busca en el panel: lo mismo que el buscador de la barra (Ctrl K).

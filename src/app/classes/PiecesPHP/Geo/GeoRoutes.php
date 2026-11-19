@@ -23,7 +23,7 @@ use PiecesPHP\Geo\Controllers\GeoController;
  */
 class GeoRoutes
 {
-    const ENABLE = true;
+    const ENABLE = GEO_MODULE;
 
     /**
      * @param RouteGroup $groupAdministration

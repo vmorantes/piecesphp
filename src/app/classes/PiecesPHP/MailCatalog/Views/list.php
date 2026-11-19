@@ -1,5 +1,8 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+use PiecesPHP\MailCatalog\Controllers\MailCatalogController;
+
 /**
  * @var string $langGroup
  * @var string $title
@@ -13,6 +16,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  */
 $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $value : '', ENT_QUOTES, 'UTF-8');
 $anchor = fn(string $key): string => 'mail-catalog-' . $key;
+//Sin la ruta del envío no se pinta nada de «Enviar prueba», ni el aviso de por qué no se puede: el permiso es de la ruta (H406).
+$allowedSendTest = MailCatalogController::allowedRoute('send-test');
 ?>
 <section class="module-view-container mail-catalog-view" data-mail-catalog data-send-test-url="<?= $escape($sendTestURL); ?>">
 
@@ -23,7 +28,7 @@ $anchor = fn(string $key): string => 'mail-catalog-' . $key;
         ]);
     ?>
 
-    <?php if ($canSendTest): ?>
+    <?php if ($allowedSendTest && $canSendTest): ?>
     <section class="ui form segment" aria-label="<?= $escape(__($langGroup, 'Enviar prueba')); ?>">
         <div class="ui visible info message">
             <p><?= $escape(__($langGroup, 'La entrega del correo está retenida: «Enviar prueba» manda el correo con sus datos de muestra al destinatario de abajo, pero por el servidor de pruebas de Configuración › Sistema › Correo, no por la entrega real.')); ?></p>
@@ -35,7 +40,7 @@ $anchor = fn(string $key): string => 'mail-catalog-' . $key;
             </div>
         </div>
     </section>
-    <?php else: ?>
+    <?php elseif ($allowedSendTest): ?>
     <div class="ui warning message">
         <p><?= $escape($cannotSendReason); ?></p>
     </div>
@@ -73,7 +78,7 @@ $anchor = fn(string $key): string => 'mail-catalog-' . $key;
                         </h2>
                     </div>
                     <div class="five wide computer six wide tablet right aligned column">
-                        <?php if ($canSendTest && $mail['error'] === null): ?>
+                        <?php if ($allowedSendTest && $canSendTest && $mail['error'] === null): ?>
                         <div class="ui stackable buttons">
                             <button type="button" class="ui basic labeled icon button" data-mail-catalog-send="<?= $escape($mail['key']); ?>">
                                 <i class="paper plane outline icon" aria-hidden="true"></i>
@@ -112,7 +117,7 @@ $anchor = fn(string $key): string => 'mail-catalog-' . $key;
                 <iframe class="mail-catalog-preview" sandbox="allow-same-origin" data-mail-catalog-preview title="<?= $escape(sprintf(__($langGroup, 'Vista previa: %s'), $mail['name'])); ?>" srcdoc="<?= $escape($mail['body']); ?>"></iframe>
                 <?php endif; ?>
 
-                <?php if (!$canSendTest): ?>
+                <?php if ($allowedSendTest && !$canSendTest): ?>
                 <p class="ui muted text"><?= $escape(__($langGroup, 'Enviar prueba no está disponible: la entrega del correo no está retenida.')); ?></p>
                 <?php endif; ?>
 

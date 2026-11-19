@@ -8,7 +8,10 @@
 
 use Directory\Controllers\AllProfilesController;
 use Directory\Controllers\ProfileController;
+use Directory\DirectoryRoutes;
 use Directory\Geo\PersonsGeoSource;
+use MySpace\Controllers\MyProfileController;
+use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\SessionToken;
@@ -44,6 +47,40 @@ CliActions::make('unit-tests:core/profile-visibility', function ($args) {
             : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
         return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
     };
+
+    //Los textos de «Mi perfil» y de «Perfil de organización» nombran solo lo encendido: un clon con el Directorio o el mapa
+    //apagado no promete lo que no tiene. Por tokens, en es o en, y sin red.
+    echoTerminal('[t] Los textos de visibilidad, según el Directorio y el mapa');
+    $nombra = fn(?string $texto, string $token): bool => $texto !== null && str_contains(mb_strtolower($texto), $token);
+    foreach (['persona' => [MyProfileController::class, 'publicVisibilityTexts'], 'organización' => [MyOrganizationProfileController::class, 'publicVisibilityTexts']] as $quien => $textos) {
+        foreach ([[true, true], [true, false], [false, true], [false, false]] as [$directorio, $mapa]) {
+            $r = $textos($directorio, $mapa);
+            $caso = "{$quien}, Directorio " . ($directorio ? 'sí' : 'no') . ', mapa ' . ($mapa ? 'sí' : 'no');
+            $detalle = (string) json_encode($r, JSON_UNESCAPED_UNICODE);
+            if (!$directorio && !$mapa) {
+                //La casilla de la organización sigue: decide además si se ve su ficha.
+                $casilla = $quien === 'persona' ? $r['publicVisibleLabel'] === null : $r['publicVisibleLabel'] !== null && !$nombra($r['publicVisibleLabel'], 'directo') && !$nombra($r['publicVisibleLabel'], 'map');
+                $check($r['description'] === '' && $casilla, "t DISCRIMINANTE: {$caso}: ni frase ni promesa" . ($quien === 'persona' ? ', ni casilla' : ''), $detalle);
+                continue;
+            }
+            $bien = true;
+            foreach ([$r['description'], $r['publicVisibleLabel']] as $texto) {
+                $bien = $bien && $texto !== null && $texto !== '' && $nombra($texto, 'directo') === $directorio && $nombra($texto, 'map') === $mapa;
+            }
+            $check($bien, "t DISCRIMINANTE: {$caso}: la frase y la casilla nombran solo lo encendido", $detalle);
+        }
+    }
+    //El cableado, por tokens: la función pura no ve qué se le pasa ni qué hace la vista con un null.
+    $compacto = fn (string $relative): string => (string) preg_replace('/\s+/', '', (string) file_get_contents(basepath($relative)));
+    $vista = $compacto('app/classes/MySpace/Views/my-profile/my-profile.php');
+    $guarda = (string) strstr((string) strstr($vista, '<?phpif($publicVisibleLabel!==null):?>'), '<?phpendif;?>', true);
+    $check(substr_count($vista, 'name="publicVisible"') === 2 && substr_count($guarda, 'name="publicVisible"') === 2, 't2 DISCRIMINANTE: la casilla de la persona y su oculto «0», los dos dentro de la guarda: sin ella no se envía nada', (string) substr_count($guarda, 'name="publicVisible"'));
+    $persona = $compacto('app/classes/MySpace/Controllers/MyProfileController.php');
+    $check(str_contains($persona, 'self::publicVisibilityTexts(DirectoryRoutes::ENABLE,GeoRoutes::ENABLE&&GeoSourceRegistry::get(PersonsGeoSource::KEY)!==null)'), 't3 la persona: Directorio primero, y el mapa solo con su fuente registrada');
+    $check(str_contains($persona, 'if($publicVisible!==null){$mapper->publicVisible=$publicVisible;'), 't4 DISCRIMINANTE: sin el campo, el guardado de la persona no toca la visibilidad');
+    $organizacion = $compacto('app/classes/Organizations/Controllers/MyOrganizationProfileController.php');
+    $check(str_contains($organizacion, 'self::publicVisibilityTexts(DirectoryRoutes::ENABLE,GeoRoutes::ENABLE&&GeoSourceRegistry::get(OrganizationsGeoSource::KEY)!==null)') && str_contains($organizacion, 'if(in_array($publicVisible,[\'0\',\'1\'],true)&&'), 't5 la organización: el mismo orden, y solo guarda con 0 o 1');
+    echoTerminal(' ');
 
     //`base_url` en el terminal es `http://localhost`: no sirve. Igual que view-escapes.
     $base = (string) (getenv('PCSPHP_WALK_BASE') ?: '');
@@ -135,21 +172,34 @@ CliActions::make('unit-tests:core/profile-visibility', function ($args) {
         $pagina = $camino(ProfileController::routeName('profile', ['userID' => $duenio], true));
 
         echoTerminal('[v] Visible, como hasta ahora');
-        $check($enDirectorio($jwt['root']), 'v1 CANARIO: visible, sale en el Directorio');
+        //El Directorio y la página de perfil son del módulo Directorio; el mapa lee la fuente directamente.
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m v1: esta instalación tiene Directorio apagado y no hay Directorio ni página de perfil.");
+        } else {
+            $check($enDirectorio($jwt['root']), 'v1 CANARIO: visible, sale en el Directorio');
+        }
         $check($enMapa(), 'v2 CANARIO: visible, sale en el mapa');
-        $r = $pedir($pagina, $jwt['otro']);
-        $check($r['status'] === 200, 'v3 CANARIO: visible, otro usuario ve su página', "HTTP {$r['status']}");
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m v3: esta instalación tiene Directorio apagado y no hay Directorio ni página de perfil.");
+        } else {
+            $r = $pedir($pagina, $jwt['otro']);
+            $check($r['status'] === 200, 'v3 CANARIO: visible, otro usuario ve su página', "HTTP {$r['status']}");
+        }
 
         echoTerminal('[o] Oculto por su dueño');
         $visibilidad($duenio, 0);
-        $check(!$enDirectorio($jwt['root']), 'o1 oculto, no sale en el Directorio');
         $check(!$enMapa(), 'o2 oculto, no sale en el mapa');
-        $r = $pedir($pagina, $jwt['otro']);
-        $check($r['status'] === 404, 'o3 oculto, su página da 404 a otro usuario', "HTTP {$r['status']}");
-        $r = $pedir($pagina, $jwt['duenio']);
-        $check($r['status'] === 200, 'o4 oculto, su dueño sí la ve', "HTTP {$r['status']}");
-        $r = $pedir($pagina, $jwt['root']);
-        $check($r['status'] === 200, 'o5 oculto, root sí la ve', "HTTP {$r['status']}");
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m o1, o3, o4 y o5: esta instalación tiene Directorio apagado y no hay Directorio ni página de perfil.");
+        } else {
+            $check(!$enDirectorio($jwt['root']), 'o1 oculto, no sale en el Directorio');
+            $r = $pedir($pagina, $jwt['otro']);
+            $check($r['status'] === 404, 'o3 oculto, su página da 404 a otro usuario', "HTTP {$r['status']}");
+            $r = $pedir($pagina, $jwt['duenio']);
+            $check($r['status'] === 200, 'o4 oculto, su dueño sí la ve', "HTTP {$r['status']}");
+            $r = $pedir($pagina, $jwt['root']);
+            $check($r['status'] === 200, 'o5 oculto, root sí la ve', "HTTP {$r['status']}");
+        }
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

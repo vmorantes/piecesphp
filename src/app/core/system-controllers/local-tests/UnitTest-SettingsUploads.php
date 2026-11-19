@@ -110,7 +110,7 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
     $lang = Config::get_default_lang();
     $otros = array_values(array_filter(Config::get_allowed_langs(), fn ($l) => $l !== $lang));
     $otro = is_string($otros[0] ?? null) ? $otros[0] : null;
-    $opciones = ['backgrounds', 'backgoundProblems', 'logo', 'mailingLogo'];
+    $opciones = ['backgrounds', 'backgoundProblems', 'logo', 'mailingLogo', 'loaderAnimation', SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['mode'], SettingsController::BRAND_IMAGES_DARK_MODE['logo']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['logo']['mode'], 'partners', SettingsController::BRAND_IMAGES_DARK_MODE['partners']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['partners']['mode'], SettingsController::BRAND_IMAGES_INVERT_ON_DARK['partners'], 'loaderLogo', SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']];
     foreach (SettingsController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME as $nombreSeo) {
         $opciones[] = SettingsController::seoOptionName($nombreSeo, $lang);
         if ($otro !== null) {
@@ -285,6 +285,195 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
         $r = $pedir($rutaSeo, $jwt, $seo + ['open-graph' => new \CURLFile($imagen('jpg', 60), 'image/jpeg', 'zz-og.jpg')]);
         $og = $valor(SettingsController::seoOptionName(SettingsController::SEO_OPTION_OPEN_GRAPH_IMAGE, $lang));
         $check(($r['data']['success'] ?? null) === true && is_string($og) && preg_match($patron('open-graph', 'open_graph', 'jpg'), $og) === 1 && is_file(basepath($og)) && $huellasFabrica() === $fabricaAntes, 'u8 DISCRIMINANTE: la imagen Open Graph, en uploads/settings/open-graph/; el open_graph.jpg de fábrica intacto', "HTTP {$r['status']} · " . var_export($og, true));
+        echoTerminal(' ');
+
+        //─── a · La animación de carga (H345) ───────────────────────────────────────────────────────
+        echoTerminal('[a] La animación de carga: GIF o SVG por su contenido, el SVG por lista blanca, hasta 2 MB, con el nombre del servidor');
+        $temporal = function (string $contenido) use (&$imagenes): string {
+            $archivo = (string) tempnam(sys_get_temp_dir(), 'zz-anim-');
+            if (file_put_contents($archivo, $contenido) === false) {
+                throw new \RuntimeException('No se pudo escribir el temporal de la animación: ' . $archivo);
+            }
+            $imagenes[] = $archivo;
+            return $archivo;
+        };
+        $svgFabrica = (string) file_get_contents(basepath('statics/images/loader-animation.svg'));
+        $gifFabrica = (string) file_get_contents(basepath('statics/images/loader-animation.gif'));
+        $poner('loaderAnimation', null);
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal(str_replace('Cargando', 'Zz cargando', $svgFabrica)), 'image/png', 'zz-animacion.png')]);
+        $animacion = $valor('loaderAnimation');
+        $check(($r['data']['success'] ?? null) === true && is_string($animacion) && preg_match($patron('brand', 'loader-animation', 'svg'), $animacion) === 1 && is_file(basepath($animacion)), 'a1 DISCRIMINANTE: un SVG permitido, mandado como «zz-animacion.png», se guarda como SVG y con el nombre del servidor', "HTTP {$r['status']} · " . var_export($animacion, true));
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal($gifFabrica), 'image/svg+xml', 'zz-animacion.svg')]);
+        $gif = $valor('loaderAnimation');
+        clearstatcache();
+        $check(($r['data']['success'] ?? null) === true && is_string($gif) && preg_match($patron('brand', 'loader-animation', 'gif'), $gif) === 1 && is_string($animacion) && !is_file(basepath($animacion)), 'a2 un GIF mandado como SVG se guarda como GIF, y la subida anterior se borra', var_export($gif, true));
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal('<svg xmlns="http://www.w3.org/2000/svg"><rect onload="zz()"/></svg>'), 'image/svg+xml', 'zz.svg')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderAnimation') === $gif && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'El SVG trae algo que no está permitido (código, enlaces o recursos externos): se rechaza entero.'), 'a3 DISCRIMINANTE: un SVG con onload se rechaza entero, con su motivo, y la opción no cambia', (string) ($r['data']['message'] ?? ''));
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($imagen('png', 80), 'image/gif', 'zz.gif')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderAnimation') === $gif && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La animación tiene que ser un GIF o un SVG.'), 'a4 DISCRIMINANTE: un PNG mandado como GIF se rechaza por su contenido', (string) ($r['data']['message'] ?? ''));
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal($gifFabrica . str_repeat("\0", SettingsController::LOADER_ANIMATION_MAX_BYTES)), 'image/gif', 'zz.gif')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderAnimation') === $gif && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La animación pesa más de 2 MB.'), 'a5 DISCRIMINANTE: un GIF válido de más de 2 MB se rechaza por su tamaño', (string) ($r['data']['message'] ?? ''));
+        $lienzoEnorme = substr($gifFabrica, 0, 6) . pack('vv', SettingsController::LOADER_ANIMATION_MAX_SIDE + 1, 64) . substr($gifFabrica, 10);
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal($lienzoEnorme), 'image/gif', 'zz.gif')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderAnimation') === $gif && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La animación no puede pasar de 4096 × 4096 píxeles.'), 'a11 DISCRIMINANTE: un GIF que declara un lienzo de más de 4096 de ancho se rechaza', (string) ($r['data']['message'] ?? ''));
+        //Un lienzo de 10 × 10 con un fotograma de 20000 × 20000 (la prueba de la auditoría): el lienzo solo no basta.
+        $fotogramaEnorme = 'GIF89a' . pack('vv', 10, 10) . "\x80\x00\x00" . "\x00\x00\x00\xFF\x00\x00" . "\x21\xF9\x04\x00\x0A\x00\x00\x00" . "\x2C" . pack('vvvv', 0, 0, 20000, 20000) . "\x00" . "\x02\x02\x4C\x01\x00" . "\x3B";
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal($fotogramaEnorme), 'image/gif', 'zz.gif')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderAnimation') === $gif && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La animación no puede pasar de 4096 × 4096 píxeles.'), 'a12 DISCRIMINANTE: un fotograma de 20000 × 20000 en un lienzo de 10 × 10 se rechaza', (string) ($r['data']['message'] ?? ''));
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal(substr($gifFabrica, 0, -1)), 'image/gif', 'zz.gif')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderAnimation') === $gif && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'El GIF está incompleto o mal formado.'), 'a13 DISCRIMINANTE: el GIF de fábrica sin su último byte (el trailer) se rechaza', (string) ($r['data']['message'] ?? ''));
+        //El SVG, solo del principal (ROLES_SVG_BRAND_IMAGES); un administrador general entra a la pantalla y sube GIF.
+        $admin = new UsersModel();
+        $admin->username = "{$prefijo}-admin";
+        $admin->email = "{$prefijo}-admin@example.invalid";
+        $admin->password = password_hash(bin2hex(random_bytes(12)), \PASSWORD_DEFAULT);
+        $admin->firstname = 'Zz';
+        $admin->secondname = '';
+        $admin->firstLastname = 'Subidas';
+        $admin->secondLastname = '';
+        $admin->type = UsersModel::TYPE_USER_ADMIN_GRAL;
+        $admin->status = UsersModel::STATUS_USER_ACTIVE;
+        $admin->failedAttempts = 0;
+        $admin->organization = OrganizationMapper::INITIAL_ID_GLOBAL;
+        $admin->createdAt = new \DateTime();
+        $admin->modifiedAt = $admin->createdAt;
+        $admin->save();
+        $ids[] = (int) $admin->id;
+        $jwtAdmin = UserSessions::issueToken((int) $admin->id);
+        $svgPermitido = str_replace('Cargando', 'Zz cargando', $svgFabrica);
+        $r = $pedir($rutaMarca, $jwtAdmin, ['loaderAnimation' => new \CURLFile($temporal($svgPermitido), 'image/svg+xml', 'zz-animacion.svg')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderAnimation') === $gif && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'Solo el usuario principal puede subir una animación SVG; sube un GIF.'), 'a14 DISCRIMINANTE: un administrador general con un SVG permitido: rechazo con su motivo, y la opción no cambia', "HTTP {$r['status']} · " . (string) ($r['data']['message'] ?? ''));
+        $r = $pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($temporal($svgPermitido), 'image/svg+xml', 'zz-animacion.svg')]);
+        $svgRoot = $valor('loaderAnimation');
+        $check(($r['data']['success'] ?? null) === true && is_string($svgRoot) && preg_match($patron('brand', 'loader-animation', 'svg'), $svgRoot) === 1, 'a15 el principal, con el mismo SVG: se guarda', var_export($svgRoot, true));
+        $r = $pedir($rutaMarca, $jwtAdmin, ['loaderAnimation' => new \CURLFile($temporal($gifFabrica), 'image/gif', 'zz-animacion.gif')]);
+        $gif = $valor('loaderAnimation');
+        $check(($r['data']['success'] ?? null) === true && is_string($gif) && preg_match($patron('brand', 'loader-animation', 'gif'), $gif) === 1, 'a16 el administrador general, con un GIF: se guarda', "HTTP {$r['status']} · " . var_export($gif, true));
+        $aceptaAnimacion = function (?string $token) use ($pedir, $rutaMarca): string {
+            return preg_match('#<input type="file" id="image-loader-animation-file" accept="([^"]*)"#', $pedir($rutaMarca, $token, null)['body'], $m) === 1 ? $m[1] : '(sin campo)';
+        };
+        $aceptaAdmin = $aceptaAnimacion($jwtAdmin);
+        $aceptaRoot = $aceptaAnimacion($jwt);
+        $check($aceptaAdmin === 'image/gif,.gif' && str_contains($aceptaRoot, 'image/svg+xml'), 'a17 el campo de la animación: sin SVG para el administrador general, con SVG para el principal', "{$aceptaAdmin} · {$aceptaRoot}");
+        $oscuraAnimacion = SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image'];
+        $oscuraAntes = $valor($oscuraAnimacion);
+        $r = $pedir($rutaMarca, $jwtAdmin, [$oscuraAnimacion => new \CURLFile($temporal($svgPermitido), 'image/svg+xml', 'zz-oscura.svg')]);
+        $check(($r['data']['success'] ?? null) === false && $valor($oscuraAnimacion) === $oscuraAntes && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'Solo el usuario principal puede subir una animación SVG; sube un GIF.'), 'a18 DISCRIMINANTE: un administrador general con un SVG permitido en loaderAnimationDark: rechazo con su motivo, y la opción no cambia', "HTTP {$r['status']} · " . (string) ($r['data']['message'] ?? ''));
+        $opcionOscura = SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image'];
+        $poner(SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['mode'], 'same');
+        $r = $pedir($rutaMarca, $jwt, [$opcionOscura => new \CURLFile($temporal((string) file_get_contents(basepath('statics/images/loader-animation-dark.svg'))), 'image/svg+xml', 'zz-oscura.svg')]);
+        $oscura = $valor($opcionOscura);
+        $check(($r['data']['success'] ?? null) === true && is_string($oscura) && preg_match($patron('brand', 'loader-animation-dark', 'svg'), $oscura) === 1, 'a6 la oscura, en su opción y con su nombre', var_export($oscura, true));
+        $check($crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['mode']) === 'image', 'a8 DISCRIMINANTE: subir la oscura de la animación guarda su modo «Otra imagen» en la misma petición', var_export($crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['mode']), true));
+        $poner(SettingsController::BRAND_IMAGES_DARK_MODE['logo']['mode'], null);
+        $r = $pedir($rutaMarca, $jwt, [SettingsController::BRAND_IMAGES_DARK_MODE['logo']['image'] => new \CURLFile($imagen('png', 90), 'image/png', 'zz-logo-oscuro.png')]);
+        $logoOscuro = $valor(SettingsController::BRAND_IMAGES_DARK_MODE['logo']['image']);
+        $check(($r['data']['success'] ?? null) === true && is_string($logoOscuro) && preg_match($patron('brand', 'logo-dark', 'png'), $logoOscuro) === 1 && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['logo']['mode']) === 'image', 'a9 DISCRIMINANTE: subir el logo oscuro (por el recortador) lo guarda y guarda «Otra imagen»', var_export([$logoOscuro, $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['logo']['mode'])], true));
+        $r = $pedir($rutaMarca, $jwt, [SettingsController::BRAND_IMAGES_DARK_MODE['logo']['image'] => new \CURLFile($imagen('png', 100), 'image/png', 'zz-logo-oscuro.png')]);
+        $check(($r['data']['success'] ?? null) === true && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['logo']['mode']) === 'image', 'a10 una segunda oscura con el modo ya en «Otra imagen» también se guarda sin error', (string) ($r['data']['message'] ?? ''));
+        $panel = $pedir($rutaPanel, $jwt, null);
+        $check($panel['status'] === 200 && preg_match('#<html[^>]* data-loader-animation="' . preg_quote(is_string($gif) ? $gif : '', '#') . '"#', $panel['body']) === 1, 'a7 el <html> del panel lleva la animación subida en data-loader-animation', "HTTP {$panel['status']}");
+        echoTerminal(' ');
+
+        //─── d · La vista previa oscura enseña la oscura EFECTIVA (#3104) ───────────────────────────────
+        echoTerminal('[d] La vista previa oscura y su «Descargar», lo mismo que pintan el cargador y brandImageTag()');
+        $vistaOscura = function (string $html, string $tarjeta): array {
+            $documento = new \DOMDocument();
+            @$documento->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+            $x = new \DOMXPath($documento);
+            $img = $x->query("//*[@id='{$tarjeta}-dark']//div[contains(@class,'checkered')]//img")?->item(0);
+            $descarga = $x->query("//*[@id='{$tarjeta}-dark']//a[@data-image-card-download]")?->item(0);
+            $sinSello = fn (string $url): string => (string) preg_replace('/\?cacheStamp=.*$/', '', $url);
+            return [
+                'src' => $img instanceof \DOMElement ? $sinSello($img->getAttribute('src')) : '',
+                'descarga' => $descarga instanceof \DOMElement ? $sinSello($descarga->getAttribute('href')) : '',
+                'invertida' => $img instanceof \DOMElement && str_contains($img->getAttribute('class'), 'content-image-card-dark-invert'),
+            ];
+        };
+        $modoDe = fn (string $clave): string => SettingsController::BRAND_IMAGES_DARK_MODE[$clave]['mode'];
+        $oscuraDe = fn (string $clave): string => SettingsController::BRAND_IMAGES_DARK_MODE[$clave]['image'];
+        $poner('loaderAnimation', null);
+        $poner($oscuraDe('loaderAnimation'), null);
+        $poner($modoDe('loaderAnimation'), null);
+        $poner('logo', 'statics/images/logo.png');
+        $poner($oscuraDe('logo'), null);
+        $poner($modoDe('logo'), null);
+        //Una bandera ajena: la de fábrica ya trae su oscura (P377) y d3 necesita una sin ella.
+        $poner('partners', 'statics/images/framework/developer_by_logo.png');
+        $poner($oscuraDe('partners'), null);
+        $poner($modoDe('partners'), 'image');
+        $pantalla = $pedir($rutaMarca, $jwt, null)['body'];
+        $animacion = $vistaOscura($pantalla, 'image-loader-animation');
+        $check($animacion['src'] === 'statics/images/loader-animation-dark.svg' && $animacion['descarga'] === $animacion['src'] && str_contains($pantalla, 'data-loader-animation-dark="statics/images/loader-animation-dark.svg"'), 'd1 la animación de fábrica sin oscura guardada: vista previa, «Descargar» y cargador, loader-animation-dark.svg', json_encode($animacion) ?: '');
+        $logoOscuro = $vistaOscura($pantalla, 'image-logo');
+        $check($logoOscuro['src'] === 'statics/images/white-logo.png' && $logoOscuro['descarga'] === $logoOscuro['src'], 'd2 el logo de fábrica sin oscura guardada: white-logo.png', json_encode($logoOscuro) ?: '');
+        $bandera = $vistaOscura($pantalla, 'image-partners');
+        $check($bandera['src'] === 'statics/images/framework/developer_by_logo.png' && $bandera['descarga'] === $bandera['src'] && !$bandera['invertida'], 'd3 DISCRIMINANTE: «Otra imagen» sin oscura (una bandera ajena): la clara, y «Descargar» también la clara (antes, sin enlace)', json_encode($bandera) ?: '');
+        $poner('partners', 'statics/images/partners.png');
+        $poner($modoDe('partners'), null);
+        //Con la opción vieja a 0 guardada: la oscura de fábrica gana igual, como en el logo.
+        $poner(SettingsController::BRAND_IMAGES_INVERT_ON_DARK['partners'], '0');
+        $banderaDeFabrica = $vistaOscura($pedir($rutaMarca, $jwt, null)['body'], 'image-partners');
+        $check($banderaDeFabrica['src'] === 'statics/images/partners-dark.png' && $banderaDeFabrica['descarga'] === $banderaDeFabrica['src'] && !$banderaDeFabrica['invertida'], 'd5 DISCRIMINANTE: la bandera de fábrica sin modo: su oscura de fábrica, partners-dark.png (P377)', json_encode($banderaDeFabrica) ?: '');
+        $poner($modoDe('logo'), 'invert');
+        $logoInvertido = $vistaOscura($pedir($rutaMarca, $jwt, null)['body'], 'image-logo');
+        $check($logoInvertido['src'] === 'statics/images/logo.png' && $logoInvertido['descarga'] === 'statics/images/logo.png' && $logoInvertido['invertida'], 'd4 DISCRIMINANTE: con «Invertir en blanco», la clara con el filtro, y «Descargar» la clara (antes, white-logo.png)', json_encode($logoInvertido) ?: '');
+        echoTerminal(' ');
+
+        //─── l · El «Logo del cargador» (H345): opcional, vacío de fábrica y con «Eliminar» ─────────────
+        echoTerminal('[l] El logo del cargador: de fábrica la «P» (loader-logo.png); se sube por el recortador; «Eliminar» lo apaga');
+        $atributoLogo = function (string $sufijo = '') use ($pedir, $rutaPanel, &$jwt): ?string {
+            $html = $pedir($rutaPanel, $jwt, null)['body'];
+            return preg_match('#<html[^>]* data-loader-logo' . $sufijo . '="([^"]*)"#', $html, $m) === 1 ? $m[1] : null;
+        };
+        foreach (['loaderLogo', SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']] as $opcionLogoCargador) {
+            $poner($opcionLogoCargador, null);
+        }
+        $check($atributoLogo() === 'statics/images/loader-logo.png' && $atributoLogo('-dark') === 'statics/images/white-logo.png', 'l1 DISCRIMINANTE: sin opción, el cargador pinta la «P» de fábrica y, en oscuro, white-logo.png', var_export([$atributoLogo(), $atributoLogo('-dark')], true));
+        $r = $pedir($rutaMarca, $jwt, ['loaderLogo' => new \CURLFile($imagen('png', 110), 'image/png', 'zz-logo-cargador.png')]);
+        $logoCargador = $valor('loaderLogo');
+        $check(($r['data']['success'] ?? null) === true && is_string($logoCargador) && preg_match($patron('brand', 'loader-logo', 'png'), $logoCargador) === 1 && $atributoLogo() === $logoCargador, 'l2 subido por el recortador, en uploads/settings/brand/loader-logo-<huella>.png, y el cargador lo recibe', var_export($logoCargador, true));
+        $r = $pedir($rutaMarca, $jwt, [SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'] => new \CURLFile($imagen('png', 120), 'image/png', 'zz-logo-cargador-oscuro.png')]);
+        $logoCargadorOscuro = $valor(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image']);
+        $check(($r['data']['success'] ?? null) === true && is_string($logoCargadorOscuro) && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']) === 'image', 'l3 su oscura, con «Otra imagen»', var_export($logoCargadorOscuro, true));
+        $r = $pedir($rutaMarca, $jwt, ['deleteBrandImage' => 'loaderLogo']);
+        clearstatcache();
+        $check(($r['data']['success'] ?? null) === true && $crudo('loaderLogo') === '' && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image']) === null && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']) === null && is_string($logoCargador) && !is_file(basepath($logoCargador)) && is_string($logoCargadorOscuro) && !is_file(basepath($logoCargadorOscuro)), 'l4 «Eliminar» guarda el logo vacío, quita su oscura y su modo y borra los archivos', (string) ($r['data']['message'] ?? '') . ' · ' . var_export($crudo('loaderLogo'), true));
+        $check($atributoLogo() === '' && $atributoLogo('-dark') === '', 'l6 DISCRIMINANTE: eliminado, el cargador no pinta logo ni en claro ni en oscuro (no vuelve la «P»)', var_export([$atributoLogo(), $atributoLogo('-dark')], true));
+        $pantallaApagada = $pedir($rutaMarca, $jwt, null)['body'];
+        $rotuloApagado = escape_html(__(SettingsController::LANG_GROUP, 'Sin imagen: el cargador enseña solo la animación'));
+        $check(preg_match('#id="image-loader-logo".*?data-image-card-empty>\s*<img width="400" height="400"[^>]*>\s*<span class="ui muted text">' . preg_quote($rotuloApagado, '#') . '#s', $pantallaApagada) === 1 && preg_match('#data-brand-dark-empty>\s*<img width="400" height="400"[^>]*>\s*<span class="ui muted text">' . preg_quote($rotuloApagado, '#') . '#', $pantallaApagada) === 1, 'l7 la tarjeta apagada: damero de 400 × 400 con su rótulo, en la vista clara y en la oscura (visible)');
+        $r = $pedir($rutaMarca, $jwt, ['loaderLogo' => new \CURLFile($imagen('png', 130), 'image/png', 'zz-logo-cargador-2.png')]);
+        $logoCargador2 = $valor('loaderLogo');
+        $check(($r['data']['success'] ?? null) === true && is_string($logoCargador2) && preg_match($patron('brand', 'loader-logo', 'png'), $logoCargador2) === 1 && $atributoLogo() === $logoCargador2, 'l8 tras eliminarlo, subir otro lo vuelve a pintar', var_export($logoCargador2, true));
+        $logoAntes = $crudo('logo');
+        $r = $pedir($rutaMarca, $jwt, ['deleteBrandImage' => 'logo']);
+        $check(($r['data']['success'] ?? null) !== true && $crudo('logo') === $logoAntes, 'l5 DISCRIMINANTE: «Eliminar» solo vale para el logo del cargador: el logo de la plataforma no se quita', (string) ($r['data']['message'] ?? ''));
+        echoTerminal(' ');
+
+        //─── s · La medida real de una imagen, robusta (revisión de B.c) ─────────────────────────────
+        echoTerminal('[s] imageFileSize(): nada no finito, vacío o fuera de tope tumba la pantalla; la medida de reserva');
+        $medida = function (string $nombre, string $contenido): ?array {
+            $relativa = 'app/cache/zz-medida-' . bin2hex(random_bytes(3)) . '-' . $nombre;
+            if (file_put_contents(basepath($relativa), $contenido) === false) {
+                return ['width' => -1, 'height' => -1];
+            }
+            try {
+                return SettingsController::imageFileSize($relativa);
+            } finally {
+                //RETORNO-IGNORADO: un temporal propio en app/cache/, que git ignora.
+                unlink(basepath($relativa));
+            }
+        };
+        $svgDe = fn (string $atributos): string => '<svg xmlns="http://www.w3.org/2000/svg" ' . $atributos . '><rect width="1" height="1"/></svg>';
+        $check($medida('normal.svg', $svgDe('width="276.892" height="77.528" viewBox="0 0 276.892 77.528"')) === ['width' => 277, 'height' => 78], 's1 un SVG con width y height: su medida, redondeada');
+        $check($medida('infinito.svg', $svgDe('width="1e999" height="10"')) === null, 's2 DISCRIMINANTE: width="1e999" (no finito) da la reserva, sin aviso de PHP');
+        $check($medida('viewbox.svg', $svgDe('viewBox="0 0 1e30 10"')) === null, 's3 DISCRIMINANTE: un viewBox de 1e30 (pasa del tope) da la reserva');
+        $check($medida('vacio.svg', '') === null, 's4 DISCRIMINANTE: un SVG de 0 bytes da la reserva, sin error de loadXML');
+        $check($medida('vacio.gif', '') === null, 's5 DISCRIMINANTE: un GIF de 0 bytes da la reserva, sin aviso de getimagesize');
+        $check($medida('porcentaje.svg', $svgDe('width="100%" height="100%" viewBox="0 0 200 50"')) === ['width' => 200, 'height' => 50], 's6 DISCRIMINANTE: width="100%" no es una medida: se cae al viewBox');
+        $check($medida('grande.svg', $svgDe('width="5000" height="10"')) === null, 's7 más de ' . SettingsController::LOADER_ANIMATION_MAX_SIDE . ' px da la reserva');
+        $check($medida('fabrica.gif', (string) file_get_contents(basepath('statics/images/loader-animation.gif'))) === ['width' => 429, 'height' => 120], 's8 el GIF de fábrica: su medida', json_encode($medida('fabrica.gif', (string) file_get_contents(basepath('statics/images/loader-animation.gif')))) ?: '');
         echoTerminal(' ');
 
         //─── b · El borrado, confinado ──────────────────────────────────────────────────────────────

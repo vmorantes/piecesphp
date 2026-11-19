@@ -14,7 +14,8 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * Se ve si el usuario tiene permiso a `permissionRoute`: el nombre de la ruta es el permiso, como en todo el framework.
  * Su contenido lo da una función que recibe al usuario y devuelve un DashboardCardBody (cifras, acción o HTML); si
  * devuelve null, la tarjeta no se pinta (por ejemplo, «Tareas pendientes» sin tareas). Plegada, esa función NO se llama:
- * no hay cifras que enseñar; se pinta su barra y, si lo declara, su pie plegado (`collapsedFooterCaption`).
+ * no hay cifras que enseñar; se pinta su título, su ayuda, su botón y, si lo declara, su pie plegado
+ * (`collapsedFooterCaption`).
  *
  * @package     PiecesPHP\AdminPanel
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -82,14 +83,15 @@ final class DashboardCard
     /**
      * @param string $key Solo minúsculas, cifras y guiones
      * @param string $title Ya traducido
-     * @param string $icon Clases de un icono de Fomantic, sin «icon»
+     * @param string $icon Clases de un icono de Fomantic, sin «icon». En desuso: el inicio ya no lo pinta; se retira en la
+     *      11.0.0
      * @param string $permissionRoute El nombre de la ruta cuyo permiso hace visible la tarjeta
      * @param callable(UserDataPackage):(DashboardCardBody|null) $content Lo que enseña; null la oculta
      * @param int $position De menor a mayor; a igual posición, el orden de registro
      * @param bool $collapsible Si el usuario la puede plegar
      * @param bool $collapsedByDefault Plegada hasta que el usuario la despliegue (solo con $collapsible)
      * @param string|null $collapsedFooterCaption Plegada, el texto de su pie, ya traducido; sin él, plegada no lleva pie
-     * @param string|\Closure|null $collapsedFooterUrl Plegada, adónde lleva la flecha del pie. Una Closure(): ?string se
+     * @param string|\Closure|null $collapsedFooterUrl Plegada, adónde lleva el enlace del pie. Una Closure(): ?string se
      *      resuelve al pintar, no al registrar: al registrar, las rutas aún no están todas
      * @param string $help El texto de la ayuda, ya traducido; vacío, sin icono de ayuda
      * @throws \InvalidArgumentException si la key no tiene la forma de KEY_PATTERN, o si nace plegada sin poder plegarse
@@ -132,7 +134,7 @@ final class DashboardCard
     }
 
     /**
-     * @return string
+     * @return string En desuso: el inicio ya no lo pinta; se retira en la 11.0.0
      */
     public function icon(): string
     {

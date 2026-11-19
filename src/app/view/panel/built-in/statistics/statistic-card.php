@@ -15,9 +15,13 @@
  * @var string $content HTML del dato, si no es un número; lo pinta (y escapa) quien llama.
  * @var array{caption?:string|null,url?:string|null,two?:bool}|null $footer Sin pie, null. `caption`, su texto; `url`, la
  *      flecha; `two`, la variante `footer two`.
- * @var array{value:string,dataType?:string,label?:string,meta?:string,description?:string,content?:string,variant?:string,size?:string}|null $figure
- *      La tarjeta de cifra del tema (`statistic card`): va dentro de `ui cards`, y usa `title`, `help` y `attributes`.
- *      `variant`, `compact` o `tall`; `size`, `huge marked`. `content`, HTML que pinta y escapa quien llama.
+ * @var array{value?:string,dataType?:string,label?:string,statistics?:array<array{value:string,dataType?:string,label?:string}>,url?:string,meta?:string,description?:string,content?:string,variant?:string,size?:string}|null $figure
+ *      La tarjeta de cifra del tema (`statistic card`): va dentro de `ui cards`, y usa `title`, `help`, `toolbarExtra`,
+ *      `footer` y `attributes`. `variant`, `compact` o `tall`; `size`, `huge marked`. `content`, HTML que pinta y escapa
+ *      quien llama. `statistics`, varias cifras en la misma tarjeta (en lugar de `value`). Con `url`, la tarjeta entera
+ *      es un enlace (acceso directo): el pie no lleva enlace propio, porque un enlace no puede ir dentro de otro. El pie
+ *      sale de `footer`: su `caption` es el texto del enlace a `url`; sin `caption`, no hay pie.
+ *      `toolbarExtra` son botones `ui right floated mini tertiary icon button`, hermanos de la ayuda (el tema los estila así).
  */
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
 
@@ -32,36 +36,65 @@ $content = isset($content) && is_string($content) ? $content : '';
 $footer = isset($footer) && is_array($footer) ? $footer : null;
 $caption = $footer !== null && isset($footer['caption']) && is_string($footer['caption']) ? $footer['caption'] : null;
 $url = $footer !== null && isset($footer['url']) && is_string($footer['url']) ? $footer['url'] : null;
-$figure = isset($figure) && is_array($figure) && isset($figure['value']) && is_string($figure['value']) ? $figure : null;
+$figure = isset($figure) && is_array($figure) && (is_string($figure['value'] ?? null) || is_array($figure['statistics'] ?? null) || is_string($figure['url'] ?? null) || is_string($figure['content'] ?? null)) ? $figure : null;
 ?>
 <?php if ($figure !== null): ?>
 <?php
 $figureVariant = in_array($figure['variant'] ?? '', ['compact', 'tall'], true) ? $figure['variant'] . ' ' : '';
 $figureSize = ($figure['size'] ?? '') === 'huge marked' ? 'huge marked ' : '';
+$figureUrl = isset($figure['url']) && is_string($figure['url']) ? $figure['url'] : null;
+$figureStatistics = [];
+foreach (is_array($figure['statistics'] ?? null) ? $figure['statistics'] : [$figure] as $statistic) {
+    if (is_array($statistic) && isset($statistic['value']) && is_string($statistic['value'])) {
+        $figureStatistics[] = $statistic;
+    }
+}
+//Un botón no puede ir dentro de un enlace: el acceso directo no lleva ayuda ni botones.
+$toolbarExtra = $figureUrl !== null ? '' : $toolbarExtra;
+$helpButton = $help !== '' && $figureUrl === null ? '<button type="button" class="ui right floated mini tertiary icon button" aria-label="' . escape_html($help) . '" data-tooltip="' . escape_html($help) . '" data-position="bottom right" data-inverted=""><i class="question circle icon" aria-hidden="true"></i></button>' : '';
+$figureFooter = $caption;
+$figureTag = $figureUrl !== null ? 'a' : 'div';
+$figureLabel = $figureUrl !== null ? ' href="' . escape_html($figureUrl) . '" aria-label="' . escape_html(implode(': ', array_filter([$title ?? '', is_string($figure['description'] ?? null) ? $figure['description'] : ''], fn($part) => $part !== ''))) . '"' : '';
 ?>
-<div class="<?= $figureVariant; ?>statistic card"<?= $attributes; ?>>
+<<?= $figureTag; ?> class="<?= $figureUrl !== null ? 'link ' : ''; ?><?= $figureVariant; ?>statistic card"<?= $figureLabel; ?><?= $attributes; ?>>
     <div class="content">
-        <?php if ($help !== ''): ?>
-        <button type="button" class="ui right floated mini tertiary icon button" aria-label="<?= escape_html($help); ?>" data-tooltip="<?= escape_html($help); ?>" data-position="bottom right" data-inverted=""><i class="question circle icon" aria-hidden="true"></i></button>
-        <?php endif; ?>
+        <?php //Hijos directos de .content, como `.right.floated.icon.button`: así casan con el estilo del tema (card.css). ?>
+        <?= $helpButton; ?><?= $toolbarExtra; ?>
         <?php if ($title !== null): ?>
         <div class="header"><?= escape_html($title); ?></div>
         <?php endif; ?>
         <?php if (isset($figure['meta']) && is_string($figure['meta']) && $figure['meta'] !== ''): ?>
         <div class="meta"><?= escape_html($figure['meta']); ?></div>
         <?php endif; ?>
+        <?php if (count($figureStatistics) > 1): ?>
+        <div class="ui wide flex">
+        <?php endif; ?>
+        <?php foreach ($figureStatistics as $statistic): ?>
         <div class="ui <?= $figureSize; ?>statistic">
-            <div class="value"<?= isset($figure['dataType']) && is_string($figure['dataType']) ? ' data-type="' . escape_html($figure['dataType']) . '"' : ''; ?>><?= escape_html($figure['value']); ?></div>
-            <?php if (isset($figure['label']) && is_string($figure['label']) && $figure['label'] !== ''): ?>
-            <div class="label"><?= escape_html($figure['label']); ?></div>
+            <div class="value"<?= isset($statistic['dataType']) && is_string($statistic['dataType']) ? ' data-type="' . escape_html($statistic['dataType']) . '"' : ''; ?>><?= escape_html($statistic['value']); ?></div>
+            <?php if (isset($statistic['label']) && is_string($statistic['label']) && $statistic['label'] !== ''): ?>
+            <div class="label"><?= escape_html($statistic['label']); ?></div>
             <?php endif; ?>
         </div>
+        <?php endforeach; ?>
+        <?php if (count($figureStatistics) > 1): ?>
+        </div>
+        <?php endif; ?>
         <?php if (isset($figure['description']) && is_string($figure['description']) && $figure['description'] !== ''): ?>
         <div class="description"><?= escape_html($figure['description']); ?></div>
         <?php endif; ?>
         <?= isset($figure['content']) && is_string($figure['content']) ? $figure['content'] : ''; ?>
     </div>
-</div>
+    <?php if ($figureFooter !== null): ?>
+    <div class="extra content">
+        <?php if ($figureUrl !== null || $url === null): ?>
+        <span class="ui <?= $figureUrl !== null ? 'primary' : 'muted'; ?> text"><?= escape_html($figureFooter); ?></span>
+        <?php else: ?>
+        <a href="<?= escape_html($url); ?>"><span class="ui primary text"><?= escape_html($figureFooter); ?></span></a>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+</<?= $figureTag; ?>>
 <?php return; ?>
 <?php endif; ?>
 <div class="ui segment card-statistic<?= $modifiers !== [] ? ' ' . implode(' ', $modifiers) : ''; ?>"<?= $attributes; ?>>

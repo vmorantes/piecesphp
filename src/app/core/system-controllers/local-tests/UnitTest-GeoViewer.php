@@ -4,6 +4,7 @@
 //al registrar y la carga de puntos de ida y vuelta. En proceso; la carga escribe zz-carga- y lo retira.
 //@areas src/app/classes/Directory/
 //@areas src/app/classes/Organizations/
+//@requires-module PiecesPHP\Geo\GeoRoutes
 
 use Directory\Geo\PersonsGeoSource;
 use Organizations\Geo\OrganizationsGeoSource;

@@ -12,6 +12,7 @@
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon-back')); ?>" type="image/x-icon">
     <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
+    <?php $themeTogglePart = 'head'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>
 </head>
 
 <body>
@@ -25,7 +26,10 @@
     '${otherProblemsFormLink}' => \PiecesPHP\UserSystem\Controllers\UserProblemsController::routeName('other-problems-form'),
     '${owner}' => escape_html(get_config('owner')),
     '${logoURL}' => get_config('logo'),
-    '${logoClass}' => \PiecesPHP\Settings\Controllers\SettingsController::brandImageInvertsOnDark('logo') ? 'invert-on-dark' : '',
+    //Para una plantilla anterior a H340, de una sola imagen: invertida también si la oscura es la de fábrica (el logo invertido).
+    '${logoClass}' => \PiecesPHP\Settings\Controllers\SettingsController::brandImageLooksInvertedOnDark('logo') ? 'invert-on-dark' : '',
+    //El logo entero, con lo que enseña en modo oscuro (H340).
+    '${logo}' => \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo'),
     '${mailSystem}' => \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'),
 ]); ?>
     <?php $accessContent = (string) ob_get_clean(); require dirname(__DIR__) . '/inc/access-frame.php'; ?>

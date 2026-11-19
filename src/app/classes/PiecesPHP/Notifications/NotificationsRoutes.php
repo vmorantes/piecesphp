@@ -28,7 +28,7 @@ use PiecesPHP\UserSystem\UserDataPackage;
  */
 class NotificationsRoutes
 {
-    const ENABLE = true;
+    const ENABLE = NOTIFICATIONS_MODULE;
 
     /**
      * La herramienta MCP de las notificaciones de quien pregunta (ADR 0075).

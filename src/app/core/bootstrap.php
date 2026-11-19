@@ -183,6 +183,7 @@ $directories = [
     'config_lang' => __DIR__ . "/../config/lang.php",
     'custom_functions' => __DIR__ . "/../config/functions.php",
     'custom_constants' => __DIR__ . "/../config/constants.php",
+    'module_constants_defaults' => __DIR__ . "/module-constants-defaults.php",
     'custom_autoloads' => __DIR__ . "/../config/autoloads.php",
     'custom_autoloads_config' => __DIR__ . "/custom-autoloads-config.php",
 ];
@@ -206,11 +207,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v10.53.0');
+    define('APP_VERSION', 'v10.54.0');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', (new \DateTime('2026-11-18'))->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-11-19'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];
@@ -254,6 +255,7 @@ if (file_exists($directories['custom_functions'])) {
 if (file_exists($directories['custom_constants'])) {
     require $directories['custom_constants'];
 }
+require $directories['module_constants_defaults'];
 
 if (file_exists($directories['custom_autoloads'])) {
 

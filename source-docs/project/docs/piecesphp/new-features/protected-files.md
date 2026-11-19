@@ -125,6 +125,10 @@ bin/cli statics-protect-migrate --revert   # vuelta atrás
   los `.htaccess` de cada carpeta. Al revés, lo privado quedaría servido directamente.
 - **`--revert` deja con su nombre público** también los archivos que ya nacieron privados antes
   de migrar.
+- **Con Publicaciones apagado** (`PUBLICATIONS_MODULE` a `false`), la tarea **omite** su carpeta de subidas
+  (`uploads/publications`): no la lista, no renombra nada dentro ni le retira el `.htaccess`, y lo dice en su salida. Si
+  un módulo propio de tu proyecto sube a esa misma carpeta y registra ahí su validador, protegerla es cosa suya: la
+  tarea no sabe qué es público para él. `--revert` también la omite.
 
 ## Servidores
 

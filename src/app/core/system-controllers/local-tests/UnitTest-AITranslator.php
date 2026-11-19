@@ -19,6 +19,7 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Mcp\Assistant;
+use PiecesPHP\Mcp\McpRoutes;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -142,9 +143,14 @@ CliActions::make('unit-tests:core/ai-translator', function ($args) {
         set_config('translationAI', AI_OPENAI);
         set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'capabilities' => [AIGateway::TRANSLATION_CAPABILITY => $encendida, Assistant::CAPABILITY => $encendida]]);
         $check(AIGateway::translator($root)->provider()->recordId() === AIProviderRegistry::CONVERTED_OPENAI, '6b sin ellos: el convertido de «IA para traducciones» (sin la conversión escrita)');
-        $traductor = AIGateway::translator($root)->provider();
-        $chat = AIGateway::chatProvider(Assistant::CAPABILITY, $root);
-        $check($traductor instanceof OpenAICompatibleChatProvider && $chat instanceof OpenAICompatibleChatProvider && $traductor->timeoutSeconds() === 120 && $chat->timeoutSeconds() === 30, '7a el tiempo máximo de la traducción es 120 s y el del chat sigue en 30');
+        //El chat es la capacidad del asistente, que solo existe con MCP encendido.
+        if (!McpRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 7a: esta instalación tiene MCP apagado y no hay chat del asistente.");
+        } else {
+            $traductor = AIGateway::translator($root)->provider();
+            $chat = AIGateway::chatProvider(Assistant::CAPABILITY, $root);
+            $check($traductor instanceof OpenAICompatibleChatProvider && $chat instanceof OpenAICompatibleChatProvider && $traductor->timeoutSeconds() === 120 && $chat->timeoutSeconds() === 30, '7a el tiempo máximo de la traducción es 120 s y el del chat sigue en 30');
+        }
         echoTerminal(' ');
 
         //─── 8 · La ruta de la API ───────────────────────────────────────────────────────────────

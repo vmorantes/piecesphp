@@ -6,7 +6,9 @@
 
 namespace Organizations\Controllers;
 
+use Directory\DirectoryRoutes;
 use Organizations\Exceptions\SafeException;
+use Organizations\Geo\OrganizationsGeoSource;
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsLang;
 use Organizations\OrganizationsRoutes;
@@ -25,6 +27,8 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Geo\GeoRoutes;
+use PiecesPHP\Geo\GeoSourceRegistry;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -75,6 +79,37 @@ class MyOrganizationProfileController extends AdminPanelController
     }
 
     /**
+     * La frase de la cabecera de «Perfil de organización» y la etiqueta de su casilla de visibilidad: nombran solo dónde
+     * sale el perfil. La casilla sigue sin ninguno de los dos: decide además si los demás ven la ficha de la organización.
+     *
+     * @param bool $inDirectory Si el Directorio está encendido
+     * @param bool $onMap Si el mapa está encendido y enseña organizaciones
+     * @return array{description:string,publicVisibleLabel:string} Sin ninguno de los dos, la frase es '': no se pinta.
+     */
+    public static function publicVisibilityTexts(bool $inDirectory, bool $onMap): array
+    {
+        if ($inDirectory && $onMap) {
+            return [
+                'description' => __(self::LANG_GROUP, 'Lo que los demás ven de la organización en el Directorio y en el mapa.'),
+                'publicVisibleLabel' => __(self::LANG_GROUP, 'Mostrar el perfil de la organización en el directorio y en el mapa'),
+            ];
+        }
+        if ($inDirectory) {
+            return [
+                'description' => __(self::LANG_GROUP, 'Lo que los demás ven de la organización en el Directorio.'),
+                'publicVisibleLabel' => __(self::LANG_GROUP, 'Mostrar el perfil de la organización en el directorio'),
+            ];
+        }
+        if ($onMap) {
+            return [
+                'description' => __(self::LANG_GROUP, 'Lo que los demás ven de la organización en el mapa.'),
+                'publicVisibleLabel' => __(self::LANG_GROUP, 'Mostrar el perfil de la organización en el mapa'),
+            ];
+        }
+        return ['description' => '', 'publicVisibleLabel' => __(self::LANG_GROUP, 'Mostrar el perfil de la organización')];
+    }
+
+    /**
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -103,7 +138,8 @@ class MyOrganizationProfileController extends AdminPanelController
         }
 
         $title = __(self::LANG_GROUP, 'Perfil de organización');
-        $description = __(self::LANG_GROUP, 'Lo que los demás ven de la organización en el Directorio y en el mapa.');
+        $publicVisibilityTexts = self::publicVisibilityTexts(DirectoryRoutes::ENABLE, GeoRoutes::ENABLE && GeoSourceRegistry::get(OrganizationsGeoSource::KEY) !== null);
+        $description = $publicVisibilityTexts['description'];
 
         if ($organizationID !== null) {
 
@@ -141,6 +177,7 @@ class MyOrganizationProfileController extends AdminPanelController
                 $data['optionsUsersAdministrators'] = $optionsUsersAdministrators;
                 $data['title'] = $title;
                 $data['description'] = $description;
+                $data['publicVisibleLabel'] = $publicVisibilityTexts['publicVisibleLabel'];
                 $data['helpController'] = $this->helpController;
                 $data['breadcrumbs'] = [
                     __(self::LANG_GROUP, 'Inicio') => [
@@ -530,7 +567,6 @@ class MyOrganizationProfileController extends AdminPanelController
                         return false;
                     }
 
-                    $currentUserCanEditProfile = in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR);
                     $currentUserIsOrganizationAdministrator = $organizationMapper !== null && self::administratorIDOf($organizationMapper) == $currentUserID;
 
                     $allow = $currentUserIsOrganizationAdministrator;

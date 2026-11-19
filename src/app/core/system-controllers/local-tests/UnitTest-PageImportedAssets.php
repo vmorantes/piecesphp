@@ -10,6 +10,7 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\FileManager\Controllers\FileManagerController;
 use PiecesPHP\Notifications\Controllers\NotificationsController;
+use PiecesPHP\Notifications\NotificationsRoutes;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -42,18 +43,22 @@ CliActions::make('unit-tests:core/page-imported-assets', function ($args) {
 
     //──── [c] La campana, en proceso ──────────────────────────────────────────────────────
     echoTerminal('[c] listMarkup() deja lock_assets como lo encontró');
-    $previo = get_config('lock_assets');
-    try {
-        set_config('lock_assets', true);
-        //RETORNO-IGNORADO: lo que se mira es el candado después de pintar, no el marcado.
-        NotificationsController::listMarkup('zz-campana-prueba', true);
-        $check(get_config('lock_assets') === true, 'c1 DISCRIMINANTE: con el candado puesto, pintar la campana no lo abre');
-        set_config('lock_assets', false);
-        //RETORNO-IGNORADO: igual que arriba.
-        NotificationsController::listMarkup('zz-campana-prueba', true);
-        $check(get_config('lock_assets') === false, 'c2 y con el candado abierto, lo deja abierto');
-    } finally {
-        set_config('lock_assets', $previo);
+    if (!NotificationsRoutes::ENABLE) {
+        echoTerminal("   \e[33m[OMITIDA]\e[39m c1 y c2: esta instalación tiene Notificaciones apagado y no hay campana.");
+    } else {
+        $previo = get_config('lock_assets');
+        try {
+            set_config('lock_assets', true);
+            //RETORNO-IGNORADO: lo que se mira es el candado después de pintar, no el marcado.
+            NotificationsController::listMarkup('zz-campana-prueba', true);
+            $check(get_config('lock_assets') === true, 'c1 DISCRIMINANTE: con el candado puesto, pintar la campana no lo abre');
+            set_config('lock_assets', false);
+            //RETORNO-IGNORADO: igual que arriba.
+            NotificationsController::listMarkup('zz-campana-prueba', true);
+            $check(get_config('lock_assets') === false, 'c2 y con el candado abierto, lo deja abierto');
+        } finally {
+            set_config('lock_assets', $previo);
+        }
     }
     echoTerminal(' ');
 

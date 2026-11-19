@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.18.0 - Menu
+ * # Fomantic-UI 0.19.0 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1287,7 +1287,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .primary.active.item,
 .ui.ui.primary.menu .active.item:hover,
 .ui.ui.primary.menu .active.item {
-  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1295,7 +1299,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .accent-1.active.item,
 .ui.ui.accent-1.menu .active.item:hover,
 .ui.ui.accent-1.menu .active.item {
-  border-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1303,7 +1311,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .accent-2.active.item,
 .ui.ui.accent-2.menu .active.item:hover,
 .ui.ui.accent-2.menu .active.item {
-  border-color: var(--accent-2, #0b7a77);
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1311,7 +1323,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .accent-3.active.item,
 .ui.ui.accent-3.menu .active.item:hover,
 .ui.ui.accent-3.menu .active.item {
-  border-color: var(--accent-3, #e8730c);
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1319,7 +1335,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .red.active.item,
 .ui.ui.red.menu .active.item:hover,
 .ui.ui.red.menu .active.item {
-  border-color: #f04438;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
@@ -1327,7 +1347,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .orange.active.item,
 .ui.ui.orange.menu .active.item:hover,
 .ui.ui.orange.menu .active.item {
-  border-color: #ef6820;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
@@ -1335,7 +1359,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .yellow.active.item,
 .ui.ui.yellow.menu .active.item:hover,
 .ui.ui.yellow.menu .active.item {
-  border-color: #f79009;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
@@ -1343,7 +1371,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .olive.active.item,
 .ui.ui.olive.menu .active.item:hover,
 .ui.ui.olive.menu .active.item {
-  border-color: #84a11b;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1351,7 +1383,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .green.active.item,
 .ui.ui.green.menu .active.item:hover,
 .ui.ui.green.menu .active.item {
-  border-color: #17b26a;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1359,7 +1395,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .teal.active.item,
 .ui.ui.teal.menu .active.item:hover,
 .ui.ui.teal.menu .active.item {
-  border-color: #06aed4;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1367,7 +1407,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .blue.active.item,
 .ui.ui.blue.menu .active.item:hover,
 .ui.ui.blue.menu .active.item {
-  border-color: #2e90fa;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1375,7 +1419,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .violet.active.item,
 .ui.ui.violet.menu .active.item:hover,
 .ui.ui.violet.menu .active.item {
-  border-color: #7a5af8;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1383,7 +1431,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .purple.active.item,
 .ui.ui.purple.menu .active.item:hover,
 .ui.ui.purple.menu .active.item {
-  border-color: #9e4cc9;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1391,7 +1443,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .pink.active.item,
 .ui.ui.pink.menu .active.item:hover,
 .ui.ui.pink.menu .active.item {
-  border-color: #c11574;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1399,7 +1455,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .brown.active.item,
 .ui.ui.brown.menu .active.item:hover,
 .ui.ui.brown.menu .active.item {
-  border-color: #6e4a2e;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1407,7 +1467,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .grey.active.item,
 .ui.ui.grey.menu .active.item:hover,
 .ui.ui.grey.menu .active.item {
-  border-color: #687181;
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
@@ -1415,7 +1479,11 @@ Floated Menu / Item
 .ui.ui.ui.menu .black.active.item,
 .ui.ui.black.menu .active.item:hover,
 .ui.ui.black.menu .active.item {
-  border-color: light-dark(#1f2430, #535c6e);
+  
+/* Fork: el subrayado o borde de la opción activa, con la misma tinta que su texto. Es un indicador (3:1)
+                   y el relleno no llega en todos los colores: el marrón en oscuro quedaba a 2,68:1 de su fondo y el
+                   amarillo en claro, a 1,07:1 del blanco (2026-11-18) */
+  border-color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
   color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));

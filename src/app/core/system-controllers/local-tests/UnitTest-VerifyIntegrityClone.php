@@ -41,14 +41,20 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
 
         //──── 1. Módulos apagados (H364), en el framework, con todos encendidos ─────────────
         echoTerminal('[1] Módulos apagados: con todos encendidos nada cambia, y el canario sigue viendo');
-        $check($call('offModuleRoutePrefixes') === [], '1a en el framework ningún módulo está apagado');
-        $check($call('offModuleOfRoute', ['publications-admin-list']) === null, '1b una ruta de un módulo encendido no es de un módulo apagado');
-        $usersList = ['users-list' => ['requireLogin' => true, 'roles' => [0, 1]]];
-        $few = $usersList + array_fill_keys(array_map(fn (int $i): string => "zz-ruta-{$i}", range(1, 203)), ['requireLogin' => true, 'roles' => [0]]);
-        $canary = $call('validateDeclaredPermissions', [$few]);
-        $check(count($canary) === 1 && str_contains($canary[0], 'más de 300'), '1c con 204 rutas y ningún módulo apagado, el canario cae', implode(' | ', $canary));
-        $many = $usersList + array_fill_keys(array_map(fn (int $i): string => "zz-ruta-{$i}", range(1, 310)), ['requireLogin' => true, 'roles' => [0]]);
-        $check($call('validateDeclaredPermissions', [$many]) === [], '1d con 311 rutas no cae');
+        //Los cuatro dan por hecho el framework con todo encendido: solo un clon (la distribución) puede tener módulos apagados.
+        $offNow = $call('offModuleRoutePrefixes');
+        if ($offNow !== [] && \Terminal\Distribution::isDistribution()) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 1a-1d: esta instalación tiene módulos apagados (" . implode(', ', array_keys($offNow)) . '); las comprobaciones de abajo sí corren.');
+        } else {
+            $check($call('offModuleRoutePrefixes') === [], '1a en el framework ningún módulo está apagado');
+            $check($call('offModuleOfRoute', ['publications-admin-list']) === null, '1b una ruta de un módulo encendido no es de un módulo apagado');
+            $usersList = ['users-list' => ['requireLogin' => true, 'roles' => [0, 1]]];
+            $few = $usersList + array_fill_keys(array_map(fn (int $i): string => "zz-ruta-{$i}", range(1, 203)), ['requireLogin' => true, 'roles' => [0]]);
+            $canary = $call('validateDeclaredPermissions', [$few]);
+            $check(count($canary) === 1 && str_contains($canary[0], 'más de 300'), '1c con 204 rutas y ningún módulo apagado, el canario cae', implode(' | ', $canary));
+            $many = $usersList + array_fill_keys(array_map(fn (int $i): string => "zz-ruta-{$i}", range(1, 310)), ['requireLogin' => true, 'roles' => [0]]);
+            $check($call('validateDeclaredPermissions', [$many]) === [], '1d con 311 rutas no cae');
+        }
         echoTerminal(' ');
 
         //──── 1bis. Las tres formas de apagar (H400), sobre un árbol de mentira ───────────────
@@ -139,6 +145,116 @@ CliActions::make('unit-tests:core/verify-integrity-clone', function ($args) {
         $copy = "{$directory}/GenericContentController.php";
         $written = file_put_contents($copy, str_replace('HOME_IMAGE_BANNER ?', 'OTRA_CONSTANTE ?', (string) file_get_contents($genericContent)));
         $check($written !== false && !$registeredBehind($copy, 'HOME_IMAGE_BANNER', $homeImage), '1p canario: con otra constante en la ternaria, la comprobación cae');
+        echoTerminal(' ');
+
+        //──── 1quater. Los cuatro módulos que el clon puede apagar (H404), por tokens ──────────
+        echoTerminal('[1quater] Directorio, Geo, Notificaciones y MCP: su ENABLE lee su constante del clon y lo que pintan fuera, guardado');
+        $tokensOf = static fn (string $relative): array => array_values(array_filter(
+            \PhpToken::tokenize((string) file_get_contents(basepath($relative))),
+            static fn (\PhpToken $t): bool => !$t->is([\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT])
+        ));
+        $cloneDefines = [];
+        $section = 'framework';
+        $raw = array_values(array_filter(
+            \PhpToken::tokenize((string) file_get_contents(basepath('app/config/constants.php'))),
+            static fn (\PhpToken $t): bool => !$t->is(\T_WHITESPACE) && !($t->is(\T_COMMENT) && !str_starts_with($t->text, '//── Del ')) && !$t->is(\T_DOC_COMMENT)
+        ));
+        foreach ($raw as $i => $token) {
+            if ($token->is(\T_COMMENT)) {
+                $section = str_contains($token->text, 'Del clon') ? 'clon' : 'framework';
+            }
+            if ($token->is(\T_STRING) && $token->text === 'define' && ($raw[$i + 1]->text ?? '') === '(' && ($raw[$i + 2] ?? null)?->is(\T_CONSTANT_ENCAPSED_STRING) && ($raw[$i + 3]->text ?? '') === ',') {
+                $cloneDefines[trim($raw[$i + 2]->text, '\'"')] = $section === 'clon' ? strtolower((string) ($raw[$i + 4]->text ?? '')) : 'framework';
+            }
+        }
+        foreach ([
+            'app/classes/Directory/DirectoryRoutes.php' => 'DIRECTORY_MODULE',
+            'app/classes/PiecesPHP/Geo/GeoRoutes.php' => 'GEO_MODULE',
+            'app/classes/PiecesPHP/Notifications/NotificationsRoutes.php' => 'NOTIFICATIONS_MODULE',
+            'app/classes/PiecesPHP/Mcp/McpRoutes.php' => 'MCP_MODULE',
+        ] as $relative => $constant) {
+            $tokens = $tokensOf($relative);
+            $value = null;
+            foreach ($tokens as $i => $token) {
+                if ($token->is(\T_CONST) && ($tokens[$i + 1]->text ?? '') === 'ENABLE' && ($tokens[$i + 2]->text ?? '') === '=') {
+                    $value = ($tokens[$i + 4]->text ?? '') === ';' ? $tokens[$i + 3]->text : 'una expresión';
+                    break;
+                }
+            }
+            $check($value === $constant, "1q1 " . basename($relative) . " · ENABLE = {$constant}", 'ENABLE = ' . ($value ?? 'no está'));
+            //En un clon, un constants.php anterior a la 10.54.0 no la trae y vale (la red la da por true); el del framework, sí.
+            $allowed = \Terminal\Distribution::isDistribution() ? ['true', 'false', 'sin definir'] : ['true', 'false'];
+            $check(in_array($cloneDefines[$constant] ?? 'sin definir', $allowed, true) && defined($constant) && is_bool(constant($constant)), "1q2 {$constant}: en constants.php, true o false; si no está, la red la deja definida", (string) ($cloneDefines[$constant] ?? 'sin definir'));
+        }
+        //Lo que pinta un módulo fuera de su carpeta va dentro de un `if (…) :` con su guarda; el canario exige que haya algo que guardar.
+        $guarded = static function (array $tokens, callable $isTarget, string $needle): array {
+            $open = [];
+            $targets = 0;
+            $loose = 0;
+            foreach ($tokens as $i => $token) {
+                if ($token->is(\T_IF) && ($tokens[$i + 1]->text ?? '') === '(') {
+                    $depth = 0;
+                    $condition = '';
+                    for ($j = $i + 1; $j < count($tokens); $j++) {
+                        $depth += $tokens[$j]->text === '(' ? 1 : ($tokens[$j]->text === ')' ? -1 : 0);
+                        $condition .= $tokens[$j]->text;
+                        if ($depth === 0) {
+                            break;
+                        }
+                    }
+                    if (($tokens[$j + 1]->text ?? '') === ':') {
+                        $open[] = $condition;
+                    }
+                }
+                if ($token->is(\T_ENDIF)) {
+                    array_pop($open);
+                }
+                if ($isTarget($tokens, $i)) {
+                    $targets++;
+                    //Sin el espacio de nombres; y ni negada ni como cola de otro nombre (OrganizationProfileController).
+                    $loose += array_filter($open, static fn (string $c): bool => preg_match('/(?<![\\w!])' . preg_quote($needle, '/') . '/', (string) preg_replace('/\\\\?(?:\\w+\\\\)+(?=\\w+::)/', '', $c)) === 1) === [] ? 1 : 0;
+                }
+            }
+            return [$targets, $loose];
+        };
+        $staticCall = static fn (string $class, string $method): callable => static fn (array $t, int $i): bool => ($t[$i]->text === $class || str_ends_with($t[$i]->text, '\\' . $class)) && ($t[$i + 1] ?? null)?->is(\T_DOUBLE_COLON) && ($t[$i + 2]->text ?? '') === $method;
+        foreach ([
+            ['app/classes/Organizations/Views/my-organization-profile/my-organization-profile.php', $staticCall('ProfileController', 'routeName'), "ProfileController::allowedRoute('profile'", 1],
+            ['app/classes/Organizations/Views/profile-organization/profile.php', $staticCall('ProfileController', 'routeName'), "ProfileController::allowedRoute('profile'", 2],
+            ['app/view/panel/layout/topbar-bar.php', static fn (array $t, int $i): bool => $t[$i]->is(\T_INLINE_HTML) && str_contains($t[$i]->text, 'notifications-toggle'), 'NotificationsRoutes::ENABLE', 1],
+            ['app/view/panel/layout/topbar.php', $staticCall('NotificationsController', 'listMarkup'), 'NotificationsRoutes::ENABLE', 1],
+        ] as [$relative, $isTarget, $needle, $expected]) {
+            [$targets, $loose] = $guarded($tokensOf($relative), $isTarget, $needle);
+            $check($targets === $expected && $loose === 0, '1q3 ' . basename($relative) . " · {$targets} sitio(s), todos dentro de «{$needle}»", "esperados {$expected}, sin guarda {$loose}");
+        }
+        //En topbar-data.php, las dos llamadas son ternarias: la guarda va delante en la misma sentencia.
+        $statements = explode(';', implode('', array_map(static fn (\PhpToken $t): string => $t->text, $tokensOf('app/view/panel/layout/topbar-data.php'))));
+        foreach (['Notifications::unread(' => 'NotificationsRoutes::ENABLE?', 'Assistant::panelWindow(' => 'McpRoutes::ENABLE?'] as $callText => $guard) {
+            $with = array_values(array_filter($statements, static fn (string $s): bool => str_contains($s, $callText)));
+            $check(count($with) === 1 && str_contains($with[0], $guard) && strpos($with[0], $guard) < strpos($with[0], $callText), "1q4 topbar-data.php · {$callText}) solo tras «{$guard}»", $with[0] ?? 'no está');
+        }
+        $notify = implode('', array_map(static fn (\PhpToken $t): string => $t->is([\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT]) ? '' : $t->text, $tokensOf('app/classes/PiecesPHP/Notifications/Notifications.php')));
+        $start = strpos($notify, 'functionnotify(');
+        $head = $start === false ? '' : (string) strstr(substr($notify, $start), 'try{', true);
+        $check(str_contains($head, 'if(!NotificationsRoutes::ENABLE||self::$offForTesting){return0;}'), '1q5 Notifications::notify() sale con 0 antes de escribir si NOTIFICATIONS_MODULE está apagado', $head === '' ? 'no está' : $head);
+        //Una capacidad servida por una ruta de un módulo apagado no aplica; sin el módulo apagado, la misma falta falla.
+        if (!defined('ZZ_VI_CLONE_OFF_MODULE')) {
+            define('ZZ_VI_CLONE_OFF_MODULE', false);
+        }
+        $capability = ['zz-apagada' => ['routes' => ['zz-vi-clone-ruta-apagada'], 'announced' => []]];
+        $offMap = ['zz-vi-clone-ruta-apagada' => 'ZZ_VI_CLONE_OFF_MODULE'];
+        $offFailures = $call('validateAnnouncedCapabilities', [$capability, [], basepath('..'), [], '', $offMap]);
+        $check($offFailures === [] && $call('announcedRoutesOff', [$capability, [], $offMap]) === ['ZZ_VI_CLONE_OFF_MODULE' => 1], '1q9 capacidades: la ruta de un módulo apagado no aplica y se cuenta', implode(' | ', $offFailures));
+        $onFailures = $call('validateAnnouncedCapabilities', [$capability, [], basepath('..'), [], '', []]);
+        $check(count($onFailures) === 1 && str_contains($onFailures[0], 'zz-vi-clone-ruta-apagada') && $call('announcedRoutesOff', [$capability, [], []]) === [], '1q10 CANARIO: sin el módulo apagado, la misma ruta falta y falla');
+        //La red de un constants.php viejo: se carga justo después de él, y en un PHP aparte sin nada definido da las cuatro en true.
+        $boot = implode('', array_map(static fn (\PhpToken $t): string => $t->is([\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT]) ? '' : $t->text, $tokensOf('app/core/bootstrap.php')));
+        $afterConstants = (string) strstr((string) strstr($boot, "require\$directories['custom_constants'];"), "require\$directories['custom_autoloads_config'];", true);
+        $check(str_contains($afterConstants, "}require\$directories['module_constants_defaults'];"), '1q6 bootstrap.php carga module-constants-defaults.php justo tras constants.php, fuera de su if', $afterConstants === '' ? 'no está' : $afterConstants);
+        $defaults = escapeshellarg(basepath('app/core/module-constants-defaults.php'));
+        $probe = static fn (string $before): string => trim((string) shell_exec(escapeshellarg(PHP_BINARY) . ' -r ' . escapeshellarg($before . 'require ' . $defaults . '; echo json_encode([DIRECTORY_MODULE, GEO_MODULE, NOTIFICATIONS_MODULE, MCP_MODULE]);') . ' 2>&1'));
+        $check($probe('') === '[true,true,true,true]', '1q7 sin ninguna definida, las cuatro valen true', $probe(''));
+        $check($probe("define('GEO_MODULE', false);") === '[true,false,true,true]', '1q8 lo que el proyecto apagó sigue apagado', $probe("define('GEO_MODULE', false);"));
         echoTerminal(' ');
 
         //──── 2. Sin archivo del clon, todo sigue igual ───────────────────────────────────────

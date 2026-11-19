@@ -176,7 +176,7 @@ CliActions::make('unit-tests:core/text-size', function ($args) {
         $antes = $foto();
         $r = $peticion($guardar, UserSessions::issueToken($idGeneral), [SettingsController::ACCESSIBILITY_TEXT_SIZE_CONFIG => 'normal', SettingsController::ACCESSIBILITY_THEME_MODE_CONFIG => 'light'] + $fase2);
         $check($r['status'] === 403 && $foto() === $antes, 'g2 un usuario general: 403 y nada cambia', "HTTP {$r['status']}");
-        $r = $peticion($relativa(SettingsController::routeName('appearance-accessibility', [], true)), $jwtRoot, null);
+        $r = $peticion($relativa(SettingsController::routeName('appearance-colors', [], true)), $jwtRoot, null);
         $check($r['status'] === 200 && str_contains($r['body'], 'name="accessibility_text_size"') && str_contains($r['body'], '<option value="larger" selected>'), 'g3 la pantalla pinta lo guardado', "HTTP {$r['status']}");
         echoTerminal(' ');
 

@@ -40,7 +40,7 @@ $backgroundCard = function (array $card) use ($helpController, $actionURL, $lang
             $helpController->_render('panel/built-in/content/section-header.php', [
                 'id' => 'backgrounds-login-title',
                 'title' => __($langGroup, 'Inicio de sesión'),
-                'description' => __($langGroup, 'Recomendado 1000 × 1080 px.'),
+                'description' => __($langGroup, 'Recomendado 1600 × 1800 px.'),
             ]);
         ?>
         <?php
@@ -56,8 +56,8 @@ $backgroundCard = function (array $card) use ($helpController, $actionURL, $lang
                     'description' => __($langGroup, 'Se muestra al azar en el panel izquierdo del inicio de sesión.'),
                     'image' => $loginCard['image'],
                     'field' => $loginCard['field'],
-                    'width' => 1000,
-                    'height' => 1080,
+                    'width' => 1600,
+                    'height' => 1800,
                     'deleteValue' => $loginCard['image'],
                     'deleteDisabledReason' => $imagesCount <= 1 ? $onlyOneText : '',
                 ]);

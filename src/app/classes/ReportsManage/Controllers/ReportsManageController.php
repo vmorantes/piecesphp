@@ -99,8 +99,9 @@ class ReportsManageController extends AdminPanelController
 
         import_echarts();
 
+        //Lo de las tarjetas de estadística que el tema no trae (los dos botones de esquina, entre otros).
         set_custom_assets([
-            ReportsManageRoutes::staticRoute(self::BASE_CSS_DIR . '/generic-report.css'),
+            'statics/core/css/graphs-and-statistics.css',
         ], 'css');
         set_custom_assets([
             'statics/core/js/statistics-chart-legend.js',

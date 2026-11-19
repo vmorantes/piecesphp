@@ -105,8 +105,8 @@ $withHelpCenter = $manualChapters !== [] || $canContactSupport || $helpFaqURL !=
 
 $withAdminOptions = false;
 $withNews = NEWS_MODULE;
-//La campana sale siempre que haya sesión (ADR 0073); su número llega con la página.
-$notificationsUnread = \PiecesPHP\Notifications\Notifications::unread((int) $currentUser->id);
+//La campana sale con sesión y con NOTIFICATIONS_MODULE (ADR 0073); su número llega con la página.
+$notificationsUnread = \PiecesPHP\Notifications\NotificationsRoutes::ENABLE ? \PiecesPHP\Notifications\Notifications::unread((int) $currentUser->id) : 0;
 
 foreach ($adminOptionsGroups as $title => $config) {
     if ($config['visible']) {

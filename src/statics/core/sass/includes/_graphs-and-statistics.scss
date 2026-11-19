@@ -741,3 +741,71 @@ $dashboardCardGap: pxToRem(16);
     }
 
 }
+
+//Dos botones de esquina en una tarjeta de cifra (la ayuda y el plegado del Inicio): el tema pone todo `.right.floated`
+//en la misma esquina, así que el segundo se corre a la izquierda del primero y el título deja hueco para los dos.
+.ui.cards > .statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button,
+.ui.statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button {
+    right: calc(1.42857143rem + 1.42857143rem + 0.28571429rem);
+}
+
+.ui.cards > .statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button ~ .header,
+.ui.statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button ~ .header {
+    padding-right: 3.75rem;
+}
+
+@media only screen and (max-width: 767.98px) {
+
+    .ui.cards > .statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button,
+    .ui.statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button {
+        right: calc(1.28571429rem + 1.71428571rem + 0.28571429rem);
+    }
+}
+
+//Las tarjetas del Inicio (home.php): la cifra arriba, bajo el título, y a la izquierda como su rótulo, como la
+//tarjeta-resumen del tema. El tema la empuja al fondo del contenido (margin-top: auto) y centra el valor sobre el rótulo.
+[data-dashboard] .ui.cards > .statistic.card > .content > .ui.statistic,
+[data-dashboard] .ui.cards > .statistic.card > .content > .ui.flex:has(> .ui.statistic) {
+    margin-top: 0;
+}
+
+[data-dashboard] .ui.cards > .statistic.card > .content .ui.statistic > .value,
+[data-dashboard] .ui.cards > .statistic.card > .content .ui.statistic > .label {
+    text-align: start;
+}
+
+//El pie de una tarjeta que es enlace (acceso directo) lleva el texto suelto, no dentro de un <a>: sin esto toma
+//line-height 1 y el pie sale 6 px más bajo que los de su fila.
+.ui.cards > .link.statistic.card > .extra.content > .ui.text {
+    line-height: inherit;
+}
+
+//Hasta que el tema lo traiga: sale al traerlo (H359).
+.ui.swatch[data-series="other"] {
+    --swatch: var(--theme-text-muted);
+}
+
+//La leyenda de la dona interactiva (drawStatisticsDonut()): cada fila enciende o apaga su porción; la apagada, atenuada.
+.ui.square.chart ~ .ui.vertical.flex > [data-donut-linked][role="button"] {
+    cursor: pointer;
+}
+
+.ui.square.chart ~ .ui.vertical.flex > [data-donut-linked].series-hidden {
+    color: var(--theme-text-muted);
+}
+
+//La unidad del centro de la dona de proporción (chart-card.php, `unitShort`): la corta solo en el móvil.
+.ui.square.chart > .ui.statistic > .label > .unit-short {
+    display: none;
+}
+
+@media only screen and (max-width: 767.98px) {
+
+    .ui.square.chart > .ui.statistic > .label > .unit-long {
+        display: none;
+    }
+
+    .ui.square.chart > .ui.statistic > .label > .unit-short {
+        display: inline;
+    }
+}

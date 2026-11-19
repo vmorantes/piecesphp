@@ -11,6 +11,7 @@ use DataImportExportUtility\Definitions\UsersExportDefinition;
 use DataImportExportUtility\Examples\ExampleUsersReportExportDefinition;
 use Directory\Controllers\AllProfilesController;
 use Directory\Controllers\ProfileController;
+use Directory\DirectoryRoutes;
 use Directory\Geo\PersonsGeoSource;
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Controllers\OrganizationsController;
@@ -184,10 +185,19 @@ CliActions::make('unit-tests:core/deleted-user-gone', function ($args) {
 
         //─── a · Activo: todo lo ve (canarios) ────────────────────────────────────────────────────
         echoTerminal('[a] Activo: sale en cada sitio (CANARIOS)');
-        $check($enDirectorio($jwt['root']), 'a1 sale en el Directorio');
+        //El Directorio y la página de perfil son del módulo Directorio; el resto no.
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m a1: esta instalación tiene Directorio apagado y no hay Directorio ni página de perfil.");
+        } else {
+            $check($enDirectorio($jwt['root']), 'a1 sale en el Directorio');
+        }
         $check($enMapa(), 'a2 sale en el mapa');
-        $r = $pedir($pagina, $jwt['otro']);
-        $check($r['status'] === 200, 'a3 otro usuario ve su perfil', "HTTP {$r['status']}");
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m a3: esta instalación tiene Directorio apagado y no hay Directorio ni página de perfil.");
+        } else {
+            $r = $pedir($pagina, $jwt['otro']);
+            $check($r['status'] === 200, 'a3 otro usuario ve su perfil', "HTTP {$r['status']}");
+        }
         $check(array_key_exists((string) $borrado, UsersModel::allOrganizationUsersCanBeAdminForSelect($organizacionID)), 'a4 se puede elegir como encargado (selector)');
         $check($enFilas(UsersController::_all(1, 5000, UsersModel::TYPE_USER_ADMIN_ORG)->elements(), $usuarioBorrado), 'a5 sale en users-ajax-all');
         $check(array_key_exists($borrado, getAllUsersForSelect()), 'a6 sale en getAllUsersForSelect()');
@@ -214,12 +224,20 @@ CliActions::make('unit-tests:core/deleted-user-gone', function ($args) {
         $u = UsersModel::model();
         $u->resetAll();
         $u->update(['status' => UsersModel::STATUS_USER_DELETED])->where(['id' => $borrado])->execute();
-        $check(!$enDirectorio($jwt['root']), 'd1 no sale en el Directorio');
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m d1: esta instalación tiene Directorio apagado y no hay Directorio ni página de perfil.");
+        } else {
+            $check(!$enDirectorio($jwt['root']), 'd1 no sale en el Directorio');
+        }
         $check(!$enMapa(), 'd2 no sale en el mapa');
-        $r = $pedir($pagina, $jwt['otro']);
-        $check($r['status'] === 404, 'd3 su perfil da 404 a otro usuario', "HTTP {$r['status']}");
-        $r = $pedir($pagina, $jwt['root']);
-        $check($r['status'] === 404, 'd4 y a root', "HTTP {$r['status']}");
+        if (!DirectoryRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m d3 y d4: esta instalación tiene Directorio apagado y no hay Directorio ni página de perfil.");
+        } else {
+            $r = $pedir($pagina, $jwt['otro']);
+            $check($r['status'] === 404, 'd3 su perfil da 404 a otro usuario', "HTTP {$r['status']}");
+            $r = $pedir($pagina, $jwt['root']);
+            $check($r['status'] === 404, 'd4 y a root', "HTTP {$r['status']}");
+        }
         $check(!array_key_exists((string) $borrado, UsersModel::allOrganizationUsersCanBeAdminForSelect($organizacionID)), 'd5 no se ofrece como encargado (selector)');
         $check(!$enFilas(UsersController::_all(1, 5000, UsersModel::TYPE_USER_ADMIN_ORG)->elements(), $usuarioBorrado), 'd6 no sale en users-ajax-all');
         $check(!array_key_exists($borrado, getAllUsersForSelect()), 'd7 no sale en getAllUsersForSelect()');

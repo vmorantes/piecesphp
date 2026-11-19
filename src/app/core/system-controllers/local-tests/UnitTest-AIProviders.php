@@ -24,6 +24,7 @@ use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Mcp\Assistant;
+use PiecesPHP\Mcp\McpRoutes;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
@@ -278,78 +279,88 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
         echoTerminal(' ');
 
         //─── 6 · La puerta ───────────────────────────────────────────────────────────────────────
-        echoTerminal('[6] La puerta: función → registro → modelo');
+        //Fuera de la rama: 7 y 13e también los usan.
         $encendido = fn(array $asistente): array => ['enabled' => true, 'providers' => [
             ['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz A'],
             ['id' => 'zz-prov-b', 'type' => 'openrouter', 'alias' => 'Zz B'],
         ], 'capabilities' => [Assistant::CAPABILITY => array_merge(['enabled' => true, 'userTypes' => [], 'quota' => 0], $asistente)]];
-        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys(['zz-prov-a' => 'zz-clave-a']));
-        set_config('translationAI', AI_OPENAI);
-        set_config('modelOpenAI', 'zz-modelo-heredado');
-        $motivo = function (array $asistente) use ($encendido, $idRoot): ?string {
-            set_config(AIGateway::CONFIG_NAME, $encendido($asistente));
-            try {
-                AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-                return null;
-            } catch (AIUnavailableException $e) {
-                return $e->getMessage();
-            }
-        };
-        set_config(AIGateway::CONFIG_NAME, $encendido(['provider' => 'zz-prov-a', 'model' => 'zz-modelo-elegido']));
-        $elegido = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-        $check($elegido->recordId() === 'zz-prov-a' && $elegido->model() === 'zz-modelo-elegido' && AIGateway::usageProviderName($elegido) === 'zz-prov-a', '6a con provider y model: ese registro y ese modelo; se anota con su id', $elegido->recordId() . ' · ' . $elegido->model());
-        set_config(AIGateway::CONFIG_NAME, $encendido([]));
-        $heredado = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-        $check($heredado->recordId() === AIProviderRegistry::CONVERTED_OPENAI && $heredado->model() === 'zz-modelo-heredado' && AIGateway::usageProviderName($heredado) === AI_OPENAI, '6b sin ellos: el convertido de translationAI (openai con modelOpenAI), anotado como «OpenAI»', $heredado->recordId() . ' · ' . $heredado->model());
-        $noExiste = __('ai', 'El proveedor de inteligencia artificial elegido para esta función no existe.');
         $sinClave = __('ai', 'El proveedor de inteligencia artificial elegido para esta función no tiene clave.');
-        $noSabe = __('ai', 'El proveedor de inteligencia artificial elegido no sabe hacer lo que necesita esta función.');
-        $sinModelo = __('ai', 'Esta función de inteligencia artificial no tiene modelo elegido.');
-        $check($motivo(['provider' => 'zz-no-existe', 'model' => 'zz']) === $noExiste, '6c un registro que no existe: AIUnavailableException con su motivo');
-        $check($motivo(['provider' => 'zz-prov-b', 'model' => 'zz']) === $sinClave, '6d DISCRIMINANTE: un registro sin clave: «no tiene clave» (sin la comprobación, la puerta lo daría)');
-        //Antes con legacy-groq (solo voz), que ya no existe: el «no sabe hacer», con un registro sin voz para la voz a texto.
-        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz A']], 'capabilities' => [AIGateway::SPEECH_CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz']]]);
-        try {
-            AIGateway::speechProvider(AIGateway::SPEECH_CAPABILITY, new UserDataPackage($idRoot));
-            $vozSinVoz = null;
-        } catch (AIUnavailableException $e) {
-            $vozSinVoz = $e->getMessage();
+        //La puerta se mide con la capacidad del asistente, que solo existe con MCP encendido.
+        if (!McpRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 6a-6f: esta instalación tiene MCP apagado y la capacidad del asistente no está registrada.");
+        } else {
+            echoTerminal('[6] La puerta: función → registro → modelo');
+            set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys(['zz-prov-a' => 'zz-clave-a']));
+            set_config('translationAI', AI_OPENAI);
+            set_config('modelOpenAI', 'zz-modelo-heredado');
+            $motivo = function (array $asistente) use ($encendido, $idRoot): ?string {
+                set_config(AIGateway::CONFIG_NAME, $encendido($asistente));
+                try {
+                    AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+                    return null;
+                } catch (AIUnavailableException $e) {
+                    return $e->getMessage();
+                }
+            };
+            set_config(AIGateway::CONFIG_NAME, $encendido(['provider' => 'zz-prov-a', 'model' => 'zz-modelo-elegido']));
+            $elegido = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+            $check($elegido->recordId() === 'zz-prov-a' && $elegido->model() === 'zz-modelo-elegido' && AIGateway::usageProviderName($elegido) === 'zz-prov-a', '6a con provider y model: ese registro y ese modelo; se anota con su id', $elegido->recordId() . ' · ' . $elegido->model());
+            set_config(AIGateway::CONFIG_NAME, $encendido([]));
+            $heredado = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+            $check($heredado->recordId() === AIProviderRegistry::CONVERTED_OPENAI && $heredado->model() === 'zz-modelo-heredado' && AIGateway::usageProviderName($heredado) === AI_OPENAI, '6b sin ellos: el convertido de translationAI (openai con modelOpenAI), anotado como «OpenAI»', $heredado->recordId() . ' · ' . $heredado->model());
+            $noExiste = __('ai', 'El proveedor de inteligencia artificial elegido para esta función no existe.');
+            $noSabe = __('ai', 'El proveedor de inteligencia artificial elegido no sabe hacer lo que necesita esta función.');
+            $sinModelo = __('ai', 'Esta función de inteligencia artificial no tiene modelo elegido.');
+            $check($motivo(['provider' => 'zz-no-existe', 'model' => 'zz']) === $noExiste, '6c un registro que no existe: AIUnavailableException con su motivo');
+            $check($motivo(['provider' => 'zz-prov-b', 'model' => 'zz']) === $sinClave, '6d DISCRIMINANTE: un registro sin clave: «no tiene clave» (sin la comprobación, la puerta lo daría)');
+            //Antes con legacy-groq (solo voz), que ya no existe: el «no sabe hacer», con un registro sin voz para la voz a texto.
+            set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz A']], 'capabilities' => [AIGateway::SPEECH_CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz']]]);
+            try {
+                AIGateway::speechProvider(AIGateway::SPEECH_CAPABILITY, new UserDataPackage($idRoot));
+                $vozSinVoz = null;
+            } catch (AIUnavailableException $e) {
+                $vozSinVoz = $e->getMessage();
+            }
+            $check($vozSinVoz === $noSabe && $motivo(['provider' => 'zz-prov-a']) === $sinModelo, '6e un registro sin voz (DeepSeek) para la voz a texto: «no sabe hacer»; un registro sin modelo: «sin modelo»', (string) $vozSinVoz);
+            $check($motivo(['enabled' => false, 'provider' => 'zz-no-existe']) === AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage($idRoot)) && $motivo(['enabled' => false, 'provider' => 'zz-no-existe']) !== $noExiste, '6f denialReason antes que nada: apagada, el motivo es el de apagada aunque el registro no exista');
         }
-        $check($vozSinVoz === $noSabe && $motivo(['provider' => 'zz-prov-a']) === $sinModelo, '6e un registro sin voz (DeepSeek) para la voz a texto: «no sabe hacer»; un registro sin modelo: «sin modelo»', (string) $vozSinVoz);
-        $check($motivo(['enabled' => false, 'provider' => 'zz-no-existe']) === AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage($idRoot)) && $motivo(['enabled' => false, 'provider' => 'zz-no-existe']) !== $noExiste, '6f denialReason antes que nada: apagada, el motivo es el de apagada aunque el registro no exista');
         echoTerminal(' ');
 
         //─── 7 · El asistente por la puerta ──────────────────────────────────────────────────────
-        echoTerminal('[7] El asistente pide su proveedor a la puerta');
-        set_config(AIGateway::CONFIG_NAME, $encendido(['provider' => 'zz-prov-a', 'model' => 'zz-modelo-elegido']));
-        $cliente->status = 200;
-        $cliente->body = (string) json_encode(['id' => 'zz', 'object' => 'chat.completion', 'created' => 1, 'model' => 'zz', 'choices' => [['index' => 0, 'message' => ['role' => 'assistant', 'content' => 'zz-respuesta-del-asistente'], 'finish_reason' => 'stop']], 'usage' => ['prompt_tokens' => 3, 'completion_tokens' => 2, 'total_tokens' => 5]]);
-        $captura->exchangeArray([]);
-        AIGateway::setProviderHttpClientForTesting($cliente);
-        $antes = AIGateway::usage(Assistant::CAPABILITY, 'zz-prov-a');
-        $respuesta = Assistant::reply(new UserDataPackage($idRoot), 'zz');
-        $despues = AIGateway::usage(Assistant::CAPABILITY, 'zz-prov-a');
-        $check($respuesta['ok'] && !array_key_exists('reasoning_effort', (array) ($captura['cuerpo'] ?? [])) && $respuesta['answer'] === 'zz-respuesta-del-asistente' && ($captura['url'] ?? null) === 'https://api.deepseek.com/chat/completions' && ($captura['cuerpo']['model'] ?? null) === 'zz-modelo-elegido' && $despues - $antes === 5, '7a reply() por chatProvider(): el registro elegido (DeepSeek), su modelo, la respuesta y 5 tokens anotados como «zz-prov-a»; sin reasoning_effort', (string) json_encode(['ok' => $respuesta['ok'], 'url' => $captura['url'] ?? null, 'tokens' => $despues - $antes, 'error' => $respuesta['error']]));
-        //El coste del proveedor se suma en la fila del consumo (OpenRouter, usage.cost).
-        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'openrouter', 'alias' => 'Zz O']], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz-modelo']]]);
-        $cliente->body = (string) json_encode(['id' => 'zz', 'object' => 'chat.completion', 'created' => 1, 'model' => 'zz', 'choices' => [['index' => 0, 'message' => ['role' => 'assistant', 'content' => 'zz-con-coste'], 'finish_reason' => 'stop']], 'usage' => ['prompt_tokens' => 10, 'completion_tokens' => 5, 'total_tokens' => 15, 'cost' => 0.25]]);
-        $costeDe = function () use ($database): float {
-            $consulta = $database->prepare('SELECT COALESCE(SUM(reportedCostUsd), 0) FROM `' . AIUsageMapper::TABLE . '` WHERE capability = ? AND provider = ?');
-            $consulta->execute([Assistant::CAPABILITY, 'zz-prov-a']);
-            return (float) $consulta->fetchColumn();
-        };
-        $costeAntes = $costeDe();
-        $dos = [Assistant::reply(new UserDataPackage($idRoot), 'zz')['ok'], Assistant::reply(new UserDataPackage($idRoot), 'zz')['ok']];
-        $check($dos === [true, true] && abs($costeDe() - $costeAntes - 0.5) < 1e-9, '7c dos respuestas de OpenRouter con cost 0.25: la fila del consumo suma 0.5 en reportedCostUsd', (string) ($costeDe() - $costeAntes));
-        //Groq con gpt-oss: el esfuerzo más bajo documentado (https://console.groq.com/docs/reasoning); con otro modelo, nada.
-        $esfuerzos = [];
-        foreach (['openai/gpt-oss-20b', 'llama-3.3-70b-versatile'] as $modeloGroq) {
-            set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'groq', 'alias' => 'Zz G']], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => $modeloGroq]]]);
+        if (!McpRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 7a-7c: esta instalación tiene MCP apagado y la capacidad del asistente no está registrada.");
+        } else {
+            echoTerminal('[7] El asistente pide su proveedor a la puerta');
+            set_config(AIGateway::CONFIG_NAME, $encendido(['provider' => 'zz-prov-a', 'model' => 'zz-modelo-elegido']));
+            $cliente->status = 200;
+            $cliente->body = (string) json_encode(['id' => 'zz', 'object' => 'chat.completion', 'created' => 1, 'model' => 'zz', 'choices' => [['index' => 0, 'message' => ['role' => 'assistant', 'content' => 'zz-respuesta-del-asistente'], 'finish_reason' => 'stop']], 'usage' => ['prompt_tokens' => 3, 'completion_tokens' => 2, 'total_tokens' => 5]]);
             $captura->exchangeArray([]);
-            $respuestaGroq = Assistant::reply(new UserDataPackage($idRoot), 'zz');
-            $esfuerzos[$modeloGroq] = $respuestaGroq['ok'] ? (((array) ($captura['cuerpo'] ?? []))['reasoning_effort'] ?? '(sin)') : 'ERROR ' . (string) $respuestaGroq['error'];
+            AIGateway::setProviderHttpClientForTesting($cliente);
+            $antes = AIGateway::usage(Assistant::CAPABILITY, 'zz-prov-a');
+            $respuesta = Assistant::reply(new UserDataPackage($idRoot), 'zz');
+            $despues = AIGateway::usage(Assistant::CAPABILITY, 'zz-prov-a');
+            $check($respuesta['ok'] && !array_key_exists('reasoning_effort', (array) ($captura['cuerpo'] ?? [])) && $respuesta['answer'] === 'zz-respuesta-del-asistente' && ($captura['url'] ?? null) === 'https://api.deepseek.com/chat/completions' && ($captura['cuerpo']['model'] ?? null) === 'zz-modelo-elegido' && $despues - $antes === 5, '7a reply() por chatProvider(): el registro elegido (DeepSeek), su modelo, la respuesta y 5 tokens anotados como «zz-prov-a»; sin reasoning_effort', (string) json_encode(['ok' => $respuesta['ok'], 'url' => $captura['url'] ?? null, 'tokens' => $despues - $antes, 'error' => $respuesta['error']]));
+            //El coste del proveedor se suma en la fila del consumo (OpenRouter, usage.cost).
+            set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'openrouter', 'alias' => 'Zz O']], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz-modelo']]]);
+            $cliente->body = (string) json_encode(['id' => 'zz', 'object' => 'chat.completion', 'created' => 1, 'model' => 'zz', 'choices' => [['index' => 0, 'message' => ['role' => 'assistant', 'content' => 'zz-con-coste'], 'finish_reason' => 'stop']], 'usage' => ['prompt_tokens' => 10, 'completion_tokens' => 5, 'total_tokens' => 15, 'cost' => 0.25]]);
+            $costeDe = function () use ($database): float {
+                $consulta = $database->prepare('SELECT COALESCE(SUM(reportedCostUsd), 0) FROM `' . AIUsageMapper::TABLE . '` WHERE capability = ? AND provider = ?');
+                $consulta->execute([Assistant::CAPABILITY, 'zz-prov-a']);
+                return (float) $consulta->fetchColumn();
+            };
+            $costeAntes = $costeDe();
+            $dos = [Assistant::reply(new UserDataPackage($idRoot), 'zz')['ok'], Assistant::reply(new UserDataPackage($idRoot), 'zz')['ok']];
+            $check($dos === [true, true] && abs($costeDe() - $costeAntes - 0.5) < 1e-9, '7c dos respuestas de OpenRouter con cost 0.25: la fila del consumo suma 0.5 en reportedCostUsd', (string) ($costeDe() - $costeAntes));
+            //Groq con gpt-oss: el esfuerzo más bajo documentado (https://console.groq.com/docs/reasoning); con otro modelo, nada.
+            $esfuerzos = [];
+            foreach (['openai/gpt-oss-20b', 'llama-3.3-70b-versatile'] as $modeloGroq) {
+                set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'groq', 'alias' => 'Zz G']], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => $modeloGroq]]]);
+                $captura->exchangeArray([]);
+                $respuestaGroq = Assistant::reply(new UserDataPackage($idRoot), 'zz');
+                $esfuerzos[$modeloGroq] = $respuestaGroq['ok'] ? (((array) ($captura['cuerpo'] ?? []))['reasoning_effort'] ?? '(sin)') : 'ERROR ' . (string) $respuestaGroq['error'];
+            }
+            $check($esfuerzos === ['openai/gpt-oss-20b' => 'low', 'llama-3.3-70b-versatile' => '(sin)'], '7b Groq: gpt-oss-20b sale con reasoning_effort «low»; llama-3.3-70b-versatile, sin él', (string) json_encode($esfuerzos));
         }
-        $check($esfuerzos === ['openai/gpt-oss-20b' => 'low', 'llama-3.3-70b-versatile' => '(sin)'], '7b Groq: gpt-oss-20b sale con reasoning_effort «low»; llama-3.3-70b-versatile, sin él', (string) json_encode($esfuerzos));
         echoTerminal(' ');
 
         //─── 8 · El guardado de Configuración › IA ───────────────────────────────────────────────
@@ -380,16 +391,20 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
         $otro = $rechazo($formulario([$fila(['type' => AIProviderCatalog::TYPE_CUSTOM, 'alias' => 'Zz Otro', 'baseUrl' => 'http://otro.com'])]));
         $inventado = $rechazo($formulario([$fila(['id' => 'p-000000000000'])]), $centro);
         $check(mb_strpos($repetido, __('appConfig', 'Sobrenombre')) !== false && mb_strpos($otro, __('appConfig', 'Dirección base')) !== false && mb_strpos($otro, 'Zz Otro') !== false && $inventado !== '', '8c sobrenombre repetido (sin distinguir mayúsculas), un Personalizado con http://otro.com y un id que no está guardado: rechazados con su campo y su registro', "{$repetido} · {$otro}");
-        $conAsistente = SettingsController::aiCenterFromInput($formulario([$fila(['id' => $nuevoId])], ['provider' => $nuevoId, 'model' => 'zz-modelo-8'])[AIGateway::CONFIG_NAME], $centro);
-        $enUso = $rechazo($formulario([], ['provider' => $nuevoId, 'model' => 'zz-modelo-8']), $conAsistente);
-        $cambiaYQuita = $rechazo($formulario([], ['provider' => '', 'model' => '']), $conAsistente);
-        $check(mb_strpos($enUso, $nombreAsistente) !== false && $cambiaYQuita === '' && in_array('zz-modelo-8', $conAsistente['providers'][0]['models'] ?? [], true), '8d quitar un registro que usa el asistente: rechazado, nombrando la función; si en el mismo guardado se le quita, pasa; y el modelo elegido queda como sugerencia', $enUso);
-        $conAsistente['enabled'] = true;
-        $conAsistente['capabilities'][Assistant::CAPABILITY]['enabled'] = true;
-        set_config(AIGateway::CONFIG_NAME, $conAsistente);
-        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys($claves));
-        $resuelto = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-        $check($resuelto->recordId() === $nuevoId && $resuelto->model() === 'zz-modelo-8', '8e la función con su proveedor y su modelo guardados resuelve por chatProvider()', $resuelto->recordId() . ' · ' . $resuelto->model());
+        if (!McpRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 8d-8e: esta instalación tiene MCP apagado y la capacidad del asistente no está registrada.");
+        } else {
+            $conAsistente = SettingsController::aiCenterFromInput($formulario([$fila(['id' => $nuevoId])], ['provider' => $nuevoId, 'model' => 'zz-modelo-8'])[AIGateway::CONFIG_NAME], $centro);
+            $enUso = $rechazo($formulario([], ['provider' => $nuevoId, 'model' => 'zz-modelo-8']), $conAsistente);
+            $cambiaYQuita = $rechazo($formulario([], ['provider' => '', 'model' => '']), $conAsistente);
+            $check(mb_strpos($enUso, $nombreAsistente) !== false && $cambiaYQuita === '' && in_array('zz-modelo-8', $conAsistente['providers'][0]['models'] ?? [], true), '8d quitar un registro que usa el asistente: rechazado, nombrando la función; si en el mismo guardado se le quita, pasa; y el modelo elegido queda como sugerencia', $enUso);
+            $conAsistente['enabled'] = true;
+            $conAsistente['capabilities'][Assistant::CAPABILITY]['enabled'] = true;
+            set_config(AIGateway::CONFIG_NAME, $conAsistente);
+            set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys($claves));
+            $resuelto = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+            $check($resuelto->recordId() === $nuevoId && $resuelto->model() === 'zz-modelo-8', '8e la función con su proveedor y su modelo guardados resuelve por chatProvider()', $resuelto->recordId() . ' · ' . $resuelto->model());
+        }
         echoTerminal(' ');
 
         //─── 9 · «Probar» ────────────────────────────────────────────────────────────────────────
@@ -429,13 +444,17 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
 
         //─── 10 · La cuota del registro y el tope por tipo ───────────────────────────────────────
         echoTerminal('[10] La cuota del registro deniega aunque la de la función no; el tope con el nombre de cada tipo');
-        //Con clave: desde JKM, denialReason() también mira el proveedor, y este caso mide solo la cuota.
-        set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys(['zz-prov-a' => 'zz-clave-a']));
-        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz con cuota', 'quota' => 10, 'period' => 'monthly', 'periodLength' => 1]], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz-modelo']]]);
-        $libre = AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-        AIGateway::recordUsage(Assistant::CAPABILITY, 'zz-prov-a', 10);
-        $llena = AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-        $check($libre === null && AIGateway::providerUsage('zz-prov-a') === 10 && $llena === strReplaceTemplate(__('ai', 'Se alcanzó la cuota del proveedor «%alias%» en este periodo.'), ['%alias%' => 'Zz con cuota']), '10a DISCRIMINANTE: con 10 tokens gastados y cuota 10, la puerta deniega por el proveedor (la función no tiene cuota)', (string) $llena);
+        if (!McpRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 10a: esta instalación tiene MCP apagado y la capacidad del asistente no está registrada.");
+        } else {
+            //Con clave: desde JKM, denialReason() también mira el proveedor, y este caso mide solo la cuota.
+            set_config(AIProviderRegistry::KEYS_CONFIG_NAME, AIProviderRegistry::sealKeys(['zz-prov-a' => 'zz-clave-a']));
+            set_config(AIGateway::CONFIG_NAME, ['enabled' => true, 'providers' => [['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz con cuota', 'quota' => 10, 'period' => 'monthly', 'periodLength' => 1]], 'capabilities' => [Assistant::CAPABILITY => ['enabled' => true, 'userTypes' => [], 'quota' => 0, 'provider' => 'zz-prov-a', 'model' => 'zz-modelo']]]);
+            $libre = AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+            AIGateway::recordUsage(Assistant::CAPABILITY, 'zz-prov-a', 10);
+            $llena = AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+            $check($libre === null && AIGateway::providerUsage('zz-prov-a') === 10 && $llena === strReplaceTemplate(__('ai', 'Se alcanzó la cuota del proveedor «%alias%» en este periodo.'), ['%alias%' => 'Zz con cuota']), '10a DISCRIMINANTE: con 10 tokens gastados y cuota 10, la puerta deniega por el proveedor (la función no tiene cuota)', (string) $llena);
+        }
         $topes = [];
         foreach (['openai' => 'max_completion_tokens', 'mistral' => 'max_tokens'] as $tipo => $campo) {
             $cliente->status = 200;
@@ -473,64 +492,68 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
         $check($openai !== null && $openai->keySource() === AIProviderRecord::KEY_SOURCE_STORED && $openai->keyFile() === null && $openai->key() === 'zz-clave-openai-12' && $openai->models() === ['zz-modelo-propio-12'] && $openai->alias() === 'OpenAI'
             && $groq !== null && $groq->keySource() === AIProviderRecord::KEY_SOURCE_FILE && $groq->keyFile() === 'groq' && $groq->models() === [AIGateway::LEGACY_DEFAULT_MODEL_GROQ]
             && !isset($convertidos[AIProviderRegistry::CONVERTED_MISTRAL]), '12a all() da los convertidos: openai «stored» con su clave y su modelo, groq «file» (lo fija el archivo) con el modelo por omisión, y sin Mistral (sin clave)', implode(', ', array_keys($convertidos)));
-        //La tabla de ANTES, con las reglas de antes (las de resolveChatProvider() y speechProvider() hasta la v10.28.0), sobre
-        //los mismos datos; los ids heredados, a su convertido.
-        $tablaAntes = function () use ($capacidades): array {
-            $tabla = [];
+        if (!McpRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 12b-12e: esta instalación tiene MCP apagado y la capacidad del asistente no está registrada.");
+        } else {
+            //La tabla de ANTES, con las reglas de antes (las de resolveChatProvider() y speechProvider() hasta la v10.28.0), sobre
+            //los mismos datos; los ids heredados, a su convertido.
+            $tablaAntes = function () use ($capacidades): array {
+                $tabla = [];
+                foreach ($capacidades as $capacidad) {
+                    $esVoz = $capacidad === AIGateway::SPEECH_CAPABILITY;
+                    $id = $esVoz ? AIProviderRegistry::LEGACY_GROQ : match (get_config('translationAI')) {
+                        AI_OPENAI => AIProviderRegistry::LEGACY_OPENAI,
+                        AI_MISTRAL => AIProviderRegistry::LEGACY_MISTRAL,
+                        default => null,
+                    };
+                    [$opcion, $omision] = match ($id) {
+                        AIProviderRegistry::LEGACY_OPENAI => ['modelOpenAI', AIGateway::LEGACY_DEFAULT_MODEL_OPENAI],
+                        AIProviderRegistry::LEGACY_MISTRAL => ['modelMistral', AIGateway::LEGACY_DEFAULT_MODEL_MISTRAL],
+                        default => ['modelGroq', AIGateway::LEGACY_DEFAULT_MODEL_GROQ],
+                    };
+                    $configurado = get_config($opcion);
+                    $tabla[$capacidad] = [$id !== null ? AIProviderRegistry::LEGACY_ALIASES[$id] : null, is_string($configurado) && trim($configurado) !== '' ? $configurado : $omision];
+                }
+                return $tabla;
+            };
+            //La de AHORA, por la puerta de verdad (chatProvider() y speechProvider()), no por effectiveSelectionFor() solo.
+            $tablaAhora = function () use ($capacidades, $idRoot): array {
+                $tabla = [];
+                foreach ($capacidades as $capacidad) {
+                    $proveedor = $capacidad === AIGateway::SPEECH_CAPABILITY ? AIGateway::speechProvider($capacidad, new UserDataPackage($idRoot)) : AIGateway::chatProvider($capacidad, new UserDataPackage($idRoot));
+                    $tabla[$capacidad] = [$proveedor->recordId(), $proveedor->model()];
+                }
+                return $tabla;
+            };
+            $antes = $tablaAntes();
+            $ahora = $tablaAhora();
+            $tablasMedidas['12b'] = ['antes' => $antes, 'ahora' => $ahora];
+            $check($ahora === $antes, '12b la tabla capacidad → (registro, modelo) de translation, assistant y speech-to-text es IDÉNTICA a la de antes', (string) json_encode(['antes' => $antes, 'ahora' => $ahora]));
+            set_config('translationAI', AI_MISTRAL);
+            set_config('MistralAIApiKey', 'zz-clave-mistral-12');
+            $antesMistral = $tablaAntes();
+            $ahoraMistral = $tablaAhora();
+            $tablasMedidas['12c'] = ['antes' => $antesMistral, 'ahora' => $ahoraMistral];
+            $check($ahoraMistral === $antesMistral && $ahoraMistral[AIGateway::TRANSLATION_CAPABILITY] === [AIProviderRegistry::CONVERTED_MISTRAL, AIGateway::LEGACY_DEFAULT_MODEL_MISTRAL], '12c con Mistral en translationAI y sin modelMistral: idéntica, mistral con su modelo por omisión', (string) json_encode($ahoraMistral));
+            $antiguas();
+            set_config(AIGateway::CONFIG_NAME, $centroSinMarca([Assistant::CAPABILITY => $encendidas + ['provider' => AIProviderRegistry::LEGACY_OPENAI, 'model' => 'zz-modelo-alias']]));
+            $alias = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+            $check($alias->recordId() === AIProviderRegistry::CONVERTED_OPENAI && $alias->model() === 'zz-modelo-alias' && AIGateway::usageProviderName($alias) === AI_OPENAI, '12d una función guardada con provider legacy-openai resuelve al convertido openai (y se anota como «OpenAI»)', $alias->recordId());
+            //Con la marca: nada lee las opciones viejas.
+            set_config(AIGateway::CONFIG_NAME, ['enabled' => true, AIProviderRegistry::CONVERTED_FLAG => true, 'capabilities' => array_fill_keys($capacidades, $encendidas)]);
+            $sinElegido = __('ai', 'No hay ningún proveedor de inteligencia artificial elegido para esta función.');
+            $motivos = [];
             foreach ($capacidades as $capacidad) {
-                $esVoz = $capacidad === AIGateway::SPEECH_CAPABILITY;
-                $id = $esVoz ? AIProviderRegistry::LEGACY_GROQ : match (get_config('translationAI')) {
-                    AI_OPENAI => AIProviderRegistry::LEGACY_OPENAI,
-                    AI_MISTRAL => AIProviderRegistry::LEGACY_MISTRAL,
-                    default => null,
-                };
-                [$opcion, $omision] = match ($id) {
-                    AIProviderRegistry::LEGACY_OPENAI => ['modelOpenAI', AIGateway::LEGACY_DEFAULT_MODEL_OPENAI],
-                    AIProviderRegistry::LEGACY_MISTRAL => ['modelMistral', AIGateway::LEGACY_DEFAULT_MODEL_MISTRAL],
-                    default => ['modelGroq', AIGateway::LEGACY_DEFAULT_MODEL_GROQ],
-                };
-                $configurado = get_config($opcion);
-                $tabla[$capacidad] = [$id !== null ? AIProviderRegistry::LEGACY_ALIASES[$id] : null, is_string($configurado) && trim($configurado) !== '' ? $configurado : $omision];
+                try {
+                    $capacidad === AIGateway::SPEECH_CAPABILITY ? AIGateway::speechProvider($capacidad, new UserDataPackage($idRoot)) : AIGateway::chatProvider($capacidad, new UserDataPackage($idRoot));
+                    $motivos[$capacidad] = null;
+                } catch (AIUnavailableException $e) {
+                    $motivos[$capacidad] = $e->getMessage();
+                }
             }
-            return $tabla;
-        };
-        //La de AHORA, por la puerta de verdad (chatProvider() y speechProvider()), no por effectiveSelectionFor() solo.
-        $tablaAhora = function () use ($capacidades, $idRoot): array {
-            $tabla = [];
-            foreach ($capacidades as $capacidad) {
-                $proveedor = $capacidad === AIGateway::SPEECH_CAPABILITY ? AIGateway::speechProvider($capacidad, new UserDataPackage($idRoot)) : AIGateway::chatProvider($capacidad, new UserDataPackage($idRoot));
-                $tabla[$capacidad] = [$proveedor->recordId(), $proveedor->model()];
-            }
-            return $tabla;
-        };
-        $antes = $tablaAntes();
-        $ahora = $tablaAhora();
-        $tablasMedidas['12b'] = ['antes' => $antes, 'ahora' => $ahora];
-        $check($ahora === $antes, '12b la tabla capacidad → (registro, modelo) de translation, assistant y speech-to-text es IDÉNTICA a la de antes', (string) json_encode(['antes' => $antes, 'ahora' => $ahora]));
-        set_config('translationAI', AI_MISTRAL);
-        set_config('MistralAIApiKey', 'zz-clave-mistral-12');
-        $antesMistral = $tablaAntes();
-        $ahoraMistral = $tablaAhora();
-        $tablasMedidas['12c'] = ['antes' => $antesMistral, 'ahora' => $ahoraMistral];
-        $check($ahoraMistral === $antesMistral && $ahoraMistral[AIGateway::TRANSLATION_CAPABILITY] === [AIProviderRegistry::CONVERTED_MISTRAL, AIGateway::LEGACY_DEFAULT_MODEL_MISTRAL], '12c con Mistral en translationAI y sin modelMistral: idéntica, mistral con su modelo por omisión', (string) json_encode($ahoraMistral));
-        $antiguas();
-        set_config(AIGateway::CONFIG_NAME, $centroSinMarca([Assistant::CAPABILITY => $encendidas + ['provider' => AIProviderRegistry::LEGACY_OPENAI, 'model' => 'zz-modelo-alias']]));
-        $alias = AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-        $check($alias->recordId() === AIProviderRegistry::CONVERTED_OPENAI && $alias->model() === 'zz-modelo-alias' && AIGateway::usageProviderName($alias) === AI_OPENAI, '12d una función guardada con provider legacy-openai resuelve al convertido openai (y se anota como «OpenAI»)', $alias->recordId());
-        //Con la marca: nada lee las opciones viejas.
-        set_config(AIGateway::CONFIG_NAME, ['enabled' => true, AIProviderRegistry::CONVERTED_FLAG => true, 'capabilities' => array_fill_keys($capacidades, $encendidas)]);
-        $sinElegido = __('ai', 'No hay ningún proveedor de inteligencia artificial elegido para esta función.');
-        $motivos = [];
-        foreach ($capacidades as $capacidad) {
-            try {
-                $capacidad === AIGateway::SPEECH_CAPABILITY ? AIGateway::speechProvider($capacidad, new UserDataPackage($idRoot)) : AIGateway::chatProvider($capacidad, new UserDataPackage($idRoot));
-                $motivos[$capacidad] = null;
-            } catch (AIUnavailableException $e) {
-                $motivos[$capacidad] = $e->getMessage();
-            }
+            set_config('OpenAIApiKey', 'zz-clave-cambiada-12');
+            $check(array_unique($motivos) === [AIGateway::TRANSLATION_CAPABILITY => $sinElegido] && AIProviderRegistry::all() === [] && AIProviderRegistry::convertedPending() === [], '12e DISCRIMINANTE: con la marca y sin registro elegido, las tres funciones no están disponibles con su motivo, y cambiar OpenAIApiKey no crea nada', (string) json_encode($motivos, \JSON_UNESCAPED_UNICODE));
         }
-        set_config('OpenAIApiKey', 'zz-clave-cambiada-12');
-        $check(array_unique($motivos) === [AIGateway::TRANSLATION_CAPABILITY => $sinElegido] && AIProviderRegistry::all() === [] && AIProviderRegistry::convertedPending() === [], '12e DISCRIMINANTE: con la marca y sin registro elegido, las tres funciones no están disponibles con su motivo, y cambiar OpenAIApiKey no crea nada', (string) json_encode($motivos, \JSON_UNESCAPED_UNICODE));
         ConfigOptions::swapFixedByFileForTesting($fijadasPorArchivo);
         echoTerminal(' ');
 
@@ -588,15 +611,19 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
         $captura->exchangeArray([]);
         $conId = $probar(['id' => 'zz-prov-f', 'model' => 'zz', 'keySource' => 'file', 'keyFile' => 'openai']);
         $check(($conId['message'] ?? null) === __('appConfig', 'No está en el archivo de claves.') && $captura->getArrayCopy() === [], '13d «Probar» con id: el keyFile de la petición (openai) se ignora; manda el suyo, que no está en el archivo, y no sale nada', (string) ($conId['message'] ?? ''));
-        $registroF = AIProviderRegistry::get('zz-prov-f');
-        $check($registroF !== null && !$registroF->hasKey() && (function () use ($idRoot, $sinClave): bool {
-            try {
-                AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
-                return false;
-            } catch (AIUnavailableException $e) {
-                return $e->getMessage() === $sinClave;
-            }
-        })(), '13e un registro «file» con un nombre que no está en el archivo: hasKey() false (la clave escrita no cuenta) y «no tiene clave»');
+        if (!McpRoutes::ENABLE) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m 13e: esta instalación tiene MCP apagado y la capacidad del asistente no está registrada.");
+        } else {
+            $registroF = AIProviderRegistry::get('zz-prov-f');
+            $check($registroF !== null && !$registroF->hasKey() && (function () use ($idRoot, $sinClave): bool {
+                try {
+                    AIGateway::chatProvider(Assistant::CAPABILITY, new UserDataPackage($idRoot));
+                    return false;
+                } catch (AIUnavailableException $e) {
+                    return $e->getMessage() === $sinClave;
+                }
+            })(), '13e un registro «file» con un nombre que no está en el archivo: hasKey() false (la clave escrita no cuenta) y «no tiene clave»');
+        }
         $conArchivo = $formulario([$fila(['id' => '', '_newId' => 'p-0000000000aa', 'alias' => 'Zz archivo', 'keySource' => 'file', 'keyFile' => 'ai-openai-zz', 'key' => 'zz-no-se-guarda'])]);
         $centroArchivo = SettingsController::aiCenterFromInput($conArchivo[AIGateway::CONFIG_NAME], null);
         $idArchivo = (string) ($centroArchivo['providers'][0]['id'] ?? '');
@@ -764,7 +791,11 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
             $conLargo = $rechazo($formulario([], ['provider' => 'zz-prov-a', 'model' => $largo]), ['providers' => [['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz A']]]);
             $conJusto = $rechazo($formulario([$fila(['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz A'])], ['provider' => 'zz-prov-a', 'model' => str_repeat('m', AIGateway::MODEL_ID_MAX_LENGTH)]), ['providers' => [['id' => 'zz-prov-a', 'type' => 'deepseek', 'alias' => 'Zz A']]]);
             $probarLargo = $probar(['type' => 'openai', 'model' => $largo, 'key' => 'zz']);
-            $check(mb_strpos($conLargo, __('appConfig', 'Modelo')) !== false && $conJusto === '' && ($probarLargo['message'] ?? null) === __('appConfig', 'El modelo no vale: como mucho 128 caracteres.'), '16b un modelo de 129 se rechaza al guardar («Modelo») y en «Probar»; uno de 128, no', (string) json_encode([$conLargo, $conJusto, $probarLargo['message'] ?? null], \JSON_UNESCAPED_UNICODE));
+            //El guardado valida el modelo de la capacidad del asistente: sin MCP no está registrada y no se valida.
+            if (!McpRoutes::ENABLE) {
+                echoTerminal("   \e[33m[OMITIDA]\e[39m 16b no mira el guardado: esta instalación tiene MCP apagado y la capacidad del asistente no está registrada.");
+            }
+            $check((!McpRoutes::ENABLE || mb_strpos($conLargo, __('appConfig', 'Modelo')) !== false) && $conJusto === '' && ($probarLargo['message'] ?? null) === __('appConfig', 'El modelo no vale: como mucho 128 caracteres.'), '16b un modelo de 129 se rechaza al guardar («Modelo») y en «Probar»; uno de 128, no', (string) json_encode([$conLargo, $conJusto, $probarLargo['message'] ?? null], \JSON_UNESCAPED_UNICODE));
         } finally {
             AICapabilityRegistry::swapForTesting($registroCapacidades);
             $database = (new BaseModel())->getDatabase();
