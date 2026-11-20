@@ -344,7 +344,7 @@ window.addEventListener('load', () => {
 	radiusSelect.on('change', setRadius)
 
 	//Un solo formulario en dos pestañas: si la otra tiene cambios sin guardar, Guardar también los guarda, y se avisa.
-	const OTHER_PANE = { colores: 'tipografia', tipografia: 'colores' }
+	const OTHER_PANE = { colors: 'typography', typography: 'colors' }
 	const savedPanes = {}
 	const paneState = (tab) => JSON.stringify(form.find(`.ui.tab[data-tab="${tab}"] [name]`).not('[name="harmony"]').map(function () {
 		return this.type === 'radio' ? (this.checked ? `${this.name}=${this.value}` : null) : `${this.name}=${$(this).val()}`

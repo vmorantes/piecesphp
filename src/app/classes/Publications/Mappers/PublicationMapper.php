@@ -425,7 +425,7 @@ class PublicationMapper extends EntityMapperExtensible
 
     /**
      * Quién ve lo que NO es público (borrador, programado, sin aprobar): quien ve borradores y, si no puede verlo
-     * todo, solo lo de su organización (la del creador); sin ella, nada. Quien aprueba de todas (CAN_APPROVAL_ALL) ve
+     * todo, solo lo de su organización (la del creador; con el módulo de organizaciones encendido); sin ella, nada. Quien aprueba de todas (CAN_APPROVAL_ALL) ve
      * además lo que espera su aprobación. Es la regla de la vista individual, de la API y de los archivos: el slug y
      * el id se pueden fabricar, así que ninguna salida puede ser más generosa que el listado (pendientes.md 380-382).
      *
@@ -443,6 +443,10 @@ class PublicationMapper extends EntityMapperExtensible
             return true;
         }
         if ($pendingApproval && in_array((int) $user->type, \SystemApprovals\Mappers\SystemApprovalsMapper::CAN_APPROVAL_ALL)) {
+            return true;
+        }
+        //Con Organizaciones apagado la organización no acota (P384 a): basta el permiso de borradores.
+        if (!\Organizations\OrganizationsRoutes::enabled()) {
             return true;
         }
         $own = $user->organization;

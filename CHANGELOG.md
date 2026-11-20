@@ -1,3 +1,49 @@
+# 10.55.0 (19-11-2026)
+
+- **Seguridad: los listados de usuarios del panel muestran a cada uno solo los usuarios que puede gestionar.** Se
+  recomienda actualizar.
+- **Imágenes de marca, en tres pestañas**: «Imágenes», «Cargador» y **«Vista previa»**, que simula con lo guardado, en
+  claro y en oscuro lado a lado, el menú expandido y contraído, la barra del móvil, la columna del inicio de sesión, el
+  cargador, la página de error, el encabezado de un correo y la pestaña del navegador, y se actualiza al guardar.
+- **El cargador, con interruptores**: «Animación», «Logo» y «Pantalla de carga», encendidos de fábrica; apagar no borra
+  la imagen. Con los tres apagados queda un aro sencillo. El mensaje y el porcentaje salen cuando quien abre el
+  cargador los pasa, y el mensaje se anuncia a los lectores de pantalla. **En Imágenes de marca ya no se elimina
+  ninguna imagen** (solo se cambia), para que un proyecto no vuelva por error a la marca de PiecesPHP.
+- **La pantalla de carga**: una imagen a pantalla completa detrás del cargador, para escritorio y para móvil
+  (vertical), con su versión oscura, animada (GIF; el usuario principal, también SVG) o fija (PNG, JPG o WebP), de
+  hasta 3 MB y 4096 px de lado. De fábrica trae cuatro, animadas y con el centro limpio, en los colores de la marca y
+  sin logo; con «Reducir movimiento» se quedan quietas. La animación, el logo, el mensaje y el porcentaje van encima,
+  centrados, sin franja. Si subes tu pantalla de escritorio y no la de móvil, el móvil usa la tuya recortada al centro.
+  Cada carga descarga solo la que toca según el modo y la orientación. Un **área de pruebas** lanza el cargador en
+  cada combinación.
+- **Las imágenes que subes en Imágenes de marca se guardan sin sus datos ocultos** (ubicación, cámara, autoría),
+  conservando solo lo que interviene en cómo se pintan, incluida la orientación de una foto de móvil. Si el servidor
+  rechaza una subida por su tamaño, el mensaje dice su tope.
+- **En el inicio de sesión**, la tira de patrocinadores se ve a su tamaño (280 px de ancho), el logo del desarrollador a
+  la altura de su texto, y el velo es difuso y sin borde, con el texto blanco legible también sobre una foto blanca.
+- **El tema, a la 0.21.0** (pasando por la 0.20.0): en las leyendas de las gráficas, la muestra de color se centra en la
+  primera línea del nombre y «Otros» toma el color del tema.
+- **Las pestañas de «Estilo del panel» e Imágenes de marca se nombran en inglés en la dirección** (`#colors`,
+  `#typography`, `#accessibility`, `#images`, `#loader`, `#preview`); las de antes, en español, siguen abriendo su pestaña
+  hasta la `11.0.0`.
+- **Con el módulo de Organizaciones apagado, nadie gana ni pierde acceso por su organización**: el encargado de una
+  organización no recibe permisos, «Mi organización» no aparece, aprobar o rechazar una organización no arrastra a sus
+  usuarios, el estado de la organización no impide entrar, y Publicaciones no acota por organización ni los listados
+  ni la edición ni la vista previa. Con el módulo encendido, nada cambia. Un alta que requiere aprobación ya no se aprueba sola por estar en la organización global: se aprueba en Aprobaciones. Al guardar un usuario, su organización no cambia, y los nuevos quedan en la global.
+- **Para quien desarrolla**: los interruptores son las opciones `loaderAnimationEnabled`, `loaderLogoEnabled` y
+  `loaderScreenEnabled` (`SettingsController::LOADER_LAYERS_ENABLED`); las pantallas, `loaderScreen*` y
+  `loaderScreenMobile*`, con sus `data-loader-*` en el `<html>`. `BRAND_IMAGES_EMPTY_IS_OFF` y la petición de borrar una
+  imagen de marca quedan en desuso hasta la `11.0.0` (la petición responde 400). La barra superior del panel vive en
+  `src/app/view/panel/layout/header-bar.php`, que incluyen el layout y la vista previa: si tu proyecto cambió la barra
+  en su copia de `header.php`, llévalo a ese parcial.
+- **Al actualizar (Organizaciones apagado)**: si tu proyecto tiene Organizaciones apagado, el estado de una
+  organización deja de impedir el acceso a sus usuarios (para cortar el acceso a alguien, inactiva su usuario), y los
+  tipos de usuario administrativos propios de tu proyecto pasan a actuar sobre todo su rango, sin el límite de la
+  organización.
+- **Al actualizar**: aplica `bin/cli db-update`: el cambio de esta versión pasa las imágenes del cargador que tenías
+  «eliminadas» a su interruptor apagado. Si nunca subiste una pantalla de carga, pasarás a ver la de fábrica; apágala
+  con su interruptor si no la quieres.
+
 # 10.54.0 (19-11-2026)
 
 - **Directorio, Mapa de contenidos, Notificaciones y el asistente se apagan desde tu proyecto**: `DIRECTORY_MODULE`,

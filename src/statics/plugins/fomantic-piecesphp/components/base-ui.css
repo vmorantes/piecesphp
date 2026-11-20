@@ -366,6 +366,21 @@
   color: var(--theme-text);
 }
 
+:where(.ui, .dt-container) [data-theme="light"]:not(:root), [data-theme="light"]:not(:root):where(.ui, .dt-container) {
+  color: var(--theme-text);
+  background-color: var(--theme-page);
+}
+
+:where(.ui, .dt-container) [data-theme="dark"]:not(:root), [data-theme="dark"]:not(:root):where(.ui, .dt-container) {
+  color: var(--theme-text);
+  background-color: var(--theme-page);
+}
+
+:where(.ui, .dt-container) [data-theme="auto"]:not(:root), [data-theme="auto"]:not(:root):where(.ui, .dt-container) {
+  color: var(--theme-text);
+  background-color: var(--theme-page);
+}
+
 :where(.ui, .dt-container):not(:where(.ui, .dt-container) *) {
   font-size: var(--font-size-base);
 }

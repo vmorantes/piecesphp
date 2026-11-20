@@ -19,6 +19,7 @@ use MySpace\Controllers\MyProfileController;
 use MySpace\MySpaceRoutes;
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
+use Organizations\OrganizationsRoutes;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
@@ -73,7 +74,7 @@ if (!in_array($current_type_user, $externalUsers)) {
                     new MenuItem([
                         'text' => __(ADMIN_MENU_LANG_GROUP, 'Mi organización'),
                         'href' => MyOrganizationProfileController::routeName('my-organization-profile', [], true),
-                        'visible' => MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($current_type_user, OrganizationMapper::PROFILE_EDITOR),
+                        'visible' => OrganizationsRoutes::enabled() && MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($current_type_user, OrganizationMapper::PROFILE_EDITOR),
                     ]),
                 ],
             ]),

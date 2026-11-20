@@ -72,10 +72,12 @@ class SettingsRoutes
 
         //Fondos e imágenes de marca (la de los problemas de usuario la siembra el arranque).
         $declare(['backgrounds'], $owner, ConfigOptions::SHAPE_JSON);
-        $declare(['backgoundProblems', 'favicon', 'favicon-back', 'logo', 'partners', 'partnersVertical', 'mailingLogo', 'loaderAnimation', 'loaderLogo'], $owner, ConfigOptions::SHAPE_TEXT);
+        $declare(['backgoundProblems', 'favicon', 'favicon-back', 'logo', 'partners', 'partnersVertical', 'mailingLogo', 'loaderAnimation', 'loaderLogo', 'loaderScreen', 'loaderScreenMobile'], $owner, ConfigOptions::SHAPE_TEXT);
         //El texto sobre el patrocinador, uno por idioma (SettingsController::partnersTextOptionName()).
         $declare(array_map(fn (string $lang) => SettingsController::partnersTextOptionName($lang), Config::get_allowed_langs()), $owner, ConfigOptions::SHAPE_TEXT);
         $declare(array_values(SettingsController::BRAND_IMAGES_INVERT_ON_DARK), $owner, ConfigOptions::SHAPE_BOOL);
+        //Los interruptores del cargador: '1' o '0', y sin opción, encendida.
+        $declare(array_values(SettingsController::LOADER_LAYERS_ENABLED), $owner, ConfigOptions::SHAPE_BOOL);
         //Lo que enseña cada imagen de marca en modo oscuro (H340): su modo y su imagen oscura.
         $declare(array_merge(...array_map('array_values', array_values(SettingsController::BRAND_IMAGES_DARK_MODE))), $owner, ConfigOptions::SHAPE_TEXT);
 

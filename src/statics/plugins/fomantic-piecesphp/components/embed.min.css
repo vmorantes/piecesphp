@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.19.0 - Embed
+ * # Fomantic-UI 0.21.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

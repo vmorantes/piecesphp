@@ -129,7 +129,7 @@ CliActions::make('unit-tests:core/style-panel', function ($args) {
         echoTerminal(' ');
         echoTerminal('[r] La ruta vieja lleva a la pestaña');
         $r = $pedir($camino($accesibilidad), $jwtRoot);
-        $check($r['status'] === 302 && str_ends_with($r['location'], '#accesibilidad') && $camino(explode('#', $r['location'])[0]) === $camino($colores), 'r1 appearance-accessibility: 302 a appearance-colors#accesibilidad', "HTTP {$r['status']}, Location {$r['location']}");
+        $check($r['status'] === 302 && str_ends_with($r['location'], '#accessibility') && $camino(explode('#', $r['location'])[0]) === $camino($colores), 'r1 appearance-accessibility: 302 a appearance-colors#accessibility', "HTTP {$r['status']}, Location {$r['location']}");
 
         echoTerminal(' ');
         echoTerminal('[t] La pantalla');
@@ -149,9 +149,9 @@ CliActions::make('unit-tests:core/style-panel', function ($args) {
         /** @var \Closure(string): list<\DOMElement> $nodos */
         $nodos = fn (string $consulta): array => array_values(array_filter(iterator_to_array($xpath->query($consulta) ?: new \ArrayIterator([])), fn ($nodo): bool => $nodo instanceof \DOMElement));
         $pestanas = array_map(fn (\DOMElement $nodo): string => $nodo->getAttribute('data-tab'), $nodos("//*[@data-style-panel-tabs]//*[@data-tab]"));
-        $check($r['status'] === 200 && $pestanas === ['colores', 'tipografia', 'accesibilidad'], 't1 tres pestañas: Colores, Tipografía y forma, Accesibilidad', "HTTP {$r['status']}, " . json_encode($pestanas));
+        $check($r['status'] === 200 && $pestanas === ['colors', 'typography', 'accessibility'], 't1 tres pestañas: Colores, Tipografía y forma, Accesibilidad', "HTTP {$r['status']}, " . json_encode($pestanas));
         $paneles = array_map(fn (\DOMElement $nodo): string => $nodo->getAttribute('data-tab'), $nodos("//div[contains(concat(' ', @class, ' '), ' tab ')][@data-tab]"));
-        $check($paneles === ['colores', 'tipografia', 'accesibilidad'] && count($nodos("//form[@colors-form]//div[@data-tab='colores' or @data-tab='tipografia']")) === 2 && count($nodos("//div[@data-tab='accesibilidad']//form[@accessibility-form]")) === 1, 't2 un panel por pestaña: las dos primeras en el formulario de colores, la tercera con el de accesibilidad', (string) json_encode($paneles));
+        $check($paneles === ['colors', 'typography', 'accessibility'] && count($nodos("//form[@colors-form]//div[@data-tab='colors' or @data-tab='typography']")) === 2 && count($nodos("//div[@data-tab='accessibility']//form[@accessibility-form]")) === 1, 't2 un panel por pestaña: las dos primeras en el formulario de colores, la tercera con el de accesibilidad', (string) json_encode($paneles));
         $muestras = $nodos('//iframe[@data-style-preview]');
         $esperado = ['light' => __(SettingsController::LANG_GROUP, 'Muestra en modo claro'), 'dark' => __(SettingsController::LANG_GROUP, 'Muestra en modo oscuro')];
         $vistas = [];
@@ -195,15 +195,15 @@ CliActions::make('unit-tests:core/style-panel', function ($args) {
             $restablecer[$nombre] = json_decode($boton->getAttribute('style-reset'), true);
         }
         $valores = fn (string $pestana): array => is_array($restablecer[$pestana]['values'] ?? null) ? $restablecer[$pestana]['values'] : [];
-        $check(array_keys($restablecer) === ['colores', 'tipografia', 'accesibilidad'] && count(array_filter($restablecer, fn ($uno): bool => is_array($uno) && ($uno['items'] ?? []) !== [] && ($uno['title'] ?? '') !== '')) === 3, 'f1 un Restablecer por pestaña, con su título y su lista', (string) json_encode(array_keys($restablecer)));
-        $colorFabrica = $valores('colores');
+        $check(array_keys($restablecer) === ['colors', 'typography', 'accessibility'] && count(array_filter($restablecer, fn ($uno): bool => is_array($uno) && ($uno['items'] ?? []) !== [] && ($uno['title'] ?? '') !== '')) === 3, 'f1 un Restablecer por pestaña, con su título y su lista', (string) json_encode(array_keys($restablecer)));
+        $colorFabrica = $valores('colors');
         $series = array_intersect_key($colorFabrica, array_flip(array_values(SettingsController::DATA_TOKENS)));
         $check(($colorFabrica['main_brand_color'] ?? null) === SettingsController::FACTORY_COLORS['main_brand_color'] && ($colorFabrica['main_brand_color_dark'] ?? null) === '' && ($colorFabrica['second_brand_color'] ?? null) === SettingsController::FACTORY_COLORS['second_brand_color'] && ($colorFabrica['third_brand_color'] ?? null) === SettingsController::FACTORY_COLORS['third_brand_color'] && ($colorFabrica['browser_bar'] ?? null) === SettingsController::BROWSER_BAR_ACCENT && count($series) === 4 && array_values(array_unique($series)) === [''], 'f2 Colores: acentos de fábrica, oscuro y series vacíos, barra con el acento', (string) json_encode($colorFabrica));
         $guardado = ['theme_font' => SettingsController::themeFont(), 'theme_font_size' => SettingsController::themeFontSize(), 'theme_radius' => SettingsController::themeRadius()];
         $check(array_intersect_key($colorFabrica, $guardado) === $guardado, 'f3 y la tipografía, la guardada: no la de fábrica ni la editada', (string) json_encode(array_intersect_key($colorFabrica, $guardado)));
-        $tipoFabrica = $valores('tipografia');
+        $tipoFabrica = $valores('typography');
         $check(($tipoFabrica['theme_font'] ?? null) === SettingsController::THEME_FONT_FACTORY && ($tipoFabrica['theme_font_size'] ?? null) === SettingsController::THEME_FONT_SIZE_FACTORY && ($tipoFabrica['theme_radius'] ?? null) === SettingsController::THEME_RADIUS_FACTORY && ($tipoFabrica['main_brand_color'] ?? null) === SettingsController::themeTokens()['accent'], 'f4 Tipografía: fuente, tamaño y radio de fábrica; los colores, los guardados', (string) json_encode($tipoFabrica));
-        $check($valores('accesibilidad') === SettingsController::ACCESSIBILITY_FACTORY, 'f5 Accesibilidad: los siete de ACCESSIBILITY_FACTORY', (string) json_encode($valores('accesibilidad')));
+        $check($valores('accessibility') === SettingsController::ACCESSIBILITY_FACTORY, 'f5 Accesibilidad: los siete de ACCESSIBILITY_FACTORY', (string) json_encode($valores('accessibility')));
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');

@@ -54,6 +54,7 @@ use PiecesPHP\Settings\Mail\MailTester;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Settings\SettingsRoutes;
 use PiecesPHP\Settings\Uploads\GifStructureValidator;
+use PiecesPHP\Settings\Uploads\ImageMetadataStripper;
 use PiecesPHP\Settings\Uploads\SvgWhitelistValidator;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\ServerDelegatedLinks;
@@ -88,6 +89,9 @@ class SettingsController extends AdminPanelController
         //El SVG y el GIF de fábrica de la animación, el de hoy y los anteriores.
         'loaderAnimation' => ['24e8de007b908f0fe65dd22d561537a3dfaa1a37', '05423f01ecaf50b4a6ebfbdf1e26b439b9c3215a', '8cb66d7d24cd62352b3c021137e3d00db0fbe5ef', '325da5872e027530321fe7bfbfb60ee61183792d'],
         'loaderLogo' => ['267a9e14146deb1b23e52417da4512737bbceaa2'],
+        //Las pantallas de carga de fábrica (P383): SVG animados, con el centro limpio.
+        'loaderScreen' => ['a5cd5f810389a8cb739718978b24fb55161c3191'],
+        'loaderScreenMobile' => ['9d759ff771ab335dcf2db8049d54387a3c4f1569'],
     ];
 
     /**
@@ -97,12 +101,34 @@ class SettingsController extends AdminPanelController
     const FACTORY_BRAND_IMAGE_DEFAULTS = [
         'loaderAnimation' => 'statics/images/loader-animation.svg',
         'loaderLogo' => 'statics/images/loader-logo.png',
+        'loaderScreen' => 'statics/images/loader-screen.svg',
+        'loaderScreenMobile' => 'statics/images/loader-screen-mobile.svg',
     ];
 
     /**
-     * Las imágenes cuya opción guardada vacía es «apagada» y no la de fábrica: «Eliminar» del logo del cargador guarda ''.
+     * Imagen => la que tiene que ser de fábrica para que esa tome la suya de FACTORY_BRAND_IMAGE_DEFAULTS. Ver brandImagePath().
      */
-    const BRAND_IMAGES_EMPTY_IS_OFF = ['loaderLogo'];
+    const FACTORY_DEFAULT_ONLY_WITH_FACTORY = [
+        'loaderScreenMobile' => 'loaderScreen',
+    ];
+
+    /**
+     * Guardada vacía = apagada, lo que dejaba el «Eliminar» de antes; lo limpia la actualización del 2026-11-19.
+     * @deprecated 11.0.0 Lo sustituye LOADER_LAYERS_ENABLED.
+     */
+    const BRAND_IMAGES_EMPTY_IS_OFF = self::EMPTY_IS_OFF_UNTIL_MIGRATED;
+
+    /** La lista de dentro, sin el aviso de desuso: brandImagePath() la sigue leyendo hasta la 11.0.0. */
+    private const EMPTY_IS_OFF_UNTIL_MIGRATED = ['loaderAnimation', 'loaderLogo', 'loaderScreen', 'loaderScreenMobile'];
+
+    /**
+     * Capa => su opción ('1'/'0'; sin opción, encendida); apagar no borra ni descarga la imagen. Sin mensaje ni porcentaje.
+     */
+    const LOADER_LAYERS_ENABLED = [
+        'animation' => 'loaderAnimationEnabled',
+        'logo' => 'loaderLogoEnabled',
+        'screen' => 'loaderScreenEnabled',
+    ];
 
     /**
      * La animación de carga subida (H345): GIF o SVG, tal cual, hasta este tamaño.
@@ -114,6 +140,23 @@ class SettingsController extends AdminPanelController
      * el navegador reserva su memoria al pintarlo.
      */
     const LOADER_ANIMATION_MAX_SIDE = 4096;
+
+    /**
+     * La pantalla de carga subida (H417), tal cual: se pinta mientras carga la página y tiene que llegar antes que ella.
+     */
+    const LOADER_SCREEN_MAX_BYTES = 3 * 1024 * 1024;
+
+    /**
+     * Las imágenes que se suben tal cual, sin recortador: opción => [nombre del archivo, si es una pantalla de carga].
+     */
+    const BRAND_IMAGES_DIRECT_UPLOAD = [
+        'loaderAnimation' => ['loader-animation', false],
+        'loaderAnimationDark' => ['loader-animation-dark', false],
+        'loaderScreen' => ['loader-screen', true],
+        'loaderScreenDark' => ['loader-screen-dark', true],
+        'loaderScreenMobile' => ['loader-screen-mobile', true],
+        'loaderScreenMobileDark' => ['loader-screen-mobile-dark', true],
+    ];
 
     /**
      * El logo del desarrollador que trae el framework (config.php, `developer_logo`).
@@ -152,6 +195,8 @@ class SettingsController extends AdminPanelController
         'partnersVertical' => ['mode' => 'partnersVerticalDarkMode', 'image' => 'partnersVerticalDark'],
         'loaderAnimation' => ['mode' => 'loaderAnimationDarkMode', 'image' => 'loaderAnimationDark'],
         'loaderLogo' => ['mode' => 'loaderLogoDarkMode', 'image' => 'loaderLogoDark'],
+        'loaderScreen' => ['mode' => 'loaderScreenDarkMode', 'image' => 'loaderScreenDark'],
+        'loaderScreenMobile' => ['mode' => 'loaderScreenMobileDarkMode', 'image' => 'loaderScreenMobileDark'],
     ];
 
     const BRAND_IMAGE_DARK_SAME = 'same';
@@ -168,6 +213,8 @@ class SettingsController extends AdminPanelController
         'partnersVertical' => 'statics/images/partners-vertical-dark.png',
         'loaderAnimation' => 'statics/images/loader-animation-dark.svg',
         'loaderLogo' => 'statics/images/white-logo.png',
+        'loaderScreen' => 'statics/images/loader-screen-dark.svg',
+        'loaderScreenMobile' => 'statics/images/loader-screen-mobile-dark.svg',
     ];
 
     /**
@@ -183,6 +230,13 @@ class SettingsController extends AdminPanelController
      * @var array<string,bool>
      */
     private static array $factoryBrandImageCache = [];
+
+    /**
+     * Las hojas de la página para las muestras (themePreviewDocument()), leídas una vez por petición.
+     *
+     * @var string|null
+     */
+    private static ?string $themePreviewHead = null;
 
     const LANG_GROUP = 'appConfig';
 
@@ -604,7 +658,7 @@ class SettingsController extends AdminPanelController
 
                 if ($fileHandler->validate()) {
 
-                    $relativePath = self::storeSettingsUpload($fileHandler, $nameCurrentAllowedImage, 'login-backgrounds', $nameImage);
+                    $relativePath = self::storeSettingsUpload($fileHandler, $nameCurrentAllowedImage, 'login-backgrounds', $nameImage, $storeError);
 
                     if ($relativePath !== null) {
 
@@ -638,7 +692,7 @@ class SettingsController extends AdminPanelController
                             ->setSuccessOnSingleOperation($updated);
 
                     } else {
-                        $result->setMessage($unknowErrorMessage);
+                        $result->setMessage($storeError ?? $unknowErrorMessage);
                     }
 
                 } else {
@@ -780,10 +834,12 @@ class SettingsController extends AdminPanelController
      * @param string $field El campo de $_FILES
      * @param string $type login-backgrounds, brand u open-graph
      * @param string $name El de la opción: dos opciones con la misma imagen no comparten archivo, y borrar una no rompe la otra
+     * @param string|null $error Con null devuelto, el motivo ya traducido si lo hay; si no, null
      * @return string|null La ruta relativa, o null si no se guardó
      */
-    public static function storeSettingsUpload(FileUpload $fileHandler, string $field, string $type, string $name): ?string
+    public static function storeSettingsUpload(FileUpload $fileHandler, string $field, string $type, string $name, ?string &$error = null): ?string
     {
+        $error = null;
         $temporary = is_string($_FILES[$field]['tmp_name'] ?? null) ? $_FILES[$field]['tmp_name'] : '';
         $clientName = is_string($_FILES[$field]['name'] ?? null) ? $_FILES[$field]['name'] : '';
         $extension = ProtectedUploads::safeExtension($temporary, pathinfo($clientName, \PATHINFO_EXTENSION));
@@ -797,22 +853,34 @@ class SettingsController extends AdminPanelController
         if ($file === '' || !is_file($file)) {
             return null;
         }
+        $img = false;
+        //Con @: un JPG de 12 bits o un WebP que GD no entiende avisa, y aquí abortaría; el false se trata abajo.
         if ($extension === 'webp') {
-            $img = imagecreatefromwebp($file);
+            $img = @imagecreatefromwebp($file);
             if ($img !== false) {
                 imagewebp($img, $file, 70);
             }
         } elseif ($extension === 'jpg') {
-            $img = imagecreatefromjpeg($file);
+            $img = @imagecreatefromjpeg($file);
             if ($img !== false) {
                 imagejpeg($img, $file, 70);
             }
         } elseif ($extension === 'png') {
-            $img = imagecreatefrompng($file);
+            $img = @imagecreatefrompng($file);
             if ($img !== false) {
                 imagealphablending($img, false);
                 imagesavealpha($img, true);
                 imagepng($img, $file, 9);
+            }
+        }
+        //Lo que GD no decodifica se guardaba con sus bytes originales, y con ellos su EXIF: se limpia o se rechaza.
+        if ($img === false) {
+            $stripped = ImageMetadataStripper::strip((string) file_get_contents($file), $extension);
+            if ($stripped === null || file_put_contents($file, $stripped, \LOCK_EX) !== strlen($stripped)) {
+                //RETORNO-IGNORADO: el archivo no se queda; si ya no existe, no hay nada que borrar.
+                @unlink($file);
+                $error = $stripped === null ? __(self::LANG_GROUP, 'La imagen está incompleta o mal formada.') : null;
+                return null;
             }
         }
         return self::settleSettingsImage($file, $type, $name);
@@ -993,13 +1061,29 @@ class SettingsController extends AdminPanelController
         $requestMethod = mb_strtoupper($req->getMethod());
         set_title(__(self::LANG_GROUP, 'Imágenes de marca'));
 
-        if ($requestMethod == 'GET') {
+        if ($requestMethod == 'GET' && $req->getQueryParam('preview', null) === 'yes') {
+
+            //Solo la vista previa (H416), sin el armazón: logos-favicons.js la pide al guardar una imagen. Misma ruta y permiso.
+            $res = $res->write((string) $this->settingsViews->render('panel/pages/app_configurations/inc/brand-previews', [
+                'langGroup' => $langGroup,
+            ], false));
+
+        } elseif ($requestMethod == 'GET' && $req->getQueryParam('loader', null) === 'yes') {
+
+            //Los data-loader-* guardados, para el área de pruebas de la pestaña «Cargador» (H417): el <html> de la página es de cuando se abrió.
+            $res = $res->withJson(['attributes' => self::loaderAttributeValues(), 'screenAvailable' => self::loaderScreenAvailable()]);
+
+        } elseif ($requestMethod == 'GET') {
 
             import_cropper();
 
             set_custom_assets([
+                SettingsRoutes::staticRoute('js/theme-preview.js'),
                 SettingsRoutes::staticRoute('js/logos-favicons.js'),
             ], 'js');
+            set_custom_assets([
+                SettingsRoutes::staticRoute('css/theme-preview.css'),
+            ], 'css');
 
             $actionURL = self::routeName('appearance-brand-images');
 
@@ -1014,6 +1098,12 @@ class SettingsController extends AdminPanelController
                 'loaderAnimation' => self::brandImagePath('loaderAnimation'),
                 'loaderAnimationSize' => self::imageFileSize(self::brandImagePath('loaderAnimation')),
                 'loaderLogo' => self::brandImagePath('loaderLogo'),
+                'loaderScreen' => self::brandImagePath('loaderScreen'),
+                'loaderScreenSize' => self::imageFileSize(self::brandImagePath('loaderScreen')),
+                'loaderScreenMobile' => self::brandImagePath('loaderScreenMobile'),
+                'loaderScreenMobileSize' => self::imageFileSize(self::brandImagePath('loaderScreenMobile')),
+                'loaderScreenAvailable' => self::loaderScreenAvailable(),
+                'loaderLayers' => array_combine(array_keys(self::LOADER_LAYERS_ENABLED), array_map(fn (string $layer): bool => self::loaderLayerEnabled($layer), array_keys(self::LOADER_LAYERS_ENABLED))),
                 'canUploadSvg' => self::canUploadSvgBrandImages(),
                 'mailingLogo' => mailing_logo(),
                 'partnersTexts' => array_combine(Config::get_allowed_langs(), array_map(fn (string $lang): string => self::storedPartnersText($lang), Config::get_allowed_langs())),
@@ -1080,37 +1170,37 @@ class SettingsController extends AdminPanelController
                 ->setSuccessOnSingleOperation($saved);
             $res = $res->withJson($result);
 
-        } elseif ($requestMethod == 'POST' && $req->getParsedBodyParam('deleteBrandImage', null) === 'loaderLogo') {
+        } elseif ($requestMethod == 'POST' && is_string($req->getParsedBodyParam('loaderLayer', null))) {
 
-            //«Eliminar» del logo del cargador (H345): la clara se guarda '' (apagado; borrarla traería la de fábrica), y su oscura y su modo se borran.
-            $result = new ResultOperations([], __(self::LANG_GROUP, 'Logo del cargador'));
+            //Un interruptor de «Qué enseña el cargador»: se guarda al cambiarlo, como «En modo oscuro». Solo las capas de la lista y '1' o '0'.
+            $layer = (string) $req->getParsedBodyParam('loaderLayer', '');
+            $enabled = $req->getParsedBodyParam('enabled', null);
+            $valid = array_key_exists($layer, self::LOADER_LAYERS_ENABLED) && ($enabled === '1' || $enabled === '0');
+            $saved = $valid && SettingsModel::setConfigValue(self::LOADER_LAYERS_ENABLED[$layer], $enabled);
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Qué enseña el cargador'));
             $result->setSingleOperation(true);
-            $saved = true;
-            foreach (['loaderLogo', self::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'], self::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']] as $optionName) {
-                $oldImage = get_config($optionName);
-                if ($optionName === 'loaderLogo') {
-                    $saved = SettingsModel::setConfigValue($optionName, '') && $saved;
-                } elseif ($oldImage === false) {
-                    continue;
-                } else {
-                    $saved = SettingsModel::deleteConfigValue($optionName) && $saved;
-                }
-                if (is_string($oldImage) && $oldImage !== '') {
-                    //RETORNO-IGNORADO: la opción ya no apunta al archivo; uno que no se borra solo ocupa sitio, y deleteSettingsImage() lo registra.
-                    self::deleteSettingsImage($oldImage);
-                }
-            }
-            self::clearBrandImageCache();
             $result
-                ->setMessage($saved ? __(self::LANG_GROUP, 'Logo del cargador quitado.') : __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'))
+                ->setMessage($saved ? __(self::LANG_GROUP, 'Preferencia guardada.') : __(self::LANG_GROUP, 'Información faltante o inesperada.'))
                 ->setSuccessOnSingleOperation($saved);
             $res = $res->withJson($result);
 
-        } elseif ($requestMethod == 'POST' && (isset($_FILES['loaderAnimation']) || isset($_FILES[self::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image']]))) {
+        } elseif ($requestMethod == 'POST' && $req->getParsedBodyParam('deleteBrandImage', null) !== null) {
 
-            //La animación de carga y su oscura (H345): GIF o SVG tal cual, sin recortador; el SVG, por lista blanca y solo del principal.
-            $optionName = isset($_FILES['loaderAnimation']) ? 'loaderAnimation' : self::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image'];
-            $stored = self::storeLoaderAnimationUpload($optionName, $optionName === 'loaderAnimation' ? 'loader-animation' : 'loader-animation-dark');
+            //@deprecated 11.0.0: el «Eliminar» de las imágenes de marca ya no existe (PO: en un proyecto vivo volverían las de
+            //PiecesPHP). Se responde 400 con el motivo, sin tocar nada, para quien aún lo mande; se retira en la 11.0.0.
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
+            $result->setSingleOperation(true);
+            $result
+                ->setMessage(__(self::LANG_GROUP, 'Las imágenes de marca ya no se eliminan: cámbiala por otra o apágala con su interruptor en «Qué enseña el cargador».'))
+                ->setSuccessOnSingleOperation(false);
+            $res = $res->withStatus(400)->withJson($result);
+
+        } elseif ($requestMethod == 'POST' && array_intersect(array_keys(self::BRAND_IMAGES_DIRECT_UPLOAD), array_keys($_FILES)) !== []) {
+
+            //La animación de carga (H345) y las pantallas de carga (H417), con sus oscuras: tal cual, sin recortador; el SVG, por lista blanca y solo del principal.
+            $optionName = (string) array_values(array_intersect(array_keys(self::BRAND_IMAGES_DIRECT_UPLOAD), array_keys($_FILES)))[0];
+            [$fileName, $isScreen] = self::BRAND_IMAGES_DIRECT_UPLOAD[$optionName];
+            $stored = self::storeDirectBrandUpload($optionName, $fileName, $isScreen);
             $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
             $result->setSingleOperation(true);
             $saved = false;
@@ -1175,7 +1265,7 @@ class SettingsController extends AdminPanelController
 
                 if ($fileHandler->validate()) {
 
-                    $relativePath = self::storeSettingsUpload($fileHandler, $nameCurrentAllowedImage, 'brand', $nameImage);
+                    $relativePath = self::storeSettingsUpload($fileHandler, $nameCurrentAllowedImage, 'brand', $nameImage, $storeError);
 
                     if ($relativePath !== null) {
 
@@ -1199,7 +1289,7 @@ class SettingsController extends AdminPanelController
                         }
 
                     } else {
-                        $result->setMessage($unknowErrorMessage);
+                        $result->setMessage($storeError ?? $unknowErrorMessage);
                     }
 
                 } else {
@@ -1207,7 +1297,13 @@ class SettingsController extends AdminPanelController
                 }
 
             } else {
-                $result->setMessage($unexpectedOrMissedParamMessage);
+                //Un archivo que pasa del tope del servidor llega sin archivo: se dice el tope, no «información faltante».
+                //Y si pasó de post_max_size no llega ni el nombre del campo: lo dice CONTENT_LENGTH.
+                $sizeError = self::postSizeErrorMessage();
+                foreach (array_keys($allowedImages) as $imageName) {
+                    $sizeError ??= self::uploadSizeErrorMessage($_FILES[$imageName]['error'] ?? null);
+                }
+                $result->setMessage($sizeError ?? $unexpectedOrMissedParamMessage);
             }
 
             $res = $res->withJson($result);
@@ -1501,7 +1597,7 @@ class SettingsController extends AdminPanelController
                             $openGraphMapper = new SettingsModel($nameOptionOG);
                             $oldImage = is_string($openGraphMapper->value) ? $openGraphMapper->value : '';
 
-                            $relativePath = self::storeSettingsUpload($fileHandler, $nameImageUploaded, 'open-graph', self::seoOptionName('open_graph', $lang));
+                            $relativePath = self::storeSettingsUpload($fileHandler, $nameImageUploaded, 'open-graph', self::seoOptionName('open_graph', $lang), $storeError);
 
                             if ($relativePath !== null) {
 
@@ -1521,6 +1617,7 @@ class SettingsController extends AdminPanelController
 
                             } else {
                                 $success = false;
+                                $unknowErrorMessage = $storeError ?? $unknowErrorMessage;
                             }
 
                         } else {
@@ -3045,11 +3142,12 @@ class SettingsController extends AdminPanelController
         set_custom_assets(array_merge([
             //statisticsChartThemeColors(): colors.js mide con él el acento de oscuro que calcula el tema.
             'statics/core/js/statistics-chart-legend.js',
+            SettingsRoutes::staticRoute('js/theme-preview.js'),
             SettingsRoutes::staticRoute('js/style-panel.js'),
             SettingsRoutes::staticRoute('js/colors.js'),
         ], $accessibilityVisible ? [SettingsRoutes::staticRoute('js/accessibility.js')] : []), 'js');
         set_custom_assets([
-            SettingsRoutes::staticRoute('css/style-panel.css'),
+            SettingsRoutes::staticRoute('css/theme-preview.css'),
         ], 'css');
 
         $tokens = self::themeTokens();
@@ -3087,13 +3185,6 @@ class SettingsController extends AdminPanelController
             'theme_radius' => self::THEME_RADIUS_FACTORY,
         ];
 
-        //Los del SITIO (lo guardado en Accesibilidad), no las preferencias de quien edita: sin data-theme, cada muestra fija el suyo.
-        $previewAttributes = '';
-        foreach (['data-text-size' => self::accessibilityTextSize(), 'data-contrast' => self::accessibilityContrast(), 'data-motion' => self::accessibilityMotion(), 'data-focus' => self::accessibilityFocus(), 'data-text-spacing' => self::accessibilityTextSpacing(), 'data-transparency' => self::accessibilityTransparency()] as $previewName => $previewValue) {
-            $previewAttributes .= " {$previewName}=\"" . escape_html($previewValue) . '"';
-        }
-        $previewAttributes .= self::loaderHtmlAttributes();
-
         $data = [
             'langGroup' => $langGroup,
             'actionURL' => self::routeName('appearance-colors-save'),
@@ -3118,7 +3209,6 @@ class SettingsController extends AdminPanelController
             'textSpacing' => self::accessibilityTextSpacing(),
             'transparency' => self::accessibilityTransparency(),
             'resetAccessibility' => self::ACCESSIBILITY_FACTORY,
-            'previewAttributes' => $previewAttributes,
         ] + $this->sectionHeader(__($langGroup, 'Estilo del panel'), __($langGroup, 'Cómo se ve el panel: el acento y la paleta de las gráficas, la letra y la forma, y la accesibilidad de quien no ha elegido la suya.'));
 
         $this->render('panel/layout/header');
@@ -3249,7 +3339,7 @@ class SettingsController extends AdminPanelController
      */
     public function accessibilityView(Request $req, Response $res)
     {
-        return self::redirectToPanelStyle($req, $res, '#accesibilidad');
+        return self::redirectToPanelStyle($req, $res, '#accessibility');
     }
 
     /**
@@ -4003,7 +4093,8 @@ class SettingsController extends AdminPanelController
     /**
      * La ruta de una imagen de marca: su opción si es un texto no vacío; si no, la de fábrica de
      * FACTORY_BRAND_IMAGE_DEFAULTS (la animación de carga de una instalación anterior), o vacía. Una de
-     * BRAND_IMAGES_EMPTY_IS_OFF guardada vacía da vacía: está apagada.
+     * BRAND_IMAGES_EMPTY_IS_OFF guardada vacía da vacía: está apagada. La de fábrica de FACTORY_DEFAULT_ONLY_WITH_FACTORY
+     * solo con la otra también de fábrica: la pantalla de móvil de fábrica no acompaña a una de escritorio propia.
      *
      * @param string $configName
      * @return string
@@ -4012,10 +4103,18 @@ class SettingsController extends AdminPanelController
     {
         $value = get_config($configName);
         $path = is_string($value) ? trim($value) : '';
-        if ($path === '' && is_string($value) && in_array($configName, self::BRAND_IMAGES_EMPTY_IS_OFF, true)) {
+        if ($path === '' && is_string($value) && in_array($configName, self::EMPTY_IS_OFF_UNTIL_MIGRATED, true)) {
             return '';
         }
-        return $path !== '' ? $path : (self::FACTORY_BRAND_IMAGE_DEFAULTS[$configName] ?? '');
+        if ($path !== '') {
+            return $path;
+        }
+        //Sin esto, una pantalla de escritorio propia sale en vertical con la de móvil de fábrica, con la marca de PiecesPHP.
+        $companion = self::FACTORY_DEFAULT_ONLY_WITH_FACTORY[$configName] ?? null;
+        if ($companion !== null && !self::isFactoryBrandImage($companion)) {
+            return '';
+        }
+        return self::FACTORY_BRAND_IMAGE_DEFAULTS[$configName] ?? '';
     }
 
     /**
@@ -4072,7 +4171,7 @@ class SettingsController extends AdminPanelController
     /**
      * Las imágenes del cargador (GenericLoaderElement.js) como atributos del `<html>`, ya escapados y con un espacio
      * delante: `data-loader-animation` y `data-loader-logo` (la clara; el logo es el «Logo del cargador», `loaderLogo`:
-     * de fábrica, loader-logo.png; vacío solo si «Eliminar» lo apagó, y entonces el cargador no pinta logo), con su `-dark` (la oscura, vacía si el modo no es
+     * de fábrica, loader-logo.png; vacío solo si el «Eliminar» de antes lo guardó vacío, y entonces el cargador no pinta logo), con su `-dark` (la oscura, vacía si el modo no es
      * `image` o no hay una que exista) y su `-invert` (`1` con el modo `invert`, `0` si no), de brandImageDarkView(). Los
      * ponen AdminPanelController::htmlPreferenceAttributes() y las dos cabeceras públicas; sin ellos, el cargador cae a
      * sus rutas fijas. Si algo falla (la página de error puede pintarse con la base caída), no pone ninguno.
@@ -4081,22 +4180,192 @@ class SettingsController extends AdminPanelController
      */
     public static function loaderHtmlAttributes(): string
     {
-        try {
-            $values = [];
-            foreach (['animation' => 'loaderAnimation', 'logo' => 'loaderLogo'] as $suffix => $image) {
-                $view = self::brandImageDarkView($image);
-                $values["data-loader-{$suffix}"] = self::brandImagePath($image);
-                $values["data-loader-{$suffix}-dark"] = $view['mode'] === self::BRAND_IMAGE_DARK_IMAGE ? $view['image'] : '';
-                $values["data-loader-{$suffix}-invert"] = $view['mode'] === self::BRAND_IMAGE_DARK_INVERT ? '1' : '0';
-            }
-        } catch (\Throwable $e) {
-            return '';
-        }
         $attributes = '';
-        foreach ($values as $name => $value) {
+        foreach (self::loaderAttributeValues() as $name => $value) {
             $attributes .= ' ' . $name . '="' . escape_html($value) . '"';
         }
         return $attributes;
+    }
+
+    /**
+     * Los valores de loaderHtmlAttributes(), sin escapar: también los de las pantallas de carga (H417),
+     * `data-loader-screen` y `data-loader-screen-mobile` con su `-dark` y su `-invert` (de fábrica, las SVG animadas de
+     * statics/images/; vacías si se guardaron vacías, y la de móvil también sin guardar con una de escritorio propia: vacía, el cargador usa la de escritorio). Una animación guardada vacía da `data-loader-animation=""`:
+     * apagada. Después, `data-loader-<capa>-enabled` (`1` o `0`) de cada interruptor de LOADER_LAYERS_ENABLED: con `0`, el
+     * cargador no pinta ni descarga esa capa, aunque su imagen siga guardada. Vacío si algo falla.
+     *
+     * @return array<string,string>
+     */
+    public static function loaderAttributeValues(): array
+    {
+        try {
+            $values = [];
+            foreach (['animation' => 'loaderAnimation', 'logo' => 'loaderLogo', 'screen' => 'loaderScreen', 'screen-mobile' => 'loaderScreenMobile'] as $suffix => $image) {
+                $view = self::brandImageDarkView($image);
+                $light = self::brandImagePath($image);
+                $values["data-loader-{$suffix}"] = $light;
+                //Sin clara no hay oscura: una oscura huérfana no enciende la capa.
+                $values["data-loader-{$suffix}-dark"] = $light !== '' && $view['mode'] === self::BRAND_IMAGE_DARK_IMAGE ? $view['image'] : '';
+                $values["data-loader-{$suffix}-invert"] = $light !== '' && $view['mode'] === self::BRAND_IMAGE_DARK_INVERT ? '1' : '0';
+            }
+            foreach (array_keys(self::LOADER_LAYERS_ENABLED) as $layer) {
+                $values["data-loader-{$layer}-enabled"] = self::loaderLayerEnabled($layer) ? '1' : '0';
+            }
+        } catch (\Throwable $e) {
+            return [];
+        }
+        return $values;
+    }
+
+    /**
+     * Si una capa del cargador está encendida: sin opción, sí (encendidas de fábrica); solo un '0' guardado la apaga. La
+     * opción se escribe como el texto 0 y la base la devuelve como el entero 0: valen los dos.
+     *
+     * @param string $layer Una clave de LOADER_LAYERS_ENABLED
+     * @return bool
+     */
+    public static function loaderLayerEnabled(string $layer): bool
+    {
+        if (!array_key_exists($layer, self::LOADER_LAYERS_ENABLED)) {
+            return true;
+        }
+        $value = get_config(self::LOADER_LAYERS_ENABLED[$layer]);
+        return !($value === 0 || $value === '0');
+    }
+
+    /**
+     * Si el cargador tiene una pantalla de carga que enseñar: su interruptor encendido y la de escritorio o la de móvil
+     * (subida o de fábrica) en disco. El área de pruebas solo ofrece «Con la pantalla de carga» con esto.
+     *
+     * @return bool
+     */
+    public static function loaderScreenAvailable(): bool
+    {
+        if (!self::loaderLayerEnabled('screen')) {
+            return false;
+        }
+        foreach (['loaderScreen', 'loaderScreenMobile'] as $screen) {
+            $path = self::brandImagePath($screen);
+            if ($path !== '' && is_file(basepath($path))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Los textos de «Eliminar» de cada imagen de BRAND_IMAGES_EMPTY_IS_OFF, ya traducidos: el título de la respuesta, la
+     * confirmación y el aviso de hecho.
+     *
+     * @return array<string,array{title:string,confirm:string,deleted:string}>
+     * @deprecated 11.0.0 Nadie la llama: las imágenes de marca ya no se eliminan (los interruptores de LOADER_LAYERS_ENABLED).
+     */
+    public static function brandImageDeleteTexts(): array
+    {
+        return [
+            'loaderAnimation' => [
+                'title' => __(self::LANG_GROUP, 'Animación de carga'),
+                'confirm' => __(self::LANG_GROUP, '¿Quitar la animación de carga? El cargador no enseñará animación; sin logo ni pantalla de carga, el aro.'),
+                'deleted' => __(self::LANG_GROUP, 'Animación de carga quitada.'),
+            ],
+            'loaderLogo' => [
+                'title' => __(self::LANG_GROUP, 'Logo del cargador'),
+                'confirm' => __(self::LANG_GROUP, '¿Quitar el logo del cargador? El cargador enseñará solo la animación.'),
+                'deleted' => __(self::LANG_GROUP, 'Logo del cargador quitado.'),
+            ],
+            'loaderScreen' => [
+                'title' => __(self::LANG_GROUP, 'Pantalla de carga'),
+                'confirm' => __(self::LANG_GROUP, '¿Quitar la pantalla de carga? El cargador volverá a su fondo liso.'),
+                'deleted' => __(self::LANG_GROUP, 'Pantalla de carga quitada.'),
+            ],
+            'loaderScreenMobile' => [
+                'title' => __(self::LANG_GROUP, 'Pantalla de carga para móvil'),
+                'confirm' => __(self::LANG_GROUP, '¿Quitar la pantalla de carga para móvil? En vertical se usará la de escritorio, recortada.'),
+                'deleted' => __(self::LANG_GROUP, 'Pantalla de carga para móvil quitada.'),
+            ],
+        ];
+    }
+
+    /**
+     * Los atributos del `<html>` de una muestra, ya escapados y con un espacio delante: los de Accesibilidad del SITIO (no
+     * las preferencias de quien edita) y las imágenes del cargador, sin `data-theme`: cada muestra fija el suyo.
+     *
+     * @return string
+     */
+    public static function themePreviewAttributes(): string
+    {
+        $attributes = '';
+        foreach (['data-text-size' => self::accessibilityTextSize(), 'data-contrast' => self::accessibilityContrast(), 'data-motion' => self::accessibilityMotion(), 'data-focus' => self::accessibilityFocus(), 'data-text-spacing' => self::accessibilityTextSpacing(), 'data-transparency' => self::accessibilityTransparency()] as $name => $value) {
+            $attributes .= " {$name}=\"" . escape_html($value) . '"';
+        }
+        return $attributes . self::loaderHtmlAttributes();
+    }
+
+    /**
+     * El documento de una muestra en un `<iframe srcdoc>` («Estilo del panel» y la vista previa de Imágenes de marca): el
+     * tema no tiene modo por contenedor, así que cada modo es un documento entero, con `data-theme` fijo y las hojas de la
+     * página que lo pinta (load_font() y load_css(), leídas una vez) o las de `$head`.
+     *
+     * @param string $theme `light` o `dark`; otro valor, `light`
+     * @param string $body El cuerpo, ya escapado
+     * @param string|null $head Las hojas; null, las de la página
+     * @param string|null $htmlAttributes Los del `<html>`, ya escapados y con un espacio delante; null, themePreviewAttributes()
+     * @return string
+     */
+    public static function themePreviewDocument(string $theme, string $body, ?string $head = null, ?string $htmlAttributes = null): string
+    {
+        $theme = $theme === 'dark' ? 'dark' : 'light';
+        if ($head === null) {
+            if (self::$themePreviewHead === null) {
+                ob_start();
+                load_font();
+                load_css([
+                    'base_url' => '',
+                    'custom_url' => '',
+                ]);
+                self::$themePreviewHead = (string) ob_get_clean();
+            }
+            $head = self::$themePreviewHead;
+        }
+        return '<!DOCTYPE html><html lang="' . escape_html((string) get_config('app_lang')) . '" data-theme="' . $theme . '"' . ($htmlAttributes ?? self::themePreviewAttributes()) . '>'
+            . '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><base href="' . escape_html(baseurl()) . '">' . $head . '</head>'
+            . '<body>' . $body . '</body></html>';
+    }
+
+    /**
+     * Las hojas de la página del acceso (UsersController::loginForm()), para su muestra en Imágenes de marca: se piden con
+     * los recursos de la página vacíos y se reponen después, como MailCatalog::preview(), porque la página que la pinta
+     * sigue cargando los suyos.
+     *
+     * @return string
+     */
+    public static function accessPreviewHead(): string
+    {
+        $saved = [];
+        foreach (\PiecesPHP\MailCatalog\MailCatalog::PAGE_STATE_CONFIG as $name) {
+            $saved[$name] = get_config($name);
+        }
+        try {
+            clear_global_assets();
+            clear_assets_imports();
+            set_custom_assets([], 'js');
+            set_custom_assets([], 'font');
+            import_fomantic();
+            import_app_libraries(['baseStyle']);
+            set_custom_assets([
+                \PiecesPHP\UserSystem\UserSystemFeaturesRoutes::staticRoute('css/login.css'),
+            ], 'css');
+            ob_start();
+            load_css([
+                'base_url' => '',
+                'custom_url' => '',
+            ]);
+            return (string) ob_get_clean();
+        } finally {
+            foreach ($saved as $name => $value) {
+                set_config($name, $value);
+            }
+        }
     }
 
     /**
@@ -4111,6 +4380,63 @@ class SettingsController extends AdminPanelController
     }
 
     /**
+     * El motivo de una subida que pasó de un tope, con el tope en MB: PHP la entrega sin archivo, y «Información faltante
+     * o inesperada» no ayuda a nadie. UPLOAD_ERR_INI_SIZE dice upload_max_filesize; UPLOAD_ERR_FORM_SIZE, el MAX_FILE_SIZE
+     * que mandó el formulario (si no lo mandó, sin cifra).
+     *
+     * @param mixed $error El `error` de la entrada de $_FILES
+     * @return string|null El mensaje, ya traducido; null si el error es otro o el servidor no tiene tope
+     */
+    public static function uploadSizeErrorMessage(mixed $error): ?string
+    {
+        if ($error === \UPLOAD_ERR_FORM_SIZE) {
+            $formLimit = $_POST['MAX_FILE_SIZE'] ?? null;
+            //PHP compara MAX_FILE_SIZE en bytes; un valor que no sea un entero positivo no da cifra.
+            if (is_string($formLimit) && ctype_digit($formLimit) && (int) $formLimit > 0) {
+                return strReplaceTemplate(__(self::LANG_GROUP, 'El archivo pesa más de lo que admite el formulario (${size} MB).'), ['${size}' => self::megabytesText((int) $formLimit)]);
+            }
+            return __(self::LANG_GROUP, 'El archivo pesa más de lo que admite el formulario.');
+        }
+        if ($error !== \UPLOAD_ERR_INI_SIZE) {
+            return null;
+        }
+        $bytes = FileValidator::iniSizeToBytes((string) ini_get('upload_max_filesize'));
+        if ($bytes === null) {
+            return null;
+        }
+        return strReplaceTemplate(__(self::LANG_GROUP, 'El archivo pesa más de lo que admite el servidor (${size} MB).'), ['${size}' => self::megabytesText($bytes)]);
+    }
+
+    /**
+     * El motivo de una petición que pasó de post_max_size: PHP deja $_FILES y $_POST vacíos sin ningún error que leer, y
+     * solo CONTENT_LENGTH lo delata.
+     *
+     * @return string|null El mensaje con post_max_size en MB, ya traducido; null si la petición no pasó del tope
+     */
+    public static function postSizeErrorMessage(): ?string
+    {
+        $contentLength = $_SERVER['CONTENT_LENGTH'] ?? null;
+        $limit = FileValidator::iniSizeToBytes((string) ini_get('post_max_size'));
+        if ($_FILES !== [] || $_POST !== [] || !is_numeric($contentLength) || $limit === null || $limit <= 0 || (int) $contentLength <= $limit) {
+            return null;
+        }
+        return strReplaceTemplate(__(self::LANG_GROUP, 'Lo enviado pesa más de lo que admite el servidor (${size} MB).'), ['${size}' => self::megabytesText($limit)]);
+    }
+
+    /**
+     * Bytes en MB para un texto: sin decimales si son enteros; si no, uno, con el separador decimal del idioma (la
+     * traducción de «,», como LoginAttemptsController::formatDecimal(): «0,5» en español, «0.5» en inglés).
+     *
+     * @param int $bytes
+     * @return string
+     */
+    public static function megabytesText(int $bytes): string
+    {
+        $text = rtrim(rtrim(number_format($bytes / (1024 * 1024), 1, '.', ''), '0'), '.');
+        return str_replace('.', __(self::LANG_GROUP, ','), $text);
+    }
+
+    /**
      * Guarda la animación de carga subida (o su oscura): tal cual, sin recortar ni recomprimir, en
      * SETTINGS_UPLOADS_FOLDER/brand/. El tipo sale del CONTENIDO, nunca del nombre ni del tipo que mande el cliente: un
      * GIF por su firma y su MIME, o un SVG que pase SvgWhitelistValidator entero y solo de ROLES_SVG_BRAND_IMAGES. El nombre lo pone el servidor.
@@ -4118,48 +4444,89 @@ class SettingsController extends AdminPanelController
      * @param string $field El campo de $_FILES
      * @param string $name El de la opción en el archivo (loader-animation, loader-animation-dark)
      * @return array{path:?string,error:string} La ruta relativa, o null con el motivo ya traducido
+     * @deprecated Nadie la llama: la ruta usa storeDirectBrandUpload() con BRAND_IMAGES_DIRECT_UPLOAD. Se retira en la 11.0.0.
      */
     public static function storeLoaderAnimationUpload(string $field, string $name): array
+    {
+        return self::storeDirectBrandUpload($field, $name, false);
+    }
+
+    /**
+     * Guarda una imagen de marca que se sube tal cual: la animación de carga, GIF o SVG,
+     * hasta LOADER_ANIMATION_MAX_BYTES; o, con `$screen`, una pantalla de carga (H417), que además admite PNG, JPG y WebP,
+     * hasta LOADER_SCREEN_MAX_BYTES. Las fijas no se recomprimen: GD descomprimiría el lienzo entero, y su lado se mide
+     * en la cabecera (getimagesizefromstring()), sin decodificar.
+     *
+     * @param string $field El campo de $_FILES
+     * @param string $name El de la opción en el archivo (BRAND_IMAGES_DIRECT_UPLOAD)
+     * @param bool $screen Si es una pantalla de carga
+     * @return array{path:?string,error:string} La ruta relativa, o null con el motivo ya traducido
+     */
+    public static function storeDirectBrandUpload(string $field, string $name, bool $screen): array
     {
         $upload = $_FILES[$field] ?? null;
         $temporary = is_array($upload) && is_string($upload['tmp_name'] ?? null) ? $upload['tmp_name'] : '';
         $fail = fn (string $message): array => ['path' => null, 'error' => $message];
         if (!is_array($upload) || ($upload['error'] ?? null) !== \UPLOAD_ERR_OK || $temporary === '' || !is_uploaded_file($temporary)) {
-            return $fail(__(self::LANG_GROUP, 'Información faltante o inesperada.'));
+            return $fail(self::uploadSizeErrorMessage(is_array($upload) ? ($upload['error'] ?? null) : null) ?? __(self::LANG_GROUP, 'Información faltante o inesperada.'));
         }
         $size = filesize($temporary);
-        if ($size === false || $size > self::LOADER_ANIMATION_MAX_BYTES) {
-            return $fail(__(self::LANG_GROUP, 'La animación pesa más de 2 MB.'));
+        if ($size === false || $size > ($screen ? self::LOADER_SCREEN_MAX_BYTES : self::LOADER_ANIMATION_MAX_BYTES)) {
+            return $fail($screen ? __(self::LANG_GROUP, 'La pantalla de carga pesa más de 3 MB.') : __(self::LANG_GROUP, 'La animación pesa más de 2 MB.'));
         }
+        $tooLarge = $screen ? __(self::LANG_GROUP, 'La pantalla de carga no puede pasar de 4096 × 4096 píxeles.') : __(self::LANG_GROUP, 'La animación no puede pasar de 4096 × 4096 píxeles.');
         $content = (string) file_get_contents($temporary);
         $information = finfo_open(\FILEINFO_MIME_TYPE);
         $mime = $information !== false ? finfo_buffer($information, $content) : false;
+        //Las fijas, por su firma Y su MIME: el nombre y el tipo que manda el cliente no cuentan.
+        $rasterExtension = match (true) {
+            str_starts_with($content, "\x89PNG\r\n\x1A\n") && $mime === 'image/png' => 'png',
+            str_starts_with($content, "\xFF\xD8\xFF") && $mime === 'image/jpeg' => 'jpg',
+            str_starts_with($content, 'RIFF') && substr($content, 8, 4) === 'WEBP' && $mime === 'image/webp' => 'webp',
+            default => null,
+        };
         if ((str_starts_with($content, 'GIF87a') || str_starts_with($content, 'GIF89a')) && $mime === 'image/gif') {
             //El lienzo y CADA fotograma, recorriendo sus bloques: un Image Descriptor enorme en un lienzo pequeño también.
             $gifReason = GifStructureValidator::rejectionReason($content, self::LOADER_ANIMATION_MAX_SIDE);
             if ($gifReason === GifStructureValidator::REASON_TOO_LARGE || $gifReason === GifStructureValidator::REASON_FRAME_OUTSIDE) {
-                return $fail(__(self::LANG_GROUP, 'La animación no puede pasar de 4096 × 4096 píxeles.'));
+                return $fail($tooLarge);
             }
             if ($gifReason !== null) {
                 return $fail(__(self::LANG_GROUP, 'El GIF está incompleto o mal formado.'));
             }
             $extension = 'gif';
+        } elseif ($screen && $rasterExtension !== null) {
+            $dimensions = getimagesizefromstring($content);
+            if (!is_array($dimensions) || $dimensions[0] < 1 || $dimensions[1] < 1) {
+                return $fail(__(self::LANG_GROUP, 'La imagen está incompleta o mal formada.'));
+            }
+            if ($dimensions[0] > self::LOADER_ANIMATION_MAX_SIDE || $dimensions[1] > self::LOADER_ANIMATION_MAX_SIDE) {
+                return $fail($tooLarge);
+            }
+            $extension = $rasterExtension;
         } elseif (SvgWhitelistValidator::isAllowed($content)) {
             if (!self::canUploadSvgBrandImages()) {
-                return $fail(__(self::LANG_GROUP, 'Solo el usuario principal puede subir una animación SVG; sube un GIF.'));
+                return $fail($screen ? __(self::LANG_GROUP, 'Solo el usuario principal puede subir una pantalla de carga SVG; sube un GIF, PNG, JPG o WebP.') : __(self::LANG_GROUP, 'Solo el usuario principal puede subir una animación SVG; sube un GIF.'));
             }
             $extension = 'svg';
         } elseif (preg_match('/<svg[\s>]/i', $content) === 1) {
             return $fail(__(self::LANG_GROUP, 'El SVG trae algo que no está permitido (código, enlaces o recursos externos): se rechaza entero.'));
         } else {
-            return $fail(__(self::LANG_GROUP, 'La animación tiene que ser un GIF o un SVG.'));
+            return $fail($screen ? __(self::LANG_GROUP, 'La pantalla de carga tiene que ser un GIF, PNG, JPG, WebP o SVG.') : __(self::LANG_GROUP, 'La animación tiene que ser un GIF o un SVG.'));
         }
         $folder = basepath(self::SETTINGS_UPLOADS_FOLDER . '/brand');
         if (!is_dir($folder) && !self::makeGroupWritableFolder($folder)) {
             return $fail(__(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'));
         }
+        //Se guarda sin metadatos: su URL va en las cabeceras públicas, y un EXIF con GPS lo publicaría.
+        $stripped = ImageMetadataStripper::strip($content, $extension);
+        if ($stripped === null) {
+            return $fail(__(self::LANG_GROUP, 'La imagen está incompleta o mal formada.'));
+        }
         $file = "{$folder}/{$name}-upload-" . bin2hex(random_bytes(6)) . ".{$extension}";
-        if (!move_uploaded_file($temporary, $file)) {
+        if (file_put_contents($file, $stripped, \LOCK_EX) !== strlen($stripped)) {
+            //RETORNO-IGNORADO: el archivo a medias no se queda; si no existe, no hay nada que borrar.
+            @unlink($file);
             return $fail(__(self::LANG_GROUP, 'Ha ocurrido un error inesperado.'));
         }
         $relativePath = self::settleSettingsImage($file, 'brand', $name);

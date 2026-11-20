@@ -1,12 +1,12 @@
 <?php
 
-//La sesión por cabecera con un nombre que lleva «_»: el cliente la manda con «-» (SessionToken::headerName()), Apache
-//la deja pasar y el servidor entra; CORS anuncia las dos formas. Por HTTP, con una extensión de prueba que fija el nombre.
+//Sesión por cabecera con «_» en el nombre (va con «-»); la extensión de prueba solo actúa con la marca de la corrida (H426).
 //@areas nucleo
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
@@ -39,6 +39,8 @@ CliActions::make('unit-tests:core/session-header-name', function ($args) {
     };
 
     $nombrePrueba = 'zz_sesion_prueba';
+    //La extensión solo actúa con la marca de esta corrida: sin gates ni con-marca, la suite abre la suya.
+    $corrida = GenericHandler::startTestRun();
 
     //─── n · El nombre de la cabecera, en proceso ──────────────────────────────────────────────
     echoTerminal('[n] headerName(): el nombre con «-» en lugar de «_»');
@@ -64,9 +66,10 @@ CliActions::make('unit-tests:core/session-header-name', function ($args) {
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
     $ruta = (string) parse_url(AdminPanelController::routeName('', [], true), \PHP_URL_PATH);
     $ruta = $prefijoBase !== '' && str_starts_with($ruta, $prefijoBase) ? substr($ruta, strlen($prefijoBase)) : $ruta;
-    $pedir = function (array $cabeceras, string $metodo = 'GET') use ($base, $ruta): array {
+    $pedir = function (array $cabeceras, string $metodo = 'GET', bool $conMarca = true) use ($base, $ruta): array {
         $handle = \Terminal\TestRun::curlInit();
-        \Terminal\TestRun::curlSetoptArray($handle, [
+        //Sin marca, como el navegador de una persona: curl_setopt_array a secas no añade la cabecera de la corrida.
+        $opciones = [
             CURLOPT_URL => $base . '/' . ltrim($ruta, '/'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -74,9 +77,14 @@ CliActions::make('unit-tests:core/session-header-name', function ($args) {
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_HEADER => true,
-            CURLOPT_CUSTOMREQUEST => $metodo,
+            CURLOPT_CUSTOMREQUEST => $metodo !== '' ? $metodo : null,
             CURLOPT_HTTPHEADER => $cabeceras,
-        ]);
+        ];
+        if ($conMarca) {
+            \Terminal\TestRun::curlSetoptArray($handle, $opciones);
+        } else {
+            curl_setopt_array($handle, $opciones);
+        }
         $respuesta = (string) curl_exec($handle);
         $corte = (int) curl_getinfo($handle, CURLINFO_HEADER_SIZE);
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'cabeceras' => substr($respuesta, 0, $corte)];
@@ -84,8 +92,22 @@ CliActions::make('unit-tests:core/session-header-name', function ($args) {
 
     //Una extensión del proyecto que fija el nombre solo mientras dura la suite.
     $extension = basepath('app/config/extensions/zz-prueba-sesion-' . bin2hex(random_bytes(3)) . '.php');
+    //Se escribe aquí y se renombra: una petición simultánea nunca incluye la extensión a medias. Termina en .tmp: ni la
+    //carga de extensiones (solo .php) ni la parada de gates (zz-prueba-sesion-*.php) lo ven.
+    $extensionTemporal = $extension . '.' . bin2hex(random_bytes(3)) . '.tmp';
     $prefijo = 'zz-prueba-cabecera-' . bin2hex(random_bytes(3));
     $ids = [];
+    $nombreDeSiempre = SessionToken::tokenName();
+    $cabeceraMarca = 'HTTP_' . strtoupper(str_replace('-', '_', GenericHandler::TEST_RUN_HEADER));
+    //Si el proceso muere a mitad (un fatal, un exit), la extensión no se queda puesta para toda la instalación.
+    register_shutdown_function(static function () use ($extension, $extensionTemporal): void {
+        clearstatcache();
+        foreach ([$extension, $extensionTemporal] as $archivo) {
+            if (is_file($archivo) && !unlink($archivo)) {
+                echoTerminal("\e[31mNo se pudo retirar {$archivo}: bórrala a mano.\e[39m");
+            }
+        }
+    });
 
     try {
         $u = new UsersModel();
@@ -107,7 +129,10 @@ CliActions::make('unit-tests:core/session-header-name', function ($args) {
         $jwt = UserSessions::issueToken((int) $u->id);
 
         echoTerminal('[h] Por HTTP, con el nombre «' . $nombrePrueba . '» en el servidor');
-        $check(file_put_contents($extension, "<?php\n//Prueba de UnitTest-SessionHeaderName: se retira al terminar.\nset_config('session_token_name', '{$nombrePrueba}');\n") !== false, 'banco: la extensión de prueba fija el nombre');
+        $contenido = "<?php\n//Prueba de UnitTest-SessionHeaderName: se retira al terminar. Solo actúa con la marca de su corrida.\n"
+            . 'if (($_SERVER[' . var_export($cabeceraMarca, true) . '] ?? null) === ' . var_export($corrida['run'], true) . ") {\n"
+            . '    set_config(' . var_export(SessionToken::TOKEN_NAME_CONFIG, true) . ', ' . var_export($nombrePrueba, true) . ");\n}\n";
+        $check(file_put_contents($extensionTemporal, $contenido) === strlen($contenido) && rename($extensionTemporal, $extension), 'banco: la extensión de prueba fija el nombre (escrita de una vez)');
         $conGuion = $pedir(['zz-sesion-prueba: ' . $jwt]);
         $check($conGuion['status'] === 200, 'h1 DISCRIMINANTE: con la cabecera «zz-sesion-prueba», entra', "HTTP {$conGuion['status']}");
         $sinCabecera = $pedir([]);
@@ -117,14 +142,21 @@ CliActions::make('unit-tests:core/session-header-name', function ($args) {
         $cors = $pedir(['Origin: https://zz-otro.invalid'], 'OPTIONS');
         $permitidas = preg_match('/^Access-Control-Allow-Headers:\s*(.+)$/mi', $cors['cabeceras'], $m) === 1 ? trim($m[1]) : '';
         $check(str_contains($permitidas, 'zz-sesion-prueba') && str_contains($permitidas, $nombrePrueba), 'h3 DISCRIMINANTE: CORS anuncia las dos formas', $permitidas);
+        $cookieDeSiempre = 'Cookie: ' . $nombreDeSiempre . '=' . $jwt;
+        $marcadaDeSiempre = $pedir([$cookieDeSiempre]);
+        $check($marcadaDeSiempre['status'] !== 200, "h4 con la marca, la cookie «{$nombreDeSiempre}» no entra: la extensión actúa", "HTTP {$marcadaDeSiempre['status']}");
+        $sinMarca = $pedir([$cookieDeSiempre], 'GET', false);
+        $check($sinMarca['status'] === 200, "h5 DISCRIMINANTE: SIN la marca, la cookie «{$nombreDeSiempre}» entra: el navegador de una persona no ve el nombre cambiado", "HTTP {$sinMarca['status']}");
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');
-        if (is_file($extension)) {
-            //RETORNO-IGNORADO: lo comprueba z1.
-            unlink($extension);
+        foreach ([$extension, $extensionTemporal] as $archivo) {
+            if (is_file($archivo)) {
+                //RETORNO-IGNORADO: lo comprueba z1.
+                unlink($archivo);
+            }
         }
         $referencias = $database->query("SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME = '" . UsersModel::TABLE . "' AND REFERENCED_COLUMN_NAME = 'id'")->fetchAll(\PDO::FETCH_NUM);
         foreach ($ids as $id) {
@@ -136,9 +168,13 @@ CliActions::make('unit-tests:core/session-header-name', function ($args) {
         }
         clearstatcache();
         $quedan = (int) $database->query('SELECT COUNT(*) FROM `' . UsersModel::TABLE . '` WHERE username LIKE ' . $database->quote("{$prefijo}%"))->fetchColumn();
-        $check(!is_file($extension) && $quedan === 0 && SessionToken::tokenName() === SessionToken::TOKEN_NAME || get_config(SessionToken::TOKEN_NAME_CONFIG) === $configuradoAntes, 'z1 no queda la extensión ni el usuario, y el nombre vuelve a ser el de antes');
+        $check(!is_file($extension) && !is_file($extensionTemporal) && $quedan === 0 && SessionToken::tokenName() === $nombreDeSiempre && get_config(SessionToken::TOKEN_NAME_CONFIG) === $configuradoAntes, 'z1 no queda la extensión ni el usuario, y el nombre vuelve a ser el de antes', 'extensión ' . (is_file($extension) ? 'queda' : 'no queda') . ", usuarios {$quedan}, nombre " . SessionToken::tokenName());
+        if ($corrida['created']) {
+            $podados = GenericHandler::pruneTestRun($corrida['run']);
+            echoTerminal('      - errores de prueba podados de la corrida propia: ' . $podados['entries'] . ($podados['error'] !== null ? " — {$podados['error']}" : ''));
+        }
     }
 
     return $balance();
 
-})->setDescription('La sesión por cabecera con un nombre que lleva guion bajo: el cliente la manda con guion (SessionToken::headerName()) y entra; CORS anuncia las dos formas. Por HTTP, con una extensión de prueba que fija el nombre y se retira.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();
+})->setDescription('La sesión por cabecera con un nombre que lleva guion bajo: el cliente la manda con guion (SessionToken::headerName()) y entra; CORS anuncia las dos formas. Por HTTP, con una extensión de prueba que fija el nombre solo con la marca de la corrida y se retira.')->setEffects([CliActions::EFFECT_DATABASE, CliActions::EFFECT_FILES])->register();

@@ -9,6 +9,7 @@ namespace PiecesPHP\UserSystem\Controllers;
 use EventsLog\Mappers\LogsMapper;
 use MySpace\Controllers\MyProfileController;
 use Organizations\Mappers\OrganizationMapper;
+use Organizations\OrganizationsRoutes;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
@@ -281,13 +282,17 @@ class UsersController extends AdminPanelController
 
         $selectFields = UsersModel::fieldsToSelect();
         //Para buscar por la organización (su nombre en el idioma por omisión) sin tocar el listado común de campos.
-        $organizations = OrganizationMapper::TABLE;
-        $selectFields[] = "(SELECT {$organizations}.name FROM {$organizations} WHERE {$organizations}.id = " . UsersModel::TABLE . '.organization) AS organizationName';
+        //Con Organizaciones apagado no se busca por ella (P384 a).
+        $organizationsEnabled = OrganizationsRoutes::enabled();
+        if ($organizationsEnabled) {
+            $organizations = OrganizationMapper::TABLE;
+            $selectFields[] = "(SELECT {$organizations}.name FROM {$organizations} WHERE {$organizations}.id = " . UsersModel::TABLE . '.organization) AS organizationName';
+        }
 
         $columnsOrder = [
             UsersModel::TABLE . '.id',
             //La búsqueda recorre los tres: «Nombre, usuario, email u organización», también el nombre completo.
-            ['names', 'fullname', 'organizationName'],
+            $organizationsEnabled ? ['names', 'fullname', 'organizationName'] : ['names', 'fullname'],
             'lastNames',
             'email',
             'username',
@@ -366,8 +371,8 @@ class UsersController extends AdminPanelController
 
     /**
      * Los usuarios que quien mira puede ver en el listado: ni él mismo, ni los eliminados, ni el de sistema, ni los de
-     * tipos de más rango y, si no puede con todas las organizaciones, solo los de la suya. Lo usan el listado y sus
-     * contadores: los dos ven lo mismo.
+     * tipos de más rango y, con el módulo de organizaciones encendido y sin poder sobre todas, solo los de la suya. Lo
+     * usan el listado y sus contadores: los dos ven lo mismo.
      *
      * @return WhereItem[]
      */
@@ -375,7 +380,6 @@ class UsersController extends AdminPanelController
     {
         $currentUser = new UsersModel($this->user->id);
         $disallowedTypes = $currentUser->getHigherPriorityTypes();
-        $canModify = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
 
         //POR MARCADOR, con `where_segment`. El `AND` del último criterio lo descarta
         //`WhereSegment::toString()`, que usa `toString(false)` para el que cierra. Ver T157.
@@ -392,11 +396,27 @@ class UsersController extends AdminPanelController
             }
         }
 
-        if (!$canModify) {
-            $whereItems[] = new WhereItem(UsersModel::TABLE . '.organization', WhereItem::EQUAL_OPERATOR, $currentUser->organization, WhereItem::AND_OPERATOR);
+        $ownOrganization = self::ownOrganizationWhereItem($currentUser);
+        if ($ownOrganization !== null) {
+            $whereItems[] = $ownOrganization;
         }
 
         return $whereItems;
+    }
+
+    /**
+     * El criterio «solo los de su organización» para quien no puede con todas; null si no le toca (o el módulo está
+     * apagado). Lo comparten el listado, users-ajax-all y el selector de usuarios.
+     *
+     * @param UsersModel $viewer
+     * @return WhereItem|null
+     */
+    protected static function ownOrganizationWhereItem(UsersModel $viewer): ?WhereItem
+    {
+        if (!self::restrictedToOwnOrganization((int) $viewer->type)) {
+            return null;
+        }
+        return new WhereItem(UsersModel::TABLE . '.organization', WhereItem::EQUAL_OPERATOR, $viewer->organization, WhereItem::AND_OPERATOR);
     }
 
     /**
@@ -467,6 +487,11 @@ class UsersController extends AdminPanelController
         }
         $criteriosWhere[] = new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR);
         $criteriosWhere[] = UsersModel::excludeSystemUserWhereItem();
+        //Sin esto el selector enumeraba los usuarios de todas las organizaciones.
+        $ownOrganization = self::ownOrganizationWhereItem(new UsersModel($this->user->id));
+        if ($ownOrganization !== null) {
+            $criteriosWhere[] = $ownOrganization;
+        }
         $model->where(new WhereSegment($criteriosWhere));
 
         if ($search !== null) {
@@ -1058,7 +1083,7 @@ class UsersController extends AdminPanelController
                     //Organización, si aplica
                     $organizationID = $user->organization;
                     $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-                    $organizationOk = $organizationMapper == null || in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN);
+                    $organizationOk = OrganizationMapper::statusAllowsSession($organizationMapper);
 
                     //LA CONTRASEÑA ANTES QUE EL ESTADO: sin ella buena, ningún mensaje dice si la cuenta existe ni cómo está (P201).
                     $otpIsValid = OTPHandler::checkValidityOTP($password, $username);
@@ -1215,7 +1240,7 @@ class UsersController extends AdminPanelController
                         } else {
 
                             $errorType = self::ORGANIZATION_IS_NOT_ACTIVE;
-                            $errorTypeMessage = vsprintf($this->getMessage(self::ORGANIZATION_IS_NOT_ACTIVE), [$organizationMapper->name]);
+                            $errorTypeMessage = vsprintf($this->getMessage(self::ORGANIZATION_IS_NOT_ACTIVE), [$organizationMapper !== null ? $organizationMapper->name : '']);
 
                             $resultOperation->setValue('error', $errorType);
                             $resultOperation->setValue('message', $errorTypeMessage);
@@ -1333,7 +1358,7 @@ class UsersController extends AdminPanelController
         if ($currentUser !== null) {
             $organizationID = $currentUser->organization;
             $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-            if ($organizationMapper != null && !in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN)) {
+            if (!OrganizationMapper::statusAllowsSession($organizationMapper)) {
                 $resultOperation->setValue('isAuth', false);
             }
         }
@@ -1470,6 +1495,11 @@ class UsersController extends AdminPanelController
     {
         $body = $request->getParsedBody();
         $body = is_array($body) ? $body : [];
+        //Con Organizaciones apagado el servidor manda (P384 a): toda alta va a la global, llegue lo que llegue.
+        if (!OrganizationsRoutes::enabled()) {
+            $body['organization'] = OrganizationMapper::INITIAL_ID_GLOBAL;
+            $request = $request->withParsedBody($body);
+        }
         $type = $body['type'] ?? null;
         $status = $body['status'] ?? null;
         $organization = $body['organization'] ?? null;
@@ -1782,13 +1812,25 @@ class UsersController extends AdminPanelController
         if ($status !== null && !in_array($status, array_diff(array_keys(UsersModel::STATUSES), UsersModel::STATUSES_HIDDEN_ON_EDIT), true)) {
             return false;
         }
-        if (!OrganizationMapper::canModifyAnyOrganization((int) $actor->type)) {
+        if (self::restrictedToOwnOrganization((int) $actor->type)) {
             $own = $actor->organization;
             if ($own === null || $target->organization != $own || ($organization !== null && $organization != $own)) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Si quien actúa solo puede con los usuarios de su organización. Con el módulo apagado la organización no cuenta: ni
+     * concede ni recorta, y decide solo el rol (P384 a).
+     *
+     * @param int $actorType
+     * @return bool
+     */
+    private static function restrictedToOwnOrganization(int $actorType): bool
+    {
+        return OrganizationsRoutes::enabled() && !OrganizationMapper::canModifyAnyOrganization($actorType);
     }
 
     /**
@@ -1825,7 +1867,7 @@ class UsersController extends AdminPanelController
         if (!in_array($status, array_diff(array_keys(UsersModel::STATUSES), UsersModel::STATUSES_HIDDEN_ON_CREATION), true)) {
             return false;
         }
-        if (UserTypes::requiresOrganization((int) $type) && !OrganizationMapper::canModifyAnyOrganization((int) $actor->type)) {
+        if (UserTypes::requiresOrganization((int) $type) && self::restrictedToOwnOrganization((int) $actor->type)) {
             $own = $actor->organization;
             if ($own === null || $organization != $own) {
                 return false;
@@ -2018,7 +2060,9 @@ class UsersController extends AdminPanelController
             $first_lastname = $parametersExcepted->getValue('first_lastname');
             $second_lastname = $parametersExcepted->getValue('second_lastname');
             $status = $parametersExcepted->getValue('status');
-            $organization = $parametersExcepted->getValue('organization');
+            //Con Organizaciones apagado guardar no mueve a nadie de organización (P384 a): lo que llegue se ignora.
+            $organizationsEnabled = OrganizationsRoutes::enabled();
+            $organization = $organizationsEnabled ? $parametersExcepted->getValue('organization') : null;
 
             $userMapper = new UsersModel($id);
 
@@ -2052,7 +2096,7 @@ class UsersController extends AdminPanelController
             $password_ok = true;
 
             //Validar que la organización sea obligatoria si el tipo la requiere (UserTypes::requiresOrganization())
-            if (UserTypes::requiresOrganization((int) $userMapper->type)) {
+            if ($organizationsEnabled && UserTypes::requiresOrganization((int) $userMapper->type)) {
                 if (!Validator::isInteger($organization) && !$isProfile) {
                     $result
                         ->setMessage($message_organization_required);
@@ -2285,7 +2329,11 @@ class UsersController extends AdminPanelController
         $type = $type === 'ANY' ? null : $type;
         $ignore = $expectedParameters->getValue('ignore');
 
-        $result = self::_all($page, $perPage, $type, $ignore);
+        //Quien no puede con todas las organizaciones ve lo mismo que en su listado; sin esto salían todos los usuarios.
+        $viewer = new UsersModel($this->user->id);
+        $visibleWhereItems = OrganizationMapper::canModifyAnyOrganization((int) $viewer->type) ? null : $this->visibleUsersWhereItems();
+
+        $result = self::_all($page, $perPage, $type, $ignore, $visibleWhereItems);
 
         return $response->withJson($result);
     }
@@ -2295,9 +2343,10 @@ class UsersController extends AdminPanelController
      * @param int $perPage
      * @param int $type
      * @param int[] $ignore
+     * @param WhereItem[]|null $visibleWhereItems Los criterios del listado de quien pide (visibleUsersWhereItems()); null, sin recorte
      * @return PaginationResult
      */
-    public static function _all(int $page = 1, int $perPage = 10, ?int $type = null, array $ignore = [])
+    public static function _all(int $page = 1, int $perPage = 10, ?int $type = null, array $ignore = [], ?array $visibleWhereItems = null)
     {
         $table = 'pcsphp_users';
         //LISTA BLANCA, la misma del login: una columna nueva de la tabla NO viaja sola. Antes se
@@ -2322,6 +2371,14 @@ class UsersController extends AdminPanelController
             $where[] = (!empty($where) ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
         }
 
+        //Por marcador: los valores (la organización, el id de quien pide) viajan aparte.
+        $boundValues = [];
+        if ($visibleWhereItems !== null && !empty($visibleWhereItems)) {
+            $visibleSegment = new WhereSegment($visibleWhereItems);
+            $where[] = (!empty($where) ? ' AND ' : '') . '(' . preg_replace('/^WHERE /', '', $visibleSegment->toString()) . ')';
+            $boundValues = $visibleSegment->getReplacementValues();
+        }
+
         if (!empty($where)) {
             $whereString = implode('', $where);
         }
@@ -2335,7 +2392,7 @@ class UsersController extends AdminPanelController
             $sqlCount .= " WHERE {$whereString}";
         }
 
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total', $boundValues);
 
         $pagination = $pageQuery->getPagination();
 

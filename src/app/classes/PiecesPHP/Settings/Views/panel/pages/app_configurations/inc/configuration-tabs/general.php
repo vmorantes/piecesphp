@@ -41,7 +41,7 @@ $withValue = fn (string $label, string $value): string => "{$label}: {$value}";
 ?>
 <form colors-form action="<?= escape_html($actionURL); ?>" method="POST" class="ui form initial" data-content-form>
 
-    <div class="ui active tab" data-tab="colores">
+    <div class="ui active tab" data-tab="colors">
         <p><span class="ui muted text"><?= __($langGroup, 'El color del cliente se usa solo como acento (botones, selección, enlaces y foco). Los colores complementarios se usan únicamente en gráficas y datos.'); ?></span></p>
         <section class="ui segment" aria-labelledby="colors-accent-title">
             <h2 class="ui medium header" id="colors-accent-title">
@@ -190,7 +190,7 @@ $withValue = fn (string $label, string $value): string => "{$label}: {$value}";
         ?>
     </div>
 
-    <div class="ui tab" data-tab="tipografia">
+    <div class="ui tab" data-tab="typography">
         <section class="ui segment" aria-labelledby="colors-shape-title">
             <h2 class="ui medium header" id="colors-shape-title">
                 <?= __($langGroup, 'Tipografía y forma'); ?>

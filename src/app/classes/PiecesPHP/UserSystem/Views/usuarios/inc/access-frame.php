@@ -51,12 +51,12 @@ $accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
                     <small class="ui muted text"><strong><?= escape_html($accessPartnersText); ?></strong></small>
                     <?php endif; ?>
                     <?php if ($accessPartners !== ''): ?>
-                    <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('partners', 'ui small image'); ?>
+                    <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('partners', 'ui image'); ?>
                     <?php endif; ?>
                     <?php if ($accessDeveloperName !== ''): ?>
                     <small class="ui muted text tight nowrap centered flex developer-credit">
                         <?php if ($accessDeveloperLogo !== ''): ?>
-                        <?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoTag('ui mini image'); ?>
+                        <?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoTag('ui image'); ?>
                         <?php endif; ?>
                         <span><?= __('general', 'Desarrollado por'); ?> <?= $accessDeveloperName; ?></span>
                     </small>
@@ -94,7 +94,7 @@ $accessOwner = $accessOwner !== '' ? $accessOwner : $accessTitle;
                         <?php if ($accessPartnersText !== ''): ?>
                         <p><small class="ui muted text"><strong><?= escape_html($accessPartnersText); ?></strong></small></p>
                         <?php endif; ?>
-                        <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('partners', 'ui small centered image'); ?>
+                        <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('partners', 'ui centered image'); ?>
                     </div>
                 </div>
                 <?php endif; ?>

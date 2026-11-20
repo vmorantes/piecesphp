@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.19.0 - Dropdown
+ * # Fomantic-UI 0.21.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -830,6 +830,25 @@ select.ui.dropdown {
 .ui.multiple.dropdown .dropdown.icon {
   margin: "";
   padding: "";
+}
+
+/* Fork: con etiquetas, la flecha (y el × de clearable) se centra en la primera (anchor positioning): con la posición fija quedaba hasta 8px
+       por encima o por debajo de la primera fila según el tema y el tamaño (2026-11-18). Sin soporte, la posición de
+       siempre. La etiqueta no es absoluta, así que vale aunque vaya después de la flecha en el DOM. */
+@supports (anchor-name: --a) {
+  .ui.multiple.selection.dropdown:has(> .label) {
+    anchor-scope: --dropdown-first-label;
+  }
+  .ui.multiple.selection.dropdown > .label:nth-child(1 of .label) {
+    anchor-name: --dropdown-first-label;
+  }
+  .ui.multiple.selection.dropdown:has(> .label) > .dropdown.icon,
+  .ui.multiple.selection.dropdown:has(> .label) > .remove.icon {
+    top: anchor(--dropdown-first-label center);
+    margin-top: 0;
+    margin-bottom: 0;
+    translate: 0 -50%;
+  }
 }
 
 /* Text */

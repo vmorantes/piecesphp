@@ -4,6 +4,7 @@ use MySpace\Controllers\MyProfileController;
 use MySpace\Controllers\MySpaceController;
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;
+use Organizations\OrganizationsRoutes;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
 use PiecesPHP\UserSystem\Controllers\UsersController;
@@ -81,7 +82,7 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
         <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::ENABLE): ?>
         <a class="item" href="<?= MyProfileController::routeName('my-profile', [], true); ?>"><i class="id card outline icon" aria-hidden="true"></i><?= __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'); ?></a>
         <?php endif; ?>
-        <?php if(MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR)): ?>
+        <?php if(OrganizationsRoutes::enabled() && MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR)): ?>
         <a class="item" href="<?= MyOrganizationProfileController::routeName('my-organization-profile', [], true); ?>"><i class="building outline icon" aria-hidden="true"></i><?= __(ADMIN_MENU_LANG_GROUP, 'Mi organización'); ?></a>
         <?php endif; ?>
         <div class="divider"></div>

@@ -780,11 +780,6 @@ $dashboardCardGap: pxToRem(16);
     line-height: inherit;
 }
 
-//Hasta que el tema lo traiga: sale al traerlo (H359).
-.ui.swatch[data-series="other"] {
-    --swatch: var(--theme-text-muted);
-}
-
 //La leyenda de la dona interactiva (drawStatisticsDonut()): cada fila enciende o apaga su porción; la apagada, atenuada.
 .ui.square.chart ~ .ui.vertical.flex > [data-donut-linked][role="button"] {
     cursor: pointer;

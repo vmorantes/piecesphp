@@ -8,7 +8,7 @@ $alternativesURL = Config::get_config('alternatives_url');
 
 ?>
 <!DOCTYPE HTML>
-<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>"<?= \PiecesPHP\Settings\Controllers\SettingsController::loaderHtmlAttributes(); ?>>
+<html lang="<?= escape_html((string) get_config('app_lang')); ?>" dlang="<?= escape_html((string) get_config('default_lang')); ?>"<?= \PiecesPHP\Settings\Controllers\SettingsController::loaderHtmlAttributes(); ?>>
 
 <head>
     <meta charset="UTF-8">

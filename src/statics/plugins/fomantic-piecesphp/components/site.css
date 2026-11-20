@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.19.0 - Site
+ * # Fomantic-UI 0.21.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -460,6 +460,27 @@ html {
 }
 :root[data-theme="auto"] {
   color-scheme: light dark;
+}
+
+/* data-theme en cualquier contenedor (pedido de PiecesPHP, 2026-11-19: claro y oscuro lado a lado). Los tokens guardan
+   light-dark() sin resolver y cada elemento lo resuelve con su color-scheme, que se hereda; solo el texto llega ya
+   resuelto desde body, así que el contenedor lo vuelve a tomar del token. Medido: 0 diferencias de color computado frente
+   a la página entera en ese modo. Lleva el fondo de página de su modo: sin él, las superficies translúcidas (glass-ios)
+   dejaban ver el modo contrario detrás y el texto no daba AA; el proyecto puede poner otro. */
+[data-theme="light"]:not(:root) {
+  color-scheme: light;
+  color: var(--theme-text);
+  background-color: var(--theme-page);
+}
+[data-theme="dark"]:not(:root) {
+  color-scheme: dark;
+  color: var(--theme-text);
+  background-color: var(--theme-page);
+}
+[data-theme="auto"]:not(:root) {
+  color-scheme: light dark;
+  color: var(--theme-text);
+  background-color: var(--theme-page);
 }
 html {
   font-size: var(--font-size-base);

@@ -195,8 +195,11 @@ CliActions::make('unit-tests:core/fatal-candidates-core', function ($args) {
     echoTerminal('[f] index.php: el encargado de la organización (616) y $actionName (933)');
 
     $fuente = (string) file_get_contents(basepath('index.php'));
-    $check(str_contains($fuente, '$administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;')
-        && str_contains($fuente, '$userIsOrganizationAdministrator = $administratorID == $user->id;'), 'f1 CANARIO: 616 compara por id, venga el encargado como UsersModel o como entero');
+    //La comparación vive en OrganizationMapper::grantsAdministratorPermissions() desde JMS; index.php solo la llama.
+    $fuenteMapper = (string) file_get_contents(basepath('app/classes/Organizations/Mappers/OrganizationMapper.php'));
+    $check(str_contains($fuente, '$userIsOrganizationAdministrator = OrganizationMapper::grantsAdministratorPermissions(')
+        && str_contains($fuenteMapper, '$administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;')
+        && str_contains($fuenteMapper, 'return $administratorID == $userID;'), 'f1 CANARIO: 616 compara por id, venga el encargado como UsersModel o como entero');
     $porId = function ($administrador, int $usuario): bool {
         $id = $administrador instanceof UsersModel ? $administrador->id : $administrador;
         return $id == $usuario;

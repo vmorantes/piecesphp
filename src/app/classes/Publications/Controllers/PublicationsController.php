@@ -7,6 +7,7 @@
 namespace Publications\Controllers;
 
 use Organizations\Mappers\OrganizationMapper;
+use Organizations\OrganizationsRoutes;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Cache\CacheControllersCriteries;
 use PiecesPHP\Core\Cache\CacheControllersCritery;
@@ -1219,7 +1220,8 @@ class PublicationsController extends AdminPanelController
         $currentUser = getLoggedFrameworkUser();
         [$status, $ignoreStatus] = self::publicStatusFilter($status, $ignoreStatus, $currentUser !== null ? (int) $currentUser->type : null);
         //Lo que no está activo solo se ve en la propia organización; sin ella, nada (pendientes.md 380). Lo activo, igual.
-        $organizationScope = $currentUser !== null && !in_array((int) $currentUser->type, PublicationMapper::CAN_VIEW_ALL)
+        //Con Organizaciones apagado la organización no acota (P384 a): decide el permiso de borradores.
+        $organizationScope = $currentUser !== null && OrganizationsRoutes::enabled() && !in_array((int) $currentUser->type, PublicationMapper::CAN_VIEW_ALL)
             ? ($currentUser->organization !== null ? (int) $currentUser->organization : -1)
             : null;
 
@@ -1345,7 +1347,13 @@ class PublicationsController extends AdminPanelController
         //Restricciones según organización (a menos que pueda verlas todas por PublicationMapper::CAN_VIEW_ALL)
         if (!in_array($currentUserType, PublicationMapper::CAN_VIEW_ALL)) {
 
-            if ($currentOrganizationMapper !== null) {
+            if (!OrganizationsRoutes::enabled()) {
+
+                //Con Organizaciones apagado la organización no acota (P384 a): solo SOLO_PROPIAS, si el proyecto lo activa.
+                if (self::SOLO_PROPIAS) {
+                    $havingItems[] = new HavingItem('createdBy', HavingItem::EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR);
+                }
+            } elseif ($currentOrganizationMapper !== null) {
 
                 //Ver solo las de su organización
                 $havingItems[] = new HavingItem('organizationID', HavingItem::EQUAL_OPERATOR, $currentOrganizationMapper->id, HavingItem::AND_OPERATOR);
@@ -1919,7 +1927,8 @@ class PublicationsController extends AdminPanelController
                         $createdByOrganizationAdminID = $createdByOrganizationAdmin instanceof UsersModel ? $createdByOrganizationAdmin->id : (is_int($createdByOrganizationAdmin) ? $createdByOrganizationAdmin : null);
                         $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
                         $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
-                        $allowByOrg = $currentIsSameOrg && $currentIsOrgAdmin;
+                        //Con Organizaciones apagado, ser encargado no concede (P384 a).
+                        $allowByOrg = OrganizationsRoutes::enabled() && $currentIsSameOrg && $currentIsOrgAdmin;
 
                         $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
 
@@ -1947,7 +1956,8 @@ class PublicationsController extends AdminPanelController
                         $createdByOrganizationAdminID = $createdByOrganizationAdmin instanceof UsersModel ? $createdByOrganizationAdmin->id : (is_int($createdByOrganizationAdmin) ? $createdByOrganizationAdmin : null);
                         $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
                         $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
-                        $allowByOrg = $currentIsSameOrg && $currentIsOrgAdmin;
+                        //Con Organizaciones apagado, ser encargado no concede (P384 a).
+                        $allowByOrg = OrganizationsRoutes::enabled() && $currentIsSameOrg && $currentIsOrgAdmin;
 
                         $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
 

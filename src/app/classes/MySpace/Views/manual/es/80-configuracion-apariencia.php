@@ -10,23 +10,19 @@ Archivos para buscadores, en <strong>«SEO y Scripts»</strong>.</p>
 <h2 class="active title" id="imagenes-de-marca"><span role="button" tabindex="0" aria-expanded="true" aria-controls="imagenes-de-marca-contenido"><i class="dropdown icon" aria-hidden="true"></i>Imágenes de marca</span></h2>
 <div class="active content" id="imagenes-de-marca-contenido">
 <p>Entra por <strong>«Imágenes de marca»</strong>. La plataforma es de marca blanca: estas imágenes identifican a tu organización en
-todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.</p>
+todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público. La pantalla tiene
+tres pestañas: <strong>«Imágenes»</strong>, <strong>«Cargador»</strong> y <strong>«Vista previa»</strong>. La pestaña elegida se queda en la dirección y la
+pantalla la recuerda al volver.</p>
 <p><img class="ui image" alt="Imágenes de marca" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images.webp')); ?>"></p>
 <p>Para editar una imagen, púlsala. Además, cada una tiene el botón <strong>«Cambiar imagen»</strong> y un icono para descargarla o verla.
 Cada tarjeta dice dónde se usa su imagen y enseña cómo se ve, a su tamaño real: en <strong>«Modo claro»</strong> y, en las que lo
-tienen, en <strong>«Modo oscuro»</strong>, una al lado de la otra. Las imágenes son:</p>
+tienen, en <strong>«Modo oscuro»</strong>, una al lado de la otra.</p>
+<p>En <strong>«Imágenes»</strong>:</p>
 <ul>
 <li><strong>Logo</strong>.</li>
 <li><strong>Favicon zona administrativa</strong> y <strong>Favicon zona pública / sitio web</strong>.</li>
-<li><strong>Animación de carga</strong>: la que se ve mientras carga una pantalla, en el panel y en el sitio público. Acepta GIF,
-  de cualquier tamaño (se recomiendan 360 px de alto), y se sube tal cual, sin recortar. El usuario principal puede subir
-  también un SVG, que se revisa al subirlo. De fábrica es
-  el logo dibujándose.</li>
-<li><strong>Logo del cargador</strong>: una imagen fija que acompaña a la animación, debajo. De fábrica es la «P» del logo (en modo
-  oscuro, en blanco y celeste). Es opcional: con <strong>«Eliminar»</strong> el cargador deja de enseñarla y se queda solo con la
-  animación; para volver a tener una, súbela.</li>
 <li><strong>Correos electrónicos</strong>.</li>
-<li>En <strong>«Terceros»</strong>: <strong>Bandera horizontal</strong> y <strong>Bandera vertical</strong>.</li>
+<li>En <strong>«Terceros»</strong>: <strong>Bandera horizontal</strong> y <strong>Bandera vertical</strong>, y el texto que va encima de ellas.</li>
 </ul>
 <table class="ui celled table">
 <thead>
@@ -45,11 +41,47 @@ tienen, en <strong>«Modo oscuro»</strong>, una al lado de la otra. Las imágen
 <tr>
 <td>En modo oscuro</td>
 <td>No</td>
-<td>Está en el logo, las dos banderas, la animación de carga y el logo del cargador. <strong>«Igual»</strong> enseña la misma imagen; <strong>«Invertir en blanco»</strong> la vuelve blanca (necesita fondo transparente: un fondo opaco saldría como un rectángulo blanco); <strong>«Otra imagen»</strong> te deja subir una versión para el modo oscuro con <strong>«Elegir imagen oscura»</strong>. Se guarda al cambiarlo.</td>
+<td>Está en el logo, las dos banderas y en todas las del cargador. <strong>«Igual»</strong> enseña la misma imagen; <strong>«Invertir en blanco»</strong> la vuelve blanca (necesita fondo transparente: un fondo opaco saldría como un rectángulo blanco); <strong>«Otra imagen»</strong> te deja subir una versión para el modo oscuro con <strong>«Elegir imagen oscura»</strong>. Se guarda al cambiarlo.</td>
 </tr>
 </tbody>
 </table>
-<p>Cuando termines, pulsa <strong>«Guardar»</strong>.</p>
+<p>Cuando termines con el texto de los patrocinadores, pulsa <strong>«Guardar»</strong>.</p>
+<h3 class="ui header">El cargador</h3>
+<p>En <strong>«Cargador»</strong> está lo que se ve mientras carga una pantalla, en el panel y en el sitio público. Arriba, <strong>«Qué
+enseña el cargador»</strong> tiene tres interruptores, encendidos de fábrica: <strong>«Animación»</strong>, <strong>«Logo»</strong> y <strong>«Pantalla de
+carga»</strong>. Apagar uno no borra su imagen: al encenderlo vuelve la misma. Con los tres apagados, el cargador enseña un aro
+sencillo. Las imágenes de marca no se eliminan: solo se cambian.</p>
+<p><img class="ui image" alt="El cargador" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images-loader.webp')); ?>"></p>
+<ul>
+<li><strong>Animación de carga</strong>: acepta GIF, de cualquier tamaño (se recomiendan 360 px de alto), y se sube tal cual, sin
+  recortar. El usuario principal puede subir también un SVG, que se revisa al subirlo. De fábrica es el logo
+  dibujándose.</li>
+<li><strong>Logo del cargador</strong>: una imagen fija debajo de la animación. De fábrica es la «P» del logo (en modo oscuro, en
+  blanco y celeste).</li>
+<li><strong>Pantalla de carga</strong> y <strong>Pantalla de carga para móvil</strong>: una imagen a pantalla completa detrás del cargador,
+  animada (GIF; el usuario principal, también SVG) o fija (PNG, JPG o WebP), de hasta 3 MB. La animación, el logo, el
+  mensaje y el porcentaje van encima, centrados: deja el centro limpio. Se recomiendan 1920 × 1080 px para escritorio y
+  1080 × 1920 px para móvil; si subes la de escritorio y no la de móvil, en un móvil en vertical se usa la tuya
+  recortada al centro. De fábrica trae cuatro, animadas, en claro y en oscuro. Con «Reducir movimiento», una pantalla
+  animada se queda quieta.</li>
+</ul>
+<p>Las imágenes que subes aquí se guardan sin sus datos ocultos (ubicación, cámara), conservando su orientación.</p>
+<p>En <strong>«Área de pruebas»</strong>, cada botón lanza el cargador a pantalla completa unos segundos, con lo que tienes guardado y
+los interruptores como estén: <strong>«El de hoy»</strong>, <strong>«Sin la pantalla de carga»</strong> (si hay una), <strong>«Con mensaje»</strong>, <strong>«Con
+porcentaje»</strong>, <strong>«Con mensaje y porcentaje»</strong>, <strong>«Con la pantalla de carga»</strong> (si está encendida) y <strong>«Todo apagado»</strong>
+(el aro). Mientras dura, un botón lo enseña en el otro modo, claro u oscuro, sin cambiar tu preferencia; <strong>«Cerrar»</strong> o
+Escape lo quitan antes.</p>
+<h3 class="ui header">La vista previa</h3>
+<p>En <strong>«Vista previa»</strong> ves, con lo guardado, cómo quedan tus imágenes en cada sitio donde se usan, en <strong>«Modo claro»</strong> y
+<strong>«Modo oscuro»</strong> lado a lado: el menú lateral expandido y contraído, la barra del móvil, la columna del inicio de
+sesión con el recuadro de los apoyos, el cargador, la página de error, el encabezado de un correo y la pestaña del
+navegador. Se actualiza al guardar una imagen, sin recargar.</p>
+<p><img class="ui image" alt="La vista previa" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images-preview.webp')); ?>"></p>
+<div class="ui info message">
+<div class="header">Dos simulaciones con matiz</div>
+<p>El correo no tiene modo oscuro propio (lo decide el programa de correo de quien lo recibe), así que sus dos
+muestras son iguales. La pestaña del navegador es una imitación: la dibuja cada navegador.</p>
+</div>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-backgrounds'])): ?>
@@ -128,6 +160,7 @@ se usan únicamente en gráficas y datos. Junto a cada color, <strong>«Elegir c
 </tbody>
 </table>
 <h3 class="ui header">Tipografía y forma</h3>
+<p><img class="ui image" alt="Tipografía y forma" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-typography.webp')); ?>"></p>
 <table class="ui celled table">
 <thead>
 <tr>

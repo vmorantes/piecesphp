@@ -129,7 +129,7 @@ CliActions::make('unit-tests:core/panel-style-routes', function ($args) {
         $check($r['status'] === 302 && $camino($r['location']) === $camino($estiloURL) && str_ends_with($r['location'], 'appearance/panel-style/'), 'h2 appearance/colors/ redirige (302) a appearance/panel-style/, sin fragmento', "HTTP {$r['status']} → {$r['location']}");
         $r = $pedir('admin/configurations/appearance/accessibility/', $jwtRoot);
         $partes = explode('#', $r['location'], 2);
-        $check($r['status'] === 302 && $camino($partes[0]) === $camino($estiloURL) && ($partes[1] ?? null) === 'accesibilidad', 'h3 appearance/accessibility/ redirige (302) a appearance/panel-style/#accesibilidad', "HTTP {$r['status']} → {$r['location']}");
+        $check($r['status'] === 302 && $camino($partes[0]) === $camino($estiloURL) && ($partes[1] ?? null) === 'accessibility', 'h3 appearance/accessibility/ redirige (302) a appearance/panel-style/#accessibility', "HTTP {$r['status']} → {$r['location']}");
 
         //──── [s] En proceso: un rol con las direcciones viejas y sin appearance-colors ─────
         echoTerminal(' ');

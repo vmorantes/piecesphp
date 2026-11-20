@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice"><style>.s{transform-box:fill-box;transform-origin:center}.a{animation:a 14s ease-in-out infinite alternate}.b{animation:b 18s ease-in-out infinite alternate}.c{animation:c 22s linear infinite;transform-origin:center}.d{animation:d 9s ease-in-out infinite alternate}@keyframes a{to{transform:translate(3%,-4%) scale(1.06)}}@keyframes b{to{transform:translate(-4%,3%) scale(.95)}}@keyframes c{to{transform:rotate(360deg)}}@keyframes d{to{transform:translateY(-28px)}}@media (prefers-reduced-motion:reduce){.a,.b,.c,.d{animation:none}}</style><rect width="100%" height="100%" fill="#12151C"/><circle class="s b" cx="0" cy="0" r="669.6" fill="#3B4FD8" fill-opacity="0.22"/>
+<g><g class="c"><circle cx="0" cy="0" r="820.8" fill="none" stroke="#00AAEE" stroke-opacity="0.3" stroke-width="3" stroke-dasharray="40 18"/></g></g>
+<circle class="s a" cx="1080" cy="1920" r="756.0" fill="#00AAEE" fill-opacity="0.16"/>
+<circle class="s b" cx="1123.2" cy="1977.6000000000001" r="453.59999999999997" fill="#3B4FD8" fill-opacity="0.35200000000000004"/>
+<path class="s a" d="M0 1267.2 a324.0 324.0 0 0 1 0 648.0Z" fill="#00AAEE" fill-opacity="0.128"/>
+<circle class="s d" cx="950.4" cy="153.6" r="9" fill="#00AAEE" fill-opacity="0.5"/>
+<circle class="s d" cx="129.6" cy="1728.0" r="6" fill="#3B4FD8" fill-opacity="0.5"/></svg>

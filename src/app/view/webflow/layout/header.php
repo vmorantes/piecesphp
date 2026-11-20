@@ -4,7 +4,7 @@ use PiecesPHP\Core\Config;
 $alternativesURL = Config::get_config('alternatives_url');
 ?>
 <!DOCTYPE HTML>
-<html lang="<?=get_config('app_lang');?>" dlang="<?=get_config('default_lang');?>" data-wf-page="<?= $dataWfPage ?? ''; ?>" data-wf-site="<?= $dataWfSite ?? ''; ?>"<?= \PiecesPHP\Settings\Controllers\SettingsController::loaderHtmlAttributes(); ?>>
+<html lang="<?= escape_html((string) get_config('app_lang')); ?>" dlang="<?= escape_html((string) get_config('default_lang')); ?>" data-wf-page="<?= $dataWfPage ?? ''; ?>" data-wf-site="<?= $dataWfSite ?? ''; ?>"<?= \PiecesPHP\Settings\Controllers\SettingsController::loaderHtmlAttributes(); ?>>
 
 <head>
     <meta charset="utf-8">

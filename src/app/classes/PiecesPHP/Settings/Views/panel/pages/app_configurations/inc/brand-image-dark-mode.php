@@ -16,6 +16,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var int $height
  * @var bool $direct Se sube tal cual, sin recorte (la animación de carga): GIF o, si $canUploadSvg, SVG
  * @var bool $canUploadSvg
+ * @var string $accept No vacío, el `accept` de la oscura (el de su clara); vacío, el que sale de $direct
  * @var string $emptyText No vacío, sin imagen que enseñar la vista previa es un damero de `width` × `height` con este rótulo
  * Deja en `$darkControlsHtml` el selector «En modo oscuro» y en `$darkPreviewHtml` la vista previa oscura.
  * @var array{mode:string,saved:bool,onReplace:string,image:string,factoryDark:bool,field:string,view:array{mode:string,image:string},fallbackMode:string} $dark
@@ -28,20 +29,21 @@ $viewIsImage = $dark['view']['mode'] === SettingsController::BRAND_IMAGE_DARK_IM
 $previewSrc = $dark['view']['image'];
 $darkTitle = strReplaceTemplate(__($langGroup, '${title} en modo oscuro'), ['${title}' => $title]);
 $downloadText = __($langGroup, 'Descargar / ver');
-$download = '<a class="ui icon button" href="' . escape_html($previewSrc !== '' ? add_cache_stamp_to_url($previewSrc) : '#') . '" download aria-label="' . escape_html($downloadText) . '" data-image-card-download data-tooltip="' . escape_html($downloadText) . '" data-position="top center" data-inverted=""><i class="download icon" aria-hidden="true"></i></a>';
+$download = '<a class="ui small icon button" href="' . escape_html($previewSrc !== '' ? add_cache_stamp_to_url($previewSrc) : '#') . '" download aria-label="' . escape_html($downloadText) . '" data-image-card-download data-tooltip="' . escape_html($downloadText) . '" data-position="top center" data-inverted=""><i class="download icon" aria-hidden="true"></i></a>';
 $darkEdit = strReplaceTemplate(__($langGroup, 'Editar imagen: ${title}'), ['${title}' => $darkTitle]);
 //Sin imagen, oculta y con un GIF transparente de 1 px: un `src` vacío es una imagen rota.
 //Lo que se sube tal cual (la animación) se pinta a su medida real; lo recortado ya mide `width` × `height`.
 $darkSize = $direct && $viewIsImage ? SettingsController::imageFileSize($previewSrc) : null;
 $darkWidth = $darkSize['width'] ?? $width;
 $darkHeight = $darkSize['height'] ?? $height;
-$darkAccept = $direct ? ($canUploadSvg ? 'image/gif,image/svg+xml,.gif,.svg' : 'image/gif,.gif') : 'image/*';
+$darkAccept = $accept !== '' ? $accept : ($direct ? ($canUploadSvg ? 'image/gif,image/svg+xml,.gif,.svg' : 'image/gif,.gif') : 'image/*');
 $modes = [
     SettingsController::BRAND_IMAGE_DARK_SAME => __($langGroup, 'Igual'),
     SettingsController::BRAND_IMAGE_DARK_INVERT => __($langGroup, 'Invertir en blanco'),
     SettingsController::BRAND_IMAGE_DARK_IMAGE => __($langGroup, 'Otra imagen'),
 ];
-//Dos piezas: el selector, con el texto de la tarjeta, y la vista previa oscura, junto a la clara (`previewsBelow`).
+//Dos piezas: el selector, con el texto de la tarjeta, y la vista previa oscura, junto a la clara (`previewsBelow`). Su fila
+//«Elegir imagen oscura» va bajo las dos vistas a todo el ancho (_content-screens.scss), y pequeña: a 390 px cabe en una línea con «Descargar».
 ob_start();
 ?>
 <div class="ui form">
@@ -71,7 +73,7 @@ ob_start();
     </div>
     <div class="content" data-brand-dark-upload<?= $isImage ? '' : ' hidden'; ?>>
         <div class="ui flex">
-            <button class="mobile stretched ui basic labeled icon button" type="button" data-input="<?= escape_html("{$cardId}-dark-file"); ?>"><i class="upload icon" aria-hidden="true"></i><?= escape_html(__($langGroup, 'Elegir imagen oscura')); ?></button>
+            <button class="ui small basic labeled icon button" type="button" data-input="<?= escape_html("{$cardId}-dark-file"); ?>"><i class="upload icon" aria-hidden="true"></i><?= escape_html(__($langGroup, 'Elegir imagen oscura')); ?></button>
             <input type="file" id="<?= escape_html("{$cardId}-dark-file"); ?>" accept="<?= escape_html($darkAccept); ?>" hidden>
             <?php if ($previewSrc !== ''): ?>
             <?= $download; ?>

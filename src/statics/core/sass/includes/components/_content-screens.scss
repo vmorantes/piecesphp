@@ -105,31 +105,74 @@ $-stackedCellLabelColor: rgba(0, 0, 0, 0.6);
 //La variante con las vistas previas debajo (`previewsBelow`, Imágenes de marca): lado a lado y alineadas arriba,
 //una sola a todo el ancho y apiladas en el móvil. Cada imagen, con la proporción y como mucho el tamaño de los
 //`width`/`height` de su `<img>`, reducida entera si no cabe; el damero, solo en su área y con un borde discontinuo.
+//Las dos tarjetas (la clara y la oscura) se aplanan en la rejilla con `display: contents`: rótulos en una fila, imágenes
+//en la siguiente y «Elegir imagen oscura» con «Descargar» debajo de las dos, a todo el ancho. En el DOM la fila sigue
+//dentro de la tarjeta oscura: el editor de imágenes y el JS de Imágenes de marca la buscan por `closest('[data-image-card]')`.
 .content-image-card-below > .content.content-image-card-previews {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 0 1rem;
     align-items: start;
+
+    > .ui.card {
+        display: contents;
+    }
+
+    > .ui.card > .content-image-card-caption {
+        grid-row: 1;
+    }
+
+    > .ui.card > .checkered.image {
+        grid-row: 2;
+    }
+
+    > .ui.card:first-child > * {
+        grid-column: 1;
+    }
+
+    > .ui.card + .ui.card > * {
+        grid-column: 2;
+    }
+
+    //Con la especificidad de la regla de la segunda columna, para ganarle.
+    > .ui.card:only-child > *,
+    > .ui.card + .ui.card > [data-brand-dark-upload] {
+        grid-column: 1 / -1;
+    }
+
+    //Alineada con el borde de las vistas: sin el relleno lateral de la tarjeta, que la partía a 390 px.
+    > .ui.card + .ui.card > [data-brand-dark-upload] {
+        grid-row: 3;
+        padding-inline: 0;
+    }
 
     @media only screen and (max-width: 767.98px) {
         grid-template-columns: minmax(0, 1fr);
-    }
 
-    > .ui.card {
-        width: auto;
-        margin: 0;
-        border: 0;
-        background: transparent;
-        box-shadow: none;
-    }
+        > .ui.card > *,
+        > .ui.card + .ui.card > *,
+        > .ui.card + .ui.card > [data-brand-dark-upload] {
+            grid-column: 1;
+        }
 
-    > .ui.card:only-child {
-        grid-column: 1 / -1;
+        > .ui.card + .ui.card > .content-image-card-caption {
+            grid-row: 3;
+            margin-top: 1rem;
+        }
+
+        > .ui.card + .ui.card > .checkered.image {
+            grid-row: 4;
+        }
+
+        > .ui.card + .ui.card > [data-brand-dark-upload] {
+            grid-row: 5;
+        }
     }
 
     > .ui.card > .content-image-card-caption {
         position: static;
         align-self: flex-start;
+        justify-self: start;
         margin: 0 0 0.5rem;
     }
 

@@ -1,6 +1,6 @@
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 0.19.0 - Chat
+ * # Fomantic-UI 0.21.0 - Chat
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

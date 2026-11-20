@@ -7,6 +7,7 @@
 namespace SystemApprovals\Util\Packages;
 
 use Organizations\Mappers\OrganizationMapper;
+use Organizations\OrganizationsRoutes;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -86,7 +87,8 @@ class UsersApprovalHandler extends BaseApprovalHandler
         }
         $organization = $mapper->organization;
         $organization = $organization !== null ? new OrganizationMapper($organization) : new OrganizationMapper();
-        $isBaseOrg = $organization->id !== null && $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL;
+        //Con Organizaciones apagado no hay «independiente»: la global no es una organización a la vista (P384 a).
+        $isBaseOrg = OrganizationsRoutes::enabled() && $organization->id !== null && $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL;
         if ($isBaseOrg) {
             if ($mapper->type == UsersModel::TYPE_USER_GENERAL) {
                 $text = self::TEXT_INDEPENDENT_USER;
@@ -125,6 +127,10 @@ class UsersApprovalHandler extends BaseApprovalHandler
      */
     public static function approveIfOrganizationApproved(UsersModel $userMapper): bool
     {
+        //Con Organizaciones apagado nadie se aprueba por su organización (P384 a): queda para Aprobaciones.
+        if (!OrganizationsRoutes::enabled()) {
+            return false;
+        }
         $organization = $userMapper->organization;
         $organization = $organization !== null ? new OrganizationMapper($organization) : new OrganizationMapper();
         //Solo para quien está activo o PENDIENTE: inactivo, bloqueado, rechazado y borrado no se tocan, ni su estado ni su

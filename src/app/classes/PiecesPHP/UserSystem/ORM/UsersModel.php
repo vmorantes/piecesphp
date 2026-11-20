@@ -1513,6 +1513,7 @@ class UsersModel extends EntityMapperExtensible
             $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
             if (!$canModifyOrganizations) {
                 //Sin organización no ve a nadie, nunca a todos: antes el criterio quedaba «organization = » y daba 500.
+                //Ojo: aquí -10 cuenta como «sin organización»; UserHierarchy::canActOn() sí la trata como una más.
                 if (!Validator::isInteger($currentOrganizationID) || (int) $currentOrganizationID <= 0) {
                     return [];
                 }

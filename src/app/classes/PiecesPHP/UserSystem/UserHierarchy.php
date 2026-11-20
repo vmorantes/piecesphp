@@ -65,6 +65,7 @@ final class UserHierarchy
         if ($actorType === UsersModel::TYPE_USER_ADMIN_GRAL) {
             return true;
         }
+        //Ojo: aquí -10 es una organización más; UsersModel::all() la trata como «sin organización».
         return $actorType === UsersModel::TYPE_USER_ADMIN_ORG && $actorOrganization !== null && $actorOrganization === $targetOrganization;
     }
 

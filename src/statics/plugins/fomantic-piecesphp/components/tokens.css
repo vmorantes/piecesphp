@@ -239,6 +239,18 @@ html {
   color-scheme: light dark;
 }
 
+[data-theme="light"]:not(:root) {
+  color-scheme: light;
+}
+
+[data-theme="dark"]:not(:root) {
+  color-scheme: dark;
+}
+
+[data-theme="auto"]:not(:root) {
+  color-scheme: light dark;
+}
+
 :root[data-text-size="large"] {
   --font-size-base: calc(var(--font-size-site) + 2px);
 }

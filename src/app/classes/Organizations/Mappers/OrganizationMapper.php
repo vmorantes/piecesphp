@@ -8,6 +8,7 @@ namespace Organizations\Mappers;
 
 use Organizations\Exceptions\DuplicateException;
 use Organizations\OrganizationsLang;
+use Organizations\OrganizationsRoutes;
 use PiecesPHP\App\Locations\Mappers\CityMapper;
 use PiecesPHP\App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\BaseHashEncryption;
@@ -20,6 +21,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 
 /**
@@ -1349,6 +1351,39 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function canModifyAnyOrganization(int $userType)
     {
         return in_array($userType, self::CAN_MODIFY_ALL);
+    }
+
+    /**
+     * Si el estado de la organización de un usuario le deja entrar y tener sesión: login, cada petición, archivos
+     * protegidos y suplantación miran aquí. Sin organización, sí; con el módulo apagado, siempre (P384 a).
+     *
+     * @param object|null $organization La del usuario (mapeador o fila), con su `status`
+     * @return bool
+     */
+    public static function statusAllowsSession(?object $organization): bool
+    {
+        if (!OrganizationsRoutes::enabled() || $organization === null) {
+            return true;
+        }
+        return in_array($organization->status ?? null, Impersonation::ORGANIZATION_STATUSES_WITH_SESSION);
+    }
+
+    /**
+     * Si el usuario recibe PERMISSIONS_ON_ADMINISTRATOR por ser el encargado de su organización. Con el módulo apagado,
+     * nunca (P384 a). El encargado llega como UsersModel o como su id: se compara por id en los dos casos.
+     *
+     * @param int $userID
+     * @param OrganizationMapper|null $organization La del usuario
+     * @return bool
+     */
+    public static function grantsAdministratorPermissions(int $userID, ?OrganizationMapper $organization): bool
+    {
+        if (!OrganizationsRoutes::enabled() || $organization === null || $organization->administrator === null) {
+            return false;
+        }
+        $administrator = $organization->administrator;
+        $administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;
+        return $administratorID == $userID;
     }
 
     /**

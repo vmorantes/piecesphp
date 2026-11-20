@@ -1,9 +1,9 @@
 {
-  "version": "0.19.0",
+  "version": "0.21.0",
   "fomantic": "2.9.4",
-  "commit": "ebe031d6",
+  "commit": "3ffa1d3a",
   "sinCommitear": false,
-  "fecha": "2026-11-18",
+  "fecha": "2026-11-19",
   "changelog": "CHANGELOG.md",
   "tema": "piecesphp",
   "soloCSS": false

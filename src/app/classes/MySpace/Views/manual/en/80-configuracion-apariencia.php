@@ -9,22 +9,20 @@ Files for search engines are in <strong>“SEO and scripts”</strong>.</p>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-brand-images'])): ?>
 <h2 class="active title" id="brand-images"><span role="button" tabindex="0" aria-expanded="true" aria-controls="brand-images-contenido"><i class="dropdown icon" aria-hidden="true"></i>Brand images</span></h2>
 <div class="active content" id="brand-images-contenido">
-<p>Go to <strong>“Brand images”</strong>. The platform is white label: these images identify your organization across
-the whole system, from the login page and the side menu to the emails and the public site.</p>
+<p>Go to <strong>“Brand images”</strong>. The platform is white-label: these images identify your organization across the whole
+system, from the login and the side menu to the emails and the public site. The screen has three tabs:
+<strong>“Images”</strong>, <strong>“Loader”</strong> and <strong>“Preview”</strong>. The chosen tab stays in the address and the screen remembers it when you
+come back.</p>
 <p><img class="ui image" alt="Brand images" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images.webp')); ?>"></p>
-<p>To edit an image, click it. Each one also has a <strong>“Change image”</strong> button and an icon to download or view it. Each card
-says where its image is used and shows how it looks, at its real size: in <strong>“Light mode”</strong> and, where available, in
-<strong>“Dark mode”</strong>, side by side. The images are:</p>
+<p>To edit an image, click it. Each one also has the <strong>“Change image”</strong> button and an icon to download or view it. Each
+card says where its image is used and shows how it looks, at its real size: in <strong>“Light mode”</strong> and, where it applies,
+in <strong>“Dark mode”</strong>, side by side.</p>
+<p>In <strong>“Images”</strong>:</p>
 <ul>
 <li><strong>Logo</strong>.</li>
 <li><strong>Favicon, admin area</strong> and <strong>Favicon, public area / website</strong>.</li>
-<li><strong>Loading animation</strong>: the one shown while a screen loads, in the panel and on the public site. It accepts GIF,
-  of any size (360 px high is recommended), and is uploaded as is, without cropping. The main user can also upload an
-  SVG, which is checked on upload. By default it is the logo
-  drawing itself.</li>
-<li><strong>Loader logo</strong>: a still image shown below the animation. By default it is the logo's “P” (white and light blue in dark mode). It is optional: with <strong>“Delete”</strong> the loader stops showing it and keeps only the animation; to have one again, upload it.</li>
 <li><strong>E-mails</strong>.</li>
-<li>Under <strong>“Third parties”</strong>: <strong>Horizontal banner</strong> and <strong>Vertical banner</strong>.</li>
+<li>In <strong>“Third parties”</strong>: <strong>Horizontal banner</strong> and <strong>Vertical banner</strong>, and the text above them.</li>
 </ul>
 <table class="ui celled table">
 <thead>
@@ -38,16 +36,51 @@ says where its image is used and shows how it looks, at its real size: in <stron
 <tr>
 <td>Text above the sponsor</td>
 <td>No</td>
-<td>Optional: it appears in the menu footer, above the sponsor image. There is one field for each active language of the site. In the main language, if empty, nothing is shown; in the others, if empty, the main language's text is used.</td>
+<td>Optional: it appears in the menu footer, above the sponsor's image. There is one field per active site language. In the main language, empty, it is not shown; in the others, empty uses the main language's.</td>
 </tr>
 <tr>
 <td>In dark mode</td>
 <td>No</td>
-<td>It is on the logo, both banners, the loading animation and the loader logo. <strong>“Same”</strong> shows the same image; <strong>“Invert to white”</strong> turns it white (it needs a transparent background: an opaque one would show as a white rectangle); <strong>“Another image”</strong> lets you upload a dark-mode version with <strong>“Choose dark image”</strong>. It is saved when you change it.</td>
+<td>It is on the logo, both banners and all the loader images. <strong>“Same”</strong> shows the same image; <strong>“Invert to white”</strong> turns it white (it needs a transparent background: an opaque one would show as a white rectangle); <strong>“Another image”</strong> lets you upload a dark-mode version with <strong>“Choose dark image”</strong>. It is saved when you change it.</td>
 </tr>
 </tbody>
 </table>
-<p>When you finish, click <strong>“Save”</strong>.</p>
+<p>When you are done with the sponsor text, click <strong>“Save”</strong>.</p>
+<h3 class="ui header">The loader</h3>
+<p>In <strong>“Loader”</strong> is what you see while a screen loads, in the panel and on the public site. At the top, <strong>“What the
+loader shows”</strong> has three switches, on by default: <strong>“Animation”</strong>, <strong>“Logo”</strong> and <strong>“Loading screen”</strong>. Turning one off
+does not delete its image: turning it on again brings back the same one. With all three off, the loader shows a simple
+ring. Brand images are not deleted: they are only replaced.</p>
+<p><img class="ui image" alt="The loader" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images-loader.webp')); ?>"></p>
+<ul>
+<li><strong>Loading animation</strong>: it accepts GIF, of any size (360 px high is recommended), and is uploaded as is, without
+  cropping. The main user can also upload an SVG, which is checked on upload. By default it is the logo drawing
+  itself.</li>
+<li><strong>Loader logo</strong>: a still image below the animation. By default it is the logo's “P” (white and light blue in dark
+  mode).</li>
+<li><strong>Loading screen</strong> and <strong>Mobile loading screen</strong>: a full-screen image behind the loader, animated (GIF; the main
+  user, also SVG) or still (PNG, JPG or WebP), up to 3 MB. The animation, the logo, the message and the percentage go on
+  top, centered: keep the center clean. 1920 × 1080 px is recommended for desktop and 1080 × 1920 px for mobile; if you
+  upload the desktop one and not the mobile one, a phone in portrait uses yours cropped to the center. By default there
+  are four, animated, light and dark. With “Reduce motion”, an animated screen stays still.</li>
+</ul>
+<p>The images you upload here are saved without their hidden data (location, camera), keeping their orientation.</p>
+<p>In <strong>“Test area”</strong>, each button launches the full-screen loader for a few seconds, with what you have saved and the
+switches as they are: <strong>“Current one”</strong>, <strong>“Without the loading screen”</strong> (if there is one), <strong>“With message”</strong>, <strong>“With
+percentage”</strong>, <strong>“With message and percentage”</strong>, <strong>“With the loading screen”</strong> (if it is on) and <strong>“Everything off”</strong>
+(the ring). While it lasts, a button shows it in the other mode, light or dark, without changing your preference;
+<strong>“Close”</strong> or Escape remove it earlier.</p>
+<h3 class="ui header">The preview</h3>
+<p>In <strong>“Preview”</strong> you see, with what is saved, how your images look in each place where they are used, in <strong>“Light
+mode”</strong> and <strong>“Dark mode”</strong> side by side: the side menu expanded and collapsed, the mobile bar, the login column with
+the sponsors box, the loader, the error page, an email header and the browser tab. It updates when you save an image,
+without reloading.</p>
+<p><img class="ui image" alt="The preview" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-brand-images-preview.webp')); ?>"></p>
+<div class="ui info message">
+<div class="header">Two simulations with a caveat</div>
+<p>Email has no dark mode of its own (the recipient's email program decides), so its two samples are the same. The
+browser tab is an imitation: each browser draws it.</p>
+</div>
 </div>
 <?php endif; ?>
 <?php if (\MySpace\Controllers\MySpaceController::manualSectionVisible(['configurations-appearance-backgrounds'])): ?>
@@ -125,6 +158,7 @@ are used only in charts and data. Next to each color, <strong>“Choose color”
 </tbody>
 </table>
 <h3 class="ui header">Typography and shape</h3>
+<p><img class="ui image" alt="Typography and shape" src="<?= escape_html(\MySpace\MySpaceRoutes::staticRoute('manual/es/configurations-appearance-typography.webp')); ?>"></p>
 <table class="ui celled table">
 <thead>
 <tr>

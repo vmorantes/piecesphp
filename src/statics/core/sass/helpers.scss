@@ -102,6 +102,8 @@ $globalClassPcs: 'ui-pcs';
         }
 
         .#{$globalClassPcs}-text-message {
+            //Sin él, en una página sin reset de border-box (ui-pcs.css, Fomantic), el 100% más el relleno se sale 10 px de un móvil.
+            box-sizing: border-box;
             text-align: center;
             padding: 0.5rem 5px;
             font-weight: $fwBold;
@@ -109,6 +111,18 @@ $globalClassPcs: 'ui-pcs';
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
+
+            //Vacío está siempre en la caja (role="status"): fuera de la vista pero no del árbol de accesibilidad, sin display: none.
+            &:empty {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip-path: inset(50%);
+                white-space: nowrap;
+            }
         }
 
     }
@@ -117,6 +131,28 @@ $globalClassPcs: 'ui-pcs';
     .#{$globalClassPcs}-loader-reduced {
         display: none;
     }
+
+    //La pantalla de carga (H417): a pantalla completa y recortada al centro. Lleva una sola imagen: la del modo y la
+    //orientación de ahora la elige GenericLoaderElement.js, que la cambia al girar o al cambiar de modo.
+    .#{$globalClassPcs}-screen {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+
+        img,
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            object-fit: cover;
+            object-position: center;
+        }
+    }
+
+    //Con pantalla, sin franja (PO): la caja de siempre, sin fondo, y sus textos en --theme-text sobre el centro limpio de la
+    //pantalla; el contraste lo da la pantalla, no un velo.
 
     @keyframes spin {
         0% {

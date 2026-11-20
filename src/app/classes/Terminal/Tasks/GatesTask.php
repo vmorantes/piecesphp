@@ -191,6 +191,21 @@ class GatesTask extends TerminalTaskAbstract
             exit(2);
         }
 
+        //Una extensión de core/session-header-name de una corrida muerta para gates (H426); la de una viva es de otra verificación.
+        $sessionLeftovers = self::sessionExtensionLeftovers(basepath('app/config/extensions'));
+        $deadLeftovers = array_filter($sessionLeftovers, fn(array $leftover) => !$leftover['alive']);
+        foreach (array_filter($sessionLeftovers, fn(array $leftover) => $leftover['alive']) as $leftover) {
+            echoTerminal("   extensión de prueba {$leftover['name']}: su corrida {$leftover['run']} sigue viva (otra verificación a mitad de core/session-header-name); se sigue");
+        }
+        if ($deadLeftovers !== []) {
+            echoTerminal("\e[31mERROR:\e[39m quedan extensiones de prueba de core/session-header-name en src/app/config/extensions/; bórralas"
+                . ' antes de correr gates (su corrida murió a mitad, o no se lee):');
+            foreach ($deadLeftovers as $leftover) {
+                echoTerminal('      ' . $leftover['name'] . ($leftover['run'] !== null ? " (corrida {$leftover['run']})" : ' (sin corrida legible)'));
+            }
+            exit(1);
+        }
+
         $only = \PiecesPHP\TerminalData::instance()->getArgument('only', '');
         $only = is_string($only) ? trim($only) : '';
 
@@ -873,6 +888,35 @@ class GatesTask extends TerminalTaskAbstract
                 . ' de la instalación donde corren, así que aquí no corre ninguna. En una instalación de DESARROLLO,'
                 . ' declara `return \'local\';` en src/' . AppEnvironment::FILE_RELATIVE_PATH . '.',
         ];
+    }
+
+    /**
+     * Las extensiones de prueba de core/session-header-name (`zz-prueba-sesion-*.php`) que quedan en esa carpeta, con la
+     * corrida que llevan dentro y si su proceso vive. El temporal con el que la suite la escribe (`.tmp`) no casa.
+     *
+     * Viva, con el mismo criterio que GenericHandler::isPrunable(): el pid de `t<pid>-…` responde a posix_kill($pid, 0)
+     * (o EPERM), o existe /proc/<pid>. Sin corrida legible cuenta como muerta: es de antes de la marca.
+     *
+     * @param string $directory
+     * @return array<int,array{name:string,run:string|null,alive:bool}> Ordenadas por nombre
+     */
+    public static function sessionExtensionLeftovers(string $directory): array
+    {
+        $found = glob(rtrim($directory, '/') . '/zz-prueba-sesion-*.php');
+        $found = is_array($found) ? $found : [];
+        sort($found);
+        $leftovers = [];
+        foreach ($found as $path) {
+            $content = @file_get_contents($path);
+            $run = is_string($content) && preg_match("/=== '(t([0-9]+)-[0-9a-f]{12})'/", $content, $matched) === 1 ? $matched[1] : null;
+            $alive = false;
+            if ($run !== null) {
+                $pid = (int) $matched[2];
+                $alive = $pid > 0 && (function_exists('posix_kill') ? (posix_kill($pid, 0) || posix_get_last_error() === 1) : is_dir('/proc/' . $pid));
+            }
+            $leftovers[] = ['name' => basename($path), 'run' => $run, 'alive' => $alive];
+        }
+        return $leftovers;
     }
 
     /**

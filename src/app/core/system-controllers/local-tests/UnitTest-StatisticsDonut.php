@@ -164,13 +164,11 @@ CliActions::make('unit-tests:core/statistics-donut', function ($args) {
     $hoja = basepath('statics/core/css/graphs-and-statistics.css');
     $css = is_file($hoja) ? (string) preg_replace(['/\s+/', '/"/'], '', (string) file_get_contents($hoja)) : '';
     $tema = (string) preg_replace(['/\s+/', '/"/'], '', (string) @file_get_contents(basepath('statics/plugins/fomantic-piecesphp/components/swatch.css')));
-    $faltan = array_filter(['1', '2', '3', '4', '5', 'other'], fn (string $series): bool => !str_contains($tema, '.ui.swatch[data-series=' . $series . ']{--swatch:var(--' . ($series === 'other' ? 'theme-border' : "data-{$series}") . ');}'));
-    $check($tema !== '' && $faltan === [], 'r5 el tema da a cada serie su color (data-series 1 a 5 y other)', $tema === '' ? 'no está el swatch.css del tema' : implode(', ', $faltan));
-    //La única excepción: la muestra de «Otros» con el token que da 3:1 en los dos modos, hasta que el tema lo traiga.
+    $faltan = array_filter(['1', '2', '3', '4', '5', 'other'], fn (string $series): bool => !str_contains($tema, '.ui.swatch[data-series=' . $series . ']{--swatch:var(--' . ($series === 'other' ? 'theme-text-muted' : "data-{$series}") . ');}'));
+    $check($tema !== '' && $faltan === [], 'r5 el tema da a cada serie su color (data-series 1 a 5, y other con --theme-text-muted, 3:1 en los dos modos, desde la 0.20.0)', $tema === '' ? 'no está el swatch.css del tema' : implode(', ', $faltan));
     $fuente = (string) file_get_contents(basepath('statics/core/sass/includes/_graphs-and-statistics.scss'));
-    $reglaOtros = "//Hasta que el tema lo traiga: sale al traerlo (H359).\n.ui.swatch[data-series=\"other\"] {\n    --swatch: var(--theme-text-muted);\n}";
-    $check(substr_count($fuente, 'data-series') === 1 && str_contains(str_replace("\r\n", "\n", $fuente), $reglaOtros), 'r5b la hoja propia no repite el tema: solo la regla de «Otros», con su comentario', substr_count($fuente, 'data-series') . ' apariciones de data-series en la fuente');
-    $check($css !== '' && substr_count($css, 'data-series') === 1 && str_contains($css, '.ui.swatch[data-series=other]{--swatch:var(--theme-text-muted)}'), 'r5c compilada, con esa regla y ninguna otra (sin ella: gulp sass-compile-general)', $css === '' ? 'no está compilada' : (string) substr_count($css, 'data-series'));
+    $check(substr_count($fuente, 'data-series') === 0, 'r5b la hoja propia no repite el color de ninguna serie, tampoco el de «Otros»', substr_count($fuente, 'data-series') . ' apariciones de data-series en la fuente');
+    $check($css !== '' && substr_count($css, 'data-series') === 0, 'r5c compilada, sin ninguna regla de serie (si falla: gulp sass-compile-general)', $css === '' ? 'no está compilada' : (string) substr_count($css, 'data-series'));
     echoTerminal(' ');
 
     echoTerminal(str_repeat('=', 80));

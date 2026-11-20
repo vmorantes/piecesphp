@@ -1,7 +1,7 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); ?>
 <?php //Los cinco de apariencia y accesibilidad, en <html> antes de pintar nada (sin parpadeo): AdminPanelController. ?>
 <!DOCTYPE html>
-<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
+<html lang="<?= escape_html((string) get_config('app_lang')); ?>" dlang="<?= escape_html((string) get_config('default_lang')); ?>"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
 
 <head>
     <meta charset="UTF-8">

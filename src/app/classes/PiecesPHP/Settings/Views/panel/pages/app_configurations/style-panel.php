@@ -3,12 +3,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 /**
  * Estilo del panel: Colores, Tipografía y forma, y Accesibilidad en pestañas del tema (la activa vive en el fragmento de
- * la dirección: #colores, #tipografia, #accesibilidad; Statics/js/style-panel.js), con la muestra en vivo debajo, en dos
+ * la dirección: #colors, #typography, #accessibility; Statics/js/style-panel.js), con la muestra en vivo debajo, en dos
  * iframe, claro y oscuro. Los formularios son los de siempre (inc/configuration-tabs/general.php y accessibility.php).
  *
  * @var string $langGroup
  * @var bool $accessibilityVisible Con el permiso de appearance-accessibility
- * @var string $previewAttributes Los del sitio en el <html> (Accesibilidad y el cargador), ya escapados y sin data-theme
  * @var string $title
  * @var string $description
  * @var array<string|int,string|array{url:string}> $breadcrumbs
@@ -85,17 +84,8 @@ $previewSample = function (string $theme) use ($langGroup, $liveSeries, $logos):
 <?php
 return (string) ob_get_clean();
 };
-//Las mismas hojas que esta página: el tema no tiene modo por contenedor, así que cada modo es un documento entero.
-ob_start();
-load_font();
-load_css([
-    'base_url' => '',
-    'custom_url' => '',
-]);
-$previewHead = (string) ob_get_clean();
-$previewDocument = fn (string $theme): string => '<!DOCTYPE html><html lang="' . escape_html((string) get_config('app_lang')) . '" data-theme="' . $theme . '"' . $previewAttributes . '>'
-    . '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><base href="' . escape_html(baseurl()) . '">' . $previewHead . '</head>'
-    . '<body>' . $previewSample($theme) . '</body></html>';
+//Las mismas hojas que esta página, con los atributos del sitio (SettingsController::themePreviewDocument()).
+$previewDocument = fn (string $theme): string => SettingsController::themePreviewDocument($theme, $previewSample($theme));
 $previews = [
     'light' => [__($langGroup, 'Modo claro'), __($langGroup, 'Muestra en modo claro')],
     'dark' => [__($langGroup, 'Modo oscuro'), __($langGroup, 'Muestra en modo oscuro')],
@@ -114,16 +104,16 @@ $previews = [
         ?>
 
         <div class="ui secondary pointing menu tabs-controls content-tabs" data-style-panel-tabs>
-            <a class="active item" data-tab="colores"><i class="fill drip icon" aria-hidden="true"></i><?= __($langGroup, 'Colores'); ?></a>
-            <a class="item" data-tab="tipografia"><i class="font icon" aria-hidden="true"></i><?= __($langGroup, 'Tipografía y forma'); ?></a>
+            <a class="active item" data-tab="colors"><i class="fill drip icon" aria-hidden="true"></i><?= __($langGroup, 'Colores'); ?></a>
+            <a class="item" data-tab="typography"><i class="font icon" aria-hidden="true"></i><?= __($langGroup, 'Tipografía y forma'); ?></a>
             <?php if ($accessibilityVisible): ?>
-            <a class="item" data-tab="accesibilidad"><i class="universal access icon" aria-hidden="true"></i><?= __($langGroup, 'Accesibilidad'); ?></a>
+            <a class="item" data-tab="accessibility"><i class="universal access icon" aria-hidden="true"></i><?= __($langGroup, 'Accesibilidad'); ?></a>
             <?php endif; ?>
         </div>
 
         <?php $this->render('panel/pages/app_configurations/inc/configuration-tabs/general', $data); ?>
         <?php if ($accessibilityVisible): ?>
-        <div class="ui tab" data-tab="accesibilidad">
+        <div class="ui tab" data-tab="accessibility">
             <?php $this->render('panel/pages/app_configurations/accessibility', $data); ?>
         </div>
         <?php endif; ?>
@@ -138,8 +128,8 @@ $previews = [
                 <?php foreach ($previews as $previewTheme => [$previewLabel, $previewTitle]): ?>
                 <div class="column">
                     <h3 class="ui tiny header"><?= $previewLabel; ?></h3>
-                    <div class="style-preview-frame" data-style-preview-frame>
-                        <iframe data-style-preview="<?= $previewTheme; ?>" title="<?= escape_html($previewTitle); ?>" tabindex="-1" aria-hidden="true" width="100%" height="400" frameborder="0" srcdoc="<?= escape_html($previewDocument($previewTheme)); ?>"></iframe>
+                    <div class="theme-preview-frame" data-style-preview-frame>
+                        <iframe data-style-preview="<?= $previewTheme; ?>" data-preview-fit="[data-style-preview-content]" title="<?= escape_html($previewTitle); ?>" tabindex="-1" aria-hidden="true" width="100%" height="400" frameborder="0" srcdoc="<?= escape_html($previewDocument($previewTheme)); ?>"></iframe>
                     </div>
                 </div>
                 <?php endforeach; ?>

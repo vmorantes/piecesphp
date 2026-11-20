@@ -41,13 +41,42 @@ class OrganizationsRoutes
     const ENABLE = ORGANIZATIONS_MODULE;
 
     /**
+     * @var bool|null Solo las pruebas lo ponen (swapEnabledForTesting); null es ENABLE.
+     */
+    private static ?bool $enabledForTesting = null;
+
+    /**
+     * El interruptor del módulo, leído aquí y en ningún otro sitio. Apagado, nadie gana ni pierde acceso por su
+     * organización (P384 a); encendido, nada cambia.
+     *
+     * @return bool
+     */
+    public static function enabled(): bool
+    {
+        return self::$enabledForTesting ?? self::ENABLE;
+    }
+
+    /**
+     * Enciende (true), apaga (false) o devuelve a ENABLE (null) el interruptor, y devuelve lo que había.
+     *
+     * @param bool|null $enabled
+     * @return bool|null
+     */
+    public static function swapEnabledForTesting(?bool $enabled): ?bool
+    {
+        $previous = self::$enabledForTesting;
+        self::$enabledForTesting = $enabled;
+        return $previous;
+    }
+
+    /**
      * @param RouteGroup $groupAdministration
      * @param RouteGroup $groupPublic
      * @return RouteGroup[] Con los índices groupAdministration y groupPublic
      */
     public static function routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)
     {
-        if (self::ENABLE) {
+        if (self::enabled()) {
 
             $groupAdministration = OrganizationsController::routes($groupAdministration);
 
@@ -59,8 +88,7 @@ class OrganizationsRoutes
 
         }
 
-        //Fuera del ENABLE: los perfiles de organización (profileRoutes) existen siempre y los necesitan.
-        //Los estáticos se piden sin sesión: van con lo público (P51).
+        //Fuera del interruptor, como siempre. Los estáticos se piden sin sesión: van con lo público (P51).
         self::staticResolver($groupPublic);
         OrganizationsLang::injectLang();
 
@@ -72,13 +100,16 @@ class OrganizationsRoutes
 
     /**
      * Los perfiles de organización van en la zona administrativa, no en el grupo de `routes()`: ahí cambiarían su URL.
-     * No miran ENABLE: antes vivían en MySpace, que siempre está activo; sus estáticos y su idioma, tampoco (routes()).
+     * Con el módulo apagado no se registran (P384 a): todas sus rutas conceden a todos los roles.
      *
      * @param RouteGroup $groupAdministration
      * @return RouteGroup
      */
     public static function profileRoutes(RouteGroup $groupAdministration): RouteGroup
     {
+        if (!self::enabled()) {
+            return $groupAdministration;
+        }
         $groupAdministration = MyOrganizationProfileController::routes($groupAdministration);
         $groupAdministration = OrganizationProfileController::routes($groupAdministration);
         return $groupAdministration;

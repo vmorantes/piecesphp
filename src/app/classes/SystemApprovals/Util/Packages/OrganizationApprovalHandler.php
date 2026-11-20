@@ -7,6 +7,7 @@
 namespace SystemApprovals\Util\Packages;
 
 use Organizations\Mappers\OrganizationMapper;
+use Organizations\OrganizationsRoutes;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
@@ -34,6 +35,16 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
         OrganizationMapper::INACTIVE,
         OrganizationMapper::PENDING_APPROVAL,
     ];
+
+    /**
+     * Con el módulo de organizaciones apagado no se registra: aprobar o rechazar una no arrastra a sus usuarios (P384 a).
+     *
+     * @return bool
+     */
+    public static function isEnabled(): bool
+    {
+        return OrganizationsRoutes::enabled() && parent::isEnabled();
+    }
 
     /**
      * A quién va el aviso de una organización (P216): a su encargado; si no tiene, o fue Eliminado, a quien la creó.

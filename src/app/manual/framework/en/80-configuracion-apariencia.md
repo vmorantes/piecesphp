@@ -12,31 +12,71 @@ Files for search engines are in **“SEO and scripts”**.
 ## Brand images
 <!-- ve: configurations-appearance-brand-images -->
 
-Go to **“Brand images”**. The platform is white label: these images identify your organization across
-the whole system, from the login page and the side menu to the emails and the public site.
+Go to **“Brand images”**. The platform is white-label: these images identify your organization across the whole
+system, from the login and the side menu to the emails and the public site. The screen has three tabs:
+**“Images”**, **“Loader”** and **“Preview”**. The chosen tab stays in the address and the screen remembers it when you
+come back.
 
 ![Brand images](img/configurations-appearance-brand-images.webp)
 
-To edit an image, click it. Each one also has a **“Change image”** button and an icon to download or view it. Each card
-says where its image is used and shows how it looks, at its real size: in **“Light mode”** and, where available, in
-**“Dark mode”**, side by side. The images are:
+To edit an image, click it. Each one also has the **“Change image”** button and an icon to download or view it. Each
+card says where its image is used and shows how it looks, at its real size: in **“Light mode”** and, where it applies,
+in **“Dark mode”**, side by side.
+
+In **“Images”**:
 
 - **Logo**.
 - **Favicon, admin area** and **Favicon, public area / website**.
-- **Loading animation**: the one shown while a screen loads, in the panel and on the public site. It accepts GIF,
-  of any size (360 px high is recommended), and is uploaded as is, without cropping. The main user can also upload an
-  SVG, which is checked on upload. By default it is the logo
-  drawing itself.
-- **Loader logo**: a still image shown below the animation. By default it is the logo's “P” (white and light blue in dark mode). It is optional: with **“Delete”** the loader stops showing it and keeps only the animation; to have one again, upload it.
 - **E-mails**.
-- Under **“Third parties”**: **Horizontal banner** and **Vertical banner**.
+- In **“Third parties”**: **Horizontal banner** and **Vertical banner**, and the text above them.
 
 | Field | Required | Purpose |
 | --- | --- | --- |
-| Text above the sponsor | No | Optional: it appears in the menu footer, above the sponsor image. There is one field for each active language of the site. In the main language, if empty, nothing is shown; in the others, if empty, the main language's text is used. |
-| In dark mode | No | It is on the logo, both banners, the loading animation and the loader logo. **“Same”** shows the same image; **“Invert to white”** turns it white (it needs a transparent background: an opaque one would show as a white rectangle); **“Another image”** lets you upload a dark-mode version with **“Choose dark image”**. It is saved when you change it. |
+| Text above the sponsor | No | Optional: it appears in the menu footer, above the sponsor's image. There is one field per active site language. In the main language, empty, it is not shown; in the others, empty uses the main language's. |
+| In dark mode | No | It is on the logo, both banners and all the loader images. **“Same”** shows the same image; **“Invert to white”** turns it white (it needs a transparent background: an opaque one would show as a white rectangle); **“Another image”** lets you upload a dark-mode version with **“Choose dark image”**. It is saved when you change it. |
 
-When you finish, click **“Save”**.
+When you are done with the sponsor text, click **“Save”**.
+
+### The loader
+
+In **“Loader”** is what you see while a screen loads, in the panel and on the public site. At the top, **“What the
+loader shows”** has three switches, on by default: **“Animation”**, **“Logo”** and **“Loading screen”**. Turning one off
+does not delete its image: turning it on again brings back the same one. With all three off, the loader shows a simple
+ring. Brand images are not deleted: they are only replaced.
+
+![The loader](img/configurations-appearance-brand-images-loader.webp)
+
+- **Loading animation**: it accepts GIF, of any size (360 px high is recommended), and is uploaded as is, without
+  cropping. The main user can also upload an SVG, which is checked on upload. By default it is the logo drawing
+  itself.
+- **Loader logo**: a still image below the animation. By default it is the logo's “P” (white and light blue in dark
+  mode).
+- **Loading screen** and **Mobile loading screen**: a full-screen image behind the loader, animated (GIF; the main
+  user, also SVG) or still (PNG, JPG or WebP), up to 3 MB. The animation, the logo, the message and the percentage go on
+  top, centered: keep the center clean. 1920 × 1080 px is recommended for desktop and 1080 × 1920 px for mobile; if you
+  upload the desktop one and not the mobile one, a phone in portrait uses yours cropped to the center. By default there
+  are four, animated, light and dark. With “Reduce motion”, an animated screen stays still.
+
+The images you upload here are saved without their hidden data (location, camera), keeping their orientation.
+
+In **“Test area”**, each button launches the full-screen loader for a few seconds, with what you have saved and the
+switches as they are: **“Current one”**, **“Without the loading screen”** (if there is one), **“With message”**, **“With
+percentage”**, **“With message and percentage”**, **“With the loading screen”** (if it is on) and **“Everything off”**
+(the ring). While it lasts, a button shows it in the other mode, light or dark, without changing your preference;
+**“Close”** or Escape remove it earlier.
+
+### The preview
+
+In **“Preview”** you see, with what is saved, how your images look in each place where they are used, in **“Light
+mode”** and **“Dark mode”** side by side: the side menu expanded and collapsed, the mobile bar, the login column with
+the sponsors box, the loader, the error page, an email header and the browser tab. It updates when you save an image,
+without reloading.
+
+![The preview](img/configurations-appearance-brand-images-preview.webp)
+
+!!! note "Two simulations with a caveat"
+    Email has no dark mode of its own (the recipient's email program decides), so its two samples are the same. The
+    browser tab is an imitation: each browser draws it.
 
 ## Login backgrounds
 <!-- ve: configurations-appearance-backgrounds -->
@@ -88,6 +128,8 @@ are used only in charts and data. Next to each color, **“Choose color”** ope
 | Accent 2, Accent 3 | No | Colors for occasional highlights: the panel does not use them on its own. |
 
 ### Typography and shape
+
+![Typography and shape](img/configurations-appearance-typography.webp)
 
 | Field | Required | Purpose |
 | --- | --- | --- |

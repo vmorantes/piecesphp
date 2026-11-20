@@ -583,7 +583,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             $organizationID = $user->organization;
             // Verifica que si un usuario pertenece a una organización, dicha entidad tenga al menos un estatus ACTIVO/PENDIENTE.
             $organizationMapper = $organizationID !== null ?OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-            if ($organizationMapper !== null && !in_array($organizationMapper->status, Impersonation::ORGANIZATION_STATUSES_WITH_SESSION)) {
+            if (!OrganizationMapper::statusAllowsSession($organizationMapper)) {
                 $isActiveSession = false;
             }
 
@@ -597,12 +597,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             //suspendida sea «el usuario» para toda ruta sin `require_login` (P78).
             if ($isActiveSession) {
                 set_config('current_user', $user);
-                if ($organizationMapper !== null && $organizationMapper->administrator !== null) {
-                    //El encargado llega como UsersModel o como su id: se compara por id en los dos casos.
-                    $administrator = $organizationMapper->administrator;
-                    $administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;
-                    $userIsOrganizationAdministrator = $administratorID == $user->id;
-                }
+                //Con el módulo de organizaciones apagado, ser encargado no concede nada (P384 a).
+                $userIsOrganizationAdministrator = OrganizationMapper::grantsAdministratorPermissions((int) $user->id, $organizationMapper);
                 Roles::setCurrentRole($user->type); //Se establece el rol
             }
 

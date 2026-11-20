@@ -13,32 +13,71 @@ Archivos para buscadores, en **«SEO y Scripts»**.
 <!-- ve: configurations-appearance-brand-images -->
 
 Entra por **«Imágenes de marca»**. La plataforma es de marca blanca: estas imágenes identifican a tu organización en
-todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público.
+todo el sistema, desde el inicio de sesión y el menú lateral hasta los correos y el sitio público. La pantalla tiene
+tres pestañas: **«Imágenes»**, **«Cargador»** y **«Vista previa»**. La pestaña elegida se queda en la dirección y la
+pantalla la recuerda al volver.
 
 ![Imágenes de marca](img/configurations-appearance-brand-images.webp)
 
 Para editar una imagen, púlsala. Además, cada una tiene el botón **«Cambiar imagen»** y un icono para descargarla o verla.
 Cada tarjeta dice dónde se usa su imagen y enseña cómo se ve, a su tamaño real: en **«Modo claro»** y, en las que lo
-tienen, en **«Modo oscuro»**, una al lado de la otra. Las imágenes son:
+tienen, en **«Modo oscuro»**, una al lado de la otra.
+
+En **«Imágenes»**:
 
 - **Logo**.
 - **Favicon zona administrativa** y **Favicon zona pública / sitio web**.
-- **Animación de carga**: la que se ve mientras carga una pantalla, en el panel y en el sitio público. Acepta GIF,
-  de cualquier tamaño (se recomiendan 360 px de alto), y se sube tal cual, sin recortar. El usuario principal puede subir
-  también un SVG, que se revisa al subirlo. De fábrica es
-  el logo dibujándose.
-- **Logo del cargador**: una imagen fija que acompaña a la animación, debajo. De fábrica es la «P» del logo (en modo
-  oscuro, en blanco y celeste). Es opcional: con **«Eliminar»** el cargador deja de enseñarla y se queda solo con la
-  animación; para volver a tener una, súbela.
 - **Correos electrónicos**.
-- En **«Terceros»**: **Bandera horizontal** y **Bandera vertical**.
+- En **«Terceros»**: **Bandera horizontal** y **Bandera vertical**, y el texto que va encima de ellas.
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |
 | Texto sobre el patrocinador | No | Opcional: sale en el pie del menú, encima de la imagen del patrocinador. Hay un campo por cada idioma activo del sitio. En el idioma principal, vacío, no se pinta; en los demás, vacío usa el del idioma principal. |
-| En modo oscuro | No | Está en el logo, las dos banderas, la animación de carga y el logo del cargador. **«Igual»** enseña la misma imagen; **«Invertir en blanco»** la vuelve blanca (necesita fondo transparente: un fondo opaco saldría como un rectángulo blanco); **«Otra imagen»** te deja subir una versión para el modo oscuro con **«Elegir imagen oscura»**. Se guarda al cambiarlo. |
+| En modo oscuro | No | Está en el logo, las dos banderas y en todas las del cargador. **«Igual»** enseña la misma imagen; **«Invertir en blanco»** la vuelve blanca (necesita fondo transparente: un fondo opaco saldría como un rectángulo blanco); **«Otra imagen»** te deja subir una versión para el modo oscuro con **«Elegir imagen oscura»**. Se guarda al cambiarlo. |
 
-Cuando termines, pulsa **«Guardar»**.
+Cuando termines con el texto de los patrocinadores, pulsa **«Guardar»**.
+
+### El cargador
+
+En **«Cargador»** está lo que se ve mientras carga una pantalla, en el panel y en el sitio público. Arriba, **«Qué
+enseña el cargador»** tiene tres interruptores, encendidos de fábrica: **«Animación»**, **«Logo»** y **«Pantalla de
+carga»**. Apagar uno no borra su imagen: al encenderlo vuelve la misma. Con los tres apagados, el cargador enseña un aro
+sencillo. Las imágenes de marca no se eliminan: solo se cambian.
+
+![El cargador](img/configurations-appearance-brand-images-loader.webp)
+
+- **Animación de carga**: acepta GIF, de cualquier tamaño (se recomiendan 360 px de alto), y se sube tal cual, sin
+  recortar. El usuario principal puede subir también un SVG, que se revisa al subirlo. De fábrica es el logo
+  dibujándose.
+- **Logo del cargador**: una imagen fija debajo de la animación. De fábrica es la «P» del logo (en modo oscuro, en
+  blanco y celeste).
+- **Pantalla de carga** y **Pantalla de carga para móvil**: una imagen a pantalla completa detrás del cargador,
+  animada (GIF; el usuario principal, también SVG) o fija (PNG, JPG o WebP), de hasta 3 MB. La animación, el logo, el
+  mensaje y el porcentaje van encima, centrados: deja el centro limpio. Se recomiendan 1920 × 1080 px para escritorio y
+  1080 × 1920 px para móvil; si subes la de escritorio y no la de móvil, en un móvil en vertical se usa la tuya
+  recortada al centro. De fábrica trae cuatro, animadas, en claro y en oscuro. Con «Reducir movimiento», una pantalla
+  animada se queda quieta.
+
+Las imágenes que subes aquí se guardan sin sus datos ocultos (ubicación, cámara), conservando su orientación.
+
+En **«Área de pruebas»**, cada botón lanza el cargador a pantalla completa unos segundos, con lo que tienes guardado y
+los interruptores como estén: **«El de hoy»**, **«Sin la pantalla de carga»** (si hay una), **«Con mensaje»**, **«Con
+porcentaje»**, **«Con mensaje y porcentaje»**, **«Con la pantalla de carga»** (si está encendida) y **«Todo apagado»**
+(el aro). Mientras dura, un botón lo enseña en el otro modo, claro u oscuro, sin cambiar tu preferencia; **«Cerrar»** o
+Escape lo quitan antes.
+
+### La vista previa
+
+En **«Vista previa»** ves, con lo guardado, cómo quedan tus imágenes en cada sitio donde se usan, en **«Modo claro»** y
+**«Modo oscuro»** lado a lado: el menú lateral expandido y contraído, la barra del móvil, la columna del inicio de
+sesión con el recuadro de los apoyos, el cargador, la página de error, el encabezado de un correo y la pestaña del
+navegador. Se actualiza al guardar una imagen, sin recargar.
+
+![La vista previa](img/configurations-appearance-brand-images-preview.webp)
+
+!!! note "Dos simulaciones con matiz"
+    El correo no tiene modo oscuro propio (lo decide el programa de correo de quien lo recibe), así que sus dos
+    muestras son iguales. La pestaña del navegador es una imitación: la dibuja cada navegador.
 
 ## Fondos del inicio de sesión
 <!-- ve: configurations-appearance-backgrounds -->
@@ -91,6 +130,8 @@ se usan únicamente en gráficas y datos. Junto a cada color, **«Elegir color»
 | Acento 2, Acento 3 | No | Colores para realces puntuales: el panel no los usa por su cuenta. |
 
 ### Tipografía y forma
+
+![Tipografía y forma](img/configurations-appearance-typography.webp)
 
 | Campo | Obligatorio | Para qué |
 | --- | --- | --- |

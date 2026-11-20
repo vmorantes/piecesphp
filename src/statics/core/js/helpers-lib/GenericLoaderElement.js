@@ -33,6 +33,14 @@ class GenericLoaderElement extends HTMLElement {
 
 	}
 
+	connectedCallback() {
+		this.screenWatchers?.connect()
+	}
+
+	disconnectedCallback() {
+		this.screenWatchers?.disconnect()
+	}
+
 	/**
 	 * Actualiza el texto del mensaje del cargador
 	 * 
@@ -40,13 +48,9 @@ class GenericLoaderElement extends HTMLElement {
 	 * @returns {GenericLoaderElement} Instancia del cargador
 	 */
 	updateTextMessage(text) {
+		//Solo el texto: la región (role="status") ya está en la caja desde que se creó, y un lector anuncia el cambio.
 		if (this.textMessage instanceof HTMLElement && typeof text == 'string') {
 			this.textMessage.innerHTML = text
-			if (text) {
-				this.textMessage.removeAttribute('style')
-			} else {
-				this.textMessage.setAttribute('style', 'display: none !important;')
-			}
 		}
 		return this
 	}
@@ -59,11 +63,14 @@ class GenericLoaderElement extends HTMLElement {
 	 * @returns {GenericLoaderElement} Instancia del cargador
 	 */
 	addProgress(percent, parent) {
-		const handleVisibility = function (progress, percent) {
+		//Oculto con opacidad para no mover la caja; aria-hidden, para que un lector de pantalla no lea «null%».
+		const handleVisibility = (progress, percent) => {
 			if (percent === null) {
 				progress.setAttribute('style', 'opacity: 0 !important;')
+				progress.setAttribute('aria-hidden', 'true')
 			} else {
 				progress.removeAttribute('style')
+				progress.removeAttribute('aria-hidden')
 			}
 		}
 		let progress = document.createElement('span')
@@ -136,15 +143,24 @@ class GenericLoaderElement extends HTMLElement {
 		this.logoLoader.classList.add(`${this.classPrefix}logo`)
 		this.loaderElement.classList.add(`${this.classPrefix}loader`)
 		this.textMessage.classList.add(`${this.classPrefix}text-message`)
+		//Solo el mensaje se anuncia (role="status" ya es aria-live="polite"; el foco no cambia). El porcentaje y lo que se
+		//añada a la caja (los botones del área de pruebas) quedan fuera: cada paso del porcentaje no es un aviso.
+		this.textMessage.setAttribute('role', 'status')
 		this.progressContainer.classList.add(`${this.classPrefix}progress-container`)
 
 		//Las imágenes salen de los `data-loader-*` del <html> (SettingsController::loaderHtmlAttributes()): sin ellos (un clon
 		//con su propia cabecera), las rutas fijas de siempre. Con oscura, las dos y helpers.scss enseña una según el tema.
 		const root = document.documentElement
-		const brandImages = (name, fallback) => {
+		//Los interruptores de «Qué enseña el cargador» (`data-loader-<capa>-enabled`): solo un «0» apaga; sin el atributo, encendida.
+		const layerOff = (layer) => root.getAttribute(`data-loader-${layer}-enabled`) === '0'
+		const brandImages = (name, fallback = null) => {
+			//Apagada no se pinta ni se descarga: la imagen guardada sigue ahí.
+			if (layerOff(name)) {
+				return []
+			}
 			const source = (root.getAttribute(`data-loader-${name}`) ?? '').trim()
-			//Con el atributo y vacío (el «Logo del cargador» es opcional), nada; sin el atributo, la ruta fija de siempre.
-			if (source === '' && root.hasAttribute(`data-loader-${name}`)) {
+			//Con el atributo y vacío, la capa apagada; sin el atributo, la ruta fija de siempre (sin ruta fija, nada).
+			if (source === '' && (root.hasAttribute(`data-loader-${name}`) || fallback === null)) {
 				return []
 			}
 			const dark = source !== '' ? (root.getAttribute(`data-loader-${name}-dark`) ?? '').trim() : ''
@@ -176,7 +192,8 @@ class GenericLoaderElement extends HTMLElement {
 
 		//Movimiento reducido (la preferencia del panel o la del sistema): sin animación ni aro y queda el logo quieto; sin
 		//logo, la animación se queda para que el cargador no salga vacío (un SVG respeta además la preferencia del sistema).
-		const reduceMotion = logoImages.length > 0 && (root.dataset.motion === 'reduce' || (typeof window.matchMedia == 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches))
+		const motionReduced = root.dataset.motion === 'reduce' || (typeof window.matchMedia == 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+		const reduceMotion = logoImages.length > 0 && motionReduced
 
 		//Configurar loader
 		const loaderImages = reduceMotion ? [] : brandImages('animation', 'statics/images/loader-animation.gif')
@@ -185,15 +202,146 @@ class GenericLoaderElement extends HTMLElement {
 			this.loaderElement.classList.add(`${this.classPrefix}loader-reduced`)
 		}
 
-		//Ensamblar estructura
-		this.boxLoader.appendChild(this.progressContainer)
-		this.boxLoader.appendChild(this.loaderElement)
-		this.appendChild(this.boxLoader)
-		if (this.options.textMessage) {
-			this.textMessage.innerHTML = this.options.textMessage
-			this.boxLoader.appendChild(this.textMessage)
+		//La pantalla de carga (H417), al fondo y solo con sus `data-loader-screen*` (de fábrica, las SVG animadas). Se descarga
+		//UNA, la del modo y la orientación de ahora (hasta 3 MB cada una), y se cambia al girar o al cambiar de modo.
+		const screenSource = (name) => {
+			const light = (root.getAttribute(`data-loader-${name}`) ?? '').trim()
+			if (light === '') {
+				return null
+			}
+			const dark = (root.getAttribute(`data-loader-${name}-dark`) ?? '').trim()
+			return { light, dark, invert: dark === '' && root.getAttribute(`data-loader-${name}-invert`) === '1' }
 		}
+		const screens = layerOff('screen') ? { desktop: null, mobile: null } : { desktop: screenSource('screen'), mobile: screenSource('screen-mobile') }
+		const hasScreen = screens.desktop !== null || screens.mobile !== null
+		const screenLayer = document.createElement('div')
+		screenLayer.classList.add(`${this.classPrefix}screen`)
+		const media = (query) => typeof window.matchMedia == 'function' ? window.matchMedia(query) : null
+		const portraitQuery = media('(orientation: portrait)')
+		const darkQuery = media('(prefers-color-scheme: dark)')
+		//Oscuro como en helpers.scss: «dark», o «auto» con el sistema en oscuro; cualquier otro valor, claro.
+		const isDark = () => {
+			const theme = root.getAttribute('data-theme')
+			return theme === 'dark' || (theme === 'auto' && darkQuery !== null && darkQuery.matches)
+		}
+		const failedScreens = new Set()
+		//En orden: la orientación de ahora y, sin ella, la otra (recortada); en cada una, la del modo y luego la clara.
+		const screenCandidates = () => {
+			const order = portraitQuery !== null && portraitQuery.matches ? ['mobile', 'desktop'] : ['desktop', 'mobile']
+			const dark = isDark()
+			const candidates = []
+			order.forEach((kind) => {
+				const source = screens[kind]
+				if (source === null) {
+					return
+				}
+				if (dark && source.dark !== '') {
+					candidates.push({ kind, path: source.dark, invert: false })
+				}
+				candidates.push({ kind, path: source.light, invert: source.invert })
+			})
+			return candidates.filter(({ path }) => !failedScreens.has(path))
+		}
+		let screenCurrent = null
+		let screenRequest = 0
+		let screenFallback = false
+		const renderScreen = () => {
+			const next = screenCandidates()[0] ?? null
+			const path = next !== null ? next.path : null
+			if (path === screenCurrent) {
+				return
+			}
+			screenCurrent = path
+			const request = ++screenRequest
+			if (next === null) {
+				//Ninguna buena en este modo: como sin pantalla, pero la capa se queda en el DOM para que la del otro modo cargue en ella.
+				screenLayer.replaceChildren()
+				screenLayer.hidden = true
+				this.classList.remove(`${this.classPrefix}with-screen`)
+				if (loaderImages.length === 0 && logoImages.length === 0) {
+					this.loaderElement.setAttribute('class', `${this.classPrefix}loader-fallback`)
+					screenFallback = true
+				}
+				return
+			}
+			//Lo que deshace el caso de arriba cuando por fin carga una: la capa a la vista y, si se puso por ella, fuera el aro.
+			const showScreen = () => {
+				screenLayer.hidden = false
+				this.classList.add(`${this.classPrefix}with-screen`)
+				if (screenFallback) {
+					this.loaderElement.setAttribute('class', `${this.classPrefix}loader`)
+					screenFallback = false
+				}
+			}
+			const image = new Image()
+			image.alt = ''
+			image.classList.add(`${this.classPrefix}screen-${next.kind}`)
+			if (next.invert) {
+				image.classList.add('invert-on-dark')
+			}
+			//La anterior se queda hasta que la nueva carga: al girar no hay un parpadeo en blanco.
+			image.onload = () => {
+				if (request !== screenRequest) {
+					return
+				}
+				showScreen()
+				if (!motionReduced) {
+					screenLayer.replaceChildren(image)
+					return
+				}
+				//Con movimiento reducido, el primer fotograma: un <canvas> pinta el fotograma por omisión de un GIF o un
+				//WebP animado (el primero). La imagen ni entra en la página, para que no llegue a moverse.
+				const canvas = document.createElement('canvas')
+				canvas.width = image.naturalWidth || window.innerWidth
+				canvas.height = image.naturalHeight || window.innerHeight
+				canvas.className = image.className
+				canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height)
+				screenLayer.replaceChildren(canvas)
+			}
+			//La que falla no se pinta rota: la siguiente candidata (la oscura rota deja la clara).
+			image.onerror = () => {
+				failedScreens.add(next.path)
+				if (request === screenRequest) {
+					renderScreen()
+				}
+			}
+			image.src = new URL(next.path, pcsphpGlobals.baseURL).href
+		}
+		if (hasScreen) {
+			this.classList.add(`${this.classPrefix}with-screen`)
+			this.appendChild(screenLayer)
+			renderScreen()
+			//El modo cambia por el atributo del <html> (el selector de modo, theme-toggle.js, el área de pruebas) o, en
+			//«auto», por el sistema; la orientación, por su consulta. connectedCallback() los engancha y disconnectedCallback() los suelta.
+			const themeObserver = new MutationObserver(renderScreen)
+			this.screenWatchers = {
+				connect: () => {
+					themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] })
+					portraitQuery?.addEventListener?.('change', renderScreen)
+					darkQuery?.addEventListener?.('change', renderScreen)
+					renderScreen()
+				},
+				disconnect: () => {
+					themeObserver.disconnect()
+					portraitQuery?.removeEventListener?.('change', renderScreen)
+					darkQuery?.removeEventListener?.('change', renderScreen)
+				},
+			}
+		}
+
+		//Todo apagado (animación y logo vacíos a propósito, y sin pantalla): el aro de CSS.
+		if (loaderImages.length === 0 && logoImages.length === 0 && !hasScreen) {
+			this.loaderElement.setAttribute('class', `${this.classPrefix}loader-fallback`)
+		}
+
+		//Ensamblar estructura: animación, logo, mensaje y porcentaje, en ese orden también en el DOM (el lector de pantalla lo sigue).
+		//El mensaje va SIEMPRE, vacío si no hay: una región que se crea ya con el texto no se anuncia (helpers.scss la oculta vacía).
+		this.boxLoader.appendChild(this.loaderElement)
 		this.boxLoader.appendChild(this.logoLoader)
+		this.textMessage.innerHTML = this.options.textMessage ? this.options.textMessage : ''
+		this.boxLoader.appendChild(this.textMessage)
+		this.boxLoader.appendChild(this.progressContainer)
+		this.appendChild(this.boxLoader)
 
 		//Verificar carga del logo: una que falla no se pinta rota; si fallan todas, sin logo.
 		logoImages.forEach(({ image, loaded }) => loaded.catch(() => image.remove()))

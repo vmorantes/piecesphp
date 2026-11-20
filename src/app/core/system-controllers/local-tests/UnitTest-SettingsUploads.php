@@ -54,6 +54,51 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
     if (!$check($base !== '' && $database !== null && function_exists('imagewebp'), 'banco: hay una base HTTP, conexión a la base y GD escribe WEBP', $base)) {
         return $balance();
     }
+    //─── t · El tope del servidor (UPLOAD_ERR_INI_SIZE): en proceso, con un $_FILES simulado; PHP lo entrega sin archivo ───
+    //En el terminal set_lang() no recarga los diccionarios: el inglés se mira en su diccionario (como g6 de login-attempts-organization).
+    $check(Config::get_lang() === 'es' && SettingsController::megabytesText(2 * 1024 * 1024) === '2' && SettingsController::megabytesText(512 * 1024) === '0,5' && SettingsController::megabytesText((int) \PiecesPHP\Core\Forms\FileValidator::iniSizeToBytes('1G')) === '1024', 't1 DISCRIMINANTE: los MB del texto, con el decimal del idioma: «2M» da 2, «512K» da 0,5 en español y «1G» da 1024', SettingsController::megabytesText(512 * 1024));
+    $check(lang(SettingsController::LANG_GROUP, ',', 'en') === '.' && str_replace('.', lang(SettingsController::LANG_GROUP, ',', 'en'), '0.5') === '0.5', 't1b en inglés, el decimal es «.»: 0.5', lang(SettingsController::LANG_GROUP, ',', 'en'));
+    $topeServidor = \PiecesPHP\Core\Forms\FileValidator::iniSizeToBytes((string) ini_get('upload_max_filesize'));
+    $esperadoTope = $topeServidor !== null ? strReplaceTemplate(__(SettingsController::LANG_GROUP, 'El archivo pesa más de lo que admite el servidor (${size} MB).'), ['${size}' => SettingsController::megabytesText($topeServidor)]) : null;
+    $filesAntes = $_FILES;
+    $postAntes = $_POST;
+    $longitudAntes = $_SERVER['CONTENT_LENGTH'] ?? null;
+    $_POST = [];
+    $_FILES['zzTope'] = ['name' => 'zz-tope.png', 'type' => 'image/png', 'tmp_name' => '', 'error' => \UPLOAD_ERR_INI_SIZE, 'size' => 0];
+    $_FILES['zzFormulario'] = ['name' => 'zz-tope.png', 'type' => 'image/png', 'tmp_name' => '', 'error' => \UPLOAD_ERR_FORM_SIZE, 'size' => 0];
+    $_FILES['zzParcial'] = ['name' => 'zz-tope.png', 'type' => 'image/png', 'tmp_name' => '', 'error' => \UPLOAD_ERR_PARTIAL, 'size' => 0];
+    $porTope = SettingsController::storeDirectBrandUpload('zzTope', 'loader-screen', true);
+    $porFormulario = SettingsController::storeDirectBrandUpload('zzFormulario', 'loader-animation', false);
+    $porParcial = SettingsController::storeDirectBrandUpload('zzParcial', 'loader-screen', true);
+    $_POST = ['MAX_FILE_SIZE' => (string) (512 * 1024)];
+    $porFormularioConTope = SettingsController::storeDirectBrandUpload('zzFormulario', 'loader-animation', false);
+    $_POST = ['MAX_FILE_SIZE' => 'zz'];
+    $porFormularioTopeRaro = SettingsController::storeDirectBrandUpload('zzFormulario', 'loader-animation', false);
+    //post_max_size: PHP deja $_FILES y $_POST vacíos; solo queda CONTENT_LENGTH.
+    $topePost = \PiecesPHP\Core\Forms\FileValidator::iniSizeToBytes((string) ini_get('post_max_size'));
+    $_FILES = [];
+    $_POST = [];
+    $_SERVER['CONTENT_LENGTH'] = (string) ((int) $topePost + 1);
+    $porEnvio = SettingsController::postSizeErrorMessage();
+    $_SERVER['CONTENT_LENGTH'] = (string) (int) $topePost;
+    $enElTope = SettingsController::postSizeErrorMessage();
+    $_SERVER['CONTENT_LENGTH'] = (string) ((int) $topePost + 1);
+    $_POST = ['zz' => '1'];
+    $conCuerpo = SettingsController::postSizeErrorMessage();
+    $_FILES = $filesAntes;
+    $_POST = $postAntes;
+    if ($longitudAntes === null) {
+        unset($_SERVER['CONTENT_LENGTH']);
+    } else {
+        $_SERVER['CONTENT_LENGTH'] = $longitudAntes;
+    }
+    $check($esperadoTope !== null && $porTope['path'] === null && $porTope['error'] === $esperadoTope, 't2 DISCRIMINANTE: UPLOAD_ERR_INI_SIZE dice el tope del servidor (upload_max_filesize = ' . (string) ini_get('upload_max_filesize') . ') y no guarda nada', $porTope['error']);
+    $check($porFormulario['path'] === null && $porFormulario['error'] === __(SettingsController::LANG_GROUP, 'El archivo pesa más de lo que admite el formulario.') && $porFormularioTopeRaro['error'] === $porFormulario['error'], 't2b UPLOAD_ERR_FORM_SIZE sin MAX_FILE_SIZE (o con uno que no es un número): el texto del formulario, sin cifra', $porFormulario['error']);
+    $check($porFormularioConTope['error'] === strReplaceTemplate(__(SettingsController::LANG_GROUP, 'El archivo pesa más de lo que admite el formulario (${size} MB).'), ['${size}' => '0,5']), 't2c DISCRIMINANTE: con MAX_FILE_SIZE = 524288, su propio tope: 0,5 MB', $porFormularioConTope['error']);
+    $check($porParcial['path'] === null && $porParcial['error'] === __(SettingsController::LANG_GROUP, 'Información faltante o inesperada.'), 't3 otro error de subida sigue con «Información faltante o inesperada.»', $porParcial['error']);
+    $check($topePost !== null && $porEnvio === strReplaceTemplate(__(SettingsController::LANG_GROUP, 'Lo enviado pesa más de lo que admite el servidor (${size} MB).'), ['${size}' => SettingsController::megabytesText($topePost)]), 't4 DISCRIMINANTE: pasar de post_max_size (' . (string) ini_get('post_max_size') . ') sin $_FILES ni cuerpo dice su tope', var_export($porEnvio, true));
+    $check($enElTope === null && $conCuerpo === null, 't4b justo en el tope, o con cuerpo, no es ese caso: null', var_export([$enElTope, $conCuerpo], true));
+
     $prefijoBase = rtrim((string) parse_url($base, \PHP_URL_PATH), '/');
     $camino = function (string $url) use ($prefijoBase): string {
         $path = (string) parse_url($url, \PHP_URL_PATH);
@@ -111,12 +156,16 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
     $otros = array_values(array_filter(Config::get_allowed_langs(), fn ($l) => $l !== $lang));
     $otro = is_string($otros[0] ?? null) ? $otros[0] : null;
     $opciones = ['backgrounds', 'backgoundProblems', 'logo', 'mailingLogo', 'loaderAnimation', SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['mode'], SettingsController::BRAND_IMAGES_DARK_MODE['logo']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['logo']['mode'], 'partners', SettingsController::BRAND_IMAGES_DARK_MODE['partners']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['partners']['mode'], SettingsController::BRAND_IMAGES_INVERT_ON_DARK['partners'], 'loaderLogo', SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'], SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']];
+    foreach (['loaderScreen', 'loaderScreenMobile'] as $pantallaCarga) {
+        array_push($opciones, $pantallaCarga, SettingsController::BRAND_IMAGES_DARK_MODE[$pantallaCarga]['image'], SettingsController::BRAND_IMAGES_DARK_MODE[$pantallaCarga]['mode']);
+    }
     foreach (SettingsController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME as $nombreSeo) {
         $opciones[] = SettingsController::seoOptionName($nombreSeo, $lang);
         if ($otro !== null) {
             $opciones[] = SettingsController::seoOptionName($nombreSeo, $otro);
         }
     }
+    array_push($opciones, ...array_values(SettingsController::LOADER_LAYERS_ENABLED));
     $opciones = array_values(array_unique($opciones));
     $antes = [];
     foreach ($opciones as $nombre) {
@@ -421,7 +470,7 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
         echoTerminal(' ');
 
         //─── l · El «Logo del cargador» (H345): opcional, vacío de fábrica y con «Eliminar» ─────────────
-        echoTerminal('[l] El logo del cargador: de fábrica la «P» (loader-logo.png); se sube por el recortador; «Eliminar» lo apaga');
+        echoTerminal('[l] El logo del cargador: de fábrica la «P» (loader-logo.png); se sube por el recortador; ya no se elimina');
         $atributoLogo = function (string $sufijo = '') use ($pedir, $rutaPanel, &$jwt): ?string {
             $html = $pedir($rutaPanel, $jwt, null)['body'];
             return preg_match('#<html[^>]* data-loader-logo' . $sufijo . '="([^"]*)"#', $html, $m) === 1 ? $m[1] : null;
@@ -436,19 +485,277 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
         $r = $pedir($rutaMarca, $jwt, [SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'] => new \CURLFile($imagen('png', 120), 'image/png', 'zz-logo-cargador-oscuro.png')]);
         $logoCargadorOscuro = $valor(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image']);
         $check(($r['data']['success'] ?? null) === true && is_string($logoCargadorOscuro) && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']) === 'image', 'l3 su oscura, con «Otra imagen»', var_export($logoCargadorOscuro, true));
+        $mensajeSinEliminar = __(SettingsController::LANG_GROUP, 'Las imágenes de marca ya no se eliminan: cámbiala por otra o apágala con su interruptor en «Qué enseña el cargador».');
         $r = $pedir($rutaMarca, $jwt, ['deleteBrandImage' => 'loaderLogo']);
         clearstatcache();
-        $check(($r['data']['success'] ?? null) === true && $crudo('loaderLogo') === '' && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image']) === null && $crudo(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode']) === null && is_string($logoCargador) && !is_file(basepath($logoCargador)) && is_string($logoCargadorOscuro) && !is_file(basepath($logoCargadorOscuro)), 'l4 «Eliminar» guarda el logo vacío, quita su oscura y su modo y borra los archivos', (string) ($r['data']['message'] ?? '') . ' · ' . var_export($crudo('loaderLogo'), true));
-        $check($atributoLogo() === '' && $atributoLogo('-dark') === '', 'l6 DISCRIMINANTE: eliminado, el cargador no pinta logo ni en claro ni en oscuro (no vuelve la «P»)', var_export([$atributoLogo(), $atributoLogo('-dark')], true));
+        $check($r['status'] === 400 && ($r['data']['success'] ?? null) === false && ($r['data']['message'] ?? null) === $mensajeSinEliminar && $crudo('loaderLogo') === $logoCargador && is_string($logoCargador) && is_file(basepath($logoCargador)) && is_string($logoCargadorOscuro) && is_file(basepath($logoCargadorOscuro)), 'l4 DISCRIMINANTE: deleteBrandImage, en desuso, responde 400 con su motivo y no toca la opción ni los archivos', "HTTP {$r['status']} · " . (string) ($r['data']['message'] ?? ''));
+        //Lo que guardaba el «Eliminar» de antes, '', sigue apagando hasta que la actualización lo limpie (BRAND_IMAGES_EMPTY_IS_OFF).
+        $poner('loaderLogo', '');
+        $poner(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['image'], null);
+        $poner(SettingsController::BRAND_IMAGES_DARK_MODE['loaderLogo']['mode'], null);
+        $check($atributoLogo() === '' && $atributoLogo('-dark') === '', 'l6 DISCRIMINANTE: guardado vacío (lo de antes), el cargador no pinta logo ni en claro ni en oscuro (no vuelve la «P»)', var_export([$atributoLogo(), $atributoLogo('-dark')], true));
         $pantallaApagada = $pedir($rutaMarca, $jwt, null)['body'];
         $rotuloApagado = escape_html(__(SettingsController::LANG_GROUP, 'Sin imagen: el cargador enseña solo la animación'));
         $check(preg_match('#id="image-loader-logo".*?data-image-card-empty>\s*<img width="400" height="400"[^>]*>\s*<span class="ui muted text">' . preg_quote($rotuloApagado, '#') . '#s', $pantallaApagada) === 1 && preg_match('#data-brand-dark-empty>\s*<img width="400" height="400"[^>]*>\s*<span class="ui muted text">' . preg_quote($rotuloApagado, '#') . '#', $pantallaApagada) === 1, 'l7 la tarjeta apagada: damero de 400 × 400 con su rótulo, en la vista clara y en la oscura (visible)');
         $r = $pedir($rutaMarca, $jwt, ['loaderLogo' => new \CURLFile($imagen('png', 130), 'image/png', 'zz-logo-cargador-2.png')]);
         $logoCargador2 = $valor('loaderLogo');
-        $check(($r['data']['success'] ?? null) === true && is_string($logoCargador2) && preg_match($patron('brand', 'loader-logo', 'png'), $logoCargador2) === 1 && $atributoLogo() === $logoCargador2, 'l8 tras eliminarlo, subir otro lo vuelve a pintar', var_export($logoCargador2, true));
+        $check(($r['data']['success'] ?? null) === true && is_string($logoCargador2) && preg_match($patron('brand', 'loader-logo', 'png'), $logoCargador2) === 1 && $atributoLogo() === $logoCargador2, 'l8 tras guardarlo vacío, subir otro lo vuelve a pintar', var_export($logoCargador2, true));
         $logoAntes = $crudo('logo');
         $r = $pedir($rutaMarca, $jwt, ['deleteBrandImage' => 'logo']);
-        $check(($r['data']['success'] ?? null) !== true && $crudo('logo') === $logoAntes, 'l5 DISCRIMINANTE: «Eliminar» solo vale para el logo del cargador: el logo de la plataforma no se quita', (string) ($r['data']['message'] ?? ''));
+        $check($r['status'] === 400 && ($r['data']['success'] ?? null) === false && $crudo('logo') === $logoAntes, 'l5 tampoco el logo de la plataforma: 400 y no se quita', "HTTP {$r['status']} · " . (string) ($r['data']['message'] ?? ''));
+        echoTerminal(' ');
+
+        //─── p · La pantalla de carga (H417) y «Eliminar» de la animación ───────────────────────────────
+        echoTerminal('[p] La pantalla de carga: GIF, PNG, JPG, WebP o SVG (solo root) por su contenido, hasta 3 MB; vacía, apagada');
+        //Los data-loader-* del <html> del panel, sin escapar: lo que lee GenericLoaderElement.js.
+        $atributosCargador = function () use ($pedir, $rutaPanel, &$jwt): array {
+            $html = $pedir($rutaPanel, $jwt, null)['body'];
+            $etiqueta = preg_match('#<html[^>]*>#', $html, $m) === 1 ? $m[0] : '';
+            $atributos = [];
+            if (preg_match_all('# (data-loader-[a-z-]+)="([^"]*)"#', $etiqueta, $todos, \PREG_SET_ORDER) === false) {
+                return $atributos;
+            }
+            foreach ($todos as $par) {
+                $atributos[$par[1]] = html_entity_decode($par[2], \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+            }
+            return $atributos;
+        };
+        $gifPequeno = function (): string {
+            $lienzo = imagecreatetruecolor(8, 8);
+            ob_start();
+            if ($lienzo !== false) {
+                imagegif($lienzo);
+            }
+            return (string) ob_get_clean();
+        };
+        $oscuraPantalla = SettingsController::BRAND_IMAGES_DARK_MODE['loaderScreen']['image'];
+        $modoPantalla = SettingsController::BRAND_IMAGES_DARK_MODE['loaderScreen']['mode'];
+        foreach (['loaderScreen', 'loaderScreenMobile'] as $pantallaCarga) {
+            foreach ([$pantallaCarga, SettingsController::BRAND_IMAGES_DARK_MODE[$pantallaCarga]['image'], SettingsController::BRAND_IMAGES_DARK_MODE[$pantallaCarga]['mode']] as $opcionPantalla) {
+                $poner($opcionPantalla, null);
+            }
+        }
+        //Los interruptores, de fábrica (encendidos): la base local puede traerlos apagados; se reponen al final.
+        foreach (SettingsController::LOADER_LAYERS_ENABLED as $opcionCapa) {
+            $poner($opcionCapa, null);
+        }
+        $at = $atributosCargador();
+        $check(($at['data-loader-screen'] ?? null) === 'statics/images/loader-screen.svg' && ($at['data-loader-screen-dark'] ?? null) === 'statics/images/loader-screen-dark.svg' && ($at['data-loader-screen-mobile'] ?? null) === 'statics/images/loader-screen-mobile.svg' && ($at['data-loader-screen-mobile-dark'] ?? null) === 'statics/images/loader-screen-mobile-dark.svg' && ($at['data-loader-screen-invert'] ?? null) === '0', 'p1 DISCRIMINANTE: sin opción, las pantallas de fábrica (SVG animadas) y sus oscuras, en escritorio y en móvil', json_encode($at) ?: '');
+        //Los sha1 de fábrica, en proceso: sin opción es la de fábrica; con otra ruta, no.
+        $configPantallas = [get_config('loaderScreen'), get_config('loaderScreenMobile')];
+        set_config('loaderScreen', false);
+        set_config('loaderScreenMobile', false);
+        SettingsController::clearBrandImageCache();
+        $deFabrica = SettingsController::isFactoryBrandImage('loaderScreen') && SettingsController::isFactoryBrandImage('loaderScreenMobile') && SettingsController::brandImageDarkImage('loaderScreen') === 'statics/images/loader-screen-dark.svg' && SettingsController::brandImageDarkImage('loaderScreenMobile') === 'statics/images/loader-screen-mobile-dark.svg';
+        set_config('loaderScreen', 'statics/images/loader-logo.png');
+        SettingsController::clearBrandImageCache();
+        $ajena = SettingsController::isFactoryBrandImage('loaderScreen') || SettingsController::brandImageDarkImage('loaderScreen') !== '';
+        set_config('loaderScreen', $configPantallas[0]);
+        set_config('loaderScreenMobile', $configPantallas[1]);
+        SettingsController::clearBrandImageCache();
+        $sha1Pantallas = array_map(fn (string $n): string => (string) sha1_file(basepath("statics/images/{$n}.svg")), ['loader-screen', 'loader-screen-mobile']);
+        $check($deFabrica && !$ajena && $sha1Pantallas === [SettingsController::FACTORY_BRAND_IMAGES['loaderScreen'][0], SettingsController::FACTORY_BRAND_IMAGES['loaderScreenMobile'][0]], 'p1b DISCRIMINANTE: isFactoryBrandImage() reconoce las dos de fábrica por su sha1 y les da su oscura de fábrica; otra imagen no es de fábrica ni hereda la oscura', json_encode([$deFabrica, $ajena, $sha1Pantallas]) ?: '');
+        //Un usuario principal que las descargue y las vuelva a subir: pasan la lista blanca de SVG tal cual.
+        $rechazos = array_map(fn (string $n): ?string => \PiecesPHP\Settings\Uploads\SvgWhitelistValidator::rejectionReason((string) file_get_contents(basepath("statics/images/{$n}.svg"))), ['loader-screen', 'loader-screen-dark', 'loader-screen-mobile', 'loader-screen-mobile-dark']);
+        $check($rechazos === [null, null, null, null], 'p1c las cuatro SVG de fábrica pasan SvgWhitelistValidator', json_encode($rechazos) ?: '');
+        //Sin franja (PO): ninguna regla de helpers.scss da a la caja otro aspecto con pantalla; el fondo calculado se mide en el navegador.
+        $hojaCargador = (string) file_get_contents(basepath('statics/core/sass/helpers.scss'));
+        $check($hojaCargador !== '' && preg_match('/-with-screen[^{]*\.#\{\$globalClassPcs\}-box\s*\{/', $hojaCargador) !== 1, 'p1d DISCRIMINANTE: con pantalla, la caja no tiene regla propia en helpers.scss (sin franja)');
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($imagen('png', 140), 'image/gif', 'zz-pantalla.gif')]);
+        $pantalla = $valor('loaderScreen');
+        $at = $atributosCargador();
+        $check(($r['data']['success'] ?? null) === true && is_string($pantalla) && preg_match($patron('brand', 'loader-screen', 'png'), $pantalla) === 1 && ($at['data-loader-screen'] ?? null) === $pantalla, 'p2 DISCRIMINANTE: un PNG mandado como «zz-pantalla.gif» se guarda como PNG, con el nombre del servidor, y el cargador lo recibe', "HTTP {$r['status']} · " . var_export($pantalla, true) . ' · ' . (string) ($r['data']['message'] ?? ''));
+        $check(($at['data-loader-screen-mobile'] ?? null) === '' && ($at['data-loader-screen-mobile-dark'] ?? null) === '' && ($at['data-loader-screen-mobile-invert'] ?? null) === '0', 'p3 DISCRIMINANTE: con una de escritorio propia y sin la de móvil, la de móvil va vacía (ni la de fábrica ni su oscura): en vertical, la de escritorio recortada', json_encode($at) ?: '');
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($imagen('jpg', 150), 'image/png', 'zz-pantalla.png')]);
+        $jpg = $valor('loaderScreen');
+        clearstatcache();
+        $check(($r['data']['success'] ?? null) === true && is_string($jpg) && preg_match($patron('brand', 'loader-screen', 'jpg'), $jpg) === 1 && is_string($pantalla) && !is_file(basepath($pantalla)), 'p4 un JPG, con su extensión, y la subida anterior se borra', var_export($jpg, true));
+        //Una foto con EXIF (GPS) y un comentario: su URL va en las cabeceras públicas, así que se guarda sin ellos (ImageMetadataStripper).
+        $jpgBase = (string) file_get_contents($imagen('jpg', 155));
+        $gps = 'zz-gps-4.6097-74.0817';
+        $jpgExif = "\xFF\xD8" . "\xFF\xE1" . pack('n', 2 + strlen("Exif\0\0MM\0*{$gps}")) . "Exif\0\0MM\0*{$gps}" . "\xFF\xFE" . pack('n', 2 + strlen($gps)) . $gps . substr($jpgBase, 2);
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($temporal($jpgExif), 'image/jpeg', 'zz-foto.jpg')]);
+        $jpgGuardado = $valor('loaderScreen');
+        $bytesGuardados = is_string($jpgGuardado) && is_file(basepath($jpgGuardado)) ? (string) file_get_contents(basepath($jpgGuardado)) : '';
+        $medidaGuardada = $bytesGuardados !== '' ? getimagesizefromstring($bytesGuardados) : false;
+        $check(($r['data']['success'] ?? null) === true && $bytesGuardados !== '' && !str_contains($bytesGuardados, $gps) && !str_contains($bytesGuardados, "Exif\0\0") && is_array($medidaGuardada) && $medidaGuardada[0] === 8 && $medidaGuardada[1] === 8, 'p26 DISCRIMINANTE: un JPG con EXIF y comentario se guarda sin ellos, y sigue siendo de 8 × 8', var_export($jpgGuardado, true) . ' · ' . strlen($bytesGuardados) . ' bytes · ' . (str_contains($bytesGuardados, $gps) ? 'con el GPS' : 'sin el GPS'));
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($imagen('webp', 160), 'image/jpeg', 'zz-pantalla.jpg')]);
+        $webp = $valor('loaderScreen');
+        $check(($r['data']['success'] ?? null) === true && is_string($webp) && preg_match($patron('brand', 'loader-screen', 'webp'), $webp) === 1, 'p5 un WebP, por su contenido', var_export($webp, true));
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreenMobile' => new \CURLFile($temporal($gifPequeno()), 'image/png', 'zz-movil.png')]);
+        $movil = $valor('loaderScreenMobile');
+        $at = $atributosCargador();
+        $check(($r['data']['success'] ?? null) === true && is_string($movil) && preg_match($patron('brand', 'loader-screen-mobile', 'gif'), $movil) === 1 && ($at['data-loader-screen-mobile'] ?? null) === $movil && ($at['data-loader-screen'] ?? null) === $webp, 'p6 con las dos propias, la de móvil (un GIF) en su opción y en su atributo, y la de escritorio sigue', var_export($movil, true));
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($temporal('zz no es una imagen'), 'image/png', 'zz-pantalla.png')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderScreen') === $webp && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La pantalla de carga tiene que ser un GIF, PNG, JPG, WebP o SVG.'), 'p7 DISCRIMINANTE: un texto mandado como PNG se rechaza por su contenido y la opción no cambia', (string) ($r['data']['message'] ?? ''));
+        $check(($pedir($rutaMarca, $jwt, ['loaderAnimation' => new \CURLFile($imagen('png', 170), 'image/png', 'zz.png')])['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La animación tiene que ser un GIF o un SVG.'), 'p8 la animación sigue sin admitir PNG: las fijas son solo de la pantalla de carga');
+        //Un GIF y un PNG de pocos bytes que DECLARAN un lienzo mayor que el lado máximo: se miden en la cabecera, sin decodificar.
+        $gifGrande = substr($gifPequeno(), 0, 6) . pack('vv', SettingsController::LOADER_ANIMATION_MAX_SIDE + 1, 8) . substr($gifPequeno(), 10);
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($temporal($gifGrande), 'image/gif', 'zz.gif')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderScreen') === $webp && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La pantalla de carga no puede pasar de 4096 × 4096 píxeles.'), 'p9 DISCRIMINANTE: un GIF de ' . strlen($gifGrande) . ' bytes que declara un lienzo de ' . (SettingsController::LOADER_ANIMATION_MAX_SIDE + 1) . ' de ancho se rechaza', (string) ($r['data']['message'] ?? ''));
+        $pngBase = (string) file_get_contents($imagen('png', 180));
+        $pngGrande = substr($pngBase, 0, 16) . pack('N', SettingsController::LOADER_ANIMATION_MAX_SIDE + 1) . substr($pngBase, 20);
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($temporal($pngGrande), 'image/png', 'zz.png')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderScreen') === $webp && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La pantalla de carga no puede pasar de 4096 × 4096 píxeles.'), 'p10 DISCRIMINANTE: un PNG de ' . strlen($pngGrande) . ' bytes que declara ' . (SettingsController::LOADER_ANIMATION_MAX_SIDE + 1) . ' de ancho se rechaza', (string) ($r['data']['message'] ?? ''));
+        //El tope: un PNG válido con relleno al final, sin decodificar nada; uno justo por encima y otro justo por debajo.
+        $tope = SettingsController::LOADER_SCREEN_MAX_BYTES;
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($temporal($pngBase . str_repeat("\0", $tope + 1 - strlen($pngBase))), 'image/png', 'zz.png')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderScreen') === $webp && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La pantalla de carga pesa más de 3 MB.'), 'p11 DISCRIMINANTE: un PNG de ' . ($tope + 1) . ' bytes (el tope más uno) se rechaza por su peso', (string) ($r['data']['message'] ?? ''));
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($temporal($pngBase . str_repeat("\0", $tope - 1 - strlen($pngBase))), 'image/png', 'zz.png')]);
+        $justo = $valor('loaderScreen');
+        $check(($r['data']['success'] ?? null) === true && is_string($justo) && preg_match($patron('brand', 'loader-screen', 'png'), $justo) === 1 && (string) file_get_contents(basepath($justo)) === $pngBase, 'p12 un PNG de ' . ($tope - 1) . ' bytes (el tope menos uno) se acepta: se guarda la imagen byte a byte, sin el relleno que seguía a IEND', (string) ($r['data']['message'] ?? '') . ' · ' . var_export($justo, true));
+        //El SVG de la pantalla, solo del principal.
+        $r = $pedir($rutaMarca, $jwtAdmin, ['loaderScreen' => new \CURLFile($temporal($svgPermitido), 'image/svg+xml', 'zz.svg')]);
+        $check(($r['data']['success'] ?? null) === false && $valor('loaderScreen') === $justo && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'Solo el usuario principal puede subir una pantalla de carga SVG; sube un GIF, PNG, JPG o WebP.'), 'p13 DISCRIMINANTE: un administrador general con un SVG permitido: rechazo con su motivo', (string) ($r['data']['message'] ?? ''));
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($temporal($svgPermitido), 'image/svg+xml', 'zz.svg')]);
+        $svgPantalla = $valor('loaderScreen');
+        $check(($r['data']['success'] ?? null) === true && is_string($svgPantalla) && preg_match($patron('brand', 'loader-screen', 'svg'), $svgPantalla) === 1, 'p14 el principal, con el mismo SVG: se guarda', var_export($svgPantalla, true));
+        $r = $pedir($rutaMarca, $jwtAdmin, ['loaderScreen' => new \CURLFile($imagen('png', 190), 'image/png', 'zz.png')]);
+        $pngAdmin = $valor('loaderScreen');
+        $check(($r['data']['success'] ?? null) === true && is_string($pngAdmin) && preg_match($patron('brand', 'loader-screen', 'png'), $pngAdmin) === 1, 'p15 el administrador general, con un PNG: se guarda', (string) ($r['data']['message'] ?? ''));
+        $aceptaPantalla = fn (?string $token): string => preg_match('#<input type="file" id="image-loader-screen-file" accept="([^"]*)"#', $pedir($rutaMarca, $token, null)['body'], $m) === 1 ? $m[1] : '(sin campo)';
+        $aceptaAdmin = $aceptaPantalla($jwtAdmin);
+        $aceptaRoot = $aceptaPantalla($jwt);
+        $check(str_contains($aceptaAdmin, 'image/webp') && !str_contains($aceptaAdmin, 'svg') && str_contains($aceptaRoot, 'image/svg+xml'), 'p16 el campo de la pantalla: GIF, PNG, JPG y WebP; SVG solo para el principal', "{$aceptaAdmin} · {$aceptaRoot}");
+        //Los tres modos de oscuro, con las opciones de siempre.
+        $r = $pedir($rutaMarca, $jwt, [$oscuraPantalla => new \CURLFile($imagen('png', 200), 'image/png', 'zz-oscura.png')]);
+        $oscura = $valor($oscuraPantalla);
+        $at = $atributosCargador();
+        $check(($r['data']['success'] ?? null) === true && is_string($oscura) && preg_match($patron('brand', 'loader-screen-dark', 'png'), $oscura) === 1 && $crudo($modoPantalla) === 'image' && ($at['data-loader-screen-dark'] ?? null) === $oscura && ($at['data-loader-screen-invert'] ?? null) === '0', 'p17 DISCRIMINANTE: su oscura guarda «Otra imagen» y el cargador la recibe en data-loader-screen-dark', var_export([$oscura, $at['data-loader-screen-dark'] ?? null], true));
+        $pedir($rutaMarca, $jwt, ['darkMode' => 'loaderScreen', 'mode' => 'invert']);
+        $at = $atributosCargador();
+        $check(($at['data-loader-screen-invert'] ?? null) === '1' && ($at['data-loader-screen-dark'] ?? null) === '', 'p18 con «Invertir en blanco», data-loader-screen-invert="1" y sin oscura', json_encode($at) ?: '');
+        $pedir($rutaMarca, $jwt, ['darkMode' => 'loaderScreen', 'mode' => 'same']);
+        $at = $atributosCargador();
+        $check(($at['data-loader-screen-invert'] ?? null) === '0' && ($at['data-loader-screen-dark'] ?? null) === '', 'p19 con «Igual», ni oscura ni inversión', json_encode($at) ?: '');
+        //loaderHtmlAttributes() con todo, y lo mismo por `?loader=yes`, que lee el área de pruebas.
+        $json = $pedir($rutaMarca . '?loader=yes', $jwt, null)['data'];
+        $nombres = [];
+        foreach (['animation', 'logo', 'screen', 'screen-mobile'] as $capa) {
+            array_push($nombres, "data-loader-{$capa}", "data-loader-{$capa}-dark", "data-loader-{$capa}-invert");
+        }
+        foreach (array_keys(SettingsController::LOADER_LAYERS_ENABLED) as $capa) {
+            $nombres[] = "data-loader-{$capa}-enabled";
+        }
+        $check(array_keys($at) === $nombres && ($json['attributes'] ?? null) === $at, 'p20 el <html> lleva los doce data-loader-* de las imágenes y los tres de los interruptores, en orden, y `?loader=yes` devuelve los mismos', json_encode([array_keys($at), $json['attributes'] ?? null]) ?: '');
+        //Ya no hay «Eliminar»: la pantalla y su oscura siguen; deleteBrandImage responde 400.
+        $pantallaAntes = $valor('loaderScreen');
+        $pedir($rutaMarca, $jwt, ['darkMode' => 'loaderScreen', 'mode' => 'image']);
+        $r = $pedir($rutaMarca, $jwt, ['deleteBrandImage' => 'loaderScreen']);
+        clearstatcache();
+        $at = $atributosCargador();
+        $check($r['status'] === 400 && ($r['data']['message'] ?? null) === $mensajeSinEliminar && $valor('loaderScreen') === $pantallaAntes && is_string($pantallaAntes) && is_file(basepath($pantallaAntes)) && is_string($oscura) && is_file(basepath($oscura)) && ($at['data-loader-screen'] ?? null) === $pantallaAntes && ($at['data-loader-screen-dark'] ?? null) === $oscura, 'p21 DISCRIMINANTE: deleteBrandImage de la pantalla: 400, y la pantalla, su oscura y sus archivos siguen', "HTTP {$r['status']} · " . json_encode($at));
+        foreach (['loaderScreen', $oscuraPantalla, $modoPantalla] as $opcionPantalla) {
+            $poner($opcionPantalla, null);
+        }
+        $poner('loaderAnimation', null);
+        $poner(SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['image'], null);
+        $poner(SettingsController::BRAND_IMAGES_DARK_MODE['loaderAnimation']['mode'], null);
+        $at = $atributosCargador();
+        $check(($at['data-loader-animation'] ?? null) === 'statics/images/loader-animation.svg' && ($at['data-loader-animation-dark'] ?? null) === 'statics/images/loader-animation-dark.svg', 'p22 sin opción, la animación de fábrica y su oscura de fábrica', json_encode($at) ?: '');
+        $r = $pedir($rutaMarca, $jwt, ['deleteBrandImage' => 'loaderAnimation']);
+        $at = $atributosCargador();
+        $check($r['status'] === 400 && $crudo('loaderAnimation') === null && ($at['data-loader-animation'] ?? null) === 'statics/images/loader-animation.svg' && $huellasFabrica() === $fabricaAntes, 'p23 DISCRIMINANTE: deleteBrandImage de la animación: 400, sin opción escrita, y el cargador sigue con la de fábrica', "HTTP {$r['status']} · " . json_encode($at));
+        $vistaMarca = $pedir($rutaMarca, $jwt, null)['body'];
+        $check(!str_contains($vistaMarca, 'data-image-card-delete') && preg_match('#data-loader-test="screen">#', $vistaMarca) === 1, 'p24 DISCRIMINANTE: la pantalla de Imágenes de marca no tiene ningún «Eliminar»; con pantalla, «Con la pantalla de carga» se puede lanzar', substr_count($vistaMarca, 'data-image-card-delete') . ' «Eliminar»');
+        //Sin ninguna pantalla solo queda lo guardado vacío por el «Eliminar» de antes: sin opción, la de fábrica.
+        $poner('loaderScreen', '');
+        $poner('loaderScreenMobile', '');
+        $check(preg_match('#data-loader-test="screen" disabled#', $pedir($rutaMarca, $jwt, null)['body']) === 1, 'p25 con las dos guardadas vacías (sin ninguna pantalla), «Con la pantalla de carga» va deshabilitado');
+        echoTerminal(' ');
+
+        //─── i · Los interruptores del cargador: encendidos de fábrica, apagan sin borrar ─────────────
+        echoTerminal('[i] «Qué enseña el cargador»: un interruptor por capa, guardado al cambiarlo; apagar no borra la imagen');
+        foreach (SettingsController::LOADER_LAYERS_ENABLED as $opcionCapa) {
+            $poner($opcionCapa, null);
+        }
+        $r = $pedir($rutaMarca, $jwt, ['loaderScreen' => new \CURLFile($imagen('png', 210), 'image/png', 'zz-pantalla-i.png')]);
+        $pantallaI = $valor('loaderScreen');
+        $at = $atributosCargador();
+        $encendidas = array_filter(array_keys(SettingsController::LOADER_LAYERS_ENABLED), fn (string $capa): bool => ($at["data-loader-{$capa}-enabled"] ?? null) === '1');
+        $check(count($encendidas) === 3 && is_string($pantallaI) && ($at['data-loader-screen'] ?? null) === $pantallaI, 'i1 DISCRIMINANTE: sin opción, las tres capas (animación, logo y pantalla) encendidas (data-loader-*-enabled="1")', json_encode($at) ?: '');
+        $vistaMarca = $pedir($rutaMarca, $jwt, null)['body'];
+        $interruptores = preg_match_all('#<div class="ui toggle checkbox">\s*<input type="checkbox" id="loader-layer-([a-z]+)" data-loader-layer="\1"[^>]* checked>#', $vistaMarca, $m) === false ? [] : $m[1];
+        $check($interruptores === array_keys(SettingsController::LOADER_LAYERS_ENABLED), 'i2 la pestaña Cargador: un `ui toggle checkbox` por capa, los tres marcados', implode(',', $interruptores));
+        $imagenDeCapa = ['animation' => 'loaderAnimation', 'logo' => 'loaderLogo', 'screen' => 'loaderScreen'];
+        foreach (SettingsController::LOADER_LAYERS_ENABLED as $capa => $opcionCapa) {
+            $imagenAntes = $crudo($imagenDeCapa[$capa]);
+            $atributoAntes = $atributosCargador()["data-loader-{$capa}"] ?? null;
+            $r = $pedir($rutaMarca, $jwt, ['loaderLayer' => $capa, 'enabled' => '0']);
+            $at = $atributosCargador();
+            $sinBorrar = $crudo($imagenDeCapa[$capa]) === $imagenAntes && ($at["data-loader-{$capa}"] ?? null) === $atributoAntes;
+            $check(($r['data']['success'] ?? null) === true && $crudo($opcionCapa) === '0' && ($at["data-loader-{$capa}-enabled"] ?? null) === '0' && $sinBorrar, "i3 DISCRIMINANTE: apagar «{$capa}» guarda {$opcionCapa} = 0 y data-loader-{$capa}-enabled=\"0\", sin borrar ni cambiar su imagen", (string) ($r['data']['message'] ?? '') . ' · ' . var_export([$crudo($opcionCapa), $atributoAntes, $at["data-loader-{$capa}"] ?? null], true));
+            $r = $pedir($rutaMarca, $jwt, ['loaderLayer' => $capa, 'enabled' => '1']);
+            $check(($r['data']['success'] ?? null) === true && $crudo($opcionCapa) === '1' && ($atributosCargador()["data-loader-{$capa}-enabled"] ?? null) === '1', "i4 encender «{$capa}» guarda 1");
+        }
+        //El área de pruebas solo ofrece la pantalla si hay una que enseñar: interruptor encendido y una en disco (la de fábrica aquí).
+        $ofreceAhora = function () use ($pedir, $rutaMarca, &$jwt): array {
+            $vista = $pedir($rutaMarca, $jwt, null)['body'];
+            $datos = $pedir($rutaMarca . '?loader=yes', $jwt, null)['data'];
+            return [
+                'disponible' => $datos['screenAvailable'] ?? null,
+                'con' => preg_match('#data-loader-test="screen"( disabled aria-describedby="loader-playground-screen-([a-z]+)")?>#', $vista, $m) === 1 ? ($m[2] ?? 'habilitado') : 'sin botón',
+                'sin' => preg_match('#data-loader-test="no-screen"( hidden)?>#', $vista, $m2) === 1 ? (($m2[1] ?? '') === '' ? 'visible' : 'oculto') : 'sin botón',
+                'motivoApagada' => preg_match('#id="loader-playground-screen-off" data-loader-screen-off( hidden)?>#', $vista, $m3) === 1 ? (($m3[1] ?? '') === '' ? 'visible' : 'oculto') : 'sin motivo',
+            ];
+        };
+        $poner('loaderScreen', null);
+        $poner('loaderScreenMobile', null);
+        $poner(SettingsController::LOADER_LAYERS_ENABLED['screen'], null);
+        $encendida = $ofreceAhora();
+        $poner(SettingsController::LOADER_LAYERS_ENABLED['screen'], '0');
+        $apagada = $ofreceAhora();
+        $poner(SettingsController::LOADER_LAYERS_ENABLED['screen'], null);
+        $check($encendida === ['disponible' => true, 'con' => 'habilitado', 'sin' => 'visible', 'motivoApagada' => 'oculto'], 'i11 con el interruptor encendido y las pantallas de fábrica, «Con» y «Sin la pantalla de carga» se ofrecen', json_encode($encendida) ?: '');
+        $check($apagada === ['disponible' => false, 'con' => 'off', 'sin' => 'oculto', 'motivoApagada' => 'visible'], 'i12 DISCRIMINANTE: con el interruptor apagado, «Con la pantalla de carga» deshabilitado con su motivo («enciende el interruptor») y «Sin» oculto; `?loader=yes` dice screenAvailable=false', json_encode($apagada) ?: '');
+        //El mensaje y el porcentaje no tienen interruptor (PO): los decide quien abre el cargador.
+        $r = $pedir($rutaMarca, $jwt, ['loaderLayer' => 'message', 'enabled' => '0']);
+        $r2 = $pedir($rutaMarca, $jwt, ['loaderLayer' => 'percent', 'enabled' => '0']);
+        $at = $atributosCargador();
+        $check(array_keys(SettingsController::LOADER_LAYERS_ENABLED) === ['animation', 'logo', 'screen'] && ($r['data']['success'] ?? null) === false && ($r2['data']['success'] ?? null) === false && $crudo('loaderMessageEnabled') === null && $crudo('loaderPercentEnabled') === null && !array_key_exists('data-loader-message-enabled', $at) && !array_key_exists('data-loader-percent-enabled', $at) && !str_contains($vistaMarca, 'data-loader-layer="message"') && !str_contains($vistaMarca, 'data-loader-layer="percent"'), 'i10 DISCRIMINANTE: sin interruptor de mensaje ni de porcentaje: se rechazan, no se guardan, no van en el <html> ni en la pestaña');
+        $r = $pedir($rutaMarca, $jwt, ['loaderLayer' => 'zz-capa', 'enabled' => '0']);
+        $r2 = $pedir($rutaMarca, $jwt, ['loaderLayer' => 'animation', 'enabled' => 'zz']);
+        $check(($r['data']['success'] ?? null) === false && ($r2['data']['success'] ?? null) === false && $crudo('zz-capaEnabled') === null && $crudo(SettingsController::LOADER_LAYERS_ENABLED['animation']) === '1', 'i5 DISCRIMINANTE: una capa fuera de la lista, o un valor que no es 1 ni 0, se rechaza y no escribe nada', (string) ($r['data']['message'] ?? '') . ' · ' . (string) ($r2['data']['message'] ?? ''));
+        //La actualización de lo guardado vacío, sobre la base y dentro de una transacción que se deshace: el SQL de verdad.
+        $sqlInterruptores = (string) file_get_contents("{$proyecto}/databases/actualizaciones/2026-11-19-interruptores-del-cargador.sql");
+        $sentencias = \Terminal\Tasks\DbRestoreTask::statementsOf($sqlInterruptores);
+        $imagenesCargador = ['loaderAnimation', 'loaderLogo', 'loaderScreen', 'loaderScreenMobile'];
+        $fotoAntes = array_map($crudo, array_merge($imagenesCargador, array_values(SettingsController::LOADER_LAYERS_ENABLED)));
+        $database->beginTransaction();
+        try {
+            $poner('loaderAnimation', '');
+            $poner('loaderLogo', '""');
+            $poner('loaderScreen', '');
+            $poner('loaderScreenMobile', null);
+            $poner(SettingsController::LOADER_LAYERS_ENABLED['animation'], null);
+            $poner(SettingsController::LOADER_LAYERS_ENABLED['logo'], '1');
+            $poner(SettingsController::LOADER_LAYERS_ENABLED['screen'], null);
+            foreach ($sentencias as $sentencia) {
+                $database->exec($sentencia);
+            }
+            $check(count($sentencias) === 3 && $crudo('loaderAnimationEnabled') === '0' && $crudo('loaderLogoEnabled') === '0' && $crudo('loaderScreenEnabled') === '0' && $crudo('loaderAnimation') === null && $crudo('loaderLogo') === null && $crudo('loaderScreen') === null, 'i6 DISCRIMINANTE: el SQL pasa la animación (\'\'), el logo (\'""\', y con su interruptor ya a 1) y la pantalla (\'\', sin la de móvil) a su interruptor a 0 y borra las opciones vacías', var_export(array_map($crudo, ['loaderAnimationEnabled', 'loaderLogoEnabled', 'loaderScreenEnabled', 'loaderAnimation', 'loaderLogo', 'loaderScreen']), true));
+            $poner('loaderAnimation', 'zz-propia.gif');
+            $poner(SettingsController::LOADER_LAYERS_ENABLED['animation'], null);
+            $poner('loaderScreen', '');
+            $poner('loaderScreenMobile', 'zz-movil.png');
+            $poner(SettingsController::LOADER_LAYERS_ENABLED['screen'], null);
+            foreach ($sentencias as $sentencia) {
+                $database->exec($sentencia);
+            }
+            $check($crudo('loaderAnimation') === 'zz-propia.gif' && $crudo('loaderAnimationEnabled') === null && $crudo('loaderScreen') === null && $crudo('loaderScreenMobile') === 'zz-movil.png' && $crudo('loaderScreenEnabled') === null, 'i7 DISCRIMINANTE: una imagen propia no se toca; con la de móvil guardada, la pantalla vacía se borra pero el interruptor no se apaga (escondería la de móvil)', var_export(array_map($crudo, ['loaderAnimation', 'loaderAnimationEnabled', 'loaderScreen', 'loaderScreenMobile', 'loaderScreenEnabled']), true));
+        } finally {
+            $database->rollBack();
+        }
+        $check(array_map($crudo, array_merge($imagenesCargador, array_values(SettingsController::LOADER_LAYERS_ENABLED))) === $fotoAntes, 'i8 y la transacción se deshace: las opciones, como antes');
+        //Lo que lee loaderLayerEnabled(): la base devuelve el texto 0 decodificado como el entero 0.
+        $configCapa = get_config(SettingsController::LOADER_LAYERS_ENABLED['logo']);
+        $lecturas = [];
+        foreach ([[false, true], [0, false], ['0', false], [1, true], ['1', true]] as [$guardado, $esperado]) {
+            set_config(SettingsController::LOADER_LAYERS_ENABLED['logo'], $guardado);
+            $lecturas[] = SettingsController::loaderLayerEnabled('logo') === $esperado;
+        }
+        set_config(SettingsController::LOADER_LAYERS_ENABLED['logo'], $configCapa);
+        $check(!in_array(false, $lecturas, true) && SettingsController::loaderLayerEnabled('zz-capa') === true, 'i9 sin opción, encendida; 0 y «0», apagada; 1 y «1», encendida', json_encode($lecturas) ?: '');
         echoTerminal(' ');
 
         //─── s · La medida real de una imagen, robusta (revisión de B.c) ─────────────────────────────
@@ -518,6 +825,19 @@ CliActions::make('unit-tests:core/settings-uploads', function ($args) {
         $correo = $pedir($rutaCorreo, $jwt, null);
         $check(($r['data']['success'] ?? null) === true && is_string($correoLogo) && preg_match($patron('brand', 'mailing-logo', 'jpg'), $correoLogo) === 1 && str_contains($correo['body'], $correoLogo) && !str_contains($correo['body'], $fijo), 'm3 DISCRIMINANTE: con un logo subido en JPG, el correo lleva la subida', var_export($correoLogo, true));
         $check($huellasFabrica() === $fabricaAntes, 'm4 y el mailing-logo.png de fábrica está intacto');
+        //Un JPG de 12 bits: GD no lo decodifica y antes se guardaba con sus bytes, EXIF incluido; ahora pasa por ImageMetadataStripper.
+        $jpg12 = (string) file_get_contents($imagen('jpg', 75));
+        $sof = strpos($jpg12, "\xFF\xC0");
+        $jpg12[(int) $sof + 4] = chr(12);
+        $gpsLogo = 'zz-gps-4.6097-74.0817';
+        $tiffLogo = "MM\0*" . pack('N', 8) . pack('n', 2) . pack('nnNN', 0x010F, 2, strlen($gpsLogo) + 1, 38) . pack('nnNn', 0x0112, 3, 1, 6) . "\0\0" . pack('N', 0) . $gpsLogo . "\0";
+        $jpg12Exif = "\xFF\xD8\xFF\xE1" . pack('n', 2 + strlen("Exif\0\0{$tiffLogo}")) . "Exif\0\0{$tiffLogo}" . substr($jpg12, 2);
+        $r = $pedir($rutaMarca, $jwt, ['mailingLogo' => new \CURLFile($temporal($jpg12Exif), 'image/jpeg', 'zz-correo-12.jpg')]);
+        $logo12 = $valor('mailingLogo');
+        $bytes12 = is_string($logo12) && is_file(basepath($logo12)) ? (string) file_get_contents(basepath($logo12)) : '';
+        $check($sof !== false && @imagecreatefromstring($jpg12) === false && ($r['data']['success'] ?? null) === true && $bytes12 !== '' && !str_contains($bytes12, $gpsLogo) && str_contains($bytes12, "Exif\0\0MM\0*" . pack('N', 8) . pack('n', 1) . pack('nnNn', 0x0112, 3, 1, 6)), 'm6 DISCRIMINANTE: un JPG que GD no decodifica se guarda sin su EXIF (el texto del Make fuera) y con la orientación en un Exif mínimo', "HTTP {$r['status']} · " . (string) ($r['data']['message'] ?? '') . ' · ' . strlen($bytes12) . ' bytes');
+        $r = $pedir($rutaMarca, $jwt, ['mailingLogo' => new \CURLFile($temporal(substr($jpg12Exif, 0, -2)), 'image/jpeg', 'zz-correo-roto.jpg')]);
+        $check(($r['data']['success'] ?? null) === false && ($r['data']['message'] ?? null) === __(SettingsController::LANG_GROUP, 'La imagen está incompleta o mal formada.') && $valor('mailingLogo') === $logo12, 'm7 DISCRIMINANTE: si además el recorrido no llega al EOI, se rechaza con su motivo y la opción no cambia', (string) ($r['data']['message'] ?? ''));
         $poner('mailingLogo', SettingsController::SETTINGS_UPLOADS_FOLDER . '/brand/zz-prueba-no-existe.png');
         $correo = $pedir($rutaCorreo, $jwt, null);
         $check($correo['status'] === 200 && str_contains($correo['body'], $fijo), 'm5 DISCRIMINANTE: con la opción a un archivo que no existe, el de fábrica', "HTTP {$correo['status']}");

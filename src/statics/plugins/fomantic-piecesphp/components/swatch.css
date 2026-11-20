@@ -30,8 +30,10 @@
 
 /* Series de datos sin `style` (pedido de PiecesPHP, 2026-11-18: sus vistas no admiten style=): `data-series="1"`…`"5"`
    toma la serie --data-N de la capa común, la misma con que las gráficas pintan sus series, y `data-series="other"` el
-   resto, --theme-border (el neutro con que el donut pinta lo que no es una serie). Un `style="--swatch: …"` sigue
-   mandando; en un tema sin la capa común, sin --data-N, queda el color por defecto. */
+   resto, --theme-text-muted (el neutro con que el donut pinta lo que no es una serie: el único token que da al menos 3:1
+   frente a --theme-surface y --theme-page en los seis temas y los dos modos; --theme-border apenas se veía sobre blanco,
+   pedido de PiecesPHP). Un `style="--swatch: …"` sigue mandando; en un tema sin la capa común, sin --data-N, queda el
+   color por defecto. */
 .ui.swatch[data-series="1"] {
   --swatch: var(--data-1);
 }
@@ -48,7 +50,7 @@
   --swatch: var(--data-5);
 }
 .ui.swatch[data-series="other"] {
-  --swatch: var(--theme-border);
+  --swatch: var(--theme-text-muted);
 }
 
 
@@ -61,6 +63,30 @@
   height: 8px;
   border-radius: 2px;
   box-shadow: none;
+}
+
+/* Marcador de leyenda junto a su texto en un `ui flex`: centrado en la PRIMERA línea del texto, no en el bloque (pedido
+       de PiecesPHP, 2026-11-19: con el nombre de la serie en dos líneas bajaba al centro). Por línea base, no por
+       interlineado (un `small` lleva el suyo, que 1lh no ve): la muestra lleva un espacio de ancho cero con la letra del
+       texto e interlineado igual a su alto, así su línea base queda donde la de una línea de ese texto centrada en ella;
+       el `ui flex` alinea sus hijos por su primera línea base. Con la misma letra, el centro cae en el de la primera línea
+       con cualquier interlineado. */
+
+/* Solo en una fila de leyenda: un `ui flex` con la muestra y texto, sin otros componentes como hijos (con una
+       muestra mayor o un botón al lado, la línea base los movería a ellos; la página swatch, 2026-11-19). Todo el flex
+       por línea base, no solo el hermano: el nombre puede ser texto suelto, sin elemento que seleccionar (hoja-diseno). */
+.ui.flex:has(> .ui.mini.swatch:empty):not(:has( > .ui:not(.mini.swatch))) {
+  align-items: first baseline;
+}
+.ui.flex:has(> .ui.mini.swatch:empty):not(:has( > .ui:not(.mini.swatch))) > .ui.mini.swatch:empty {
+  font-size: inherit;
+  line-height: 8px;
+}
+.ui.flex:has(> .ui.mini.swatch:empty):not(:has( > .ui:not(.mini.swatch))) > .ui.mini.swatch:empty::before {
+  content: "\200b";
+}
+.ui.flex:has(> .ui.mini.swatch:empty):not(:has( > .ui:not(.mini.swatch))) > .ui.mini.swatch:empty:has(+ small) {
+  font-size: smaller;
 }
 .ui.small.swatch {
   width: 36px;

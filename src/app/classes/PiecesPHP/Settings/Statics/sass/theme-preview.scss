@@ -1,0 +1,11 @@
+//Las muestras en iframe de «Estilo del panel» y de la vista previa de Imágenes de marca: la caja recorta el iframe
+//escalado; transform, width y height los calcula theme-preview.js.
+.theme-preview-frame {
+    overflow: hidden;
+    max-width: 100%;
+
+    iframe {
+        display: block;
+        transform-origin: 0 0;
+    }
+}

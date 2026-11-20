@@ -173,7 +173,7 @@ final class Impersonation
     }
 
     /**
-     * Si la organización de un usuario le deja tener sesión: sin organización, sí.
+     * Si la organización de un usuario le deja tener sesión: sin organización, sí. Decide statusAllowsSession().
      *
      * @param mixed $organizationID
      * @return bool
@@ -184,7 +184,7 @@ final class Impersonation
             return true;
         }
         $organization = OrganizationMapper::getBy($organizationID, 'id');
-        return $organization === null || in_array($organization->status, self::ORGANIZATION_STATUSES_WITH_SESSION);
+        return OrganizationMapper::statusAllowsSession(is_object($organization) ? $organization : null);
     }
 
     /**

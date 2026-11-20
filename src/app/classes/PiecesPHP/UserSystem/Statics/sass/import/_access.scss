@@ -10,6 +10,12 @@ body {
 
 .developer-credit {
     text-align: center;
+
+    //Ningún tamaño de imagen del tema baja a la altura de una línea de texto (mini son 35 px).
+    > img {
+        width: auto;
+        height: 1lh;
+    }
 }
 
 .access-brand {
@@ -19,13 +25,23 @@ body {
 }
 
 //El velo sustituye a la trama del tema (`::before`), que sigue encima de la imagen: necesita su misma especificidad.
-//Denso solo detrás del bloque central y casi transparente fuera: 62 % es el mínimo medido con ≥ 4,5:1 para el blanco con los cinco fondos y una foto casi blanca.
+//Denso solo detrás del bloque central: 63 % es el mínimo medido con ≥ 4,5:1 para el blanco con los cinco fondos y una foto blanca pura; la meseta (45 %) cubre un título de dos líneas a todo el ancho de la columna.
 .ui.grid > .tinted.column.access-brand.with-image {
     &::before {
         //Sin la máscara de la trama, que lo desvanecía justo donde está el texto.
         -webkit-mask-image: none;
         mask-image: none;
-        background: radial-gradient(ellipse 70% 32% at 50% 43%, color-mix(in srgb, #{$-accessScrim} 62%, transparent) 0%, color-mix(in srgb, #{$-accessScrim} 62%, transparent) 60%, color-mix(in srgb, #{$-accessScrim} 6%, transparent) 100%);
+        //Caída en coseno (sin cambio brusco de pendiente): una caída lineal corta es la que se ve como mancha con borde.
+        background: radial-gradient(ellipse 110% 50% at 50% 43%,
+            color-mix(in srgb, #{$-accessScrim} 63%, transparent) 0%,
+            color-mix(in srgb, #{$-accessScrim} 63%, transparent) 45%,
+            color-mix(in srgb, #{$-accessScrim} 60%, transparent) 53%,
+            color-mix(in srgb, #{$-accessScrim} 51%, transparent) 61%,
+            color-mix(in srgb, #{$-accessScrim} 38%, transparent) 69%,
+            color-mix(in srgb, #{$-accessScrim} 25%, transparent) 76%,
+            color-mix(in srgb, #{$-accessScrim} 12%, transparent) 84%,
+            color-mix(in srgb, #{$-accessScrim} 3%, transparent) 92%,
+            color-mix(in srgb, #{$-accessScrim} 0%, transparent) 100%);
     }
 
     //Solo el texto que va sobre la foto: el recuadro del patrocinador lleva el color de su modo.

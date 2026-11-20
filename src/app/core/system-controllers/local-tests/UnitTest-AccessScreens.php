@@ -370,7 +370,7 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         echoTerminal('[k] El logo del desarrollador: de fábrica y sin la clave, su clara y su oscura; la regla de una imagen, invert-on-dark solo con el de fábrica');
         $logoDesarrollador = trim((string) get_config('developer_logo'));
         $claveDesarrollador = get_config('developer_logo_invert_on_dark');
-        $deFabricaDesarrollador = $logoDesarrollador === \PiecesPHP\Settings\Controllers\SettingsController::FACTORY_DEVELOPER_LOGO && $claveDesarrollador === false && trim((string) get_config('developer')) !== '';
+        $deFabricaDesarrollador = $logoDesarrollador !== '' && \PiecesPHP\Settings\Controllers\SettingsController::isFactoryDeveloperLogo() && $claveDesarrollador === false && trim((string) get_config('developer')) !== '';
         if ($deFabricaDesarrollador) {
             //config.php no se cambia por HTTP (no es opción declarada): por HTTP, el estado de fábrica; los demás, en el proceso.
             $paginasDesarrollador = [
