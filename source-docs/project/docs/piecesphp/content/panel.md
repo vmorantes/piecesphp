@@ -109,10 +109,11 @@ Lo que enseña la tarjeta, con una de estas tres formas:
 
 - **`DashboardCardBody::numbers(array $items, ?string $footerCaption = null, ?string $footerUrl = null)`**: de una a tres
   cifras, cada una `['value' => …, 'concept' => …, 'subconcept' => …, 'icon' => …, 'color' => 'green'|'orange']`
-  (`value` y `concept`, obligatorios), con su pie y su flecha. Lanza con cero cifras o más de tres.
-- **`DashboardCardBody::action(string $url, string $description, ?string $footerCaption = null)`**: una tarjeta de
-  acción, con el icono y el título de la tarjeta. Para llevar a una pantalla, no para enseñar cifras. Con
-  `$footerCaption`, el pie lleva ese texto junto a la flecha («Ver el informe»); sin él, solo la flecha.
+  (`value` y `concept`, obligatorios; `icon` y `color`, en desuso: el inicio ya no los pinta y se retiran en la `11.0.0`),
+  con su pie: un enlace de texto, sin flecha, y sin texto no hay pie. Lanza con cero cifras o más de tres.
+- **`DashboardCardBody::action(string $url, string $description, ?string $footerCaption = null)`**: un acceso directo:
+  la tarjeta entera es el enlace, con su título y esta frase, sin icono ni flecha. Para llevar a una pantalla, no para
+  enseñar cifras. Con `$footerCaption`, ese texto va de pie («Ver el informe»); sin él, la tarjeta no lleva pie.
 - **`DashboardCardBody::html(string $html, ?string $footerCaption = null, ?string $footerUrl = null)`**: para lo que no
   sean cifras ni una acción. El HTML lo escapa quien llama. Úsalo poco: las otras dos ya tienen la forma del panel.
 

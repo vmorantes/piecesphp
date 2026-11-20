@@ -2,6 +2,10 @@ window.addEventListener('load', function () {
 
 	let langGroup = 'reportsManage'
 
+	//Todas las cifras del informe, con los separadores del idioma de la página, como la dona («1248» y «49.979.170» en es).
+	const numberFormat = new Intl.NumberFormat(document.documentElement.lang || undefined)
+	const formatNumber = (value) => numberFormat.format(Number(value) || 0)
+
 	showGenericLoader(langGroup)
 
 	getDataConfig()
@@ -38,7 +42,7 @@ window.addEventListener('load', function () {
 				fill: function (value) {
 					const dataType = this.dataType
 					const domElement = $(`[data-type="${dataType}"]`)
-					domElement.html(formatNumberString(value, '.', ','))
+					domElement.text(formatNumber(value))
 				},
 				getValueFromSource: function (source) {
 					const value = source[this.dataType]
@@ -50,7 +54,7 @@ window.addEventListener('load', function () {
 				fill: function (value) {
 					const dataType = this.dataType
 					const domElement = $(`[data-type="${dataType}"]`)
-					domElement.html(formatNumberString(value, '.', ','))
+					domElement.text(formatNumber(value))
 				},
 				getValueFromSource: function (source) {
 					const value = source[this.dataType]
@@ -86,7 +90,6 @@ window.addEventListener('load', function () {
 		const total = Number(value.total) || 0
 		//Con los separadores del idioma de la página: «12.480 · 71,9 %» en es y «12,480 · 71.9%» en en (en es, 1248 va sin punto).
 		const language = document.documentElement.lang || undefined
-		const numberFormat = new Intl.NumberFormat(language)
 		const percentFormat = new Intl.NumberFormat(language, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 })
 		const percent = (qty) => percentFormat.format(total > 0 ? qty / total : 0)
 		const items = []

@@ -30,6 +30,11 @@ class HttpClient
     const MODE_PARSED_FROM_JSON_ASSOC = 'MODE_PARSED_FROM_JSON_ASSOC';
     const MODE_PARSED_TO_JSON = 'MODE_PARSED_TO_JSON';
 
+    /**
+     * Redirecciones que se siguen; la siguiente falla como un error de red.
+     */
+    const MAX_REDIRECTS = 5;
+
     //NO la vuelvas estatica: cada cliente lleva la suya, y compartirla hacia que construir
     //uno reescribiese la URL base de todos los demas. Ver `core/http-client-request-build`.
     protected string $baseURL = '';
@@ -165,30 +170,229 @@ class HttpClient
                 'method' => $method,
                 'header' => $headers_string,
                 'content' => $this->requestBody,
+                'follow_location' => 0,
             ],
         ];
         if ($this->timeout !== null) {
             $streamContextConfiguration['http']['timeout'] = $this->timeout;
         }
-        $context = stream_context_create($streamContextConfiguration);
 
         $baseURL = trim($this->baseURL, '/');
         $requestURL = $request_uri . $query_string;
         $this->requestURI = mb_strlen($request_uri) == 0 ? $baseURL . $requestURL : append_to_url($baseURL, $requestURL, true);
 
-        $response = null;
-        try {
-            $response = file_get_contents($this->requestURI, false, $context);
-        } catch (\Exception $e) {
-            $response = $e->getMessage();
+        //CVE-2026-128064: los streams de PHP < 8.5.13 no cifran un HTTPS:// con mayúsculas.
+        $url = self::normalizeScheme($this->requestURI);
+        $allResponseHeaders = [];
+        $redirects = 0;
+        while (true) {
+            $response = null;
+            $failed = false;
+            try {
+                $response = $this->openURL($url, stream_context_create($streamContextConfiguration));
+            } catch (\Exception $e) {
+                $response = $e->getMessage();
+                $failed = true;
+            }
+            // http_get_last_response_headers() devuelve null si la petición no se hizo; $http_response_header, deprecada en 8.5, ni existía.
+            $hopHeaders = $this->lastResponseHeaders();
+            $hopHeaders = is_array($hopHeaders) ? $hopHeaders : [];
+            $allResponseHeaders = array_merge($allResponseHeaders, $hopHeaders);
+
+            $location = $failed || $response === false ? null : self::redirectLocation($url, $hopHeaders);
+            if ($location === null) {
+                break;
+            }
+            $next = self::resolveLocation($url, $location);
+            $nextScheme = self::schemeOf($next);
+            if (self::schemeOf($url) === 'https' && $nextScheme === 'http') {
+                //Igual que un error de red: ni cuerpo ni cabeceras.
+                $allResponseHeaders = [];
+                $response = $this->failLikeStreamError($url, 'redirect from HTTPS to HTTP refused');
+                break;
+            }
+            if ($nextScheme !== 'http' && $nextScheme !== 'https') {
+                $response = $this->failLikeStreamError($url, 'operation failed');
+                break;
+            }
+            if (++$redirects > self::MAX_REDIRECTS) {
+                $response = $this->failLikeStreamError($url, 'Redirection limit reached, aborting');
+                break;
+            }
+            //Lo que hacía el seguimiento de PHP: con 300-303 un POST pasa a GET y pierde el cuerpo; con 307 y 308, no.
+            $code = (int) ($this->parseReponseHeaders($hopHeaders)['response_code'] ?? 0);
+            if ($code <= 303 && !in_array($streamContextConfiguration['http']['method'], ['GET', 'HEAD'], true)) {
+                $streamContextConfiguration['http']['method'] = 'GET';
+                unset($streamContextConfiguration['http']['content']);
+                $streamContextConfiguration['http']['header'] = preg_replace('/^Content-(Type|Length):[^\r\n]*\r\n/mi', '', $headers_string) ?? $headers_string;
+            }
+            $url = $next;
         }
-        // http_get_last_response_headers() devuelve null si la petición no se hizo; $http_response_header, deprecada en 8.5, ni existía.
-        $responseHeaders = http_get_last_response_headers();
-        $this->response['headers'] = $this->parseReponseHeaders(is_array($responseHeaders) ? $responseHeaders : []);
+        $this->response['headers'] = $this->parseReponseHeaders($allResponseHeaders);
         $this->response['status'] = $this->response['headers']['response_code'] ?? null;
         $this->response['body'] = $response;
 
         return $response;
+    }
+
+    /**
+     * El esquema en minúsculas, y solo el esquema: lo que sigue a «://» queda intacto.
+     *
+     * @param string $url
+     * @return string
+     */
+    public static function normalizeScheme(string $url): string
+    {
+        if (preg_match('#^([a-z][a-z0-9+.\-]*)://#i', $url, $match) !== 1) {
+            return $url;
+        }
+        return strtolower($match[1]) . substr($url, strlen($match[1]));
+    }
+
+    /**
+     * Resuelve un Location contra la dirección que lo devolvió: absoluta, «//host/x», «/x», «?q» o «x».
+     *
+     * @param string $baseURL
+     * @param string $location
+     * @return string La dirección absoluta, con el esquema en minúsculas
+     */
+    public static function resolveLocation(string $baseURL, string $location): string
+    {
+        $location = trim($location);
+        if (preg_match('#^[a-z][a-z0-9+.\-]*:#i', $location) === 1) {
+            return self::normalizeScheme($location);
+        }
+        if (preg_match('#^([a-z][a-z0-9+.\-]*)://([^/?\#]*)([^?\#]*)(\?[^\#]*)?#i', $baseURL, $base) !== 1) {
+            return $location;
+        }
+        $scheme = strtolower($base[1]);
+        $authority = $base[2];
+        $basePath = $base[3] !== '' ? $base[3] : '/';
+        if (str_starts_with($location, '//')) {
+            return self::normalizeScheme("{$scheme}:{$location}");
+        }
+        if ($location === '' || str_starts_with($location, '#')) {
+            return "{$scheme}://{$authority}{$basePath}" . ($base[4] ?? '') . $location;
+        }
+        if (str_starts_with($location, '?')) {
+            return "{$scheme}://{$authority}{$basePath}{$location}";
+        }
+        $suffixAt = strcspn($location, '?#');
+        $path = substr($location, 0, $suffixAt);
+        $suffix = substr($location, $suffixAt);
+        if (!str_starts_with($path, '/')) {
+            $path = substr($basePath, 0, (int) strrpos($basePath, '/') + 1) . $path;
+        }
+        return "{$scheme}://{$authority}" . self::removeDotSegments($path) . $suffix;
+    }
+
+    /**
+     * El Location de una respuesta que PHP seguía (300-303, 307 y 308), o null si no hay que seguir.
+     *
+     * @param string $url La dirección que dio la respuesta
+     * @param string[] $responseHeaders Las cabeceras crudas de ESA respuesta
+     * @return string|null
+     */
+    public static function redirectLocation(string $url, array $responseHeaders): ?string
+    {
+        $scheme = self::schemeOf($url);
+        if ($scheme !== 'http' && $scheme !== 'https') {
+            return null;
+        }
+        $code = 0;
+        $location = null;
+        foreach ($responseHeaders as $line) {
+            if (preg_match('#^HTTP/[0-9.]+\s+([0-9]+)#', $line, $match) === 1) {
+                $code = (int) $match[1];
+            } elseif (preg_match('/^Location:\s*(.*)$/i', $line, $match) === 1) {
+                $location = trim($match[1]);
+            }
+        }
+        $followed = ($code >= 300 && $code <= 303) || $code === 307 || $code === 308;
+        return $followed && $location !== null && $location !== '' ? $location : null;
+    }
+
+    /**
+     * @param string $url
+     * @return string El esquema en minúsculas, o '' si no tiene
+     */
+    protected static function schemeOf(string $url): string
+    {
+        return preg_match('#^([a-z][a-z0-9+.\-]*):#i', $url, $match) === 1 ? strtolower($match[1]) : '';
+    }
+
+    /**
+     * Quita «.» y «..» de una ruta (RFC 3986, 5.2.4).
+     *
+     * @param string $path
+     * @return string
+     */
+    protected static function removeDotSegments(string $path): string
+    {
+        $output = [];
+        $segments = explode('/', $path);
+        $last = count($segments) - 1;
+        foreach ($segments as $index => $segment) {
+            if ($segment === '..') {
+                if (count($output) > 1) {
+                    array_pop($output);
+                }
+            } elseif ($segment !== '.') {
+                $output[] = $segment;
+                continue;
+            }
+            if ($index === $last) {
+                $output[] = '';
+            }
+        }
+        $result = implode('/', $output);
+        return str_starts_with($result, '/') ? $result : '/' . $result;
+    }
+
+    /**
+     * @param string $url
+     * @param resource $context
+     * @return string|false
+     */
+    protected function openURL(string $url, $context): string|false
+    {
+        return file_get_contents($url, false, $context);
+    }
+
+    /**
+     * @return string[]|null
+     */
+    protected function lastResponseHeaders(): ?array
+    {
+        return http_get_last_response_headers();
+    }
+
+    /**
+     * Falla como falla file_get_contents() ante un error de red: un E_WARNING al manejador activo, que respeta la @,
+     * aborta en local (y entonces el cuerpo es el mensaje) y en producción lo registra y deja false.
+     *
+     * @param string $url
+     * @param string $reason
+     * @return string|false
+     */
+    protected function failLikeStreamError(string $url, string $reason): string|false
+    {
+        $message = "file_get_contents({$url}): Failed to open stream: {$reason}";
+        try {
+            $handler = set_error_handler(null);
+            restore_error_handler();
+            if ((error_reporting() & E_WARNING) === 0) {
+                return false;
+            }
+            if ($handler === null) {
+                trigger_error($message, E_USER_WARNING);
+                return false;
+            }
+            $handler(E_WARNING, $message, __FILE__, __LINE__);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+        return false;
     }
 
     /**

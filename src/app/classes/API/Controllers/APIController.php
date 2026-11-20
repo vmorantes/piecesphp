@@ -225,8 +225,8 @@ class APIController extends AdminPanelController
 
                 $publicationMapper = new PublicationMapper($id);
 
-                //La API no enseña más que la vista pública: lo que no se ve, como lo que no existe, es un 404.
-                if ($publicationMapper->id === null || (!$publicationMapper->isVisibleToPublic() && !PublicationMapper::canBePreviewedBy(
+                //La API no enseña más que la vista pública: lo que no se ve, como lo que no existe, es un 404; lo eliminado, también (P380).
+                if ($publicationMapper->id === null || (int) $publicationMapper->status === PublicationMapper::INACTIVE || (!$publicationMapper->isVisibleToPublic() && !PublicationMapper::canBePreviewedBy(
                     $publicationMapper,
                     getLoggedFrameworkUser(),
                     $publicationMapper->status == PublicationMapper::ACTIVE && $publicationMapper->isActiveByDates()

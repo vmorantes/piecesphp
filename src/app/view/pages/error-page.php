@@ -12,16 +12,11 @@
  * @var array<int,array{text:string,url:string,icon?:string}> $errorActions La primera es la principal.
  */
 $errorActions = isset($errorActions) && is_array($errorActions) ? $errorActions : [];
-//El pie, como el del acceso: el propietario (vacío, el nombre de la aplicación) y el crédito del menú lateral.
+//El pie, como el del acceso: el propietario (vacío, el nombre de la aplicación) y los patrocinadores.
 $errorOwner = trim((string) get_config('owner'));
 $errorOwner = $errorOwner !== '' ? $errorOwner : (string) get_config('title_app');
-$errorDeveloper = trim((string) get_config('developer'));
-$errorDeveloperLogo = trim((string) get_config('developer_logo'));
-$errorDeveloperURL = trim((string) get_config('developer_url'));
-$errorDeveloperName = $errorDeveloper === '' ? '' : '<strong>' . escape_html($errorDeveloper) . '</strong>';
-if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
-    $errorDeveloperName = '<a href="' . escape_html($errorDeveloperURL) . '" target="_blank" rel="noopener">' . $errorDeveloperName . '</a>';
-}
+$errorPartnersText = \PiecesPHP\Settings\Controllers\SettingsController::partnersText();
+$errorPartners = trim((string) get_config('partners'));
 ?>
 <!DOCTYPE html>
 <html lang="<?= escape_html((string) get_config('app_lang')); ?>" dlang="<?= escape_html((string) get_config('default_lang')); ?>" class="no-js"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
@@ -81,15 +76,15 @@ if ($errorDeveloperName !== '' && $errorDeveloperURL !== '') {
 
         <footer class="ui basic center aligned segment">
             <div class="ui vertical centered tight flex">
-                <small class="ui muted text" data-error-footer><?= escape_html(strReplaceTemplate(__(USER_LOGIN_LANG_GROUP, '© ${year} · Todos los derechos reservados a ${owner}'), ['${year}' => date('Y'), '${owner}' => $errorOwner])); ?></small>
-                <?php if ($errorDeveloperName !== ''): ?>
-                <small class="ui muted text tight nowrap centered flex developer-credit" data-error-developer>
-                    <?php if ($errorDeveloperLogo !== ''): ?>
-                    <?= \PiecesPHP\Settings\Controllers\SettingsController::developerLogoTag('ui mini image'); ?>
+                <?php if ($errorPartners !== ''): ?>
+                <div class="ui vertical centered relaxed flex" data-error-partners>
+                    <?php if ($errorPartnersText !== ''): ?>
+                    <small class="ui muted text"><strong><?= escape_html($errorPartnersText); ?></strong></small>
                     <?php endif; ?>
-                    <span><?= __('general', 'Desarrollado por'); ?> <?= $errorDeveloperName; ?></span>
-                </small>
+                    <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('partners', 'ui image'); ?>
+                </div>
                 <?php endif; ?>
+                <small class="ui muted text" data-error-footer><?= escape_html(strReplaceTemplate(__(USER_LOGIN_LANG_GROUP, '© ${year} · Todos los derechos reservados a ${owner}'), ['${year}' => date('Y'), '${owner}' => $errorOwner])); ?></small>
             </div>
         </footer>
 

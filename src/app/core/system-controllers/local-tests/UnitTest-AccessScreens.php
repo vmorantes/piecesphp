@@ -234,11 +234,9 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
         $poner('owner', '');
         $deRespaldo = escape_html(strReplaceTemplate(__(USER_LOGIN_LANG_GROUP, '© ${year} · Todos los derechos reservados a ${owner}'), ['${year}' => date('Y'), '${owner}' => (string) get_config('title_app')]));
         $check($pie($pedir($rutaAcceso)['body'], 'data-access-footer') === $deRespaldo, 'p4 vacío, el nombre de la aplicación', $pie($pedir($rutaAcceso)['body'], 'data-access-footer'));
-        $developer = trim((string) get_config('developer'));
-        if ($developer !== '') {
-            $check(str_contains($pedir($ruta404)['body'], 'data-error-developer'), 'p5 la página de error lleva el crédito «Desarrollado por», como el menú lateral');
-        }
         $partners = trim((string) get_config('partners'));
+        $html404 = $pedir($ruta404)['body'];
+        $check(!str_contains($html404, 'data-error-developer') && ($partners === '' || $dom($html404)->query('//*[@data-error-partners]//img[contains(@src,"' . \PiecesPHP\Settings\Controllers\SettingsController::brandImagePath('partners') . '")]')?->length >= 1), 'p5 DISCRIMINANTE: la página de error no lleva el crédito del desarrollador, y con imagen de patrocinadores la lleva en el pie');
         $check($partners === '' || $dom($pedir($rutaAcceso)['body'])->query('//*[@data-access-mobile-partners][contains(@class,"mobile tablet only")]//img[not(contains(@class,"brand-image-dark"))]')?->length === 1, 'p6 el patrocinador, bajo el formulario en móvil y tableta');
         echoTerminal(' ');
 
@@ -375,7 +373,6 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
             //config.php no se cambia por HTTP (no es opción declarada): por HTTP, el estado de fábrica; los demás, en el proceso.
             $paginasDesarrollador = [
                 'acceso' => [$rutaAcceso, null, '//small[contains(@class,"developer-credit")]/img'],
-                '404' => [$ruta404, null, '//*[@data-error-developer]//img'],
                 'menú lateral' => ['admin/', $jwt, '//img[contains(@class,"developer-logo")]'],
             ];
             foreach ($paginasDesarrollador as $nombre => [$ruta, $token, $consulta]) {

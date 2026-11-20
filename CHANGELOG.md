@@ -1,3 +1,30 @@
+# 10.56.0 (20-11-2026)
+
+- **Seguridad: varias correcciones de visibilidad en Publicaciones y en las conexiones a servicios externos.** Se
+  recomienda actualizar cuanto antes.
+- **Seguridad: la librería de hojas de cálculo (PhpSpreadsheet) pasa a la 5.11.0**, que corrige avisos de seguridad que
+  alcanzaban la importación de archivos Excel.
+- **Lo eliminado es eliminado para todos**: una publicación eliminada ya no se puede abrir, guardar ni volver a eliminar
+  desde el panel ni desde la API, tampoco por su dirección; responde como una que no existe. Tampoco sale en los
+  listados (ni pidiendo expresamente su estado) y sus archivos no se sirven a nadie: al eliminarla pasan a privados en
+  el momento, sin esperar a la tarea periódica. Sigue en la base como histórico.
+- **Con Publicaciones apagado, su bloque de componentes públicos tampoco se sirve.**
+- **Las conexiones del cliente HTTP del framework** (`HttpClient`: Mistral, Mautic, Mailjet, osTicket, reCAPTCHA y los
+  SMS de LabsMobile) usan siempre conexión cifrada cuando la dirección lo pide, aunque se haya escrito en mayúsculas, y
+  una redirección que deje de cifrar falla como un error de red. Siguen como mucho 5 redirecciones (antes, el límite de PHP), y cada
+  salto tiene el tiempo de espera completo. OpenAI y Groq van por su propia librería y no cambian.
+  **Estado del sistema** avisa si el PHP del servidor es anterior a la 8.5.13, que corrige un fallo de seguridad.
+- **Gráficas**: la hoja de diseño y Ubicaciones siguen ya el patrón del tema (la dona interactiva en la hoja; en
+  Ubicaciones, accesos directos sin icono ni flecha); la etiqueta que sale al pasar por una porción ya no tapa la
+  leyenda, y el Informe general escribe todas sus cifras con el formato del idioma de la página.
+- **Las páginas de error («no encontrada», «sin permiso» y «en mantenimiento») ya no dicen «Desarrollado por»**: en su
+  pie llevan, como el inicio de sesión, el texto de los patrocinadores («Con el apoyo de», o el tuyo de Imágenes de
+  marca) y su imagen. Sin imagen de patrocinadores, el pie queda solo con los derechos. El crédito del desarrollador
+  sigue en el menú y en el inicio de sesión.
+- **Al actualizar**: ejecuta `composer install` en `src/` para traer la nueva versión de PhpSpreadsheet (y su
+  dependencia nueva, `phpoffice/wmf`). Si tu proyecto tiene una copia propia de la vista del bloque de publicaciones
+  (`Publications/Views/publications/public/util/components.php`), aplícale el mismo cambio que la del framework.
+
 # 10.55.0 (19-11-2026)
 
 - **Seguridad: los listados de usuarios del panel muestran a cada uno solo los usuarios que puede gestionar.** Se
@@ -29,7 +56,7 @@
 - **Con el módulo de Organizaciones apagado, nadie gana ni pierde acceso por su organización**: el encargado de una
   organización no recibe permisos, «Mi organización» no aparece, aprobar o rechazar una organización no arrastra a sus
   usuarios, el estado de la organización no impide entrar, y Publicaciones no acota por organización ni los listados
-  ni la edición ni la vista previa. Con el módulo encendido, nada cambia. Un alta que requiere aprobación ya no se aprueba sola por estar en la organización global: se aprueba en Aprobaciones. Al guardar un usuario, su organización no cambia, y los nuevos quedan en la global.
+  ni la edición ni la vista previa. Con el módulo encendido, nada cambia. Con el módulo apagado, un alta que requiere aprobación ya no se aprueba sola por estar en la organización global: se aprueba en Aprobaciones; y al guardar un usuario, su organización no cambia, y los nuevos quedan en la global.
 - **Para quien desarrolla**: los interruptores son las opciones `loaderAnimationEnabled`, `loaderLogoEnabled` y
   `loaderScreenEnabled` (`SettingsController::LOADER_LAYERS_ENABLED`); las pantallas, `loaderScreen*` y
   `loaderScreenMobile*`, con sus `data-loader-*` en el `<html>`. `BRAND_IMAGES_EMPTY_IS_OFF` y la petición de borrar una

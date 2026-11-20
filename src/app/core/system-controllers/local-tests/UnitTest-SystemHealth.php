@@ -42,6 +42,11 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
         $fake = SystemHealth::rows(['zz_extension_inexistente']);
         $fakeRow = array_values(array_filter($fake, fn(array $row): bool => $row['label'] === 'ext-zz_extension_inexistente'));
         $check(count($fakeRow) === 1 && $fakeRow[0]['state'] === SystemHealth::STATE_MISSING, 'd1 una extensión inexistente sale como «falta»');
+        //CVE-2026-128064: por debajo de la 8.5.13, aviso; desde ella, como siempre.
+        $check(SystemHealth::phpVersionState(80512) === SystemHealth::STATE_WARNING, 'v1 PHP 8.5.12 sale en aviso');
+        $check(SystemHealth::phpVersionState(80513) === SystemHealth::STATE_INFO && SystemHealth::phpVersionState(80600) === SystemHealth::STATE_INFO, 'v2 la 8.5.13 y la 8.6.0, como siempre (información)');
+        $versionRow = array_values(array_filter($rows, fn(array $row): bool => $row['group'] === SystemHealth::GROUP_PHP && str_starts_with($row['origin'], 'PHP_VERSION')));
+        $check(count($versionRow) === 1 && $versionRow[0]['state'] === SystemHealth::phpVersionState(PHP_VERSION_ID), 'v3 la fila «Versión de PHP» usa ese estado', (string) json_encode($versionRow, \JSON_UNESCAPED_UNICODE));
 
         //El grupo de seguridad (P319): PHP en las subidas, los dominios permitidos y el entorno.
         $security = fn(array $all): array => array_values(array_filter($all, fn(array $row): bool => $row['group'] === SystemHealth::GROUP_SECURITY));

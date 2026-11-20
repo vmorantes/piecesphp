@@ -13,10 +13,10 @@ use PiecesPHP\App\Locations\Controllers\State;
  * @var string $title
  */
 $elements = [
-    [Country::class, 'globe', __(LOCATIONS_LANG_GROUP, 'Países'), __(LOCATIONS_LANG_GROUP, 'Listado de los países')],
-    [State::class, 'flag', __(LOCATIONS_LANG_GROUP, 'Departamentos'), __(LOCATIONS_LANG_GROUP, 'Listado de los departamentos')],
-    [City::class, 'building outline', __(LOCATIONS_LANG_GROUP, 'Ciudades'), __(LOCATIONS_LANG_GROUP, 'Listado de las ciudades')],
-    [Point::class, 'map pin', __(LOCATIONS_LANG_GROUP, 'Coordenadas'), __(LOCATIONS_LANG_GROUP, 'Listado de las coordenadas')],
+    [Country::class, __(LOCATIONS_LANG_GROUP, 'Países'), __(LOCATIONS_LANG_GROUP, 'Listado de los países')],
+    [State::class, __(LOCATIONS_LANG_GROUP, 'Departamentos'), __(LOCATIONS_LANG_GROUP, 'Listado de los departamentos')],
+    [City::class, __(LOCATIONS_LANG_GROUP, 'Ciudades'), __(LOCATIONS_LANG_GROUP, 'Listado de las ciudades')],
+    [Point::class, __(LOCATIONS_LANG_GROUP, 'Coordenadas'), __(LOCATIONS_LANG_GROUP, 'Listado de las coordenadas')],
 ];
 ?>
 <section class="module-view-container">
@@ -30,17 +30,21 @@ $elements = [
             ]);
 
             ob_start();
-            foreach ($elements as [$controller, $icon, $cardTitle, $cardDescription]) {
+            foreach ($elements as [$controller, $cardTitle, $cardDescription]) {
                 $url = $controller::routeName('list');
-                $url = $url !== '' ? $url : $controller::routeName('forms-add');
+                $caption = __(LOCATIONS_LANG_GROUP, 'Ver el listado');
+                if ($url === '') {
+                    $url = $controller::routeName('forms-add');
+                    $caption = __(LOCATIONS_LANG_GROUP, 'Agregar');
+                }
                 if ($url === '') {
                     continue;
                 }
-                $pieces->_render('panel/built-in/statistics/action-card.php', [
-                    'url' => $url,
-                    'icon' => $icon,
+                //El acceso directo del tema (como en el Inicio): la tarjeta entera es el enlace, sin icono ni flecha.
+                $pieces->_render('panel/built-in/statistics/statistic-card.php', [
                     'title' => $cardTitle,
-                    'description' => $cardDescription,
+                    'figure' => ['url' => $url, 'description' => $cardDescription],
+                    'footer' => ['caption' => $caption],
                 ]);
             }
             $pieces->_render('panel/built-in/statistics/statistics-section.php', [

@@ -405,8 +405,12 @@ function drawStatisticsDonut(canvas, items, options) {
 					const radius = Math.min(size.viewSize[0], size.viewSize[1]) / 2 + 4
 					const x = size.viewSize[0] / 2 + radius * Math.cos(angle)
 					const y = size.viewSize[1] / 2 - radius * Math.sin(angle)
-					//La esquina más cercana al centro va en el borde del lienzo y la caja crece hacia fuera.
-					return [Math.cos(angle) >= 0 ? x : x - size.contentSize[0], Math.sin(angle) >= 0 ? y - size.contentSize[1] : y]
+					//La esquina más cercana al centro, en el borde del lienzo, y la caja crece hacia fuera; nunca a la derecha del
+					//lienzo (taparía la leyenda) ni fuera de la ventana. Acotada a la tarjeta taparía la cifra del centro.
+					const left = 8 - canvas.getBoundingClientRect().left
+					const right = size.viewSize[0] - size.contentSize[0]
+					const start = Math.cos(angle) >= 0 ? x : x - size.contentSize[0]
+					return [Math.max(left, Math.min(start, right)), Math.sin(angle) >= 0 ? y - size.contentSize[1] : y]
 				},
 				//El porcentaje, sobre lo encendido, el mismo que la leyenda (refresh()).
 				formatter: function (params) {

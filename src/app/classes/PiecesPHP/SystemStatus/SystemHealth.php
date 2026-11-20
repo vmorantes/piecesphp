@@ -143,6 +143,17 @@ final class SystemHealth
     }
 
     /**
+     * El estado de la fila «Versión de PHP»: aviso por debajo de la 8.5.13 (CVE-2026-128064).
+     *
+     * @param int $versionId Como PHP_VERSION_ID
+     * @return string
+     */
+    public static function phpVersionState(int $versionId): string
+    {
+        return $versionId < 80513 ? self::STATE_WARNING : self::STATE_INFO;
+    }
+
+    /**
      * @param string[]|null $requiredExtensions
      * @return array<int,array{group:string,label:string,value:string,state:string,origin:string}>
      */
@@ -150,7 +161,12 @@ final class SystemHealth
     {
         $require = InstalledPackages::requireList();
         $rows = [];
-        $rows[] = self::row(self::GROUP_PHP, self::t('Versión de PHP'), sprintf(self::t('%s (pide %s)'), PHP_VERSION, $require['php'] ?? '—'), self::STATE_INFO, 'PHP_VERSION, composer.json');
+        $phpVersion = sprintf(self::t('%s (pide %s)'), PHP_VERSION, $require['php'] ?? '—');
+        $phpState = self::phpVersionState(PHP_VERSION_ID);
+        if ($phpState === self::STATE_WARNING) {
+            $phpVersion .= ' · ' . self::t('Esta versión de PHP tiene un fallo de seguridad corregido en la 8.5.13: conviene actualizar el PHP del servidor.');
+        }
+        $rows[] = self::row(self::GROUP_PHP, self::t('Versión de PHP'), $phpVersion, $phpState, 'PHP_VERSION, PHP_VERSION_ID, composer.json');
 
         if ($requiredExtensions === null) {
             $requiredExtensions = [];

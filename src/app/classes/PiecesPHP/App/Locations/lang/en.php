@@ -26,6 +26,7 @@ $lang = [
     'Ciudades' => 'Cities',
     'Listado de las ciudades' => 'List of cities',
     'Listado de las coordenadas' => 'List of coordinates',
+    'Ver el listado' => 'View the list',
     'Ver' => 'Watch',
     'Ubicaciones' => 'Locations',
     'Coordenada' => 'Coordinate',

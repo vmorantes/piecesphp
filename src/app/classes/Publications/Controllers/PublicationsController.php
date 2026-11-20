@@ -225,7 +225,7 @@ class PublicationsController extends AdminPanelController
 
         $element = new PublicationMapper($id);
 
-        if ($element->id !== null && PublicationMapper::existsByID($element->id)) {
+        if ($element->id !== null && PublicationMapper::existsNotDeletedByID($element->id)) {
 
             set_custom_assets([
                 PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -735,7 +735,8 @@ class PublicationsController extends AdminPanelController
                     //Existente
 
                     $mapper = new PublicationMapper((int) $id);
-                    $exists = !is_null($mapper->id);
+                    //Lo eliminado no se guarda: guardarlo lo devolvería a ACTIVE o a borrador (P380).
+                    $exists = $mapper->id !== null && PublicationMapper::existsNotDeletedByID($mapper->id);
 
                     //Un POST no concede más que su GET: editar exige lo mismo que abrir su formulario (_allowedRoute).
                     if ($exists && !self::allowedRoute('forms-edit', ['id' => $mapper->id])) {
@@ -871,7 +872,23 @@ class PublicationsController extends AdminPanelController
 
                         }
 
-                        $updated = $mapper->update();
+                        //Entre comprobar y guardar median las subidas: se bloquea la fila y se vuelve a mirar, o una eliminada
+                        //entretanto volvería a ACTIVE (P380).
+                        $connection = $mapper->getModel()->getDatabase();
+                        if ($connection === null) {
+                            throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        }
+                        $connection->beginTransaction();
+                        try {
+                            $lock = $connection->prepare('SELECT status FROM `' . PublicationMapper::TABLE . '` WHERE id = :id FOR UPDATE');
+                            $currentStatus = $lock->execute([':id' => $mapper->id]) ? $lock->fetchColumn() : false;
+                            $stillExists = $currentStatus !== false && (int) $currentStatus !== PublicationMapper::INACTIVE;
+                            $updated = $stillExists && $mapper->update();
+                            $updated = $connection->commit() && $updated;
+                        } catch (\Throwable $e) {
+                            $connection->rollBack();
+                            throw $e;
+                        }
                         $resultOperation->setSuccessOnSingleOperation($updated);
 
                         if ($updated) {
@@ -887,7 +904,7 @@ class PublicationsController extends AdminPanelController
 
                         } else {
 
-                            $resultOperation->setMessage($unknowErrorMessage);
+                            $resultOperation->setMessage($stillExists ? $unknowErrorMessage : $notExistsMessage);
 
                         }
 
@@ -1005,7 +1022,7 @@ class PublicationsController extends AdminPanelController
 
             try {
 
-                $exists = PublicationMapper::existsByID($id);
+                $exists = PublicationMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
 
@@ -1044,6 +1061,8 @@ class PublicationsController extends AdminPanelController
                         }
 
                         $pdo->commit();
+                        //Sus archivos pasan a privados: el servidor web ya no los sirve sin el validador, que la niega (P380).
+                        self::syncUploadsVisibility(new PublicationMapper($id), false);
 
                         $resultOperation->setSuccessOnSingleOperation(true);
 
@@ -1530,6 +1549,10 @@ class PublicationsController extends AdminPanelController
                 return !str_ends_with($filePath, \PiecesPHP\Core\Statics\ProtectedUploads::suffix())
                     || ($currentUser !== null && in_array((int) $currentUser->type, PublicationMapper::CAN_VIEW_ALL));
             }
+            //Los archivos de una eliminada no se sirven a nadie (P380).
+            if ((int) $publication->status === PublicationMapper::INACTIVE) {
+                return false;
+            }
             return $publication->isVisibleToPublic() || PublicationMapper::canBePreviewedBy(
                 $publication,
                 getLoggedFrameworkUser(),
@@ -1726,6 +1749,11 @@ class PublicationsController extends AdminPanelController
 
         }
 
+        //Lo eliminado no sale en ningún listado, tampoco con status=0 o ANY (P380).
+        $deleted = PublicationMapper::INACTIVE;
+        $beforeOperator = !empty($where) ? $and : '';
+        $where[] = "{$beforeOperator} ({$table}.status != {$deleted})";
+
         $boundValues = [];
         if (!empty($ignoreSlugs)) {
 
@@ -1914,6 +1942,8 @@ class PublicationsController extends AdminPanelController
                     $allow = false;
                     $id = ($getParam)('id');
                     $publication = PublicationMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $publication = $publication !== null && (int) $publication->status !== PublicationMapper::INACTIVE ? $publication : null;
 
                     if ($publication !== null) {
 
@@ -1943,6 +1973,8 @@ class PublicationsController extends AdminPanelController
                     $allow = false;
                     $id = ($getParam)('id');
                     $publication = PublicationMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $publication = $publication !== null && (int) $publication->status !== PublicationMapper::INACTIVE ? $publication : null;
 
                     if ($publication !== null) {
 

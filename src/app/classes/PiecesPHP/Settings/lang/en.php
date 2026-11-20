@@ -557,7 +557,7 @@ return [
     'La columna de la marca: el logo sobre el fondo con su velo, y el recuadro de los apoyos con la bandera horizontal y el logo del desarrollador. Lo mismo en sus páginas de ayuda.' => 'The brand column: the logo over the background with its overlay, and the supporters box with the horizontal banner and the developer logo. The same on its help pages.',
     'Mientras carga una pantalla, en el panel y en el sitio público: la animación de carga y, debajo, el logo del cargador.' => 'While a screen loads, in the panel and on the public site: the loading animation and, below it, the loader logo.',
     'Página de error' => 'Error page',
-    'La página de «no encontrada», «sin permiso» y «en mantenimiento», en el panel y en el sitio público: el logo arriba y el logo del desarrollador en el pie.' => 'The “not found”, “no permission” and “under maintenance” page, in the panel and on the public site: the logo at the top and the developer logo in the footer.',
+    'La página de «no encontrada», «sin permiso» y «en mantenimiento», en el panel y en el sitio público: el logo arriba y los patrocinadores en el pie.' => 'The “not found”, “no permission” and “under maintenance” page, in the panel and on the public site: the logo at the top and the sponsors in the footer.',
     'Encabezado de un correo' => 'E-mail header',
     'El de todos los correos que envía la plataforma. El correo no tiene modo oscuro propio: lo decide el programa de quien lo recibe, así que las dos muestras son iguales.' => 'The one on every e-mail the platform sends. E-mail has no dark mode of its own: the recipient’s mail program decides, so both samples are the same.',
     'Pestaña del navegador' => 'Browser tab',

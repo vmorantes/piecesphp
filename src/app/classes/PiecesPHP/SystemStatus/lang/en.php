@@ -215,6 +215,7 @@ return [
     'Pide %s · instalada %s' => 'Requires %s · installed %s',
     'Versión de PHP' => 'PHP version',
     '%s (pide %s)' => '%s (requires %s)',
+    'Esta versión de PHP tiene un fallo de seguridad corregido en la 8.5.13: conviene actualizar el PHP del servidor.' => 'This PHP version has a security flaw fixed in 8.5.13: updating the server\'s PHP is advisable.',
     'Cargada' => 'Loaded',
     'No cargada' => 'Not loaded',
     'Inactivo' => 'Inactive',

@@ -112,7 +112,7 @@ $sites = [
     ],
     'error' => [
         'title' => __($langGroup, 'Página de error'),
-        'description' => __($langGroup, 'La página de «no encontrada», «sin permiso» y «en mantenimiento», en el panel y en el sitio público: el logo arriba y el logo del desarrollador en el pie.'),
+        'description' => __($langGroup, 'La página de «no encontrada», «sin permiso» y «en mantenimiento», en el panel y en el sitio público: el logo arriba y los patrocinadores en el pie.'),
         'frames' => [
             'error' => [
                 'caption' => __($langGroup, 'Página de error'),

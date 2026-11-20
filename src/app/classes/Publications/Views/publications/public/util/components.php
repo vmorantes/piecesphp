@@ -20,7 +20,12 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
     <?php foreach($idsElements as $idElement): ?>
     <?php
         $element = new PublicationMapper($idElement);
-        if ($element->id == null) {
+        //Lo eliminado, como lo que no existe (P380).
+        if ($element->id == null || (int) $element->status === PublicationMapper::INACTIVE) {
+            continue;
+        }
+        //El bloque público enseña lo mismo que la vista individual.
+        if (!($element->isVisibleToPublic() || PublicationMapper::canBePreviewedBy($element, getLoggedFrameworkUser(), $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates()))) {
             continue;
         }
 

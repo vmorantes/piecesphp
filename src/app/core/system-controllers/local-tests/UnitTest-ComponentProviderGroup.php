@@ -105,7 +105,8 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
         foreach (['title' => 'zz-prueba-componentes', 'content' => '<p>zz-prueba-componentes</p>', 'seoDescription' => '', 'publicDate' => new \DateTime(), 'startDate' => null, 'endDate' => null, 'category' => (int) (PublicationCategoryMapper::uncategorizedCategory()->id ?? 0), 'visits' => 0, 'author' => $rootID, 'folder' => str_replace('.', '', uniqid()), 'featured' => PublicationMapper::UNFEATURED, 'mainImage' => 'statics/images/zz-prueba.jpg', 'thumbImage' => 'statics/images/zz-prueba.jpg', 'ogImage' => ''] as $campo => $valor) {
             $publicacion->setLangData($lang, $campo, $valor);
         }
-        $publicacion->status = PublicationMapper::DRAFT;
+        //Publicada: el bloque solo pinta lo que el público ve (un borrador sin sesión no sale).
+        $publicacion->status = PublicationMapper::ACTIVE;
         //`save()` exige un usuario en sesión, y el terminal no tiene: se le presta root y se devuelve el que había.
         $usuarioPrevio = get_config('current_user');
         $guardadoPrevio = get_config('pcsphp_current_user_stored');
@@ -118,6 +119,10 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
             set_config('pcsphp_current_user_stored', $guardadoPrevio);
         }
         $idPublicacion = (int) $publicacion->id;
+        $tablaAprobaciones = \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE;
+        $database->prepare("DELETE FROM `{$tablaAprobaciones}` WHERE referenceTable = ? AND referenceValue = ?")->execute([PublicationMapper::TABLE, (string) $idPublicacion]);
+        $database->prepare("INSERT INTO `{$tablaAprobaciones}` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES (?, ?, ?, NOW(), NOW(), ?, ?)")
+            ->execute(['zz-prueba-componentes', (string) $idPublicacion, PublicationMapper::TABLE, $rootID, \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_APPROVED]);
         //Un preferSlug con comillas y etiquetas: la vista lo pinta en data-slug y lo lleva al href.
         $database->prepare('UPDATE `' . PublicationMapper::TABLE . '` SET preferSlug = ? WHERE id = ?')->execute(['zz-hj"><b>zz-roto</b>', $idPublicacion]);
 
@@ -130,11 +135,14 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
     } finally {
         $_GET = $getPrevio;
         if ($idPublicacion !== null) {
+            $database->prepare('DELETE FROM `' . \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE . '` WHERE referenceTable = ? AND referenceValue = ?')->execute([PublicationMapper::TABLE, (string) $idPublicacion]);
             $database->prepare('DELETE FROM `' . PublicationMapper::TABLE . '` WHERE id = ?')->execute([$idPublicacion]);
         }
         $quedan = $database->prepare('SELECT COUNT(*) FROM `' . PublicationMapper::TABLE . '` WHERE id = ?');
         $quedan->execute([(int) $idPublicacion]);
-        $check($idPublicacion !== null && (int) $quedan->fetchColumn() === 0, 'z1 no queda la publicación de la prueba');
+        $quedanAprobaciones = $database->prepare('SELECT COUNT(*) FROM `' . \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE . '` WHERE referenceTable = ? AND referenceValue = ?');
+        $quedanAprobaciones->execute([PublicationMapper::TABLE, (string) (int) $idPublicacion]);
+        $check($idPublicacion !== null && (int) $quedan->fetchColumn() === 0 && (int) $quedanAprobaciones->fetchColumn() === 0, 'z1 no queda la publicación de la prueba ni su aprobación');
     }
     echoTerminal(' ');
 
@@ -206,6 +214,52 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
     $check((new ComponentProvider())->availableGroups() === $gruposPrevios, 'z2 al terminar, los grupos son los de antes de la prueba', implode(', ', (new ComponentProvider())->availableGroups()));
     echoTerminal(' ');
 
+    echoTerminal('[6] Un grupo de Views/ con su enabled.php apagado no se sirve: responde como uno que no existe');
+    $grupos = new \ReflectionMethod(ComponentProvider::class, 'viewGroups');
+    $carpeta = rtrim(sys_get_temp_dir(), '/') . '/zz-prueba-grupos-' . bin2hex(random_bytes(3)) . '/';
+    try {
+        $creados = true;
+        foreach (['zz-sin-interruptor' => null, 'zz-encendido' => 'true', 'zz-apagado' => 'false', 'zz-no-booleano' => '1'] as $nombre => $devuelve) {
+            $creados = $creados && mkdir($carpeta . $nombre, 0777, true) && file_put_contents($carpeta . $nombre . '/components.php', '<b>zz</b>') !== false
+                && ($devuelve === null || file_put_contents($carpeta . $nombre . '/enabled.php', "<?php return {$devuelve};") !== false);
+        }
+        $check($creados, '6 CANARIO: la carpeta temporal con sus cuatro grupos está escrita', $carpeta);
+        $encendidos = (array) $grupos->invoke(null, $carpeta);
+        sort($encendidos);
+        $todos = (array) $grupos->invoke(null, $carpeta, false);
+        sort($todos);
+        //DISCRIMINANTE: sin mirar enabled.php, zz-apagado y zz-no-booleano saldrían como servibles.
+        $check($encendidos === ['zz-encendido', 'zz-sin-interruptor'], '6a solo se sirven el que no trae enabled.php y el que devuelve true (un 1 no es true)', implode(', ', $encendidos));
+        $check($todos === ['zz-apagado', 'zz-encendido', 'zz-no-booleano', 'zz-sin-interruptor'], '6b sin filtrar (lo que mira registerGroup()), están todos', implode(', ', $todos));
+    } finally {
+        foreach (glob($carpeta . '*/*.php') ?: [] as $archivo) {
+            //RETORNO-IGNORADO: lo comprueba z3 mirando si queda la carpeta.
+            unlink($archivo);
+        }
+        foreach (glob($carpeta . '*', GLOB_ONLYDIR) ?: [] as $directorio) {
+            //RETORNO-IGNORADO: lo comprueba z3 mirando si queda la carpeta.
+            rmdir($directorio);
+        }
+        if (is_dir($carpeta)) {
+            //RETORNO-IGNORADO: lo comprueba z3 mirando si queda la carpeta.
+            rmdir($carpeta);
+        }
+    }
+    $check(!is_dir($carpeta), 'z3 no queda la carpeta temporal de la prueba');
+    $servibles = (new ComponentProvider())->availableGroups();
+    $check(in_array('publications', $servibles, true) === \Publications\PublicationsRoutes::ENABLE, '6c el grupo publications se sirve si y solo si Publicaciones está encendido', implode(', ', $servibles));
+    try {
+        ComponentProvider::registerGroup('publications', function (): void {
+        });
+        $ocupado = false;
+    } catch (\LogicException $e) {
+        $ocupado = true;
+    } finally {
+        $registro->setValue(null, $registroPrevio);
+    }
+    $check($ocupado, '6d el nombre publications no lo puede ocupar el proyecto, esté encendido o apagado');
+    echoTerminal(' ');
+
     $total = $passed + $failed;
     echoTerminal($failed === 0
         ? "\e[32m BALANCE FINAL: {$passed}/{$total} PASADAS \e[39m"
@@ -213,4 +267,4 @@ CliActions::make('unit-tests:core/component-provider-group', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El {group} de components-provider-provide se valida contra los grupos que existen y con forma de nombre, sin depender del servidor; la respuesta lleva su tipo, un 404 de la vista no se traga, y el bloque de publicaciones tiene tope y escapa. Escribe una publicación zz- y la retira.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('El {group} de components-provider-provide se valida contra los grupos que existen y con forma de nombre, sin depender del servidor; la respuesta lleva su tipo, un 404 de la vista no se traga, el bloque de publicaciones tiene tope y escapa, y un grupo con su enabled.php apagado (publications, con Publicaciones apagado) no se sirve. Escribe una publicación zz- y la retira.')->setEffects([CliActions::EFFECT_DATABASE])->register();

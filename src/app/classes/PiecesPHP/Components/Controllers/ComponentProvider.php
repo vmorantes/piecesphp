@@ -106,8 +106,8 @@ class ComponentProvider extends AdminPanelController
     }
 
     /**
-     * Los grupos que se pueden servir: los directorios de Views/ con un components.php, y con forma de nombre, más los
-     * registrados con registerGroup().
+     * Los grupos que se pueden servir: los directorios de Views/ con un components.php, con forma de nombre y encendidos
+     * (viewGroups()), más los registrados con registerGroup().
      *
      * @return string[]
      */
@@ -141,23 +141,31 @@ class ComponentProvider extends AdminPanelController
         if (preg_match(self::GROUP_NAME_PATTERN, $group) !== 1) {
             throw new \InvalidArgumentException("El nombre del grupo de componentes «{$group}» no es válido: solo letras, números, guion y guion bajo.");
         }
-        if (isset(self::$registeredGroups[$group]) || in_array($group, self::viewGroups(self::VIEWS_DIR), true)) {
+        //También contra los apagados: el nombre de un grupo del framework no se ocupa aunque hoy no se sirva.
+        if (isset(self::$registeredGroups[$group]) || in_array($group, self::viewGroups(self::VIEWS_DIR, false), true)) {
             throw new \LogicException("El grupo de componentes «{$group}» ya existe: elige otro nombre, un grupo no puede sustituir a otro.");
         }
         self::$registeredGroups[$group] = $render;
     }
 
     /**
-     * Los directorios de esa carpeta con un components.php y con forma de nombre.
+     * Los directorios de esa carpeta con un components.php y con forma de nombre. Con $onlyEnabled, solo los encendidos:
+     * un grupo que depende de un módulo trae un enabled.php que devuelve si se sirve (publications: su interruptor); sin
+     * él, se sirve siempre. Apagado, responde como un grupo que no existe.
      *
      * @param string $directory
+     * @param bool $onlyEnabled
      * @return string[]
      */
-    private static function viewGroups(string $directory): array
+    private static function viewGroups(string $directory, bool $onlyEnabled = true): array
     {
         $groups = [];
         foreach (scandir($directory) ?: [] as $entry) {
             if (is_string($entry) && preg_match(self::GROUP_NAME_PATTERN, $entry) === 1 && is_file($directory . $entry . '/components.php')) {
+                $switch = $directory . $entry . '/enabled.php';
+                if ($onlyEnabled && is_file($switch) && (static fn (string $file): mixed => require $file)($switch) !== true) {
+                    continue;
+                }
                 $groups[] = $entry;
             }
         }
