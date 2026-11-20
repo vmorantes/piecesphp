@@ -109,7 +109,8 @@ class OTPHandler
      */
     public static function generateOTP(BaseController $controller, string $username, string $relativeView = 'mails/otp-code')
     {
-        $userData = self::getUserDataByUsernameUnlessDeleted($username);
+        //Sin nombre no se consulta: username = '' OR email = '' daría con un usuario sin correo, como uno que no existe.
+        $userData = trim($username) !== '' ? self::getUserDataByUsernameForAccessGates($username) : null;
         if ($userData !== null) {
 
             $code = generate_code(6, true);
@@ -248,6 +249,11 @@ class OTPHandler
      */
     public static function getUserDataByUsername(string $username)
     {
+        //Un nombre vacío no casa con nadie: username = '' OR email = '' daría con un usuario sin correo. Con trim(), porque
+        //WhereItem recorta el valor que liga: ' ' o "\t" llegarían como ''.
+        if (trim($username) === '') {
+            return null;
+        }
         $model = UsersModel::model();
         //POR MARCADOR: el nombre llega sin sesión desde la petición (generate-otp, check-totp, el login) y viaja como dato.
         $model->select()->where(new WhereSegment([
@@ -266,9 +272,20 @@ class OTPHandler
      * @param string $username
      * @return \stdClass|null
      */
-    public static function getUserDataByUsernameUnlessDeleted(string $username)
+    public static function getUserDataByUsernameForAccessGates(string $username)
     {
         $userData = self::getUserDataByUsername($username);
         return $userData !== null && (int) $userData->status !== UsersModel::STATUS_USER_DELETED && !UsersModel::isSystemUser((int) $userData->id) ? $userData : null;
+    }
+
+    /**
+     * @deprecated 11.0.0 Usa getUserDataByUsernameForAccessGates(), que dice lo que hace (también excluye al usuario de
+     * sistema).
+     * @param string $username
+     * @return \stdClass|null
+     */
+    public static function getUserDataByUsernameUnlessDeleted(string $username)
+    {
+        return self::getUserDataByUsernameForAccessGates($username);
     }
 }

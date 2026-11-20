@@ -7,6 +7,8 @@
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Notifications\Mappers\NotificationMapper;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
@@ -18,11 +20,16 @@ use PiecesPHP\UserSystem\Authentication\UserSessions;
 use PiecesPHP\UserSystem\Controllers\ImpersonationController;
 use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
 use PiecesPHP\UserSystem\Controllers\UserProblemsController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
+use PiecesPHP\UserSystem\Exceptions\SafeException;
 use PiecesPHP\UserSystem\ORM\LoginAttemptsModel;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserDataPackage;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
@@ -98,9 +105,13 @@ CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
         if ($nombresSistema !== []) {
             $database->prepare("DELETE FROM `{$tablaIntentos}` WHERE id > ? AND (userID = ? OR usernameAttempt IN (?, ?))")->execute(array_merge([$marcas[$tablaIntentos], $sistema], $nombresSistema));
         }
+        //Los sin nombre o de solo espacios (h, i, j): sin prefijo que los distinga, solo los posteriores a la marca.
+        $database->prepare("DELETE FROM `{$tablaIntentos}` WHERE id > ? AND usernameAttempt IN ('', ' ', CHAR(9), CHAR(10)) AND userID IS NULL")->execute([$marcas[$tablaIntentos]]);
     };
-    $pedir = function (string $metodo, string $path, ?string $jwt, array $datos = []) use ($base, $cabeceraToken, $limpiarIntentos): array {
-        $limpiarIntentos();
+    $pedir = function (string $metodo, string $path, ?string $jwt, array $datos = [], bool $limpiar = true) use ($base, $cabeceraToken, $limpiarIntentos): array {
+        if ($limpiar) {
+            $limpiarIntentos();
+        }
         $handle = \Terminal\TestRun::curlInit();
         $opciones = [
             CURLOPT_URL => $base . '/' . ltrim($path, '/') . ($metodo === 'GET' && $datos !== [] ? '?' . http_build_query($datos) : ''),
@@ -330,7 +341,7 @@ CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
         $correosBaja = $mailpitVivo ? count($correosA($correoDe('baja'))) - $correosBajaAntes : 0;
         $check($codigoOTP($baja) === 0 && $correosBaja === 0, 'c4 DISCRIMINANTE: al eliminado no se le genera código ni le llega correo', 'códigos ' . $codigoOTP($baja) . ", correos {$correosBaja}");
         //La búsqueda que usa el acceso (login) no cambia: solo las puertas que dicen si alguien existe dejan fuera al 6.
-        $check(OTPHandler::getUserDataByUsernameUnlessDeleted($nombreDe('baja')) === null && OTPHandler::getUserDataByUsernameUnlessDeleted($nombreDe('activo')) !== null,
+        $check(OTPHandler::getUserDataByUsernameForAccessGates($nombreDe('baja')) === null && OTPHandler::getUserDataByUsernameForAccessGates($nombreDe('activo')) !== null,
             'c5 la búsqueda de las puertas no da con el eliminado y sí con el activo');
         $check(OTPHandler::getUserDataByUsername($nombreDe('baja')) !== null, 'c6 la búsqueda del acceso sigue igual (no se tocó el login)');
 
@@ -447,8 +458,172 @@ CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
             $check($secretosSistema() === $secretosSistemaAntes && $codigosSistema === 0 && $correosSistemaNuevos() === 0,
                 'g6 DISCRIMINANTE: al usuario de sistema no se le guarda ningún código ni se le envía correo',
                 'secretos ' . ($secretosSistema() === $secretosSistemaAntes ? 'iguales' : 'CAMBIADOS') . ", códigos {$codigosSistema}, correos " . $correosSistemaNuevos());
-            $check(OTPHandler::getUserDataByUsernameUnlessDeleted($nombresSistema[0] ?? '') === null && OTPHandler::getUserDataByUsername($nombresSistema[0] ?? '') !== null,
+            $check(OTPHandler::getUserDataByUsernameForAccessGates($nombresSistema[0] ?? '') === null && OTPHandler::getUserDataByUsername($nombresSistema[0] ?? '') !== null,
                 'g7 la búsqueda de las puertas no da con el usuario de sistema; la del acceso sigue igual');
+        }
+
+        //─── h · check-totp sin nombre ────────────────────────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[h] Verificar el TOTP sin nombre: responde como un inexistente, sin buscar username = \'\' OR email = \'\'');
+        $nombresVacios = ['vacío' => '', 'un espacio' => ' ', 'un tabulador' => "\t", 'un salto de línea' => "\n"];
+        //Un usuario sin correo con doble factor: si check-totp buscara el nombre vacío, daría con él y aceptaría su código.
+        $sinCorreo = $crearUsuario('sincorreo', UsersModel::TYPE_USER_GENERAL);
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET email = '' WHERE id = ?")->execute([$sinCorreo]);
+        OTPSecretsUsersMapper::toggle2FA($sinCorreo, true, (string) random_int(10000000, 99999999));
+        OTPSecretsUsersMapper::confirm2FA($sinCorreo);
+        $primeroVacio = (int) $database->query("SELECT id FROM `{$tablaUsuarios}` WHERE username = '' OR email = '' ORDER BY id LIMIT 1")->fetchColumn();
+        if ($check($primeroVacio === $sinCorreo && $totpDe($sinCorreo) !== '',
+            'h1 CANARIO: username = \'\' OR email = \'\' da con el usuario sin correo de la prueba, que tiene TOTP', "primero con nombre o correo vacío: {$primeroVacio}, el de la prueba: {$sinCorreo}")) {
+            $nada = $comprobar($nombreDe('nadie'), $totpDe($sinCorreo));
+            $sinCampo = $pedir('POST', $rutaTOTP, null, ['totp' => $totpDe($sinCorreo)]);
+            echoTerminal("   medido: inexistente {$resumen($nada)}");
+            //El ORM recorta el valor que liga: un espacio o un tabulador buscarían también el nombre vacío.
+            foreach ($nombresVacios as $cual => $nombreVacio) {
+                $vacio = $comprobar($nombreVacio, $totpDe($sinCorreo));
+                echoTerminal("   medido: nombre {$cual}, código vigente del usuario sin correo {$resumen($vacio)}");
+                $check($igual($vacio, $nada) && ($json($vacio)['success'] ?? null) === false, "h2 DISCRIMINANTE: con el nombre {$cual} y el código vigente del usuario sin correo, la respuesta del inexistente", "{$cual} {$resumen($vacio)}; inexistente {$resumen($nada)}");
+            }
+            $nadaEstado = $dobleFactor('nadie');
+            foreach ($nombresVacios as $cual => $nombreVacio) {
+                $estado = $pedir('POST', $rutaDobleFactor, null, ['username' => $nombreVacio]);
+                $check($igual($estado, $nadaEstado), "h4 DISCRIMINANTE: two-factor-auth-status con el nombre {$cual} no dice que el usuario sin correo tiene doble factor", "{$cual} {$resumen($estado)}; inexistente {$resumen($nadaEstado)}");
+            }
+            $check($igual($sinCampo, $nada), 'h3 DISCRIMINANTE: sin el campo, igual', "sin campo {$resumen($sinCampo)}");
+        }
+
+        //─── i · generate-otp sin nombre ──────────────────────────────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[i] Código de un uso sin nombre: responde como un inexistente, sin generar ni enviar nada al usuario sin correo');
+        $nombreSinCorreo = $nombreDe('sincorreo');
+        $otpActivo = $crearUsuario('otpactivo', UsersModel::TYPE_USER_GENERAL);
+        $marcaI = ['intentos' => $marca($tablaIntentos), 'correoLog' => $marca(MailLogMapper::TABLE), 'registro' => $marca(LogsMapper::TABLE)];
+        //Un envío reciente del usuario sin correo: con él su tope está alcanzado, y si una capa lo buscara lo anotaría.
+        $plantarTope = fn () => OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, $sinCorreo, $nombreSinCorreo, true, '');
+        $otpSinNombre = function (array $datos) use ($limpiarIntentos, $plantarTope, $pedir, $rutaOTP): array {
+            $limpiarIntentos();
+            $plantarTope();
+            return $pedir('GET', $rutaOTP, null, $datos, false);
+        };
+        $ultimoIntentoVacio = fn (): string => (string) $contar("SELECT COUNT(*) FROM `{$tablaIntentos}` WHERE id > ? AND usernameAttempt IN ('', ' ', CHAR(9), CHAR(10)) AND userID IS NULL", [$marcaI['intentos']]) . '|' . (string) $database->query("SELECT message FROM `{$tablaIntentos}` WHERE id > {$marcaI['intentos']} AND usernameAttempt IN ('', ' ', CHAR(9), CHAR(10)) AND userID IS NULL ORDER BY id DESC LIMIT 1")->fetchColumn();
+        $mensajeInexistente = fn (string $nombre): string => vsprintf((new UsersController())->getMessage(UsersController::USER_NO_EXISTS), [$nombre]);
+        $correosOtpActivoAntes = $mailpitVivo ? count($correosA($correoDe('otpactivo'))) : 0;
+        $otp('otpactivo');
+        $check($esperar(fn (): bool => $codigoOTP($otpActivo) > 0) && (!$mailpitVivo || $esperar(fn (): bool => count($correosA($correoDe('otpactivo'))) > $correosOtpActivoAntes)),
+            'i1 CANARIO: un activo recibe su código de un uso (guardado y en Mailpit)', 'códigos ' . $codigoOTP($otpActivo));
+        $nada = $medir(fn (): array => $otp('nadie'));
+        echoTerminal("   medido: inexistente {$resumen($nada)}");
+        foreach ($nombresVacios as $cual => $nombreVacio) {
+            $vacio = $medir(fn (): array => $otpSinNombre(['username' => $nombreVacio]));
+            $esperar(fn (): bool => str_starts_with($ultimoIntentoVacio(), '1|'));
+            $intentoVacio = $ultimoIntentoVacio();
+            echoTerminal("   medido: nombre {$cual} {$resumen($vacio)}");
+            $check($vacio['status'] === $nada['status'] && $sinNombre($vacio) === $sinNombre($nada),
+                "i2 nombre {$cual}: la respuesta del inexistente, salvo el nombre que se pidió", "{$cual} {$resumen($vacio)}; inexistente {$resumen($nada)}");
+            if ($nombreVacio === '') {
+                $check($tiempoParecido($vacio, $nada), 'i3 y en un tiempo parecido', sprintf('%.1f / %.1f ms', $vacio['mediana'], $nada['mediana']));
+            }
+            $check(in_array($intentoVacio, ['1|' . $mensajeInexistente($nombreVacio), '1|' . $mensajeInexistente(trim($nombreVacio))], true),
+                "i4 DISCRIMINANTE: el intento con el nombre {$cual} se anota como el de un inexistente, no con el tope del usuario sin correo", 'intentos sin nombre|último motivo: ' . json_encode($intentoVacio, JSON_UNESCAPED_UNICODE));
+        }
+        $sinCampo = $otpSinNombre([]);
+        echoTerminal("   medido: sin el campo {$resumen($sinCampo)}");
+        $check($sinCampo['status'] === $nada['status'] && $sinNombre($sinCampo) === $sinNombre($nada), 'i2 sin el campo: la respuesta del inexistente', "sin campo {$resumen($sinCampo)}");
+        usleep(2500000);
+        $correosVacios = $contar('SELECT COUNT(*) FROM `' . MailLogMapper::TABLE . "` WHERE id > ? AND recipients = ''", [$marcaI['correoLog']]);
+        $emisiones = $contar('SELECT COUNT(*) FROM `' . LogsMapper::TABLE . '` WHERE id > ? AND referenceSource = ? AND referenceValue = ?', [$marcaI['registro'], $tablaUsuarios, (string) $sinCorreo]);
+        $check($codigoOTP($sinCorreo) === 0 && $correosVacios === 0 && $emisiones === 0, 'i5 DISCRIMINANTE: al usuario sin correo no se le genera código, ni se intenta un correo sin destino, ni se anota una emisión',
+            'códigos ' . $codigoOTP($sinCorreo) . ", correos sin destino {$correosVacios}, emisiones {$emisiones}");
+
+        //Sin uniformResponse la respuesta dice si existe: se llama al método en este proceso, con la opción solo aquí.
+        $controlador = new UserSystemFeaturesController();
+        $configOTP = get_config(OTPRateLimiter::CONFIG_KEY);
+        try {
+            set_config(OTPRateLimiter::CONFIG_KEY, array_merge(is_array($configOTP) ? $configOTP : [], ['uniformResponse' => false]));
+            $enProceso = function (array $consulta) use ($controlador, $limpiarIntentos, $plantarTope, $json): array {
+                $limpiarIntentos();
+                $plantarTope();
+                $peticion = (new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/'), new Headers(), [], [], (new StreamFactory())->createStream('')))->withQueryParams($consulta);
+                $respuesta = $controlador->generateOTP($peticion, new ResponseRoute());
+                $datos = $json(['body' => (string) $respuesta->getBody()]);
+                return ['error' => $datos['values']['error'] ?? null, 'success' => $datos['success'] ?? null];
+            };
+            $nadaEnProceso = $enProceso(['username' => $nombreDe('nadie')]);
+            foreach ($nombresVacios as $cual => $nombreVacio) {
+                $vacioEnProceso = $enProceso(['username' => $nombreVacio]);
+                echoTerminal("   medido: sin uniformResponse, inexistente " . json_encode($nadaEnProceso) . "; nombre {$cual} " . json_encode($vacioEnProceso));
+                $check($nadaEnProceso['error'] === UsersController::USER_NO_EXISTS && $vacioEnProceso === $nadaEnProceso,
+                    "i6 DISCRIMINANTE: sin uniformResponse, el nombre {$cual} responde USER_NO_EXISTS como un inexistente, no como un envío", "{$cual} " . json_encode($vacioEnProceso));
+            }
+        } finally {
+            set_config(OTPRateLimiter::CONFIG_KEY, $configOTP);
+        }
+        foreach ($nombresVacios + ['un nulo' => "\0", 'un tabulador vertical' => "\x0B"] as $cual => $nombreVacio) {
+            $codigoDeLaCapa = null;
+            try {
+                OTPHandler::generateOTP($controlador, $nombreVacio);
+            } catch (SafeException $e) {
+                $codigoDeLaCapa = $e->getCode();
+            }
+            $check($codigoDeLaCapa === SafeException::USER_NOT_EXISTS && $codigoOTP($sinCorreo) === 0,
+                "i7 DISCRIMINANTE: OTPHandler::generateOTP con el nombre {$cual} lanza USER_NOT_EXISTS sin generar código", 'código de la excepción ' . var_export($codigoDeLaCapa, true) . ', códigos ' . $codigoOTP($sinCorreo));
+        }
+
+        //─── j · El login con un nombre que el recorte deja vacío ─────────────────────────────────
+        echoTerminal(' ');
+        echoTerminal('[j] El acceso con un nombre de solo espacios responde como el nombre vacío: sin buscar, sin sumar fallos ni entrar');
+        $rutaLogin = $camino(UsersController::routeName('login-request', [], true));
+        $claveSinCorreo = bin2hex(random_bytes(12));
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET password = ?, failedAttempts = 0 WHERE id = ?")->execute([password_hash($claveSinCorreo, \PASSWORD_DEFAULT), $sinCorreo]);
+        $acceso = fn (string $nombre, string $clave, string $segundo = '', bool $limpiar = true): array => $pedir('POST', $rutaLogin, null, ['username' => $nombre, 'password' => $clave, 'twoFactor' => $segundo], $limpiar);
+        //Nunca el cuerpo: lleva el token.
+        $resumenAcceso = fn (array $r): string => "HTTP {$r['status']}, error " . var_export($json($r)['error'] ?? null, true) . ', auth ' . var_export($json($r)['auth'] ?? null, true);
+        $claveMala = bin2hex(random_bytes(12));
+        $fallosSinCorreo = fn (): int => (int) $database->query("SELECT failedAttempts FROM `{$tablaUsuarios}` WHERE id = {$sinCorreo}")->fetchColumn();
+        $sesionesDe = fn (int $id): int => (int) $database->query('SELECT COUNT(*) FROM `' . UserSessions::TABLE . "` WHERE userID = {$id}")->fetchColumn();
+        //Los intentos que anotaría un acceso sin nombre: con el nombre pedido, o con el del usuario sin correo si lo encontrara.
+        $intentosSinNombre = function () use ($contar, $tablaIntentos, $marca, $sinCorreo, $nombreSinCorreo): callable {
+            $desde = $marca($tablaIntentos);
+            return fn (): int => $contar("SELECT COUNT(*) FROM `{$tablaIntentos}` WHERE id > ? AND (usernameAttempt IN ('', ' ', CHAR(9), CHAR(10)) OR userID = ? OR usernameAttempt = ?)", [$desde, $sinCorreo, $nombreSinCorreo]);
+        };
+
+        $claveCanario = bin2hex(random_bytes(12));
+        $canario = $crearUsuario('loginok', UsersModel::TYPE_USER_GENERAL);
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET password = ? WHERE id = ?")->execute([password_hash($claveCanario, \PASSWORD_DEFAULT), $canario]);
+        OTPSecretsUsersMapper::toggle2FA($canario, true, (string) random_int(10000000, 99999999));
+        OTPSecretsUsersMapper::confirm2FA($canario);
+        $r = $acceso($nombreDe('loginok'), $claveCanario, $totpDe($canario));
+        $check(($json($r)['auth'] ?? null) === true, 'j1 CANARIO: un usuario normal entra con su nombre, su contraseña y su TOTP', $resumenAcceso($r));
+        $r = $acceso($correoDe('loginok'), $claveCanario, $totpDe($canario));
+        $check(($json($r)['auth'] ?? null) === true, 'j2 CANARIO: y con su correo', $resumenAcceso($r));
+
+        //El '' exacto: el parámetro que falta. Se mide cuántos intentos anota, y el espacio tiene que dar lo mismo.
+        $limpiarIntentos();
+        $cuentaExacto = $intentosSinNombre();
+        $exacto = $acceso('', $claveMala, '', false);
+        $intentosExacto = $cuentaExacto();
+        echoTerminal("   medido: nombre '' exacto, contraseña mala {$resumenAcceso($exacto)}; intentos anotados {$intentosExacto}");
+        $limpiarIntentos();
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET failedAttempts = 0 WHERE id = ?")->execute([$sinCorreo]);
+        $cuentaEspacio = $intentosSinNombre();
+        $espacios = [];
+        for ($i = 0; $i < 7; $i++) {
+            $espacios[] = $acceso(' ', $claveMala, '', false);
+        }
+        $intentosEspacio = $cuentaEspacio();
+        echoTerminal("   medido: nombre ' ', contraseña mala (7 veces) {$resumenAcceso($espacios[6])}; intentos anotados {$intentosEspacio}");
+        $check(array_reduce($espacios, fn (bool $c, array $e): bool => $c && $igual($e, $exacto), true) && ($json($exacto)['error'] ?? null) === UsersController::MISSING_OR_UNEXPECTED_PARAMS,
+            'j3 DISCRIMINANTE: un espacio y una contraseña mala, el mismo código y cuerpo que el nombre vacío exacto (MISSING_OR_UNEXPECTED_PARAMS)', "espacio {$resumenAcceso($espacios[6])}; exacto {$resumenAcceso($exacto)}");
+        $check($fallosSinCorreo() === 0 && $intentosEspacio === $intentosExacto, 'j4 DISCRIMINANTE: 7 accesos con un espacio no suman fallos al usuario sin correo ni anotan más intentos que el vacío exacto',
+            "failedAttempts {$fallosSinCorreo()}, intentos {$intentosEspacio} (exacto {$intentosExacto})");
+        $exactoBueno = $acceso('', $claveSinCorreo, $totpDe($sinCorreo));
+        foreach (['un espacio' => ' ', 'espacios y tabulador' => " \t "] as $cual => $nombreVacio) {
+            $r = $acceso($nombreVacio, $claveSinCorreo, $totpDe($sinCorreo));
+            $check(($json($r)['auth'] ?? null) !== true && $igual($r, $exactoBueno) && $sesionesDe($sinCorreo) === 0,
+                "j5 DISCRIMINANTE: {$cual} con la contraseña y el TOTP vigente del usuario sin correo no entra: responde como el vacío exacto", "{$resumenAcceso($r)}; exacto {$resumenAcceso($exactoBueno)}; sesiones {$sesionesDe($sinCorreo)}");
+        }
+        foreach ($nombresVacios + ['un nulo' => "\0", 'un tabulador vertical' => "\x0B"] as $cual => $nombreVacio) {
+            $check(OTPHandler::getUserDataByUsername($nombreVacio) === null && OTPHandler::checkValidityTOTP($totpDe($sinCorreo), $nombreVacio) === false,
+                "j6 DISCRIMINANTE: la búsqueda por el nombre {$cual} no da con nadie, y el TOTP vigente del usuario sin correo no vale con él");
         }
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
@@ -457,7 +632,7 @@ CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
         echoTerminal('[z] Limpieza');
         //Lo de después de la respuesta puede seguir escribiendo un instante.
         usleep(1500000);
-        $correos = array_map($correoDe, ['root', 'activo', 'baja', 'rootbaja', 'nadie']);
+        $correos = array_map($correoDe, ['root', 'activo', 'baja', 'rootbaja', 'nadie', 'otpactivo']);
         try {
             if ($mailpitVivo) {
                 $propios = [];
@@ -469,6 +644,7 @@ CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
                 }
             }
             $database->prepare("DELETE FROM `{$tablaIntentos}` WHERE usernameAttempt LIKE ?")->execute(["{$prefijo}%"]);
+            $database->prepare("DELETE FROM `{$tablaIntentos}` WHERE id > ? AND usernameAttempt IN ('', ' ', CHAR(9), CHAR(10)) AND userID IS NULL")->execute([$marcas[$tablaIntentos]]);
             foreach (['pcsphp_recovery_password', 'pcsphp_user_problems', 'pcsphp_tickets_log'] as $tabla) {
                 $database->prepare("DELETE FROM `{$tabla}` WHERE email LIKE ?")->execute(["{$prefijo}%"]);
             }
@@ -509,7 +685,7 @@ CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
             'usuarios' => $contar("SELECT COUNT(*) FROM `{$tablaUsuarios}` WHERE username LIKE ?", ["{$prefijo}%"]),
             'perfiles' => (int) $database->query("SELECT COUNT(*) FROM user_system_profile WHERE belongsTo IN ({$ids})")->fetchColumn(),
             'sesiones' => (int) $database->query('SELECT COUNT(*) FROM `' . UserSessions::TABLE . "` WHERE userID IN ({$ids})")->fetchColumn(),
-            'intentos' => $contar("SELECT COUNT(*) FROM `{$tablaIntentos}` WHERE userID IN ({$ids}) OR usernameAttempt LIKE ?", ["{$prefijo}%"]),
+            'intentos' => $contar("SELECT COUNT(*) FROM `{$tablaIntentos}` WHERE userID IN ({$ids}) OR usernameAttempt LIKE ? OR (id > ? AND usernameAttempt IN ('', ' ', CHAR(9), CHAR(10)) AND userID IS NULL)", ["{$prefijo}%", $marcas[$tablaIntentos]]),
             'avisos' => (int) $database->query('SELECT COUNT(*) FROM `' . NotificationMapper::TABLE . "` WHERE `user` IN ({$ids})")->fetchColumn(),
             'secretos' => (int) $database->query('SELECT COUNT(*) FROM `' . OTPSecretsUsersMapper::TABLE . "` WHERE `user` IN ({$ids})")->fetchColumn(),
             'registro' => $contar('SELECT COUNT(*) FROM `' . LogsMapper::TABLE . "` WHERE createdBy IN ({$ids}) OR (referenceSource = ? AND referenceValue IN ('" . str_replace(',', "','", $ids) . "'))", [$tablaUsuarios]),
@@ -526,4 +702,4 @@ CliActions::make('unit-tests:core/deleted-user-access-gates', function ($args) {
 
     return $balance();
 
-})->setDescription('Un usuario eliminado (status 6, por su baja propia) recibe en las puertas de acceso lo mismo que uno que no existe (P380): la suplantación de root (también si era root), la recuperación de contraseña (pedir, verificar y cambiar con código), el código de un uso, el usuario olvidado (pedir y canjear el código), el estado del doble factor y la verificación del TOTP (también con su código vigente); y el usuario de sistema, por nombre y por correo, igual que uno que no existe; mismo código, mismo cuerpo, tiempo parecido, y sin códigos ni correos para ninguno de los dos. Por HTTP, con usuarios zz- que crea y retira.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Un usuario eliminado (status 6, por su baja propia) recibe en las puertas de acceso lo mismo que uno que no existe (P380): la suplantación de root (también si era root), la recuperación de contraseña (pedir, verificar y cambiar con código), el código de un uso, el usuario olvidado (pedir y canjear el código), el estado del doble factor y la verificación del TOTP (también con su código vigente); y el usuario de sistema, por nombre y por correo, igual que uno que no existe; mismo código, mismo cuerpo, tiempo parecido, y sin códigos ni correos para ninguno de los dos. Y check-totp sin nombre responde como con uno que no existe, sin buscar el nombre vacío (daría con un usuario sin correo), y generate-otp sin nombre igual, sin generarle código ni intentar un correo sin destino. Por HTTP, con usuarios zz- que crea y retira.')->setEffects([CliActions::EFFECT_DATABASE])->register();

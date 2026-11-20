@@ -23,6 +23,8 @@ use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use PiecesPHP\MailCatalog\Definitions\ContactFormMail;
 use PiecesPHP\MailCatalog\MailCatalog;
+use PiecesPHP\PublicSite\PublicSite;
+use PiecesPHP\PublicSite\SiteRenderer;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
@@ -101,6 +103,10 @@ class PublicAreaController extends BaseController
      */
     public function indexView(Request $req, Response $res)
     {
+        $sitePage = $this->publicSitePage('index', $res);
+        if ($sitePage !== null) {
+            return $sitePage;
+        }
 
         set_title(__(LANG_GROUP, 'Inicio'));
 
@@ -152,6 +158,10 @@ class PublicAreaController extends BaseController
      */
     public function contactView(Request $req, Response $res)
     {
+        $sitePage = $this->publicSitePage('contact', $res);
+        if ($sitePage !== null) {
+            return $sitePage;
+        }
 
         set_title(__(LANG_GROUP, 'Contacto'));
 
@@ -176,6 +186,58 @@ class PublicAreaController extends BaseController
         $this->render('layout/footer');
 
         return $res;
+    }
+
+    /**
+     * Una página del sitio público hecho con marcas (ADR 0084): la de la ruta public-site-<página>.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function publicSiteView(Request $req, Response $res)
+    {
+        $routeName = (string) $req->getRoute()?->getName();
+        $page = str_starts_with($routeName, self::$prefixNameRoutes . '-') ? PublicSite::pageFromRouteSuffix(substr($routeName, strlen(self::$prefixNameRoutes) + 1)) : null;
+        $response = $page !== null ? $this->publicSitePage($page, $res) : null;
+        if ($response === null) {
+            throw new NotFoundException($req, $res);
+        }
+        return $response;
+    }
+
+    /**
+     * La página del sitio activo, o null si no hay sitio o no tiene esa página. Solo carga los estáticos del diseñador:
+     * los CSS del framework no van, y su JavaScript solo si la página lleva un formulario (pcs-form).
+     *
+     * @param string $page
+     * @param Response $res
+     * @return Response|null
+     */
+    private function publicSitePage(string $page, Response $res): ?Response
+    {
+        $site = PublicSite::activeSite();
+        if ($site === null || !in_array($page, PublicSite::pages($site), true)) {
+            return null;
+        }
+        $renderer = new SiteRenderer($site);
+        $info = $renderer->pageInfo($page);
+        if ($info === null) {
+            return null;
+        }
+        if ($info['title'] !== '') {
+            set_title(__(PublicSite::langGroup($site), $info['title']));
+        }
+        if ($info['description'] !== '') {
+            MetaTags::setDescription(__(PublicSite::langGroup($site), $info['description']));
+        }
+        set_global_assets([], 'css');
+        if (!$info['usesForm']) {
+            set_global_assets([], 'js');
+        }
+        set_custom_assets($info['css'], 'css');
+        set_custom_assets($info['js'], 'js');
+        return $res->write($renderer->renderPage($page));
     }
 
     /**
@@ -446,7 +508,23 @@ class PublicAreaController extends BaseController
             //Vistas para ignorar
             "{$namePrefix}-SAMPLE",
         ], self::projectIgnoredRoutes());
+        //Las páginas del sitio público (ADR 0084), antes del comodín; index y contact usan las rutas de arriba.
+        $siteRoutes = [];
+        $site = PublicSite::activeSite();
+        $sitePages = PublicSite::registrablePages($site !== null ? PublicSite::pages($site) : [], $groupSegmentURL, $site !== null ? PublicSite::takenPaths() : []);
+        foreach ($sitePages['skipped'] as $page => $routeName) {
+            PublicSite::logUnique(new \RuntimeException("Sitio público «{$site}»: la página «{$page}» no se sirve porque su dirección ya es de la ruta {$routeName}."));
+        }
+        foreach ($sitePages['pages'] as $page) {
+            $siteRoutes[] = new Route(
+                "{$startRoute}/{$page}[/]",
+                self::class . ":publicSiteView",
+                "{$namePrefix}-" . PublicSite::routeSuffix($page),
+                'GET'
+            );
+        }
         $routes = array_filter([
+             ...$siteRoutes,
             new Route(
                 "{$startRoute}[/]",
                 self::class . ":indexView",

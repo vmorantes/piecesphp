@@ -120,8 +120,9 @@ usuarios sobre los que tienes autoridad.</p>
   del periodo y <strong>«Exportar»</strong>, que descarga los intentos del periodo y del filtro que tengas elegido.</li>
 <li>Cuatro cifras del periodo: <strong>Intentos totales</strong>, con cuánto cambió frente al periodo anterior de la misma longitud;
   <strong>Exitosos</strong> y <strong>Fallidos</strong>, con su porcentaje; y <strong>Usuarios únicos</strong>, los usuarios distintos que intentaron entrar.</li>
-<li>La gráfica <strong>Intentos por día</strong>: los fallidos abajo y los exitosos encima, un punto por día, también los días sin
-  intentos.</li>
+<li>Dos gráficas, <strong>Exitosos por día</strong> y <strong>Fallidos por día</strong>: un punto por día, también los días sin intentos, con el total
+  del periodo y cuánto cambió frente al mismo resultado del periodo anterior; la flecha sale en verde si el cambio es
+  bueno (más exitosos, menos fallidos) y en rojo si es malo.</li>
 <li>Sobre la tabla, <strong>Todos</strong>, <strong>Exitosos</strong> y <strong>Fallidos</strong>, con su cifra, filtran la tabla sin recargar la página.</li>
 <li>La tabla muestra <strong>Indicador</strong>, <strong>Usuario ingresado</strong>, <strong>Información</strong>, <strong>Vía</strong>, <strong>IP</strong> y <strong>Fecha</strong>. Los intentos
   fallidos salen en rojo; un ingreso correcto dice <strong>«Ingreso exitoso»</strong>. La fecha dice cuánto hace («hace 3 horas»);

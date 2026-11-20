@@ -8,6 +8,9 @@
  * import_echarts() y echarts.init()). SIN ellos, el contenedor de antes, sin `ui chart`: es el que necesita ApexCharts y
  * está en desuso hasta la 11.0.0 (H155).
  *
+ * @deprecated 11.0.0 La forma de antes, sin `proportion` ni `trend` (`chartModifiers`, `legend`, `modifiers`, `titleModifiers`,
+ *      `help`, `footer` y el contenedor sin `ui chart`): sin uso en el núcleo desde que Accesos pasó a `trend`; sale en la
+ *      11.0.0. Usa `proportion` o `trend`.
  * @var array<string,string> $chartAttributes Los del lienzo del gráfico (p. ej. `class` o `id`), con el filtro de
  *      RowActions::attributes(); con `chartModifiers`, una `class` se suma a `canvas`.
  * @var string[] $chartModifiers Las clases de `ui chart` del tema, una por elemento (`tall`; `very` y `tall`; `square`…);
@@ -28,6 +31,13 @@
  *      `series`: `primary` (la principal, `--data-1`), de `2` a `5` (`--data-N`) u `other` (`--theme-text-muted`: el
  *      resto, que no es serie; el único token neutro con 3:1 sobre la superficie en los dos modos); otra cosa o nada, `other`. La muestra toma el color por `data-series` (del tema; `primary` es el 1) y la
  *      fila lo da en `data-chart-color` para la dona. El gráfico no se lee: la leyenda y el total ya lo dicen en texto.
+ * @var array{totalDataType:string,meta?:string,chartLabel?:string}|null $trend
+ *      La tarjeta de tendencia del tema (tarjeta-mediana): va dentro de `ui cards` y usa `title`, `attributes` y
+ *      `chartAttributes`; lo demás no. Arriba, el título y el `.meta` (el periodo) y, a la derecha, el total en una
+ *      `ui small statistic` (`totalDataType`; lo rellena el JavaScript de quien llama) y la variación, un
+ *      `ui basic circular label` oculto (`[data-trend-change]`) que rellena drawStatisticsTrend(). Debajo, el `ui chart`
+ *      con `role="img"` y `chartLabel` (sin él, el título) de `aria-label`, y su `.canvas` con `chartAttributes`.
+ *      Con `proportion`, gana `proportion`.
  */
 use PiecesPHP\Core\Utilities\Helpers\RowActions;
 
@@ -38,7 +48,38 @@ if ($chartModifiers !== []) {
 }
 $legend = isset($legend) && is_array($legend) ? $legend : [];
 $proportion = isset($proportion) && is_array($proportion) && isset($proportion['totalDataType']) && is_string($proportion['totalDataType']) && isset($proportion['items']) && is_array($proportion['items']) ? $proportion : null;
+$trend = $proportion === null && isset($trend) && is_array($trend) && isset($trend['totalDataType']) && is_string($trend['totalDataType']) ? $trend : null;
 ?>
+<?php if ($trend !== null): ?>
+<?php
+$canvasAttributes = $chartAttributes;
+$canvasAttributes['class'] = trim('canvas ' . (string) preg_replace('/(^|\s)canvas(\s|$)/', ' ', $chartAttributes['class'] ?? ''));
+$trendTitle = isset($title) && is_string($title) ? $title : '';
+$chartLabel = isset($trend['chartLabel']) && is_string($trend['chartLabel']) && $trend['chartLabel'] !== '' ? $trend['chartLabel'] : $trendTitle;
+?>
+<div class="statistic card"<?= RowActions::attributes(isset($attributes) && is_array($attributes) ? array_filter($attributes, 'is_string') : []); ?>>
+    <div class="content">
+        <div class="ui spaced top aligned nowrap relaxed flex">
+            <div>
+                <?php if ($trendTitle !== ''): ?>
+                <div class="header"><?= escape_html($trendTitle); ?></div>
+                <?php endif; ?>
+                <?php if (isset($trend['meta']) && is_string($trend['meta']) && $trend['meta'] !== ''): ?>
+                <div class="meta"><?= escape_html($trend['meta']); ?></div>
+                <?php endif; ?>
+            </div>
+            <div class="ui vertical right aligned tight flex">
+                <div class="ui small statistic"><div class="value" data-type="<?= escape_html($trend['totalDataType']); ?>">0</div></div>
+                <span class="ui basic circular label" data-trend-change hidden><i class="arrow up icon" aria-hidden="true"></i><span data-trend-percent></span></span>
+            </div>
+        </div>
+        <div class="ui chart" role="img" aria-label="<?= escape_html($chartLabel); ?>">
+            <div <?= trim(RowActions::attributes($canvasAttributes)); ?>></div>
+        </div>
+    </div>
+</div>
+<?php return; ?>
+<?php endif; ?>
 <?php if ($proportion !== null): ?>
 <?php
 $canvasAttributes = $chartAttributes;

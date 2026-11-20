@@ -63,7 +63,8 @@ $textField = function (string $inputName, string $property, string $label, bool 
     <input type="hidden" name='organization' value="<?= $edit_user->organization; ?>">
     <?php endif; ?>
     <?php elseif ($hasOrganization && !$canPickOrganization): ?>
-    <input type="hidden" name="organization" value="<?= getLoggedFrameworkUserOrFail()->organization; ?>">
+    <?php //La del usuario editado, no la de quien edita. En el alta, la propia: la única que admite canCreateUser(). ?>
+    <input type="hidden" name="organization" value="<?= $isCreate ? getLoggedFrameworkUserOrFail()->organization : $edit_user->organization; ?>">
     <?php endif; ?>
 
     <?php if ($canPickOrganization): ?>

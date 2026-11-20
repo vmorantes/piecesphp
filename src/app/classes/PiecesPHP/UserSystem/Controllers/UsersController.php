@@ -1022,7 +1022,12 @@ class UsersController extends AdminPanelController
         ]);
 
         $inputData = $request->getParsedBody();
-        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+        $inputData = is_array($inputData) ? $inputData : [];
+        //Un nombre que el recorte deja vacío, como el '' exacto (parámetro que falta): si no, buscaría username = '' OR email = ''.
+        if (is_string($inputData['username'] ?? null) && trim(mb_strtolower($inputData['username'])) === '') {
+            $inputData['username'] = '';
+        }
+        $expectedParameters->setInputValues($inputData);
 
         $resultOperation = new ResultOperations([], 'Login', '');
         $resultOperation->setSingleOperation(true);

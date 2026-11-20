@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía del sitio</title>
+<style>
+:root{--bg:#f7f8fc;--card:#fff;--ink:#14163a;--muted:#5b5f7d;--line:#e3e5f0;--accent:#00008b;--accent-2:#00aaee;--ok:#0b7a5a;--warn:#b54708;--code:#eef0f8}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1024;--card:#171a35;--ink:#eef0ff;--muted:#a9adc9;--line:#2a2e52;--accent:#8fb4ff;--accent-2:#4fd1ff;--ok:#4fd1a5;--warn:#ffb877;--code:#22264a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+header{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;padding:56px 0 48px}
+header h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px);line-height:1.15}
+header p{margin:0;max-width:640px;opacity:.92;font-size:18px}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;opacity:.85;margin-bottom:10px}
+main{padding:32px 0 64px}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:20px 0}
+h2{margin:0 0 6px;font-size:22px}
+.sub{color:var(--muted);margin:0 0 16px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;counter-reset:s}
+.step{border:1px solid var(--line);border-radius:12px;padding:16px;position:relative}
+.step::before{counter-increment:s;content:counter(s);display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;margin-bottom:8px}
+.step h3{margin:0 0 4px;font-size:17px}
+.step p{margin:0;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-top:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;border-top:0}
+code{background:var(--code);padding:1px 6px;border-radius:6px;font-size:.92em;white-space:nowrap}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.box{border-radius:12px;padding:16px;border:1px solid var(--line)}
+.box h3{margin:0 0 8px;font-size:17px}
+.box ul{margin:0;padding-left:20px}
+.yes h3{color:var(--ok)}.no h3{color:var(--warn)}
+.tree{background:var(--code);border-radius:12px;padding:14px 16px;font:14px/1.7 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{display:inline-block;background:#fff;color:var(--accent);font-weight:700;text-decoration:none;padding:10px 16px;border-radius:10px}
+details{border-top:1px solid var(--line);padding:12px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 0;color:var(--muted)}
+footer{color:var(--muted);text-align:center;font-size:14px;padding:0 0 40px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="eyebrow">Carpeta de diseño · PiecesPHP</div>
+  <h1>Tu sitio, listo para cambiarlo sin programar</h1>
+  <p>Lo que cambies aquí se ve igual en el sitio real: se sube y se sirve, sin que nadie lo vuelva a adaptar. Solo hay que respetar unas marcas.</p>
+  <div class="btns"><a class="btn" href="site/index.html">Abrir el sitio</a><a class="btn" href="CHECK.html">Comprobar</a></div>
+</div></header>
+
+<main class="wrap">
+
+<section>
+  <h2>Cómo se trabaja</h2>
+  <p class="sub">Tres pasos, siempre los mismos.</p>
+  <div class="steps">
+    <div class="step"><h3>Abre</h3><p><code>site/index.html</code> con doble clic. Ves el sitio con datos de ejemplo. No hace falta instalar nada.</p></div>
+    <div class="step"><h3>Cambia</h3><p>Edita las páginas, las piezas repetidas y tu CSS o JavaScript como siempre. Recarga para verlo.</p></div>
+    <div class="step"><h3>Comprueba</h3><p><code>CHECK.html</code>: elige esta carpeta y te dice, en palabras claras, si algo no va a funcionar en el sitio real y cómo arreglarlo. Si cambiaste una pieza repetida, pulsa «Actualizar el paquete».</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Qué hay en la carpeta</h2>
+  <p class="sub">Los nombres van en inglés porque los lee el sistema.</p>
+  <div class="tree">site/              tu sitio, como cualquier web
+  index.html       la portada
+  contacto.html …  cada página, con enlaces normales entre ellas
+  parts/           lo que se repite: menú, cabecera, pie…
+  assets/          tu CSS, tu JavaScript, imágenes y fuentes
+  data/            los datos de ejemplo de la vista previa (los genera el proyecto: no se tocan)
+  .pcs/            el motor de la vista previa (oculto, no se toca)
+CHECK.html         comprueba la carpeta
+GUIDE.html         esta guía</div>
+</section>
+
+<section>
+  <h2>Las marcas</h2>
+  <p class="sub">Son los únicos sitios donde el sistema pone algo suyo. Puedes moverlas y cambiar todo lo que las rodea.</p>
+  <table>
+    <tr><th>Marca</th><th>Qué hace</th></tr>
+    <tr><td><code>&lt;pcs-part name="menu"&gt;</code></td><td>Pone aquí la pieza <code>site/parts/menu.html</code>. Cámbiala una vez y cambia en todas las páginas.</td></tr>
+    <tr><td><code>&lt;pcs-link page="contact"&gt;</code></td><td>Un enlace a otra página del sitio. El sistema pone la dirección correcta y el idioma.</td></tr>
+    <tr><td><code>&lt;pcs-meta&gt;</code></td><td>El título y la descripción para buscadores y redes. Va en el <code>&lt;head&gt;</code>.</td></tr>
+    <tr><td><code>&lt;pcs-image brand="logo"&gt;</code></td><td>El logo o una imagen de la marca. El sistema pone la real, también en modo oscuro.</td></tr>
+    <tr><td><code>&lt;pcs-text key="…"&gt;</code></td><td>Un texto que se traduce a otros idiomas.</td></tr>
+    <tr><td><code>&lt;pcs-list resource="…"&gt;</code></td><td>Una lista que llena el sistema (noticias, publicaciones…). Diseñas un elemento dentro de <code>&lt;template&gt;</code> y <code>{{campo}}</code> marca dónde va cada dato.</td></tr>
+    <tr><td><code>&lt;pcs-form action="…"&gt;</code></td><td>Un formulario que recibe el sistema. Diséñalo libremente; no cambies los <code>name</code> de sus campos.</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Qué puedes tocar</h2>
+  <div class="cols">
+    <div class="box yes"><h3>Con total libertad</h3><ul>
+      <li>Colores, tipografías, espacios, animaciones.</li>
+      <li>La maquetación de cada página y de cada pieza.</li>
+      <li>Tu CSS y tu JavaScript visual.</li>
+      <li>Páginas nuevas: copia una de <code>site/</code>.</li>
+    </ul></div>
+    <div class="box no"><h3>Mejor no</h3><ul>
+      <li>Cambiar el nombre de una marca o de sus atributos.</li>
+      <li>Usar un <code>{{campo}}</code> que no está en <code>site/data/</code>.</li>
+      <li>Escribir a mano contenido que llena el sistema.</li>
+      <li>Tocar <code>site/.pcs/</code> ni <code>pcs.json</code>.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section>
+  <h2>Cuando lo entregas</h2>
+  <p class="sub">Comprueba, revisa y entrega la carpeta entera.</p>
+  <p>Pasa <code>CHECK.html</code> hasta que no quede ningún aviso, repasa cada página en escritorio y en móvil, y entrega la carpeta tal cual. El equipo la sube con una orden. Si algo no estuviera bien, el sitio real no se rompe: sigue sirviendo la versión anterior hasta que se corrija.</p>
+</section>
+
+<section>
+  <h2>Preguntas frecuentes</h2>
+  <details><summary>Cambié una pieza de <code>site/parts/</code> y la vista previa no la muestra.</summary><p>Con doble clic el navegador no deja leer archivos sueltos, así que la vista previa lee las piezas de un paquete. Abre <code>CHECK.html</code> y pulsa «Actualizar el paquete»: rehace el paquete y la vista previa ya muestra tu cambio. <code>CHECK.html</code> te avisa siempre que una pieza cambió y el paquete no.</p></details>
+  <details><summary>Uso un asistente de IA (Cursor u otro).</summary><p>Ábrelo en esta carpeta, la de arriba, no dentro de <code>site/</code>: así lee sus reglas y sus permisos. Trae instrucciones para no romper nada y, en las herramientas que lo admiten, tres ayudantes: uno que localiza dónde está cada cosa, uno que adapta un diseño nuevo y uno que revisa antes de terminar.</p></details>
+  <details><summary>Necesito un dato que no está en <code>site/data/</code>.</summary><p>Es lo único que pide trabajo de programación. Pídeselo al equipo con la página y el campo; mientras, diseña con un dato de ejemplo parecido.</p></details>
+  <details><summary>¿Puedo usar mi framework de CSS o mis librerías de JavaScript?</summary><p>Sí, en <code>site/assets/</code>. Lo que funcione en el navegador funciona en el sitio real.</p></details>
+  <details><summary>¿Por qué los datos de la vista previa no son los reales?</summary><p>Son de ejemplo, para que puedas diseñar sin conexión. En el sitio real salen los de verdad, en el mismo lugar y con tu diseño.</p></details>
+</section>
+
+</main>
+<footer>Hecho con PiecesPHP</footer>
+</body>
+</html>

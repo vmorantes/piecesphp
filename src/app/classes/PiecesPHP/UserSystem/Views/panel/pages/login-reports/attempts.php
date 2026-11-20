@@ -1,8 +1,8 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 /**
- * Intentos de ingreso (registros-accesos.html del prototipo): el periodo, las cuatro cifras, los intentos por día y la
- * tabla con su filtro por resultado. Gráfica, filtro y tabla, en access-reports.js.
+ * Intentos de ingreso (registros-accesos.html del prototipo): el periodo, las cuatro cifras, las dos tendencias por día
+ * (exitosos y fallidos) y la tabla con su filtro por resultado. Gráficas, filtro y tabla, en access-reports.js.
  *
  * @var int $days El periodo, en días que acaban hoy
  * @var array<int,array{days:int,url:string,active:bool}> $periods
@@ -10,6 +10,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var \DateTimeImmutable $until El último, hoy
  * @var array{total:int,success:int,error:int,uniqueUsers:int,days:array<string,array{success:int,error:int}>} $stats
  * @var int $previousTotal Los intentos del periodo anterior de la misma longitud
+ * @var int|null $previousSuccess Los exitosos del periodo anterior; sin él, la variación de «Exitosos por día» no sale
+ * @var int|null $previousError Los fallidos del periodo anterior; sin él, la variación de «Fallidos por día» no sale
  * @var \DateTimeImmutable|null $oldest El intento más viejo que se guarda, si es posterior al principio del periodo
  * @var int $maxRows
  * @var string $tableURL
@@ -25,12 +27,20 @@ if ($previousTotal > 0) {
 } else {
     $changeText = __($langGroup, 'Sin datos del periodo anterior');
 }
-$series = ['labels' => [], 'success' => [], 'error' => []];
+$points = ['success' => [], 'error' => []];
 foreach ($stats['days'] as $day => $counts) {
-    $series['labels'][] = date('d-m', (int) strtotime($day));
-    $series['success'][] = $counts['success'];
-    $series['error'][] = $counts['error'];
+    $label = date('d-m', (int) strtotime($day));
+    $points['success'][] = ['label' => $label, 'value' => $counts['success']];
+    $points['error'][] = ['label' => $label, 'value' => $counts['error']];
 }
+$previousByResult = [
+    'success' => isset($previousSuccess) && is_int($previousSuccess) ? $previousSuccess : null,
+    'error' => isset($previousError) && is_int($previousError) ? $previousError : null,
+];
+$trends = [
+    ['result' => 'success', 'title' => __($langGroup, 'Exitosos por día'), 'chartLabel' => sprintf(__($langGroup, 'Intentos exitosos por día en los últimos %d días'), $days), 'better' => 'up', 'color' => 'var(--data-1)'],
+    ['result' => 'error', 'title' => __($langGroup, 'Fallidos por día'), 'chartLabel' => sprintf(__($langGroup, 'Intentos fallidos por día en los últimos %d días'), $days), 'better' => 'down', 'color' => 'var(--data-2)'],
+];
 $chips = [
     ['result' => '', 'text' => __($langGroup, 'Todos'), 'count' => $total],
     ['result' => 'success', 'text' => __($langGroup, 'Exitosos'), 'count' => $stats['success']],
@@ -73,25 +83,31 @@ $chips = [
 
     <div class="ui hidden divider"></div>
 
-    <?php
-        //Área apilada por día: fallidos abajo, exitosos encima. Los colores, del tema, en el cliente (access-reports.js).
-        $pieces->_render('panel/built-in/statistics/chart-card.php', [
-            'title' => __($langGroup, 'Intentos por día'),
-            'titleModifiers' => ['big'],
-            'chartAttributes' => [
-                'data-access-days-chart' => (string) json_encode($series, \JSON_THROW_ON_ERROR),
-                'role' => 'img',
-                'aria-label' => __($langGroup, 'Área apilada de intentos fallidos y exitosos por día'),
-            ],
-            'chartModifiers' => ['tall'],
-            'legend' => [
-                ['name' => __($langGroup, 'Exitosos'), 'dataType' => 'successAttempts', 'level' => 'primary', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $stats['success']],
-                ['name' => __($langGroup, 'Fallidos'), 'dataType' => 'errorAttempts', 'level' => 'primary', 'valueModifiers' => ['neutral', 'right'], 'initial' => (string) $stats['error']],
-            ],
-            //chart-card no tiene subtítulo: «Últimos N días» va en su pie.
-            'footer' => ['caption' => sprintf(__($langGroup, 'Últimos %d días'), $days)],
-        ]);
-    ?>
+    <?php //Una tendencia por resultado (tarjeta-mediana): la variación, contra el mismo resultado del periodo anterior. ?>
+    <section class="ui two stackable cards" aria-label="<?= escape_html(__($langGroup, 'Intentos por día')); ?>">
+        <?php foreach ($trends as $trend): ?>
+        <?php
+            $pieces->_render('panel/built-in/statistics/chart-card.php', [
+                'title' => $trend['title'],
+                'chartAttributes' => [
+                    'data-access-trend' => (string) json_encode([
+                        'points' => $points[$trend['result']],
+                        'previous' => $previousByResult[$trend['result']],
+                        'better' => $trend['better'],
+                        'color' => $trend['color'],
+                    ], \JSON_THROW_ON_ERROR),
+                ],
+                'trend' => [
+                    'totalDataType' => $trend['result'] . 'AttemptsTrend',
+                    'meta' => sprintf(__($langGroup, 'Últimos %d días'), $days),
+                    'chartLabel' => $trend['chartLabel'],
+                ],
+            ]);
+        ?>
+        <?php endforeach; ?>
+    </section>
+
+    <div class="ui hidden divider"></div>
 
     <div class="ui fluid card container-standard-table">
 

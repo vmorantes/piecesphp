@@ -80,6 +80,8 @@ $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
 //Rutas públicas del framework que tu proyecto sustituye, por nombre (public-index, public-generic…); vacía, ninguna.
 $config['public_area_ignore_routes'] = [];
+//El sitio público hecho con marcas (ADR 0084): la carpeta de app/view/ que importó `bin/cli public-site-import`; vacío, ninguno.
+$config['public_site'] = '';
 //La llave del cron (CronJobKey) no va aquí: la pone secure-keys/cronjob (core/extensions/api-keys.php). Sin ella, la ruta
 //del cron no acepta ninguna.
 

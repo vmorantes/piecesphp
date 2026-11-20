@@ -1,0 +1,95 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font: 16px/1.5 Georgia, serif;
+    color: #222;
+    background: #fafaf7;
+}
+
+.wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.site-header {
+    background: #20304a;
+    color: #fff;
+}
+
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 64px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.menu a {
+    color: #fff;
+    margin-left: 16px;
+    text-decoration: none;
+}
+
+.logo {
+    display: block;
+    height: 40px;
+    width: auto;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.date {
+    color: #777;
+    font-size: 14px;
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #20304a;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.form label {
+    display: block;
+    margin-bottom: 12px;
+}
+
+.form input,
+.form textarea {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    padding: 6px;
+}
+
+.site-footer {
+    margin-top: 48px;
+    padding: 16px 0;
+    background: #eee;
+    color: #555;
+}

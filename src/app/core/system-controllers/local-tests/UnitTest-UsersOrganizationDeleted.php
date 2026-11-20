@@ -130,10 +130,10 @@ CliActions::make('unit-tests:core/users-organization-deleted', function ($args) 
         $miembro = $crearUsuario('miembro', UsersModel::TYPE_USER_GENERAL);
         $ahora = date('Y-m-d H:i:s');
         $codigos = [];
-        foreach (['activa' => OrganizationMapper::ACTIVE, 'eliminada' => OrganizationMapper::DELETED, 'otra-eliminada' => OrganizationMapper::DELETED] as $cual => $estado) {
+        foreach (['activa' => OrganizationMapper::ACTIVE, 'otra-activa' => OrganizationMapper::ACTIVE, 'eliminada' => OrganizationMapper::DELETED, 'otra-eliminada' => OrganizationMapper::DELETED] as $cual => $estado) {
             $codigos[$cual] = OrganizationMapper::generateCode();
             $database->prepare("INSERT INTO `{$tablaOrganizaciones}` (code, name, nit, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-                ->execute([$codigos[$cual], "{$prefijo}-org-{$cual}", 'zz-', "{$prefijo}-org-{$cual}", $ahora, $usuarios['root'], $estado, json_encode(['baseLang' => 'es', 'langData' => new \stdClass])]);
+                ->execute([$codigos[$cual], "{$prefijo}-org-{$cual}", "{$prefijo}-nit-{$cual}", "{$prefijo}-org-{$cual}", $ahora, $usuarios['root'], $estado, json_encode(['baseLang' => 'es', 'langData' => new \stdClass])]);
             $organizaciones[$cual] = (int) $database->lastInsertId();
         }
         $inexistente = (int) $database->query("SELECT COALESCE(MAX(id), 0) + 1000 FROM `{$tablaOrganizaciones}`")->fetchColumn();
@@ -220,6 +220,36 @@ CliActions::make('unit-tests:core/users-organization-deleted', function ($args) 
             $persistida = get_class($e);
         }
         $check($persistida !== null && $creadoCon('persist-eliminada') === null, 'e4 DISCRIMINANTE: persist() sin validación tampoco la hereda', var_export($persistida, true));
+
+        echoTerminal('');
+        echoTerminal('[f] Quien no elige organización: el campo oculto lleva la del usuario editado, no la suya');
+        $campoOculto = fn (string $html): ?int => preg_match('/<input type="hidden" name="organization" value="(\d*)">/', $html, $m) === 1 ? (int) $m[1] : null;
+        $encargado = $crearUsuario('encargado', UsersModel::TYPE_USER_ADMIN_ORG);
+        $deSuOrganizacion = $crearUsuario('de-su-organizacion', UsersModel::TYPE_USER_GENERAL);
+        $deOtra = $crearUsuario('de-otra', UsersModel::TYPE_USER_GENERAL);
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET organization = ? WHERE id IN (?, ?)")->execute([$organizaciones['activa'], $encargado, $deSuOrganizacion]);
+        $database->prepare("UPDATE `{$tablaUsuarios}` SET organization = ? WHERE id = ?")->execute([$organizaciones['otra-activa'], $deOtra]);
+        //Los permisos de usuarios del encargado llegan por ser el encargado de su organización (PERMISSIONS_ON_ADMINISTRATOR).
+        $suOrganizacion = new OrganizationMapper($organizaciones['activa']);
+        $suOrganizacion->administrator = $encargado;
+        $suOrganizacion->update();
+        //Por HTTP, con el módulo encendido, solo edita a los de la suya: las dos coinciden y esto es el canario.
+        $tokenEncargado = UserSessions::issueToken($encargado);
+        $fichaMiembro = $leer($camino(UsersController::routeName('form-edit', ['id' => $deSuOrganizacion], true)), $tokenEncargado);
+        $check($fichaMiembro['status'] === 200 && $campoOculto($fichaMiembro['body']) === $organizaciones['activa'], 'f1 CANARIO: el encargado abre la ficha de uno de su organización y el campo oculto lleva esa organización', "HTTP {$fichaMiembro['status']}, campo " . var_export($campoOculto($fichaMiembro['body']), true));
+        $guardarMiembro = $pedir($editar, $tokenEncargado, ['id' => (string) $deSuOrganizacion, 'username' => "{$prefijo}-de-su-organizacion", 'email' => "{$prefijo}-de-su-organizacion@example.com", 'firstname' => 'Zz', 'first_lastname' => 'Organizacion', 'status' => (string) UsersModel::STATUS_USER_ACTIVE, 'organization' => (string) $campoOculto($fichaMiembro['body'])]);
+        $check(($json($guardarMiembro)['success'] ?? false) === true && $organizacionDe($deSuOrganizacion) === $organizaciones['activa'], 'f2 CANARIO: guardar la ficha tal cual no lo mueve', $resumen($guardarMiembro) . ', organización ' . $organizacionDe($deSuOrganizacion));
+        //Con el módulo apagado decide el rol: el encargado abre a uno de otra organización. Se pinta en proceso.
+        $interruptor = \Organizations\OrganizationsRoutes::swapEnabledForTesting(false);
+        try {
+            $como($encargado);
+            $html = (new UsersController())->render('usuarios/form-by-type/user-form', ['formMode' => 'edit', 'typeCode' => UsersModel::TYPE_USER_GENERAL, 'status_options' => [], 'edit_user' => new UsersModel($deOtra)], false);
+        } finally {
+            \Organizations\OrganizationsRoutes::swapEnabledForTesting($interruptor);
+            set_config('current_user', null);
+            set_config('pcsphp_current_user_stored', null);
+        }
+        $check($campoOculto((string) $html) === $organizaciones['otra-activa'], 'f3 DISCRIMINANTE: editando a uno de otra organización, el campo oculto lleva la suya y no la del encargado', 'campo ' . var_export($campoOculto((string) $html), true) . ", la suya {$organizaciones['otra-activa']}, la del encargado {$organizaciones['activa']}");
     } finally {
         set_config('current_user', null);
         set_config('pcsphp_current_user_stored', null);
@@ -256,4 +286,4 @@ CliActions::make('unit-tests:core/users-organization-deleted', function ($args) 
 
     return $balance();
 
-})->setDescription('Una organización eliminada no se asigna a un usuario: el alta y la edición por HTTP responden como con una organización que no existe (mismo código, éxito y mensaje), la importación no la resuelve ni por su id ni por su código, la ficha de quien ya está en una eliminada la conserva al guardar sin tocarla, y la importación no hereda la eliminada de quien importa (P380).')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Una organización eliminada no se asigna a un usuario: el alta y la edición por HTTP responden como con una organización que no existe (mismo código, éxito y mensaje), la importación no la resuelve ni por su id ni por su código, la ficha de quien ya está en una eliminada la conserva al guardar sin tocarla, y la importación no hereda la eliminada de quien importa (P380). Y quien no elige organización recibe en el campo oculto la del usuario editado, no la suya.')->setEffects([CliActions::EFFECT_DATABASE])->register();

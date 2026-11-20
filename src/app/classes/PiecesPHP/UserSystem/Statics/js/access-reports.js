@@ -1,45 +1,23 @@
 window.addEventListener('load', function () {
 
-	//Intentos por día (attempts.php): área apilada, fallidos abajo y exitosos encima. Los colores salen del tema en el
-	//navegador: el acento de cada modo, la variable; el rojo, el de `ui red` leído con getComputedStyle (el tema no lo da en variable).
-	for (const container of document.querySelectorAll('[data-access-days-chart]')) {
-		if (typeof echarts === 'undefined') {
-			break
-		}
-		let series = null
+	//Exitosos y fallidos por día (attempts.php): una tendencia del tema por resultado, con drawStatisticsTrend()
+	//(statistics-chart-legend.js), que pone la variación contra el mismo resultado del periodo anterior.
+	const numberFormat = new Intl.NumberFormat(document.documentElement.lang || undefined)
+	for (const canvas of document.querySelectorAll('[data-access-trend]')) {
+		let trend = null
 		try {
-			series = JSON.parse(container.getAttribute('data-access-days-chart'))
+			trend = JSON.parse(canvas.getAttribute('data-access-trend'))
 		} catch (error) {
 			continue
 		}
-		const legend = container.closest('.card-statistic').querySelector('.chart-data')
-		const items = Array.from(legend.querySelectorAll('.item'))
-		const probe = document.createElement('span')
-		probe.className = 'ui red text'
-		document.body.appendChild(probe)
-		const red = getComputedStyle(probe).color
-		probe.remove()
-		const [accent, errorColor, muted, border] = statisticsChartThemeColors(['var(--accent-1, var(--accent))', red, 'var(--theme-text-muted)', 'var(--theme-border)'])
-		//El punto de la leyenda de los fallidos, del mismo rojo que su serie.
-		if (items[1] !== undefined) {
-			items[1].style.setProperty('--custom-color', errorColor)
+		const card = canvas.closest('.card')
+		const points = Array.isArray(trend.points) ? trend.points : []
+		const total = card !== null ? card.querySelector('.ui.statistic > .value') : null
+		if (total !== null) {
+			total.textContent = numberFormat.format(points.reduce((sum, point) => sum + (Number(point.value) || 0), 0))
 		}
-		const name = (item) => item.querySelector('.name').textContent.trim()
-		const chart = echarts.init(container)
-		chart.setOption({
-			legend: { show: false },
-			tooltip: { trigger: 'axis' },
-			grid: { left: 36, right: 12, top: 12, bottom: 28 },
-			xAxis: { type: 'category', boundaryGap: false, data: series.labels, axisTick: { show: false }, axisLine: { lineStyle: { color: border } }, axisLabel: { color: muted } },
-			yAxis: { type: 'value', minInterval: 1, splitNumber: 2, splitLine: { lineStyle: { color: border } }, axisLabel: { color: muted } },
-			series: [
-				{ name: name(items[1]), type: 'line', stack: 'attempts', smooth: 0.3, symbol: 'none', data: series.error, color: errorColor, lineStyle: { width: 1.5 }, areaStyle: { opacity: 0.24 } },
-				{ name: name(items[0]), type: 'line', stack: 'attempts', smooth: 0.3, symbol: 'none', data: series.success, color: accent, lineStyle: { width: 2 }, areaStyle: { opacity: 0.16 } },
-			],
-		})
-		fitStatisticsChart(chart)
-		linkStatisticsChartLegend(chart, legend)
-		resizeStatisticsChart(chart)
+		const title = card !== null ? card.querySelector('.header') : null
+		drawStatisticsTrend(canvas, points, { name: title !== null ? title.textContent : '', previous: trend.previous, better: trend.better, color: trend.color })
 	}
 
 	for (const element of document.querySelectorAll('table[data-access-table]')) {

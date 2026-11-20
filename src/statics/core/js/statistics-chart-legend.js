@@ -569,3 +569,99 @@ function linkStatisticsDonutLegend(chart, legend) {
 		row.addEventListener('blur', hide)
 	})
 }
+
+/**
+ * Una tendencia del tema (tarjeta-mediana, «Tendencia»): área suave sin símbolos, con degradado del 20 % al 0 % de su
+ * color y el último dato marcado; ejes en `--theme-text-muted`, rejilla discontinua en `--theme-border` y tres marcas en
+ * el eje X (inicio, medio y fin). El total lo rellena quien llama; la variación, este ayudante, en el
+ * `[data-trend-change]` de la tarjeta (chart-card.php con `trend`): flecha arriba o abajo y, en verde, si el cambio es el
+ * bueno (`better`), o en rojo; sin `previous` mayor que cero, se queda oculta. Por omisión, interactiva: al pasar el ratón
+ * sale una etiqueta con la fecha y la cifra, con los colores del tema. `options.static === true`, sin ratón ni etiqueta.
+ *
+ * @param {HTMLElement} canvas El `.canvas` del `ui chart` de la tarjeta.
+ * @param {{label: string, value: number}[]} points Un punto por intervalo, en orden; `label`, el del eje X y la etiqueta.
+ * @param {{color?: string, name?: string, previous?: number|null, better?: 'up'|'down', static?: boolean}} [options]
+ *      `color`, un color CSS (por omisión `var(--data-1)`); `name`, el de la serie en la etiqueta; `previous`, el total del
+ *      periodo anterior de la misma longitud; `better`, la dirección buena (por omisión `up`).
+ * @returns {Object|null} La instancia, o null sin ECharts o sin lienzo.
+ */
+function drawStatisticsTrend(canvas, points, options) {
+	options = options !== null && typeof options === 'object' ? options : {}
+	const data = (Array.isArray(points) ? points : []).filter((point) => point !== null && typeof point === 'object' && Number.isFinite(point.value))
+	const color = typeof options.color === 'string' && options.color !== '' ? options.color : 'var(--data-1)'
+	const interactive = options.static !== true && data.length > 0
+	const language = document.documentElement.lang || undefined
+	const numberFormat = new Intl.NumberFormat(language)
+	const percentFormat = new Intl.NumberFormat(language, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 })
+	const escape = (text) => String(text).replace(/[&<>"']/g, (character) => `&#${character.charCodeAt(0)};`)
+	const last = data.length - 1
+	const middle = Math.floor(last / 2)
+	const tokens = [color, `color-mix(in srgb, ${color} 20%, transparent)`, `color-mix(in srgb, ${color} 0%, transparent)`, 'var(--theme-surface)', 'var(--theme-text)', 'var(--theme-border)', 'var(--theme-text-muted)']
+	const chart = initStatisticsChart(canvas, tokens, function (resolved) {
+		const [line, top, bottom, surface, text, border, muted] = resolved
+		const series = {
+			type: 'line',
+			name: typeof options.name === 'string' ? options.name : '',
+			smooth: true,
+			symbol: 'none',
+			silent: !interactive,
+			data: data.map((point) => point.value),
+			lineStyle: { width: 2, color: line },
+			itemStyle: { color: line },
+			areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: top }, { offset: 1, color: bottom }] } },
+			markPoint: last >= 0 ? { symbol: 'circle', symbolSize: 7, silent: true, label: { show: false }, itemStyle: { color: surface, borderColor: line, borderWidth: 2 }, data: [{ coord: [last, data[last].value] }] } : undefined,
+		}
+		return {
+			grid: { left: 30, right: 8, top: 10, bottom: 22, containLabel: false },
+			xAxis: {
+				type: 'category',
+				boundaryGap: false,
+				data: data.map((point) => String(point.label ?? '')),
+				axisLine: { lineStyle: { color: border } },
+				axisTick: { show: false },
+				axisLabel: { color: muted, fontSize: 11, hideOverlap: false, interval: (index) => index === 0 || index === middle || index === last, alignMinLabel: 'left', alignMaxLabel: 'right' },
+			},
+			yAxis: { type: 'value', minInterval: 1, splitNumber: 2, axisLabel: { color: muted, fontSize: 11 }, splitLine: { lineStyle: { color: border, type: [3, 3] } } },
+			tooltip: interactive
+				? {
+					show: true,
+					trigger: 'axis',
+					confine: true,
+					backgroundColor: surface,
+					borderColor: border,
+					textStyle: { color: text },
+					axisPointer: { type: 'line', lineStyle: { color: border } },
+					formatter: function (params) {
+						const point = Array.isArray(params) ? params[0] : params
+						const value = Number(point.value) || 0
+						const name = series.name !== '' ? `${escape(series.name)} · ` : ''
+						return `${escape(point.name)}<br>${name}<strong>${escape(numberFormat.format(value))}</strong>`
+					},
+				}
+				: { show: false },
+			series: [series],
+		}
+	})
+	const change = canvas.closest('.card')?.querySelector('[data-trend-change]') ?? null
+	const previous = Number(options.previous)
+	if (change !== null) {
+		change.hidden = !(Number.isFinite(previous) && previous > 0)
+		if (!change.hidden) {
+			const ratio = (data.reduce((sum, point) => sum + point.value, 0) - previous) / previous
+			const direction = ratio > 0 ? 'up' : (ratio < 0 ? 'down' : '')
+			const better = options.better === 'down' ? 'down' : 'up'
+			change.classList.toggle('green', direction !== '' && direction === better)
+			change.classList.toggle('red', direction !== '' && direction !== better)
+			const icon = change.querySelector('.icon')
+			if (icon !== null) {
+				icon.className = direction !== '' ? `arrow ${direction} icon` : 'icon'
+				icon.hidden = direction === ''
+			}
+			const percent = change.querySelector('[data-trend-percent]')
+			if (percent !== null) {
+				percent.textContent = percentFormat.format(Math.abs(ratio))
+			}
+		}
+	}
+	return chart
+}

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comprobar el sitio</title>
+    <link rel="stylesheet" href="site/.pcs/kit.css">
+    <script src="site/.pcs/rules.js"></script>
+    <script src="site/.pcs/check.js"></script>
+</head>
+<body class="pcs-kit">
+    <main>
+        <h1>Comprobar el sitio</h1>
+        <p class="lead">Elige la carpeta del paquete (la que tiene este archivo y la carpeta site/). Se revisa en tu ordenador: no se envía nada a ningún sitio.</p>
+
+        <section class="card">
+            <p><button type="button" id="pcs-pick">Elegir la carpeta y comprobar</button></p>
+            <input type="file" id="pcs-input" class="hidden" webkitdirectory directory multiple>
+            <p id="pcs-pick-help">El navegador te pedirá permiso para ver la carpeta. Si te pregunta si quieres «subir» archivos, di que sí: no sale nada de tu ordenador.</p>
+        </section>
+
+        <section class="card hidden" id="pcs-result">
+            <h2 id="pcs-result-title">Resultado</h2>
+            <div id="pcs-summary"></div>
+            <div id="pcs-problems"></div>
+        </section>
+
+        <section class="card hidden" id="pcs-update">
+            <h2>Actualizar el paquete</h2>
+            <p id="pcs-update-text"></p>
+            <p><button type="button" id="pcs-update-button">Actualizar el paquete</button></p>
+            <div id="pcs-download-help" class="hidden"></div>
+        </section>
+    </main>
+    <script>
+        (function () {
+            'use strict'
+            var TEXT = /\.(html?|js|json|css|svg|txt|md|xml)$/i
+            var DESTINATION = {
+                'site/parts/parts.js': 'dentro de la carpeta site/parts/',
+                'pcs.json': 'en la carpeta principal del paquete (junto a CHECK.html)',
+            }
+            var directoryHandle = null
+            var lastResult = null
+
+            function $(id) {
+                return document.getElementById(id)
+            }
+
+            function element(tag, className, text) {
+                var node = document.createElement(tag)
+                if (className) {
+                    node.className = className
+                }
+                if (text !== undefined) {
+                    node.textContent = text
+                }
+                return node
+            }
+
+            //Las rutas llegan con la carpeta elegida delante; si se eligió la de arriba, se baja a la que tiene site/;
+            //si se eligió site/ misma, se le pone delante (y se avisa: así no se ven pcs.json ni el agente).
+            var choseSite = false
+            function normalize(entries) {
+                var files = {}
+                choseSite = false
+                entries.forEach(function (entry) {
+                    files[entry.path.replace(/^[^/]+\//, '')] = entry.file
+                })
+                var paths = Object.keys(files)
+                var hasSite = paths.some(function (path) {
+                    return /^site\//.test(path)
+                })
+                if (!hasSite && files['.pcs/pcs.js']) {
+                    choseSite = true
+                    var prefixed = {}
+                    paths.forEach(function (path) {
+                        prefixed['site/' + path] = files[path]
+                    })
+                    return prefixed
+                }
+                if (!hasSite) {
+                    var prefixes = {}
+                    paths.forEach(function (path) {
+                        var match = /^(.+?\/)site\/[^/]+\.html$/i.exec(path)
+                        if (match) {
+                            prefixes[match[1]] = true
+                        }
+                    })
+                    var only = Object.keys(prefixes)
+                    if (only.length === 1) {
+                        var inner = {}
+                        paths.forEach(function (path) {
+                            if (path.indexOf(only[0]) === 0) {
+                                inner[path.slice(only[0].length)] = files[path]
+                            }
+                        })
+                        return inner
+                    }
+                }
+                return files
+            }
+
+            function readAll(files) {
+                var result = {}
+                var paths = Object.keys(files)
+                return Promise.all(
+                    paths.map(function (path) {
+                        return files[path].arrayBuffer().then(function (buffer) {
+                            var bytes = new Uint8Array(buffer)
+                            result[path] = { bytes: bytes, text: TEXT.test(path) ? new TextDecoder('utf-8').decode(bytes) : '' }
+                        })
+                    })
+                ).then(function () {
+                    return result
+                })
+            }
+
+            function walkDirectory(handle, prefix, out) {
+                var iterator = handle.values()
+                function next() {
+                    return iterator.next().then(function (step) {
+                        if (step.done) {
+                            return out
+                        }
+                        var entry = step.value
+                        if (entry.kind === 'directory') {
+                            if (entry.name === 'node_modules' || entry.name === '.git') {
+                                return next()
+                            }
+                            return walkDirectory(entry, prefix + entry.name + '/', out).then(next)
+                        }
+                        return entry.getFile().then(function (file) {
+                            out.push({ path: prefix + entry.name, file: file })
+                            return next()
+                        })
+                    })
+                }
+                return next()
+            }
+
+            function check(files) {
+                return readAll(files).then(function (read) {
+                    var rules = read['site/.pcs/rules.json'] ? null : window.PCS_RULES || null
+                    lastResult = PCSCheck.run(read, rules)
+                    if (choseSite) {
+                        lastResult.problems.unshift({ level: 'error', file: 'site/', line: 0, message: 'Elegiste la carpeta site/, no la del paquete.', fix: 'Vuelve a comprobar eligiendo la carpeta de arriba, la que tiene CHECK.html.' })
+                        lastResult.changed = []
+                    }
+                    show(lastResult)
+                })
+            }
+
+            function show(result) {
+                $('pcs-result').classList.remove('hidden')
+                var errors = result.problems.filter(function (problem) {
+                    return problem.level === 'error'
+                })
+                var warnings = result.problems.filter(function (problem) {
+                    return problem.level !== 'error'
+                })
+                var summary = $('pcs-summary')
+                summary.textContent = ''
+                if (errors.length === 0 && warnings.length === 0) {
+                    summary.appendChild(element('p', 'summary ok', 'Todo bien: no hay nada que corregir.'))
+                } else {
+                    summary.appendChild(element('p', '', errors.length + ' cosa(s) que hay que corregir y ' + warnings.length + ' aviso(s). Cada una dice el archivo, la línea y qué hacer.'))
+                }
+                var box = $('pcs-problems')
+                box.textContent = ''
+                errors.concat(warnings).forEach(function (problem) {
+                    var item = element('div', 'problem ' + (problem.level === 'error' ? 'error' : 'aviso'))
+                    item.setAttribute('data-level', problem.level)
+                    var where = element('span', 'where', (problem.level === 'error' ? 'Corregir · ' : 'Aviso · ') + problem.file + (problem.line ? ', línea ' + problem.line : ''))
+                    item.appendChild(where)
+                    item.appendChild(element('div', '', problem.message))
+                    if (problem.fix) {
+                        item.appendChild(element('span', 'fix', 'Qué hacer: ' + problem.fix))
+                    }
+                    box.appendChild(item)
+                })
+                var update = $('pcs-update')
+                if (result.changed.length > 0) {
+                    update.classList.remove('hidden')
+                    $('pcs-update-text').textContent =
+                        'Hay que rehacer ' + result.changed.join(', ') + ' para que la vista previa y el manifiesto coincidan con tus archivos.'
+                    $('pcs-update-button').disabled = false
+                } else {
+                    update.classList.add('hidden')
+                }
+            }
+
+            function download(path, text) {
+                var link = document.createElement('a')
+                link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }))
+                link.download = path.split('/').pop()
+                document.body.appendChild(link)
+                link.click()
+                setTimeout(function () {
+                    URL.revokeObjectURL(link.href)
+                    link.remove()
+                }, 1000)
+            }
+
+            function writeFile(root, path, text) {
+                var segments = path.split('/')
+                var name = segments.pop()
+                var chain = Promise.resolve(root)
+                segments.forEach(function (segment) {
+                    chain = chain.then(function (handle) {
+                        return handle.getDirectoryHandle(segment, { create: true })
+                    })
+                })
+                return chain
+                    .then(function (handle) {
+                        return handle.getFileHandle(name, { create: true })
+                    })
+                    .then(function (handle) {
+                        return handle.createWritable()
+                    })
+                    .then(function (writable) {
+                        return writable.write(text).then(function () {
+                            return writable.close()
+                        })
+                    })
+            }
+
+            function offerDownloads(paths) {
+                var help = $('pcs-download-help')
+                help.textContent = ''
+                help.classList.remove('hidden')
+                help.appendChild(element('p', '', 'Este navegador no deja escribir en la carpeta. Se han descargado los archivos: muévelos así, reemplazando los que haya, y vuelve a comprobar.'))
+                var list = element('ul')
+                paths.forEach(function (path) {
+                    download(path, lastResult.generated[path])
+                    list.appendChild(element('li', '', path.split('/').pop() + ' → ' + (DESTINATION[path] || path)))
+                })
+                help.appendChild(list)
+            }
+
+            $('pcs-update-button').addEventListener('click', function () {
+                if (!lastResult) {
+                    return
+                }
+                var paths = lastResult.changed.slice()
+                $('pcs-update-button').disabled = true
+                if (!directoryHandle) {
+                    offerDownloads(paths)
+                    return
+                }
+                directoryHandle
+                    .requestPermission({ mode: 'readwrite' })
+                    .then(function (state) {
+                        if (state !== 'granted') {
+                            throw new Error('sin permiso')
+                        }
+                        return paths.reduce(function (chain, path) {
+                            return chain.then(function () {
+                                return writeFile(directoryHandle, path, lastResult.generated[path])
+                            })
+                        }, Promise.resolve())
+                    })
+                    .then(function () {
+                        $('pcs-update-text').textContent = 'Paquete actualizado. Volviendo a comprobar…'
+                        return walkDirectory(directoryHandle, directoryHandle.name + '/', []).then(function (entries) {
+                            return check(normalize(entries))
+                        })
+                    })
+                    .catch(function () {
+                        offerDownloads(paths)
+                    })
+            })
+
+            $('pcs-pick').addEventListener('click', function () {
+                if (window.showDirectoryPicker) {
+                    window
+                        .showDirectoryPicker({ mode: 'readwrite' })
+                        .then(function (handle) {
+                            directoryHandle = handle
+                            return walkDirectory(handle, handle.name + '/', [])
+                        })
+                        .then(function (entries) {
+                            return check(normalize(entries))
+                        })
+                        .catch(function (error) {
+                            if (error && error.name === 'AbortError') {
+                                return
+                            }
+                            directoryHandle = null
+                            $('pcs-input').click()
+                        })
+                    return
+                }
+                $('pcs-input').click()
+            })
+
+            $('pcs-input').addEventListener('change', function (event) {
+                directoryHandle = null
+                var entries = Array.prototype.map.call(event.target.files, function (file) {
+                    return { path: file.webkitRelativePath || file.name, file: file }
+                })
+                check(normalize(entries))
+                event.target.value = ''
+            })
+
+            window.PCSCheckPage = { check: check, normalize: normalize }
+        })()
+    </script>
+</body>
+</html>

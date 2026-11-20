@@ -1,0 +1,5 @@
+{
+    "files": {
+        ".claude/settings.json": "agent-settings/settings.json"
+    }
+}

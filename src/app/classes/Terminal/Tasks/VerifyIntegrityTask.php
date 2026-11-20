@@ -21,6 +21,7 @@ use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
 use Terminal\Distribution;
+use Terminal\FormActionFields;
 
 /**
  * VerifyIntegrityTask.
@@ -252,6 +253,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         62 => ['.git'],
         63 => [self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH],
         65 => ['files/dev/route-inventory.json', self::API_SPEC_RELATIVE_PATH, self::API_EXCLUSIONS_RELATIVE_PATH, 'bin/api-docs'],
+        70 => [FormActionFields::DECLARED_RELATIVE_PATH, '.git'],
     ];
 
     /** La especificación OpenAPI de la API, fuente de su documentación (comprobación 65). */
@@ -293,6 +295,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             "\tParámetros:\r\n",
             "\t  update-snapshot (yes|no) regenera la instantánea de firmas en vez de comparar. Por defecto: no",
             "\t  list-narrative (yes|no) lista los bloques narrativos con su archivo, línea y prosa. Por defecto: no",
+            "\t  list-form-fields (yes|no) lista cada formulario de las vistas con su acción, lo que envía y lo que lee (comprobación 70). Por defecto: no",
         ]);
         $this->route = "{$startRoute}/verify-integrity[/]";
         $this->controller = self::class . '::main';
@@ -319,6 +322,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 echoTerminal($b['file'] . ':' . $b['line'] . ':' . $b['prose']);
             }
             echoTerminal('TOTAL ' . count($bloques) . ' bloques, ' . $prosa . ' líneas de prosa');
+            exit(0);
+        }
+
+        if (TerminalData::instance()->getArgument('list-form-fields', 'no') === 'yes') {
+            $census = FormActionFields::census(dirname(rtrim(str_replace('\\', '/', basepath('')), '/')), [], static fn (string $route): bool => self::offModuleOfRoute($route) !== null);
+            echoTerminal((string) json_encode($census, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE));
             exit(0);
         }
 
@@ -558,6 +567,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 69. Lo que las extensiones añaden a la organización del JSON-LD se aplica entero ─
         $structuredDataFailures = self::checkStructuredDataOrganization();
 
+        //──── 70. Lo que envía cada formulario es lo que lee su acción (H423) ─────────────
+        $formFieldFailures = Distribution::applies('70', self::DISTRIBUTION_REQUIREMENTS[70]) ? self::checkFormActionFields() : [];
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -600,7 +612,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
          + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures)
-         + count($structuredDataFailures);
+         + count($structuredDataFailures) + count($formFieldFailures);
 
         foreach ($cloneFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
@@ -706,6 +718,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($structuredDataFailures as $line) {
             echoTerminal("\e[31mDATOS ESTRUCTURADOS:\e[39m {$line}");
+        }
+        foreach ($formFieldFailures as $line) {
+            echoTerminal("\e[31mFORMULARIO:\e[39m {$line}");
         }
         foreach ($versionDateFailures as $line) {
             echoTerminal("\e[31mFECHA DE VERSIÓN:\e[39m {$line}");
@@ -817,7 +832,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, las listas de tipos de usuario, el archivo de tipos de usuario, la distribución pública y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, las listas de tipos de usuario, el archivo de tipos de usuario, la distribución pública, lo que envía cada formulario contra lo que lee su acción y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
             if (Distribution::announcedCount() > 0) {
                 echoTerminal("\e[33mEN LA DISTRIBUCIÓN:\e[39m " . Distribution::announcedCount() . ' comprobación(es) NO se hicieron, cada una con su línea «'
                     . Distribution::NOT_APPLICABLE . '» arriba: el OK solo vale para las demás.');
@@ -7081,6 +7096,47 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             echoTerminal("\e[94mINFO:\e[39m tipos de usuario ({$file}): " . count(UserTypes::codes()) . ' con rol (' . implode(', ', UserTypes::codes()) . '), ' . count(UserTypes::retired()) . ' retirado(s), ' . count($warnings) . ' aviso(s).');
         }
         return $failures;
+    }
+
+    /**
+     * 70. Cada `name` que envía un formulario de las vistas lo lee la acción que lo recibe, y lo que la acción lee lo envía
+     * el formulario (H423). Lo legítimo, y cada formulario fuera del cruce, se declara en files/dev/form-action-fields.json.
+     *
+     * @return string[]
+     */
+    protected static function checkFormActionFields(): array
+    {
+        $canary = FormActionFields::canary();
+        if ($canary !== null) {
+            return ['canario muerto: ' . $canary . '; la comprobación no miró nada'];
+        }
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $declared = FormActionFields::loadDeclared($root);
+        if ($declared === null) {
+            return ['no se pudo leer ' . FormActionFields::DECLARED_RELATIVE_PATH . ' (o le falta una de sus secciones: ' . implode(', ', FormActionFields::SECTIONS) . '): la comprobación no miró nada'];
+        }
+        $census = FormActionFields::census($root, [], static fn (string $route): bool => self::offModuleOfRoute($route) !== null);
+        $routes = is_array(get_routes()) ? get_routes() : [];
+        $result = FormActionFields::compare($census['forms'], $declared, $routes);
+        if ($census['forms'] === []) {
+            return ['ningún formulario en las vistas de src/app: el universo está vacío y la comprobación no miró nada'];
+        }
+        if ($result['failures'] === []) {
+            $stats = $result['stats'];
+            $reasons = [];
+            foreach ($result['outReasons'] as $reason => $count) {
+                $reasons[] = "{$count} {$reason}";
+            }
+            $declaredCount = count($declared['fuera']) + count($declared['accion-declarada']);
+            $fieldCount = static fn (array $section): int => array_sum(array_map(static fn ($fields): int => is_array($fields) ? count($fields) : 0, $section));
+            echoTerminal("\e[94mINFO:\e[39m formularios: {$stats['forms']} en {$census['views']} vista(s) de src/app (sin suites ni el manual generado); "
+                . "{$stats['crossedForms']} cruzado(s) en {$stats['pairs']} par(es) formulario-acción ({$stats['sent']} campo(s) enviado(s), {$stats['read']} leído(s)), "
+                . count($declared['accion-declarada']) . " con la acción declarada a mano; {$stats['out']} fuera (" . implode(', ', $reasons) . "), {$stats['off']} de módulos apagados; "
+                . "{$stats['sentUnread']} enviado(s) que nadie lee y {$stats['readUnsent']} leído(s) que nadie envía, todos declarados; "
+                . "{$stats['dynamic']} name(s) dinámico(s) sin juzgar. Excepciones: {$declaredCount} formulario(s) y "
+                . ($fieldCount($declared['enviados-sin-lector']) + $fieldCount($declared['leidos-sin-envio'])) . ' campo(s), cada uno con su motivo.');
+        }
+        return $result['failures'];
     }
 
     /**

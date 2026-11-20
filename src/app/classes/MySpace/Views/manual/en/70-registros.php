@@ -120,8 +120,9 @@ over count.</p>
   of the period and <strong>“Export”</strong>, which downloads the attempts for the period and the filter you have selected.</li>
 <li>Four figures for the period: <strong>Total attempts</strong>, with how much it changed compared with the previous period of the same length;
   <strong>Successful</strong> and <strong>Failed</strong>, with their percentage; and <strong>Unique users</strong>, the different users who tried to log in.</li>
-<li>The <strong>Attempts per day</strong> chart: failed attempts at the bottom and successful ones on top, one point per day, including days with no
-  attempts.</li>
+<li>Two charts, <strong>Successful per day</strong> and <strong>Failed per day</strong>: one point per day, including days with no attempts, with the period
+  total and how much it changed against the same result in the previous period; the arrow is green when the change is good (more
+  successful, fewer failed) and red when it is bad.</li>
 <li>Above the table, <strong>All</strong>, <strong>Successful</strong> and <strong>Failed</strong>, each with its figure, filter the table without reloading the page.</li>
 <li>The table shows <strong>Indicator</strong>, <strong>User Login</strong>, <strong>Information</strong>, <strong>Channel</strong>, <strong>IP</strong> and <strong>Date</strong>. Failed
   attempts appear in red; a correct login says <strong>“Successful login”</strong>. The date says how long ago it was (“3 hours ago”);

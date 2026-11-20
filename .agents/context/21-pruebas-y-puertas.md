@@ -556,3 +556,22 @@ legítima, porque una guarda que lo bloquea todo también «pasa» la mitad de l
   `files/dev/mail-senders-exceptions.json` (`MailDemoTask`), que no viaja (H202).
 - **`core/mail-catalog`**: permisos, cada muestra sin enlaces vacíos ni marcadores sin sustituir (b1), el real igual que la vista
   previa (c1), la prueba solo con el correo retenido (d8; 409 si no), clave no registrada 404 (d5). Sin probar: un módulo apagado (H202).
+
+## Lo que envía cada formulario contra lo que lee su acción (H423, JMZ, 2026-11-20)
+
+- **Comprobación 70 de `verify-integrity`** (etiqueta de fallo «FORMULARIO:»): estática. Cruza los `name` de cada
+  `<form>` de `src/app` (sin suites ni el manual generado) con lo que lee la acción a la que apunta, resuelta por nombre
+  de ruta con `get_routes()`, siguiendo hasta dos niveles de llamadas. La lógica vive en
+  `src/app/classes/Terminal/FormActionFields.php`; sus límites (los campos que añade el JS, las ramas `if` de la vista,
+  las llamadas por variable, los `name` dinámicos) están en su docblock.
+- **Excepciones con motivo en `files/dev/form-action-fields.json`**, en secciones `fuera`, `accion-declarada`,
+  `enviados-sin-lector` y `leidos-sin-envio`. La clave de un par es «`<vista>#n → <ruta>`», y cada campo lleva su motivo.
+  Cae con un campo sin declarar y con una declaración que ya no casa (el count mayor también cae). En la distribución,
+  «NO APLICA».
+- **Para declarar una excepción**: `bin/cli verify-integrity list-form-fields=yes` vuelca el censo en JSON; se copia la
+  clave del par y se añade `{"campo": "motivo corto"}` en la sección que toque.
+- **Canarios**: uno interno sintético, y la suite `core/form-action-fields`, con el `edit.php` de Publicaciones de antes
+  de H421 (cae por sus dos mitades, `status` enviado y `draft` leído, y solo por ellas).
+- **Trampa**: `fuera` admite también un formulario que SÍ se puede cruzar («excluido por declaración»; hoy solo
+  `Locations/_form.php`, una plantilla). Debilita la puerta: úsese solo con un motivo que diga por qué el cruce no
+  significa nada en ese formulario.

@@ -1,0 +1,16 @@
+---
+description: Adaptar UNA vez un diseño web cualquiera (HTML, CSS, JS, export de Webflow, plantilla) al formato de sitio público de PiecesPHP con partes y marcas <pcs-…>; úsala cuando llegue un diseño nuevo que aún no está en el formato
+globs:
+alwaysApply: false
+---
+
+# Adaptar un diseño al formato de PiecesPHP
+
+Sigue el procedimiento completo de `.agents/skills/adapt-design/SKILL.md`. En resumen:
+
+1. Inventario de páginas, de lo que se repite y de lo que es dato del sistema.
+2. Estáticos tal cual a `assets/`, corrigiendo rutas; sin reescribir el CSS ni el JS del diseñador.
+3. Lo repetido a `parts/<nombre>.html` y `<pcs-part name="<nombre>">` en su lugar.
+4. Marcas solo donde hay dato del sistema: `<pcs-link page>`, `<pcs-meta>`, `<pcs-image brand>`, `<pcs-text key>`,
+   `<pcs-list resource count>` con `<template>` y `{{campo}}` de `data/`, y `<pcs-form action>`.
+5. `CHECK.html` sin avisos y `START.html` comparado página a página con el original.

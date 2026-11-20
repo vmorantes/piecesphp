@@ -1,3 +1,37 @@
+# 10.58.0 (20-11-2026)
+
+- **El sitio público desde cualquier diseño web, sin reprogramarlo.** El diseñador trabaja en HTML, CSS y JavaScript
+  normales, con unas pocas marcas `<pcs-…>` donde van datos del sistema (partes repetidas, enlaces entre páginas,
+  metadatos, imágenes de marca, textos traducibles, listas y formularios). Su carpeta se abre con doble clic y trae un
+  comprobador, una guía y las instrucciones para su asistente de IA (también en Cursor). PiecesPHP la sirve tal cual:
+  convierte cada marca en su pieza real una sola vez y la guarda en caché; una marca rota no tumba la página.
+  - `bin/cli public-site-import folder=<paquete> site=<nombre> [check=yes]` comprueba la carpeta y la coloca en
+    `app/view/<nombre>/` y `statics/<nombre>/` de forma atómica (si algo falla no toca nada y guarda un respaldo de lo
+    anterior); `check=yes` solo comprueba.
+  - `bin/cli public-site-export site=<nombre> destination=<ruta> [zip=yes]` arma la carpeta para el diseñador, con sus
+    datos de ejemplo y su `.zip`.
+  - Se activa con `$config['public_site'] = '<nombre>'` en `config.php` (vacío de fábrica: nada cambia). Con el sitio
+    activo, su `index.html` es la portada y su `contact.html` el contacto; las demás páginas, en `/<página>/`.
+  - Para quien desarrolla: un proyecto añade marcas, recursos de lista y acciones de formulario con sus registros
+    (`MarkRegistry`, `ResourceRegistry`, `FormActionRegistry`, en `PiecesPHP\PublicSite`). Guía: «El sitio público por
+    marcas».
+- **Seguridad: un nombre de usuario vacío o de solo espacios ya no casa con ninguna cuenta.** El inicio de sesión lo trata
+  como si faltara, y las puertas de acceso (pedir un código de un uso, comprobar el doble factor y consultar si una cuenta
+  lo tiene) responden como para un usuario que no existe. Antes, una cuenta sin correo podía recibir intentos fallidos sin
+  que se conociera su nombre. Se recomienda actualizar.
+- **Registros › Accesos**: la gráfica apilada «Intentos por día» pasa a dos tarjetas de tendencia del tema, «Exitosos por
+  día» y «Fallidos por día», cada una con su total y su variación frente al mismo resultado del periodo anterior (verde si
+  mejora, roja si empeora).
+- **Usuarios**: con Organizaciones apagado, la ficha de un usuario de otra organización ya no lleva en su campo oculto
+  la organización de quien edita (no movía a nadie, pero el valor era el equivocado).
+- **Para quien desarrolla**: `bin/cli verify-integrity` cruza lo que envía cada formulario del panel con lo que lee su
+  acción y falla con un campo enviado que nadie lee o uno leído que nadie envía (comprobación 70). Las excepciones, con su
+  motivo, en `files/dev/form-action-fields.json`; el censo, con `bin/cli verify-integrity list-form-fields=yes`. En un
+  proyecto clonado no aplica. `OTPHandler::getUserDataByUsernameUnlessDeleted()` queda en desuso hasta la `11.0.0`: usa
+  `getUserDataByUsernameForAccessGates()`, que además excluye al usuario de sistema. `chart-card.php` estrena la variante `trend` y
+  `statistics-chart-legend.js`, la función `drawStatisticsTrend()`; la hoja de diseño enseña las dos variantes. La forma
+  vieja de `chart-card.php`, sin `proportion` ni `trend` (`chartModifiers`, `legend`), queda en desuso hasta la `11.0.0`.
+
 # 10.57.0 (20-11-2026)
 
 - **Lo eliminado es eliminado para todos, también en Banners, Noticias, Documentos, Categorías de formularios, Usuarios
@@ -19,7 +53,7 @@
   organización movía al usuario a la organización base sin avisar: si tu instalación tiene usuarios de organizaciones
   eliminadas cuya ficha se guardó, revisa su organización. La importación tampoco hereda la organización de quien
   importa si está eliminada.
-- **Organizaciones eliminadas, fuera de todo lo vivo**: no salen en el Directorio, y no se puede asignar a ellas un
+- **Organizaciones eliminadas: ni en el Directorio ni asignables**: no salen en el Directorio, y no se puede asignar a ellas un
   usuario desde el panel ni desde la importación (responde como una organización que no existe).
 - **Un encargado dado de baja cuenta como ausente**: el perfil de la organización y «Mi organización» ya no enseñan su
   nombre, su imagen ni su correo, y «Mi organización» ofrece asignar otro encargado.

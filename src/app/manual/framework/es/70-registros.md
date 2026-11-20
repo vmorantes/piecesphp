@@ -89,8 +89,9 @@ En **Intentos de Ingresos**:
   del periodo y **«Exportar»**, que descarga los intentos del periodo y del filtro que tengas elegido.
 - Cuatro cifras del periodo: **Intentos totales**, con cuánto cambió frente al periodo anterior de la misma longitud;
   **Exitosos** y **Fallidos**, con su porcentaje; y **Usuarios únicos**, los usuarios distintos que intentaron entrar.
-- La gráfica **Intentos por día**: los fallidos abajo y los exitosos encima, un punto por día, también los días sin
-  intentos.
+- Dos gráficas, **Exitosos por día** y **Fallidos por día**: un punto por día, también los días sin intentos, con el total
+  del periodo y cuánto cambió frente al mismo resultado del periodo anterior; la flecha sale en verde si el cambio es
+  bueno (más exitosos, menos fallidos) y en rojo si es malo.
 - Sobre la tabla, **Todos**, **Exitosos** y **Fallidos**, con su cifra, filtran la tabla sin recargar la página.
 - La tabla muestra **Indicador**, **Usuario ingresado**, **Información**, **Vía**, **IP** y **Fecha**. Los intentos
   fallidos salen en rojo; un ingreso correcto dice **«Ingreso exitoso»**. La fecha dice cuánto hace («hace 3 horas»);

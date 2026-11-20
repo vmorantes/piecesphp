@@ -1,7 +1,7 @@
 <?php
 
-//La dona del tema: el ayudante de statistics-chart-legend.js leído por tokens, la tarjeta de proporción de chart-card.php
-//pintada de verdad y el informe general sin la forma de antes. No escribe en ningún sitio.
+//La dona y la tendencia del tema: el ayudante de statistics-chart-legend.js leído por tokens, las tarjetas de chart-card.php
+//pintadas de verdad y el informe general sin la forma de antes. No escribe en ningún sitio.
 //@areas nucleo
 
 use PiecesPHP\Core\BaseController;
@@ -50,7 +50,7 @@ CliActions::make('unit-tests:core/statistics-donut', function ($args) {
         return '';
     };
 
-    echoTerminal('[0/3] El ayudante (statistics-chart-legend.js)');
+    echoTerminal('[0/5] El ayudante (statistics-chart-legend.js)');
     $js = (string) file_get_contents(basepath('statics/core/js/statistics-chart-legend.js'));
     $donut = $body($js, 'drawStatisticsDonut');
     $init = $body($js, 'initStatisticsChart');
@@ -87,7 +87,7 @@ CliActions::make('unit-tests:core/statistics-donut', function ($args) {
     $check($sinBorrar === [], 'a9 las funciones de antes siguen (hasta la 11.0.0)', implode(', ', $sinBorrar));
     echoTerminal(' ');
 
-    echoTerminal('[1/3] La tarjeta de proporción (chart-card.php)');
+    echoTerminal('[1/5] La tarjeta de proporción (chart-card.php)');
     $leer = function (array $datos): \DOMDocument {
         $dom = new \DOMDocument();
         @$dom->loadHTML('<?xml encoding="utf-8" ?>' . (string) (new BaseController())->render('panel/built-in/statistics/chart-card', $datos, false));
@@ -146,10 +146,10 @@ CliActions::make('unit-tests:core/statistics-donut', function ($args) {
     $igual = new \DOMXPath($leer(['proportion' => ['totalDataType' => 't', 'unit' => 'u', 'unitShort' => 'u', 'items' => []]]));
     $check($igual->query('//div[@class="label"]/span')?->length === 0, 'p15 una `unitShort` igual a la larga no duplica');
     $clasica = $leer(['title' => 'x', 'chartModifiers' => ['tall']]);
-    $check(str_contains((string) $clasica->getElementsByTagName('div')->item(0)?->attributes?->getNamedItem('class')?->nodeValue, 'card-statistic'), 'p10 sin `proportion`, sigue la pieza de siempre');
+    $check(str_contains((string) $clasica->getElementsByTagName('div')->item(0)?->attributes?->getNamedItem('class')?->nodeValue, 'card-statistic'), 'p10 sin `proportion` ni `trend`, sigue la pieza de antes (en desuso hasta la 11.0.0, sin uso en el núcleo)');
     echoTerminal(' ');
 
-    echoTerminal('[2/3] El informe general');
+    echoTerminal('[2/5] El informe general');
     $vista = $compact((string) file_get_contents(basepath('app/classes/ReportsManage/Views/reports-manage/generic-report-view.php')));
     $informe = $compact((string) file_get_contents(basepath('app/classes/ReportsManage/Statics/js/reports-manage/generic-report.js')));
     $controlador = $compact((string) file_get_contents(basepath('app/classes/ReportsManage/Controllers/ReportsManageController.php')));
@@ -171,6 +171,90 @@ CliActions::make('unit-tests:core/statistics-donut', function ($args) {
     $check($css !== '' && substr_count($css, 'data-series') === 0, 'r5c compilada, sin ninguna regla de serie (si falla: gulp sass-compile-general)', $css === '' ? 'no está compilada' : (string) substr_count($css, 'data-series'));
     echoTerminal(' ');
 
+    echoTerminal('[3/5] La tendencia (drawStatisticsTrend() y chart-card.php con `trend`)');
+    $trend = $body($js, 'drawStatisticsTrend');
+    $check($trend !== '', 't1 CANARIO: el instrumento ve drawStatisticsTrend()');
+    $check(str_contains($trend, "type:'line'") && str_contains($trend, 'smooth:true') && str_contains($trend, "symbol:'none'") && str_contains($trend, 'colorStops:[{offset:0,color:top},{offset:1,color:bottom}]') && str_contains($trend, '`color-mix(insrgb,${color}20%,transparent)`') && str_contains($trend, '`color-mix(insrgb,${color}0%,transparent)`'), 't2 el área del tema: línea suave sin símbolos y degradado del 20 % al 0 % de su color');
+    $check(str_contains($trend, "constcolor=typeofoptions.color==='string'&&options.color!==''?options.color:'var(--data-1)'"), 't3 el color, por omisión la 1.ª serie del tema (--data-1)');
+    $check(str_contains($trend, 'data:[{coord:[last,data[last].value]}]') && str_contains($trend, 'itemStyle:{color:surface,borderColor:line,borderWidth:2}'), 't4 solo el último dato, marcado: relleno de superficie y borde de la serie');
+    $check(str_contains($trend, "interval:(index)=>index===0||index===middle||index===last") && str_contains($trend, 'splitLine:{lineStyle:{color:border,type:[3,3]}}') && str_contains($trend, 'axisLabel:{color:muted,fontSize:11}'), 't5 tres marcas en el eje X; ejes atenuados y rejilla discontinua del borde del tema');
+    $check(str_contains($trend, "change.hidden=!(Number.isFinite(previous)&&previous>0)") && str_contains($trend, "constbetter=options.better==='down'?'down':'up'") && str_contains($trend, "change.classList.toggle('green',direction!==''&&direction===better)") && str_contains($trend, "change.classList.toggle('red',direction!==''&&direction!==better)") && str_contains($trend, 'icon.className=direction!==\'\'?`arrow${direction}icon`:\'icon\''), 't6 DISCRIMINANTE: la variación, verde si el cambio es el bueno y roja si no, con su flecha; oculta sin periodo anterior');
+    $check(str_contains($trend, 'percent.textContent=percentFormat.format(Math.abs(ratio))') && str_contains($trend, "newIntl.NumberFormat(language,{style:'percent',minimumFractionDigits:1,maximumFractionDigits:1})"), 't7 el porcentaje de la variación, con el separador del idioma');
+    $check(str_contains($trend, 'constchart=initStatisticsChart(canvas,tokens,function(resolved)') && str_contains($trend, 'backgroundColor:surface,borderColor:border,textStyle:{color:text}') && str_contains($trend, '${escape(point.name)}') && str_contains($trend, ':{show:false}'), 't8 por el ayudante común (svg, sin animación, repinta al cambiar de modo); etiqueta con los colores del tema y escapada; `static`, sin ella');
+    $tendencia = $leer([
+        'title' => "Título {$marca}",
+        'attributes' => ['data-type' => 'zzTrend'],
+        'chartAttributes' => ['class' => 'zz-lienzo', 'data-zz' => 'uno'],
+        'trend' => ['totalDataType' => "zzTotal{$marca}", 'meta' => "Meta {$marca}", 'chartLabel' => "Gráfico {$marca}"],
+    ]);
+    $xt = new \DOMXPath($tendencia);
+    $unaT = fn (string $query): ?\DOMElement => ($node = $xt->query($query)?->item(0)) instanceof \DOMElement ? $node : null;
+    $check($tendencia->getElementsByTagName('script')->length === 0 && str_contains((string) $tendencia->textContent, "Meta {$marca}"), 'k1 DISCRIMINANTE: ningún texto crea una etiqueta, y llegan enteros');
+    $raizT = $unaT('//body/div');
+    $check($raizT !== null && $raizT->getAttribute('class') === 'statistic card' && $raizT->getAttribute('data-type') === 'zzTrend', 'k2 la `statistic card` del tema, con sus atributos', $raizT?->getAttribute('class'));
+    $cabecera = $unaT('//div[@class="content"]/div[@class="ui spaced top aligned nowrap relaxed flex"]');
+    $check($cabecera !== null && $xt->query('./div/div[@class="header"]', $cabecera)?->length === 1 && $xt->query('./div/div[@class="meta"]', $cabecera)?->length === 1, 'k3 la cabecera del patrón: título y periodo a la izquierda');
+    $totalT = $unaT('//div[@class="ui vertical right aligned tight flex"]/div[@class="ui small statistic"]/div[@class="value"]');
+    $check($totalT !== null && $totalT->getAttribute('data-type') === "zzTotal{$marca}", 'k4 el total, a la derecha, en una `ui small statistic` con su data-type');
+    $variacion = $unaT('//div[@class="ui vertical right aligned tight flex"]/span[@data-trend-change]');
+    $check($variacion !== null && $variacion->getAttribute('class') === 'ui basic circular label' && $variacion->hasAttribute('hidden') && $xt->query('./i[@class="arrow up icon"][@aria-hidden="true"]', $variacion)?->length === 1 && $xt->query('./span[@data-trend-percent]', $variacion)?->length === 1, 'k5 DISCRIMINANTE: la variación, `ui basic circular label` con flecha y porcentaje, oculta hasta que la rellene el ayudante');
+    $grafico = $unaT('//div[@class="content"]/div[@class="ui chart"]');
+    $lienzoT = $grafico !== null ? $xt->query('./div', $grafico)?->item(0) : null;
+    $check($grafico !== null && $grafico->getAttribute('role') === 'img' && $grafico->getAttribute('aria-label') === "Gráfico {$marca}" && $lienzoT instanceof \DOMElement && $lienzoT->getAttribute('class') === 'canvas zz-lienzo' && $lienzoT->getAttribute('data-zz') === 'uno', 'k6 el `ui chart` (140 px del tema) con role="img" y su aria-label; dentro, el lienzo con los atributos de quien llama');
+    $sinEtiqueta = new \DOMXPath($leer(['title' => 'Por título', 'trend' => ['totalDataType' => 't']]));
+    $check($sinEtiqueta->query('//div[@class="ui chart"][@aria-label="Por título"]')?->length === 1 && $sinEtiqueta->query('//div[@class="meta"]')?->length === 0, 'k7 sin `chartLabel`, el aria-label es el título; sin `meta`, sin periodo');
+    $ambas = new \DOMXPath($leer(['trend' => ['totalDataType' => 't'], 'proportion' => ['totalDataType' => 'p', 'items' => []]]));
+    $check($ambas->query('//div[@class="ui square chart"]')?->length === 1 && $ambas->query('//*[@data-trend-change]')?->length === 0, 'k8 con `proportion` y `trend`, gana `proportion`');
+    $check($xt->query('//*[@style]')?->length === 0, 'k9 sin `style` en la tarjeta');
+    $ejemplo = $compact((string) file_get_contents(basepath('app/classes/PiecesPHP/AdminPanel/Views/panel/pages/design-sheet/examples/estadisticas-tendencia.php')));
+    $ejemploJs = $compact((string) file_get_contents(basepath('app/classes/PiecesPHP/AdminPanel/Statics/js/design-sheet/estadisticas-tendencia.js')));
+    $panel = $compact((string) file_get_contents(basepath('app/classes/PiecesPHP/AdminPanel/Controllers/AdminPanelController.php')));
+    $check(str_contains($ejemplo, "'trend'=>['totalDataType'=>'exampleTrendTotal'") && str_contains($ejemploJs, "drawStatisticsTrend(card.querySelector('.ui.chart>.canvas'),points,") && str_contains($panel, "self::staticRoute('js/design-sheet/estadisticas-tendencia.js')"), 'h1 la hoja de diseño enseña la tendencia con su código y la dibuja con el ayudante');
+    echoTerminal(' ');
+
+    echoTerminal('[4/5] Accesos: «Exitosos por día» y «Fallidos por día»');
+    $accesos = function (?int $previoExito, ?int $previoFallo): \DOMXPath {
+        $desde = new \DateTimeImmutable('2026-01-01');
+        $datos = [
+            'days' => 2, 'periods' => [], 'from' => $desde, 'until' => $desde->modify('+1 day'),
+            'stats' => ['total' => 9, 'success' => 6, 'error' => 3, 'uniqueUsers' => 2, 'days' => ['2026-01-01' => ['success' => 4, 'error' => 1], '2026-01-02' => ['success' => 2, 'error' => 2]]],
+            'previousTotal' => 8, 'oldest' => null, 'maxRows' => 1000, 'tableURL' => 'https://zz/', 'exportUrl' => 'https://zz/export?days=2',
+            'pieces' => new \PiecesPHP\UserSystem\Controllers\HelperController(),
+        ];
+        if ($previoExito !== null) {
+            $datos['previousSuccess'] = $previoExito;
+        }
+        if ($previoFallo !== null) {
+            $datos['previousError'] = $previoFallo;
+        }
+        $dom = new \DOMDocument();
+        @$dom->loadHTML('<?xml encoding="utf-8" ?>' . (string) (new \PiecesPHP\UserSystem\Controllers\HelperController())->setInstanceViewDir(basepath('app/classes/PiecesPHP/UserSystem/Views/'))->render('panel/pages/login-reports/attempts', $datos, false));
+        return new \DOMXPath($dom);
+    };
+    $xa = $accesos(5, 4);
+    $tarjetasA = $xa->query('//section[@class="ui two stackable cards"]/div[@class="statistic card"]');
+    $lienzos = [];
+    foreach ($xa->query('//section[@class="ui two stackable cards"]//div[@class="ui chart"]/div[@data-access-trend]') ?: [] as $nodo) {
+        $lienzos[] = $nodo instanceof \DOMElement ? json_decode($nodo->getAttribute('data-access-trend'), true) : null;
+    }
+    $check($tarjetasA !== false && $tarjetasA->length === 2 && count($lienzos) === 2, 'x1 CANARIO: Accesos pinta dos tarjetas de tendencia en `ui two stackable cards`', (string) ($tarjetasA === false ? 'xpath' : $tarjetasA->length));
+    $titulos = array_map(fn ($n) => $n instanceof \DOMElement ? trim($n->textContent) : '', iterator_to_array($xa->query('//section[@class="ui two stackable cards"]//div[@class="header"]') ?: []));
+    $check($titulos === [__(LOGIN_REPORT_LANG_GROUP, 'Exitosos por día'), __(LOGIN_REPORT_LANG_GROUP, 'Fallidos por día')], 'x2 «Exitosos por día» y «Fallidos por día», en ese orden', (string) json_encode($titulos));
+    $check(($lienzos[0]['points'] ?? null) === [['label' => '01-01', 'value' => 4], ['label' => '02-01', 'value' => 2]] && ($lienzos[1]['points'] ?? null) === [['label' => '01-01', 'value' => 1], ['label' => '02-01', 'value' => 2]], 'x3 un punto por día y por resultado, con su fecha', (string) json_encode($lienzos));
+    $check(($lienzos[0]['previous'] ?? null) === 5 && ($lienzos[0]['better'] ?? null) === 'up' && ($lienzos[1]['previous'] ?? null) === 4 && ($lienzos[1]['better'] ?? null) === 'down', 'x4 DISCRIMINANTE: cada variación, contra SU resultado del periodo anterior; subir es lo bueno en exitosos y lo malo en fallidos');
+    $sinPrevio = [];
+    foreach ($accesos(null, null)->query('//div[@data-access-trend]') ?: [] as $nodo) {
+        $trendA = $nodo instanceof \DOMElement ? json_decode($nodo->getAttribute('data-access-trend'), true) : null;
+        $sinPrevio[] = is_array($trendA) && array_key_exists('previous', $trendA) ? $trendA['previous'] : 'falta';
+    }
+    $check($sinPrevio === [null, null], 'x5 sin el periodo anterior por resultado, `previous` es null y la variación queda oculta', (string) json_encode($sinPrevio));
+    $check($xa->query('//*[@data-access-days-chart]')?->length === 0 && $xa->query('//*[contains(concat(" ", @class, " "), " card-statistic ")]')?->length === 0, 'x6 fuera el área apilada de antes (data-access-days-chart y la tarjeta vieja)');
+    $controladorA = $compact((string) file_get_contents(basepath('app/classes/PiecesPHP/UserSystem/Controllers/LoginAttemptsController.php')));
+    $check(str_contains($controladorA, "'previousSuccess'=>\$previous['success'],'previousError'=>\$previous['error'],") && str_contains($controladorA, "\$previous=LoginAttemptsModel::countsBySuccess(null,\$from->modify('-'.\$days.'days'),\$from);"), 'x7 DISCRIMINANTE: el controlador da el periodo anterior por resultado, con la misma ventana que el total');
+    $jsA = $compact((string) file_get_contents(basepath('app/classes/PiecesPHP/UserSystem/Statics/js/access-reports.js')));
+    $check(str_contains($jsA, "drawStatisticsTrend(canvas,points,{name:title!==null?title.textContent:'',previous:trend.previous,better:trend.better,color:trend.color})") && !str_contains($jsA, 'linkStatisticsChartLegend') && !str_contains($jsA, 'fitStatisticsChart') && !str_contains($jsA, 'echarts.init'), 'x8 el JS de Accesos dibuja con drawStatisticsTrend(); ni la leyenda enlazada ni echarts.init');
+    echoTerminal(' ');
+
     echoTerminal(str_repeat('=', 80));
     echoTerminal(" BALANCE FINAL: {$passed}/" . ($passed + $failed) . " PASADAS ");
     echoTerminal(str_repeat('=', 80));
@@ -185,4 +269,4 @@ CliActions::make('unit-tests:core/statistics-donut', function ($args) {
             : "Suite completada con {$failed} prueba(s) fallida(s).",
     ];
 
-})->setDescription('La dona del tema: las opciones y el repintado del ayudante, la tarjeta de proporción (escapa y sus colores son una lista cerrada) y el informe general sin la forma de antes. No escribe.')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('La dona y la tendencia del tema: las opciones y el repintado del ayudante, las tarjetas de proporción y de tendencia (escapan; colores y variación del tema), el informe general y Accesos sin la forma de antes. No escribe.')->setEffects([CliActions::EFFECT_NONE])->register();

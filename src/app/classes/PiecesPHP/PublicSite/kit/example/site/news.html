@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Noticias</title>
+    <pcs-meta></pcs-meta>
+    <link rel="stylesheet" href="assets/site.css">
+    <script src=".pcs/pcs.js"></script>
+</head>
+<body>
+    <pcs-part name="menu"></pcs-part>
+    <main class="wrap">
+        <h1><pcs-text key="news-title">Noticias</pcs-text></h1>
+        <ul class="list">
+            <pcs-list resource="publications">
+                <template>
+                    <li><a href="{{url}}">{{title}}</a> <span class="date">{{date}}</span></li>
+                </template>
+            </pcs-list>
+        </ul>
+    </main>
+    <pcs-part name="footer"></pcs-part>
+</body>
+</html>

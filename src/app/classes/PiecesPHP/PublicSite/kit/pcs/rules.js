@@ -1,0 +1,81 @@
+/* Generado desde pcs/rules.json por CHECK.html (o por la exportación). No se edita a mano. */
+window.PCS_RULES = {
+	"formatVersion": 1,
+	"namePattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+	"fieldPattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+	"globalAttributes": ["class", "id", "style", "title", "role", "aria-*", "data-*"],
+	"marks": {
+		"pcs-part": {
+			"attributes": {
+				"name": {
+					"required": true,
+					"pattern": "name"
+				}
+			},
+			"content": "empty"
+		},
+		"pcs-link": {
+			"attributes": {
+				"page": {
+					"required": true,
+					"pattern": "name"
+				}
+			},
+			"content": "inline"
+		},
+		"pcs-meta": {
+			"attributes": {},
+			"content": "empty"
+		},
+		"pcs-image": {
+			"attributes": {
+				"brand": {
+					"required": true,
+					"pattern": "name",
+					"values": ["logo", "partners", "partners-vertical", "loader-animation", "loader-logo", "loader-screen", "loader-screen-mobile"]
+				},
+				"alt": {
+					"required": false
+				},
+				"class": {
+					"required": false
+				}
+			},
+			"content": "empty"
+		},
+		"pcs-text": {
+			"attributes": {
+				"key": {
+					"required": true
+				}
+			},
+			"content": "text"
+		},
+		"pcs-list": {
+			"attributes": {
+				"resource": {
+					"required": true,
+					"pattern": "name"
+				},
+				"count": {
+					"required": false,
+					"integer": {
+						"min": 1,
+						"max": 100
+					},
+					"default": 10
+				}
+			},
+			"content": "template"
+		},
+		"pcs-form": {
+			"attributes": {
+				"action": {
+					"required": true,
+					"pattern": "name"
+				}
+			},
+			"content": "any"
+		}
+	}
+}

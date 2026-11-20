@@ -187,6 +187,8 @@ class LoginAttemptsController extends AdminPanelController
             $data += [
                 'stats' => $stats,
                 'previousTotal' => $previous['total'],
+                'previousSuccess' => $previous['success'],
+                'previousError' => $previous['error'],
                 'oldest' => LoginAttemptsModel::trimmedSince($oldest, $from, LoginAttemptsModel::storedCount(), LoginAttemptsModel::maxRows()),
                 'maxRows' => LoginAttemptsModel::maxRows(),
                 'tableURL' => self::routeName('reports-ajax', ['type' => 'attempts']) . '?' . http_build_query(['days' => $days]),

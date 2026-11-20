@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contacto</title>
+    <pcs-meta></pcs-meta>
+    <link rel="stylesheet" href="assets/site.css">
+    <script src=".pcs/pcs.js"></script>
+</head>
+<body>
+    <pcs-part name="menu"></pcs-part>
+    <main class="wrap">
+        <h1><pcs-text key="contact-title">Contacto</pcs-text></h1>
+        <pcs-form action="contact" class="form">
+            <label><pcs-text key="contact-name">Tu nombre</pcs-text> <input type="text" name="name" required></label>
+            <label><pcs-text key="contact-email">Tu correo</pcs-text> <input type="email" name="email" required></label>
+            <label><pcs-text key="contact-message">Mensaje</pcs-text> <textarea name="message" rows="4"></textarea></label>
+            <button type="submit"><pcs-text key="contact-send">Enviar</pcs-text></button>
+        </pcs-form>
+    </main>
+    <pcs-part name="footer"></pcs-part>
+</body>
+</html>

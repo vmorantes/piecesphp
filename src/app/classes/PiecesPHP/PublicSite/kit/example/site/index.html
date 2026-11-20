@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inicio</title>
+    <pcs-meta></pcs-meta>
+    <link rel="stylesheet" href="assets/site.css">
+    <script src=".pcs/pcs.js"></script>
+</head>
+<body>
+    <pcs-part name="menu"></pcs-part>
+    <main class="wrap">
+        <h1><pcs-text key="home-title">Bienvenido a nuestro sitio</pcs-text></h1>
+        <p><pcs-text key="home-intro">Esto es un sitio de ejemplo con las siete marcas.</pcs-text></p>
+        <h2><pcs-text key="home-news">Últimas noticias</pcs-text></h2>
+        <div class="cards">
+            <pcs-list resource="publications" count="3">
+                <template>
+                    <article class="card">
+                        <img src="{{image}}" alt="{{title}}">
+                        <h3><a href="{{url}}">{{title}}</a></h3>
+                        <p class="date">{{date}}</p>
+                        <p>{{excerpt}}</p>
+                    </article>
+                </template>
+            </pcs-list>
+        </div>
+        <p><pcs-link page="news" class="button">Ver todas las noticias</pcs-link></p>
+    </main>
+    <pcs-part name="footer"></pcs-part>
+</body>
+</html>

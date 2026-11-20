@@ -89,8 +89,9 @@ In **Login attempts**:
   of the period and **“Export”**, which downloads the attempts for the period and the filter you have selected.
 - Four figures for the period: **Total attempts**, with how much it changed compared with the previous period of the same length;
   **Successful** and **Failed**, with their percentage; and **Unique users**, the different users who tried to log in.
-- The **Attempts per day** chart: failed attempts at the bottom and successful ones on top, one point per day, including days with no
-  attempts.
+- Two charts, **Successful per day** and **Failed per day**: one point per day, including days with no attempts, with the period
+  total and how much it changed against the same result in the previous period; the arrow is green when the change is good (more
+  successful, fewer failed) and red when it is bad.
 - Above the table, **All**, **Successful** and **Failed**, each with its figure, filter the table without reloading the page.
 - The table shows **Indicator**, **User Login**, **Information**, **Channel**, **IP** and **Date**. Failed
   attempts appear in red; a correct login says **“Successful login”**. The date says how long ago it was (“3 hours ago”);
