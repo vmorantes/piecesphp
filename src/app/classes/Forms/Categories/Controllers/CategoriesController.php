@@ -196,7 +196,7 @@ class CategoriesController extends AdminPanelController
 
         $element = new CategoriesMapper($id);
 
-        if ($element->id !== null && CategoriesMapper::existsByID($element->id)) {
+        if ($element->id !== null && CategoriesMapper::existsNotDeletedByID($element->id)) {
 
             set_custom_assets([
                 CategoriesRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
@@ -314,7 +314,7 @@ class CategoriesController extends AdminPanelController
         $resultOperation->setValue('reload', false);
 
         //Mensajes de respuesta
-        $notExistsMessage = __(self::LANG_GROUP, 'El categoría que intenta modificar no existe.');
+        $notExistsMessage = __(self::LANG_GROUP, 'La categoría que intenta modificar no existe.');
         $successCreateMessage = __(self::LANG_GROUP, 'Categoría creada.');
         $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
@@ -384,7 +384,8 @@ class CategoriesController extends AdminPanelController
                     //Existente
 
                     $mapper = new CategoriesMapper((int) $id);
-                    $exists = !is_null($mapper->id);
+                    //Lo eliminado no se guarda: responde como lo que no existe (P380).
+                    $exists = $mapper->id !== null && CategoriesMapper::existsNotDeletedByID($mapper->id);
 
                     if ($exists) {
 
@@ -516,7 +517,7 @@ class CategoriesController extends AdminPanelController
             try {
 
                 $element = new CategoriesMapper($id);
-                $exists = $element->id !== null;
+                $exists = $element->id !== null && CategoriesMapper::existsNotDeletedByID($element->id);
 
                 if ($exists) {
 
@@ -886,6 +887,8 @@ class CategoriesController extends AdminPanelController
                     $allow = false;
                     $id = $params['id'];
                     $element = CategoriesMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $element = $element !== null && (int) $element->status !== CategoriesMapper::STATUS_INACTIVE ? $element : null;
 
                     if ($element !== null) {
 
@@ -907,6 +910,8 @@ class CategoriesController extends AdminPanelController
                     if ($id !== null) {
 
                         $element = CategoriesMapper::getBy($id, 'id');
+                        //Lo eliminado, como lo que no existe (P380): lo rechaza la acción con su mensaje.
+                        $element = $element !== null && (int) $element->status !== CategoriesMapper::STATUS_INACTIVE ? $element : null;
 
                         if ($element !== null) {
 

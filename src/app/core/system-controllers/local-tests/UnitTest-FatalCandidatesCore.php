@@ -199,7 +199,7 @@ CliActions::make('unit-tests:core/fatal-candidates-core', function ($args) {
     $fuenteMapper = (string) file_get_contents(basepath('app/classes/Organizations/Mappers/OrganizationMapper.php'));
     $check(str_contains($fuente, '$userIsOrganizationAdministrator = OrganizationMapper::grantsAdministratorPermissions(')
         && str_contains($fuenteMapper, '$administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;')
-        && str_contains($fuenteMapper, 'return $administratorID == $userID;'), 'f1 CANARIO: 616 compara por id, venga el encargado como UsersModel o como entero');
+        && str_contains($fuenteMapper, 'return $administratorID == $userID && UsersModel::existsAndNotDeleted($userID);'), 'f1 CANARIO: 616 compara por id, venga el encargado como UsersModel o como entero, y un Eliminado no cuenta (P380)');
     $porId = function ($administrador, int $usuario): bool {
         $id = $administrador instanceof UsersModel ? $administrador->id : $administrador;
         return $id == $usuario;

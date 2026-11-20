@@ -20,7 +20,7 @@ Página del listado de banners activos y dentro de su vigencia, que consume el c
 | :-- | :-- | :-- | :-- | :-- |
 | `page` | query | no | integer · por omisión `1` | El avance dentro de la paginación de los resultados. Por omisión 1. |
 | `per_page` | query | no | integer · por omisión `10` | Cantidad de elementos por página, con guion bajo (a diferencia de /core/api/). Por omisión 10. |
-| `status` | query | no | integer \| string | Estado del banner, un entero o ANY (cualquiera). Solo se respeta con sesión y permiso de listado. |
+| `status` | query | no | integer \| string | Estado del banner, un entero o ANY (cualquiera salvo eliminado). Lo eliminado no se lista con ningún valor. Solo se respeta con sesión y permiso de listado. |
 | `title` | query | no | string · mínimo 1 carácter(es) | Título, total o parcial. |
 
 ### Respuestas

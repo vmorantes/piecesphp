@@ -172,7 +172,7 @@ class NewsController extends AdminPanelController
 
         $element = new NewsMapper($id);
 
-        if ($element->id !== null && NewsMapper::existsByID($element->id)) {
+        if ($element->id !== null && NewsMapper::existsNotDeletedByID($element->id)) {
 
             set_custom_assets([
                 NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -598,7 +598,8 @@ class NewsController extends AdminPanelController
                     //Existente
 
                     $mapper = new NewsMapper((int) $id);
-                    $exists = !is_null($mapper->id);
+                    //Lo eliminado no se guarda: guardarlo lo devolvería a la interfaz (P380).
+                    $exists = $mapper->id !== null && NewsMapper::existsNotDeletedByID($mapper->id);
 
                     if ($exists) {
 
@@ -734,7 +735,7 @@ class NewsController extends AdminPanelController
 
             try {
 
-                $exists = NewsMapper::existsByID($id);
+                $exists = NewsMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
 
@@ -890,7 +891,7 @@ class NewsController extends AdminPanelController
 
             try {
 
-                $exists = NewsMapper::existsByID($newsID);
+                $exists = NewsMapper::existsNotDeletedByID($newsID);
 
                 if ($exists) {
 
@@ -1201,6 +1202,11 @@ class NewsController extends AdminPanelController
 
         }
 
+        //Lo eliminado no sale con ningún estado pedido, tampoco ANY ni 0 (P380).
+        $inactive = NewsMapper::INACTIVE;
+        $beforeOperator = !empty($where) ? $and : '';
+        $where[] = "{$beforeOperator} ({$table}.status != {$inactive})";
+
         if (!$ignoreStatus) {
 
             $beforeOperator = !empty($where) ? $and : '';
@@ -1385,6 +1391,8 @@ class NewsController extends AdminPanelController
                     $allow = false;
                     $id = ($getParam)('id');
                     $news = NewsMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $news = $news !== null && (int) $news->status !== NewsMapper::INACTIVE ? $news : null;
 
                     if ($news !== null) {
 

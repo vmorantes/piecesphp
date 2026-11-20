@@ -114,7 +114,8 @@ final class Impersonation
             return __(self::LANG_GROUP, 'No se puede actuar como ese usuario.');
         }
         $target = UsersModel::getBy((int) $targetID, 'id');
-        if ($target === null) {
+        //Un eliminado responde como un id que no existe (P380): ANTES de mirar el tipo, o «otro root» lo delata.
+        if ($target === null || (int) $target->status === UsersModel::STATUS_USER_DELETED) {
             return __(self::LANG_GROUP, 'El usuario no existe');
         }
         if ((int) $target->type === UsersModel::TYPE_USER_ROOT) {

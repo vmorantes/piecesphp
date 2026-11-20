@@ -1228,6 +1228,23 @@ class OrganizationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Lo eliminado (DELETED) cuenta como inexistente para la interfaz (P380).
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function existsNotDeletedByID(int $id): bool
+    {
+        $model = self::model();
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('id', $id, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('status', self::DELETED),
+        ]));
+        $model->execute();
+        return !empty($model->result());
+    }
+
+    /**
      * Un código público libre, con la forma `ORG` + 7 dígitos.
      *
      * AL AZAR, NO CORRELATIVO: un correlativo diría cuántas organizaciones hay y cuál es más antigua. Sortea desde 1,
@@ -1369,8 +1386,8 @@ class OrganizationMapper extends EntityMapperExtensible
     }
 
     /**
-     * Si el usuario recibe PERMISSIONS_ON_ADMINISTRATOR por ser el encargado de su organización. Con el módulo apagado,
-     * nunca (P384 a). El encargado llega como UsersModel o como su id: se compara por id en los dos casos.
+     * Si el usuario recibe PERMISSIONS_ON_ADMINISTRATOR por ser el encargado de su organización; con el módulo apagado
+     * (P384 a) o Eliminado (P380), nunca. El encargado llega como UsersModel o como su id: se compara por id.
      *
      * @param int $userID
      * @param OrganizationMapper|null $organization La del usuario
@@ -1383,7 +1400,23 @@ class OrganizationMapper extends EntityMapperExtensible
         }
         $administrator = $organization->administrator;
         $administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;
-        return $administratorID == $userID;
+        return $administratorID == $userID && UsersModel::existsAndNotDeleted($userID);
+    }
+
+    /**
+     * El id del encargado que la interfaz enseña: null sin encargado o si está Eliminado (P380). Dar de baja no limpia
+     * `administrator` (meta-propiedad); los permisos tampoco cuentan al Eliminado (grantsAdministratorPermissions()).
+     *
+     * @return int|null
+     */
+    public function displayedAdministratorID(): ?int
+    {
+        $administrator = $this->administrator;
+        $administratorID = $administrator instanceof UsersModel ? $administrator->id : $administrator;
+        if (!is_scalar($administratorID) || !Validator::isInteger($administratorID)) {
+            return null;
+        }
+        return UsersModel::existsAndNotDeleted((int) $administratorID) ? (int) $administratorID : null;
     }
 
     /**

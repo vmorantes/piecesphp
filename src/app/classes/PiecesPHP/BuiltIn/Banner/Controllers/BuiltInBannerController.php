@@ -204,7 +204,7 @@ class BuiltInBannerController extends AdminPanelController
 
         $element = new BuiltInBannerMapper($id);
 
-        if ($element->id !== null && BuiltInBannerMapper::existsByID($element->id)) {
+        if ($element->id !== null && BuiltInBannerMapper::existsNotDeletedByID($element->id)) {
 
             set_custom_assets([
                 BuiltInBannerRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -508,7 +508,8 @@ class BuiltInBannerController extends AdminPanelController
                     //Existente
 
                     $mapper = new BuiltInBannerMapper((int) $id);
-                    $exists = !is_null($mapper->id);
+                    //Lo eliminado no se guarda: guardarlo lo devolvería a ACTIVE y a la web pública (P380).
+                    $exists = $mapper->id !== null && BuiltInBannerMapper::existsNotDeletedByID($mapper->id);
 
                     if ($exists) {
 
@@ -548,7 +549,23 @@ class BuiltInBannerController extends AdminPanelController
 
                         $defaultLang = Config::get_default_lang();
 
-                        $updated = $mapper->update();
+                        //Entre comprobar y guardar median las subidas: se bloquea la fila y se vuelve a mirar, o uno eliminado
+                        //entretanto volvería a ACTIVE (P380).
+                        $connection = $mapper->getModel()->getDatabase();
+                        if ($connection === null) {
+                            throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        }
+                        $connection->beginTransaction();
+                        try {
+                            $lock = $connection->prepare('SELECT status FROM `' . BuiltInBannerMapper::TABLE . '` WHERE id = :id FOR UPDATE');
+                            $currentStatus = $lock->execute([':id' => $mapper->id]) ? $lock->fetchColumn() : false;
+                            $stillExists = $currentStatus !== false && (int) $currentStatus !== BuiltInBannerMapper::INACTIVE;
+                            $updated = $stillExists && $mapper->update();
+                            $updated = $connection->commit() && $updated;
+                        } catch (\Throwable $e) {
+                            $connection->rollBack();
+                            throw $e;
+                        }
                         $resultOperation->setSuccessOnSingleOperation($updated);
 
                         if ($updated) {
@@ -560,7 +577,7 @@ class BuiltInBannerController extends AdminPanelController
 
                         } else {
 
-                            $resultOperation->setMessage($unknowErrorMessage);
+                            $resultOperation->setMessage($stillExists ? $unknowErrorMessage : $notExistsMessage);
 
                         }
 
@@ -672,7 +689,7 @@ class BuiltInBannerController extends AdminPanelController
 
             try {
 
-                $exists = BuiltInBannerMapper::existsByID($id);
+                $exists = BuiltInBannerMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
 
@@ -992,6 +1009,11 @@ class BuiltInBannerController extends AdminPanelController
 
         }
 
+        //Lo eliminado no sale en ningún listado, tampoco con status=0 o ANY (P380).
+        $deleted = BuiltInBannerMapper::INACTIVE;
+        $beforeOperator = !empty($where) ? $and : '';
+        $where[] = "{$beforeOperator} ({$table}.status != {$deleted})";
+
         $boundValues = [];
         if ($title !== null) {
 
@@ -1140,6 +1162,8 @@ class BuiltInBannerController extends AdminPanelController
                     $allow = false;
                     $id = ($getParam)('id');
                     $builtInBanner = BuiltInBannerMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $builtInBanner = $builtInBanner !== null && (int) $builtInBanner->status !== BuiltInBannerMapper::INACTIVE ? $builtInBanner : null;
 
                     if ($builtInBanner !== null) {
 

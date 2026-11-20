@@ -132,7 +132,7 @@ organización, del estilo `ORG8545741`. Lo encuentras en el listado de organizac
 Reglas, por orden:
 
 1. si la celda trae un código válido, el usuario va a esa organización;
-2. si la celda está vacía y **quien importa** tiene organización, hereda la suya;
+2. si la celda está vacía y **quien importa** tiene organización, hereda la suya, salvo que esté eliminada (entonces la fila falla como con un código que no existe);
 3. si la celda está vacía y quien importa tampoco tiene organización, **esa fila falla** y el informe lo dice:
    «Organización: no trae ninguna y hay que poner su código, porque quien importa no tiene una que heredar.» (la tabla
    del resultado ya dice en qué fila);

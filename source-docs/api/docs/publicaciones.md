@@ -402,7 +402,7 @@ Página del listado de publicaciones que consume la zona pública del propio sit
 | `page` | query | no | integer · por omisión `1` | El avance dentro de la paginación de los resultados. Por omisión 1. |
 | `per_page` | query | no | integer · por omisión `10` | Cantidad de elementos por página, con guion bajo (a diferencia de /core/api/). Por omisión 10. |
 | `category` | query | no | integer | Identificador de la categoría. |
-| `status` | query | no | integer \| string | Estado, un entero o ANY (cualquiera). Solo se respeta con sesión y permiso de borradores. |
+| `status` | query | no | integer \| string | Estado, un entero o ANY (cualquiera salvo eliminado). Lo eliminado no se lista con ningún valor. Solo se respeta con sesión y permiso de borradores. |
 | `title` | query | no | string · mínimo 1 carácter(es) | Título, total o parcial. |
 | `featured` | query | no | integer | Filtra por destacadas (entero). |
 | `ignoreSlugs[]` | query | no | array de string | Slugs que se excluyen; se repite el parámetro por cada uno. |

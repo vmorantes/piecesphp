@@ -47,7 +47,7 @@ Lo que se hace sin sesión (una tarea programada disparada por HTTP, una petici�
 relleno inicial de aprobaciones) queda a nombre del **usuario de sistema**, id **-10** (`UsersModel::SYSTEM_USER_ID`),
 no del usuario 1. Lo que se hace desde la terminal (`bin/cli`) sigue siendo del usuario 1, porque la terminal entra como
 root. No inicia sesión, no aparece en listados
-ni recuentos y no se edita, borra ni suplanta. Se llama «Sistema», y lo suyo en los registros solo lo ve root. En código:
+ni recuentos, no se edita, borra ni suplanta, y las puertas de acceso (códigos de un uso, recuperación, usuario olvidado, comprobar el doble factor) lo tratan como un usuario que no existe. Se llama «Sistema», y lo suyo en los registros solo lo ve root. En código:
 
 ```php
 use PiecesPHP\UserSystem\ORM\UsersModel;

@@ -40,7 +40,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <tr>
 <td class="left aligned">Organización base</td>
 <td class="left aligned">Sí</td>
-<td class="left aligned">La organización a la que pertenece el usuario</td>
+<td class="left aligned">La organización a la que pertenece el usuario. Si se eliminó, sale marcada «(eliminada)» y no se puede elegir: guardar sin cambiarla la conserva</td>
 </tr>
 <tr>
 <td class="left aligned">Primer nombre</td>

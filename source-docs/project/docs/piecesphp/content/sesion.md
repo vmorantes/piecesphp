@@ -101,7 +101,7 @@ En el código, el usuario actual es `getLoggedFrameworkUser()` (`UserDataPackage
 | Cerrar una sesión | `user-sessions-close` (POST, `{id}`) | La propia o una ajena sobre la que se tiene autoridad; si es la actual, borra también la cookie |
 | Cerrar las demás | `user-sessions-close-others` (POST) | Todas las del usuario menos la actual |
 | Extender | `user-sessions-extend` (POST, `{id}`) | Solo root y administrador general; de 1 a 365 días, sin pasar del tope |
-| Cerrar todas las de un usuario | `users-revoke-sessions-request` (POST); las propias, `my-space-admin-revoke-my-sessions` | Mueve `sessionsValidFrom` a ahora y cierra sus filas |
+| Cerrar todas las de un usuario | `users-revoke-sessions-request` (POST); las propias, `my-space-admin-revoke-my-sessions` | Mueve `sessionsValidFrom` a ahora y cierra sus filas; con un usuario dado de baja responde como uno inexistente y no mueve nada |
 | Cerrar todas las de todos | `bin/cli sessions-revoke-all` | Mueve la marca global y cierra todas las filas |
 
 Las filas guardan quién cerró y por qué (`logout`, `closed-by-user`, `closed-by-admin`, `revoke-all-user`,

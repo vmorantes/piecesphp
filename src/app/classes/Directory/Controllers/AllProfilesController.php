@@ -121,9 +121,11 @@ class AllProfilesController extends AdminPanelController
         $selectForUserProfiles = "SELECT {$selectFieldsUserProfiles} " . " FROM ({$selectForUserProfiles}) " . "AS {$tableUserProfile}";
 
         $initialOrgID = OrganizationMapper::INITIAL_ID_GLOBAL; //Ignorar organización de base
+        //Lo eliminado no vuelve por la interfaz (P380). La aprobación no lo cubre: nadie la pasa a DELETED al eliminar.
+        $orgDeleted = OrganizationMapper::DELETED;
         $tableOrganization = OrganizationMapper::TABLE;
         $selectFieldsOrganizations = implode(",", OrganizationMapper::fieldsToSelect());
-        $selectForOrganizations = "SELECT {$selectFieldsOrganizations} FROM {$tableOrganization} WHERE id != {$initialOrgID} AND publicVisible = 1";
+        $selectForOrganizations = "SELECT {$selectFieldsOrganizations} FROM {$tableOrganization} WHERE {$tableOrganization}.id != {$initialOrgID} AND {$tableOrganization}.publicVisible = 1 AND {$tableOrganization}.status != {$orgDeleted}";
         $tableOrganization = 'organizationsQuery';
         $selectFieldsOrganizations = implode(",", [
             "{$tableOrganization}.id",

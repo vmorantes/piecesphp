@@ -17,7 +17,7 @@ return [
     "Editar" => "Edit",
     "Eliminar" => "Delete",
     "Eliminar categoría" => "Delete category",
-    "El categoría que intenta modificar no existe." => "The category you are trying to modify does not exist.",
+    "La categoría que intenta modificar no existe." => "The category you are trying to modify does not exist.",
     "La categoría que intenta eliminar no existe." => "The category you are trying to delete does not exist.",
     "El idioma \"%s\" no está permitido." => "The language \"%s\" is not allowed.",
     "Ha ocurrido un error desconocido." => "An unknown error has occurred.",

@@ -133,8 +133,8 @@ class MyOrganizationProfileController extends AdminPanelController
                 throw new NotFoundException($request, $response);
             }
             $organizationID = $organizationMapper->id;
-            //Sin encargado, primero se asigna uno.
-            $setAdministratorForm = self::administratorIDOf($organizationMapper) === null;
+            //Sin encargado, primero se asigna uno; uno Eliminado cuenta como ninguno (P380).
+            $setAdministratorForm = $organizationMapper->displayedAdministratorID() === null;
         }
 
         $title = __(self::LANG_GROUP, 'Perfil de organización');
@@ -441,8 +441,8 @@ class MyOrganizationProfileController extends AdminPanelController
     }
 
     /**
-     * El id del encargado de una organización, o null si no tiene. `administrator` puede llegar como el modelo,
-     * como su id o vacío: el `->id` directo reventaba con los dos últimos.
+     * El id del encargado de una organización, o null si no tiene o si está Eliminado (P380: no gana permisos).
+     * `administrator` puede llegar como el modelo, como su id o vacío: el `->id` directo reventaba con los dos últimos.
      *
      * @param OrganizationMapper $organization
      * @return int|null
@@ -451,9 +451,11 @@ class MyOrganizationProfileController extends AdminPanelController
     {
         $administrator = $organization->administrator;
         if ($administrator instanceof UsersModel) {
-            return $administrator->id !== null ? (int) $administrator->id : null;
+            $administratorID = $administrator->id !== null ? (int) $administrator->id : null;
+        } else {
+            $administratorID = is_int($administrator) ? $administrator : null;
         }
-        return is_int($administrator) ? $administrator : null;
+        return $administratorID !== null && UsersModel::existsAndNotDeleted($administratorID) ? $administratorID : null;
     }
 
     /**
@@ -474,7 +476,7 @@ class MyOrganizationProfileController extends AdminPanelController
     }
 
     /**
-     * Devuelve la organización a partir del parámetro organizationID
+     * Devuelve la organización a partir del parámetro organizationID; null si no existe o está eliminada
      * @param array $args
      * @return OrganizationMapper|null
      */
@@ -483,7 +485,8 @@ class MyOrganizationProfileController extends AdminPanelController
         $organizationID = $args['organizationID'] ?? null;
         $organizationID = Validator::isInteger($organizationID) ? (int) $organizationID : -1;
         $organizationMapper = new OrganizationMapper($organizationID);
-        return $organizationMapper->id !== null ? $organizationMapper : null;
+        //Una eliminada, como una que no existe (P380).
+        return $organizationMapper->id !== null && (int) $organizationMapper->status !== OrganizationMapper::DELETED ? $organizationMapper : null;
     }
 
     /**

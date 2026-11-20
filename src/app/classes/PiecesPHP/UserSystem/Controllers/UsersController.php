@@ -788,7 +788,8 @@ class UsersController extends AdminPanelController
         $currentUser = new UsersModel($this->user->id);
 
         //La autoridad se mira con el usuario ya encontrado: con un id que no existe, type es null y reventaba (500).
-        if (!is_null($user->id) && Roles::roleExists($user->type)) {
+        //Un eliminado (su baja propia) no se abre, ni para root: responde como un id que no existe (P380).
+        if (!is_null($user->id) && (int) $user->status !== UsersModel::STATUS_USER_DELETED && Roles::roleExists($user->type)) {
 
             //Su POST no deja tocar a un usuario de otra organización: el GET tampoco lo enseña.
             if (!$currentUser->hasAuthorityOver($user->type) || !self::canManageUser($currentUser, $user)) {
@@ -1432,7 +1433,8 @@ class UsersController extends AdminPanelController
         }
 
         $target = new UsersModel((int) $id);
-        if ($target->id === null) {
+        //Un eliminado, como uno que no existe (P380): ni se le escribe la marca ni se le deja un aviso.
+        if ($target->id === null || (int) $target->status === UsersModel::STATUS_USER_DELETED) {
             return $fail(404, __(self::LANG_GROUP, 'El usuario no existe.'));
         }
 
@@ -1681,7 +1683,7 @@ class UsersController extends AdminPanelController
                     return $response->withJson($result);
                 }
                 //Sin esto, una que no existe llega a la clave foránea y sale como error interno.
-                if (!OrganizationMapper::existsByID((int) $organization)) {
+                if (!OrganizationMapper::existsNotDeletedByID((int) $organization)) {
                     $result
                         ->setMessage(__(self::LANG_GROUP, 'La organización indicada no existe.'));
                     return $response->withJson($result);
@@ -2065,6 +2067,11 @@ class UsersController extends AdminPanelController
             $organization = $organizationsEnabled ? $parametersExcepted->getValue('organization') : null;
 
             $userMapper = new UsersModel($id);
+            //Un eliminado no se guarda, ni para root: guardarlo lo devolvía al estado enviado. Responde como un id que no
+            //existe, por el mismo camino (P380).
+            if ($userMapper->id !== null && (int) $userMapper->status === UsersModel::STATUS_USER_DELETED) {
+                $userMapper = new UsersModel();
+            }
 
             //El usuario de sistema no se edita ni cambia de estado: para quien pide, no existe.
             if (UsersModel::isSystemUser($userMapper->id !== null ? (int) $userMapper->id : null)) {
@@ -2095,6 +2102,15 @@ class UsersController extends AdminPanelController
             $password_match = $change_password ? $password == $password2 : true;
             $password_ok = true;
 
+            //Conserva su organización eliminada si no llega (el formulario la pinta deshabilitada) o llega la misma; otra
+            //eliminada se rechaza abajo (P380).
+            $keepsDeletedOrganization = $organizationsEnabled && !$isProfile && $userMapper->id !== null && $userMapper->organization !== null
+                && ($organization === null || (int) $organization === (int) $userMapper->organization)
+                && !OrganizationMapper::existsNotDeletedByID((int) $userMapper->organization);
+            if ($keepsDeletedOrganization) {
+                $organization = (int) $userMapper->organization;
+            }
+
             //Validar que la organización sea obligatoria si el tipo la requiere (UserTypes::requiresOrganization())
             if ($organizationsEnabled && UserTypes::requiresOrganization((int) $userMapper->type)) {
                 if (!Validator::isInteger($organization) && !$isProfile) {
@@ -2103,7 +2119,7 @@ class UsersController extends AdminPanelController
                     return $response->withJson($result);
                 }
                 //Como en el alta: una que no existe llegaría a la clave foránea como error interno.
-                if (!$isProfile && !OrganizationMapper::existsByID((int) $organization)) {
+                if (!$isProfile && !$keepsDeletedOrganization && !OrganizationMapper::existsNotDeletedByID((int) $organization)) {
                     $result
                         ->setMessage(__(self::LANG_GROUP, 'La organización indicada no existe.'));
                     return $response->withJson($result);

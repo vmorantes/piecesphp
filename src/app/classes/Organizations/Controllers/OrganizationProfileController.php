@@ -90,8 +90,9 @@ class OrganizationProfileController extends AdminPanelController
         }
 
         //Una organización oculta (P136) es, para los demás, como una que no existe: solo la ven su encargado y root.
+        //Una eliminada, como una que no existe para todos (P380).
         $viewer = getLoggedFrameworkUser();
-        $visible = $organizationMapper->id !== null && ((int) ($organizationMapper->publicVisible ?? 1) !== 0
+        $visible = $organizationMapper->id !== null && (int) $organizationMapper->status !== OrganizationMapper::DELETED && ((int) ($organizationMapper->publicVisible ?? 1) !== 0
             || ($viewer !== null && ((int) $viewer->type === UsersModel::TYPE_USER_ROOT || ($adminUser !== null && (int) $adminUser->id === (int) $viewer->id))));
 
         if ($visible) {
@@ -111,7 +112,8 @@ class OrganizationProfileController extends AdminPanelController
             $data['langGroup'] = self::LANG_GROUP;
             $data['currentUser'] = getLoggedFrameworkUserOrFail();
             $data['organizationMapper'] = $organizationMapper;
-            $data['adminUser'] = $adminUser;
+            //Un encargado Eliminado no se enseña (P380); la visibilidad de arriba sigue leyendo `administrator`.
+            $data['adminUser'] = $organizationMapper->displayedAdministratorID() !== null ? $adminUser : null;
             $data['title'] = $title;
             $data['description'] = $description;
             $data['helpController'] = $this->helpController;

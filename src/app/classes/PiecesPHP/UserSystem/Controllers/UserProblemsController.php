@@ -290,8 +290,8 @@ class UserProblemsController extends UsersController
                 '=' => $username,
             ],
         ]);
-        //El usuario de sistema no pide códigos: para quien pide, no existe.
-        if ($usuario !== null && UsersModel::isSystemUser((int) $usuario->id)) {
+        //El usuario de sistema no pide códigos, y un eliminado tampoco (P380): para quien pide, no existen.
+        if ($usuario !== null && (UsersModel::isSystemUser((int) $usuario->id) || (int) $usuario->status === UsersModel::STATUS_USER_DELETED)) {
             $usuario = null;
         }
 
@@ -382,8 +382,9 @@ class UserProblemsController extends UsersController
 
                 $user = new UsersModel();
                 $user = $problems !== null ? $user->getByEmail($problems->email) : null;
-                //Una fila de la base (stdClass), y nunca el usuario de sistema.
-                $user = $user instanceof \stdClass && !UsersModel::isSystemUser((int) $user->id) ? $user : null;
+                //Una fila de la base (stdClass), y nunca el usuario de sistema ni un eliminado (P380): un código de antes
+                //de la baja responde como el de un usuario que ya no existe.
+                $user = $user instanceof \stdClass && !UsersModel::isSystemUser((int) $user->id) && (int) $user->status !== UsersModel::STATUS_USER_DELETED ? $user : null;
 
                 //Verificar que el usuario existe
                 if ($user !== null && $problems !== null) {

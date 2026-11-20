@@ -732,6 +732,23 @@ class DocumentsMapper extends EntityMapperExtensible
     }
 
     /**
+     * Lo eliminado (STATUS_INACTIVE) cuenta como inexistente para la interfaz (P380).
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function existsNotDeletedByID(int $id): bool
+    {
+        $model = self::model();
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('id', $id, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('status', self::STATUS_INACTIVE),
+        ]));
+        $model->execute();
+        return !empty($model->result());
+    }
+
+    /**
      * Verifica si existe algún registro igual
      *
      * @param string $documentName

@@ -12,6 +12,8 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Database\PreferSlugMinter;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
@@ -974,6 +976,23 @@ class NewsMapper extends EntityMapperExtensible
         $result = !empty($result) ? $result[0]->ids : null;
 
         return $result;
+    }
+
+    /**
+     * Lo eliminado (INACTIVE) cuenta como inexistente para la interfaz (P380).
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function existsNotDeletedByID(int $id): bool
+    {
+        $model = self::model();
+        $model->select()->where(new WhereSegment([
+            WhereItem::isEqual('id', $id, WhereItem::AND_OPERATOR),
+            WhereItem::isNotEqual('status', self::INACTIVE),
+        ]));
+        $model->execute();
+        return !empty($model->result());
     }
 
     /**

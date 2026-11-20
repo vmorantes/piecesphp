@@ -307,7 +307,7 @@ class DocumentsController extends AdminPanelController
 
         $element = new DocumentsMapper($id);
 
-        if ($element->id !== null && DocumentsMapper::existsByID($element->id)) {
+        if ($element->id !== null && DocumentsMapper::existsNotDeletedByID($element->id)) {
 
             import_simple_upload_placeholder();
             import_cropper();
@@ -559,7 +559,8 @@ class DocumentsController extends AdminPanelController
                     //Existente
 
                     $mapper = new DocumentsMapper((int) $id);
-                    $exists = !is_null($mapper->id);
+                    //Lo eliminado no se guarda: responde como lo que no existe (P380).
+                    $exists = $mapper->id !== null && DocumentsMapper::existsNotDeletedByID($mapper->id);
 
                     if ($exists) {
 
@@ -602,7 +603,23 @@ class DocumentsController extends AdminPanelController
                             $mapper->setLangData($lang, 'documentImage', $documentImage);
                         }
 
-                        $updated = $mapper->update();
+                        //Entre comprobar y guardar median las subidas: se bloquea la fila y se vuelve a mirar, o uno eliminado
+                        //entretanto se reescribiría (P380).
+                        $connection = $mapper->getModel()->getDatabase();
+                        if ($connection === null) {
+                            throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        }
+                        $connection->beginTransaction();
+                        try {
+                            $lock = $connection->prepare('SELECT status FROM `' . DocumentsMapper::TABLE . '` WHERE id = :id FOR UPDATE');
+                            $currentStatus = $lock->execute([':id' => $mapper->id]) ? $lock->fetchColumn() : false;
+                            $stillExists = $currentStatus !== false && (int) $currentStatus !== DocumentsMapper::STATUS_INACTIVE;
+                            $updated = $stillExists && $mapper->update();
+                            $updated = $connection->commit() && $updated;
+                        } catch (\Throwable $e) {
+                            $connection->rollBack();
+                            throw $e;
+                        }
 
                         $resultOperation->setSuccessOnSingleOperation($updated);
 
@@ -615,7 +632,7 @@ class DocumentsController extends AdminPanelController
 
                         } else {
 
-                            $resultOperation->setMessage($unknowErrorMessage);
+                            $resultOperation->setMessage($stillExists ? $unknowErrorMessage : $notExistsMessage);
 
                         }
 
@@ -727,8 +744,8 @@ class DocumentsController extends AdminPanelController
 
             try {
 
-                $element = new DocumentsMapper($id);
-                $exists = $element->id !== null;
+                //Eliminarlo otra vez responde como eliminar lo que no existe (P380).
+                $exists = DocumentsMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
 
@@ -1256,6 +1273,8 @@ class DocumentsController extends AdminPanelController
                     $allow = false;
                     $id = $params['id'];
                     $element = DocumentsMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $element = $element !== null && (int) $element->status !== DocumentsMapper::STATUS_INACTIVE ? $element : null;
 
                     if ($element !== null) {
 
@@ -1277,6 +1296,8 @@ class DocumentsController extends AdminPanelController
                     if ($id !== null) {
 
                         $element = DocumentsMapper::getBy($id, 'id');
+                        //Lo eliminado se trata como lo que no existe (P380): la acción responde «no existe».
+                        $element = $element !== null && (int) $element->status !== DocumentsMapper::STATUS_INACTIVE ? $element : null;
 
                         if ($element !== null) {
 

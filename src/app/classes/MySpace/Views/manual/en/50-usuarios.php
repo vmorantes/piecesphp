@@ -40,7 +40,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <tr>
 <td class="left aligned">Base organization</td>
 <td class="left aligned">Yes</td>
-<td class="left aligned">The organization the user belongs to</td>
+<td class="left aligned">The organization the user belongs to. If it was deleted, it shows as «(deleted)» and cannot be chosen: saving without changing it keeps it</td>
 </tr>
 <tr>
 <td class="left aligned">First name</td>

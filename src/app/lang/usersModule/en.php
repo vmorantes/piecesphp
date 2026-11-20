@@ -105,6 +105,7 @@ $lang = [
     "Se cerrarán todas las sesiones de %s." => "All sessions of %s will be closed.",
     "Cerrar todas sus sesiones" => "Close all their sessions",
     'Organización base' => 'Base organization',
+    '%s (eliminada)' => '%s (deleted)',
     'Datos personales' => 'Personal data',
     'Acceso' => 'Access',
     'Acceso total y configuración del sistema' => 'Full access and system configuration',

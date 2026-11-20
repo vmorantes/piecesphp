@@ -46,6 +46,7 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\TaskRunMapper;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
+use PiecesPHP\UserSystem\Authentication\RespondFirst;
 use PiecesPHP\UserSystem\Controllers\AvatarController;
 use PiecesPHP\UserSystem\Controllers\RecoveryPasswordController;
 use PiecesPHP\UserSystem\Controllers\UsersController;
@@ -1568,19 +1569,20 @@ class APIController extends AdminPanelController
 
             if ($parametros_ok) {
 
-                $usuario = $controller->requestRecoveryCode(trim((string) $params['username']), true);
-
-                $response = $response->withJson([
+                //Se responde ya y el código se crea y se envía después (RespondFirst): el tiempo no dice si el usuario existe.
+                $username = trim((string) $params['username']);
+                $response = RespondFirst::json($response, [
                     'send_mail' => true,
                     'error' => RecoveryPasswordController::NO_ERROR,
                     'message' => OTPRateLimiter::uniformOTPMessage(),
-                ]);
-
-                if ($usuario !== null) {
-                    LogsMapper::addLogSafe(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
-                        '%username%' => $usuario->username,
-                    ], 'id', $usuario->id, UsersModel::TABLE);
-                }
+                ], function () use ($controller, $username): void {
+                    $usuario = $controller->requestRecoveryCode($username, true);
+                    if ($usuario !== null) {
+                        LogsMapper::addLogSafe(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
+                            '%username%' => $usuario->username,
+                        ], 'id', $usuario->id, UsersModel::TABLE);
+                    }
+                });
             } else {
                 $response = $response->withJson([
                     'send_mail' => false,

@@ -203,7 +203,7 @@ class OrganizationsController extends AdminPanelController
 
         $element = new OrganizationMapper($id);
 
-        if ($element->id !== null && OrganizationMapper::existsByID($element->id)) {
+        if ($element->id !== null && OrganizationMapper::existsNotDeletedByID($element->id)) {
 
             remove_imported_asset('locations');
             import_locations([], false, true);
@@ -385,7 +385,8 @@ class OrganizationsController extends AdminPanelController
                 "status",
                 null,
                 function ($value) {
-                    return Validator::isInteger($value);
+                    //Eliminar es su propia acción: el estado 0 no se elige ni llega por POST (P380).
+                    return Validator::isInteger($value) && (int) $value !== OrganizationMapper::DELETED;
                 },
                 true,
                 function ($value) {
@@ -801,7 +802,8 @@ class OrganizationsController extends AdminPanelController
 
                     //Existente
                     $mapper = new OrganizationMapper((int) $id);
-                    $exists = !is_null($mapper->id);
+                    //Lo eliminado no se guarda: se responde como lo que no existe (P380).
+                    $exists = $mapper->id !== null && OrganizationMapper::existsNotDeletedByID($mapper->id);
                     $valueOnNotRequest = uniqid();
 
                     /* Comprobaciones en edición para no sobreescribir valores que no están ingresando en la solicitud */
@@ -921,7 +923,23 @@ class OrganizationsController extends AdminPanelController
                             $mapper->setLangData($lang, 'logo', $logo);
                         }
 
-                        $updated = $mapper->update();
+                        //Entre comprobar y guardar median las subidas: se bloquea la fila y se vuelve a mirar, o una eliminada
+                        //entretanto volvería con el estado que se guarda (P380).
+                        $connection = $mapper->getModel()->getDatabase();
+                        if ($connection === null) {
+                            throw new SafeException(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                        }
+                        $connection->beginTransaction();
+                        try {
+                            $lock = $connection->prepare('SELECT status FROM `' . OrganizationMapper::TABLE . '` WHERE id = :id FOR UPDATE');
+                            $currentStatus = $lock->execute([':id' => $mapper->id]) ? $lock->fetchColumn() : false;
+                            $stillExists = $currentStatus !== false && (int) $currentStatus !== OrganizationMapper::DELETED;
+                            $updated = $stillExists && $mapper->update();
+                            $updated = $connection->commit() && $updated;
+                        } catch (\Throwable $e) {
+                            $connection->rollBack();
+                            throw $e;
+                        }
                         $resultOperation->setSuccessOnSingleOperation($updated);
 
                         if ($updated) {
@@ -933,7 +951,7 @@ class OrganizationsController extends AdminPanelController
 
                         } else {
 
-                            $resultOperation->setMessage($unknowErrorMessage);
+                            $resultOperation->setMessage($stillExists ? $unknowErrorMessage : $notExistsMessage);
 
                         }
 
@@ -1124,7 +1142,7 @@ class OrganizationsController extends AdminPanelController
 
             try {
 
-                $exists = OrganizationMapper::existsByID($id);
+                $exists = OrganizationMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
 
@@ -1307,11 +1325,11 @@ class OrganizationsController extends AdminPanelController
         $whereString = null;
         $and = 'AND';
         $table = OrganizationMapper::TABLE;
-        $active = OrganizationMapper::ACTIVE;
-        $inactive = OrganizationMapper::INACTIVE;
+        $deleted = OrganizationMapper::DELETED;
 
+        //Lo eliminado no sale con ningún estado pedido, tampoco con status=0 (P380).
         $where = [
-            "{$table}.status != {$inactive}",
+            "{$table}.status != {$deleted}",
         ];
         //POR MARCADOR. La validación de dominio SE QUEDA: el `-1` cierra el dominio y el
         //marcador es la segunda línea de defensa, no la sustituta de la primera. Ver T163.
@@ -1446,6 +1464,11 @@ class OrganizationsController extends AdminPanelController
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
+
+        //Lo eliminado no sale en ningún listado, tampoco con status=0 o ANY (P380).
+        $deleted = OrganizationMapper::DELETED;
+        $beforeOperator = !empty($where) ? $and : '';
+        $where[] = "{$beforeOperator} ({$table}.status != {$deleted})";
 
         $boundValues = [];
         if ($name !== null) {
@@ -1589,6 +1612,8 @@ class OrganizationsController extends AdminPanelController
                     $id = Validator::isInteger($id) ? (int) $id : -1;
                     $initialInmutableID = OrganizationMapper::INITIAL_ID_GLOBAL;
                     $organization = OrganizationMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $organization = $organization !== null && (int) $organization->status !== OrganizationMapper::DELETED ? $organization : null;
 
                     if ($organization !== null && $initialInmutableID != $id) {
 
@@ -1607,6 +1632,8 @@ class OrganizationsController extends AdminPanelController
                     $id = ($getParam)('id');
                     $id = Validator::isInteger($id) ? (int) $id : -1;
                     $organization = OrganizationMapper::getBy($id, 'id');
+                    //Lo eliminado se niega como lo que no existe (P380).
+                    $organization = $organization !== null && (int) $organization->status !== OrganizationMapper::DELETED ? $organization : null;
                     //Una organización que no existe no tiene meta: no hay encargado, y el `if` de abajo niega.
                     $organizationMeta = $organization !== null ? json_decode($organization->meta) : null;
                     $organizationAdministratorID = is_object($organizationMeta) && property_exists($organizationMeta, 'administrator') ? $organizationMeta->administrator : -1;

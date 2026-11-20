@@ -325,8 +325,8 @@ class RecoveryPasswordController extends UsersController
                 '=' => $username,
             ],
         ]);
-        //El usuario de sistema no recupera nada: para quien pide, no existe.
-        return $usuario instanceof stdClass && !UsersModel::isSystemUser((int) $usuario->id) ? $usuario : null;
+        //El usuario de sistema no recupera nada, y un eliminado tampoco (P380): para quien pide, no existen.
+        return $usuario instanceof stdClass && !UsersModel::isSystemUser((int) $usuario->id) && (int) $usuario->status !== UsersModel::STATUS_USER_DELETED ? $usuario : null;
     }
 
     /**

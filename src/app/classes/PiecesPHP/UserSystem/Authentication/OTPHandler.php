@@ -105,11 +105,11 @@ class OTPHandler
      * @param BaseController $controller
      * @param string $username
      * @param string $relativeView
-     * @throws SafeException Si el usuario no existe o ocurre algún error
+     * @throws SafeException Si el usuario no existe (o está eliminado) o ocurre algún error
      */
     public static function generateOTP(BaseController $controller, string $username, string $relativeView = 'mails/otp-code')
     {
-        $userData = self::getUserDataByUsername($username);
+        $userData = self::getUserDataByUsernameUnlessDeleted($username);
         if ($userData !== null) {
 
             $code = generate_code(6, true);
@@ -256,5 +256,19 @@ class OTPHandler
         ]))->execute();
         $result = $model->result();
         return !empty($result) ? $result[0] : null;
+    }
+
+    /**
+     * La de getUserDataByUsername(), salvo un eliminado o el usuario de sistema, que dan null: las puertas sin sesión
+     * (generar el código de un uso, verificar el TOTP, el estado del doble factor) les responden como a uno que no existe
+     * (P380). El acceso (login) sigue con getUserDataByUsername(): ahí el estado lo decide su propia comprobación.
+     *
+     * @param string $username
+     * @return \stdClass|null
+     */
+    public static function getUserDataByUsernameUnlessDeleted(string $username)
+    {
+        $userData = self::getUserDataByUsername($username);
+        return $userData !== null && (int) $userData->status !== UsersModel::STATUS_USER_DELETED && !UsersModel::isSystemUser((int) $userData->id) ? $userData : null;
     }
 }

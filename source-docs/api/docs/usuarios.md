@@ -498,7 +498,7 @@ Ruta interna: `api-admin-users-actions` · acción `recovery-password`.
 
 Autenticación: sin sesión.
 
-Envía al correo del usuario un código para recuperar la contraseña. Responde igual exista o no el usuario, así que no sirve para saber si una cuenta existe: `send_mail` es true cuando los parámetros son correctos, exista o no el usuario. No usa sesión. El cuerpo debe traer solo username: con campos de más o de menos responde MISSING_OR_UNEXPECTED_PARAMS. Un código por usuario cada minuto y no más de cinco por hora; con el límite alcanzado no se envía nada y la respuesta es la misma. Solo con la bandera API_USERS.
+Envía al correo del usuario un código para recuperar la contraseña. Responde igual exista o no el usuario, así que no sirve para saber si una cuenta existe: `send_mail` es true cuando los parámetros son correctos, exista o no el usuario. A un usuario dado de baja no se le envía nada: cuenta como inexistente. No usa sesión. El cuerpo debe traer solo username: con campos de más o de menos responde MISSING_OR_UNEXPECTED_PARAMS. Un código por usuario cada minuto y no más de cinco por hora; con el límite alcanzado no se envía nada y la respuesta es la misma. Solo con la bandera API_USERS.
 
 ### Cuerpo
 

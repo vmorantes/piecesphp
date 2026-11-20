@@ -62,7 +62,9 @@ class AvatarController extends BaseController
         //imagen: sin permiso no importa qué se mande.
         if (!is_null($userId)) {
             $actor = new UsersModel(getLoggedFrameworkUserOrFail()->id);
-            if (!Validator::isInteger($userId) || !UsersController::canManageUser($actor, new UsersModel((int) $userId))) {
+            $target = Validator::isInteger($userId) ? new UsersModel((int) $userId) : null;
+            //El de un eliminado, como el de uno que no existe (P380).
+            if ($target === null || (int) $target->status === UsersModel::STATUS_USER_DELETED || !UsersController::canManageUser($actor, $target)) {
                 return throw403($request);
             }
         }

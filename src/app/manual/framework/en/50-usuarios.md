@@ -43,7 +43,7 @@ The creation form and the edit form are almost the same. When editing, the title
 
 | Field | Required | What it is for |
 | :-- | :-- | :-- |
-| Base organization | Yes | The organization the user belongs to |
+| Base organization | Yes | The organization the user belongs to. If it was deleted, it shows as «(deleted)» and cannot be chosen: saving without changing it keeps it |
 | First name | Yes | |
 | Second name | No | |
 | Surname | Yes | |

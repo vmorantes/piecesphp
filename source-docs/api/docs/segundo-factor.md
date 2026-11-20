@@ -12,7 +12,7 @@ Ruta interna: `user-system-features-check-totp`.
 
 Autenticación: sin sesión.
 
-Comprueba si un código del doble factor (o de seguridad) es válido para un usuario. No usa sesión. Un usuario que no existe recibe el mismo «Código inválido». Está limitada por intentos (otp_security): con el usuario o la IP bloqueados responde 429 con Retry-After antes de comprobar nada. Solo con el módulo UserSystemFeatures activo. La respuesta es HTTP 200 también cuando el código no vale.
+Comprueba si un código del doble factor (o de seguridad) es válido para un usuario. No usa sesión. Un usuario que no existe, uno dado de baja (aunque dé su código correcto) y el usuario de sistema reciben el mismo «Código inválido». Está limitada por intentos (otp_security): con el usuario o la IP bloqueados responde 429 con Retry-After antes de comprobar nada. Solo con el módulo UserSystemFeatures activo. La respuesta es HTTP 200 también cuando el código no vale.
 
 ### Cuerpo
 
@@ -127,7 +127,7 @@ Ruta interna: `user-system-features-generate-otp`.
 
 Autenticación: sin sesión.
 
-Genera un código de un uso y lo envía al correo del usuario; ese código sirve como contraseña en el inicio de sesión. Sin sesión y por GET: la usan también apps sin interfaz. Está limitada por intentos (otp_security): con el usuario o la IP bloqueados responde 429 con Retry-After. Con uniformResponse activo responde lo mismo exista o no el usuario y solo envía el código si existe; sin él, un usuario inexistente da USER_NO_EXISTS en values.error. Hay una espera mínima y un tope por hora de envíos por usuario; con el límite alcanzado no se envía nada y la respuesta es la de un envío. Solo con el módulo UserSystemFeatures activo.
+Genera un código de un uso y lo envía al correo del usuario; ese código sirve como contraseña en el inicio de sesión. Sin sesión y por GET: la usan también apps sin interfaz. Está limitada por intentos (otp_security): con el usuario o la IP bloqueados responde 429 con Retry-After. Con uniformResponse activo responde lo mismo exista o no el usuario y solo envía el código si existe; sin él, un usuario inexistente da USER_NO_EXISTS en values.error. Un usuario dado de baja cuenta como inexistente. Hay una espera mínima y un tope por hora de envíos por usuario; con el límite alcanzado no se envía nada y la respuesta es la de un envío. Solo con el módulo UserSystemFeatures activo.
 
 ### Parámetros
 
@@ -226,7 +226,7 @@ Ruta interna: `user-system-features-two-factor-auth-status`.
 
 Autenticación: sin sesión.
 
-La interfaz de acceso lo consulta antes de pedir el código del doble factor. No usa sesión. Residuo documentado: revela si un usuario existe y si tiene el segundo factor (un usuario inexistente da required false); lo acota el límite de intentos (otp_security): con el usuario o la IP bloqueados, 429 con Retry-After, y sondear nombres agota el límite. Solo con el módulo UserSystemFeatures activo.
+La interfaz de acceso lo consulta antes de pedir el código del doble factor. No usa sesión. Residuo documentado: revela si un usuario existe y si tiene el segundo factor (un usuario inexistente o dado de baja da required false); lo acota el límite de intentos (otp_security): con el usuario o la IP bloqueados, 429 con Retry-After, y sondear nombres agota el límite. Solo con el módulo UserSystemFeatures activo.
 
 ### Cuerpo
 

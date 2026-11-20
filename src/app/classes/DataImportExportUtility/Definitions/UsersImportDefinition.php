@@ -133,8 +133,7 @@ class UsersImportDefinition extends ImportDefinition
         $errors = [];
         $seenUsernames = [];
         $seenEmails = [];
-        $importer = getLoggedFrameworkUser();
-        $importerOrganization = $importer !== null ? $importer->organization : null;
+        $importerOrganization = self::importerOrganizationID();
         foreach ($rows as $row) {
             $position = $row->position();
             //La fila que se CITA es la del archivo (la 1 son los títulos); position cuenta las de datos.
@@ -180,8 +179,7 @@ class UsersImportDefinition extends ImportDefinition
      */
     public function persist(array $rows): ?ImportArtifacts
     {
-        $importer = getLoggedFrameworkUser();
-        $importerOrganization = $importer !== null ? $importer->organization : null;
+        $importerOrganization = self::importerOrganizationID();
 
         $pdo = UsersModel::model()::getDb(Config::app_db('default')['db']);
         if ($pdo === null) {
@@ -269,6 +267,18 @@ class UsersImportDefinition extends ImportDefinition
     }
 
     /**
+     * La organización que hereda una fila sin la suya: la de quien importa, o null si no tiene o está eliminada (P380).
+     *
+     * @return int|null
+     */
+    protected static function importerOrganizationID(): ?int
+    {
+        $importer = getLoggedFrameworkUser();
+        $organization = $importer !== null && $importer->organization !== null ? (int) $importer->organization : null;
+        return $organization !== null && OrganizationMapper::existsNotDeletedByID($organization) ? $organization : null;
+    }
+
+    /**
      * El id de la organización que nombra la celda, o null si no nombra ninguna que exista.
      *
      * Acepta el CÓDIGO público (`ORG` + 7 dígitos), que es lo que enseñan la plantilla y la documentación, y también
@@ -286,12 +296,14 @@ class UsersImportDefinition extends ImportDefinition
         }
 
         if (preg_match('/^-?\d+$/', $value) === 1) {
-            return OrganizationMapper::existsByID((int) $value) ? (int) $value : null;
+            return OrganizationMapper::existsNotDeletedByID((int) $value) ? (int) $value : null;
         }
 
         $code = mb_strtoupper($value);
+        //Una eliminada, como una que no existe (P380), también por su código.
+        $id = OrganizationMapper::codeIsWellFormed($code) ? OrganizationMapper::idByCode($code) : null;
 
-        return OrganizationMapper::codeIsWellFormed($code) ? OrganizationMapper::idByCode($code) : null;
+        return $id !== null && OrganizationMapper::existsNotDeletedByID($id) ? $id : null;
     }
 
     /**

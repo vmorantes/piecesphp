@@ -35,6 +35,9 @@ $typeClass = array_flip($typeConstants)[$typeCode] ?? "type-{$typeCode}";
 $hasOrganization = UserTypes::requiresOrganization($typeCode);
 $canPickOrganization = $hasOrganization && !$isProfile && OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type);
 $organizations = $canPickOrganization ? OrganizationMapper::all(false) : [];
+//Su organización eliminada se enseña, deshabilitada y elegida: sin ella el navegador elegía la primera y guardar lo movía.
+$currentOrganization = $canPickOrganization && !$isCreate && $edit_user->organization !== null ? OrganizationMapper::getBy($edit_user->organization, 'id') : null;
+$deletedOrganization = is_object($currentOrganization) && (int) $currentOrganization->status === OrganizationMapper::DELETED ? $currentOrganization : null;
 $userValue = fn(string $property): string => $isCreate ? '' : escape_html($edit_user->$property);
 $idOf = fn(string $inputName): string => "user-{$formMode}-{$inputName}";
 $textField = function (string $inputName, string $property, string $label, bool $required, string $type = 'text') use ($idOf, $userValue): void {
@@ -75,6 +78,9 @@ $textField = function (string $inputName, string $property, string $label, bool 
                 <?php endif; ?>
                 <select class="ui fluid dropdown" required name="organization" <?= ORGANIZATIONS_MODULE ? '' : 'hidden'; ?>>
                     <option value="" disabled><?= __($langGroup, 'Selecciona una organización'); ?></option>
+                    <?php if ($deletedOrganization !== null): ?>
+                    <option value="<?= (int) $deletedOrganization->id; ?>" disabled selected><?= sprintf(__($langGroup, '%s (eliminada)'), escape_html($deletedOrganization->name)); ?></option>
+                    <?php endif; ?>
                     <?php foreach ($organizations as $organization): ?>
                     <?php $selected = $isCreate ? $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL : $organization->id == $edit_user->organization; ?>
                     <option value="<?= $organization->id; ?>"<?= $selected ? ' selected' : ''; ?>><?= escape_html($organization->name); ?></option>

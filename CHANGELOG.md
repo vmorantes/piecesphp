@@ -1,3 +1,35 @@
+# 10.57.0 (20-11-2026)
+
+- **Lo eliminado es eliminado para todos, también en Banners, Noticias, Documentos, Categorías de formularios, Usuarios
+  y Organizaciones**: lo eliminado (en Usuarios, la baja propia) no se abre, no se guarda, no se vuelve a eliminar ni
+  se lista desde el panel, tampoco por su dirección ni pidiendo su estado; responde como lo que no existe. Guardar un
+  banner eliminado ya no lo vuelve a publicar; una noticia eliminada no se marca como leída; a un usuario dado de baja
+  no se le cierran sesiones; una organización eliminada no tiene perfil público ni «Mi organización», y el estado
+  «eliminada» ya no se puede elegir al guardar una organización. Todo sigue en la base como histórico.
+- **Seguridad: un usuario dado de baja cuenta como inexistente en todas las puertas de acceso**: la recuperación de
+  contraseña, el código de un uso, el usuario olvidado, la consulta del doble factor y la suplantación responden igual
+  que para un usuario que no existe, no le envían códigos ni correos y ya no permiten cambiarle la contraseña. Se
+  recomienda actualizar.
+- **Las puertas de acceso** (comprobar el código del doble factor, pedir un código de un uso, recuperar la contraseña,
+  el usuario olvidado) tratan también al usuario de sistema como uno que no existe: no se le guarda código ni se le
+  envía correo. Comprobar el doble factor de un usuario dado de baja responde como el de uno inexistente, aunque dé su
+  código correcto.
+- **Usuarios: la ficha de un usuario cuya organización se eliminó** la enseña marcada «(eliminada)», sin poder elegirla;
+  guardar sin cambiarla la conserva, y solo se puede pasar a una vigente. Antes, guardar esa ficha sin tocar la
+  organización movía al usuario a la organización base sin avisar: si tu instalación tiene usuarios de organizaciones
+  eliminadas cuya ficha se guardó, revisa su organización. La importación tampoco hereda la organización de quien
+  importa si está eliminada.
+- **Organizaciones eliminadas, fuera de todo lo vivo**: no salen en el Directorio, y no se puede asignar a ellas un
+  usuario desde el panel ni desde la importación (responde como una organización que no existe).
+- **Un encargado dado de baja cuenta como ausente**: el perfil de la organización y «Mi organización» ya no enseñan su
+  nombre, su imagen ni su correo, y «Mi organización» ofrece asignar otro encargado.
+- **Organizaciones**: la pestaña «Inactivas» del listado salía siempre vacía; ahora lista las organizaciones inactivas.
+- **Para quien consume la API**: la recuperación de contraseña (`/core/api/users/recovery-password/`) responde antes
+  de crear y enviar el código, como la del panel: el correo llega unos instantes después de la respuesta, y el cuerpo es
+  el mismo exista o no el usuario.
+- **Para quien consume la API**: en los listados de banners y de publicaciones, `status=ANY` es «cualquiera salvo
+  eliminado», y ningún valor de `status` devuelve lo eliminado.
+
 # 10.56.0 (20-11-2026)
 
 - **Seguridad: varias correcciones de visibilidad en Publicaciones y en las conexiones a servicios externos.** Se

@@ -43,7 +43,7 @@ El formulario de alta y el de edición son casi iguales. En la edición, el tít
 
 | Campo | Obligatorio | Para qué |
 | :-- | :-- | :-- |
-| Organización base | Sí | La organización a la que pertenece el usuario |
+| Organización base | Sí | La organización a la que pertenece el usuario. Si se eliminó, sale marcada «(eliminada)» y no se puede elegir: guardar sin cambiarla la conserva |
 | Primer nombre | Sí | |
 | Segundo nombre | No | |
 | Primer apellido | Sí | |

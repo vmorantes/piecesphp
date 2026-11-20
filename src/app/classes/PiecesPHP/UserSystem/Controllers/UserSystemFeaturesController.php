@@ -108,7 +108,7 @@ class UserSystemFeaturesController extends AdminPanelController
 
         //La espera mínima y el tope por hora de los envíos, por usuario: su nombre y su correo cuentan juntos. Con el
         //límite no se genera ni se envía, y se responde como un envío: no dice nada nuevo.
-        $sendTarget = OTPHandler::getUserDataByUsername($username);
+        $sendTarget = OTPHandler::getUserDataByUsernameUnlessDeleted($username);
         if ($sendTarget !== null && OTPRateLimiter::sendLimitReached([(string) $sendTarget->username, (string) $sendTarget->email])) {
             $resultOperation->setSuccessOnSingleOperation(true);
             $resultOperation->setMessage(OTPRateLimiter::uniformOTPMessage());
@@ -146,7 +146,7 @@ class UserSystemFeaturesController extends AdminPanelController
      */
     private function sendOTPAfterResponse(string $username): void
     {
-        $sendTarget = OTPHandler::getUserDataByUsername($username);
+        $sendTarget = OTPHandler::getUserDataByUsernameUnlessDeleted($username);
         if ($sendTarget !== null && OTPRateLimiter::sendLimitReached([(string) $sendTarget->username, (string) $sendTarget->email])) {
             OTPRateLimiter::record(OTPRateLimiter::VIA_GENERATE_OTP, null, $username, false, __(self::LANG_GROUP, 'Límite de envíos del código alcanzado.'));
             return;
@@ -280,7 +280,8 @@ class UserSystemFeaturesController extends AdminPanelController
         if ($secondsToUnlock > 0) {
             return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_CHECK_TOTP, $username, $secondsToUnlock);
         }
-        $valid = OTPHandler::checkValidityTOTP($totp, $username);
+        //Un eliminado o el de sistema, como uno que no existe (P380): sin mirar su código ni su respaldo.
+        $valid = OTPHandler::getUserDataByUsernameUnlessDeleted($username) !== null && OTPHandler::checkValidityTOTP($totp, $username);
         $okMessage = __(self::LANG_GROUP, 'Código aceptado.');
         $badMessage = __(self::LANG_GROUP, 'Código inválido.');
         $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Verificación de TOTP'));
@@ -316,8 +317,9 @@ class UserSystemFeaturesController extends AdminPanelController
             return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_TWO_FACTOR_STATUS, $username, $secondsToUnlock);
         }
 
-        //Sin nombre no se consulta: username = '' OR email = '' podría dar con un usuario sin correo.
-        $userData = $username !== '' ? OTPHandler::getUserDataByUsername($username) : null;
+        //Sin nombre no se consulta: username = '' OR email = '' podría dar con un usuario sin correo. Un eliminado, como
+        //uno que no existe (P380).
+        $userData = $username !== '' ? OTPHandler::getUserDataByUsernameUnlessDeleted($username) : null;
         $userID = $userData !== null ? (int) $userData->id : -1;
         OTPRateLimiter::record(OTPRateLimiter::VIA_TWO_FACTOR_STATUS, $userData !== null ? $userID : null, $username, $userData !== null, '');
 
