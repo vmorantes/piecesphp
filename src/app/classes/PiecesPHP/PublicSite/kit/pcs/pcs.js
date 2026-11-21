@@ -324,6 +324,21 @@
 	}
 
 	//Un {{campo}} en on*, style, <script> o <style> no se sustituye: ahí el escapado no protege, y el servidor tampoco.
+	//Lo mismo que Compiler::isUnsafeFieldAttribute(): el href de MathML, <meta http-equiv=refresh> y las animaciones SVG.
+	var ANIMATION_ELEMENTS = ['set', 'animate', 'animatetransform', 'animatemotion']
+	var ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values']
+
+	function unsafeElsewhere(element, name) {
+		var tag = element.localName.toLowerCase()
+		if (name === 'content' && tag === 'meta' && (element.getAttribute('http-equiv') || '').trim().toLowerCase() === 'refresh') {
+			return true
+		}
+		if (ANIMATION_VALUE_ATTRIBUTES.indexOf(name) !== -1 && ANIMATION_ELEMENTS.indexOf(tag) !== -1) {
+			return true
+		}
+		return (name === 'href' || name === 'xlink:href') && !!element.closest('math')
+	}
+
 	function unsafePlaceholder(content) {
 		var elements = content.querySelectorAll('*')
 		for (var i = 0; i < elements.length; i++) {
@@ -333,7 +348,7 @@
 			}
 			for (var k = 0; k < element.attributes.length; k++) {
 				var name = element.attributes[k].name.toLowerCase()
-				var dangerous = name.indexOf('on') === 0 || name === 'style' || name === 'srcdoc' || (name === 'data' && element.localName === 'object')
+				var dangerous = name.indexOf('on') === 0 || name === 'style' || name === 'srcdoc' || (name === 'data' && element.localName === 'object') || unsafeElsewhere(element, name)
 				if (dangerous && element.attributes[k].value.indexOf('{{') !== -1) {
 					return name
 				}

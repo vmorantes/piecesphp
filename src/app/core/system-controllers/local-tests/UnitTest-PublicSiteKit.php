@@ -311,6 +311,33 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $renderImage = (string) substr($previewStripped, (int) strpos($previewStripped, 'function renderImage('), 700);
     $unsafeFunction = (string) substr($previewStripped, (int) strpos($previewStripped, 'function unsafePlaceholder('), 900);
     $check(str_contains($renderImage, "Object.keys(rules().marks['pcs-image'].attributes") && !str_contains($renderImage, 'copyAttributes(') && str_contains($unsafeFunction, "name === 'srcdoc'") && str_contains($unsafeFunction, "name === 'data' && element.localName === 'object'") && ($rules['marks']['pcs-image']['passesGlobalAttributes'] ?? null) === false, 'm15 la vista previa copia a la <img> solo lo que declara rules.json, y no pinta la lista con un {{campo}} en srcdoc o en el data de <object>');
+
+    //El resto de la clase de srcdoc: el href de MathML, <meta http-equiv=refresh> y los valores de las animaciones SVG.
+    $f1Cases = [
+        'math-href' => ['<math><mi href="{{url}}">x</mi></math>', true], 'math-xlink' => ['<math><mrow><mi xlink:href="{{url}}">x</mi></mrow></math>', true], 'math-self' => ['<math href="{{url}}"><mi>x</mi></math>', true],
+        'meta-refresh' => ['<meta http-equiv="Refresh" content="0;url={{url}}">', true], 'svg-set' => ['<svg><a><set attributeName="href" to="{{url}}"></set></a></svg>', true], 'svg-animate-values' => ['<svg><animate attributeName="href" values="{{url}}"></animate></svg>', true],
+        'svg-animate-from' => ['<svg><animate attributeName="x" from="{{title}}"></animate></svg>', true], 'svg-transform' => ['<svg><animateTransform attributeName="transform" to="{{title}}"></animateTransform></svg>', true], 'svg-motion' => ['<svg><animateMotion values="{{title}}"></animateMotion></svg>', true],
+        'meta-name' => ['<meta name="description" content="{{title}}">', false], 'a-href' => ['<a href="{{url}}">x</a>', false], 'svg-rect' => ['<svg><rect width="{{title}}"></rect></svg>', false],
+    ];
+    $f1Files = ['site/.pcs/pcs.js' => $embedFiles['site/.pcs/pcs.js'], 'site/data/zz.js' => $embedFiles['site/data/zz.js']];
+    foreach ($f1Cases as $case => [$inner]) {
+        $f1Files["site/{$case}.html"] = ['text' => '<!DOCTYPE html><html><head><title>t</title><script src=".pcs/pcs.js"></script></head><body><pcs-list resource="zz"><template>' . $inner . '</template></pcs-list></body></html>'];
+    }
+    $f1Run = function (string $checkSource) use ($node, $pcs, $f1Files, $f1Cases): array {
+        $refused = array_fill_keys(array_keys($f1Cases), false);
+        foreach ($node($checkSource, $pcs, [], $f1Files)['problems'] ?? [] as $problem) {
+            $case = basename((string) $problem['file'], '.html');
+            if (($problem['level'] ?? '') === 'error' && ($problem['fix'] ?? '') !== '' && str_contains((string) $problem['message'], 'está dentro del atributo') && array_key_exists($case, $refused)) {
+                $refused[$case] = true;
+            }
+        }
+        return $refused;
+    };
+    $f1Got = $f1Run($checkJs);
+    $check($f1Got === array_map(fn (array $case): bool => $case[1], $f1Cases), 'm16 CHECK da error por un {{campo}} en el href de MathML, el content de <meta http-equiv=refresh> o to/from/values de set/animate/animateTransform/animateMotion; el content de otro meta, el href de un <a> o el width de un <rect>, no', (string) json_encode($f1Got));
+    $animationLists = fn (string $source): bool => str_contains($source, "var ANIMATION_ELEMENTS = ['" . implode("', '", \PiecesPHP\PublicSite\Compiler::ANIMATION_ELEMENTS) . "']") && str_contains($source, "var ANIMATION_VALUE_ATTRIBUTES = ['" . implode("', '", \PiecesPHP\PublicSite\Compiler::ANIMATION_VALUE_ATTRIBUTES) . "']");
+    $unsafeElsewhere = (string) substr($previewStripped, (int) strpos($previewStripped, 'function unsafeElsewhere('), 700);
+    $check(str_contains($unsafeFunction . $previewStripped, '|| unsafeElsewhere(element, name)') && str_contains($unsafeElsewhere, "=== 'refresh'") && str_contains($unsafeElsewhere, "element.closest('math')") && $animationLists($previewStripped) && $animationLists($checkJs), 'm17 la vista previa no pinta la lista en esos mismos casos (unsafeElsewhere), y pcs.js y check.js usan las listas de animaciones de Compiler');
     echoTerminal(' ');
 
     echoTerminal('[5/6] El sitio de ejemplo');

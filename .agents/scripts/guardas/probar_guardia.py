@@ -22,7 +22,9 @@ HERMANO = os.path.join(PADRE, "database")
 HTML = os.path.join(PADRE, "html")
 AJENO = os.path.join(PADRE, "otro-proyecto")
 GUIA = os.path.join(PADRE, "guia-piecesphp-para-po")
+GEOJSON = os.path.join(PADRE, "geojson")
 CAPTURAS_PO = os.path.join(os.path.expanduser("~"), "Documentos", "PiecesPHP")
+IFCOL = os.path.join(os.path.expanduser("~"), "Documentos", "MigracionIfcol")
 
 # En un clon de la distribución (ADR 0049) no están la historia de este repositorio ni la guía del PO: los casos que
 # las usan no prueban nada ahí, y se dicen uno a uno en vez de fallar o de callarse.
@@ -38,6 +40,64 @@ def no_aplica_en_clon(caso):
         print(f"[NO APLICA EN LA DISTRIBUCIÓN] {texto.splitlines()[0]}: usa la historia del repositorio de desarrollo o la guía del PO")
         return True
     return False
+
+
+# patrones lee los entregables del json de CLAUDE_PROJECT_DIR al importarse: que sea el de este árbol.
+os.environ["CLAUDE_PROJECT_DIR"] = RAIZ
+sys.path.insert(0, AQUI)
+import proyecto  # noqa: E402
+from patrones import es_entregable  # noqa: E402
+
+# Un caso que solo vale con lo que declara el json del proyecto (ADR 0071) corre si el json lo declara; en un clon con
+# el registro vacío se salta y se dice, en vez de fallar. Polaridad: lo que permite pide la declaración que permite.
+_GUARDA = (proyecto.cargar(RAIZ)[0] or {}).get("guard", {})
+_COMPOSER = [d for d in _GUARDA.get("allowed_dependencies", []) if d["manager"] == "composer" and d["command"] == "update"]
+
+
+class Condicionado:
+    def __init__(self, caso, requisitos):
+        self.caso, self.requisitos = caso, requisitos
+
+
+def si(caso, *requisitos):
+    return Condicionado(caso, requisitos)
+
+
+def hermano(ruta, etiqueta=False, rama=None):
+    declarado = any(
+        os.path.normpath(os.path.join(RAIZ, r["path"])) == os.path.normpath(ruta)
+        and (r["can_tag"] or not etiqueta) and (rama is None or rama in r["creatable_branches"])
+        for r in _GUARDA.get("sibling_repositories", [])
+    )
+    detalle = (" con can_tag" if etiqueta else "") + (f" y la rama creable {rama}" if rama else "")
+    return f"sibling_repositories {os.path.relpath(ruta, RAIZ)}{detalle}", declarado
+
+
+def escribible(ruta):
+    declarado = any(os.path.normpath(os.path.expanduser(w["path"])) == os.path.normpath(ruta) for w in _GUARDA.get("writable_paths", []))
+    return f"writable_paths {ruta}", declarado
+
+
+def composer(*paquetes):
+    # Como guardia.py: piecesphp/* cuenta si su entrada nombra `src`; una herramienta, si la suya no.
+    def declarado(p):
+        return any(p in d["packages"] and (("src" in d["directories"]) == p.startswith("piecesphp/")) for d in _COMPOSER)
+    return f"allowed_dependencies composer update {' '.join(paquetes)}", all(declarado(p) for p in paquetes)
+
+
+def guion(nombre):
+    return f"banned_scripts {nombre}", nombre in _GUARDA.get("banned_scripts", [])
+
+
+def lectura(patron):
+    return f"forbidden_reads {patron}", patron in _GUARDA.get("forbidden_reads", [])
+
+
+def entregable(relativa):
+    return f"deliverables {relativa}", es_entregable(relativa)
+
+
+SECRETOS = lectura("secure-keys/*")
 
 BASH_BLOQUEA = [
     # Un heredoc que recibe un INTÉRPRETE sí son órdenes: la exención de #610 no lo alcanza.
@@ -56,9 +116,9 @@ BASH_BLOQUEA = [
     "git fetch origin",
     "git pull",
     "git ls-remote origin",
-    "bin/push-all",
-    "./bin/push-all",
-    "bash bin/push-all",
+    si("bin/push-all", guion("push-all")),
+    si("./bin/push-all", guion("push-all")),
+    si("bash bin/push-all", guion("push-all")),
     "gh release create v8.0.0",
     # Etiquetas: lo DESTRUCTIVO sigue siendo punto serio (20 §2). Crear la estable ya NO lo es: el ADR 0031
     # la delego en arquitecto y coder, y esos tres casos viven ahora entre los permitidos.
@@ -295,8 +355,8 @@ BASH_BLOQUEA = [
     "php -d memory_limit=-1 /usr/bin/composer require vendor/x",
     "php8.5 composer.phar install",
     "systemctl restart apache2",
-    "bash permissions-and-property.sh",
-    "./permissions-and-property.sh",
+    si("bash permissions-and-property.sh", guion("permissions-and-property.sh")),
+    si("./permissions-and-property.sh", guion("permissions-and-property.sh")),
     "rm -rf /",
     "rm -rf ~",
     "rm -rf $HOME/x",
@@ -309,25 +369,25 @@ BASH_BLOQUEA = [
     "rm -rf /tmp",
     "rm -rf /tmp/",
     f"rm -rf {os.path.expanduser('~')}/.claude/projects",
-    f"rm -rf {HERMANO}",
+    si(f"rm -rf {HERMANO}", hermano(HERMANO)),
     f"rm -rf {PADRE}",
     # La raíz del repositorio de la guía del PO tampoco (ADR 0016).
-    f"rm -rf {GUIA}",
+    si(f"rm -rf {GUIA}", hermano(GUIA)),
     # Ni la de sus capturas, ni un nombre que solo empieza como ella (ADR 0058).
-    f"rm -rf {CAPTURAS_PO}",
-    f"cp /tmp/x.png {CAPTURAS_PO}-x/x.png",
+    si(f"rm -rf {CAPTURAS_PO}", escribible(CAPTURAS_PO)),
+    si(f"cp /tmp/x.png {CAPTURAS_PO}-x/x.png", escribible(CAPTURAS_PO)),
     # Una redirección no esconde una rama nueva ni una instalación.
     "git branch nueva 2>&1",
     "python3 -m pip install mkdocs 2>/dev/null",
     "python3 -m ensurepip",
     # secure-keys/ no se lee desde Bash (40-salvaguardas.md §7): settings.json solo niega Read.
-    "cat secure-keys/cronjob",
-    "cat ./src/../secure-keys/cronjob",
-    f"cat {RAIZ}/secure-keys/cronjob",
-    "cd secure-keys && cat cronjob",
-    "ls secure-keys",
-    "grep -r clave secure-keys",
-    "cp secure-keys/cronjob /tmp/x",
+    si("cat secure-keys/cronjob", SECRETOS),
+    si("cat ./src/../secure-keys/cronjob", SECRETOS),
+    si(f"cat {RAIZ}/secure-keys/cronjob", SECRETOS),
+    si("cd secure-keys && cat cronjob", SECRETOS),
+    si("ls secure-keys", SECRETOS),
+    si("grep -r clave secure-keys", SECRETOS),
+    si("cp secure-keys/cronjob /tmp/x", SECRETOS),
     "echo x > /etc/apache2/sites-enabled/x.conf",
     # Redirecciones: /dev/null y 2>&1 no son destino, pero una redirección a otro sitio sí (pendientes.md 51).
     "mkdir -p /var/tmp/zz 2>/dev/null",
@@ -400,23 +460,29 @@ BASH_PERMITE = [
     "git stash",
     "git -C /var/www/html/vicsen/database status --short",
     # P19 (PO, 2026-09-14): en los paquetes se etiqueta, y todos llevan `dev`.
-    f"git -C {HERMANO} tag -a v4.1.1 -m 'v4.1.1'",
-    f"git -C {HTML} branch dev master",
-    f"git -C {HTML} branch dev",
+    si(f"git -C {HERMANO} tag -a v4.1.1 -m 'v4.1.1'", hermano(HERMANO, etiqueta=True)),
+    si(f"git -C {HTML} branch dev master", hermano(HTML, rama="dev")),
+    si(f"git -C {HTML} branch dev", hermano(HTML, rama="dev")),
     "php8.5 -l src/index.php",
     # ADR 0007: actualizar las herramientas de análisis.
-    "composer update phpstan/phpstan phpstan/phpstan-deprecation-rules --with-dependencies --working-dir=/var/www/html/vicsen/database",
-    "composer update rector/rector -W --working-dir=bin/tools",
-    "composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --with-dependencies --working-dir=/var/www/html/vicsen/html",
-    "php8.5 /usr/bin/composer update phpstan/phpstan:2.2.12 --working-dir=/var/www/html/vicsen/geojson",
+    si(f"composer update phpstan/phpstan phpstan/phpstan-deprecation-rules --with-dependencies --working-dir={HERMANO}",
+       composer("phpstan/phpstan", "phpstan/phpstan-deprecation-rules")),
+    si("composer update rector/rector -W --working-dir=bin/tools", composer("rector/rector")),
+    si(f"composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --with-dependencies --working-dir={HTML}",
+       composer("phpstan/phpstan", "rector/rector")),
+    si(f"php8.5 /usr/bin/composer update phpstan/phpstan:2.2.12 --working-dir={GEOJSON}", composer("phpstan/phpstan")),
     # Capturar la salida no convierte la redirección en un paquete (H1 de #017).
-    "composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir=/var/www/html/vicsen/html > /tmp/composer-html.txt 2>&1",
-    "composer update rector/rector:2.6.6 2> /tmp/err.txt",
-    "composer update piecesphp/database --working-dir=src --no-scripts",
-    f"composer update piecesphp/database piecesphp/html --working-dir={RAIZ}/src --no-scripts",
+    si(f"composer update phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir={HTML} > /tmp/composer-html.txt 2>&1",
+       composer("phpstan/phpstan", "rector/rector")),
+    si("composer update rector/rector:2.6.6 2> /tmp/err.txt", composer("rector/rector")),
+    si("composer update piecesphp/database --working-dir=src --no-scripts", composer("piecesphp/database")),
+    si(f"composer update piecesphp/database piecesphp/html --working-dir={RAIZ}/src --no-scripts",
+       composer("piecesphp/database", "piecesphp/html")),
     # ADR 0008: sincronizar el entorno local de un paquete hermano.
-    f"composer update piecesphp/datastructures phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir={HTML}",
-    f"composer update piecesphp/datastructures:4.0.0 --working-dir={HTML} > /tmp/c.txt 2>&1",
+    si(f"composer update piecesphp/datastructures phpstan/phpstan:2.2.12 rector/rector:2.6.6 --working-dir={HTML}",
+       composer("piecesphp/datastructures", "phpstan/phpstan", "rector/rector"), hermano(HTML, etiqueta=True)),
+    si(f"composer update piecesphp/datastructures:4.0.0 --working-dir={HTML} > /tmp/c.txt 2>&1",
+       composer("piecesphp/datastructures"), hermano(HTML, etiqueta=True)),
     "php8.5 bin/cli verify-integrity",
     "bin/cli verify-integrity",
     "bin/cli gates",
@@ -428,10 +494,10 @@ BASH_PERMITE = [
     "rm -rf /tmp/prueba",
     "rm -rf /tmp/zz-prueba/sub",
     f"rm -rf {RAIZ}/src/app/cache/zz-algo",
-    f"rm -rf {HERMANO}/zz-algo",
-    f"rm -rf {GUIA}/site",
-    f"rm -rf {CAPTURAS_PO}/todas-1920x1080",
-    f"cp -r /tmp/pcsphp-capturas/todas {CAPTURAS_PO}/todas-1920x1080",
+    si(f"rm -rf {HERMANO}/zz-algo", hermano(HERMANO)),
+    si(f"rm -rf {GUIA}/site", hermano(GUIA)),
+    si(f"rm -rf {CAPTURAS_PO}/todas-1920x1080", escribible(CAPTURAS_PO)),
+    si(f"cp -r /tmp/pcsphp-capturas/todas {CAPTURAS_PO}/todas-1920x1080", escribible(CAPTURAS_PO)),
     # Leer la rama con una redirección no es crearla (la regla 30 dicta esta forma para los paquetes).
     "git branch --show-current 2>&1",
     f"git -C {HERMANO} --no-optional-locks branch --show-current 2>&1",
@@ -517,13 +583,15 @@ ESCRITURA_BLOQUEA = [
     {"file_path": "/etc/apache2/sites-enabled/x.conf", "content": "x"},
     {"file_path": os.path.join(os.path.expanduser("~"), ".bashrc"), "content": "x"},
     {"file_path": os.path.join(RAIZ, ".git/config"), "content": "x"},
-    {"file_path": os.path.join(RAIZ, "src/app/classes/News/NewsController.php"), "content": "<?php // Generated with Claude"},
-    {"file_path": os.path.join(RAIZ, "README.md"), "old_string": "a", "new_string": "Co-Authored-By: Claude <noreply@anthropic.com>"},
-    {"file_path": os.path.join(RAIZ, "CHANGELOG.md"), "content": "- 🤖 cambios"},
-    {"file_path": os.path.join(RAIZ, "source-docs/x.md"), "content": "Esta guía fue generada por IA."},
+    si({"file_path": os.path.join(RAIZ, "src/app/classes/News/NewsController.php"), "content": "<?php // Generated with Claude"},
+       entregable("src/app/classes/News/NewsController.php")),
+    si({"file_path": os.path.join(RAIZ, "README.md"), "old_string": "a", "new_string": "Co-Authored-By: Claude <noreply@anthropic.com>"},
+       entregable("README.md")),
+    si({"file_path": os.path.join(RAIZ, "CHANGELOG.md"), "content": "- 🤖 cambios"}, entregable("CHANGELOG.md")),
+    si({"file_path": os.path.join(RAIZ, "source-docs/x.md"), "content": "Esta guía fue generada por IA."}, entregable("source-docs/x.md")),
     # Un nombre que empieza como el de la guía no hereda su permiso.
-    {"file_path": GUIA + "-x/docs/index.md", "content": "x"},
-    {"file_path": CAPTURAS_PO + "-x/LEEME.md", "content": "x"},
+    si({"file_path": GUIA + "-x/docs/index.md", "content": "x"}, hermano(GUIA)),
+    si({"file_path": CAPTURAS_PO + "-x/LEEME.md", "content": "x"}, escribible(CAPTURAS_PO)),
     {"file_path": os.path.expanduser("~/Documentos/otra/plan.md"), "content": "x"},
 ]
 
@@ -535,10 +603,10 @@ ESCRITURA_PERMITE = [
     {"file_path": os.path.join(RAIZ, ".agents/estado/AHORA.md"), "content": "Coder (Claude Code / Opus 5)"},
     {"file_path": os.path.join(RAIZ, "CLAUDE.md"), "content": "Reglas del proyecto."},
     {"file_path": "/tmp/banco/x.php", "content": "<?php"},
-    {"file_path": os.path.join(HERMANO, "src/Nuevo.php"), "content": "<?php"},
-    {"file_path": os.path.join(GUIA, "docs/index.md"), "content": "# Empieza aquí"},
-    {"file_path": os.path.join(CAPTURAS_PO, "LEEME.md"), "content": "# Capturas del panel"},
-    {"file_path": os.path.expanduser("~/Documentos/MigracionIfcol/plan.md"), "content": "x"},
+    si({"file_path": os.path.join(HERMANO, "src/Nuevo.php"), "content": "<?php"}, hermano(HERMANO)),
+    si({"file_path": os.path.join(GUIA, "docs/index.md"), "content": "# Empieza aquí"}, hermano(GUIA)),
+    si({"file_path": os.path.join(CAPTURAS_PO, "LEEME.md"), "content": "# Capturas del panel"}, escribible(CAPTURAS_PO)),
+    si({"file_path": os.path.join(IFCOL, "plan.md"), "content": "x"}, escribible(IFCOL)),
 ]
 
 
@@ -592,7 +660,14 @@ def fallo_cerrado():
 
     with open(os.path.join(RAIZ, ".agents", "project-architect-coder.json"), encoding="utf-8") as f:
         valido = f.read()
-    otras = {"prose": "{", "clave desconocida": valido.replace('"project":', '"proyect":')}
+
+    # Las variantes salen del json leído, no de su texto: así no dependen de su formato ni de lo que declare.
+    def variante(cambio):
+        datos = json.loads(valido)
+        cambio(datos)
+        return json.dumps(datos)
+
+    otras = {"prose": "{", "clave desconocida": variante(lambda d: d.update(proyect=d.pop("project")))}
     probar(valido, "Bash", {"command": "ls"}, 0, "válido, permite")
     probar(valido, "Bash", {"command": "sudo ls"}, 2, "válido, sigue bloqueando")
     probar(None, "Bash", {"command": "ls"}, 2, "ausente, bloquea")
@@ -601,11 +676,12 @@ def fallo_cerrado():
     for nombre, contenido in otras.items():
         probar(contenido, "Bash", {"command": "ls"}, 2, f"{nombre}, bloquea")
         probar(contenido, "Edit", {"file_path": config, "old_string": "a", "new_string": "b"}, 0, f"{nombre}, deja arreglarlo")
-    comodin = valido.replace('"secure-keys/*"', '"**/.env"')
+    comodin = variante(lambda d: d["guard"].update(forbidden_reads=["**/.env"]))
     probar(comodin, "Bash", {"command": "ls"}, 2, "lectura prohibida que no se sabe aplicar, bloquea")
-    sin_ruta = valido.replace('"banned_scripts": ["push-all", "permissions-and-property.sh"]', '"banned_scripts": []')
+    sin_ruta = variante(lambda d: d["guard"].update(banned_scripts=[]))
     probar(sin_ruta, "Bash", {"command": "bin/push-all"}, 0, "sin guiones vetados, permite")
-    probar(valido, "Bash", {"command": "bin/push-all"}, 2, "con guiones vetados, bloquea")
+    con_ruta = variante(lambda d: d["guard"].update(banned_scripts=["push-all"]))
+    probar(con_ruta, "Bash", {"command": "bin/push-all"}, 2, "con guiones vetados, bloquea")
     shutil.rmtree(raiz)
     return fallos, 13
 
@@ -613,32 +689,31 @@ def fallo_cerrado():
 def main():
     preparar_archivos_de_opciones()
     fallos, cerrado = fallo_cerrado()
-    omitidos = 0
-    for c in BASH_BLOQUEA:
-        if no_aplica_en_clon(c):
-            omitidos += 1
-        elif llamar("Bash", {"command": c}) != 2:
-            fallos.append(f"debía bloquear: {c}")
-    for c in BASH_PERMITE:
-        if no_aplica_en_clon(c):
-            omitidos += 1
-        elif llamar("Bash", {"command": c}) != 0:
-            fallos.append(f"debía permitir: {c}")
-    for e in ESCRITURA_BLOQUEA:
-        if no_aplica_en_clon(e):
-            omitidos += 1
-        elif llamar("Write", e) != 2:
-            fallos.append(f"debía bloquear escritura: {e['file_path']}")
-    for e in ESCRITURA_PERMITE:
-        if no_aplica_en_clon(e):
-            omitidos += 1
-        elif llamar("Write", e) != 0:
-            fallos.append(f"debía permitir escritura: {e['file_path']}")
-    total = len(BASH_BLOQUEA) + len(BASH_PERMITE) + len(ESCRITURA_BLOQUEA) + len(ESCRITURA_PERMITE) - omitidos + cerrado
+    omitidos = no_declarados = 0
+    lotes = (
+        (BASH_BLOQUEA, "Bash", 2, "debía bloquear"),
+        (BASH_PERMITE, "Bash", 0, "debía permitir"),
+        (ESCRITURA_BLOQUEA, "Write", 2, "debía bloquear escritura"),
+        (ESCRITURA_PERMITE, "Write", 0, "debía permitir escritura"),
+    )
+    for lista, herramienta, esperado, mensaje in lotes:
+        for elemento in lista:
+            caso = elemento.caso if isinstance(elemento, Condicionado) else elemento
+            texto = caso if isinstance(caso, str) else caso["file_path"]
+            faltan = [d for d, ok in getattr(elemento, "requisitos", ()) if not ok]
+            if no_aplica_en_clon(caso):
+                omitidos += 1
+            elif faltan:
+                print(f"[NO APLICA EN ESTE PROYECTO] {texto.splitlines()[0]} : el json no declara {'; '.join(faltan)}")
+                no_declarados += 1
+            elif llamar(herramienta, {"command": caso} if isinstance(caso, str) else caso) != esperado:
+                fallos.append(f"{mensaje}: {texto}")
+    total = sum(len(lote[0]) for lote in lotes) - omitidos - no_declarados + cerrado
     for f in fallos:
         print(f"FALLO {f}")
     print(f"guardia: {total - len(fallos)}/{total} casos correctos"
-          + (f", {omitidos} que no aplican en la distribución" if omitidos else ""))
+          + (f", {omitidos} que no aplican en la distribución" if omitidos else "")
+          + (f", {no_declarados} que no aplican en este proyecto" if no_declarados else ""))
     return 1 if fallos else 0
 
 

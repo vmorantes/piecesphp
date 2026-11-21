@@ -1,3 +1,7 @@
+# 10.61.0 (20-11-2026)
+
+- **Seguridad: más refuerzos en las listas del sitio público por marcas.** Se recomienda actualizar.
+
 # 10.60.0 (20-11-2026)
 
 - **El formulario de contacto ya no exige asunto**: sin él (o vacío), el correo lleva «Mensaje desde el sitio web» en el

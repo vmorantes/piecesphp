@@ -26,6 +26,10 @@ final class Compiler
     /** Los atributos donde un {{campo}} pasa por el filtro de URL sea cual sea su tipo ({{@campo}} en lo compilado). */
     const URL_FIELD_ATTRIBUTES = ['href', 'src', 'action', 'formaction', 'poster', 'srcset', 'xlink:href', 'data-src', 'data-srcset'];
 
+    /** Las animaciones SVG y sus atributos de valor: con attributeName="href" pondrían el dato en un enlace. */
+    const ANIMATION_ELEMENTS = ['set', 'animate', 'animatetransform', 'animatemotion'];
+    const ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values'];
+
     /** Los atributos con una URL que se reescribe. */
     const URL_ATTRIBUTES = ['src', 'href', 'poster', 'data-src', 'srcset', 'data-srcset'];
 
@@ -448,7 +452,7 @@ final class Compiler
                 if (!str_contains($value, '{{')) {
                     continue;
                 }
-                if (str_starts_with($name, 'on') || $name === 'style' || $name === 'srcdoc' || ($name === 'data' && $element->localName === 'object')) {
+                if (self::isUnsafeFieldAttribute($element, $name)) {
                     $this->problem($line, "{{campo}} en el atributo «{$attribute->name}» no se admite: ahí el escapado no protege");
                     $unsafe = true;
                 } elseif (in_array($name, self::URL_FIELD_ATTRIBUTES, true)) {
@@ -468,6 +472,36 @@ final class Compiler
             }
         }
         return $this->phpStringWithSlots($html);
+    }
+
+    /**
+     * Si un {{campo}} en este atributo podría ejecutar código aunque vaya escapado: on*, style, srcdoc, el data de <object>,
+     * el href de MathML, el content de <meta http-equiv=refresh> y to/from/values de las animaciones SVG (siempre).
+     *
+     * @param \Dom\Element $element
+     * @param string $name En minúsculas
+     * @return bool
+     */
+    public static function isUnsafeFieldAttribute(\Dom\Element $element, string $name): bool
+    {
+        $tag = mb_strtolower($element->localName);
+        if (str_starts_with($name, 'on') || in_array($name, ['style', 'srcdoc'], true) || ($name === 'data' && $tag === 'object')) {
+            return true;
+        }
+        if ($name === 'content' && $tag === 'meta' && mb_strtolower(trim((string) $element->getAttribute('http-equiv'))) === 'refresh') {
+            return true;
+        }
+        if (in_array($name, self::ANIMATION_VALUE_ATTRIBUTES, true) && in_array($tag, self::ANIMATION_ELEMENTS, true)) {
+            return true;
+        }
+        if (in_array($name, ['href', 'xlink:href'], true)) {
+            for ($up = $element; $up !== null; $up = $up->parentElement) {
+                if (mb_strtolower($up->localName) === 'math') {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

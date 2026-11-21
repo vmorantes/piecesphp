@@ -224,6 +224,20 @@
 		})
 	}
 
+	//Lo mismo que Compiler::isUnsafeFieldAttribute(): el href de MathML, <meta http-equiv=refresh> y las animaciones SVG.
+	var ANIMATION_ELEMENTS = ['set', 'animate', 'animatetransform', 'animatemotion']
+	var ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values']
+
+	function unsafeElsewhere(node, attribute) {
+		if (attribute === 'content' && node.tag === 'meta' && (node.attrs['http-equiv'] || '').trim().toLowerCase() === 'refresh') {
+			return true
+		}
+		if (ANIMATION_VALUE_ATTRIBUTES.indexOf(attribute) !== -1 && ANIMATION_ELEMENTS.indexOf(node.tag) !== -1) {
+			return true
+		}
+		return (attribute === 'href' || attribute === 'xlink:href') && (node.tag === 'math' || closest(node, 'math') !== null)
+	}
+
 	function closest(node, tag) {
 		for (var up = node.parent; up; up = up.parent) {
 			if (up.tag === tag) {
@@ -516,7 +530,7 @@
 					report('aviso', path, line, '{{' + field + '}} está fuera de una lista: se verá tal cual.', 'Los {{campos}} solo se rellenan dentro de la <template> de una <pcs-list>.')
 					continue
 				}
-				if (attribute && (/^on/i.test(attribute) || attribute === 'style' || attribute === 'srcdoc' || (attribute === 'data' && node.tag === 'object'))) {
+				if (attribute && (/^on/i.test(attribute) || attribute === 'style' || attribute === 'srcdoc' || (attribute === 'data' && node.tag === 'object') || unsafeElsewhere(node, attribute))) {
 					report('error', path, line, '{{' + field + '}} está dentro del atributo ' + attribute + '.', UNSAFE_FIX)
 					continue
 				}
