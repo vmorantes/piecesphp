@@ -83,6 +83,7 @@ window.PCS_RULES = {
 					"pattern": "sizes"
 				}
 			},
+			"passesGlobalAttributes": false,
 			"content": "empty"
 		},
 		"pcs-text": {

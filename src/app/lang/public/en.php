@@ -53,4 +53,6 @@ return [
     "Extra" => "Extra",
     "Enviado desde" => "Sent from",
     "Inicio" => "Home",
+    'Mensaje desde el sitio web' => 'Message from the website',
+    'Otros campos del formulario' => 'Other form fields',
 ];

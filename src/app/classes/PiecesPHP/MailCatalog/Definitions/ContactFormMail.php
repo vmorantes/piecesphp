@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\MailCatalog\Definitions;
 
+use App\Controller\ContactFormsController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\MailCatalog\MailCatalogLang;
 use PiecesPHP\MailCatalog\MailDefinition;
@@ -13,7 +14,7 @@ use PiecesPHP\MailCatalog\MailDefinition;
 /**
  * ContactFormMail - El formulario de contacto de la zona pública.
  *
- * Datos: `name`, `email`, `subject` (el que escribe la persona), `message`, `updates` (bool), `titleSuffix` (lo que
+ * Datos: `name`, `email`, `subject` (el que escribe la persona; vacío o ausente, el asunto por defecto), `message`, `updates` (bool), `titleSuffix` (lo que
  * get_title() daba en el envío) y, opcionales, `extraFields` (lista de `label`/`value` sin escapar, de
  * ContactFormsController::extraFields()) y `renderer`.
  *
@@ -46,7 +47,11 @@ class ContactFormMail extends MailDefinition
 
     public function subject(array $data): string
     {
-        return mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . self::text($data, 'subject'), 'UTF-8') . ' - ' . self::text($data, 'titleSuffix');
+        $subject = trim(self::text($data, 'subject'));
+        if ($subject === '') {
+            $subject = (string) __(LANG_GROUP, 'Mensaje desde el sitio web');
+        }
+        return mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8') . ' - ' . self::text($data, 'titleSuffix');
     }
 
     public function sampleData(): array
@@ -80,6 +85,8 @@ class ContactFormMail extends MailDefinition
     }
 
     /**
+     * Las entradas bien formadas, con los topes del controlador aunque `extraFields` no venga de él.
+     *
      * @param array<string,mixed> $data
      * @return array<int,array{label:string,value:string}>
      */
@@ -91,8 +98,15 @@ class ContactFormMail extends MailDefinition
         }
         $valid = [];
         foreach ($extraFields as $field) {
+            if (count($valid) >= ContactFormsController::EXTRA_FIELDS_LIMIT) {
+                break;
+            }
             if (is_array($field) && is_string($field['label'] ?? null) && is_string($field['value'] ?? null)) {
-                $valid[] = ['label' => $field['label'], 'value' => $field['value']];
+                $value = $field['value'];
+                if (mb_strlen($value) > ContactFormsController::EXTRA_FIELD_LENGTH_LIMIT) {
+                    $value = mb_substr($value, 0, ContactFormsController::EXTRA_FIELD_LENGTH_LIMIT) . '…';
+                }
+                $valid[] = ['label' => $field['label'], 'value' => $value];
             }
         }
         return $valid;

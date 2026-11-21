@@ -575,3 +575,9 @@ legítima, porque una guarda que lo bloquea todo también «pasa» la mitad de l
 - **Trampa**: `fuera` admite también un formulario que SÍ se puede cruzar («excluido por declaración»; hoy solo
   `Locations/_form.php`, una plantilla). Debilita la puerta: úsese solo con un motivo que diga por qué el cruce no
   significa nada en ese formulario.
+
+## Restaurar con trap: rutas absolutas (incidente de JND, 2026-11-20)
+
+Una provocación o una medida que cambia un archivo de configuración y lo restaura con `trap` usa **rutas absolutas** en
+la copia y en la restauración, y comprueba el sha1 o `git diff --quiet` después. En JND el guion hizo `cd` a un temporal,
+el `trap` con ruta relativa no restauró y `public_site` quedó puesto unos minutos en la instalación local.

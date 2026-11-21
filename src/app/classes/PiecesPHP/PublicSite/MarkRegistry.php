@@ -27,9 +27,6 @@ final class MarkRegistry
     /** Un nombre de atributo que se puede pintar; los on* se quitan aparte. */
     const ATTRIBUTE_NAME_PATTERN = '/^[a-zA-Z_:][-a-zA-Z0-9_:.]*$/D';
 
-    /** Los de <pcs-image> que pasan a la <img>, además de class y alt; cada valor, validado con rules.json. */
-    const IMAGE_ATTRIBUTES = ['width', 'height', 'loading', 'decoding', 'sizes'];
-
     /**
      * @var array<string,callable(array<string,string>,string,MarkContext):string>
      */
@@ -274,7 +271,7 @@ final class MarkRegistry
                 return '';
             }
             $extra = '';
-            foreach (self::IMAGE_ATTRIBUTES as $name) {
+            foreach (self::imageAttributes() as $name) {
                 if (MarkRules::acceptsValue('pcs-image', $name, $attributes[$name] ?? null)) {
                     $extra .= ' ' . $name . '="' . escape_html((string) $attributes[$name]) . '"';
                 }
@@ -320,6 +317,18 @@ final class MarkRegistry
             return '<form method="POST" action="' . escape_html($action['url']) . '"' . $extra . self::passThroughAttributes($attributes, array_merge(['action', 'method'], array_keys($action['attributes'])))
                 . '><input type="hidden" name="from" value="' . escape_html(get_current_url()) . '">' . $content . '</form>';
         };
+    }
+
+    /**
+     * Los atributos de <pcs-image> que pasan a la <img> además de class y alt (que pinta brandImageTag()): los que declara
+     * rules.json, sin brand. Los mismos que copia la vista previa; los comunes (id, style, data-*…) no llegan.
+     *
+     * @return string[]
+     */
+    public static function imageAttributes(): array
+    {
+        $declared = MarkRules::rules()['marks']['pcs-image']['attributes'] ?? [];
+        return array_values(array_diff(array_keys(is_array($declared) ? $declared : []), ['brand', 'class', 'alt']));
     }
 
     /**

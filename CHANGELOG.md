@@ -1,3 +1,12 @@
+# 10.60.0 (20-11-2026)
+
+- **El formulario de contacto ya no exige asunto**: sin él (o vacío), el correo lleva «Mensaje desde el sitio web» en el
+  idioma de la página. Un diseño de sitio público cuyo formulario no tenga ese campo ya se puede enviar. Para quien
+  consume la API: `subject` deja de ser obligatorio en `contact-forms-general`.
+- **Sitio público por marcas**: la vista previa de `<pcs-image>` enseña los mismos atributos que el sitio real (`class`,
+  `alt`, `width`, `height`, `loading`, `decoding` y `sizes`), para que lo que ve el diseñador sea lo que se publica.
+- **Seguridad: refuerzos en el sitio público por marcas y en el correo de contacto.** Se recomienda actualizar.
+
 # 10.59.0 (20-11-2026)
 
 - **El sitio público por marcas, listo para diseños reales** (lo que destapó la primera prueba con dos diseños de

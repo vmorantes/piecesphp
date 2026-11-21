@@ -24,7 +24,7 @@ foreach (isset($extraFields) && is_array($extraFields) ? $extraFields : [] as $e
     $extraLines .= "\n    <br>\n    <strong>{$extraLabel}:</strong> {$extraValue}";
 }
 if ($extraLines !== '') {
-    $titleExtra = __($langGroup, 'Extra');
+    $titleExtra = __($langGroup, 'Otros campos del formulario');
     $extraLines = "\n<hr>\n<p>\n    <strong>{$titleExtra}</strong>{$extraLines}\n</p>";
 }
 $text = <<<EOF

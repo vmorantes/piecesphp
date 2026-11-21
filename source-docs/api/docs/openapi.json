@@ -5398,7 +5398,8 @@
             "type": "string"
           },
           "subject": {
-            "type": "string"
+            "type": "string",
+            "description": "Opcional: sin él (o vacío), el asunto es «Mensaje desde el sitio web» en el idioma de la petición."
           },
           "message": {
             "type": "string"
@@ -5419,7 +5420,6 @@
           "from",
           "name",
           "email",
-          "subject",
           "message"
         ]
       },

@@ -516,7 +516,7 @@
 					report('aviso', path, line, '{{' + field + '}} está fuera de una lista: se verá tal cual.', 'Los {{campos}} solo se rellenan dentro de la <template> de una <pcs-list>.')
 					continue
 				}
-				if (attribute && (/^on/i.test(attribute) || attribute === 'style')) {
+				if (attribute && (/^on/i.test(attribute) || attribute === 'style' || attribute === 'srcdoc' || (attribute === 'data' && node.tag === 'object'))) {
 					report('error', path, line, '{{' + field + '}} está dentro del atributo ' + attribute + '.', UNSAFE_FIX)
 					continue
 				}
@@ -570,11 +570,17 @@
 					report('error', path, node.line, 'El valor ' + name + '="' + value + '" de <' + node.tag + '> no existe.', 'Usa uno de estos: ' + spec.values.join(', ') + '.')
 				}
 			})
+			var dropped = []
 			node.attrList.forEach(function (name) {
 				if (!Object.prototype.hasOwnProperty.call(attributes, name) && !isGlobalAttribute(name)) {
 					report('aviso', path, node.line, '<' + node.tag + '> no usa el atributo ' + name + '.', 'Quítalo, o pásalo al elemento de dentro si es para estilo.')
+				} else if (rule.passesGlobalAttributes === false && !Object.prototype.hasOwnProperty.call(attributes, name)) {
+					dropped.push(name)
 				}
 			})
+			if (dropped.length) {
+				report('aviso', path, node.line, '<' + node.tag + '> lleva ' + dropped.join(', ') + ': en el sitio real no llegan.', 'Pon esos atributos en un elemento que envuelva la imagen (por ejemplo, un <span>), o quítalos.')
+			}
 			var elements = node.children.filter(function (child) {
 				return child.tag !== '#text'
 			})

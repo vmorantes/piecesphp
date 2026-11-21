@@ -244,7 +244,13 @@
 	function renderImage(element) {
 		var brand = element.getAttribute('brand')
 		var image = document.createElement('img')
-		copyAttributes(element, image, ['brand', 'src'])
+		//Solo lo que pinta el servidor: los atributos que rules.json declara para pcs-image, sin brand.
+		var declared = rules() ? Object.keys(rules().marks['pcs-image'].attributes || {}) : ['alt', 'class']
+		declared.forEach(function (name) {
+			if (name !== 'brand' && name !== 'src' && element.hasAttribute(name)) {
+				image.setAttribute(name, element.getAttribute(name))
+			}
+		})
 		if (!image.hasAttribute('alt')) {
 			image.setAttribute('alt', brand)
 		}
@@ -327,7 +333,8 @@
 			}
 			for (var k = 0; k < element.attributes.length; k++) {
 				var name = element.attributes[k].name.toLowerCase()
-				if ((name.indexOf('on') === 0 || name === 'style') && element.attributes[k].value.indexOf('{{') !== -1) {
+				var dangerous = name.indexOf('on') === 0 || name === 'style' || name === 'srcdoc' || (name === 'data' && element.localName === 'object')
+				if (dangerous && element.attributes[k].value.indexOf('{{') !== -1) {
 					return name
 				}
 			}

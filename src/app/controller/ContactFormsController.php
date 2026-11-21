@@ -68,7 +68,7 @@ class ContactFormsController extends PublicAreaController
      * Las etiquetas que ya pinta la vista del correo (mailing/generic-contact-form): un campo de más que se llame
      * igual se descarta, para que el visitante no imite las del sistema. Se comparan también traducidas.
      */
-    private const MAIL_VIEW_LABELS = ['Nombre', 'E-mail', 'Asunto', 'Mensaje', 'Acepta que le envíen actualizaciones', 'Correo', 'Correo electrónico', 'Extra'];
+    private const MAIL_VIEW_LABELS = ['Nombre', 'E-mail', 'Asunto', 'Mensaje', 'Acepta que le envíen actualizaciones', 'Correo', 'Correo electrónico', 'Otros campos del formulario'];
 
     /**
      * Los campos que el formulario envía y la acción no lee (un teléfono, por ejemplo), para el cuerpo del correo.
@@ -223,15 +223,16 @@ class ContactFormsController extends PublicAreaController
                     return clean_string($value);
                 }
             ),
+            //Opcional: sin él, o vacío, ContactFormMail pone el asunto por defecto.
             new Parameter(
                 'subject',
-                null,
+                '',
                 function ($value) {
-                    return is_string($value) && mb_strlen(trim($value)) > 0;
+                    return is_null($value) || is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : '';
                 }
             ),
             new Parameter(

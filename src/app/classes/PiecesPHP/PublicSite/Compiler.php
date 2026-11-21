@@ -448,7 +448,7 @@ final class Compiler
                 if (!str_contains($value, '{{')) {
                     continue;
                 }
-                if (str_starts_with($name, 'on') || $name === 'style') {
+                if (str_starts_with($name, 'on') || $name === 'style' || $name === 'srcdoc' || ($name === 'data' && $element->localName === 'object')) {
                     $this->problem($line, "{{campo}} en el atributo «{$attribute->name}» no se admite: ahí el escapado no protege");
                     $unsafe = true;
                 } elseif (in_array($name, self::URL_FIELD_ATTRIBUTES, true)) {

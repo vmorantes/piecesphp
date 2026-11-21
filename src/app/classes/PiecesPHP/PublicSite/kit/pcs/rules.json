@@ -38,6 +38,7 @@
                 "decoding": { "required": false, "values": ["async", "sync", "auto"] },
                 "sizes": { "required": false, "pattern": "sizes" }
             },
+            "passesGlobalAttributes": false,
             "content": "empty"
         },
         "pcs-text": {

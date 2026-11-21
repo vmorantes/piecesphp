@@ -31,7 +31,7 @@ Tipo: object (ContactRequest).
 | `from` | string · mínimo 1 carácter(es) | sí | Texto no vacío, obligatorio. Se valida y se lee, pero no cambia nada del mensaje (por lectura del código): el remitente del correo es el de la configuración y el Reply-To sale de email y name. |
 | `name` | string | sí |  |
 | `email` | string | sí |  |
-| `subject` | string | sí |  |
+| `subject` | string | no | Opcional: sin él (o vacío), el asunto es «Mensaje desde el sitio web» en el idioma de la petición. |
 | `message` | string | sí |  |
 | `updates` | string · uno de `"yes"` | no | yes si acepta recibir novedades; si falta, no. |
 | `tokenCaptcha` | string | no | El token de reCAPTCHA v3; necesario cuando el módulo está activo. |
@@ -45,7 +45,7 @@ Tipo: object (ContactRequest).
 | `from` | string · mínimo 1 carácter(es) | sí | Texto no vacío, obligatorio. Se valida y se lee, pero no cambia nada del mensaje (por lectura del código): el remitente del correo es el de la configuración y el Reply-To sale de email y name. |
 | `name` | string | sí |  |
 | `email` | string | sí |  |
-| `subject` | string | sí |  |
+| `subject` | string | no | Opcional: sin él (o vacío), el asunto es «Mensaje desde el sitio web» en el idioma de la petición. |
 | `message` | string | sí |  |
 | `updates` | string · uno de `"yes"` | no | yes si acepta recibir novedades; si falta, no. |
 | `tokenCaptcha` | string | no | El token de reCAPTCHA v3; necesario cuando el módulo está activo. |
@@ -59,7 +59,7 @@ Tipo: object (ContactRequest).
 | `from` | string · mínimo 1 carácter(es) | sí | Texto no vacío, obligatorio. Se valida y se lee, pero no cambia nada del mensaje (por lectura del código): el remitente del correo es el de la configuración y el Reply-To sale de email y name. |
 | `name` | string | sí |  |
 | `email` | string | sí |  |
-| `subject` | string | sí |  |
+| `subject` | string | no | Opcional: sin él (o vacío), el asunto es «Mensaje desde el sitio web» en el idioma de la petición. |
 | `message` | string | sí |  |
 | `updates` | string · uno de `"yes"` | no | yes si acepta recibir novedades; si falta, no. |
 | `tokenCaptcha` | string | no | El token de reCAPTCHA v3; necesario cuando el módulo está activo. |

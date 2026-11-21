@@ -1,12 +1,17 @@
 <?php
 
-//Los campos de más del formulario de contacto (un teléfono que la acción no lee) entran en el cuerpo del correo.
-//Sin envío: prueba la selección y la plantilla, no la ruta (la ruta manda correo real).
+//Campos de más y asunto opcional del contacto. Sin envío: la acción corre en proceso sin claves de reCAPTCHA (solo en
+//memoria) y para en el CAPTCHA, antes del correo y del boletín.
 //@areas nucleo
 
 use App\Controller\ContactFormsController;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\MailCatalog\Definitions\ContactFormMail;
 use PiecesPHP\Terminal\CliActions;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 
 CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
 
@@ -38,7 +43,7 @@ CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
         'tokenCaptcha' => 'zz-token',
     ];
 
-    echoTerminal('[1/4] Qué campos entran');
+    echoTerminal('[1/5] Qué campos entran');
     $fields = ContactFormsController::extraFields($base + [
         'phone' => ' 300 123 4567 ',
         'companyName' => 'ZZ S.A.',
@@ -52,7 +57,7 @@ CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
     $check(ContactFormsController::extraFields(['NAME' => 'x', 'Message' => 'y'], $expected) === [], 'a5 un esperado con otras mayúsculas tampoco entra');
     echoTerminal(' ');
 
-    echoTerminal('[2/4] Qué campos se excluyen siempre');
+    echoTerminal('[2/5] Qué campos se excluyen siempre');
     $excluded = [
         'g-recaptcha-response' => 'x', 'h-captcha-response' => 'x', 'cf-turnstile-response' => 'x', 'csrf_token' => 'x',
         'XSRF-TOKEN' => 'x', 'nonce' => 'x', 'password' => 'x', 'Passwd2' => 'x', 'apiToken' => 'x',
@@ -65,7 +70,7 @@ CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
     $check($labels($fields) === ['Ok'], 'b2 una clave numérica no entra', $json($fields));
     $fields = ContactFormsController::extraFields(["name\n" => 'x', "phone\n" => 'x', 'ok' => 'v'], $expected);
     $check($labels($fields) === ['Ok'], 'b3 un nombre con salto de línea final («name\\n») no casa con la forma segura', $json($fields));
-    $imitations = ['Nombre' => 'x', 'Asunto' => 'x', 'Mensaje' => 'x', 'Email_' => 'x', 'message-' => 'x', 'E-Mail' => 'x', 'correo' => 'x', 'CorreoElectronico' => 'x', 'EXTRA' => 'x', 'from_' => 'x'];
+    $imitations = ['Nombre' => 'x', 'Asunto' => 'x', 'Mensaje' => 'x', 'Email_' => 'x', 'message-' => 'x', 'E-Mail' => 'x', 'correo' => 'x', 'CorreoElectronico' => 'x', 'Otros_campos_del_formulario' => 'x', 'from_' => 'x'];
     $fields = ContactFormsController::extraFields($imitations + ['ok' => 'v'], $expected);
     $check($labels($fields) === ['Ok'], 'b4 los que se llaman como una etiqueta del correo o un esperado (sin mayúsculas, acentos ni signos) no entran', $json($fields));
     $protection = ['pwd' => 'x', 'userPwd' => 'x', 'xsrfKey' => 'x', 'clientSecret' => 'x', 'otp' => 'x', 'otp_code' => 'x', 'pin' => 'x', 'pinCode' => 'x', 'pin2' => 'x', 'totp' => 'x', 'mfa' => 'x', 'passcode' => 'x'];
@@ -76,7 +81,7 @@ CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
     $check($labels($fields) === ['Opinion', 'Spinner', 'Shipping', 'Footprint', 'Pinterest', 'Passenger'], 'b6 las palabras que solo contienen pin, otp o pass sí entran', $json($fields));
     echoTerminal(' ');
 
-    echoTerminal('[3/4] Los topes');
+    echoTerminal('[3/5] Los topes');
     $many = [];
     for ($i = 1; $i <= ContactFormsController::EXTRA_FIELDS_LIMIT + 5; $i++) {
         $many["zzField{$i}"] = "v{$i}";
@@ -95,7 +100,7 @@ CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
     $check(isset($fields[1]['value']) && mb_check_encoding($fields[1]['value'], 'UTF-8'), 'c7 un UTF-8 roto sale como UTF-8 válido', $json($fields[1] ?? null));
     echoTerminal(' ');
 
-    echoTerminal('[4/4] El cuerpo del correo los escapa');
+    echoTerminal('[4/5] El cuerpo del correo los escapa');
     $mailData = [
         'name' => 'zz-agente-nombre',
         'email' => 'zz-prueba-a@mailinator.com',
@@ -113,7 +118,7 @@ CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
     $check(str_contains($body, '<strong>Phone:</strong> &lt;script&gt;zzRun(1)&lt;/script&gt;'), 'd2 sale como texto, con su etiqueta');
     $check(str_contains($body, '<strong>Zz label:</strong> &quot;comillas&quot; &amp; &lt;b&gt;negrita&lt;/b&gt;'), 'd3 comillas, & y etiquetas se escapan');
     $check(substr_count($body, 'zz mensaje') === 1 && !str_contains($body, 'Message:</strong>'), 'd4 el mensaje no se repite como campo de más');
-    $title = (string) __(LANG_GROUP, 'Extra');
+    $title = (string) __(LANG_GROUP, 'Otros campos del formulario');
     $titleAt = strpos($body, "<strong>{$title}</strong>");
     $messageAt = strpos($body, 'zz mensaje');
     $check($titleAt !== false && $messageAt !== false && $titleAt > $messageAt && strpos($body, '<strong>Phone:</strong>') > $titleAt && strpos($body, '<strong>Zz label:</strong>') > $titleAt, 'd7 los campos de más van tras el mensaje, bajo su propio título', $json([$messageAt, $titleAt]));
@@ -121,6 +126,56 @@ CliActions::make('unit-tests:core/contact-extra-fields', function ($args) {
     $check(str_contains($bodyMalformed, 'zz-bien') && !str_contains($bodyMalformed, 'zz-mal') && !str_contains($bodyMalformed, 'zz-suelto'), 'd5 una entrada mal formada en extraFields se descarta');
     $bodyWithout = (new ContactFormMail())->render(array_diff_key($mailData, ['extraFields' => true]));
     $check(str_contains($bodyWithout, 'zz mensaje') && !str_contains($bodyWithout, 'Phone:') && !str_contains($bodyWithout, $title), 'd6 sin extraFields el correo es el de siempre, sin el título');
+    $tooMany = [];
+    for ($i = 1; $i <= ContactFormsController::EXTRA_FIELDS_LIMIT + 3; $i++) {
+        $tooMany[] = ['label' => "zzLabel{$i}", 'value' => "zz-valor-{$i}"];
+    }
+    $tooMany[0]['value'] = str_repeat('x', ContactFormsController::EXTRA_FIELD_LENGTH_LIMIT + 40);
+    $bodyCapped = (new ContactFormMail())->render(['extraFields' => $tooMany] + $mailData);
+    $last = ContactFormsController::EXTRA_FIELDS_LIMIT;
+    $check(str_contains($bodyCapped, "zzLabel{$last}:") && !str_contains($bodyCapped, 'zzLabel' . ($last + 1) . ':'), "d8 la definición del correo tampoco pinta más de {$last} campos aunque se los pasen");
+    $check(str_contains($bodyCapped, str_repeat('x', ContactFormsController::EXTRA_FIELD_LENGTH_LIMIT) . '…') && !str_contains($bodyCapped, str_repeat('x', ContactFormsController::EXTRA_FIELD_LENGTH_LIMIT + 1)), 'd9 ni un valor de más de ' . ContactFormsController::EXTRA_FIELD_LENGTH_LIMIT . ' caracteres');
+    $check(in_array($title, ['Otros campos del formulario', 'Other form fields'], true) && str_contains($body, "<strong>{$title}</strong>"), 'd10 el título de la sección es «Otros campos del formulario» (o su inglés)', $title);
+    echoTerminal(' ');
+
+    echoTerminal('[5/5] El asunto es opcional');
+    $default = (string) __(LANG_GROUP, 'Mensaje desde el sitio web');
+    $prefix = (string) __(LANG_GROUP, 'Contacto');
+    $definition = new ContactFormMail();
+    $subjectData = ['titleSuffix' => 'ZZ'];
+    $check($definition->subject($subjectData) === "{$prefix}: {$default} - ZZ", "e1 sin asunto, el del correo es «{$prefix}: {$default} - ZZ»", $definition->subject($subjectData));
+    $check($definition->subject(['subject' => ''] + $subjectData) === "{$prefix}: {$default} - ZZ" && $definition->subject(['subject' => '   '] + $subjectData) === "{$prefix}: {$default} - ZZ", 'e2 vacío o en blanco, el mismo');
+    $check($definition->subject(['subject' => 'ZZ asunto'] + $subjectData) === "{$prefix}: ZZ asunto - ZZ", 'e3 con asunto, el suyo, como siempre', $definition->subject(['subject' => 'ZZ asunto'] + $subjectData));
+    $check(str_contains($definition->render(array_diff_key($mailData, ['subject' => true])), htmlspecialchars("{$prefix}: {$default}", ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')), 'e4 el cuerpo lo pinta en «Asunto»');
+
+    $captchaFail = (string) __(LANG_GROUP, 'CAPTCHA_FAIL');
+    $originals = [];
+    foreach (['GoogleReCaptchaV3SecretKey', 'GoogleReCaptchaV3TestSecretKey', 'contact_form_recipients'] as $configName) {
+        $originals[$configName] = get_config($configName);
+    }
+    $post = function (array $body): array {
+        $request = (new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/zz-contact'), new Headers(), [], [], (new StreamFactory())->createStream('')))->withParsedBody($body);
+        $decoded = json_decode((string) (new ContactFormsController())->contactMessage($request, new ResponseRoute())->getBody(), true);
+        return is_array($decoded) ? $decoded : [];
+    };
+    try {
+        //Sin claves, verifyTokenCaptcha() rechaza sin leer la base; sin destinatarios y con un correo no válido, nada
+        //se enviaría ni suscribiría aunque el CAPTCHA pasara.
+        set_config('GoogleReCaptchaV3SecretKey', '');
+        set_config('GoogleReCaptchaV3TestSecretKey', '');
+        set_config('contact_form_recipients', []);
+        $form = ['from' => 'https://zz-prueba.test/', 'name' => 'zz-agente', 'email' => 'zz-no-es-correo', 'message' => 'zz mensaje', 'tokenCaptcha' => 'zz-token'];
+        $response = $post($form);
+        $check(($response['message'] ?? null) === $captchaFail, 'e5 un cuerpo con from, name, email y message, sin subject, pasa la validación (llega al CAPTCHA)', $json($response['message'] ?? $response));
+        $response = $post(['subject' => ''] + $form);
+        $check(($response['message'] ?? null) === $captchaFail, 'e6 con subject vacío, igual', $json($response['message'] ?? $response));
+        $response = $post(array_diff_key($form, ['name' => true]));
+        $check(($response['message'] ?? null) !== $captchaFail && ($response['success'] ?? null) === false, 'e7 CONTROL: sin name sigue rechazándose antes del CAPTCHA', $json($response['message'] ?? $response));
+    } finally {
+        foreach ($originals as $configName => $original) {
+            set_config($configName, $original === false ? null : $original);
+        }
+    }
     echoTerminal(' ');
 
     $total = $passed + $failed;

@@ -285,6 +285,32 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $check(count($baseErrors) === 1 && $baseErrors[0]['line'] === 2 && $baseErrors[0]['fix'] === 'Quita tu <base>; el sitio pone el suyo.', 'm11 CHECK da error por un <base> propio, con su línea y el mismo «Qué hacer» que la importación', (string) json_encode($valueErrors['site/base.html'] ?? [], JSON_UNESCAPED_UNICODE));
     $resourceFix = implode(' ', array_map(fn (array $p): string => (string) $p['fix'], array_filter($valueErrors['site/base.html'] ?? [], fn (array $p): bool => str_contains((string) $p['message'], 'zz-nope'))));
     $check(str_contains($resourceFix, 'pídeselo al equipo del proyecto') && str_contains($resourceFix, 'registra el recurso'), 'm12 un recurso sin datos de ejemplo: CHECK dice que lo pida al equipo del proyecto, que lo registra', $resourceFix);
+
+    //srcdoc y el data de <object>: un {{campo}} ahí es error, como en on* y style; y lo que pcs-image no lleva al sitio, aviso.
+    $embedFiles = [
+        'site/.pcs/pcs.js' => ['text' => ''],
+        'site/data/zz.js' => ['text' => "window.PCS_DATA['zz'] = { fields: { title: { type: 'text', example: 'T' }, url: { type: 'url', example: '/a' } }, items: [] }"],
+        'site/srcdoc.html' => ['text' => '<!DOCTYPE html><html><head><title>t</title><script src=".pcs/pcs.js"></script></head><body><pcs-list resource="zz"><template><iframe srcdoc="{{title}}"></iframe></template></pcs-list></body></html>'],
+        'site/object.html' => ['text' => '<!DOCTYPE html><html><head><title>t</title><script src=".pcs/pcs.js"></script></head><body><pcs-list resource="zz"><template><object data="{{url}}"></object></template></pcs-list></body></html>'],
+        'site/fine.html' => ['text' => '<!DOCTYPE html><html><head><title>t</title><script src=".pcs/pcs.js"></script></head><body><pcs-list resource="zz"><template><div data="{{title}}"><iframe src="{{url}}"></iframe></div></template></pcs-list><pcs-image brand="logo" class="a" alt="b" width="1" height="1" loading="lazy" decoding="async" sizes="1px"></pcs-image></body></html>'],
+        'site/image.html' => ['text' => '<!DOCTYPE html><html><head><title>t</title><script src=".pcs/pcs.js"></script></head><body><pcs-image brand="logo" id="i" style="x" data-zz="1" title="t" class="c"></pcs-image></body></html>'],
+    ];
+    $embedRun = function (string $checkSource) use ($node, $pcs, $embedFiles): array {
+        $found = [];
+        foreach ($node($checkSource, $pcs, [], $embedFiles)['problems'] ?? [] as $problem) {
+            $found[(string) $problem['file']][] = $problem['level'] . ': ' . $problem['message'] . ' | ' . $problem['fix'];
+        }
+        return $found;
+    };
+    $embedFound = $embedRun($checkJs);
+    $unsafeError = fn (array $found, string $file, string $attribute): bool => array_filter($found[$file] ?? [], fn (string $p): bool => str_starts_with($p, 'error: ') && str_contains($p, 'atributo ' . $attribute . '.')) !== [];
+    $check($unsafeError($embedFound, 'site/srcdoc.html', 'srcdoc') && $unsafeError($embedFound, 'site/object.html', 'data') && !isset($embedFound['site/fine.html']), 'm13 CHECK da error por un {{campo}} en srcdoc o en el data de <object>; el data de otro elemento, el src de un iframe y una pcs-image con lo suyo, nada', (string) json_encode($embedFound, JSON_UNESCAPED_UNICODE));
+    $droppedAviso = array_values(array_filter($embedFound['site/image.html'] ?? [], fn (string $p): bool => str_contains($p, 'en el sitio real no llegan')));
+    $check(count($droppedAviso) === 1 && str_starts_with($droppedAviso[0], 'aviso: <pcs-image> lleva id, style, data-zz, title: en el sitio real no llegan.') && str_contains($droppedAviso[0], 'elemento que envuelva la imagen') && count($embedFound['site/image.html'] ?? []) === 1, 'm14 CHECK avisa (no da error) de los atributos de <pcs-image> que no llegan al sitio, y dice qué hacer; class no', (string) json_encode($embedFound['site/image.html'] ?? [], JSON_UNESCAPED_UNICODE));
+    $previewStripped = (string) preg_replace(['#/\*.*?\*/#s', '#^\s*//.*$#m'], '', $pcs);
+    $renderImage = (string) substr($previewStripped, (int) strpos($previewStripped, 'function renderImage('), 700);
+    $unsafeFunction = (string) substr($previewStripped, (int) strpos($previewStripped, 'function unsafePlaceholder('), 900);
+    $check(str_contains($renderImage, "Object.keys(rules().marks['pcs-image'].attributes") && !str_contains($renderImage, 'copyAttributes(') && str_contains($unsafeFunction, "name === 'srcdoc'") && str_contains($unsafeFunction, "name === 'data' && element.localName === 'object'") && ($rules['marks']['pcs-image']['passesGlobalAttributes'] ?? null) === false, 'm15 la vista previa copia a la <img> solo lo que declara rules.json, y no pinta la lista con un {{campo}} en srcdoc o en el data de <object>');
     echoTerminal(' ');
 
     echoTerminal('[5/6] El sitio de ejemplo');
