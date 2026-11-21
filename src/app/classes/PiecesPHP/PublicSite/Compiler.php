@@ -109,6 +109,7 @@ final class Compiler
                 $script->remove();
             }
         }
+        $this->removeBases($root, 0);
 
         if ($kind === self::KIND_PAGE) {
             $this->preparePage($document);
@@ -120,6 +121,33 @@ final class Compiler
 
         $serialized = $kind === self::KIND_PAGE ? $document->saveHtml() : $root->innerHTML;
         return $this->result($serialized);
+    }
+
+    /**
+     * El framework pone su <base> (finishPage): uno del diseñador cambiaría a dónde van todas las URL relativas. Se quita
+     * también del contenido de cada <template>, que getElementsByTagName() no ve; se lee aparte y, si lo llevaba, se reescribe.
+     *
+     * @param \Dom\Element $root
+     * @param int $lineOffset La línea (desde 0) donde empieza $root en el HTML del diseñador
+     * @return void
+     */
+    private function removeBases(\Dom\Element $root, int $lineOffset): void
+    {
+        foreach (iterator_to_array($root->getElementsByTagName('base')) as $base) {
+            $this->problem($lineOffset + $base->getLineNo() + 1, 'tu página trae su propio <base>: se quita');
+            $base->remove();
+        }
+        foreach (iterator_to_array($root->getElementsByTagName('template')) as $template) {
+            $inner = (string) $template->innerHTML;
+            if (stripos($inner, '<base') === false) {
+                continue;
+            }
+            $body = \Dom\HTMLDocument::createFromString('<!DOCTYPE html><html><head></head><body>' . $inner . '</body></html>', \LIBXML_NOERROR)->body;
+            if ($body !== null) {
+                $this->removeBases($body, $lineOffset + $template->getLineNo());
+                $template->innerHTML = $body->innerHTML;
+            }
+        }
     }
 
     /**
@@ -613,7 +641,7 @@ final class Compiler
      */
     private function problem(int $line, string $message): void
     {
-        $this->problems[] = ['line' => $line, 'message' => $message];
+        $this->problems[] = ['line' => $line, 'message' => MarkRules::printable($message)];
     }
 
     /**

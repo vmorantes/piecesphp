@@ -16,6 +16,8 @@ en el sitio real. Detalle completo en `.agents/skills/designer/SKILL.md` y en `G
 - **Intocable**: el nombre y los atributos de las marcas `<pcs-part>`, `<pcs-link>`, `<pcs-meta>`, `<pcs-image>`,
   `<pcs-text>`, `<pcs-list>` y `<pcs-form>`; no se inventan marcas nuevas. Se pueden mover y cambiar lo que las rodea.
 - En una `<pcs-list>`, solo los `{{campo}}` que existen en `site/data/`. En un `<pcs-form>`, no cambiar los `name` de los campos.
+- El `<script src=".pcs/pcs.js">` de cada página va en el `<head>`, antes de cualquier otro script y sin `async` ni
+  `defer`: no se mueve.
 - Nunca PHP, Shadow DOM ni dependencias nuevas para la vista previa. `site/.pcs/` y `pcs.json` no se tocan.
 - Contenido del sistema (noticias, textos traducibles, listas): siempre por marca, nunca escrito a mano.
 - Antes de dar algo por terminado: `CHECK.html` sin avisos y cada página revisada en escritorio y en móvil abriendo `site/index.html`.

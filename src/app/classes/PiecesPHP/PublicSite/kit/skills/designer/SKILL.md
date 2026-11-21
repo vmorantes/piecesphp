@@ -21,9 +21,9 @@ vuelva a adaptar. Solo hay una regla: **las marcas `<pcs-…>` se respetan**.
 | Marca | Qué es |
 | :-- | :-- |
 | `<pcs-part name="menu">` | Aquí va la pieza `site/parts/menu.html`. Cámbiala una vez y cambia en todas las páginas. |
-| `<pcs-link page="contact">` | Un enlace a otra página del sitio. El proyecto pone la dirección correcta y el idioma. |
+| `<pcs-link page="contact">` | Un enlace a otra página del sitio. El proyecto pone la dirección correcta y el idioma. Con `anchor="seccion"` va a una sección; con `current-class="…"` marca la página actual en el menú. |
 | `<pcs-meta>` | El título y la descripción para buscadores y redes. Va en el `<head>`. |
-| `<pcs-image brand="logo">` | El logo (u otra imagen de la marca). El proyecto pone el real, también en modo oscuro. |
+| `<pcs-image brand="logo">` | El logo (u otra imagen de la marca). El proyecto pone el real, también en modo oscuro. Admite `width`, `height`, `loading`, `decoding` y `sizes`; en el sitio real, el resto de atributos (salvo `class` y `alt`) no llega. |
 | `<pcs-text key="…">` | Un texto que se traduce. Cambia el texto de dentro y el de `key` a la vez. |
 | `<pcs-list resource="…">` | Una lista que llena el sistema. Diseña UN elemento dentro de la `<template>`; `{{campo}}` es el dato. |
 | `<pcs-form action="…">` | Un formulario que recibe el sistema. Diséñalo como quieras; no cambies los `name` de sus campos. |
@@ -36,13 +36,16 @@ En la vista previa ves datos de ejemplo (los de `site/data/`). En el proyecto re
 - Usar en una lista un `{{campo}}` que no está en `site/data/`, o editar `site/data/` (lo genera el proyecto).
 - Poner otras marcas dentro de la `<template>` de una lista: en el sitio real no se resuelven.
 - Escribir PHP, o meter el contenido del sistema (noticias, textos traducibles) escrito a mano en el HTML.
+- Mover el `<script src=".pcs/pcs.js">` del `<head>` de una página: va antes de cualquier otro script, sin `async` ni
+  `defer`.
 - Tocar `site/.pcs/`, `pcs.json` ni el andamiaje de agente (`AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/`).
 
 ## 4. Antes de entregar
 
 1. Abre `CHECK.html` (doble clic), elige esta carpeta y corrige lo que diga. Cada aviso dice el archivo, la línea y qué
    hacer. Si cambiaste algo de `site/parts/`, pulsa «Actualizar el paquete»: la vista previa lee las partes de un paquete
-   (`site/parts/parts.js`), porque con doble clic el navegador no deja leer archivos sueltos.
+   (`site/parts/parts.js`, que también lleva la lista de recursos), porque con doble clic el navegador no deja leer
+   archivos sueltos.
 2. Abre `site/index.html` y repasa cada página en escritorio y en móvil.
 3. Si tu herramienta tiene subagentes, lanza `design-reviewer` antes de dar el trabajo por terminado.
 4. Entrega la carpeta entera, tal cual (comprimida, si hace falta). El programador la importa con una orden y, si algo

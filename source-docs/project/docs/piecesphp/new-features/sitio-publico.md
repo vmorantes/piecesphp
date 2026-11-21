@@ -91,28 +91,41 @@ Los nombres de sitio, páginas, partes y recursos son **minúsculas, números y 
 
 **Lo que no entra**: `CHECK.html`, `GUIDE.html`, el andamiaje del asistente (`AGENTS.md`, `CLAUDE.md`, `.agents/`,
 `.claude/`, `.cursor/`), `site/.pcs/`, `site/data/` (la exportación la regenera de los recursos registrados) y
-`site/parts/parts.js`. Un archivo suelto en la raíz de `site/` que no sea `.html`, o una carpeta que no sea `parts/`,
+`site/parts/parts.js` (el paquete de partes y la lista de recursos que lee la vista previa con doble clic). Un archivo suelto en la raíz de `site/` que no sea `.html`, o una carpeta que no sea `parts/`,
 `assets/` ni `data/`, no se importa y la orden lo avisa.
 
 Las URLs de `assets/` (`assets/x`, `./assets/x`, `../assets/x`, también dentro de `style` y de `url(…)` de un `<style>`)
 pasan a `statics/<sitio>/x`, y un enlace a `otra.html` (o `otra.html#ancla`) pasa a la dirección de esa página, en el idioma
 actual.
 
+La página lleva el `<base>` del framework, como el resto del sitio: un `href="#x"` del diseñador apunta a esa misma
+página (`#x`), no a la portada. Las URL que vienen de los datos de una lista admiten `http(s)://`, `mailto:`, `tel:` y las
+relativas; cualquier otra sale vacía.
+
+El recorrido completo, desde que llega el diseño hasta que el equipo de diseño lo devuelve: [Adaptar una plantilla, de
+principio a fin](adaptar-plantillas.md).
+
 ## Las siete marcas
 
 Las reglas viven en un solo archivo, `src/app/classes/PiecesPHP/PublicSite/kit/pcs/rules.json`, que leen por igual la
-importación, el compilador y el comprobador del diseñador. Todas admiten además los atributos globales `class`, `id`,
-`style`, `title`, `role`, `aria-*` y `data-*`.
+importación, el compilador y el comprobador del diseñador. Las que pintan un elemento admiten además los atributos
+globales `class`, `id`, `style`, `title`, `role`, `aria-*` y `data-*`, **salvo `<pcs-image>`, que en el proyecto solo
+pinta `class`, `alt` y sus atributos propios** (la vista previa copia los demás, pero el sitio real no).
+
+Cada página lleva `<script src=".pcs/pcs.js"></script>` en su `<head>`, **sin `async`, `defer` ni `type` y antes de
+cualquier otro `<script>`**: así, en la vista previa, las partes y las marcas ya están pintadas cuando corre el
+JavaScript del diseñador (también en `DOMContentLoaded` o en el `ready` de jQuery). El comprobador avisa si no está así.
+En el proyecto ese script no se carga.
 
 | Marca | Atributos | Contenido | Qué pinta en el proyecto |
 | :-- | :-- | :-- | :-- |
 | `<pcs-part name="menu">` | `name` (obligatorio) | vacío | La parte `parts/menu.html`, ya compilada |
-| `<pcs-link page="contact">…</pcs-link>` | `page` (obligatorio) | en línea | Un `<a>` a la URL de esa página en el idioma actual, con el contenido dentro y el resto de atributos |
-| `<pcs-meta>` | ninguno | vacío | Título, descripción, Open Graph, datos estructurados y canónica del framework (`MetaTags`). Se quitan los que el diseñador tuviera, para que no se repitan |
-| `<pcs-image brand="logo">` | `brand` (obligatorio): `logo`, `partners`, `partners-vertical`, `loader-animation`, `loader-logo`, `loader-screen`, `loader-screen-mobile`; `alt`, `class` | vacío | La imagen de marca configurada en el panel, con su versión clara y oscura (`SettingsController::brandImageTag()`) |
+| `<pcs-link page="contact">…</pcs-link>` | `page` (obligatorio); `anchor` (un fragmento, sin `#`); `current-class` (una o más clases) | en línea | Un `<a>` a la URL de esa página en el idioma actual (más `#anchor` si lo lleva), con el contenido dentro y el resto de atributos. Si apunta a la página que se pinta, añade `aria-current="page"` y las clases de `current-class` |
+| `<pcs-meta>` | `structured-data="off"` (opcional) | vacío | Título, descripción, Open Graph, datos estructurados (salvo con `structured-data="off"`, para el diseño que trae su propio JSON-LD) y canónica del framework (`MetaTags`). Se quitan los que el diseñador tuviera, para que no se repitan |
+| `<pcs-image brand="logo">` | `brand` (obligatorio): `logo`, `partners`, `partners-vertical`, `loader-animation`, `loader-logo`, `loader-screen`, `loader-screen-mobile`; `alt`, `class`; `width` y `height` (enteros de 1 a 10000), `loading` (`lazy`, `eager`), `decoding` (`async`, `sync`, `auto`), `sizes` | vacío | La imagen de marca configurada en el panel, con su versión clara y oscura (`SettingsController::brandImageTag()`) |
 | `<pcs-text key="…">texto</pcs-text>` | `key` (obligatorio) | texto | `__()` con el grupo `public-site-<sitio>` y esa clave; si no hay traducción, el texto escrito dentro. Siempre escapado |
 | `<pcs-list resource="…" count="n">` | `resource` (obligatorio); `count`, de 1 a 100 (sin él, 10) | una `<template>` con `{{campo}}` | La plantilla repetida con las filas reales del recurso, escapadas |
-| `<pcs-form action="contact">…</pcs-form>` | `action` (obligatorio) | cualquiera | Un `<form method="POST">` hacia la acción registrada, con su protección y un campo oculto `from` con la página actual |
+| `<pcs-form action="contact">…</pcs-form>` | `action` (obligatorio) | cualquiera | Un `<form method="POST">` hacia la acción registrada, con su protección y un campo oculto `from` con la página actual. En `contact`, los campos que el formulario envía y la acción no espera (un teléfono, por ejemplo) llegan al correo como «Etiqueta: valor», con un tope de campos y de longitud |
 
 Ejemplos mínimos (los de `kit/example/site/` del framework, que se ven funcionando importándolos):
 
@@ -351,7 +364,7 @@ Lo que hay que saber, en general:
 - **El PHP del diseñador nunca se ejecuta.** Las etiquetas de código de servidor que aparezcan en su HTML salen como
   texto, y la importación las rechaza como error. En la vista compilada solo hay código que escribe el motor.
 - **Los datos se escapan y las direcciones se filtran.** Todo valor de una lista, de un atributo o de un texto sale
-  escapado; las direcciones solo admiten las formas esperadas (http/https y rutas relativas) y, si no, salen vacías. Los
+  escapado; las direcciones solo admiten las formas esperadas (`http(s)://`, `mailto:`, `tel:` y rutas relativas) y, si no, salen vacías. Los
   atributos que pasan al elemento se escapan y no incluyen manejadores de eventos.
 - **La importación rechaza lo peligroso**: archivos que un servidor podría ejecutar o interpretar como configuración,
   enlaces simbólicos, nombres de archivo con caracteres que permitirían salirse de su carpeta y direcciones que pisarían las

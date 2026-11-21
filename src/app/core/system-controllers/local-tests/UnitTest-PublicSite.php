@@ -8,6 +8,7 @@ use App\Controller\ContactFormsController;
 use App\Controller\PublicAreaController;
 use PiecesPHP\PublicSite\Compiler;
 use PiecesPHP\PublicSite\DesignerKit;
+use PiecesPHP\PublicSite\MarkContext;
 use PiecesPHP\PublicSite\MarkRegistry;
 use PiecesPHP\PublicSite\MarkRules;
 use PiecesPHP\PublicSite\PublicSite;
@@ -407,6 +408,49 @@ HTML;
 
         $check(MarkRegistry::passThroughAttributes(['onclick' => 'x', 'OnLoad' => 'y', 'class' => 'c'], []) === ' class="c"', 'I3 los on* nunca pasan a lo que pinta una marca');
         $check(str_contains((string) json_encode((new SiteImporter($package, 'backups', $viewRoot, $staticsRoot, $backupRoot))->check(), JSON_UNESCAPED_UNICODE), 'no vale'), 'I8 «backups» no vale como nombre de sitio');
+        echoTerminal(' ');
+
+        //─── k · Anclas, página actual, atributos de imagen, sin datos estructurados, <base> y registros ────
+        echoTerminal('[k] Lo que el diseñador necesita de un tema real');
+        $marksSite = 'zz-marks';
+        $marksPackage = "{$root}/marks";
+        $write("{$marksPackage}/site/index.html", "<!DOCTYPE html><html><head><title>i</title><pcs-meta structured-data=\"off\"></pcs-meta></head><body><pcs-part name=\"nav\"></pcs-part><pcs-image brand=\"logo\" width=\"120\" height=\"40\" loading=\"lazy\" decoding=\"async\" sizes=\"(max-width: 600px) 100vw, 50vw\" alt=\"L\"></pcs-image></body></html>");
+        $write("{$marksPackage}/site/contact.html", '<!DOCTYPE html><html><head><title>c</title><pcs-meta></pcs-meta></head><body><pcs-part name="nav"></pcs-part></body></html>');
+        $write("{$marksPackage}/site/parts/nav.html", '<nav><pcs-link page="index" anchor="team" class="nav" current-class="w--current is-on">I</pcs-link><pcs-link page="contact" current-class="w--current">C</pcs-link></nav>');
+        $write("{$marksPackage}/pcs.json", '{"name":"zz-marks","formatVersion":1,"files":{}}');
+        $marksImport = (new SiteImporter($marksPackage, $marksSite, $viewRoot, $staticsRoot, $backupRoot))->import();
+        $marksRenderer = new SiteRenderer($marksSite, "{$viewRoot}/{$marksSite}", "{$root}/cache-marks");
+        $marksIndex = $marksRenderer->renderPage('index');
+        $marksContact = $marksRenderer->renderPage('contact');
+        $indexUrl = escape_html(PublicSite::pageURL('index'));
+        $contactUrl = escape_html(PublicSite::pageURL('contact'));
+        $check($marksImport['ok'] && str_contains($marksIndex, 'href="' . $indexUrl . '#team"'), 'k1 pcs-link anchor: la URL de la página y «#sección»', (string) json_encode($marksImport['problems'], JSON_UNESCAPED_UNICODE) . ' ' . substr((string) strstr($marksIndex, '<nav'), 0, 300));
+        $check(str_contains($marksIndex, 'href="' . $indexUrl . '#team" class="nav w--current is-on" aria-current="page">I</a>') && str_contains($marksIndex, 'href="' . $contactUrl . '">C</a>'), 'k2 la página que se pinta, desde una parte: current-class se suma a su class con aria-current; las otras, sin nada', substr((string) strstr($marksIndex, '<nav'), 0, 300));
+        $check(str_contains($marksContact, 'href="' . $contactUrl . '" class="w--current" aria-current="page">C</a>') && !str_contains($marksContact, 'is-on'), 'k3 en otra página, la actual es la otra', substr((string) strstr($marksContact, '<nav'), 0, 300));
+        $check(preg_match('/<img width="120" height="40" loading="lazy" decoding="async" sizes="\(max-width: 600px\) 100vw, 50vw" class="[^"]*" src="[^"]+" alt="L">/', $marksIndex) === 1, 'k4 pcs-image pasa width, height, loading, decoding y sizes a la <img>', substr((string) strstr($marksIndex, '<img'), 0, 300));
+        $check(!str_contains($marksIndex, 'application/ld+json') && str_contains($marksContact, 'application/ld+json'), 'k5 pcs-meta structured-data="off" no pinta los datos estructurados del framework; sin él, sí');
+        $badValues = ['pcs-link' => ['page' => 'index', 'anchor' => '#team'], 'pcs-image' => ['brand' => 'logo', 'width' => '12px', 'loading' => 'later', 'sizes' => '100vw" onload="x'], 'pcs-meta' => ['structured-data' => 'on']];
+        $badCounts = array_map(fn (string $mark): int => count(MarkRules::attributeProblems($mark, $badValues[$mark])), array_combine(array_keys($badValues), array_keys($badValues)));
+        $badLink = MarkRules::attributeProblems('pcs-link', ['page' => 'index', 'current-class' => 'a "b']);
+        $check($badCounts === ['pcs-link' => 1, 'pcs-image' => 3, 'pcs-meta' => 1] && count($badLink) === 1, 'k6 un anchor, una medida, un loading, un sizes, un current-class o un structured-data que no valen son error', (string) json_encode([$badCounts, $badLink], JSON_UNESCAPED_UNICODE));
+        $check(MarkRegistry::render('pcs-link', ['page' => 'index', 'anchor' => 'x" onclick="y'], 'z', new MarkContext($marksSite, 'contact')) === '<a href="' . $indexUrl . '">z</a>', 'k7 el pintor no confía en la vista compilada: un anchor que no vale no se pinta');
+        $based = "{$root}/based";
+        $write("{$based}/site/index.html", "<!DOCTYPE html><html><head>\n<base href=\"https://example.org/\">\n<title>b</title></head><body><pcs-list resource=\"zz-nope\"><template><p>{{title}}</p></template></pcs-list><pcs-form action=\"zz-nope\"><input name=\"a\"></pcs-form></body></html>");
+        $write("{$based}/pcs.json", '{"name":"zz-based","formatVersion":1,"files":{}}');
+        $basedProblems = (new SiteImporter($based, 'zz-based', $viewRoot, $staticsRoot, $backupRoot))->check();
+        $basedText = (string) json_encode($basedProblems, JSON_UNESCAPED_UNICODE);
+        $baseProblem = array_values(array_filter($basedProblems, fn (array $p): bool => $p['message'] === 'Tu página trae su propio <base>.'));
+        $check(count($baseProblem) === 1 && $baseProblem[0]['level'] === 'error' && $baseProblem[0]['file'] === 'site/index.html' && $baseProblem[0]['line'] === 2 && $baseProblem[0]['fix'] === 'Quita tu <base>; el sitio pone el suyo.', 'k8 un <base> del diseñador es error de importación, con su archivo, su línea y qué hacer', $basedText);
+        $registryFixes = array_values(array_filter($basedProblems, fn (array $p): bool => str_contains($p['message'], 'zz-nope')));
+        $check(count($registryFixes) === 2 && str_contains($registryFixes[0]['fix'] . $registryFixes[1]['fix'], 'routes() de uno de sus módulos (ResourceRegistry)') && str_contains($registryFixes[0]['fix'] . $registryFixes[1]['fix'], 'routes() de uno de sus módulos (FormActionRegistry)') && !str_contains($basedText, 'Crea el archivo que falta'), 'k9 un recurso o una acción que no existen: se registran en el routes() de un módulo del proyecto, no «crea el archivo»', $basedText);
+        $compiledBase = (new Compiler('zz-based', ['index'], []))->compile("<!DOCTYPE html><html><head><base href=\"https://example.org/\"><title>b</title></head><body></body></html>", Compiler::KIND_PAGE, 'index');
+        $check(substr_count($compiledBase['php'], '<base') === 1 && !str_contains($compiledBase['php'], 'example.org'), 'k10 en lo compilado queda solo el <base> del framework');
+        $templateBase = (new Compiler('zz-based', ['index'], []))->compile("<!DOCTYPE html><html><head><title>b</title></head><body>\n<pcs-list resource=\"zz-items\"><template>\n<li><base href=\"https://example.org/\">{{title}}</li></template></pcs-list>\n<template><template>\n\n<base href=\"https://example.net/\"></template></template></body></html>", Compiler::KIND_PAGE, 'index');
+        $templateBaseLines = array_map(fn (array $p): int => $p['line'], array_values(array_filter($templateBase['problems'], fn (array $p): bool => str_contains($p['message'], 'su propio <base>'))));
+        $check($templateBaseLines === [3, 6] && substr_count($templateBase['php'], '<base') === 1 && !str_contains($templateBase['php'], 'example.org') && !str_contains($templateBase['php'], 'example.net'), 'k11 un <base> dentro de una <template> (la de pcs-list u otra, anidada) también es error con su línea, y se quita', (string) json_encode($templateBase['problems'], JSON_UNESCAPED_UNICODE));
+        $hostile = "x\e]0;ZZ\x07\e[2K\u{9B}31m";
+        $hostileTexts = (string) json_encode([MarkRules::attributeProblems('pcs-link', ['page' => 'index', 'anchor' => $hostile, "zz\e[2K" => '1']), (new Compiler('zz-based', ['index'], []))->compile('<!DOCTYPE html><html><head><title>t</title></head><body><pcs-link page="index" anchor="' . $hostile . '">a</pcs-link><a href="no' . "\e[2K" . '.html">b</a></body></html>', Compiler::KIND_PAGE, 'index')['problems']]);
+        $check(str_contains($hostileTexts, 'x]0;ZZ[2K31m') && !str_contains($hostileTexts, '\u001b') && !str_contains($hostileTexts, '\u0007') && !str_contains($hostileTexts, '\u009b') && str_contains($hostileTexts, 'zz[2K') && str_contains($hostileTexts, 'no[2K.html'), 'k12 un valor o un nombre del diseñador con órdenes de terminal (C0, DEL, C1) llega a los mensajes sin ellas', $hostileTexts);
         echoTerminal(' ');
 
     } catch (\Throwable $e) {

@@ -13,6 +13,13 @@
 	var RULES_FILE = READER + 'rules.json'
 	var PARTS_FILE = SITE + 'parts/parts.js'
 	var UNSAFE_FIX = 'Un dato no puede ir dentro de un evento, un estilo o un script; ponlo en el texto o en un atributo normal (class, href, src, alt…).'
+	//Qué hacer cuando un valor no casa con su «pattern» de las reglas; el mismo sentido que MarkRules::PATTERN_HINTS.
+	var PATTERN_FIX = {
+		name: 'Usa solo minúsculas, números y guiones, sin espacios ni tildes.',
+		fragment: 'Pon el id de la sección, sin «#»: letras, números, «-», «_», «:» o «.», empezando por una letra (por ejemplo, anchor="equipo").',
+		classList: 'Pon uno o más nombres de clase separados por espacios (por ejemplo, current-class="w--current").',
+		sizes: 'Escribe medidas como sizes="(max-width: 600px) 100vw, 50vw", sin comillas ni < >.',
+	}
 	//Los atributos de URL y la lista blanca de safeUrl() son los del servidor (MarkRegistry::safeUrl) y los de pcs.js.
 	var URL_ATTRIBUTES = ['href', 'src', 'action', 'formaction', 'poster', 'srcset', 'xlink:href', 'data-src', 'data-srcset']
 
@@ -275,7 +282,8 @@
 		return '/* Generado desde pcs/rules.json por CHECK.html (o por la exportación). No se edita a mano. */\n' + 'window.PCS_RULES = ' + literal(rules, 0) + '\n'
 	}
 
-	function buildPartsJs(parts, pages, formatVersion) {
+	//PCS_RESOURCES, los recursos con data/<r>.js: la vista previa los carga en <head>, antes que los scripts del diseñador.
+	function buildPartsJs(parts, pages, formatVersion, resources) {
 		var names = Object.keys(parts).sort()
 		var lines = ['/* Generado por CHECK.html desde la carpeta parts/. No se edita a mano: se cambia parts/<nombre>.html y se vuelve a comprobar. */']
 		lines.push('window.PCS_PARTS = {')
@@ -284,6 +292,7 @@
 		})
 		lines.push('}')
 		lines.push('window.PCS_PAGES = ' + literal(pages.slice().sort(), 0))
+		lines.push('window.PCS_RESOURCES = ' + literal((resources || []).slice().sort(), 0))
 		lines.push('window.PCS_PARTS_INFO = { "formatVersion": ' + quote(formatVersion) + ' }')
 		return lines.join('\n') + '\n'
 	}
@@ -416,6 +425,10 @@
 				return
 			}
 			var target = resolve(SITE, clean)
+			//El lector (site/.pcs/) no es del diseñador: lo vigila checkIntegrity con `protected`, también donde no se ve.
+			if (target.indexOf(READER) === 0) {
+				return
+			}
 			if (/\.html?$/i.test(clean) && element.tag === 'a' && /^site\/[^/]+\.html?$/i.test(target)) {
 				report('error', path, element.line, 'El enlace <a href="' + value + '"> va a otra página con un enlace normal, que no funcionará en el sitio real.', 'Cámbialo por <pcs-link page="' + target.replace(/^site\//, '').replace(/\.html?$/i, '') + '">…</pcs-link>.')
 				return
@@ -430,6 +443,7 @@
 			var text = files[path].text || ''
 			var tree = parseHtml(text)
 			var hasScript = false
+			var scriptBefore = false
 			var hasTitle = false
 			var hasMeta = false
 			walk(tree, function (node, inTemplate) {
@@ -442,7 +456,13 @@
 					return
 				}
 				if (node.tag === 'script' && /(^|\/)\.pcs\/pcs\.js$/.test(node.attrs.src || '')) {
+					if (!isPart && !hasScript && ('async' in node.attrs || 'defer' in node.attrs || (node.attrs.type || '').trim().toLowerCase() === 'module')) {
+						report('aviso', path, node.line, 'La vista previa se carga con async, defer o type="module": tus scripts no verán las partes ni las marcas pintadas.', 'Escríbelo tal cual, en <head>: <script src=".pcs/pcs.js"></script>, sin async, defer ni type.')
+					}
 					hasScript = true
+				} else if (node.tag === 'script' && !isPart && !inTemplate && !hasScript && !scriptBefore && /^(|text\/javascript|application\/javascript|module)$/i.test((node.attrs.type || '').trim())) {
+					scriptBefore = true
+					report('aviso', path, node.line, 'Hay un <script> antes de la vista previa: si busca algo de tus partes o de tus marcas, no lo encontrará.', 'Pon <script src=".pcs/pcs.js"></script> en <head>, antes de cualquier otro <script>.')
 				}
 				if (node.tag === 'title' && !inTemplate) {
 					hasTitle = true
@@ -461,6 +481,9 @@
 				}
 				if (node.tag === 'form' && closest(node, 'pcs-form')) {
 					report('error', path, node.line, 'Hay un <form> dentro de <pcs-form>.', 'Quita el <form>: <pcs-form> ya es el formulario.')
+				}
+				if (node.tag === 'base') {
+					report('error', path, node.line, 'Tu página trae su propio <base>.', 'Quita tu <base>; el sitio pone el suyo.')
 				}
 				if (node.tag.indexOf('pcs-') !== 0) {
 					return
@@ -534,7 +557,7 @@
 				if (spec.pattern) {
 					var source = rules[spec.pattern + 'Pattern'] || spec.pattern
 					if (!new RegExp(source).test(value)) {
-						report('error', path, node.line, 'El valor ' + name + '="' + value + '" de <' + node.tag + '> no vale.', 'Usa solo minúsculas, números y guiones, sin espacios ni tildes.')
+						report('error', path, node.line, 'El valor ' + name + '="' + value + '" de <' + node.tag + '> no vale.', PATTERN_FIX[spec.pattern] || 'Corrígelo como indica GUIDE.html.')
 					}
 				}
 				if (spec.integer) {
@@ -599,7 +622,7 @@
 			}
 			if (node.tag === 'pcs-list' && node.attrs.resource && namePattern.test(node.attrs.resource) && !data[node.attrs.resource]) {
 				var known = Object.keys(data)
-				report('error', path, node.line, 'No hay datos de ejemplo para «' + node.attrs.resource + '».', known.length ? 'Los recursos que hay son: ' + known.join(', ') + '. Si necesitas otro, pídelo: es trabajo de programación.' : 'Falta site/data/' + node.attrs.resource + '.js: pídelo al equipo del sistema.')
+				report('error', path, node.line, 'No hay datos de ejemplo para «' + node.attrs.resource + '».', known.length ? 'Los recursos que hay son: ' + known.join(', ') + '. Si necesitas otro, pídeselo al equipo del proyecto: lo registra en el sistema y te manda su site/data/<recurso>.js.' : 'Falta site/data/' + node.attrs.resource + '.js: pídeselo al equipo del proyecto, que registra el recurso en el sistema y te manda ese archivo.')
 			}
 		}
 
@@ -634,7 +657,13 @@
 		var generated = {}
 		var changed = []
 		var formatVersion = rules.formatVersion || 1
-		generated[PARTS_FILE] = buildPartsJs(parts, pages, formatVersion)
+		var resources = Object.keys(files)
+			.map(function (path) {
+				var match = /^site\/data\/([^/]+)\.js$/i.exec(path)
+				return match && namePattern.test(match[1]) ? match[1] : ''
+			})
+			.filter(Boolean)
+		generated[PARTS_FILE] = buildPartsJs(parts, pages, formatVersion, resources)
 
 		var previousParts = null
 		if (files[PARTS_FILE]) {

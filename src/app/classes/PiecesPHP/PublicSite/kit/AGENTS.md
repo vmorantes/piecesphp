@@ -9,8 +9,8 @@ en `.claude/skills/designer/`) y la guía (`GUIDE.html`). En Cursor, las reglas 
 - `site/`: el sitio. `site/index.html` es la portada; cada página, un `.html` en la raíz de `site/`.
 - `site/parts/`: lo que se repite (menú, cabecera, pie). `site/assets/`: CSS, JS, imágenes y fuentes.
 - `site/data/`: los datos de ejemplo de la vista previa (los genera el proyecto: no se tocan). `site/.pcs/`: el motor de
-  la vista previa (no se toca). `site/parts/parts.js`: el paquete de partes que lee la vista previa con doble clic; lo
-  rehace `CHECK.html` («Actualizar el paquete») al cambiar una parte.
+  la vista previa (no se toca). `site/parts/parts.js`: el paquete de partes (y la lista de recursos) que lee la vista previa con
+  doble clic; lo rehace `CHECK.html` («Actualizar el paquete») al cambiar una parte.
 - `CHECK.html`: el comprobador. `GUIDE.html`: la guía. `pcs.json`: el manifiesto (no se toca).
 
 ## Las normas
@@ -22,6 +22,8 @@ en `.claude/skills/designer/`) y la guía (`GUIDE.html`). En Cursor, las reglas 
 - Nunca: PHP, Shadow DOM, dependencias nuevas para la vista previa, ni cambios en `site/.pcs/`, `pcs.json`,
   `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` o `.cursor/`.
 - Dentro de la `<template>` de una lista no van otras marcas: en el sitio real no se resuelven.
+- Cada página lleva `<script src=".pcs/pcs.js"></script>` en su `<head>`, antes de cualquier otro script y sin
+  `async` ni `defer`: no se mueve.
 - Nada se da por terminado sin `CHECK.html` sin avisos y cada página revisada en escritorio y en móvil.
 
 ## Delegación

@@ -27,6 +27,9 @@ final class MarkRegistry
     /** Un nombre de atributo que se puede pintar; los on* se quitan aparte. */
     const ATTRIBUTE_NAME_PATTERN = '/^[a-zA-Z_:][-a-zA-Z0-9_:.]*$/D';
 
+    /** Los de <pcs-image> que pasan a la <img>, además de class y alt; cada valor, validado con rules.json. */
+    const IMAGE_ATTRIBUTES = ['width', 'height', 'loading', 'decoding', 'sizes'];
+
     /**
      * @var array<string,callable(array<string,string>,string,MarkContext):string>
      */
@@ -137,7 +140,7 @@ final class MarkRegistry
      */
     public static function report(MarkContext $context, string $problem): void
     {
-        log_exception(new \RuntimeException("Sitio público «{$context->site}», página «{$context->page}»: {$problem}."));
+        log_exception(new \RuntimeException(MarkRules::printable("Sitio público «{$context->site}», página «{$context->page}»: {$problem}.")));
     }
 
     /**
@@ -243,10 +246,25 @@ final class MarkRegistry
             if ($url === '') {
                 self::report($context, "<pcs-link page=\"{$page}\"> apunta a una página que no existe");
             }
-            return '<a href="' . escape_html($url) . '"' . self::passThroughAttributes($attributes, ['page', 'href']) . '>' . $content . '</a>';
+            $anchor = $attributes['anchor'] ?? null;
+            if ($url !== '' && MarkRules::acceptsValue('pcs-link', 'anchor', $anchor)) {
+                $url .= '#' . $anchor;
+            }
+            $consumed = ['page', 'href', 'anchor', 'current-class'];
+            $current = '';
+            //La página que se pinta, también desde una parte: el contexto es el de la página que la pide.
+            if ($page === $context->page) {
+                $currentClass = $attributes['current-class'] ?? null;
+                $classes = (string) ($attributes['class'] ?? '') . ' ' . (MarkRules::acceptsValue('pcs-link', 'current-class', $currentClass) ? $currentClass : '');
+                $classes = array_values(array_unique(preg_split('/\s+/', trim($classes), -1, \PREG_SPLIT_NO_EMPTY) ?: []));
+                $current = ($classes !== [] ? ' class="' . escape_html(implode(' ', $classes)) . '"' : '') . ' aria-current="page"';
+                $consumed = array_merge($consumed, ['class', 'aria-current']);
+            }
+            return '<a href="' . escape_html($url) . '"' . $current . self::passThroughAttributes($attributes, $consumed) . '>' . $content . '</a>';
         };
 
-        self::$marks['pcs-meta'] = fn (array $attributes, string $content, MarkContext $context): string => MetaTags::getMetaTagsGeneric() . MetaTags::getMetaTagsOpenGraph() . StructuredData::get();
+        self::$marks['pcs-meta'] = fn (array $attributes, string $content, MarkContext $context): string => MetaTags::getMetaTagsGeneric() . MetaTags::getMetaTagsOpenGraph()
+            . (($attributes['structured-data'] ?? '') === 'off' ? '' : StructuredData::get());
 
         self::$marks['pcs-image'] = function (array $attributes, string $content, MarkContext $context): string {
             $brand = $attributes['brand'] ?? '';
@@ -255,7 +273,14 @@ final class MarkRegistry
                 self::report($context, "<pcs-image brand=\"{$brand}\"> no es una imagen de marca (" . implode(', ', self::brandNames()) . ')');
                 return '';
             }
-            return SettingsController::brandImageTag($configName, $attributes['class'] ?? '', $attributes['alt'] ?? '');
+            $extra = '';
+            foreach (self::IMAGE_ATTRIBUTES as $name) {
+                if (MarkRules::acceptsValue('pcs-image', $name, $attributes[$name] ?? null)) {
+                    $extra .= ' ' . $name . '="' . escape_html((string) $attributes[$name]) . '"';
+                }
+            }
+            //brandImageTag() pinta una o dos <img> (la clara y la oscura): las dos llevan los mismos atributos.
+            return str_replace('<img ', '<img' . $extra . ' ', SettingsController::brandImageTag($configName, $attributes['class'] ?? '', $attributes['alt'] ?? ''));
         };
 
         self::$marks['pcs-text'] = function (array $attributes, string $content, MarkContext $context): string {

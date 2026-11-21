@@ -51,8 +51,19 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
         if (preg_match('/innerHTML|outerHTML|insertAdjacentHTML|document\.write/', $fill) === 1) {
             $problems[] = 'escape-html';
         }
-        if (preg_match_all('/innerHTML|outerHTML|insertAdjacentHTML|document\.write/', $source) !== 1 || !str_contains($source, 'holder.innerHTML = parts[name]')) {
+        if (preg_match_all('/innerHTML|outerHTML|insertAdjacentHTML/', $source) !== 1 || !str_contains($source, 'holder.innerHTML = parts[name]')) {
             $problems[] = 'html-sink';
+        }
+        //document.write, solo uno: un <script src> con la URL escapada o la llamada fija que reanuda la carga.
+        if (preg_match_all('/document\.write/', $source) !== 1 || !str_contains($source, 'document.write(tag)') || !str_contains($source, "var tag = url ? '<script src=\"' + url.replace(/&/g, '&amp;').replace(/\"/g, '&quot;') + '\"><\\/script>' : '<script>window.PCSPreview.resume()<\\/script>'")) {
+            $problems[] = 'write-sink';
+        }
+        //D1: un <script> normal escribe rules.js, parts.js y los datos, que paran la lectura; cada marca se pinta al leerse.
+        if (preg_match("/!script\.async && !script\.defer\) \{.*?writing = true\s*loadScript\('\.pcs\/rules\.js'\)\s*loadScript\('parts\/parts\.js'\)\s*writeScript\(null\)/s", $source) !== 1
+            || preg_match("/window\.PCS_RESOURCES.*?loadScript\('data\/' \+ resource \+ '\.js'\)/s", $source) !== 1
+            || preg_match('/connectedCallback\(\) \{\s*if \(!painting\) \{\s*pending\.push\(this\)\s*flush\(\)/', $source) !== 1
+            || !str_contains($source, 'new MutationObserver(flush)')) {
+            $problems[] = 'parse-time';
         }
         if (preg_match('/function markInTemplate\(copy\) \{.*?problemBox\(inner\[i\]/s', $source) !== 1 || preg_match('/var copy = document\.importNode\(template\.content, true\)\s*markInTemplate\(copy\)/', $source) !== 1) {
             $problems[] = 'template-marks';
@@ -113,6 +124,8 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $check(!in_array('rules-route', $problems, true) && !in_array('rules-fetch', $problems, true), 'p2 pcs.js lee las reglas por .pcs/rules.js (window.PCS_RULES), nunca pidiendo rules.json');
     $check(!in_array('escape-missing', $problems, true) && !in_array('escape-html', $problems, true), 'p3 {{campo}} se sustituye con textContent y setAttribute, sin innerHTML');
     $check(!in_array('html-sink', $problems, true), 'p4 el único innerHTML es el de las partes del diseñador, nunca con datos');
+    $check(!in_array('write-sink', $problems, true), 'p10 el único document.write escribe un <script src> con la URL escapada o la llamada fija que reanuda la carga');
+    $check(!in_array('parse-time', $problems, true), 'p11 desde <head>, pcs.js para la lectura hasta tener reglas, partes y datos, y pinta cada marca al leerla: antes que los scripts del diseñador');
     $noBehavior = array_values(array_filter($problems, fn (string $problem): bool => str_starts_with($problem, 'behavior:')));
     $check($marks !== [] && $noBehavior === [], 'p5 cada marca de rules.json tiene su vista previa en pcs.js', implode(', ', $noBehavior));
     $check(!in_array('template-marks', $problems, true), 'p8 una marca dentro del molde de una lista no se pinta en la vista previa: queda su recuadro rojo, como en el servidor');
@@ -126,6 +139,8 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
         'behavior:pcs-form' => str_replace("'pcs-form': renderForm,", '', $pcs),
         'template-marks' => str_replace("\t\t\tmarkInTemplate(copy)\n", '', $pcs),
         'default-count' => str_replace("|| (all ? all.marks['pcs-list'].attributes.count.default : 0)", '|| 3', $pcs),
+        'write-sink' => str_replace("url.replace(/&/g, '&amp;').replace(/\"/g, '&quot;')", 'url', $pcs),
+        'parse-time' => str_replace("\t\t\tloadScript('parts/parts.js')\n", '', $pcs),
     ];
     $caught = [];
     foreach ($canaries as $expected => $mutated) {
@@ -133,7 +148,7 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
             $caught[] = $expected;
         }
     }
-    $check(count($caught) === count($canaries), 'p7 CANARIO: quitar el escapado, usar Shadow DOM, pedir rules.json, quitar una vista previa, pintar marcas del molde o fijar el count hace caer la suite', 'cazados: ' . implode(', ', $caught));
+    $check(count($caught) === count($canaries), 'p7 CANARIO: quitar el escapado, usar Shadow DOM, pedir rules.json, quitar una vista previa, pintar marcas del molde, fijar el count, escribir la URL sin escapar o no esperar a parts.js hace caer la suite', 'cazados: ' . implode(', ', $caught));
     echoTerminal(' ');
 
     echoTerminal('[4/6] Paridad con el servidor: datos en URL y en sitios donde el escapado no protege');
@@ -234,6 +249,42 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $mutatedCheck = str_replace("if (inTemplate) {\n\t\t\t\t\treport('error'", "if (inTemplate) {\n\t\t\t\t\treport('aviso'", $checkJs);
     $ranMutated = $node($mutatedCheck, $mutatedPcs, $cases, $moldFiles);
     $check($mutatedPcs !== $pcs && $mutatedCheck !== $checkJs && $ranMutated !== null && ($ranMutated['pcs'] ?? null) !== $expected && $moldErrors($ranMutated) === [], 'm8 CANARIO: sin mailto/tel en pcs.js o con aviso en vez de error, m6 y m7 caen');
+
+    //Los valores de anchor, current-class, imagen y structured-data: una página por caso, error en CHECK si PHP lo rechaza.
+    $valueCases = [
+        ['pcs-link', 'anchor', 'team'], ['pcs-link', 'anchor', 'sec-2_a:b.c'], ['pcs-link', 'anchor', '#team'], ['pcs-link', 'anchor', '2team'], ['pcs-link', 'anchor', 'a b'],
+        ['pcs-link', 'current-class', 'w--current'], ['pcs-link', 'current-class', 'w--current is-on'], ['pcs-link', 'current-class', 'a "b'], ['pcs-link', 'current-class', '1a'], ['pcs-link', 'current-class', 'a  '],
+        ['pcs-image', 'width', '120'], ['pcs-image', 'width', '0'], ['pcs-image', 'width', '12px'], ['pcs-image', 'height', '10001'], ['pcs-image', 'loading', 'lazy'], ['pcs-image', 'loading', 'later'],
+        ['pcs-image', 'decoding', 'auto'], ['pcs-image', 'decoding', 'fast'], ['pcs-image', 'sizes', '(max-width: 600px) 100vw, calc(50vw - 2rem)'], ['pcs-image', 'sizes', '100vw" onload="x'], ['pcs-image', 'sizes', "100vw'"],
+        ['pcs-meta', 'structured-data', 'off'], ['pcs-meta', 'structured-data', 'on'],
+    ];
+    $valueFiles = ['site/.pcs/pcs.js' => ['text' => '']];
+    $phpAccepts = [];
+    foreach ($valueCases as $index => [$mark, $attribute, $value]) {
+        $required = ['pcs-link' => ' page="v0"', 'pcs-image' => ' brand="logo"', 'pcs-meta' => ''][$mark];
+        $valueFiles["site/v{$index}.html"] = ['text' => '<!DOCTYPE html><html><head><title>t</title><script src=".pcs/pcs.js"></script></head><body><' . $mark . $required . ' ' . $attribute . '="' . htmlspecialchars($value, ENT_QUOTES) . '"></' . $mark . '></body></html>'];
+        $phpAccepts["site/v{$index}.html"] = \PiecesPHP\PublicSite\MarkRules::acceptsValue($mark, $attribute, $value);
+    }
+    $valueFiles['site/base.html'] = ['text' => "<!DOCTYPE html><html><head><title>t</title>\n<base href=\"/\"><script src=\".pcs/pcs.js\"></script></head><body><pcs-list resource=\"zz-nope\"><template><p>x</p></template></pcs-list></body></html>"];
+    $valueRun = function (string $checkSource) use ($node, $pcs, $valueFiles): array {
+        $errors = [];
+        foreach ($node($checkSource, $pcs, [], $valueFiles)['problems'] ?? [] as $problem) {
+            if (($problem['level'] ?? '') === 'error') {
+                $errors[(string) $problem['file']][] = $problem;
+            }
+        }
+        return $errors;
+    };
+    $valueErrors = $valueRun($checkJs);
+    $checkAccepts = array_map(fn (string $file): bool => !isset($valueErrors[$file]), array_combine(array_keys($phpAccepts), array_keys($phpAccepts)));
+    $expectedAccepts = [true, true, false, false, false, true, true, false, false, false, true, false, false, false, true, false, true, false, true, false, false, true, false];
+    $check($checkAccepts === $phpAccepts && array_values($phpAccepts) === $expectedAccepts, 'm9 anchor, current-class, width, height, loading, decoding, sizes y structured-data: PHP y CHECK aceptan y rechazan los mismos valores', (string) json_encode(['php' => $phpAccepts, 'check' => $checkAccepts]));
+    $fixes = array_map(fn (array $problems): string => (string) ($problems[0]['fix'] ?? ''), $valueErrors);
+    $check(str_contains($fixes['site/v2.html'] ?? '', 'anchor="equipo"') && str_contains($fixes['site/v7.html'] ?? '', 'current-class="w--current"') && str_contains($fixes['site/v19.html'] ?? '', 'sizes="'), 'm10 el «Qué hacer» de un anchor, un current-class o un sizes que no valen dice cómo escribirlos', (string) json_encode($fixes, JSON_UNESCAPED_UNICODE));
+    $baseErrors = array_values(array_filter($valueErrors['site/base.html'] ?? [], fn (array $p): bool => ($p['message'] ?? '') === 'Tu página trae su propio <base>.'));
+    $check(count($baseErrors) === 1 && $baseErrors[0]['line'] === 2 && $baseErrors[0]['fix'] === 'Quita tu <base>; el sitio pone el suyo.', 'm11 CHECK da error por un <base> propio, con su línea y el mismo «Qué hacer» que la importación', (string) json_encode($valueErrors['site/base.html'] ?? [], JSON_UNESCAPED_UNICODE));
+    $resourceFix = implode(' ', array_map(fn (array $p): string => (string) $p['fix'], array_filter($valueErrors['site/base.html'] ?? [], fn (array $p): bool => str_contains((string) $p['message'], 'zz-nope'))));
+    $check(str_contains($resourceFix, 'pídeselo al equipo del proyecto') && str_contains($resourceFix, 'registra el recurso'), 'm12 un recurso sin datos de ejemplo: CHECK dice que lo pida al equipo del proyecto, que lo registra', $resourceFix);
     echoTerminal(' ');
 
     echoTerminal('[5/6] El sitio de ejemplo');
@@ -268,6 +319,51 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
         }
     }
     $check($withoutReader === [], 'e4 cada página del ejemplo carga .pcs/pcs.js', implode(', ', $withoutReader));
+
+    //El comprobador ejecutado con node sobre unos archivos: problemas, lo que cambiaría y, si se pide, un parts.js.
+    $runCheck = function (string $checkSource, array $files, ?array $parts = null) use ($rules): ?array {
+        $script = 'const a=JSON.parse(process.argv[1]),m={exports:{}};new Function("module",a.check)(m);const r=m.exports.run(a.files,a.rules);'
+            . 'process.stdout.write(JSON.stringify({problems:r.problems,changed:r.changed,parts:a.parts?m.exports.buildPartsJs(a.parts.parts,a.parts.pages,a.parts.formatVersion,a.parts.resources):null}))';
+        $input = (string) json_encode(['check' => $checkSource, 'files' => $files, 'rules' => $rules, 'parts' => $parts], JSON_UNESCAPED_UNICODE);
+        $decoded = json_decode((string) shell_exec('node -e ' . escapeshellarg($script) . ' ' . escapeshellarg($input) . ' 2>/dev/null'), true);
+        return is_array($decoded) ? $decoded : null;
+    };
+    $exampleFiles = [];
+    foreach (array_merge(glob("{$kit}/example/site/*.html") ?: [], glob("{$kit}/example/site/parts/*") ?: [], glob("{$kit}/example/site/data/*") ?: [], glob("{$kit}/example/site/assets/*") ?: []) as $file) {
+        $exampleFiles['site/' . substr($file, strlen("{$kit}/example/site/"))] = ['text' => (string) file_get_contents($file)];
+    }
+    $errorsOf = fn (?array $result): array => array_values(array_map(fn (array $p): string => "{$p['file']}: {$p['message']}", array_filter($result['problems'] ?? [['level' => 'error', 'file' => '-', 'message' => 'sin node o sin salida']], fn (array $p): bool => ($p['level'] ?? '') === 'error')));
+    $exampleRun = $runCheck($checkJs, $exampleFiles);
+    $check($exampleRun !== null && $errorsOf($exampleRun) === [] && !in_array('site/parts/parts.js', $exampleRun['changed'] ?? ['site/parts/parts.js'], true), 'e5 CHECK sobre el ejemplo: sin errores (site/.pcs/ es del lector y lo vigila `protected`) y su parts.js al día', (string) json_encode([$errorsOf($exampleRun), $exampleRun['changed'] ?? null], JSON_UNESCAPED_UNICODE));
+    $mutatedReader = str_replace("if (target.indexOf(READER) === 0) {\n\t\t\t\treturn\n\t\t\t}\n", '', $checkJs);
+    $check($mutatedReader !== $checkJs && str_contains(implode("\n", $errorsOf($runCheck($mutatedReader, $exampleFiles))), '«.pcs/pcs.js» no existe'), 'e6 CANARIO: si CHECK comprobara site/.pcs/ como archivos del diseñador, el ejemplo daría error por .pcs/pcs.js');
+    $registered = array_map('strval', array_keys(\PiecesPHP\PublicSite\ResourceRegistry::all()));
+    $sampleParts = ['b-zz' => "<p>b</p>\n", 'a-zz' => '<i>"a"</i>'];
+    $partsRun = $runCheck($checkJs, $exampleFiles, ['parts' => $sampleParts, 'pages' => ['index', 'about-zz'], 'formatVersion' => \PiecesPHP\PublicSite\MarkRules::formatVersion(), 'resources' => $registered]);
+    $phpParts = \PiecesPHP\PublicSite\DesignerKit::partsScript($sampleParts, ['index', 'about-zz']);
+    $sortedRegistered = $registered;
+    sort($sortedRegistered, SORT_STRING);
+    $check($registered !== [] && ($partsRun['parts'] ?? null) === $phpParts && str_contains($phpParts, "\nwindow.PCS_RESOURCES = " . \PiecesPHP\PublicSite\DesignerKit::literal($sortedRegistered) . "\n"), 'e7 parts.js trae PCS_RESOURCES (los recursos con data/) y sale igual byte a byte de PHP y de CHECK');
+    $placement = [
+        'site/bien.html' => '<!DOCTYPE html><html><head><title>t</title><script type="application/ld+json">{}</script><script src=".pcs/pcs.js"></script></head><body><script>var a = 1</script></body></html>',
+        'site/antes.html' => '<!DOCTYPE html><html><head><title>t</title><script>var a = 1</script><script src=".pcs/pcs.js"></script></head><body></body></html>',
+        'site/tarde.html' => '<!DOCTYPE html><html><head><title>t</title><script defer src=".pcs/pcs.js"></script></head><body></body></html>',
+        'site/modulo.html' => '<!DOCTYPE html><html><head><title>t</title><script type="module" src=".pcs/pcs.js"></script></head><body></body></html>',
+    ];
+    $placementOf = function (?array $result): array {
+        $found = [];
+        foreach ($result['problems'] ?? [] as $problem) {
+            if (str_contains((string) $problem['message'], 'antes de la vista previa') || str_contains((string) $problem['message'], 'async, defer o type="module"')) {
+                $found[] = basename((string) $problem['file'], '.html');
+            }
+        }
+        sort($found);
+        return $found;
+    };
+    $placementFiles = array_map(fn (string $html): array => ['text' => $html], $placement);
+    $check($placementOf($runCheck($checkJs, $placementFiles)) === ['antes', 'modulo', 'tarde'], 'c1 CHECK avisa, con su «Qué hacer», si pcs.js va con async, defer o module, o tras otro <script>: así las partes no llegan antes que el JS del diseñador', (string) json_encode($placementOf($runCheck($checkJs, $placementFiles))));
+    $mutatedPlacement = str_replace("!hasScript && !scriptBefore && /^(", "false && /^(", $checkJs);
+    $check($mutatedPlacement !== $checkJs && $placementOf($runCheck($mutatedPlacement, $placementFiles)) === ['modulo', 'tarde'], 'c2 CANARIO: sin el aviso del <script> anterior, c1 cae');
     echoTerminal(' ');
 
     echoTerminal('[6/6] Salvaguardas del agente del diseñador');

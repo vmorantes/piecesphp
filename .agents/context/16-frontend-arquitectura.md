@@ -460,3 +460,23 @@ panel implementado**, y el tema se compara contra él:
   pantallas que cambian: el punto de las etiquetas de estado partido en celdas estrechas entró con una traída y nadie lo
   vio. El tema compila en vivo: lo que se verifica es lo de `ORIGEN.json`, con `sin_commitear` 0.
 - **El repositorio del tema avanza solo**: antes de traer, el compilado se comprueba por su historial (`git log <etiqueta>..HEAD -- dist-temas/piecesphp` vacío) y su estado, no por el HEAD; `ORIGEN.json` registra el HEAD y `--check` avisa de que `VERSION.json` es de otro commit (esperado; JIS, `#2784`).
+
+## El sitio público por marcas (ADR 0084, JNB-JNC, 2026-11-20)
+
+- **Qué es**: el sitio público de un proyecto desde cualquier diseño web, en `src/app/classes/PiecesPHP/PublicSite/`. Se
+  activa con `$config['public_site']`. Referencia: `source-docs/.../new-features/sitio-publico.md`; recorrido:
+  `adaptar-plantillas.md`.
+- **El kit del diseñador** (`PublicSite/kit/`): el CÓDIGO (`pcs/`, `CHECK.html`, `package-map.json`, `example/`) es del
+  coder; el CONTENIDO (`AGENTS.md`, `CLAUDE.md`, `GUIDE.html`, `skills/`, `subagents/`, `cursor-rules/`) es documentación del
+  arquitecto.
+- **Trampas que ya mordieron**:
+  - el texto del kit que va fuera de la lista blanca (`GUIDE.html`) no puede llevar ninguno de los 20 términos del rastro
+    de `bin/entregar-al-cliente` («subagente», «arquitecto», «coder», `AGENTS.md`…): el export falla;
+  - los orígenes del kit van con nombres neutros (`agent-settings/`, `subagents/`): el detector de atribución del hook
+    pre-commit rechaza la forma sin punto del nombre de la herramienta; el destino con punto (`.claude/…`) pasa;
+  - el kit no nombra la herramienta en prosa (`menciones_ia.py` lo cuenta como atribución);
+  - las páginas del sitio llevan el `<base>` del framework (sin él, las interiores no cargan sus estáticos; JNB solo
+    había medido presencia, no carga): toda medida de este motor comprueba CARGA en una página interior;
+  - `public-site-export` exige un sitio importado (la carpeta de partida sale de importar uno mínimo y exportarlo).
+- **Una regla, tres sitios**: `pcs/rules.json` es la única fuente de marcas y atributos para el servidor, `CHECK` y la
+  vista previa; la lista blanca de URL vive en `MarkRegistry::safeUrl`, `check.js` y `pcs.js`, con su prueba de paridad.

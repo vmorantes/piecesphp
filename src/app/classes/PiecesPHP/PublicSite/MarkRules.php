@@ -25,6 +25,14 @@ final class MarkRules
     const CONTENT_TEMPLATE = 'template';
     const CONTENT_ANY = 'any';
 
+    /** Qué escribir cuando un valor no casa con su «pattern»; el mismo sentido que PATTERN_FIX de check.js. */
+    const PATTERN_HINTS = [
+        'name' => 'solo minúsculas, números y guiones (por ejemplo «main-menu»)',
+        'fragment' => 'el id de la sección, sin «#»: letras, números, «-», «_», «:» o «.», empezando por una letra (por ejemplo «equipo»)',
+        'classList' => 'uno o más nombres de clase separados por espacios (por ejemplo «w--current»)',
+        'sizes' => 'medidas como «(max-width: 600px) 100vw, 50vw», sin comillas ni < >',
+    ];
+
     /**
      * @var array<string,mixed>|null
      */
@@ -137,26 +145,84 @@ final class MarkRules
                 }
                 continue;
             }
-            if (($rule['pattern'] ?? null) === 'name' && preg_match('/' . self::namePattern() . '/D', $value) !== 1) {
-                $problems[] = "el atributo «{$name}» de <{$mark}> vale «{$value}»: solo minúsculas, números y guiones (por ejemplo «main-menu»)";
-            }
-            if (is_array($rule['values'] ?? null) && !in_array($value, $rule['values'], true)) {
-                $problems[] = "el atributo «{$name}» de <{$mark}> vale «{$value}»: tiene que ser uno de " . implode(', ', $rule['values']);
-            }
-            if (is_array($rule['integer'] ?? null)) {
-                $min = (int) ($rule['integer']['min'] ?? \PHP_INT_MIN);
-                $max = (int) ($rule['integer']['max'] ?? \PHP_INT_MAX);
-                if (preg_match('/^\d+$/D', $value) !== 1 || (int) $value < $min || (int) $value > $max) {
-                    $problems[] = "el atributo «{$name}» de <{$mark}> vale «{$value}»: tiene que ser un número entero entre {$min} y {$max}";
-                }
-            }
+            $problems = array_merge($problems, self::valueProblems($mark, (string) $name, $rule, $value));
         }
         foreach (array_keys($attributes) as $name) {
             if (!array_key_exists($name, $definition) && !self::isGlobalAttribute((string) $name)) {
-                $problems[] = "<{$mark}> no admite el atributo «{$name}» (admite: " . implode(', ', array_merge(array_keys($definition), self::globalAttributes())) . ')';
+                $problems[] = '<' . self::printable($mark) . '> no admite el atributo «' . self::printable((string) $name) . '» (admite: ' . implode(', ', array_merge(array_keys($definition), self::globalAttributes())) . ')';
             }
         }
         return $problems;
+    }
+
+    /**
+     * Si un valor casa con un «pattern» de las reglas: la clave «<pattern>Pattern» de rules.json o, si no existe, el
+     * propio texto como expresión (como check.js y pcs.js).
+     *
+     * @param string $pattern
+     * @param string $value
+     * @return bool
+     */
+    public static function matchesPattern(string $pattern, string $value): bool
+    {
+        $source = self::rules()[$pattern . 'Pattern'] ?? $pattern;
+        return is_string($source) && preg_match('~' . str_replace('~', '\\~', $source) . '~D', $value) === 1;
+    }
+
+    /**
+     * Si un atributo opcional de una marca trae un valor que sus reglas aceptan; vacío o ausente, false. Lo usan los
+     * pintores: la vista compilada no se vuelve a validar.
+     *
+     * @param string $mark
+     * @param string $name
+     * @param string|null $value
+     * @return bool
+     */
+    public static function acceptsValue(string $mark, string $name, ?string $value): bool
+    {
+        $rule = self::rules()['marks'][$mark]['attributes'][$name] ?? null;
+        return is_array($rule) && $value !== null && trim($value) !== '' && self::valueProblems($mark, $name, $rule, $value) === [];
+    }
+
+    /**
+     * Lo que falla en un valor no vacío según su regla: «pattern», «values» e «integer».
+     *
+     * @param string $mark
+     * @param string $name
+     * @param array<mixed> $rule
+     * @param string $value
+     * @return string[]
+     */
+    private static function valueProblems(string $mark, string $name, array $rule, string $value): array
+    {
+        $problems = [];
+        $raw = $value;
+        $value = self::printable($value);
+        if (is_string($rule['pattern'] ?? null) && !self::matchesPattern($rule['pattern'], $raw)) {
+            $problems[] = "el atributo «{$name}» de <{$mark}> vale «{$value}»: " . (self::PATTERN_HINTS[$rule['pattern']] ?? 'no tiene la forma que piden las reglas');
+        }
+        if (is_array($rule['values'] ?? null) && !in_array($raw, $rule['values'], true)) {
+            $problems[] = "el atributo «{$name}» de <{$mark}> vale «{$value}»: tiene que ser uno de " . implode(', ', $rule['values']);
+        }
+        if (is_array($rule['integer'] ?? null)) {
+            $min = (int) ($rule['integer']['min'] ?? \PHP_INT_MIN);
+            $max = (int) ($rule['integer']['max'] ?? \PHP_INT_MAX);
+            if (preg_match('/^\d+$/D', $raw) !== 1 || (int) $raw < $min || (int) $raw > $max) {
+                $problems[] = "el atributo «{$name}» de <{$mark}> vale «{$value}»: tiene que ser un número entero entre {$min} y {$max}";
+            }
+        }
+        return $problems;
+    }
+
+    /**
+     * Un texto del diseñador listo para un mensaje: sin C0, DEL ni C1 (U+0080-U+009F), que en una terminal son órdenes.
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function printable(string $text): string
+    {
+        return (string) preg_replace('/[\x00-\x1F\x7F]|\xC2[\x80-\x9F]/', '', $text);
     }
 
     /**

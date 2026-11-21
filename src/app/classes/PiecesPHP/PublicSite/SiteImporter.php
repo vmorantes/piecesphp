@@ -264,7 +264,7 @@ final class SiteImporter
             if (is_dir($backup) && (scandir($backup) ?: []) === ['.', '..']) {
                 @rmdir($backup); //RETORNO-IGNORADO: un respaldo vacío que queda no estorba
             }
-            $this->problems[] = ['level' => 'error', 'file' => '', 'line' => 0, 'message' => 'No se pudo colocar el sitio: ' . $e->getMessage(), 'fix' => "No se cambió nada. Revisa los permisos de app/view/, statics/ y app/cache/; si quedó un respaldo, está en {$backup}."];
+            $this->problems[] = ['level' => 'error', 'file' => '', 'line' => 0, 'message' => MarkRules::printable('No se pudo colocar el sitio: ' . $e->getMessage()), 'fix' => MarkRules::printable("No se cambió nada. Revisa los permisos de app/view/, statics/ y app/cache/; si quedó un respaldo, está en {$backup}.")];
             return ['ok' => false, 'problems' => $this->problems, 'backup' => null];
         } finally {
             umask($previousUmask);
@@ -377,6 +377,9 @@ final class SiteImporter
     private static function fixFor(string $message): string
     {
         return match (true) {
+            str_contains($message, 'su propio <base>') => 'Quita tu <base>; el sitio pone el suyo.',
+            str_contains($message, 'pide un recurso que no existe') => 'Ese recurso no está registrado en el proyecto: lo registra el equipo del proyecto en el routes() de uno de sus módulos (ResourceRegistry). Pídeselo o corrige el nombre.',
+            str_contains($message, 'pide una acción que no existe') => 'Esa acción no está registrada en el proyecto: la registra el equipo del proyecto en el routes() de uno de sus módulos (FormActionRegistry). Pídesela o corrige el nombre.',
             str_contains($message, 'código de servidor') => 'Quítalo: el sitio no puede llevar código de servidor; lo dinámico va con marcas <pcs-…>.',
             str_contains($message, 'no es una marca conocida') => 'Revisa cómo se escribe la marca; las que existen están en GUIDE.html.',
             str_contains($message, 'le falta el atributo'), str_contains($message, 'no admite el atributo'), str_contains($message, 'vale «') => 'Corrige el atributo como indica GUIDE.html.',
@@ -423,7 +426,7 @@ final class SiteImporter
      */
     private function error(string $file, int $line, string $message, string $fix): void
     {
-        $this->problems[] = ['level' => 'error', 'file' => $file, 'line' => $line, 'message' => $message, 'fix' => $fix];
+        $this->problems[] = ['level' => 'error', 'file' => MarkRules::printable($file), 'line' => $line, 'message' => MarkRules::printable($message), 'fix' => MarkRules::printable($fix)];
     }
 
     /**
@@ -435,7 +438,7 @@ final class SiteImporter
      */
     private function warning(string $file, int $line, string $message, string $fix): void
     {
-        $this->problems[] = ['level' => 'aviso', 'file' => $file, 'line' => $line, 'message' => $message, 'fix' => $fix];
+        $this->problems[] = ['level' => 'aviso', 'file' => MarkRules::printable($file), 'line' => $line, 'message' => MarkRules::printable($message), 'fix' => MarkRules::printable($fix)];
     }
 
     /**

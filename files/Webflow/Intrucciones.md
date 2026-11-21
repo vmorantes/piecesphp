@@ -1,3 +1,7 @@
+> **Superado (2026-11-20).** Este es el método antiguo de integrar a mano un export de Webflow en PHP. Para un proyecto
+> nuevo, el recorrido actual está en la documentación: «Adaptar una plantilla, de principio a fin»
+> (`source-docs/project/docs/piecesphp/new-features/adaptar-plantillas.md`). Se conserva por los proyectos que ya lo usan.
+
 # Instrucciones de implementación
 
 ## Integración de archivos

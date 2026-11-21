@@ -55,6 +55,105 @@ class ContactFormsController extends PublicAreaController
     private static $startSegmentRoutes = 'contact';
 
     /**
+     * Cuántos campos de más entran en el cuerpo del correo como máximo; el resto se descarta.
+     */
+    public const EXTRA_FIELDS_LIMIT = 10;
+
+    /**
+     * Caracteres por valor de un campo de más; lo que pase se corta y termina en «…».
+     */
+    public const EXTRA_FIELD_LENGTH_LIMIT = 500;
+
+    /**
+     * Las etiquetas que ya pinta la vista del correo (mailing/generic-contact-form): un campo de más que se llame
+     * igual se descarta, para que el visitante no imite las del sistema. Se comparan también traducidas.
+     */
+    private const MAIL_VIEW_LABELS = ['Nombre', 'E-mail', 'Asunto', 'Mensaje', 'Acepta que le envíen actualizaciones', 'Correo', 'Correo electrónico', 'Extra'];
+
+    /**
+     * Los campos que el formulario envía y la acción no lee (un teléfono, por ejemplo), para el cuerpo del correo.
+     *
+     * Solo nombres con forma segura; nunca los esperados, los que se llamen como una etiqueta de la vista del correo
+     * ni los de protección (CAPTCHA, CSRF, tokens, contraseñas, secretos, OTP, PIN). La etiqueta sale del nombre, no
+     * del HTML del cliente. Devuelve texto SIN escapar: lo escapa la vista del correo.
+     *
+     * @param array<mixed> $input El cuerpo de la petición
+     * @param string[] $expectedNames Los nombres que ya lee la acción
+     * @return array<int,array{label:string,value:string}>
+     */
+    public static function extraFields(array $input, array $expectedNames): array
+    {
+        $reserved = [];
+        foreach (array_merge($expectedNames, self::MAIL_VIEW_LABELS) as $reservedLabel) {
+            $reserved[self::normalizeLabel($reservedLabel)] = true;
+            $reserved[self::normalizeLabel((string) __(LANG_GROUP, $reservedLabel))] = true;
+        }
+        $fields = [];
+        foreach ($input as $fieldName => $rawValue) {
+            if (count($fields) >= self::EXTRA_FIELDS_LIMIT) {
+                break;
+            }
+            //Con /D: sin él, «name\n» casa y se salta la lista de esperados.
+            if (!is_string($fieldName) || preg_match('/^[A-Za-z][A-Za-z0-9_-]{0,63}$/D', $fieldName) !== 1) {
+                continue;
+            }
+            $label = trim((string) preg_replace(['/([a-z0-9])([A-Z])/', '/[_-]+/'], ['$1 $2', ' '], $fieldName));
+            if (isset($reserved[self::normalizeLabel($label)]) || self::isProtectionField($label)) {
+                continue;
+            }
+            if (is_array($rawValue)) {
+                //Una lista de casillas (name="x[]"); lo anidado o con claves no se adivina.
+                if (!array_is_list($rawValue) || count(array_filter($rawValue, fn ($item) => !is_scalar($item))) > 0) {
+                    continue;
+                }
+                $rawValue = implode(', ', array_map(fn ($item) => (string) $item, $rawValue));
+            }
+            if (!is_scalar($rawValue)) {
+                continue;
+            }
+            $value = mb_scrub((string) $rawValue, 'UTF-8');
+            $value = trim((string) preg_replace('/[\s\x{0000}-\x{001F}\x{007F}]+/u', ' ', $value));
+            if ($value === '') {
+                continue;
+            }
+            if (mb_strlen($value) > self::EXTRA_FIELD_LENGTH_LIMIT) {
+                $value = mb_substr($value, 0, self::EXTRA_FIELD_LENGTH_LIMIT) . '…';
+            }
+            $fields[] = ['label' => mb_strtoupper(mb_substr($label, 0, 1)) . mb_substr($label, 1), 'value' => $value];
+        }
+        return $fields;
+    }
+
+    /**
+     * Minúsculas, sin acentos y sin nada que no sea letra o cifra: «E-mail», «email_» y «Email» son la misma.
+     *
+     * @param string $label
+     * @return string
+     */
+    private static function normalizeLabel(string $label): string
+    {
+        $decomposed = \Normalizer::normalize(mb_strtolower($label), \Normalizer::FORM_D);
+        return (string) preg_replace('/[^a-z0-9]+/', '', is_string($decomposed) ? $decomposed : mb_strtolower($label));
+    }
+
+    /**
+     * Los de protección. Por subcadena, las raíces que no forman palabras comunes; por palabra entera (separada por
+     * mayúscula, guion o cifra), las cortas que sí («pin» está en «spinner» y «opinion»; «otp», en «footprint»).
+     *
+     * @param string $label La etiqueta ya separada en palabras
+     * @return bool
+     */
+    private static function isProtectionField(string $label): bool
+    {
+        $lower = mb_strtolower($label);
+        if (preg_match('/captcha|turnstile|csrf|xsrf|token|nonce|passw|secret/', $lower) === 1) {
+            return true;
+        }
+        $words = preg_split('/[^a-z]+/', $lower, -1, \PREG_SPLIT_NO_EMPTY);
+        return count(array_intersect(is_array($words) ? $words : [], ['pwd', 'pass', 'passcode', 'otp', 'totp', 'pin', 'mfa'])) > 0;
+    }
+
+    /**
      * Destinatarios del formulario de contacto, leídos de la configuración.
      *
      * Falla cerrado: si `contact_form_recipients` no es una lista no vacía de direcciones válidas, devuelve una lista vacía.
@@ -249,6 +348,7 @@ class ContactFormsController extends PublicAreaController
                             'subject' => $subject,
                             'message' => $message,
                             'updates' => $updates,
+                            'extraFields' => self::extraFields(is_array($inputData) ? $inputData : [], array_keys($expectedParameters->getParameters())),
                             'titleSuffix' => get_title(),
                             'renderer' => $this,
                         ];

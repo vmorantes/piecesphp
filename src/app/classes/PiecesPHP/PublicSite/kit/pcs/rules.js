@@ -3,6 +3,9 @@ window.PCS_RULES = {
 	"formatVersion": 1,
 	"namePattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
 	"fieldPattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+	"fragmentPattern": "^[A-Za-z][-A-Za-z0-9_:.]*$",
+	"classListPattern": "^-?[_a-zA-Z][-_a-zA-Z0-9]*( +-?[_a-zA-Z][-_a-zA-Z0-9]*)*$",
+	"sizesPattern": "^[-a-zA-Z0-9 (),.:%+*/]+$",
 	"globalAttributes": ["class", "id", "style", "title", "role", "aria-*", "data-*"],
 	"marks": {
 		"pcs-part": {
@@ -19,12 +22,25 @@ window.PCS_RULES = {
 				"page": {
 					"required": true,
 					"pattern": "name"
+				},
+				"anchor": {
+					"required": false,
+					"pattern": "fragment"
+				},
+				"current-class": {
+					"required": false,
+					"pattern": "classList"
 				}
 			},
 			"content": "inline"
 		},
 		"pcs-meta": {
-			"attributes": {},
+			"attributes": {
+				"structured-data": {
+					"required": false,
+					"values": ["off"]
+				}
+			},
 			"content": "empty"
 		},
 		"pcs-image": {
@@ -39,6 +55,32 @@ window.PCS_RULES = {
 				},
 				"class": {
 					"required": false
+				},
+				"width": {
+					"required": false,
+					"integer": {
+						"min": 1,
+						"max": 10000
+					}
+				},
+				"height": {
+					"required": false,
+					"integer": {
+						"min": 1,
+						"max": 10000
+					}
+				},
+				"loading": {
+					"required": false,
+					"values": ["lazy", "eager"]
+				},
+				"decoding": {
+					"required": false,
+					"values": ["async", "sync", "auto"]
+				},
+				"sizes": {
+					"required": false,
+					"pattern": "sizes"
 				}
 			},
 			"content": "empty"

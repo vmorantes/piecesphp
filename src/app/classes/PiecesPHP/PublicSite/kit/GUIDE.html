@@ -82,9 +82,9 @@ GUIDE.html         esta guía</div>
   <table>
     <tr><th>Marca</th><th>Qué hace</th></tr>
     <tr><td><code>&lt;pcs-part name="menu"&gt;</code></td><td>Pone aquí la pieza <code>site/parts/menu.html</code>. Cámbiala una vez y cambia en todas las páginas.</td></tr>
-    <tr><td><code>&lt;pcs-link page="contact"&gt;</code></td><td>Un enlace a otra página del sitio. El sistema pone la dirección correcta y el idioma.</td></tr>
+    <tr><td><code>&lt;pcs-link page="contact"&gt;</code></td><td>Un enlace a otra página del sitio. El sistema pone la dirección correcta y el idioma. Con <code>anchor="seccion"</code> va a una sección; con <code>current-class="…"</code> marca la página actual en el menú.</td></tr>
     <tr><td><code>&lt;pcs-meta&gt;</code></td><td>El título y la descripción para buscadores y redes. Va en el <code>&lt;head&gt;</code>.</td></tr>
-    <tr><td><code>&lt;pcs-image brand="logo"&gt;</code></td><td>El logo o una imagen de la marca. El sistema pone la real, también en modo oscuro.</td></tr>
+    <tr><td><code>&lt;pcs-image brand="logo"&gt;</code></td><td>El logo o una imagen de la marca. El sistema pone la real, también en modo oscuro. Admite <code>width</code>, <code>height</code> y <code>loading</code>.</td></tr>
     <tr><td><code>&lt;pcs-text key="…"&gt;</code></td><td>Un texto que se traduce a otros idiomas.</td></tr>
     <tr><td><code>&lt;pcs-list resource="…"&gt;</code></td><td>Una lista que llena el sistema (noticias, publicaciones…). Diseñas un elemento dentro de <code>&lt;template&gt;</code> y <code>{{campo}}</code> marca dónde va cada dato.</td></tr>
     <tr><td><code>&lt;pcs-form action="…"&gt;</code></td><td>Un formulario que recibe el sistema. Diséñalo libremente; no cambies los <code>name</code> de sus campos.</td></tr>
@@ -104,7 +104,7 @@ GUIDE.html         esta guía</div>
       <li>Cambiar el nombre de una marca o de sus atributos.</li>
       <li>Usar un <code>{{campo}}</code> que no está en <code>site/data/</code>.</li>
       <li>Escribir a mano contenido que llena el sistema.</li>
-      <li>Tocar <code>site/.pcs/</code> ni <code>pcs.json</code>.</li>
+      <li>Tocar <code>site/.pcs/</code> ni <code>pcs.json</code>, ni mover el <code>&lt;script src=".pcs/pcs.js"&gt;</code> del principio de cada página.</li>
     </ul></div>
   </div>
 </section>

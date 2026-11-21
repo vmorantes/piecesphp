@@ -14,7 +14,8 @@ use PiecesPHP\MailCatalog\MailDefinition;
  * ContactFormMail - El formulario de contacto de la zona pública.
  *
  * Datos: `name`, `email`, `subject` (el que escribe la persona), `message`, `updates` (bool), `titleSuffix` (lo que
- * get_title() daba en el envío) y, opcional, `renderer`.
+ * get_title() daba en el envío) y, opcionales, `extraFields` (lista de `label`/`value` sin escapar, de
+ * ContactFormsController::extraFields()) y `renderer`.
  *
  * @package     PiecesPHP\MailCatalog\Definitions
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -73,7 +74,27 @@ class ContactFormMail extends MailDefinition
             'subject' => $this->subject($data),
             'message' => self::text($data, 'message'),
             'updates' => ($data['updates'] ?? false) === true,
+            'extraFields' => self::extraFields($data),
         ], false);
         return mb_convert_encoding($body, 'UTF-8');
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     * @return array<int,array{label:string,value:string}>
+     */
+    private static function extraFields(array $data): array
+    {
+        $extraFields = $data['extraFields'] ?? null;
+        if (!is_array($extraFields)) {
+            return [];
+        }
+        $valid = [];
+        foreach ($extraFields as $field) {
+            if (is_array($field) && is_string($field['label'] ?? null) && is_string($field['value'] ?? null)) {
+                $valid[] = ['label' => $field['label'], 'value' => $field['value']];
+            }
+        }
+        return $valid;
     }
 }

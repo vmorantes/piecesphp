@@ -72,7 +72,7 @@ final class DesignerKit
     }
 
     /**
-     * parts/parts.js, desde el HTML de cada parte y los nombres de las páginas.
+     * parts/parts.js, desde el HTML de cada parte, los nombres de las páginas y los recursos registrados.
      *
      * @param array<string,string> $parts Nombre => HTML
      * @param string[] $pages
@@ -89,6 +89,10 @@ final class DesignerKit
         }
         $lines[] = '}';
         $lines[] = 'window.PCS_PAGES = ' . ($pages === [] ? '[]' : self::literal($pages));
+        //Los recursos con data/<recurso>.js (los de dataScripts()): la vista previa los carga antes que los scripts del diseñador.
+        $resources = array_map('strval', array_keys(ResourceRegistry::all()));
+        sort($resources, \SORT_STRING);
+        $lines[] = 'window.PCS_RESOURCES = ' . ($resources === [] ? '[]' : self::literal($resources));
         $lines[] = 'window.PCS_PARTS_INFO = { "formatVersion": ' . json_encode(MarkRules::formatVersion()) . ' }';
         return implode("\n", $lines) . "\n";
     }

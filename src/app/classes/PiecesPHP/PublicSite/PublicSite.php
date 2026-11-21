@@ -26,7 +26,7 @@ final class PublicSite
     const CONFIG_KEY = 'public_site';
 
     /** Sube cuando cambia lo que escribe el compilador: invalida todas las vistas compiladas. */
-    const ENGINE_VERSION = '2';
+    const ENGINE_VERSION = '3';
 
     const MANIFEST = 'pcs.json';
 

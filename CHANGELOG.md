@@ -1,3 +1,25 @@
+# 10.59.0 (20-11-2026)
+
+- **El sitio público por marcas, listo para diseños reales** (lo que destapó la primera prueba con dos diseños de
+  clientes):
+  - **La vista previa con doble clic pinta las partes y las marcas antes de que corra el JavaScript del diseño**, así
+    que los menús, carruseles y demás comportamientos que arrancan al cargar la página funcionan también sobre las partes.
+    Para eso, cada página lleva `<script src=".pcs/pcs.js"></script>` en su `<head>`, antes de cualquier otro script y
+    sin `async` ni `defer`; el comprobador avisa si no está así.
+  - **Enlaces a una sección de otra página**: `<pcs-link page="servicios" anchor="seccion">`.
+  - **La página actual, marcada en el menú**: `<pcs-link … current-class="activo">` añade esas clases y
+    `aria-current="page"` cuando el enlace apunta a la página que se está viendo, también dentro de una parte.
+  - **`<pcs-image>` admite `width`, `height`, `loading`, `decoding` y `sizes`**, para que el logo conserve las
+    dimensiones del diseño.
+  - **`<pcs-meta structured-data="off">`** no añade los datos estructurados del framework, para el diseño que trae los
+    suyos.
+  - **Un `<base>` propio del diseño se rechaza** al comprobar y al importar: el sitio pone el suyo.
+- **El formulario de contacto conserva los campos de más**: lo que el formulario envía y la acción no espera (un
+  teléfono, por ejemplo) llega al correo, en una sección «Extra» tras el mensaje, como «Etiqueta: valor», con un tope de
+  campos y de longitud. Los campos de protección y los que imitan las etiquetas del sistema no llegan nunca. Vale para todo formulario de contacto, no solo en el sitio por marcas.
+- **Al actualizar**: si ya importaste un sitio por marcas con la 10.58.0, pon en cada página el `<script
+  src=".pcs/pcs.js">` al principio del `<head>`, pulsa «Actualizar el paquete» en `CHECK.html` y vuelve a importar.
+
 # 10.58.0 (20-11-2026)
 
 - **El sitio público desde cualquier diseño web, sin reprogramarlo.** El diseñador trabaja en HTML, CSS y JavaScript

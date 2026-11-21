@@ -10,7 +10,9 @@ Sigue el procedimiento completo de `.agents/skills/adapt-design/SKILL.md`. En re
 
 1. Inventario de páginas, de lo que se repite y de lo que es dato del sistema.
 2. Estáticos tal cual a `assets/`, corrigiendo rutas; sin reescribir el CSS ni el JS del diseñador.
-3. Lo repetido a `parts/<nombre>.html` y `<pcs-part name="<nombre>">` en su lugar.
-4. Marcas solo donde hay dato del sistema: `<pcs-link page>`, `<pcs-meta>`, `<pcs-image brand>`, `<pcs-text key>`,
+3. En cada página, `<script src=".pcs/pcs.js"></script>` en el `<head>`, antes de cualquier otro script y sin `async`
+   ni `defer`. Lo repetido a `site/parts/<nombre>.html` y `<pcs-part name="<nombre>">` en su lugar.
+4. Marcas solo donde hay dato del sistema: `<pcs-link page>` (con `anchor` y `current-class`), `<pcs-meta>` (con
+   `structured-data="off"` si trae su JSON-LD), `<pcs-image brand>` (con `width` y `height`), `<pcs-text key>`,
    `<pcs-list resource count>` con `<template>` y `{{campo}}` de `data/`, y `<pcs-form action>`.
 5. `CHECK.html` sin avisos y `START.html` comparado página a página con el original.
