@@ -9,6 +9,7 @@ namespace Terminal\Tasks;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
@@ -3773,14 +3774,16 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $patterns[] = '#' . str_replace('#', '\\#', $family['nombre']) . '#';
         }
         $screens = [];
+        //El panel vive donde diga admin_path (P399).
+        $panelPattern = '#/' . preg_quote(ProjectStart::adminPath(), '#') . '/#';
         foreach ($routes as $key => $route) {
             $name = is_string($key) && $key !== '' ? $key : (string) ($route['name'] ?? '');
             if (!is_array($route) || !($route['require_login'] ?? false) || !str_contains(strtoupper((string) ($route['method'] ?? '')), 'GET')) {
                 continue;
             }
-            //La dirección, con cada parámetro relleno: la de una ruta con {id} también cae bajo /admin/.
+            //La dirección, con cada parámetro relleno: la de una ruta con {id} también cae bajo el panel.
             $url = get_route($name, array_fill_keys(array_keys((array) ($route['parameters'] ?? [])), '1'), true);
-            if (!is_string($url) || preg_match('#/admin/#', (string) parse_url($url, \PHP_URL_PATH)) !== 1) {
+            if (!is_string($url) || preg_match($panelPattern, (string) parse_url($url, \PHP_URL_PATH)) !== 1) {
                 continue;
             }
             foreach ($patterns as $pattern) {

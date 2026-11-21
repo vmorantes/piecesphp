@@ -115,6 +115,11 @@ $container_configurations = [
          * @var RequestRoute $request
          */
         $request = $notFoundError->getRequest();
+        //El banco de redirecciones de config.php (P399), si está encendido y ninguna ruta reclama la dirección.
+        $legacyRedirect = \PiecesPHP\Core\ProjectStart::legacyRedirectResponse($request);
+        if ($legacyRedirect !== null) {
+            return $legacyRedirect;
+        }
         $response = new ResponseRoute(StatusCode::HTTP_NOT_FOUND);
         $extraDataKey = 'information404';
         $extraData = $request->getAttribute($extraDataKey, []);

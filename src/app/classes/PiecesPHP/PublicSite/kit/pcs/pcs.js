@@ -326,7 +326,7 @@
 	//Un {{campo}} en on*, style, <script> o <style> no se sustituye: ahí el escapado no protege, y el servidor tampoco.
 	//Lo mismo que Compiler::isUnsafeFieldAttribute(): el href de MathML, <meta http-equiv=refresh> y las animaciones SVG.
 	var ANIMATION_ELEMENTS = ['set', 'animate', 'animatetransform', 'animatemotion']
-	var ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values']
+	var ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values', 'by']
 
 	function unsafeElsewhere(element, name) {
 		var tag = element.localName.toLowerCase()

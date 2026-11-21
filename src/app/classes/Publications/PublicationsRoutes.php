@@ -9,6 +9,7 @@ namespace Publications;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -52,7 +53,8 @@ class PublicationsRoutes
 
             $groupAdministration = PublicationsController::routes($groupAdministration);
             $groupAdministration = PublicationsCategoryController::routes($groupAdministration);
-            $groupPublic = PublicationsPublicController::routes($groupPublic);
+            //Las páginas públicas, solo con public_area = true; el JSON, también con 'headless' (P399).
+            $groupPublic = PublicationsPublicController::routes($groupPublic, ProjectStart::publicPages(), ProjectStart::publicData());
             Sitemap::registerProvider('publications', [PublicationsPublicController::class, 'sitemapItems']);
             self::registerCleanTarget();
             //El inicio de comunicaciones (aprobado) es su listado de publicaciones; un proyecto lo cambia con replace().

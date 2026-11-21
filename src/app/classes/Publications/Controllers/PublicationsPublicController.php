@@ -385,9 +385,11 @@ class PublicationsPublicController extends BaseController
 
     /**
      * @param RouteGroup $group
+     * @param bool $withPages Las páginas HTML (listados y la publicación).
+     * @param bool $withData El JSON de todas.
      * @return RouteGroup
      */
-    public static function routes(RouteGroup $group)
+    public static function routes(RouteGroup $group, bool $withPages = true, bool $withData = true)
     {
         $routes = [];
 
@@ -407,37 +409,37 @@ class PublicationsPublicController extends BaseController
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
-            new Route( //Vista del listado
+            $withPages ? new Route( //Vista del listado
                 "{$startRoute}/list[/]",
                 $classname . ':listView',
                 self::$baseRouteName . '-list',
                 'GET'
-            ),
-            new Route( //Vista del listado
+            ) : null,
+            $withPages ? new Route( //Vista del listado
                 "{$startRoute}/list/{categorySlug}[/]",
                 $classname . ':listView',
                 self::$baseRouteName . '-list-by-category',
                 'GET'
-            ),
+            ) : null,
             //JSON
-            new Route( //JSON con todos los elementos
+            $withData ? new Route( //JSON con todos los elementos
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
                 'GET'
-            ),
+            ) : null,
             //HTML
-            new Route( //Vista del listado
+            $withPages ? new Route( //Vista del listado
                 "{$startRoute}/{slug}[/]",
                 $classname . ':singleView',
                 self::$baseRouteName . '-single',
                 'GET',
                 false
-            ),
+            ) : null,
 
         ];
 
-        $group->register($routes);
+        $group->register(array_values(array_filter($routes)));
 
         return $group;
     }

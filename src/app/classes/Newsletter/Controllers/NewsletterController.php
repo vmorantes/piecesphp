@@ -907,9 +907,10 @@ class NewsletterController extends AdminPanelController
     /**
      * @param RouteGroup $groupAdministration Las rutas con sesión: la gestión de suscriptores.
      * @param RouteGroup|null $groupPublic Las rutas sin sesión: el alta desde el formulario público (P51).
+     * @param bool $withPublic Si se registran las rutas sin sesión (con public_area = false, no: P399).
      * @return RouteGroup[] Con los índices groupAdministration y groupPublic
      */
-    public static function routes(RouteGroup $groupAdministration, ?RouteGroup $groupPublic = null)
+    public static function routes(RouteGroup $groupAdministration, ?RouteGroup $groupPublic = null, bool $withPublic = true)
     {
         //Opcional porque `AdminPanelController::routes()` recibe un grupo: sin el público, todo va al único.
         $groupPublic ??= $groupAdministration;
@@ -1027,7 +1028,11 @@ class NewsletterController extends AdminPanelController
 
         //Cada ruta va al grupo que dice su `require_login`: el alta de suscriptor es pública aunque su nombre diga «admin».
         foreach ($routes as $route) {
-            ($route->requireLogin() === true ? $groupAdministration : $groupPublic)->register([$route]);
+            if ($route->requireLogin() === true) {
+                $groupAdministration->register([$route]);
+            } elseif ($withPublic) {
+                $groupPublic->register([$route]);
+            }
         }
 
         return [

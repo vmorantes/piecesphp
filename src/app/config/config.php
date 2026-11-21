@@ -16,6 +16,23 @@ defined('BASEPATH') or die();
  * Las claves de este archivo, su tipo y su efecto: source-docs/project/docs/piecesphp/content/configuration.md, «config.php».
  */
 
+//──── Arranque del proyecto ─────────────────────────────────────────────────────────────
+
+//── Del clon ──
+//true: todo; 'headless': sin páginas públicas HTML, con sus datos (JSON) y la API; false: solo el panel y el acceso.
+$config['public_area'] = true;
+//Dónde vive el panel: 'admin', 'gestion'… (vacío, en la raíz, aún no está soportado). Las rutas conservan sus nombres.
+$config['admin_path'] = 'admin';
+//Adónde lleva el acceso a quien ya tiene sesión: el NOMBRE de una ruta. Sustituye a admin_url de roles.php.
+$config['login_redirect_route'] = 'admin';
+//Direcciones viejas que ya no reclama ninguna ruta: exacta => nombre de ruta, o prefijo viejo => prefijo nuevo, con 301.
+//En desuso desde que nace, se retira en la 12.0.0. Ejemplo: 'prefixes' => ['/admin' => '/gestion'].
+$config['legacy_redirects'] = [
+    'enabled' => false,
+    'paths' => [],
+    'prefixes' => [],
+];
+
 //──── Generales ─────────────────────────────────────────────────────────────────────────
 
 //── Del clon ──

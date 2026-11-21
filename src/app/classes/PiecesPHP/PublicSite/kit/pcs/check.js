@@ -226,7 +226,7 @@
 
 	//Lo mismo que Compiler::isUnsafeFieldAttribute(): el href de MathML, <meta http-equiv=refresh> y las animaciones SVG.
 	var ANIMATION_ELEMENTS = ['set', 'animate', 'animatetransform', 'animatemotion']
-	var ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values']
+	var ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values', 'by']
 
 	function unsafeElsewhere(node, attribute) {
 		if (attribute === 'content' && node.tag === 'meta' && (node.attrs['http-equiv'] || '').trim().toLowerCase() === 'refresh') {

@@ -1872,7 +1872,8 @@ class PublicationsController extends AdminPanelController
             if ($mapper === null) {
                 return $element;
             }
-            $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
+            //Sin páginas públicas (public_area 'headless' o false) la publicación no tiene página: enlace vacío (P399).
+            $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()], true);
             $excerpt = $mapper->excerpt(253);
             $excerptAlt = $mapper->excerpt(102);
             $element->excerpt = mb_strpos($excerpt, '...') ? $excerpt : $excerpt . '...';

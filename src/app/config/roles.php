@@ -56,6 +56,7 @@ $config['roles']['baseInitialSegmentedPermissions'] = [
 $config['roles']['types'] = UserTypes::roles($config['roles']['baseInitialSegmentedPermissions']);
 
 $config['control_access_login'] = true;
+//@deprecated hasta la 11.0.0: lo sustituye login_redirect_route de config.php, que manda si está; vacía, el panel.
 $config['admin_url']['relative'] = true;
 $config['admin_url']['url'] = '';
 

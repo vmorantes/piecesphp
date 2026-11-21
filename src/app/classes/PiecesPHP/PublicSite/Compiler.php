@@ -28,7 +28,7 @@ final class Compiler
 
     /** Las animaciones SVG y sus atributos de valor: con attributeName="href" pondrían el dato en un enlace. */
     const ANIMATION_ELEMENTS = ['set', 'animate', 'animatetransform', 'animatemotion'];
-    const ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values'];
+    const ANIMATION_VALUE_ATTRIBUTES = ['to', 'from', 'values', 'by'];
 
     /** Los atributos con una URL que se reescribe. */
     const URL_ATTRIBUTES = ['src', 'href', 'poster', 'data-src', 'srcset', 'data-srcset'];
@@ -476,7 +476,7 @@ final class Compiler
 
     /**
      * Si un {{campo}} en este atributo podría ejecutar código aunque vaya escapado: on*, style, srcdoc, el data de <object>,
-     * el href de MathML, el content de <meta http-equiv=refresh> y to/from/values de las animaciones SVG (siempre).
+     * el href de MathML, el content de <meta http-equiv=refresh> y to/from/values/by de las animaciones SVG (siempre).
      *
      * @param \Dom\Element $element
      * @param string $name En minúsculas

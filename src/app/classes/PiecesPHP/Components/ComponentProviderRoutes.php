@@ -7,6 +7,7 @@
 namespace PiecesPHP\Components;
 
 use PiecesPHP\Components\Controllers\ComponentProvider;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -39,7 +40,10 @@ class ComponentProviderRoutes
     {
         if (self::ENABLE) {
 
-            $groupAdministration = ComponentProvider::routes($groupAdministration);
+            //Fragmentos HTML para hidratar, un dato que el panel no usa: con public_area = false no se registran (P399).
+            if (ProjectStart::publicData()) {
+                $groupAdministration = ComponentProvider::routes($groupAdministration);
+            }
             self::staticResolver($groupAdministration);
 
             ComponentProviderLang::injectLang();

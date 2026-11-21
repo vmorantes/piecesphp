@@ -13,6 +13,7 @@ use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
 use PiecesPHP\Components\Controllers\ComponentProvider;
 use PiecesPHP\Core\BaseController;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -26,6 +27,7 @@ use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\PublicSite\PublicSite;
 use PiecesPHP\PublicSite\SiteRenderer;
 use PiecesPHP\Settings\Controllers\SettingsController;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Controllers\PublicationsController;
@@ -94,6 +96,19 @@ class PublicAreaController extends BaseController
             }
             add_to_front_configurations('GoogleReCaptchaV3SiteKey', is_string($siteKey) ? $siteKey : '');
         }
+    }
+
+    /**
+     * La portada sin zona pública: al acceso, o adonde lleva el acceso si ya hay sesión.
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function closedIndexView(Request $req, Response $res)
+    {
+        $url = getLoggedFrameworkUser() !== null ? ProjectStart::afterLoginURL(null) : UsersController::routeName('form-login');
+        return $res->withRedirect($url);
     }
 
     /**
@@ -502,6 +517,23 @@ class PublicAreaController extends BaseController
         }
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
+
+        //Sin páginas públicas (P399, 'headless' o false): la portada lleva al acceso y la baja de los correos sigue.
+        if (!ProjectStart::publicPages()) {
+            $closedRoutes = array_filter([
+                new Route("{$startRoute}[/]", self::class . ":closedIndexView", "{$namePrefix}-index", 'GET'),
+                new Route("{$startRoute}/unsubscribe/{identifier}[/]", self::class . ":unsubscribeView", "{$namePrefix}-unsubscribe", 'GET'),
+            ], fn(Route $route): bool => !in_array($route->name(), self::projectIgnoredRoutes(), true));
+            if (PUBLIC_AREA_VIEWS) {
+                $group->register($closedRoutes);
+            }
+            //El envío del formulario de contacto es un dato: con 'headless' lo usa el front de fuera.
+            if (PUBLIC_AREA_CONTACT_FORMS && ProjectStart::publicData()) {
+                MailCatalog::register(new ContactFormMail(), 'Zona pública');
+                $group = ContactFormsController::routes($group);
+            }
+            return $group;
+        }
 
         //Generales
         $ignoreRoutes = array_merge([

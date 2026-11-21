@@ -460,12 +460,54 @@ rechazado o bloqueado); en `administrativos`, a administrador general y root.
 Cómo se combina esto con el `rolesAllowed` de la propia ruta (se **unen**, no se restringen) está en
 [Permisos de ruta](../new-features/permisos-de-ruta.md).
 
+### El arranque del proyecto: `public_area`, `admin_path` y `login_redirect_route`
+
+Tres líneas juntas en `config.php` deciden la forma del proyecto. De fábrica, todo se comporta como siempre.
+
+```php
+$config['public_area'] = true;                // 'headless': sin páginas públicas, con sus datos; false: solo panel
+$config['admin_path'] = 'admin';              // dónde vive el panel: 'admin', 'gestion'…
+$config['login_redirect_route'] = 'admin';    // adónde lleva el acceso: el NOMBRE de cualquier ruta
+```
+
+| Quiero… | Cambio |
+| :-- | :-- |
+| el framework sin cabeza (el front, fuera) | `public_area = 'headless'` |
+| un proyecto solo con panel | `public_area = false` |
+| el panel en `/gestion/` | `admin_path = 'gestion'` |
+| que el acceso lleve a mi pantalla | `login_redirect_route = 'mi-ruta'` |
+
+- **`public_area = 'headless'`**: no se registran las páginas públicas HTML (portada, genéricas, contacto, el sitio por
+  marcas y las páginas de los módulos, como el listado y la vista de Publicaciones), pero **siguen las rutas públicas de
+  datos** (los JSON de Publicaciones y de Imágenes, los fragmentos HTML para hidratar del proveedor de componentes, el
+  envío del formulario de contacto, el alta del Boletín) y la API, para un front que vive fuera del framework. Página es un documento HTML completo para una
+  persona; dato, lo que consume otra aplicación (JSON, fragmentos HTML o un formulario de máquina).
+- **`public_area = false`**: solo panel. Además de lo anterior, tampoco quedan las rutas públicas de datos de los
+  módulos, los fragmentos del proveedor de componentes (el panel no los usa), el envío del contacto ni el alta del
+  Boletín. Siguen el acceso y la recuperación, la API (`core/api`), los tokens, los estáticos y los servicios que usan el
+  panel y el acceso.
+- **En los tres modos sigue abierta la página de baja del Boletín** (`public-unsubscribe`): la enlazan los correos ya
+  enviados, y quien recibe un correo tiene que poder darse de baja.
+  En los dos modos, la ruta `public-index` sigue existiendo en la raíz y lleva al acceso (o al panel, con sesión), así que nada de lo que
+  enlaza a la portada falla. `robots.txt` y `llms.txt` no invitan a leer nada y el mapa del sitio sale vacío.
+- **`admin_path`**: todos los grupos del panel cuelgan de un solo prefijo. Cambian las direcciones, no los nombres de las
+  rutas (que son los permisos). **El panel en la raíz (`''`) todavía no está soportado**: el arranque lo rechaza con un
+  error claro en local y usa `admin` fuera de local, con aviso.
+- **Mover el panel no lo esconde**: `robots.txt` publica el `admin_path` nuevo, y lo que proteja `/admin` en el servidor
+  web (una lista de IP, una autenticación básica, un cortafuegos de aplicación) no sigue al nombre nuevo: muévelo tú.
+- **`login_redirect_route`**: con sesión, el formulario de acceso lleva a la página pedida (`next`) o, si no hay, a esa
+  ruta por su nombre. Sustituye a `admin_url`, que se sigue respetando hasta la `11.0.0` si un proyecto lo tiene puesto.
+
+**El banco de redirecciones (opcional, retirado en la `12.0.0`).** Si un proyecto cambia direcciones (por ejemplo, mueve
+el panel), puede declarar las viejas y el nombre de la ruta a la que llevan. Solo actúa cuando ninguna ruta registrada
+reclama la dirección, justo antes del 404: una ruta nueva siempre gana. Responde con una redirección permanente.
+
 ### `control_access_login` y `admin_url`
 
 | Clave | Tipo | De fábrica | Efecto |
 | :-- | :-- | :-- | :-- |
 | `control_access_login` | `bool` | `true` | Con `false`, el arranque **no aplica ninguna** de las comprobaciones: ni sesión para las rutas con `require_login`, ni roles, ni la redirección de `admin_url`. Apágalo solo si implementas tu propio sistema de usuarios. |
-| `admin_url['url']` | `string` | `''` | Adónde se redirige a un usuario **con sesión** que pide el formulario de acceso. También la lee el JavaScript del panel. |
+| `admin_url['url']` | `string` | `''` | Adónde se redirige a un usuario **con sesión** que pide el formulario de acceso, **si no pidió otra página** (`next`, que manda). **Vacía, el panel** (la ruta `admin`), no la raíz. Es una dirección escrita, no un nombre de ruta. El JavaScript del panel la recibe en `pcsphpGlobals.adminURLConfig`, pero no la usa. |
 | `admin_url['relative']` | `bool` | `true` | `true`: `url` es relativa a la URL base (`baseurl($url)`); `false`: se usa tal cual. |
 
 ### La marca global de sesión
@@ -504,11 +546,11 @@ new Route(
 
 ```php
 //── Del clon ──
-//Tus módulos: TusRutas::routes($zona_administrativa, $zona_publica);
-MiModuloRoutes::routes($zona_administrativa, $zona_publica);
+//Tus módulos: TusRutas::routes($adminGroup, $publicGroup);
+MiModuloRoutes::routes($adminGroup, $publicGroup);
 ```
 
-Va en el hueco «Del clon», **antes** de `PublicAreaController::routes($zona_publica)`, que es la última línea.
+Va en el hueco «Del clon», **antes** de `PublicAreaController::routes($publicGroup)`, que es la última línea.
 Para el contenido del `MiModuloRoutes`, ver [Crear un módulo](./modules.md).
 
 ### El orden importa
@@ -534,7 +576,7 @@ Slim atiende la primera ruta que casa. `RouteGroup` registra los grupos en el or
 - Un grupo al que nunca llamas `register()` no aporta rutas. Dos grupos con el mismo prefijo son dos entradas
   distintas.
 
-El prefijo de idioma (`$prefix_lang`: `''` o `'/en'`) viene de [`lang.php`](#langphp); los grupos lo anteponen.
+El prefijo de idioma (`$langPrefix`: `''` o `'/en'`) viene de [`lang.php`](#langphp); los grupos lo anteponen.
 
 !!! warning "Un patrón que no analiza"
     En local, una ruta cuyo patrón no se puede analizar lanza una excepción. Fuera de local **no se registra** en lugar

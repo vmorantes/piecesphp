@@ -32,7 +32,7 @@ El módulo está activo cuando **las dos** valen `true` (`CategoriesRoutes::ENAB
 | `FORMS_MODULE_ENABLE` | No se registra ninguna ruta de `Forms` (ni categorías ni tipos de documento) y no se añade el grupo «Formularios» al menú lateral |
 | `FORMS_MODULE_CATEGORIES_ENABLE` | No se registran las rutas de categorías ni se inyectan sus traducciones. El grupo «Formularios» sigue dibujándose en el menú, con la entrada «Categorías» (**sin verificar** qué enlace deja esa entrada cuando las rutas no existen: pruébalo antes de apagar solo esta constante) |
 
-Las rutas se enganchan en `src/app/config/routes.php` con `FormsRoutes::routes($zona_administrativa)`, que llama a
+Las rutas se enganchan en `src/app/config/routes.php` con `FormsRoutes::routes($adminGroup)`, que llama a
 `CategoriesRoutes::routes()`. Por eso **todas cuelgan de la zona administrativa** (`{idioma}/admin/…`) y piden sesión.
 
 ## Las rutas

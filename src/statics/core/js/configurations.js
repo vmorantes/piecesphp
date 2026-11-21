@@ -15,6 +15,7 @@ pcsphpGlobals.events = {
 
 //──── URL ───────────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.baseURL = document.head.baseURI
+//@deprecated hasta la 11.0.0: nadie lo usa; el destino del acceso es login_redirect_route de config.php.
 pcsphpGlobals.adminURLConfig = (function () {
 	let adminURLConfig = document.querySelector('html head meta[name="config-admin-url"]')
 	const defaultValue = {

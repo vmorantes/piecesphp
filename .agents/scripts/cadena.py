@@ -16,6 +16,9 @@ FALLA (salida 1) si:
   - `AHORA.md` nombra un punto «sin prisa» `S<n>` que `PO.md` no tiene como entrada («- **S<n> ·»): el único sitio
     donde viven las cosas del PO es `PO.md` (regla 30); nace de S7, que vivió solo en `AHORA.md` (`pendientes.md` 425.4).
 
+NO FALLA con el registro recién creado por `bin/clonar-proyecto`: sin tramos y con los contadores `#0`/`#1` y
+`A-0`/`A-1`; dice «registro vacío: nada que encadenar». Sin tramos y con un contador distinto, falla como siempre.
+
 NO MIRA, y hay que decirlo:
   - si el último mensaje REAL de la otra sesión es ese: solo lo que está escrito en el disco (la apertura lo contrasta con
     la otra sesión y con git);
@@ -99,8 +102,12 @@ def main():
 
     archivos = sorted(glob.glob(os.path.join(tramos, "*.md")))
     anotado = None
+    # El estado exacto que deja bin/clonar-proyecto: sin tramos y los cuatro contadores a cero. Cualquier otro sin
+    # tramos sigue fallando: contadores que avanzaron sin tramo son un registro perdido, no uno vacío.
+    vacio = not archivos and (ultimo, siguiente, ultimo_po, siguiente_po) == (0, 1, 0, 1)
     if not archivos:
-        fallos.append(f"no hay tramos en {tramos}")
+        if not vacio:
+            fallos.append(f"no hay tramos en {tramos}")
     else:
         with open(archivos[-1], encoding="utf-8") as f:
             numeros = [int(n) for n in RE_FILA_TRAMO.findall(f.read())]
@@ -116,6 +123,10 @@ def main():
         for f in fallos:
             print("CADENA: " + f)
         sys.exit(1)
+    if vacio:
+        print(f"cadena ejecutada: registro vacío: nada que encadenar (#0 → #1, A-0 → A-1, sin tramos); AHORA.md {lineas} "
+              f"de {tope} líneas; un «Al retomar»; puntos S en PO.md: {len(puntos)}")
+        return
     print(f"cadena ejecutada: último #{ultimo} (anotado #{anotado}), siguiente #{siguiente}; PO A-{ultimo_po} → "
           f"A-{siguiente_po}; AHORA.md {lineas} de {tope} líneas; un «Al retomar»; puntos S en PO.md: {len(puntos)}")
 

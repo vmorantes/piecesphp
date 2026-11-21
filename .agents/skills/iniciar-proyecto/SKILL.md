@@ -61,8 +61,10 @@ Se le pregunta al PO, en un solo mensaje numerado, y se escribe lo que conteste 
 
 1. Qué es el proyecto y para quién.
 2. El objetivo de la primera etapa y qué cuenta como terminado.
-3. Si lleva sitio público desde un diseño (entonces: el manual «Adaptar una plantilla, de principio a fin» de la
-   documentación de PiecesPHP y la skill `adapt-design` del kit del sitio público).
+3. Si lleva zona pública. Si no: `$config['public_area'] = false` en `src/app/config/config.php` (el panel puede ir en otra ruta con
+   `$config['admin_path']`; en la raíz, todavía no). Si lleva un sitio público desde un diseño: el manual «Adaptar una plantilla,
+   de principio a fin» de la documentación de PiecesPHP y la skill `adapt-design` del kit del sitio público. Adónde lleva
+   el acceso: `$config['login_redirect_route']`, por nombre de ruta.
 4. Qué módulos del framework se usan y cuáles se apagan.
 5. Repositorios hermanos, carpetas escribibles fuera del repositorio o servicios: si los hay, van a
    `.agents/project-architect-coder.json` (la guarda los lee de ahí).

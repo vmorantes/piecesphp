@@ -14,7 +14,10 @@ interface PcsphpGlobals {
     }
     /** `document.head.baseURI`. */
     baseURL: string
-    /** Del meta `config-admin-url`; sin él, `{ relative: true, url: 'admin' }`. */
+    /**
+     * Del meta `config-admin-url`; sin él, `{ relative: true, url: 'admin' }`.
+     * @deprecated Hasta la 11.0.0: el destino del acceso es `login_redirect_route` de config.php.
+     */
     adminURLConfig: {
         relative: boolean
         url: string

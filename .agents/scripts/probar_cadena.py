@@ -44,7 +44,7 @@ TRAMO = """# Tramo
 
 
 def caso(nombre, debe_fallar, ultimo=11, siguiente=12, ultimo_po=5, siguiente_po=6, anotado=11, tope=50, sin_tramo=False,
-         sin_po=False, puntos="S2, S5", retomar=1):
+         sin_po=False, puntos="S2, S5", retomar=1, espera=None):
     tmp = tempfile.mkdtemp()
     try:
         texto = (AHORA.replace("TOPE", str(tope)).replace("#ULTIMO", f"#{ultimo}").replace("#SIGUIENTE", f"#{siguiente}")
@@ -65,7 +65,7 @@ def caso(nombre, debe_fallar, ultimo=11, siguiente=12, ultimo_po=5, siguiente_po
         r = subprocess.run([sys.executable, "-B", GUARDA, "--ahora", os.path.join(tmp, "AHORA.md"), "--tramos",
                             os.path.join(tmp, "tramos"), "--po", os.path.join(tmp, "PO.md")], capture_output=True, text=True)
         fallo = r.returncode != 0
-        bien = fallo == debe_fallar
+        bien = fallo == debe_fallar and (espera is None or espera in r.stdout)
         print(("bien" if bien else "MAL ") + f" {nombre}: {'falla' if fallo else 'no falla'} salida {r.returncode}")
         return bien
     finally:
@@ -83,6 +83,12 @@ casos = [
     caso("AHORA.md por detrás del tramo: falla", True, ultimo=10, siguiente=11),
     caso("AHORA.md pasa de su tope: falla", True, tope=3),
     caso("sin tramos: falla", True, sin_tramo=True),
+    caso("registro recién creado (sin tramos, #0/#1 y A-0/A-1): NO falla y lo dice", False, ultimo=0, siguiente=1,
+         ultimo_po=0, siguiente_po=1, sin_tramo=True, espera="registro vacío: nada que encadenar"),
+    caso("sin tramos y la cadena en #1: falla", True, ultimo=1, siguiente=2, ultimo_po=0, siguiente_po=1, sin_tramo=True),
+    caso("sin tramos y el PO en A-1: falla", True, ultimo=0, siguiente=1, ultimo_po=1, siguiente_po=2, sin_tramo=True),
+    caso("registro recién creado que pasa de su tope: falla", True, ultimo=0, siguiente=1, ultimo_po=0, siguiente_po=1,
+         sin_tramo=True, tope=3),
     caso("sin el contador del PO: falla", True, sin_po=True),
     caso("dos bloques «Al retomar»: falla", True, retomar=2),
     caso("ningún bloque «Al retomar»: falla", True, retomar=0),

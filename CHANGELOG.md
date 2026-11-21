@@ -1,3 +1,19 @@
+# 10.62.0 (20-11-2026)
+
+- **El arranque de un proyecto en tres líneas de `config.php`**: `public_area` (`'headless'`: sin páginas públicas, con
+  sus rutas de datos y la API, para un front fuera del framework; `false`: solo panel; en los dos, la raíz y todo lo que
+  enlazaba a la portada llevan al acceso), `admin_path` (dónde vive el panel: `admin` de fábrica u otra
+  ruta; en la raíz, todavía no) y `login_redirect_route` (adónde lleva el acceso, por nombre de ruta). De fábrica, todo igual que antes.
+- **Un banco opcional de redirecciones** para direcciones viejas, apagado de fábrica: solo actúa cuando ninguna ruta
+  reclama la dirección, así que nunca tapa una ruta nueva. Se retira en la `12.0.0`.
+- **`routes.php`, más claro**: un solo prefijo para el panel y los nombres de los grupos uniformes y en camelCase
+  (`$adminGroup`, `$publicGroup`, `$usersGroup`, `$langPrefix`…).
+- **En desuso hasta la `11.0.0`**: `$config['admin_url']` (usa `login_redirect_route`) y `pcsphpGlobals.adminURLConfig` en
+  JavaScript, que nadie usaba.
+- **Al actualizar**: si mueves el panel con `admin_path`, lo que lo proteja en el servidor web (IP, autenticación básica,
+  cortafuegos) tienes que moverlo tú; `robots.txt` ya publica el nombre nuevo. Tu `routes.php` sigue funcionando tal cual. Si adoptas la plantilla nueva, en tus líneas del hueco
+  «Del clon» cambia `$zona_administrativa` por `$adminGroup` y `$zona_publica` por `$publicGroup`.
+
 # 10.61.0 (20-11-2026)
 
 - **Seguridad: más refuerzos en las listas del sitio público por marcas.** Se recomienda actualizar.

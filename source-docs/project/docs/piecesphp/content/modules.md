@@ -258,10 +258,10 @@ En `src/app/config/routes.php`:
 ```php
 use MiModulo\MiModuloRoutes;
 
-MiModuloRoutes::routes($zona_administrativa);
+MiModuloRoutes::routes($adminGroup);
 ```
 
-De más específico a menos específico; el grupo público (`$zona_publica`) siempre al final.
+De más específico a menos específico; el grupo público (`$publicGroup`) siempre al final.
 
 ## 10. Compilar y comprobar
 

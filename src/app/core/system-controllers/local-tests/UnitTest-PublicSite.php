@@ -459,11 +459,11 @@ HTML;
         $f1Cases = [
             'math-href' => ['<math><mi href="{{url}}">x</mi></math>', true], 'math-xlink' => ['<math><mrow><mi xlink:href="{{url}}">x</mi></mrow></math>', true], 'math-self' => ['<math href="{{url}}"><mi>x</mi></math>', true],
             'meta-refresh' => ['<meta http-equiv="Refresh" content="0;url={{url}}">', true], 'svg-set' => ['<svg><a><set attributeName="href" to="{{url}}"></set></a></svg>', true], 'svg-animate-values' => ['<svg><animate attributeName="href" values="{{url}}"></animate></svg>', true],
-            'svg-animate-from' => ['<svg><animate attributeName="x" from="{{title}}"></animate></svg>', true], 'svg-transform' => ['<svg><animateTransform attributeName="transform" to="{{title}}"></animateTransform></svg>', true], 'svg-motion' => ['<svg><animateMotion values="{{title}}"></animateMotion></svg>', true],
+            'svg-animate-from' => ['<svg><animate attributeName="x" from="{{title}}"></animate></svg>', true], 'svg-transform' => ['<svg><animateTransform attributeName="transform" to="{{title}}"></animateTransform></svg>', true], 'svg-motion' => ['<svg><animateMotion values="{{title}}"></animateMotion></svg>', true], 'svg-by' => ['<svg><animate attributeName="x" by="{{title}}"></animate></svg>', true],
             'meta-name' => ['<meta name="description" content="{{title}}">', false], 'a-href' => ['<a href="{{url}}">x</a>', false], 'svg-rect' => ['<svg><rect width="{{title}}"></rect></svg>', false],
         ];
         $f1Got = array_map(fn (array $case): bool => !str_contains($embedPage($case[0])['php'], 'MarkRegistry::render(\'pcs-list\''), $f1Cases);
-        $check($f1Got === array_map(fn (array $case): bool => $case[1], $f1Cases), 'k15 un {{campo}} en el href de MathML, el content de <meta http-equiv=refresh> o to/from/values de set/animate/animateTransform/animateMotion no se admite; el content de otro meta, el href de un <a> o el width de un <rect>, sí', (string) json_encode($f1Got));
+        $check($f1Got === array_map(fn (array $case): bool => $case[1], $f1Cases), 'k15 un {{campo}} en el href de MathML, el content de <meta http-equiv=refresh> o to/from/values/by de set/animate/animateTransform/animateMotion no se admite; el content de otro meta, el href de un <a> o el width de un <rect>, sí', (string) json_encode($f1Got));
         echoTerminal(' ');
 
     } catch (\Throwable $e) {

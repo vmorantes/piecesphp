@@ -18,6 +18,9 @@ fallo() { printf 'FALLO: %s\n' "$1"; fallos=$((fallos + 1)); }
 # La marca que deja bin/make-distribution: en un clon, lo que solo existe en el repositorio de desarrollo no aplica.
 en_clon=no
 [ -f .piecesphp-distribution ] && en_clon=si
+# Un proyecto clonado tiene su propio registro: cadena, higiene, destinos e índices se corren sobre él.
+con_registro=no
+[ -f .piecesphp-proyecto ] && con_registro=si
 
 paso "Sintaxis bash de los guiones de agentes (bash -n)"
 n=0
@@ -104,7 +107,7 @@ paso "Capas del andamiaje (A, B, C)"
 python3 -B .agents/scripts/capas.py || fallo "un archivo del andamiaje sin capa, en dos capas, o un patrón muerto en .agents/capas.json"
 
 paso "Higiene de estado/PO.md"
-if [ "$en_clon" = si ]; then
+if [ "$en_clon" = si ] && [ "$con_registro" = no ]; then
     echo "[NO APLICA EN LA DISTRIBUCIÓN] higiene de estado/PO.md: el estado viaja vacío, sin PO.md (ADR 0049 §3)"
 else
     python3 -B .agents/scripts/probar_higiene_po.py || fallo "higiene_po.py no caza lo que debe cazar"
@@ -119,7 +122,7 @@ else
 fi
 
 paso "Destinos de las decisiones del PO (E1)"
-if [ "$en_clon" = si ]; then
+if [ "$en_clon" = si ] && [ "$con_registro" = no ]; then
     echo "[NO APLICA EN LA DISTRIBUCIÓN] destinos: abierto.md y decisiones-del-po.md son de la capa C, no viajan"
 else
     python3 -B .agents/scripts/probar_destinos.py || fallo "destinos.py no caza lo que debe cazar"
@@ -127,7 +130,7 @@ else
 fi
 
 paso "Contadores y tope de AHORA.md (E5)"
-if [ "$en_clon" = si ]; then
+if [ "$en_clon" = si ] && [ "$con_registro" = no ]; then
     echo "[NO APLICA EN LA DISTRIBUCIÓN] cadena: el estado es de la capa C y no viaja"
 else
     python3 -B .agents/scripts/probar_cadena.py || fallo "cadena.py no caza lo que debe cazar"
@@ -135,7 +138,7 @@ else
 fi
 
 paso "Cada archivo del andamiaje, en su índice (E11)"
-if [ "$en_clon" = si ]; then
+if [ "$en_clon" = si ] && [ "$con_registro" = no ]; then
     echo "[NO APLICA EN LA DISTRIBUCIÓN] índices: las carpetas de la capa C no viajan"
 else
     # Un hijo DIRECTO versionado de cada carpeta (archivo o carpeta, sin el README) tiene que salir nombrado en su

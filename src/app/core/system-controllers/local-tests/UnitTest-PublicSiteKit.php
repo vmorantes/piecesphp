@@ -316,7 +316,7 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $f1Cases = [
         'math-href' => ['<math><mi href="{{url}}">x</mi></math>', true], 'math-xlink' => ['<math><mrow><mi xlink:href="{{url}}">x</mi></mrow></math>', true], 'math-self' => ['<math href="{{url}}"><mi>x</mi></math>', true],
         'meta-refresh' => ['<meta http-equiv="Refresh" content="0;url={{url}}">', true], 'svg-set' => ['<svg><a><set attributeName="href" to="{{url}}"></set></a></svg>', true], 'svg-animate-values' => ['<svg><animate attributeName="href" values="{{url}}"></animate></svg>', true],
-        'svg-animate-from' => ['<svg><animate attributeName="x" from="{{title}}"></animate></svg>', true], 'svg-transform' => ['<svg><animateTransform attributeName="transform" to="{{title}}"></animateTransform></svg>', true], 'svg-motion' => ['<svg><animateMotion values="{{title}}"></animateMotion></svg>', true],
+        'svg-animate-from' => ['<svg><animate attributeName="x" from="{{title}}"></animate></svg>', true], 'svg-transform' => ['<svg><animateTransform attributeName="transform" to="{{title}}"></animateTransform></svg>', true], 'svg-motion' => ['<svg><animateMotion values="{{title}}"></animateMotion></svg>', true], 'svg-by' => ['<svg><animate attributeName="x" by="{{title}}"></animate></svg>', true],
         'meta-name' => ['<meta name="description" content="{{title}}">', false], 'a-href' => ['<a href="{{url}}">x</a>', false], 'svg-rect' => ['<svg><rect width="{{title}}"></rect></svg>', false],
     ];
     $f1Files = ['site/.pcs/pcs.js' => $embedFiles['site/.pcs/pcs.js'], 'site/data/zz.js' => $embedFiles['site/data/zz.js']];
@@ -334,7 +334,7 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
         return $refused;
     };
     $f1Got = $f1Run($checkJs);
-    $check($f1Got === array_map(fn (array $case): bool => $case[1], $f1Cases), 'm16 CHECK da error por un {{campo}} en el href de MathML, el content de <meta http-equiv=refresh> o to/from/values de set/animate/animateTransform/animateMotion; el content de otro meta, el href de un <a> o el width de un <rect>, no', (string) json_encode($f1Got));
+    $check($f1Got === array_map(fn (array $case): bool => $case[1], $f1Cases), 'm16 CHECK da error por un {{campo}} en el href de MathML, el content de <meta http-equiv=refresh> o to/from/values/by de set/animate/animateTransform/animateMotion; el content de otro meta, el href de un <a> o el width de un <rect>, no', (string) json_encode($f1Got));
     $animationLists = fn (string $source): bool => str_contains($source, "var ANIMATION_ELEMENTS = ['" . implode("', '", \PiecesPHP\PublicSite\Compiler::ANIMATION_ELEMENTS) . "']") && str_contains($source, "var ANIMATION_VALUE_ATTRIBUTES = ['" . implode("', '", \PiecesPHP\PublicSite\Compiler::ANIMATION_VALUE_ATTRIBUTES) . "']");
     $unsafeElsewhere = (string) substr($previewStripped, (int) strpos($previewStripped, 'function unsafeElsewhere('), 700);
     $check(str_contains($unsafeFunction . $previewStripped, '|| unsafeElsewhere(element, name)') && str_contains($unsafeElsewhere, "=== 'refresh'") && str_contains($unsafeElsewhere, "element.closest('math')") && $animationLists($previewStripped) && $animationLists($checkJs), 'm17 la vista previa no pinta la lista en esos mismos casos (unsafeElsewhere), y pcs.js y check.js usan las listas de animaciones de Compiler');

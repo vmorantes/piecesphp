@@ -699,24 +699,11 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             }
         }
 
-        //Con sesión, el formulario de acceso vuelve a la página pedida (`next`, si es de este sitio) o al panel; nunca a la
-        //portada (P291 a). La `url` de admin_url vacía es la de fábrica: entonces, el panel; un clon que la puso la conserva.
+        //Con sesión, el formulario de acceso vuelve a la página pedida (`next`, si es de este sitio) o adonde diga
+        //login_redirect_route; nunca a la portada (P291 a, P399). El orden, en ProjectStart::loginTarget().
         if ($isActiveSession && $name_route == 'users-form-login') {
             $nextURL = \PiecesPHP\UserSystem\Controllers\UsersController::safeNextURL($request->getQueryParams()['next'] ?? null);
-            if ($nextURL !== null) {
-                return $emptyResponse->withRedirect($nextURL);
-            }
-            $login_redirect = get_config('admin_url');
-            $relative_url = $login_redirect !== false ? ($login_redirect['relative'] ?? true) : true;
-            $relative_url = !is_bool($relative_url) ?true : $relative_url;
-            $admin_url = $login_redirect !== false ? ($login_redirect['url'] ?? '') : '';
-            if (!is_string($admin_url) || $admin_url === '') {
-                $admin_url = \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('');
-            } elseif ($relative_url) {
-                $admin_url = baseurl($admin_url);
-            }
-            $admin_url = convert_lang_url($admin_url, get_config('default_lang'), get_config('app_lang'));
-            return $emptyResponse->withRedirect($admin_url);
+            return $emptyResponse->withRedirect(\PiecesPHP\Core\ProjectStart::afterLoginURL($nextURL));
         }
 
         //Control de permisos por roles

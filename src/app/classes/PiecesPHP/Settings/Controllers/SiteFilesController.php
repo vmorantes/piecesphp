@@ -8,6 +8,7 @@ namespace PiecesPHP\Settings\Controllers;
 use App\Controller\PublicAreaController;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\ControllerRoutingTrait;
@@ -57,11 +58,10 @@ class SiteFilesController extends BaseController
     const ROBOTS_FIELDS = ['User-agent', 'Allow', 'Disallow', 'Sitemap', 'Crawl-delay'];
 
     /**
-     * Lo privado de la instalación. `/statics/` NO: cerrarlo le quita al buscador el CSS, el JS y las imágenes.
+     * Lo privado de la instalación, además del panel (robotsDisallow()). `/statics/` NO: cerrarlo le quita al buscador el
+     * CSS, el JS y las imágenes.
      */
     const ROBOTS_DISALLOW = [
-        '/admin/',
-        '/*/admin/',
         '/users/',
         '/*/users/',
         '/terminal/',
@@ -117,6 +117,10 @@ class SiteFilesController extends BaseController
      */
     public function sitemap(Request $req, Response $res)
     {
+        //Sin páginas públicas (P399: public_area 'headless' o false) no hay nada que indexar.
+        if (!ProjectStart::publicPages()) {
+            return self::respond($res, (new Sitemap('', false))->getXML(), 'application/xml');
+        }
         $file = self::sitemapCacheFile();
         $cached = is_file($file) && (time() - (int) filemtime($file)) < self::SITEMAP_CACHE_SECONDS ? @file_get_contents($file) : false;
         if (is_string($cached) && $cached !== '') {
@@ -168,13 +172,28 @@ class SiteFilesController extends BaseController
      */
     public static function robotsBase(): string
     {
+        //Sin páginas públicas (P399: public_area 'headless' o false), los buscadores no entran en nada.
+        if (!ProjectStart::publicPages()) {
+            return "User-agent: *\nDisallow: /";
+        }
         $lines = ['User-agent: *'];
-        foreach (self::ROBOTS_DISALLOW as $path) {
+        foreach (self::robotsDisallow() as $path) {
             $lines[] = "Disallow: {$path}";
         }
         $lines[] = '';
         $lines[] = 'Sitemap: ' . baseurl('sitemap.xml');
         return implode("\n", $lines);
+    }
+
+    /**
+     * Lo que `robots.txt` cierra: el panel, donde diga `admin_path`, y ROBOTS_DISALLOW.
+     *
+     * @return string[]
+     */
+    public static function robotsDisallow(): array
+    {
+        $adminPath = ProjectStart::adminPath();
+        return array_merge(["/{$adminPath}/", "/*/{$adminPath}/"], self::ROBOTS_DISALLOW);
     }
 
     /**
@@ -206,6 +225,10 @@ class SiteFilesController extends BaseController
      */
     public static function llmsBase(): string
     {
+        //Sin páginas públicas (P399), nada que leer.
+        if (!ProjectStart::publicPages()) {
+            return '';
+        }
         $defaultLang = Config::get_default_lang();
         $title = SettingsModel::getConfigValue(SettingsController::SEO_OPTION_TITLE_APP, true);
         $description = SettingsModel::getConfigValue(SettingsController::SEO_OPTION_DESCRIPTION, true);

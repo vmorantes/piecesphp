@@ -10,6 +10,7 @@ use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -44,7 +45,10 @@ class BuiltInBannerRoutes
         if (self::ENABLE) {
 
             $groupAdministration = BuiltInBannerController::routes($groupAdministration);
-            $groupPublic = BuiltInBannerPublicController::routes($groupPublic);
+            //Su parte pública es un dato (JSON): con public_area = false no se registra (P399).
+            if (ProjectStart::publicData()) {
+                $groupPublic = BuiltInBannerPublicController::routes($groupPublic);
+            }
 
             self::staticResolver($groupAdministration);
 

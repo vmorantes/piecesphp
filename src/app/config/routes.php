@@ -25,6 +25,7 @@ use PiecesPHP\App\Locations\Controllers\Locations;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemRoutes;
 use PiecesPHP\Components\ComponentProviderRoutes;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\Statics\ServerStatics;
@@ -52,7 +53,9 @@ use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Controllers\TerminalController;
 
 //── Del framework: no lo edites ──
-$prefix_lang = get_config('prefix_lang');
+$langPrefix = get_config('prefix_lang');
+//El panel cuelga de $config['admin_path'] (P399; vacío aún no está soportado). public_area lo aplica cada módulo al registrarse.
+$adminPrefix = ProjectStart::adminPrefix($langPrefix, ProjectStart::adminPath());
 $slim_app = get_router();
 PiecesRouteGroup::setRouter($slim_app);
 
@@ -62,33 +65,33 @@ PiecesRouteGroup::setRouter($slim_app);
 //El orden lo fija el primer register() de cada grupo: los servicios, antes que los comodines de la zona pública.
 
 //── Servicios: los llama la terminal, el navegador o la API, no una persona en el panel ──
-$terminalGroup = new PiecesRouteGroup($prefix_lang . '/terminal'); //Rutas de terminal
-$coreGroup = new PiecesRouteGroup($prefix_lang . '/core'); //API y mensajes de idioma
-$componentsProvider = new PiecesRouteGroup($prefix_lang . '/components-provider'); //Componentes HTML
-$servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
-$token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Sistema de tokens
+$terminalGroup = new PiecesRouteGroup($langPrefix . '/terminal'); //Rutas de terminal
+$coreGroup = new PiecesRouteGroup($langPrefix . '/core'); //API y mensajes de idioma
+$componentsGroup = new PiecesRouteGroup($langPrefix . '/components-provider'); //Componentes HTML
+$staticsGroup = new PiecesRouteGroup($langPrefix . '/statics/'); //Servido personalizado de archivos estáticos
+$tokensGroup = new PiecesRouteGroup($langPrefix . '/tokens'); //Sistema de tokens
 
 //── Backoffice: los subgrupos de admin/ antes que admin/ ──
-$adminConfigurations = new PiecesRouteGroup($prefix_lang . '/admin/configurations'); //Configuraciones
-$adminUsers = new PiecesRouteGroup($prefix_lang . '/admin/users/'); //Usuarios, con sesión
-$adminLocations = new PiecesRouteGroup($prefix_lang . '/admin/locations'); //Ubicaciones, la gestión
-$adminOrganizations = new PiecesRouteGroup($prefix_lang . '/admin/organizations'); //Organizaciones, la gestión
-$adminTickets = new PiecesRouteGroup($prefix_lang . '/admin/tickets'); //Sistema de tickets
-$adminTiming = new PiecesRouteGroup($prefix_lang . '/admin/timing'); //Temporizadores
-$adminAvatars = new PiecesRouteGroup($prefix_lang . '/admin/avatars'); //Sistema de usuarios-avatares
-$zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
+$adminConfigurationsGroup = new PiecesRouteGroup($adminPrefix . '/configurations'); //Configuraciones
+$adminUsersGroup = new PiecesRouteGroup($adminPrefix . '/users/'); //Usuarios, con sesión
+$adminLocationsGroup = new PiecesRouteGroup($adminPrefix . '/locations'); //Ubicaciones, la gestión
+$adminOrganizationsGroup = new PiecesRouteGroup($adminPrefix . '/organizations'); //Organizaciones, la gestión
+$adminTicketsGroup = new PiecesRouteGroup($adminPrefix . '/tickets'); //Sistema de tickets
+$adminTimingGroup = new PiecesRouteGroup($adminPrefix . '/timing'); //Temporizadores
+$adminAvatarsGroup = new PiecesRouteGroup($adminPrefix . '/avatars'); //Sistema de usuarios-avatares
+$adminGroup = new PiecesRouteGroup($adminPrefix); //Zona administrativa
 
 //── Pública: lo que se usa sin sesión ──
-$organizations = new PiecesRouteGroup($prefix_lang . '/organizations'); //Organizaciones, sus estáticos
-$sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Acceso, recuperación y bloqueo
-$locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones, las consultas públicas
-$zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
+$organizationsGroup = new PiecesRouteGroup($langPrefix . '/organizations'); //Organizaciones, sus estáticos
+$usersGroup = new PiecesRouteGroup($langPrefix . '/users/'); //Acceso, recuperación y bloqueo
+$locationsGroup = new PiecesRouteGroup($langPrefix . '/locations'); //Ubicaciones, las consultas públicas
+$publicGroup = new PiecesRouteGroup($langPrefix); //Zona pública
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
 
 //──── SERVICIOS ─────────────────────────────────────────────────────────────────────────
 
-$servidor_estaticos->register(
+$staticsGroup->register(
     [
         //──── GET ───────────────────────────────────────────────────────────────────────────────
         new PiecesRoute('[{params:.*}]', ServerStatics::class . ':serve', 'statics-files'),
@@ -97,27 +100,27 @@ $servidor_estaticos->register(
 
 if (requestIsSameDomain()) {
     //Generación de imágenes y otras rutas de prueba. Solo se genera imagen si es mismo dominio.
-    Test::registerRoutes($prefix_lang);
+    Test::registerRoutes($langPrefix);
 }
 
 //Rutas para solicitudes desde la terminal
 TerminalController::routes($terminalGroup);
 
 //Proveedor de componentes HTML
-ComponentProviderRoutes::routes($componentsProvider, $componentsProvider);
+ComponentProviderRoutes::routes($componentsGroup, $componentsGroup);
 
 //Manejador de tokens
-GenericTokenController::routes($token_handler);
+GenericTokenController::routes($tokensGroup);
 
 //Google ReCaptcha V3
-GoogleReCaptchaV3Routes::routes(new PiecesRouteGroup($prefix_lang . '/recaptcha'));
+GoogleReCaptchaV3Routes::routes(new PiecesRouteGroup($langPrefix . '/recaptcha'));
 
 //API
 APIRoutes::routes($coreGroup);
 
 //──── BACKOFFICE ────────────────────────────────────────────────────────────────────────
 
-$adminAvatars->register(
+$adminAvatarsGroup->register(
     [
         //──── POST ──────────────────────────────────────────────────────────────────────────────
         new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
@@ -125,102 +128,102 @@ $adminAvatars->register(
 );
 
 //Módulo de organizaciones
-OrganizationsRoutes::routes($adminOrganizations, $organizations);
+OrganizationsRoutes::routes($adminOrganizationsGroup, $organizationsGroup);
 
 //Rutas básicas de la zona administrativa
-AdminPanelController::routes($zona_administrativa);
+AdminPanelController::routes($adminGroup);
 
 //Gestor de archivos
-FileManagerRoutes::routes($zona_administrativa);
+FileManagerRoutes::routes($adminGroup);
 
 //Personalización de configuraciones
-SettingsRoutes::routes($adminConfigurations);
+SettingsRoutes::routes($adminConfigurationsGroup);
 
 //Informes de inicio de sesión
-LoginAttemptsController::routes($zona_administrativa);
+LoginAttemptsController::routes($adminGroup);
 
 //Sistema de usuarios
-AdminPanelController::usersRoutes($adminUsers, $sistema_usuarios);
-UserSystemFeaturesRoutes::routes($adminUsers, $sistema_usuarios);
+AdminPanelController::usersRoutes($adminUsersGroup, $usersGroup);
+UserSystemFeaturesRoutes::routes($adminUsersGroup, $usersGroup);
 
 //Tickets
-AdminPanelController::ticketsRoutes($adminTickets);
+AdminPanelController::ticketsRoutes($adminTicketsGroup);
 
 //Temporizador
-TimerController::routes($adminTiming);
+TimerController::routes($adminTimingGroup);
 
 //Ubicaciones
-Locations::routes($adminLocations, $locations);
+Locations::routes($adminLocationsGroup, $locationsGroup);
 
 //Utilidad de importación y exportación
-DataImportExportUtilityRoutes::routes($zona_administrativa);
+DataImportExportUtilityRoutes::routes($adminGroup);
 
 //Utilidad de localización (idiomas): los mensajes, a los servicios; los estáticos, aquí
-LocalizationSystemFeaturesRoutes::routes($zona_administrativa, $coreGroup);
+LocalizationSystemFeaturesRoutes::routes($adminGroup, $coreGroup);
 
 //Avisos del sistema y mantenimiento
-SystemStatusRoutes::routes($zona_administrativa);
+SystemStatusRoutes::routes($adminGroup);
 
 //Correos del sitio: el banco de pruebas de correo
-MailCatalogRoutes::routes($zona_administrativa);
+MailCatalogRoutes::routes($adminGroup);
 
 //Registros: una vista con las pestañas que aportan los módulos
-LogsViewerRoutes::routes($zona_administrativa);
-NotificationsRoutes::routes($zona_administrativa);
+LogsViewerRoutes::routes($adminGroup);
+NotificationsRoutes::routes($adminGroup);
 
 //El servidor MCP del panel (ADR 0075): las herramientas, con la sesión y los permisos de quien pregunta
-McpRoutes::routes($zona_administrativa);
+McpRoutes::routes($adminGroup);
 
 //Datos geográficos: el geovisor y las fuentes que le registran los módulos
-GeoRoutes::routes($zona_administrativa);
+GeoRoutes::routes($adminGroup);
 
 //Imágenes
-BuiltInBannerRoutes::routes($zona_administrativa, $zona_publica);
+BuiltInBannerRoutes::routes($adminGroup, $publicGroup);
 
 //Publicaciones
-PublicationsRoutes::routes($zona_administrativa, $zona_publica);
+PublicationsRoutes::routes($adminGroup, $publicGroup);
 
 //Newsletter
-NewsletterRoutes::routes($zona_administrativa, $zona_publica);
+NewsletterRoutes::routes($adminGroup, $publicGroup);
 
 //Noticias internas
-NewsRoutes::routes($zona_administrativa);
+NewsRoutes::routes($adminGroup);
 
 //Formularios
-FormsRoutes::routes($zona_administrativa);
+FormsRoutes::routes($adminGroup);
 
 //Log de acciones
-LogsRoutes::routes($zona_administrativa);
+LogsRoutes::routes($adminGroup);
 
 //Documentos
-DocumentsRoutes::routes($zona_administrativa);
+DocumentsRoutes::routes($adminGroup);
 
 //Mi espacio
-MySpaceRoutes::routes($zona_administrativa);
+MySpaceRoutes::routes($adminGroup);
 //Perfiles de organización: en la zona administrativa, con las URL que tenían en Mi espacio
-OrganizationsRoutes::profileRoutes($zona_administrativa);
+OrganizationsRoutes::profileRoutes($adminGroup);
 
 //Aprobaciones
-SystemApprovalsRoutes::routes($zona_administrativa);
+SystemApprovalsRoutes::routes($adminGroup);
 
 //Directorio: el listado de personas y organizaciones, y sus perfiles
-DirectoryRoutes::routes($zona_administrativa);
+DirectoryRoutes::routes($adminGroup);
 
 //Reportes
-ReportsManageRoutes::routes($zona_administrativa);
+ReportsManageRoutes::routes($adminGroup);
 
 //Helpers
-HelpersSystemRoutes::routes($zona_administrativa);
+HelpersSystemRoutes::routes($adminGroup);
 
 //Archivos para buscadores, antes que tus módulos: su comodín los taparía; con prefijo vacío, en la zona pública (H371).
-SiteFilesController::routes($prefix_lang === '' ? $zona_publica : new PiecesRouteGroup(''));
+SiteFilesController::routes($langPrefix === '' ? $publicGroup : new PiecesRouteGroup(''));
 
 //── Del clon ──
-//Tus módulos: TusRutas::routes($zona_administrativa, $zona_publica);
+//Tus módulos: TusRutas::routes($adminGroup, $publicGroup);
 
 //──── PÚBLICA ───────────────────────────────────────────────────────────────────────────
 
 //── Del framework: no lo edites ──
 
 //Rutas básicas de la zona pública
-PublicAreaController::routes($zona_publica);
+PublicAreaController::routes($publicGroup);

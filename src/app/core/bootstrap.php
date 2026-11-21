@@ -207,7 +207,7 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v10.61.0');
+    define('APP_VERSION', 'v10.62.0');
     /**
      * Fecha de la versión de la aplicación
      */
@@ -236,6 +236,8 @@ if (!isset($config) || !is_array($config)) {
 } else {
     $config_pcs_php = $config;
 }
+//Un config.php de antes no trae las claves del arranque (P399): reciben las de fábrica.
+$config_pcs_php = \PiecesPHP\Core\ProjectStart::withDefaults($config_pcs_php);
 
 if (is_array($config_pcs_php)) {
     foreach ($config_pcs_php as $name => $value) {

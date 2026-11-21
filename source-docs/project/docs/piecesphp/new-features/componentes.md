@@ -23,7 +23,7 @@ de publicaciones destacadas de la portada.
 | Lector en JS (opcional) | `src/app/classes/PiecesPHP/Components/Statics/js/ComponentsProvider.js` | Pide un grupo y lo deja en un `Map`. **Hoy nadie lo usa** |
 
 Las rutas se registran en `src/app/config/routes.php`: el grupo `{idioma}/components-provider` se crea en la línea 65 y
-`ComponentProviderRoutes::routes($componentsProvider, $componentsProvider)` lo engancha en la 105. Si pones
+`ComponentProviderRoutes::routes($componentsGroup, $componentsGroup)` lo engancha en la 105. Si pones
 `ComponentProviderRoutes::ENABLE` en `false`, no se registra la ruta ni se inyectan sus traducciones.
 
 ## El formato de un grupo

@@ -36,7 +36,7 @@ $publicMenu = new MenuGroupCollection([
             'name' => __(LANG_GROUP, 'Contacto'),
             'visible' => PublicAreaController::allowedRoute('contact'),
             'asLink' => true,
-            'href' => PublicAreaController::routeName('contact'),
+            'href' => PublicAreaController::routeName('contact', [], true),
             'position' => 90,
         ]),
     ],

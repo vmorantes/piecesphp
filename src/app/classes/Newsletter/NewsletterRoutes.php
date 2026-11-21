@@ -9,6 +9,7 @@ namespace Newsletter;
 use Newsletter\Controllers\NewsletterController;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -42,7 +43,8 @@ class NewsletterRoutes
     {
         if (self::ENABLE) {
 
-            NewsletterController::routes($groupAdministration, $groupPublic);
+            //El alta sin sesión es un dato (un formulario de máquina): con public_area = false no se registra (P399).
+            NewsletterController::routes($groupAdministration, $groupPublic, ProjectStart::publicData());
 
             self::staticResolver($groupAdministration);
 
