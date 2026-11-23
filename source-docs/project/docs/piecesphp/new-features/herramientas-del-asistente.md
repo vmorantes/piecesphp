@@ -112,11 +112,6 @@ mismas defensas que el servidor MCP).
 - **Al pintarlo** (la ventana del chat), `answer` y los títulos van como texto, nunca como HTML: pueden traer texto de
   terceros (una noticia, un motivo de rechazo). Los enlaces, solo los de `links`, que son del propio sitio.
 
-Para probarlo contra el proveedor configurado hay un banco de preguntas, dentro y fuera de tema:
-`bin/cli assistant-bench confirm=yes user=<id>` (solo en local; llama al proveedor de verdad y gasta). **Solo existe en el
-repositorio del framework**: la acción no viaja en la distribución, así que en un proyecto clonado no está. Con `fake=yes`
-usa un proveedor simulado que no gasta nada.
-
 ## La ventana
 
 La ventana del asistente en el panel es el componente `ui chat` del tema (desde su `0.15.0`). La pintan
@@ -136,14 +131,6 @@ móvil, un elemento del menú de usuario) y el diseño del panel (el contenedor 
 - Los fallos van como aviso del componente, según el `kind` que devuelve `reply()`:
   - `unavailable`: la IA o la función apagadas, sin permiso, sin proveedor o sin cuota;
   - `error`: lo demás.
-
-El banco (`bin/cli assistant-bench`) se corre con un proveedor simulado (`fake=yes`) o, en local, contra uno real con
-`provider=<id> model=<modelo> limit=<n>` (como mucho 8 preguntas, todo en memoria y el consumo repuesto al terminar: borra las filas nuevas y devuelve las que ya
-existían a sus cifras). En ese modo real, la cuota en memoria es **lo ya gastado en el periodo más 20.000 tokens**: el
-presupuesto es del banco, no del mes, y un mes con consumo no lo deja sin sitio. `user=` es el id de un usuario que
-tenga el asistente (para root, el suyo) y `provider=`, el id del registro en Configuración › IA › Proveedores (los tres
-que se convirtieron de los de fábrica se llaman `openai`, `mistral` y `groq`); comprueba los dos con `fake=yes`, que no
-gasta.
 
 ## Las herramientas del framework
 

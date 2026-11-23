@@ -193,6 +193,23 @@ CliActions::make('unit-tests:core/gates-area-selection', function ($args) {
         @rmdir($mDir);
     }
 
+    echoTerminal(' ');
+    echoTerminal('[k] Lo que en un clon no aplica por lo que el clon es (ADR 0085 §5)');
+    $kDir = basepath('app/cache/zz-gates-clon-' . bin2hex(random_bytes(4)));
+    try {
+        //Un repositorio git sin etiquetas, como un clon recién nacido.
+        $kOk = mkdir($kDir, 0775, true) && exec('git -C ' . escapeshellarg($kDir) . ' init -q 2>/dev/null', $kSalida, $kEstado) !== false && $kEstado === 0;
+        $sinEtiqueta = $kOk ? GatesTask::cloneNotApplicable('unit-tests:core/clone-compare', $kDir) : null;
+        $check($kOk && is_string($sinEtiqueta) && str_contains($sinEtiqueta, 'v10.6.0'), 'k1 sin la etiqueta v10.6.0 en la historia, core/clone-compare no aplica, con su motivo', (string) $sinEtiqueta);
+        $check(GatesTask::cloneNotApplicable('unit-tests:core/clone-compare', $repoRoot) === null, 'k2 CANARIO: aquí la etiqueta está y la suite corre');
+        $check(\PiecesPHP\PublicSite\PublicSite::activeSite() !== null || GatesTask::cloneNotApplicable('unit-tests:core/seo-metadata', $kDir) === null, 'k3 sin sitio propio activo, las suites de la portada corren');
+        $check(GatesTask::cloneNotApplicable('unit-tests:core/route-inventory', $kDir) === null, 'k4 una suite que no está en las listas siempre corre');
+        $check(in_array('bin/tools/vendor/autoload.php', GatesTask::SUITE_DISTRIBUTION_REQUIREMENTS['unit-tests:core/scan-missing-lang-options'] ?? [], true), 'k5 las suites de scan-missing-lang piden bin/tools/vendor (PhpParser), que no viaja');
+    } finally {
+        //RETORNO-IGNORADO: limpieza de un temporal propio en app/cache, ignorado por git.
+        exec('rm -rf -- ' . escapeshellarg($kDir));
+    }
+
     return $balance();
 
 })->setDescription('La selección por área de gates (ADR 0062 y 0065), sobre GatesTask::selectByArea(): News/ no elige Newsletter/, lo sin @areas corre siempre, el núcleo y lo que no está en la lista de módulos las corre todas, la documentación no elige ninguna, el archivo de una suite la elige a ella, un área archivo casa por igualdad, un artefacto de instrumento elige solo las suites que lo leen y una suite «@areas nucleo» no corre con un cambio solo de módulos. Sin base ni git.')->setEffects([CliActions::EFFECT_NONE])->register();

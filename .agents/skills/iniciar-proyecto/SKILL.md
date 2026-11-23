@@ -24,8 +24,9 @@ cat .piecesphp-distribution
 python3 -c "import json;print(json.load(open('.agents/project-architect-coder.json'))['sessions'])"
 ```
 
-- El primer commit es «PiecesPHP vX.Y.Z» con su etiqueta: es la versión del framework de la que nace.
-- `git status` enseña la metodología **preparada sin commitear** (si el PO aún no hizo el primer commit) o nada.
+- El clon nace **sin commits** y con todo preparado en el índice; tras el commit del PO, la historia tiene **uno solo**
+  (ADR 0085 del framework). La versión de la que nace está en `.piecesphp-distribution` (etiqueta y commit).
+- `git status` enseña todo **preparado sin commitear** (si el PO aún no hizo el commit) o nada.
 - `.agents/estado/AHORA.md` tiene los contadores a cero; `tramos/` está vacía; no hay ADR.
 - Si algo no cuadra, se dice al PO y se para: un clon mal nacido no se arregla trabajando encima.
 
@@ -39,7 +40,7 @@ python3 -c "import json;print(json.load(open('.agents/project-architect-coder.js
 2. **Los hooks y el primer commit** (si no los hizo ya; los imprimió `bin/clonar-proyecto`):
    ```bash
    git -C <ruta del clon> config core.hooksPath .agents/scripts/git-hooks
-   git -C <ruta del clon> commit -m "chore: metodología de trabajo con el registro vacío"
+   git -C <ruta del clon> commit -m "chore: proyecto nuevo desde PiecesPHP <versión> con la metodología de trabajo"
    ```
 3. **Montar el entorno**, como cualquier proyecto PiecesPHP: `composer install` en `src/`, la base de datos, el vhost y
    la configuración (`src/app/config/`). La `app_key` se genera sola en el primer arranque, en `secure-keys/`.

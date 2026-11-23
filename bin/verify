@@ -1,0 +1,277 @@
+#!/bin/bash
+
+# La verificación de producto en una orden. Tiene DOS caminos, y lo decide la raíz del repositorio:
+#
+# 1. CAMINO DE CLON: la raíz tiene `.piecesphp-distribution` (la distribución pública y todo proyecto hecho a partir de
+#    ella; ADR 0085 §3). En orden: check-routes, formato (`bin/formatear --check --todo`, con las exclusiones que
+#    declare el clon), la sintaxis de PHP (`php -l`) de lo cambiado desde el último commit, verify-integrity, PHPStan si
+#    está instalado (opcional: `bin/phpstan` y `bin/tools/vendor`) y gates solo en local, con base HTTP y tras un
+#    `bin/cli db-backup` que salió bien. Lo que no puede correr lo dice con «NO CORRE: <motivo>» y sigue; lo que falla
+#    para la cadena con su código. Termina con una línea que dice lo que corrió y lo que no. No admite argumentos.
+#
+# 2. CAMINO DEL REPOSITORIO DE DESARROLLO (sin esa marca): en orden, check-routes, formato, artefactos, phpstan, lo que
+#    sale de phpstan, verify-integrity y gates. `--changed-since=<commit>` hace la parcial (ADR 0062).
+#
+# Los dos paran en el primer paso que falla y salen con su código. check-routes va primero porque una
+# ruta con patrón inválido tumba bin/cli, y con él a verify-integrity y a gates.
+# Sin `set -e` a propósito (regla 30): el encadenado es explícito.
+
+set -o pipefail
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+ROOT="$SCRIPT_DIR/.."
+
+# CAMINO DE CLON (ADR 0085 §3). Va entero aquí y sale con exit: el camino del repositorio de desarrollo, debajo, no se
+# toca, y aquí no llama a nada que la distribución no lleve (bin/artefactos, nuestra línea base de PHPStan).
+if [ -f "$ROOT/.piecesphp-distribution" ]; then
+    if [ $# -gt 0 ]; then
+        echo "bin/verify: en un clon no admite argumentos (recibió: $*)."
+        exit 2
+    fi
+
+    # Mismo PHP que bin/cli.
+    if [ -n "$PCSPHP_PHP_BIN" ]; then
+        PHP_BIN="$PCSPHP_PHP_BIN"
+    elif command -v php8.5 >/dev/null 2>&1; then
+        PHP_BIN="php8.5"
+    elif command -v php8.4 >/dev/null 2>&1; then
+        PHP_BIN="php8.4"
+    else
+        PHP_BIN="php"
+    fi
+
+    CORRIO=()
+    NO_CORRIO=()
+
+    resumen_clon() {
+        local corrio="${CORRIO[*]}"
+        local no_corrio=""
+        local pieza
+        for pieza in "${NO_CORRIO[@]}"; do
+            no_corrio="${no_corrio:+${no_corrio}; }${pieza}"
+        done
+        echo "RESUMEN: corrió: ${corrio:-nada} · no corrió: ${no_corrio:-nada}"
+    }
+
+    # Corre una pieza; si falla, dice dónde, lo que queda sin correr, y sale con su código.
+    pieza_clon() {
+        local nombre="$1"
+        shift
+        local restantes="$1"
+        shift
+        echo "== ${nombre} =="
+        "$@"
+        local codigo=$?
+        if [ $codigo -ne 0 ]; then
+            echo "VERIFICACIÓN: FALLÓ EN ${nombre} (código ${codigo})"
+            local resto
+            for resto in $restantes; do
+                NO_CORRIO+=("${resto}: se paró antes")
+            done
+            resumen_clon
+            exit $codigo
+        fi
+        CORRIO+=("$nombre")
+    }
+
+    no_corre() {
+        echo "== $1 =="
+        echo "NO CORRE: $2"
+        NO_CORRIO+=("$1: $2")
+    }
+
+    # Los .php cambiados desde el último commit, y los no seguidos; sin commits, los preparados. Las dependencias
+    # instaladas (src/vendor, bin/tools/vendor, node_modules) no son código del proyecto.
+    php_cambiados() {
+        if git rev-parse --verify --quiet HEAD >/dev/null 2>&1; then
+            git diff --name-only --relative -z HEAD --
+        else
+            git diff --name-only --relative -z --cached --
+        fi
+        git ls-files -z --others --exclude-standard --
+    }
+
+    sintaxis_php() {
+        local lista
+        lista=$(mktemp)
+        php_cambiados | tr '\0' '\n' | grep -E '\.php$' | grep -vE '(^|/)(vendor|node_modules)/' | sort -u > "$lista"
+        local total=0
+        local fallos=0
+        local archivo
+        local salida
+        while IFS= read -r archivo; do
+            [ -f "$archivo" ] || continue
+            total=$((total + 1))
+            if ! salida=$("$PHP_BIN" -l "$archivo" 2>&1); then
+                fallos=$((fallos + 1))
+                echo "$salida"
+            fi
+        done < "$lista"
+        rm -f "$lista"
+        echo "php -l (${PHP_BIN}): ${total} archivo(s), ${fallos} con errores de sintaxis."
+        [ $fallos -eq 0 ]
+    }
+
+    # La base HTTP, con el mismo criterio que gates y sus suites: PCSPHP_WALK_BASE o, si no, el `medido.base` de
+    # files/dev/permissions-matrix.json (GatesTask::BASE_URL_VARIABLE y PERMISSIONS_MATRIX; UnitTest-SoftErrors.php).
+    base_http() {
+        if [ -n "$PCSPHP_WALK_BASE" ]; then
+            echo "$PCSPHP_WALK_BASE"
+            return 0
+        fi
+        [ -f files/dev/permissions-matrix.json ] || return 1
+        "$PHP_BIN" -r '$m = json_decode((string) file_get_contents($argv[1]), true); echo is_array($m) ? (string) ($m["medido"]["base"] ?? "") : "";' files/dev/permissions-matrix.json
+    }
+
+    # Local, con el mismo criterio que GatesTask::localOnly() y AppEnvironment: src/app/config/environment.php existe y
+    # devuelve 'local'. Sin el archivo, la instalación cuenta como producción.
+    entorno_local() {
+        [ -f src/app/config/environment.php ] || return 1
+        [ "$("$PHP_BIN" -r 'try { echo (include $argv[1]) === "local" ? "local" : ""; } catch (\Throwable $e) { echo ""; }' src/app/config/environment.php 2>/dev/null)" = "local" ]
+    }
+
+    cd "$ROOT" || exit 1
+
+    pieza_clon check-routes "formato sintaxis-php verify-integrity phpstan gates" bin/check-routes
+    pieza_clon formato "sintaxis-php verify-integrity phpstan gates" bin/formatear --check --todo
+
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        no_corre sintaxis-php "no es un repositorio git, así que no hay «cambiado desde el último commit»"
+    else
+        pieza_clon sintaxis-php "verify-integrity phpstan gates" sintaxis_php
+    fi
+
+    pieza_clon verify-integrity "phpstan gates" bin/cli verify-integrity
+
+    # Opcional (ADR 0085 §4): se instala con composer install en bin/tools.
+    if [ -x bin/phpstan ] && [ -d bin/tools/vendor ]; then
+        pieza_clon phpstan "gates" bin/phpstan
+    else
+        no_corre phpstan "PHPStan no instalado (opcional)"
+    fi
+
+    if ! entorno_local; then
+        no_corre gates "el entorno no es local (src/app/config/environment.php no devuelve 'local')"
+    elif [ -z "$(base_http)" ]; then
+        no_corre gates "sin base HTTP para pedir (ni PCSPHP_WALK_BASE ni files/dev/permissions-matrix.json)"
+    else
+        echo "== db-backup =="
+        if ! bin/cli db-backup; then
+            echo "db-backup falló: sin respaldo, gates no escribe en la base."
+            NO_CORRIO+=("gates: db-backup falló")
+        else
+            CORRIO+=("db-backup")
+            pieza_clon gates "" bin/cli gates
+        fi
+    fi
+
+    echo "VERIFICACIÓN DEL CLON: OK"
+    resumen_clon
+    exit 0
+fi
+
+# De qué estado partió la corrida (ADR 0047 §2). Empieza en 1 —sucio— porque mientras no se lea la
+# línea de `gates` no se puede afirmar lo contrario: una verificación que no pudo comprobar su punto
+# de partida no avala una etiqueta.
+PARTIDA_SUCIA=1
+
+# --changed-since=<commit> (ADR 0062 §3): gates corre solo las suites del área tocada; las otras tres piezas, igual.
+# Una verificación así es PARCIAL: no cierra un bloque ni avala una etiqueta, aunque la base parta limpia.
+CHANGED_SINCE=""
+for ARG in "$@"; do
+    case "$ARG" in
+        --changed-since=*) CHANGED_SINCE="${ARG#--changed-since=}" ;;
+    esac
+done
+
+paso() {
+    local nombre="$1"
+    shift
+    echo "== ${nombre} =="
+    "$@"
+    local codigo=$?
+    if [ $codigo -ne 0 ]; then
+        echo "VERIFICACIÓN: FALLÓ EN ${nombre} (código ${codigo})"
+    fi
+    return $codigo
+}
+
+# `gates` va por su propio paso porque hay que LEER su salida: es quien dice si la base partió
+# limpia, y esa frase tiene que llegar a la línea final de aquí (ADR 0047 §2).
+# COSTE ACEPTADO: al pasar por `tee` la salida de `gates` deja de ser un terminal y pierde sus
+# colores. El texto es el mismo; los otros tres pasos los conservan.
+paso_gates() {
+    echo "== gates =="
+    local capturada
+    capturada=$(mktemp)
+    if [ -n "$CHANGED_SINCE" ]; then
+        bin/cli gates "changed-since=${CHANGED_SINCE}" | tee "$capturada"
+    else
+        bin/cli gates | tee "$capturada"
+    fi
+    local codigo=${PIPESTATUS[0]}
+    if grep -qF 'PUNTO DE PARTIDA: LIMPIO' "$capturada"; then
+        PARTIDA_SUCIA=0
+    fi
+    rm -f "$capturada"
+    if [ $codigo -ne 0 ]; then
+        echo "VERIFICACIÓN: FALLÓ EN gates (código ${codigo})"
+    fi
+    return $codigo
+}
+
+veredicto() {
+    if [ -n "$CHANGED_SINCE" ]; then
+        echo "VERIFICACIÓN PARCIAL (por área desde ${CHANGED_SINCE}): OK · NO vale para cerrar un bloque ni para avalar una etiqueta"
+    elif [ "$PARTIDA_SUCIA" -eq 0 ]; then
+        echo "VERIFICACIÓN COMPLETA: OK · partió LIMPIA, así que esta corrida vale para avalar una etiqueta."
+    else
+        echo "VERIFICACIÓN COMPLETA: OK · pero partió de un estado SUCIO: esta corrida NO vale para avalar una etiqueta."
+    fi
+}
+
+# H56: el paso phpstan reescribe PHPStanResult.* y nada lo decía; la foto va en un chore(artefactos) tras esta corrida.
+aviso_arbol() {
+    local reescritos
+    reescritos=$(git status --porcelain -- 'PHPStanResult.*' | wc -l)
+    if [ "$reescritos" -gt 0 ]; then
+        echo "ÁRBOL: esta corrida deja ${reescritos} archivo(s) PHPStanResult.* modificados; van en un chore(artefactos)."
+    fi
+    return 0
+}
+
+# El censo de borrados ENTERO corre en el paso artefactos-tras-phpstan (unos 8 s desde GX); la comprobación 40 de
+# verify-integrity busca además sus restos y ve si su artefacto está rancio.
+echo "CENSO DE BORRADOS: entero, en el paso artefactos-tras-phpstan (unos 8 s desde GX). Una fila nueva de borrado o movido sale ahí."
+
+# Un artefacto rancio se ve aquí en segundos, no a los minutos en verify-integrity o en gates (P193). Lo que sale de
+# PHPStanResult.json se mira DESPUÉS del paso phpstan, que lo reescribe: antes daría por buena una foto que ese paso
+# deja rancia.
+artefactos() {
+    bin/artefactos --check "$@"
+    local codigo=$?
+    if [ $codigo -ne 0 ]; then
+        echo "Hay un artefacto rancio o una herramienta que falló: corre bin/artefactos."
+    fi
+    return $codigo
+}
+
+# G16: en la parcial, el formato de lo tocado desde el commit; en la entera, el de todo el universo.
+formato() {
+    if [ -n "$CHANGED_SINCE" ]; then
+        bin/formatear --check --desde="$CHANGED_SINCE"
+    else
+        bin/formatear --check --todo
+    fi
+}
+
+cd "$ROOT" \
+    && paso check-routes bin/check-routes \
+    && paso formato formato \
+    && paso artefactos artefactos --antes-de-phpstan \
+    && paso phpstan bin/phpstan \
+    && paso artefactos-tras-phpstan artefactos --solo-phpstan \
+    && paso verify-integrity bin/cli verify-integrity \
+    && paso_gates \
+    && veredicto \
+    && aviso_arbol

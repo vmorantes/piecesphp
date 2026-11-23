@@ -44,7 +44,12 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
         //──── a. De fábrica ──────────────────────────────────────────────────────────────────
         echoTerminal('[a] De fábrica, todo como antes');
         $check($previous['public_area'] === true && $previous['admin_path'] === 'admin' && $previous['login_redirect_route'] === 'admin', 'a1 config.php trae public_area = true, admin_path = admin y login_redirect_route = admin', var_export([$previous['public_area'], $previous['admin_path'], $previous['login_redirect_route']], true));
-        $check(ProjectStart::legacyRedirectsEnabled($previous['legacy_redirects']) === false, 'a2 el banco de redirecciones viene apagado');
+        //En un clon (ADR 0085 §5), el banco encendido es una decisión del proyecto, no un fallo de fábrica.
+        if (\Terminal\Distribution::isDistribution() && ProjectStart::legacyRedirectsEnabled($previous['legacy_redirects'])) {
+            echoTerminal("   \e[33m" . \Terminal\Distribution::NOT_APPLICABLE . " a2 el banco de redirecciones viene apagado: este proyecto lo encendió\e[39m");
+        } else {
+            $check(ProjectStart::legacyRedirectsEnabled($previous['legacy_redirects']) === false, 'a2 el banco de redirecciones viene apagado');
+        }
         $legacy = ['/admin/', '/*/admin/', '/users/', '/*/users/', '/terminal/', '/core/', '/components-provider/', '/organizations/', '/locations/', '/tokens/'];
         $check(SiteFilesController::robotsDisallow() === $legacy, 'a3 robots.txt cierra lo mismo que antes, en el mismo orden', implode(' ', SiteFilesController::robotsDisallow()));
         $check(ProjectStart::withDefaults([]) === ['public_area' => true, 'admin_path' => 'admin'], 'a4 un config.php de antes, sin las claves, recibe las de fábrica');

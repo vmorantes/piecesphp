@@ -9,6 +9,8 @@
 #   bin/formatear --universo [--guardar]      lista el universo; con --guardar escribe files/dev/format-universe.json
 #   bin/formatear --suelto <archivo>          formatea un archivo aunque esté fuera del universo (el temporal del editor:
 #                                             bin/tools/formato/php-editor, P242)
+#   .piecesphp-formato-excluir, en la raíz y si existe: carpetas o globs (uno por línea; # y vacías se ignoran) que el
+#                                             clon saca del universo, sumados a FUERA_CARPETAS (ADR 0085 §6)
 #
 # Cada lenguaje, con su formateador (P235):
 #   .php         bin/tools/phpfmt/fmt.stub.php (phpfmt 1.2.71, BSD-3), con los argumentos que arma la extensión
@@ -20,7 +22,7 @@
 #   .scss .css   bin/tools/formato/css.js: el CSS de js-beautify 1.10.1 (bin/tools/js-beautify/, MIT).
 # Y después, como al guardar en el editor: un salto de línea final si falta (.editorconfig, files.insertFinalNewline),
 # salvo en los archivos de bin/ ([bin/*] insert_final_newline = false).
-import json, os, shutil, subprocess, sys, tempfile
+import fnmatch, json, os, shutil, subprocess, sys, tempfile
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UNIVERSO_JSON = 'files/dev/format-universe.json'
@@ -35,6 +37,8 @@ PHP_ARGUMENTOS = ['--psr2', '--indent_with_space=4', '--passes=' + ','.join(PHP_
 EXTENSIONES = ('.php', '.js', '.scss', '.css')
 FUERA_CARPETAS = ('src/vendor/', 'src/statics/plugins/', 'node_modules/', 'bin/tools/')
 FUERA_SUFIJOS = ('.min.js', '.min.css')
+#Lo que el clon declara fuera (ADR 0085 §6). Sin el archivo, nada: el universo de este repositorio no cambia.
+EXCLUIR_DEL_CLON = '.piecesphp-formato-excluir'
 #Lo que escribe src/gulpfile.js: (carpeta de la fuente, extensión de la fuente, carpeta de la salida, extensión de la salida).
 COMPILADOS = [
     ('src/statics/core/ts/', '.ts', 'src/statics/core/js/', '.js'),
@@ -64,12 +68,39 @@ def compilado(ruta):
     return False
 
 
+def exclusiones_del_clon():
+    ruta = os.path.join(RAIZ, EXCLUIR_DEL_CLON)
+    if not os.path.isfile(ruta):
+        return []
+    with open(ruta, encoding='utf-8') as archivo:
+        return [l.strip() for l in archivo.read().splitlines() if l.strip() and not l.strip().startswith('#')]
+
+
+def casa_por_tramos(tramos_ruta, tramos_glob):
+    #Como en la shell: «*» no cruza «/»; «**» es cualquier número de carpetas. Basta con casar el principio de la ruta:
+    #un glob que casa con una carpeta saca todo lo que cuelga de ella.
+    if not tramos_glob:
+        return True
+    if tramos_glob[0] == '**':
+        return any(casa_por_tramos(tramos_ruta[i:], tramos_glob[1:]) for i in range(len(tramos_ruta) + 1))
+    return bool(tramos_ruta) and fnmatch.fnmatchcase(tramos_ruta[0], tramos_glob[0]) and casa_por_tramos(tramos_ruta[1:], tramos_glob[1:])
+
+
+def excluida_por_el_clon(ruta, exclusiones):
+    for entrada in exclusiones:
+        entrada = (entrada[2:] if entrada.startswith('./') else entrada).strip('/')
+        if entrada and casa_por_tramos(ruta.split('/'), entrada.split('/')):
+            return True
+    return False
+
+
 def clasificar(con_nuevos=False):
     #Con los nuevos sin versionar (y no ignorados) para formatearlos antes de su commit; la foto, solo lo versionado.
     salida = subprocess.run(['git', '-C', RAIZ, 'ls-files', '-z'] + (['--cached', '--others', '--exclude-standard'] if con_nuevos else []) + ['--'] + ['*' + e for e in EXTENSIONES], capture_output=True, check=True).stdout
     universo, compilados = [], []
+    del_clon = exclusiones_del_clon()
     for ruta in sorted(r.decode('utf-8') for r in salida.split(b'\0') if r):
-        if ruta.startswith(FUERA_CARPETAS) or ruta.endswith(FUERA_SUFIJOS) or ruta in DUDOSOS:
+        if ruta.startswith(FUERA_CARPETAS) or ruta.endswith(FUERA_SUFIJOS) or ruta in DUDOSOS or excluida_por_el_clon(ruta, del_clon):
             continue
         if compilado(ruta):
             compilados.append(ruta)
@@ -81,7 +112,7 @@ def clasificar(con_nuevos=False):
 def guardar_universo(universo, compilados):
     datos = {
         'why': 'Lo que formatea bin/formatear (P233, P235, P236): lo versionado .php, .js, .scss y .css, menos lo de terceros, lo compilado y lo dudoso. Las reglas viven en bin/formatear; esto es su foto (bin/artefactos).',
-        'fuera_por_carpeta_o_sufijo': list(FUERA_CARPETAS) + ['*' + s for s in FUERA_SUFIJOS],
+        'fuera_por_carpeta_o_sufijo': list(FUERA_CARPETAS) + ['*' + s for s in FUERA_SUFIJOS] + exclusiones_del_clon(),
         'compilados': compilados,
         'dudosos': DUDOSOS,
         'por_lenguaje': {e: sum(1 for r in universo if r.endswith(e)) for e in EXTENSIONES},

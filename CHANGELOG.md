@@ -1,9 +1,19 @@
+# 10.62.5 (23-11-2026)
+
+- **Nuevo — tu proyecto tiene su verificación en una orden: `bin/verify`.** En un proyecto hecho a partir de PiecesPHP
+  encadena lo que funciona allí: las rutas, el formato, la sintaxis de PHP de lo cambiado, la integridad y, en local con
+  la base montada, las pruebas. Para en el primer fallo y dice lo que no corrió y por qué.
+- **Las comprobaciones del framework ya no fallan en tu proyecto por lo que no le corresponde**: lo que depende del
+  repositorio de desarrollo de PiecesPHP, de su historia o de valores de fábrica que tu proyecto cambió a propósito (tu
+  propia portada, tu banco de redirecciones) sale como «NO APLICA», con su motivo.
+- **Al actualizar**: nada que hacer.
+
 # 10.62.4 (23-11-2026)
 
 - **Seguridad: los últimos refuerzos en las peticiones que la aplicación hace a otros servicios.** Se recomienda
   actualizar.
 - **La documentación**: los avisos se ven como avisos (antes, algunos salían como texto entre corchetes) y la
-  compilación se niega a publicar una página con enlaces sin convertir, avisos sin convertir o fuera del menú.
+  compilación se niega a publicar una página con enlaces o avisos sin convertir, nombres de archivo irregulares o fuera del menú.
 
 # 10.62.3 (23-11-2026)
 

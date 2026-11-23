@@ -184,9 +184,14 @@ CliActions::make('unit-tests:core/seo-metadata', function ($args) {
         SettingsController::SEO_OPTION_KEYWORDS, SettingsController::SEO_OPTION_SHARE_TITLE, SettingsController::SEO_OPTION_SHARE_DESCRIPTION,
         SettingsController::SEO_OPTION_X_ACCOUNT,
     ];
+    //Con el nombre de cada idioma (seoOptionName): el formulario va en «es», y en un proyecto cuyo idioma por omisión es
+    //otro la acción escribe «<opción>_es»; sin guardarlas aquí, la limpieza no las repondría y quedarían de restos.
     $previas = [];
-    foreach ($opciones as $opcion) {
-        $previas[$opcion] = [SettingsModel::optionExists($opcion), SettingsModel::getConfigValue($opcion)];
+    foreach ($opciones as $opcionBase) {
+        foreach (\PiecesPHP\Core\Config::get_allowed_langs() as $idioma) {
+            $opcion = SettingsController::seoOptionName($opcionBase, $idioma);
+            $previas[$opcion] = [SettingsModel::optionExists($opcion), SettingsModel::getConfigValue($opcion)];
+        }
     }
     $ids = [];
     $publicaciones = [];

@@ -27,6 +27,9 @@ CliActions::make('unit-tests:core/third-party-images', function ($args) {
     $opciones = ['partners', 'partnersVertical', 'partnersInvertOnDark', 'partnersVerticalInvertOnDark', 'partnersDarkMode', 'partnersVerticalDarkMode', 'partnersDark', 'partnersVerticalDark', 'developer_logo', 'developer_logo_invert_on_dark'];
     $antes = array_combine($opciones, array_map(fn (string $opcion): mixed => get_config($opcion), $opciones));
     $viejos = [];
+    //En un clon (ADR 0085 §5), la historia es la del proyecto: la etiqueta v10.53.0 del framework no está.
+    $sinEtiqueta = \Terminal\Distribution::isDistribution() && trim((string) shell_exec('git --no-optional-locks -C ' . escapeshellarg(dirname(rtrim(str_replace('\\', '/', basepath('')), '/'))) . ' rev-parse --verify -q refs/tags/v10.53.0 2>/dev/null')) === '';
+    $noAplica = fn(string $caso) => echoTerminal("   \e[33m" . \Terminal\Distribution::NOT_APPLICABLE . " {$caso}: pide la etiqueta v10.53.0 del framework, que un clon no guarda\e[39m");
 
     try {
         //─── p · Los patrocinadores de fábrica ────────────────────────────────────────────────────────
@@ -63,13 +66,17 @@ CliActions::make('unit-tests:core/third-party-images', function ($args) {
             $limpiar($imagen);
 
             //El sha1 anterior también es de fábrica: una instalación que no ha copiado aún las nuevas.
-            $viejo = 'app/cache/zz-' . $imagen . '-viejo-' . bin2hex(random_bytes(3)) . '.png';
-            $viejos[] = $viejo;
-            $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
-            $git = proc_open(['git', '--no-optional-locks', '-C', $proyecto, 'show', 'v10.53.0:src/' . $ruta], [1 => ['file', basepath($viejo), 'w'], 2 => ['file', '/dev/null', 'w']], $tuberias);
-            $sacado = is_resource($git) && proc_close($git) === 0 && in_array(sha1_file(basepath($viejo)), (array) SettingsController::FACTORY_BRAND_IMAGES[$imagen], true) && sha1_file(basepath($viejo)) !== sha1_file(basepath($ruta));
-            set_config($imagen, $viejo);
-            $check($sacado && SettingsController::isFactoryBrandImage($imagen) && SettingsController::brandImageDarkMode($imagen) === 'image', "p6 {$imagen}: el de fábrica anterior (v10.53.0) también se reconoce", $sacado ? '' : 'no se pudo sacar de git');
+            if ($sinEtiqueta) {
+                $noAplica("p6 {$imagen}");
+            } else {
+                $viejo = 'app/cache/zz-' . $imagen . '-viejo-' . bin2hex(random_bytes(3)) . '.png';
+                $viejos[] = $viejo;
+                $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+                $git = proc_open(['git', '--no-optional-locks', '-C', $proyecto, 'show', 'v10.53.0:src/' . $ruta], [1 => ['file', basepath($viejo), 'w'], 2 => ['file', '/dev/null', 'w']], $tuberias);
+                $sacado = is_resource($git) && proc_close($git) === 0 && in_array(sha1_file(basepath($viejo)), (array) SettingsController::FACTORY_BRAND_IMAGES[$imagen], true) && sha1_file(basepath($viejo)) !== sha1_file(basepath($ruta));
+                set_config($imagen, $viejo);
+                $check($sacado && SettingsController::isFactoryBrandImage($imagen) && SettingsController::brandImageDarkMode($imagen) === 'image', "p6 {$imagen}: el de fábrica anterior (v10.53.0) también se reconoce", $sacado ? '' : 'no se pudo sacar de git');
+            }
             set_config($imagen, 'statics/images/logo.png');
             $check(SettingsController::brandImageDarkMode($imagen) === 'same', "p7 DISCRIMINANTE: {$imagen} ajena y sin opciones, «Igual»");
             set_config($imagen, $ruta);
@@ -111,13 +118,17 @@ CliActions::make('unit-tests:core/third-party-images', function ($args) {
         set_config('developer_logo', $copia);
         $etiqueta = SettingsController::developerLogoTag('zz');
         $check($copiado && SettingsController::isFactoryDeveloperLogo() && substr_count($etiqueta, '<img') === 2 && str_contains($etiqueta, 'src="' . SettingsController::FACTORY_DEVELOPER_LOGO_DARK . '"'), 'd9 DISCRIMINANTE: el contenido de fábrica en otra ruta es de fábrica (sha1, no ruta): la clara y la oscura', $etiqueta);
-        $viejo = 'app/cache/zz-developer-logo-viejo-' . bin2hex(random_bytes(3)) . '.png';
-        $viejos[] = $viejo;
-        $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
-        $git = proc_open(['git', '--no-optional-locks', '-C', $proyecto, 'show', 'v10.53.0:src/' . SettingsController::FACTORY_DEVELOPER_LOGO], [1 => ['file', basepath($viejo), 'w'], 2 => ['file', '/dev/null', 'w']], $tuberias);
-        $sacado = is_resource($git) && proc_close($git) === 0 && sha1_file(basepath($viejo)) !== sha1_file(basepath(SettingsController::FACTORY_DEVELOPER_LOGO));
-        set_config('developer_logo', $viejo);
-        $check($sacado && SettingsController::isFactoryDeveloperLogo() && SettingsController::developerLogoInvertsOnDark() && substr_count(SettingsController::developerLogoTag('zz'), '<img') === 2, 'd10 DISCRIMINANTE: el logo de fábrica anterior (v10.53.0, 67 × 32) también se reconoce', $sacado ? '' : 'no se pudo sacar de git');
+        if ($sinEtiqueta) {
+            $noAplica('d10');
+        } else {
+            $viejo = 'app/cache/zz-developer-logo-viejo-' . bin2hex(random_bytes(3)) . '.png';
+            $viejos[] = $viejo;
+            $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+            $git = proc_open(['git', '--no-optional-locks', '-C', $proyecto, 'show', 'v10.53.0:src/' . SettingsController::FACTORY_DEVELOPER_LOGO], [1 => ['file', basepath($viejo), 'w'], 2 => ['file', '/dev/null', 'w']], $tuberias);
+            $sacado = is_resource($git) && proc_close($git) === 0 && sha1_file(basepath($viejo)) !== sha1_file(basepath(SettingsController::FACTORY_DEVELOPER_LOGO));
+            set_config('developer_logo', $viejo);
+            $check($sacado && SettingsController::isFactoryDeveloperLogo() && SettingsController::developerLogoInvertsOnDark() && substr_count(SettingsController::developerLogoTag('zz'), '<img') === 2, 'd10 DISCRIMINANTE: el logo de fábrica anterior (v10.53.0, 67 × 32) también se reconoce', $sacado ? '' : 'no se pudo sacar de git');
+        }
         set_config('developer_logo', '');
         $check(SettingsController::developerLogoTag('zz') === '', 'd7 sin developer_logo, nada');
     } finally {

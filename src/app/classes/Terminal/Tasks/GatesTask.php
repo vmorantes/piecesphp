@@ -90,7 +90,22 @@ class GatesTask extends TerminalTaskAbstract
         'unit-tests:core/static-cache' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/static-versions' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/verify-starts-clean' => [TestLeftovers::BASELINE_FILE],
+        //PhpParser solo está en bin/tools/vendor (scan-missing-lang lo usa).
+        'unit-tests:core/bundle-and-missing-lang' => ['bin/tools/vendor/autoload.php'],
+        'unit-tests:core/fatal-candidates-modules' => ['bin/tools/vendor/autoload.php'],
+        'unit-tests:core/scan-missing-lang-options' => ['bin/tools/vendor/autoload.php'],
     ];
+
+    /**
+     * Las suites que miran la portada del framework (ADR 0085 §5): en un clon o en la distribución con un sitio propio
+     * activo (`$config['public_site']`) no aplican, porque la portada que sirve el proyecto es la suya.
+     */
+    const SUITES_FRAMEWORK_HOME = ['unit-tests:core/seo-metadata', 'unit-tests:core/injected-scripts', 'unit-tests:core/public-menu-categories'];
+
+    /**
+     * Las suites que piden una etiqueta del framework en la historia de git (ADR 0085 §5): un clon no la guarda.
+     */
+    const SUITES_FRAMEWORK_TAGS = ['unit-tests:core/clone-compare' => 'v10.6.0'];
 
     /** De dónde sacan la base HTTP las suites que piden por la red, y la variable que la sustituye. */
     /**
@@ -426,6 +441,12 @@ class GatesTask extends TerminalTaskAbstract
                 if (count($faltan) > 0) {
                     $notApplicable[] = $suite;
                     echoTerminal("   \e[33m" . Distribution::notApplicableLine($short, $faltan) . "\e[39m");
+                    continue;
+                }
+                $motivo = self::cloneNotApplicable($suite, $root);
+                if ($motivo !== null) {
+                    $notApplicable[] = $suite;
+                    echoTerminal("   \e[33m" . Distribution::NOT_APPLICABLE . " {$short}: {$motivo}\e[39m");
                     continue;
                 }
             }
@@ -792,6 +813,30 @@ class GatesTask extends TerminalTaskAbstract
         //RETORNO-IGNORADO: lo que cuenta son las coincidencias; sin ninguna, la suite no pide módulo.
         preg_match_all('/^\s*\/\/@requires-module\s+\\\\?(\S+)\s*$/m', $head, $matches);
         return array_values(array_unique($matches[1]));
+    }
+
+    /**
+     * Por qué una suite no aplica en un clon por lo que el clon ES, no por lo que le falta (ADR 0085 §5), o null. Solo se
+     * llama con la marca de la distribución: aquí, en el repositorio de desarrollo, todas corren.
+     *
+     * @param string $suite
+     * @param string $root La raíz del repositorio
+     * @return string|null
+     */
+    public static function cloneNotApplicable(string $suite, string $root): ?string
+    {
+        $site = in_array($suite, self::SUITES_FRAMEWORK_HOME, true) ? \PiecesPHP\PublicSite\PublicSite::activeSite() : null;
+        if ($site !== null) {
+            return "mira la portada del framework, y este proyecto sirve su sitio propio («{$site}», \$config['public_site'])";
+        }
+        $tag = self::SUITES_FRAMEWORK_TAGS[$suite] ?? null;
+        if ($tag !== null) {
+            $corrio = exec('git --no-optional-locks -C ' . escapeshellarg($root) . ' rev-parse --verify -q ' . escapeshellarg("refs/tags/{$tag}") . ' 2>/dev/null', $salida, $estado) !== false;
+            if (!$corrio || $estado !== 0) {
+                return "pide la etiqueta {$tag} del framework en la historia de git, que un clon no guarda";
+            }
+        }
+        return null;
     }
 
     /**

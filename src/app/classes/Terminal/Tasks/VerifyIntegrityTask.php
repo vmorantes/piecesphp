@@ -200,6 +200,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         'bin/manual',
         //El MCP para quien desarrolla viaja: sirve sobre el clon (ADR 0075, punto 5).
         'bin/mcp',
+        //La verificación de una orden viaja: en un clon sigue su camino ligero (ADR 0085 §3).
+        'bin/verify',
     ];
 
     /** La carpeta de las claves viaja solo con su protección, y nada más: algo de más puede ser una clave versionada (ADR 0050). */
@@ -3452,7 +3454,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     /**
      * 62. La fecha de versión es la del lanzamiento (H185): APP_VERSION_DATE es la fecha (`%cs`) del último commit que cambió la línea
      * `define('APP_VERSION',` de bootstrap.php; si esa línea está cambiada en el árbol respecto a HEAD (un lanzamiento en preparación),
-     * la de hoy. Sin historia de git (un clon sin ella o la distribución) no aplica, y lo dice.
+     * la de hoy. Sin historia de git (un clon sin ella o la distribución) no aplica, y lo dice. En un clon o en la distribución
+     * (ADR 0085 §5) la historia es la del proyecto: APP_VERSION tiene que ser la etiqueta de `.piecesphp-distribution`, y la
+     * fecha no se mira.
      *
      * @return string[]
      */
@@ -3469,6 +3473,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $current = self::versionDefinesIn((string) @file_get_contents($root . '/' . $relative));
         if ($current['version'] === null || $current['date'] === null) {
             return ["{$relative}: no se encuentran define('APP_VERSION', …) y define('APP_VERSION_DATE', …) con una fecha AAAA-MM-DD: la comprobación no miró nada"];
+        }
+
+        if (Distribution::isDistribution($root)) {
+            $mark = (string) @file_get_contents($root . '/' . Distribution::MARK_FILE);
+            if (preg_match('/^etiqueta:\s*(\S+)\s*$/m', $mark, $tag) !== 1) {
+                return [Distribution::MARK_FILE . ': no dice su «etiqueta:»: la comprobación no miró nada'];
+            }
+            if ($current['version'] !== $tag[1]) {
+                return ["{$relative}: APP_VERSION es {$current['version']} y " . Distribution::MARK_FILE . " dice que este proyecto nace de {$tag[1]}: o la versión o la marca están mal"];
+            }
+            Distribution::announce(Distribution::NOT_APPLICABLE . " 62 fecha de versión: APP_VERSION {$current['version']} es la etiqueta de " . Distribution::MARK_FILE . '; la fecha no se compara con el commit, que es del proyecto (ADR 0085 §5)');
+            return [];
         }
 
         $git = 'git -C ' . escapeshellarg($root) . ' ';
