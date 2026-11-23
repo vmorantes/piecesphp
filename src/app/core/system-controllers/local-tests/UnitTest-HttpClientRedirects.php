@@ -32,6 +32,8 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
             public array $visited = [];
             /** @var string[] */
             public array $methods = [];
+            /** @var string[] */
+            public array $headers = [];
             private ?array $last = null;
 
             /**
@@ -47,6 +49,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
                 $this->visited[] = $url;
                 $options = stream_context_get_options($context);
                 $this->methods[] = (string) ($options['http']['method'] ?? '');
+                $this->headers[] = (string) ($options['http']['header'] ?? '');
                 if (!isset($this->hops[$url])) {
                     $this->last = null;
                     return false;
@@ -68,7 +71,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
 
     try {
 
-        echoTerminal('[1/4] El esquema, en minúsculas y nada más');
+        echoTerminal('[1/5] El esquema, en minúsculas y nada más');
         foreach ([
             'HTTPS://h/x' => 'https://h/x',
             'HtTpS://h/X?Q=A' => 'https://h/X?Q=A',
@@ -82,7 +85,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         $check(($client->visited[0] ?? '') === 'https://h/X?Q=A', 'n2 request() abre la dirección con el esquema ya en minúsculas', (string) ($client->visited[0] ?? 'nada'));
         echoTerminal(' ');
 
-        echoTerminal('[2/4] El Location se resuelve contra la dirección que lo dio');
+        echoTerminal('[2/5] El Location se resuelve contra la dirección que lo dio');
         foreach ([
             ['https://h/a/b', 'HTTP://o/y', 'http://o/y'],
             ['https://h/a/b', '/x', 'https://h/x'],
@@ -96,7 +99,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         }
         echoTerminal(' ');
 
-        echoTerminal('[3/4] Qué se sigue y qué se corta');
+        echoTerminal('[3/5] Qué se sigue y qué se corta');
         //La referencia: un error de red de verdad, contra un puerto que el sistema dio y ya está cerrado.
         $probe = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
         $name = $probe !== false ? (string) stream_socket_get_name($probe, false) : '';
@@ -156,9 +159,58 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         $check($body === false && count($client->visited) === 1, 'r9 un Location que no es http ni https no se abre');
         echoTerminal(' ');
 
-        echoTerminal('[4/4] Lo que no es http no busca redirecciones');
+        echoTerminal('[4/5] Lo que no es http no busca redirecciones');
         $client = new HttpClient('data://text/plain,OK');
         $check($client->request('', 'GET') === 'OK', 'd1 un data:// se sigue leyendo');
+        echoTerminal(' ');
+
+        echoTerminal('[5/5] Las cookies del visitante solo van a la propia instalación');
+        $cookiesBefore = $_COOKIE;
+        try {
+            $_COOKIE = ['zz-galleta' => 'zz-valor'];
+            $sends = fn(string $raw, string $name): bool => preg_match('/^' . $name . ':/mi', $raw) === 1;
+            $own = rtrim(HttpClient::normalizeScheme(baseurl()), '/');
+            $ownParts = parse_url($own);
+            $ownScheme = is_array($ownParts) ? (string) ($ownParts['scheme'] ?? 'http') : 'http';
+            $ownHost = is_array($ownParts) ? (string) ($ownParts['host'] ?? 'localhost') : 'localhost';
+            $ownPort = is_array($ownParts) ? (int) ($ownParts['port'] ?? ($ownScheme === 'https' ? 443 : 80)) : 80;
+            $otherPort = "{$ownScheme}://{$ownHost}:" . ($ownPort === 8443 ? 8444 : 8443);
+
+            $client = $fake($own, ["{$own}/zz-a" => [200, 'OK']]);
+            $client->request('/zz-a', 'GET');
+            $check(!$sends($client->headers[0] ?? '', 'Cookie'), 'c1 sin decirlo, no se envía ninguna cookie, ni a la propia instalación', $client->headers[0] ?? 'nada');
+
+            $client = $fake('https://zz-otro.test', ['https://zz-otro.test/a' => [200, 'OK']]);
+            $client->request('/a', 'GET', [], [], true);
+            $check(!$sends($client->headers[0] ?? '', 'Cookie'), 'c2 con true hacia otro host, tampoco', $client->headers[0] ?? 'nada');
+
+            $client = $fake($own, ["{$own}/zz-a" => [200, 'OK']]);
+            $client->request('/zz-a', 'GET', [], [], true);
+            $check(str_contains($client->headers[0] ?? '', "Cookie:zz-galleta=zz-valor\r\n"), 'c3 con true hacia la propia instalación, sí', $own);
+
+            $client = $fake($otherPort, ["{$otherPort}/zz-a" => [200, 'OK']]);
+            $client->request('/zz-a', 'GET', [], [], true);
+            $check(!$sends($client->headers[0] ?? '', 'Cookie'), 'c4 con true hacia el mismo host con otro puerto, no', $otherPort);
+
+            $client = $fake($own, ["{$own}/zz-a" => [302, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK']]);
+            $client->request('/zz-a', 'GET', [], ['Authorization' => 'Bearer zz-token'], true);
+            $first = $client->headers[0] ?? '';
+            $second = $client->headers[1] ?? '';
+            $check(count($client->headers) === 2 && $sends($first, 'Cookie') && $sends($first, 'Authorization') && !$sends($second, 'Cookie') && !$sends($second, 'Authorization'), 'c5 una redirección a otro origen no lleva ni la cookie ni Authorization', count($client->headers) . ' aperturas');
+
+            $_COOKIE = ['zz-salto' => "\n", 'zz-sesion' => 'zz-secreto'];
+            $client = $fake($own, ["{$own}/zz-a" => [302, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK']]);
+            $client->request('/zz-a', 'GET', [], ['Authorization' => "Bearer zz-token\n"], true);
+            $second = $client->headers[1] ?? '';
+            $check(count($client->headers) === 2 && str_contains($client->headers[0], 'zz-secreto') && !str_contains($second, 'zz-secreto') && !str_contains($second, 'zz-token'), 'c7 un salto de línea dentro de un valor no deja pasar la cookie ni el token a otro origen', count($client->headers) . ' aperturas');
+            $_COOKIE = ['zz-galleta' => 'zz-valor'];
+
+            $client = $fake($own, ["{$own}/zz-a" => [302, '', '/zz-b'], "{$own}/zz-b" => [200, 'OK']]);
+            $client->request('/zz-a', 'GET', [], [], true);
+            $check(count($client->headers) === 2 && $sends($client->headers[1], 'Cookie'), 'c6 CANARIO: una redirección dentro de la instalación conserva la cookie', count($client->headers) . ' aperturas');
+        } finally {
+            $_COOKIE = $cookiesBefore;
+        }
 
     } catch (\Throwable $e) {
         $check(false, 'x1 la suite terminó sin excepciones', get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')');
@@ -172,4 +224,4 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
 
     return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('HttpClient pone el esquema en minúsculas antes de abrir (CVE-2026-128064), resuelve cada Location, sigue cinco redirecciones como mucho y corta la de HTTPS a HTTP igual que un error de red, sin salir de la máquina.')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('HttpClient pone el esquema en minúsculas antes de abrir (CVE-2026-128064), resuelve cada Location, sigue cinco redirecciones como mucho y corta la de HTTPS a HTTP igual que un error de red, y solo manda las cookies del visitante a la propia instalación, sin salir de la máquina.')->setEffects([CliActions::EFFECT_NONE])->register();

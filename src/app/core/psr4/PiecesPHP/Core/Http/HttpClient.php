@@ -60,6 +60,18 @@ class HttpClient
     protected $requestURI = '';
 
     /**
+     * Si processHeaders() puso la cabecera Cookie con las del visitante.
+     *
+     * @var bool
+     */
+    private bool $visitorCookiesSet = false;
+
+    /**
+     * @var bool
+     */
+    private static bool $foreignCookiesLogged = false;
+
+    /**
      * @var int|null
      */
     protected ?int $timeout = null;
@@ -131,10 +143,25 @@ class HttpClient
      * @param bool $shared_cookies
      * @return mixed raw body
      */
-    public function request(string $request_uri, string $method, array $contents = [], array $headers = [], bool $shared_cookies = true, bool $override_defaults = true): string|false
+    public function request(string $request_uri, string $method, array $contents = [], array $headers = [], bool $shared_cookies = false, bool $override_defaults = true): string|false
     {
 
         $this->processHeaders($headers, $shared_cookies, $override_defaults);
+
+        $isGetWithContents = $method == 'GET' && !empty($contents);
+        $query_string = $isGetWithContents ? '?' . http_build_query($contents) : '';
+        $baseURL = trim($this->baseURL, '/');
+        $requestURL = $request_uri . $query_string;
+        $this->requestURI = mb_strlen($request_uri) == 0 ? $baseURL . $requestURL : append_to_url($baseURL, $requestURL, true);
+
+        //Las cookies del visitante solo viajan a la propia instalación: nunca a un servicio de fuera.
+        if ($this->visitorCookiesSet && !self::sameOrigin($this->requestURI, baseurl())) {
+            unset($this->requestHeaders[$this->parseNameHeader('Cookie')]);
+            if (!self::$foreignCookiesLogged) {
+                self::$foreignCookiesLogged = true;
+                log_soft_error('HttpClient: se pidió enviar las cookies del visitante a otro origen que la instalación; no se envían.');
+            }
+        }
 
         $headers = $this->requestHeaders;
         $headers_string = $this->headersArrayToString($this->requestHeaders);
@@ -153,9 +180,7 @@ class HttpClient
                 break;
         }
 
-        $query_string = '';
-        if ($method == 'GET' && !empty($contents)) {
-            $query_string = '?' . http_build_query($contents);
+        if ($isGetWithContents) {
             $this->requestBody = ''; //No body for GET
         }
 
@@ -176,10 +201,6 @@ class HttpClient
         if ($this->timeout !== null) {
             $streamContextConfiguration['http']['timeout'] = $this->timeout;
         }
-
-        $baseURL = trim($this->baseURL, '/');
-        $requestURL = $request_uri . $query_string;
-        $this->requestURI = mb_strlen($request_uri) == 0 ? $baseURL . $requestURL : append_to_url($baseURL, $requestURL, true);
 
         //CVE-2026-128064: los streams de PHP < 8.5.13 no cifran un HTTPS:// con mayúsculas.
         $url = self::normalizeScheme($this->requestURI);
@@ -218,6 +239,12 @@ class HttpClient
             if (++$redirects > self::MAX_REDIRECTS) {
                 $response = $this->failLikeStreamError($url, 'Redirection limit reached, aborting');
                 break;
+            }
+            //Las credenciales no siguen a una redirección hacia otro origen. Se rehace desde el array, no filtrando el texto:
+            //un salto de línea dentro de un valor esquivaría cualquier patrón por líneas.
+            if (!self::sameOrigin($url, $next)) {
+                $headers_string = $this->headersArrayToString(array_filter($this->requestHeaders, fn($name): bool => !in_array(strtolower((string) $name), ['cookie', 'authorization'], true), ARRAY_FILTER_USE_KEY));
+                $streamContextConfiguration['http']['header'] = isset($streamContextConfiguration['http']['content']) ? $headers_string : (preg_replace('/^Content-(Type|Length):[^\r\n]*\r\n/mi', '', $headers_string) ?? $headers_string);
             }
             //Lo que hacía el seguimiento de PHP: con 300-303 un POST pasa a GET y pierde el cuerpo; con 307 y 308, no.
             $code = (int) ($this->parseReponseHeaders($hopHeaders)['response_code'] ?? 0);
@@ -319,6 +346,29 @@ class HttpClient
     protected static function schemeOf(string $url): string
     {
         return preg_match('#^([a-z][a-z0-9+.\-]*):#i', $url, $match) === 1 ? strtolower($match[1]) : '';
+    }
+
+    /**
+     * Si las dos direcciones tienen el mismo esquema, host (sin distinguir mayúsculas) y puerto efectivo (80 y 443 si no
+     * se dice). Una dirección sin esquema o sin host no coincide con ninguna.
+     *
+     * @param string $a
+     * @param string $b
+     * @return bool
+     */
+    protected static function sameOrigin(string $a, string $b): bool
+    {
+        $origin = function (string $url): ?string {
+            $parts = parse_url($url);
+            if (!is_array($parts) || !isset($parts['scheme'], $parts['host'])) {
+                return null;
+            }
+            $scheme = strtolower($parts['scheme']);
+            $port = $parts['port'] ?? ($scheme === 'https' ? 443 : ($scheme === 'http' ? 80 : 0));
+            return $scheme . '://' . strtolower($parts['host']) . ':' . $port;
+        };
+        $originA = $origin($a);
+        return $originA !== null && $originA === $origin($b);
     }
 
     /**
@@ -674,7 +724,7 @@ class HttpClient
      * @param bool $override_defaults
      * @return void
      */
-    protected function processHeaders(array $headers = [], bool $shared_cookies = true, bool $override_defaults = true)
+    protected function processHeaders(array $headers = [], bool $shared_cookies = false, bool $override_defaults = true)
     {
 
         $processed_headers = [];
@@ -704,6 +754,7 @@ class HttpClient
 
         $set_cookies_header = (!$override_defaults && $shared_cookies) || (!isset($processed_headers[$cookieString]) && $shared_cookies);
 
+        $this->visitorCookiesSet = $set_cookies_header;
         if ($set_cookies_header) {
             $processed_headers[$cookieString] = $this->cookiesToHeaderString();
         }

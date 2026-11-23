@@ -1,3 +1,9 @@
+# 10.62.2 (23-11-2026)
+
+- **Seguridad: refuerzo en las peticiones que la aplicación hace a otros servicios.** Se recomienda actualizar. Si tu
+  código hace peticiones a tu propia instalación con la sesión de quien navega, revisa la página de peticiones HTTP de
+  la documentación: ahora hay que pedirlo expresamente.
+
 # 10.62.1 (23-11-2026)
 
 - **El banco de redirecciones casa también las direcciones con tildes o espacios**: una entrada como `/quiénes-somos`

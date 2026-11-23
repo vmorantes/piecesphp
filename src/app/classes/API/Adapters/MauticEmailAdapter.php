@@ -309,7 +309,7 @@ class MauticEmailAdapter
             $headers['Content-Type'] = 'application/json';
         }
 
-        $httpClient->request($path, $method, $body, $headers, true, false);
+        $httpClient->request($path, $method, $body, $headers, false, false);
 
         $status = (int) $httpClient->getResponseStatus();
         $response = $httpClient->getResponseBody();

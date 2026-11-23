@@ -35,12 +35,21 @@ $result = $client->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON_ASSOC
 
 ---
 
-## 🍪 Gestión de Cookies y Sesión
+## Las cookies del visitante no salen de tu instalación
 
-Por defecto, `HttpClient` captura y envía las cookies de la sesión PHP actual (`$_COOKIE`), lo que facilita las peticiones entre módulos internos que requieren autenticación.
+Por omisión, una petición **no lleva ninguna cookie** del visitante. Es lo correcto para cualquier servicio externo:
+la cookie de sesión de quien navega no debe llegar nunca a un tercero.
 
-*   **Compartir cookies (por defecto):** Envía las cookies actuales.
-*   **Desactivar:** Pasa `false` como quinto parámetro en `request()`.
+Si llamas a **tu propia instalación** y necesitas que la petición vaya con la sesión de quien navega, pide las cookies
+expresamente con `true` como quinto parámetro. Solo se mandan si el destino es la propia instalación (mismo esquema,
+servidor y puerto que la dirección base); hacia cualquier otro destino no se mandan, aunque las pidas.
+
+```php
+$client = new HttpClient(baseurl());
+$client->request('mi-modulo/datos', 'GET', [], [], true); // con la sesión de quien navega, solo hacia aquí
+```
+
+Al seguir una redirección hacia otro origen tampoco viajan.
 
 ---
 
