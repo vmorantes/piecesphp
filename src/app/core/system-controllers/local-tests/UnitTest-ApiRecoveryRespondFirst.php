@@ -3,6 +3,10 @@
 //La recuperación de contraseña por la API responde antes de crear y enviar el código (RespondFirst), con el mismo cuerpo
 //para un activo, uno que no existe y uno Eliminado. Por HTTP, con usuarios zz- y correos de Mailpit que crea y retira.
 //@areas src/app/classes/API/
+//@requires-module API\APIRoutes
+//@requires-module EventsLog\LogsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use API\Controllers\APIController;
 use EventsLog\Mappers\LogsMapper;

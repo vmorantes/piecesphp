@@ -2,6 +2,7 @@
 
 //Sesión por cabecera con «_» en el nombre (va con «-»); la extensión de prueba solo actúa con la marca de la corrida (H426).
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;

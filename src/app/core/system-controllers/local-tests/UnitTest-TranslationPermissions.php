@@ -5,6 +5,9 @@
 //@areas src/app/classes/API/
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/PiecesPHP/Settings/
+//@requires-module API\APIRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use API\Controllers\APIController;
 use Organizations\Mappers\OrganizationMapper;

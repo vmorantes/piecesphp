@@ -37,6 +37,14 @@ CliActions::make('unit-tests:core/session-name', function ($args) {
     $proyecto = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
     $real = basepath('app/config/config.php');
     $huellaReal = sha1_file($real);
+    //En un proyecto que ya fijó su nombre (session-name escribir=yes, o el clon al nacer), el config.php real no trae la
+    //plantilla: la suite la siembra en su copia, en el lugar de la línea activa, y prueba sobre esa base.
+    $base = (string) preg_replace(
+        '/^\$config\[\'session_token_name\'\] = \'[A-Za-z0-9_]{1,64}\';$/m',
+        SessionNameTask::TEMPLATE_LINE,
+        (string) file_get_contents($real),
+        1
+    );
     $tarea = function (array $argumentos) use ($proyecto): array {
         $comando = escapeshellarg("{$proyecto}/bin/cli") . ' session-name';
         foreach ($argumentos as $argumento) {
@@ -54,29 +62,35 @@ CliActions::make('unit-tests:core/session-name', function ($args) {
     $copia = "{$temporal}/config.php";
 
     try {
-        $check(substr_count((string) file_get_contents($real), SessionNameTask::TEMPLATE_LINE) === 1, 'banco: el config.php real trae la línea de la plantilla, una vez');
+        $check(substr_count($base, SessionNameTask::TEMPLATE_LINE) === 1, 'banco: la base de la copia (el config.php real, con la plantilla en lugar del nombre fijado si lo hay) trae la línea de la plantilla, una vez');
 
         echoTerminal('[a] Sin escribir=yes, propone y no toca nada');
-        [$codigo, $salida] = $tarea([]);
+        $check(file_put_contents($copia, $base) === strlen($base), 'a0 copia del config.php en un temporal', $copia);
+        [$codigo, $salida] = $tarea(["archivo={$copia}"]);
         $propuesto = SessionNameTask::proposedName();
         $check($codigo === 0 && str_contains($salida, "«{$propuesto}»") && str_contains($salida, 'No se ha escrito nada'), 'a1 propone un nombre y dice que no escribió', $salida);
         $check(SessionToken::tokenNameIsValid($propuesto), 'a2 el nombre propuesto es válido', $propuesto);
         $check(str_contains($salida, 'cierra TODAS las sesiones'), 'a3 avisa de que se cierran todas las sesiones');
-        $check(sha1_file($real) === $huellaReal, 'a4 el config.php real no cambió');
+        $check(sha1_file($real) === $huellaReal && (string) file_get_contents($copia) === $base, 'a4 ni el config.php real ni la copia cambiaron');
+        //El archivo por omisión (el config.php real), solo si aún trae la plantilla: en un proyecto con nombre fijado, PARA.
+        if (substr_count((string) file_get_contents($real), SessionNameTask::TEMPLATE_LINE) === 1) {
+            [$codigo, $salida] = $tarea([]);
+            $check($codigo === 0 && str_contains($salida, "«{$propuesto}»") && str_contains($salida, 'No se ha escrito nada') && sha1_file($real) === $huellaReal, 'a5 sin archivo=, propone sobre el config.php real y no lo toca', $salida);
+        }
         echoTerminal(' ');
 
         echoTerminal('[b] Con escribir=yes, sobre una COPIA');
-        $check(copy($real, $copia), 'b0 copia del config.php en un temporal', $copia);
+        $check(file_put_contents($copia, $base) === strlen($base), 'b0 copia del config.php en un temporal', $copia);
         [$codigo, $salida] = $tarea(['escribir=yes', 'nombre=zzSesionPrueba', "archivo={$copia}"]);
         $escrito = (string) file_get_contents($copia);
         $check($codigo === 0 && str_contains($escrito, "\$config['session_token_name'] = 'zzSesionPrueba';") && !str_contains($escrito, SessionNameTask::TEMPLATE_LINE), 'b1 la copia lleva la línea en el lugar de la comentada', $salida);
-        $check(substr_count($escrito, "\n") === substr_count((string) file_get_contents($real), "\n"), 'b2 y nada más cambia: el mismo número de líneas');
+        $check(substr_count($escrito, "\n") === substr_count($base, "\n"), 'b2 y nada más cambia: el mismo número de líneas');
         $check(sha1_file($real) === $huellaReal, 'b3 el config.php real no cambió');
         echoTerminal(' ');
 
         echoTerminal('[c] Lo que se rechaza');
         //RETORNO-IGNORADO: si la copia falla, c1 compara contra lo que haya y lo delata.
-        copy($real, $copia);
+        file_put_contents($copia, $base);
         $antes = sha1_file($copia);
         [$codigo, $salida] = $tarea(['escribir=yes', 'nombre=zz-con-guion', "archivo={$copia}"]);
         $check($codigo !== 0 && str_contains($salida, 'no vale como nombre') && sha1_file($copia) === $antes, 'c1 un nombre con guion se rechaza y no escribe', $salida);

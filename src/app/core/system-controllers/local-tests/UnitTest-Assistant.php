@@ -508,7 +508,7 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
             $token = is_string($acceso['json']['token'] ?? null) ? $acceso['json']['token'] : '';
             $check($preguntar !== '' && $token !== '', '11a CANARIO: la ruta existe y el usuario de la prueba entra', "{$preguntar} · HTTP {$acceso['status']}");
             $json = 'Content-Type: application/json';
-            $sesion = SessionToken::tokenName() . ": {$token}";
+            $sesion = SessionToken::headerName() . ": {$token}";
             //El motivo que da la puerta con la configuración real (la de la petición), para ese usuario.
             $motivoReal = AIGateway::denialReason(Assistant::CAPABILITY, new UserDataPackage((int) $u->id));
             $apagada = $http($preguntar, [$json, $sesion], '{"question":"zz hola"}');

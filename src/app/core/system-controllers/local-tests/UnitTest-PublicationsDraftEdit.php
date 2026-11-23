@@ -2,6 +2,9 @@
 
 //Guardar sin tocar no publica un borrador (H421), un ajeno no edita por POST y lo eliminado no vuelve (P380); envía lo que pinta el formulario.
 //@areas src/app/classes/Publications/ src/app/classes/API/
+//@requires-module API\APIRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;

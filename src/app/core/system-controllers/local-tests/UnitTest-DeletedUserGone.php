@@ -6,6 +6,11 @@
 //@areas src/app/classes/Directory/
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
+//@requires-module Directory\DirectoryRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module PiecesPHP\Geo\GeoRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use DataImportExportUtility\Definitions\UsersExportDefinition;
 use DataImportExportUtility\Examples\ExampleUsersReportExportDefinition;

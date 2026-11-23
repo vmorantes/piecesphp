@@ -4,6 +4,8 @@
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;

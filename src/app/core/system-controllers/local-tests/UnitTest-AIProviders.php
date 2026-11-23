@@ -899,7 +899,7 @@ CliActions::make('unit-tests:core/ai-providers', function ($args) {
                 $u->save();
                 $usuarios[] = (int) $u->id;
                 $acceso = $http($camino((string) UsersController::routeName('login-request')), ['X-Requested-With: XMLHttpRequest'], ['username' => "{$prefijo}-{$quien}", 'password' => $clave, 'twoFactor' => '']);
-                $tokens[$quien] = is_string($acceso['json']['token'] ?? null) ? SessionToken::tokenName() . ': ' . $acceso['json']['token'] : '';
+                $tokens[$quien] = is_string($acceso['json']['token'] ?? null) ? SessionToken::headerName() . ': ' . $acceso['json']['token'] : '';
             }
             $pantalla = $camino((string) SettingsController::routeName('integrations-ai'));
             $probar = $camino((string) SettingsController::routeName('integrations-ai-provider-test'));

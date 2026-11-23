@@ -2,6 +2,8 @@
 
 //users-ajax-all y el selector de usuarios no enseñan usuarios de otra organización a quien no puede con todas (zz-, retirados).
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsRoutes;

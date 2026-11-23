@@ -130,10 +130,27 @@ CliActions::make('unit-tests:core/publications-incomplete', function ($args) {
 
         echoTerminal('');
         echoTerminal('[b] El JSON con todas');
-        $todas = $pedir($camino('ajax-all') . '?page=1&perPage=100', $root);
-        $check($todas['status'] === 200, 'b1 responde 200 con una publicación sin langData en la base', "HTTP {$todas['status']}");
-        $check(str_contains($todas['body'], "{$prefijo}-completa"), 'b2 CANARIO: la completa está en el JSON');
-        $check(str_contains($todas['body'], "{$prefijo}-incompleta"), 'b3 y la incompleta también');
+        //En un proyecto con datos reales la fila de prueba no tiene por qué salir en la primera página: se busca por su
+        //título, único por el prefijo (el JSON quita el id), página a página, hasta la última.
+        $vistos = [];
+        $estados = [];
+        for ($pagina = 1; $pagina <= 200; $pagina++) {
+            $todas = $pedir($camino('ajax-all') . "?page={$pagina}&perPage=100", $root);
+            $estados[] = $todas['status'];
+            $datos = json_decode($todas['body'], true);
+            if ($todas['status'] !== 200 || !is_array($datos)) {
+                break;
+            }
+            foreach ((array) ($datos['elements'] ?? []) as $elemento) {
+                $vistos[] = is_array($elemento) ? (string) ($elemento['title'] ?? '') : '';
+            }
+            if (!array_diff(["{$prefijo}-completa", "{$prefijo}-incompleta"], $vistos) || ($datos['isFinal'] ?? true)) {
+                break;
+            }
+        }
+        $check($estados !== [] && array_unique($estados) === [200], 'b1 responde 200 con una publicación sin langData en la base', 'HTTP ' . implode(', ', array_unique($estados)));
+        $check(in_array("{$prefijo}-completa", $vistos, true), 'b2 CANARIO: la completa está en el JSON (en la página que le toque)', count($vistos) . ' filas vistas');
+        $check(in_array("{$prefijo}-incompleta", $vistos, true), 'b3 y la incompleta también');
 
         echoTerminal('');
         echoTerminal('[c] El JSON del listado PÚBLICO, sin sesión: delega en el mismo _all()');

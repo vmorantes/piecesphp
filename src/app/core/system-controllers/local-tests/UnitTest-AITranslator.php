@@ -4,6 +4,8 @@
 //Sin red: un cliente HTTP simulado. Anota consumo «zz-prov-tr» y lo borra; las opciones se reponen en memoria.
 //@areas nucleo
 //@areas src/app/classes/API/
+//@requires-module API\APIRoutes
+//@requires-module PiecesPHP\Mcp\McpRoutes
 
 use API\Controllers\APIController;
 use PiecesPHP\AI\AIGateway;

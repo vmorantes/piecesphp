@@ -72,6 +72,15 @@ CliActions::make('unit-tests:core/user-types', function ($args) {
         $check(constant(UsersModel::class . '::' . $alias) === $coreValue, "b UsersModel::{$alias} es idéntico a su CORE_*");
     }
 
+    //En un proyecto, user-types.php declara sus propios tipos (ADR 0078): lo cargado se guarda para d y h16, y c a f
+    //miden la fábrica, que la suite siembra con un archivo vacío.
+    $roles = get_config('roles');
+    $registrados = is_array($roles) ? ($roles['types'] ?? null) : null;
+    $segmentosReales = is_array($roles) ? ($roles['baseInitialSegmentedPermissions'] ?? null) : null;
+    $rolesCargados = is_array($segmentosReales) ? UserTypes::roles($segmentosReales) : null;
+    $cargados = ['labels' => UserTypes::labels(), 'errors' => UserTypes::errors()];
+    UserTypes::fromArray([]);
+
     //──── c) Los métodos, para los siete tipos ──────────────────────────────────────────────────
     echoTerminal('');
     echoTerminal("\e[36m c) codes(), labels(), priorities() y los métodos de cada tipo\e[39m");
@@ -122,10 +131,7 @@ CliActions::make('unit-tests:core/user-types', function ($args) {
         unset($expectedRoles[2]);
     }
     $check(UserTypes::roles($segments) === $expectedRoles, 'd cada tipo con etiqueta, su segmento y las claves de antes (el 50 sin rol)', $show(UserTypes::roles($segments)));
-    $config = get_config('roles');
-    $configured = is_array($config) ? ($config['types'] ?? null) : null;
-    $base = is_array($config) ? ($config['baseInitialSegmentedPermissions'] ?? null) : null;
-    $check(is_array($base) && $configured === UserTypes::roles($base), 'd y roles.php registró justo eso con sus segmentos reales');
+    $check($rolesCargados !== null && $registrados === $rolesCargados, 'd y roles.php registró los roles de los tipos cargados con sus segmentos reales');
 
     //──── e) La jerarquía por prioridad ─────────────────────────────────────────────────────────
     echoTerminal('');
@@ -260,7 +266,11 @@ CliActions::make('unit-tests:core/user-types', function ($args) {
 
     //Vuelta al archivo: lo que corra después en este proceso ve los tipos de verdad.
     UserTypes::reload();
-    $check(UserTypes::errors() === [] && UserTypes::labels() === UserTypes::CORE_LABELS, 'h16 reload(): de vuelta al archivo de serie');
+    $check(UserTypes::errors() === $cargados['errors'] && UserTypes::labels() === $cargados['labels'], 'h16 reload(): de vuelta al archivo del proyecto, el mismo que se cargó al empezar');
+    //En el framework, el archivo de serie no declara nada: sin errores y con las etiquetas de fábrica.
+    if (!\Terminal\Distribution::isDistribution()) {
+        $check(UserTypes::errors() === [] && UserTypes::labels() === UserTypes::CORE_LABELS, 'h17 en el framework, user-types.php es el de serie: sin errores y con las etiquetas de fábrica');
+    }
 
     $total = $passed + $failed;
     echoTerminal(' ');

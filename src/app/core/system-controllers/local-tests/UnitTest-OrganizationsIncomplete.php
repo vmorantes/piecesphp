@@ -4,6 +4,8 @@
 //él Eliminado, y listado sin langData. Por HTTP. Siembra organizaciones y usuarios zz-, y los retira.
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;

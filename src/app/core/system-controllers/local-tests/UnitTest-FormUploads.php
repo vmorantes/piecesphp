@@ -6,6 +6,11 @@
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/PiecesPHP/BuiltIn/
 //@areas src/app/classes/Publications/
+//@requires-module Documents\DocumentsRoutes
+//@requires-module Forms\DocumentTypes\DocumentTypesRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Documents\Controllers\DocumentsController;
 use Documents\Mappers\DocumentsMapper;

@@ -37,7 +37,7 @@ que el coder la commitee. Esa ronda es parte del cierre, no del día siguiente.
 
 Dos lecturas que no están en este repositorio y que el cierre no puede saltarse.
 
-**La primera es la bandeja del PO.** `abrir-jornada` ya obliga a revisarla; el cierre también, y por un motivo medido:
+**La primera es la bandeja del PO, si el proyecto la tiene** (`.agents/scripts/vikunja.py` solo existe en el repositorio de PiecesPHP; en un clon, este paso se salta). `abrir-jornada` ya obliga a revisarla; el cierre también, y por un motivo medido:
 el 2026-10-06 el PO marcó una tarea como hecha y el cierre de esa jornada se escribió sin verlo, así que `AHORA.md`
 pasó la noche pidiéndole algo que él ya había hecho.
 
@@ -188,7 +188,8 @@ minuto y segundo** (PO, 2026-10-03), secciones numeradas, y estos cinco puntos:
 Y las dos órdenes de renombrado otra vez, al cierre, para que las tenga a mano la próxima vez
 (regla 30).
 
-**Y el mismo resumen, corto, al correo del PO, con `mail-notify`** (PO, 2026-10-02 y 2026-10-05: «repórtame al
+**Y el mismo resumen, corto, al correo del PO, con `mail-notify`, si la máquina lo tiene** (`command -v mail-notify`; si
+no, el resumen va solo en el chat y se dice una vez; PO, 2026-11-23) (PO, 2026-10-02 y 2026-10-05: «repórtame al
 correo y acá»). Es una herramienta suya de esta máquina (`~/.local/bin/mail-notify`), que envía con el SMTP de su
 propio `.env`:
 
@@ -214,7 +215,7 @@ que se hicieron a mano**:
 | **El tope** | `AHORA.md` ≤ 200 líneas | Lo pasa |
 | **Un solo «al retomar»** | Cuenta los bloques de arranque de `AHORA.md` | Hay más de uno |
 | **Los contadores** | El `A-NNN` de `AHORA.md` contra el último del buzón de `PO.md`; el `#NNN` contra el último mensaje de la cadena | No cuadran |
-| **La bandeja del PO, revisada** | Que este cierre corrió `vikunja.py revisar` (§2.0) | No se corrió |
+| **La bandeja del PO, revisada** | Que este cierre corrió `vikunja.py revisar` (§2.0), si el guion existe | Existe y no se corrió |
 | **Ningún reporte sin anotar** | Que cada reporte recibido tiene su línea en el archivo del tramo, y que ninguna ronda enviada sigue en vuelo (§2.0, §2.1bis) | Falta una |
 | **La guía, al día** | Que la entrada más nueva de `historial.md` de la guía no es anterior a la última entrada del `CHANGELOG` (§2.4bis) | Es anterior |
 | **Los puntos `S` cuadran** | Que las etiquetas `S` que nombra `AHORA.md` existen en `PO.md`, y al revés | Sobra o falta una |

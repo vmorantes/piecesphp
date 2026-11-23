@@ -3,6 +3,8 @@
 //Los ejemplos que la guía incrusta funcionan de verdad, y sus marcadores de fragmento existen: si falta uno, la guía no compila.
 //Escribe usuarios zz-ejemplo-* de verdad y los borra en el finally: db-backup antes.
 //@areas src/app/classes/DataImportExportUtility/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
+//@requires-module Organizations\OrganizationsRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;

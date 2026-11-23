@@ -94,15 +94,17 @@ CliActions::make('unit-tests:core/session-cookie', function ($args) {
     };
     $panel = $ruta('admin');
     $nombre = SessionToken::tokenName();
+    //La cabecera va con headerName(): un nombre con «_» (el de un clon, Pcs_<carpeta>) no pasa por Apache ni nginx.
+    $cabeceraNombre = SessionToken::headerName();
 
     //Una petición con la cabecera del token (null: sin ella) y la cookie (null: sin ella); devuelve el estado, el JSON y
     //las cabeceras Set-Cookie de la cookie de sesión.
-    $pedir = function (string $path, ?string $cabecera, ?string $cookie, ?array $post = null, bool $xhr = true) use ($base, $nombre): array {
+    $pedir = function (string $path, ?string $cabecera, ?string $cookie, ?array $post = null, bool $xhr = true) use ($base, $nombre, $cabeceraNombre): array {
         $handle = \Terminal\TestRun::curlInit();
         $cabeceras = $xhr ? ['X-Requested-With: XMLHttpRequest'] : [];
         if ($cabecera !== null) {
             //curl quita una cabecera «Nombre:» sin valor; «Nombre;» la manda vacía, que es lo que se prueba en b2.
-            $cabeceras[] = $cabecera === '' ? "{$nombre};" : "{$nombre}: {$cabecera}";
+            $cabeceras[] = $cabecera === '' ? "{$cabeceraNombre};" : "{$cabeceraNombre}: {$cabecera}";
         }
         $opciones = [
             CURLOPT_URL => $base . '/' . ltrim($path, '/'),

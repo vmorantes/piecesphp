@@ -2,6 +2,7 @@
 
 //El panel de importación: una ruta por importador, el artefacto solo si se guardó y nada del archivo pintado como HTML.
 //@areas src/app/classes/DataImportExportUtility/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;

@@ -3,6 +3,9 @@
 //No se asigna un usuario a una organización eliminada (P380), ni por herencia al importar; quien ya está en una la
 //conserva al guardar su ficha sin tocarla. Por HTTP el alta y la edición; la importación, por su definición.
 //@areas nucleo src/app/classes/DataImportExportUtility/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Definitions\UsersImportDefinition;

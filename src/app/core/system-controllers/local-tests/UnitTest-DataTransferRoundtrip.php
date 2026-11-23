@@ -2,6 +2,7 @@
 
 //Doble vía declarada: todo exportador que declara importDefinition() genera un archivo que su importador puede leer.
 //@areas src/app/classes/DataImportExportUtility/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
 
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use PiecesPHP\Core\DataTransfer\Export\ExportColumn;

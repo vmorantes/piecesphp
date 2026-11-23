@@ -5,6 +5,10 @@
 
 //La sesión del usuario principal la fija la suite y la restaura al final: varios mappers la exigen al guardar, y una
 //suite no pasa por el inicio de sesión forzado de la terminal.
+//@requires-module EventsLog\LogsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;

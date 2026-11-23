@@ -3,6 +3,11 @@
 //La extensión guardada sale del contenido (ProtectedUploads::safeExtension), por moveUploadedToPrivate, por moveTo sin
 //extensión y por UploadedFileAdapter::copyTo sin extensión; la que fija el llamador se respeta. Directo y por HTTP; crea entidades, opciones y archivos zz- y los repone.
 //@areas nucleo
+//@requires-module Documents\DocumentsRoutes
+//@requires-module Forms\DocumentTypes\DocumentTypesRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Documents\Controllers\DocumentsController;
 use Documents\Mappers\DocumentsMapper;

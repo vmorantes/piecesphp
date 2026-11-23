@@ -4,6 +4,9 @@
 //no de dos países fijos. La función se prueba sola; la forma del JSON, por HTTP como root. Crea un root zz- y lo retira.
 //@areas src/app/classes/ReportsManage/
 //@areas src/app/classes/API/
+//@requires-module API\APIRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module ReportsManage\ReportsManageRoutes
 
 use API\Controllers\APIController;
 use Organizations\Mappers\OrganizationMapper;

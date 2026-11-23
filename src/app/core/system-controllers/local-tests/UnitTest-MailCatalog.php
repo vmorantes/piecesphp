@@ -3,6 +3,9 @@
 //«Correos del sitio» (H189): quién la ve, que cada correo se pinta sin huecos, que el envío real usa su definición y que
 //«Enviar prueba» solo sale con la entrega retenida. Lo que se envía va al servidor de pruebas; siembra zz- y lo retira.
 //@areas nucleo
+//@requires-module EventsLog\LogsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Mappers\OrganizationMapper;

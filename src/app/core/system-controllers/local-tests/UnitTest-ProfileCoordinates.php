@@ -4,6 +4,7 @@
 //Por HTTP. Crea usuarios y una organización zz- y los retira.
 //@areas src/app/classes/MySpace/
 //@areas src/app/classes/Organizations/
+//@requires-module Organizations\OrganizationsRoutes
 
 use MySpace\Controllers\MyProfileController;
 use Organizations\Controllers\MyOrganizationProfileController;

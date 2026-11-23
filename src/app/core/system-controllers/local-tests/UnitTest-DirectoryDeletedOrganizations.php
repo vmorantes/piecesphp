@@ -3,6 +3,9 @@
 //El Directorio no lista una organización eliminada (P380), con ningún filtro ni para ningún rol que lo vea.
 //Por HTTP. Crea usuarios y organizaciones zz-, y los retira.
 //@areas src/app/classes/Directory/
+//@requires-module Directory\DirectoryRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Directory\Controllers\AllProfilesController;
 use Organizations\Mappers\OrganizationMapper;

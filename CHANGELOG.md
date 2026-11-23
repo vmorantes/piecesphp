@@ -1,3 +1,17 @@
+# 10.62.7 (23-11-2026)
+
+- **Las pruebas del framework, en tu proyecto, con tus módulos apagados**: las que necesitan un módulo lo declaran y,
+  si lo tienes apagado, salen como «omitidas» con su motivo en lugar de fallar.
+- **Las pruebas comparan contra lo que tu proyecto configuró**, no contra los valores de fábrica: tus tipos de usuario,
+  tu nombre de sesión, el inicio de cada tipo y las tablas propias de tu proyecto (que se listan, sin compararlas con
+  las del framework).
+- **El nombre de sesión con guion bajo**: el nombre que da `bin/cli session-name` (`Pcs_<carpeta>`) se manda como
+  cabecera con guion, como ya decía la documentación de la API; las pruebas que lo mandaban tal cual fallaban en todo
+  proyecto con su propio nombre.
+- **`bin/cli scan-missing-lang` en tu proyecto**: necesita PhpParser, que se instala con
+  `composer install --working-dir=bin/tools`; sin él, la orden dice que no corre y por qué en lugar de fallar.
+- **Al actualizar**: nada que hacer.
+
 # 10.62.6 (23-11-2026)
 
 - **Con los formularios de contacto apagados (`PUBLIC_AREA_CONTACT_FORMS = false`), `/contact` ya no da error**: la

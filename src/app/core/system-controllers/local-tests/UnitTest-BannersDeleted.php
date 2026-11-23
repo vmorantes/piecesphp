@@ -3,6 +3,9 @@
 //Un banner eliminado (borrado suave) no vuelve por la interfaz (P380): su formulario, su acción de edición y eliminarlo otra
 //vez responden como un id que no existe, y no sale en los listados ni pidiendo status=0 o ANY. Por HTTP.
 //@areas src/app/classes/PiecesPHP/BuiltIn/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;

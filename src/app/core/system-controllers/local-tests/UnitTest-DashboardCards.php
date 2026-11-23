@@ -4,6 +4,7 @@
 //errores nace plegada y, plegada, no calcula ni enseña cifras pero sí su pie). En proceso y por HTTP.
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/PiecesPHP/Logs/
+//@requires-module Organizations\OrganizationsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;

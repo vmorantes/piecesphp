@@ -103,9 +103,9 @@ Cuatro, y mezclarlos los estropea: un canal que recibe de todo deja de leerse.
 | Canal | Para qué | Por qué ese y no otro |
 | :-- | :-- | :-- |
 | **El chat** | Trabajar: explicar, proponer, contestar | Es donde él dirige |
-| **Su Vikunja** (`.agents/scripts/vikunja.py`, perfil `piecesphp`) | **Solo cuando él lo pida** (PO, 2026-10-15): por ejemplo, una pregunta que no contesta en varias rondas, o cuando se va y nos deja solos. Entonces, las preguntas como **tarea** con etiqueta `PO` y los avisos como comentario. Leerlo al abrir (`revisar`) sigue | **Una tarea se queda; un comentario se pierde** (`../docs/pendientes.md` 443.1 y 450.1); y **por defecto las preguntas van en el chat y en `PO.md`** |
-| **El correo** (`mail-notify`, sin `--to`) | El **resumen de cierre** de la jornada | Lo pidió así (370). Solo cuenta con `"ok": true` |
-| **Telegram** (`telegram-notify`, un destino, **sin `--perfil`**) | **Solo lo URGENTE** | Suena en su móvil (PO, 2026-10-08) |
+| **Su Vikunja** (`.agents/scripts/vikunja.py`, perfil `piecesphp`; **solo en el repositorio de PiecesPHP**: no viaja a un clon, PO 2026-11-23) | **Solo cuando él lo pida** (PO, 2026-10-15): por ejemplo, una pregunta que no contesta en varias rondas, o cuando se va y nos deja solos. Entonces, las preguntas como **tarea** con etiqueta `PO` y los avisos como comentario. Leerlo al abrir (`revisar`) sigue | **Una tarea se queda; un comentario se pierde** (`../docs/pendientes.md` 443.1 y 450.1); y **por defecto las preguntas van en el chat y en `PO.md`** |
+| **El correo** (`mail-notify`, sin `--to`; **si la máquina lo tiene**, `command -v mail-notify`; si no, el chat) | El **resumen de cierre** de la jornada | Lo pidió así (370). Solo cuenta con `"ok": true` |
+| **Telegram** (`telegram-notify`, un destino, **sin `--perfil`**; **si la máquina lo tiene**; si no, el chat) | **Solo lo URGENTE** | Suena en su móvil (PO, 2026-10-08) |
 
 **Qué es urgente, y nada más que esto** (`../docs/pendientes.md` 483.3): un fallo de seguridad **VIVO** —no latente— en
 algo que él ya publicó; un error **destructivo** hecho o a punto de hacerse; **todo el trabajo parado** esperándole; o

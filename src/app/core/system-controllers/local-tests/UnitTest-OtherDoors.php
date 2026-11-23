@@ -8,6 +8,11 @@
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module API\APIRoutes
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
+//@requires-module News\NewsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use API\Controllers\APIController;
 use DataImportExportUtility\Definitions\UsersImportDefinition;

@@ -7,6 +7,9 @@
 //@areas src/app/classes/PiecesPHP/Logs/
 //@areas src/app/classes/PiecesPHP/SystemStatus/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module EventsLog\LogsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\BaseHashEncryption;

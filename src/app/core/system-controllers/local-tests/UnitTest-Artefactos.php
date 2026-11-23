@@ -1,7 +1,7 @@
 <?php
 
 //bin/artefactos (P193): con --check NO escribe nada, nombra la foto rancia y nunca escribe un trinquete.
-//Toca dos archivos versionados y los repone por sha1 en el finally: si la suite muere a mitad, git los enseña.
+//Altera COPIAS y las pasa con --sustituye: nunca escribe un archivo versionado (H473).
 //@areas nucleo
 
 use PiecesPHP\Terminal\CliActions;
@@ -53,30 +53,36 @@ CliActions::make('unit-tests:core/artefactos', function ($args) {
         return $resultado;
     };
     $escribir = fn(string $ruta, string $datos): bool => file_put_contents($ruta, $datos) === strlen($datos);
-    $correr = function () use ($raiz): array {
+    $correr = function (string $argumentos) use ($raiz): array {
         $salida = [];
         $codigo = 0;
         //RETORNO-IGNORADO: la salida entera llega por $salida; la última línea que devuelve exec() no aporta.
-        exec('cd ' . escapeshellarg($raiz) . ' && bin/artefactos --check 2>&1', $salida, $codigo);
+        exec('cd ' . escapeshellarg($raiz) . ' && bin/artefactos ' . $argumentos . ' 2>&1', $salida, $codigo);
         return [$codigo, implode("\n", $salida)];
     };
 
     $fotoOriginal = (string) file_get_contents($foto);
     $trinqueteOriginal = (string) file_get_contents($trinquete);
+    $versionados = $huellas([$foto, $trinquete]);
+    $temporal = sprintf('%s/artefactos-prueba-%s', sys_get_temp_dir(), bin2hex(random_bytes(6)));
+    $copiaFoto = "{$temporal}/css-fingerprint.json";
+    $copiaTrinquete = "{$temporal}/PHPStanResult.Summary.baseline.txt";
 
     try {
+        $check(mkdir($temporal, 0700), '00 el temporal propio se pudo crear', $temporal);
+
         //─── a · Una foto tocada: --check sale con 1, la nombra y NO la rehace ──────────────────
         echoTerminal('[a] Una foto rancia se nombra y no se reescribe');
         $tocada = $fotoOriginal . "\n";
-        $check($escribir($foto, $tocada), 'a0 la foto se pudo tocar para la prueba');
+        $check($escribir($copiaFoto, $tocada), 'a0 la copia de la foto se pudo tocar para la prueba');
         $antes = $huellas($vigiladas);
-        [$codigo, $salida] = $correr();
+        [$codigo, $salida] = $correr('--check --sustituye=' . escapeshellarg("files/dev/css-fingerprint.json={$copiaFoto}"));
         $check($codigo === 1, 'a1 --check sale con 1', "rc {$codigo}");
         $check(preg_match('/huella del CSS\s+RANCIA/u', $salida) === 1, 'a2 y nombra la foto rancia');
-        $check((string) file_get_contents($foto) === $tocada, 'a3 la foto sigue como se dejó: --check no escribe');
+        $check((string) file_get_contents($copiaFoto) === $tocada, 'a3 la copia sigue como se dejó: --check no escribe');
         $check($huellas($vigiladas) === $antes, 'a4 y las demás fotos no cambian');
         $check(str_contains($salida, 'artefactos ejecutado:'), 'a5 y emite su línea de «ejecutado» (LEY 18)');
-        $check($escribir($foto, $fotoOriginal), 'a6 y se repone');
+        $check($huellas([$foto, $trinquete]) === $versionados, 'a6 y la foto y la línea base del repositorio no cambian (sha1)');
 
         //─── b · Un trinquete que se movería: se dice y el archivo NO cambia ────────────────────
         echoTerminal(' ');
@@ -86,17 +92,34 @@ CliActions::make('unit-tests:core/artefactos', function ($args) {
             fn(array $m): string => $m[1] . ((int) $m[2] + 1),
             $trinqueteOriginal
         );
-        $check(is_string($alterado) && $alterado !== $trinqueteOriginal, 'b0 la línea base se pudo alterar para la prueba');
-        $check($escribir($trinquete, (string) $alterado), 'b0b y se pudo escribir');
-        [$codigo, $salida] = $correr();
+        $check(is_string($alterado) && $alterado !== $trinqueteOriginal, 'b0 la copia de la línea base se pudo alterar para la prueba');
+        $check($escribir($copiaTrinquete, (string) $alterado), 'b0b y se pudo escribir');
+        [$codigo, $salida] = $correr('--check --sustituye=' . escapeshellarg("PHPStanResult.Summary.baseline.txt={$copiaTrinquete}"));
         $check(preg_match('/PHPStan\s+se movería: \d+ → \d+/u', $salida) === 1, 'b1 dice que el trinquete de PHPStan se movería');
-        $check((string) file_get_contents($trinquete) === $alterado, 'b2 y no lo escribe');
+        $check((string) file_get_contents($copiaTrinquete) === $alterado, 'b2 y no escribe la copia');
         $check($codigo === 0, 'b3 y con las fotos al día --check sale con 0: un trinquete no es una foto rancia', "rc {$codigo}");
+
+        //─── c · --sustituye sin --check, o sobre lo que el guion no lee: error y nada corre ────
+        echoTerminal(' ');
+        echoTerminal('[c] --sustituye fuera de --check o sobre un trinquete ajeno es un error');
+        [$codigo, $salida] = $correr('--sustituye=' . escapeshellarg("files/dev/css-fingerprint.json={$copiaFoto}"));
+        $check($codigo === 2 && str_contains($salida, 'solo vale junto a --check'), 'c1 sin --check, PARA con su motivo', "rc {$codigo}");
+        $check(!str_contains($salida, '== fotos'), 'c2 y no regenera nada');
+        [$codigo, $salida] = $correr('--check --sustituye=' . escapeshellarg("files/dev/sql-concat-baseline.json={$copiaTrinquete}"));
+        $check($codigo === 2 && str_contains($salida, 'no es algo que este guion lea'), 'c3 un trinquete que lee su censo no se sustituye', "rc {$codigo}");
     } finally {
-        $escribir($foto, $fotoOriginal);
-        $escribir($trinquete, $trinqueteOriginal);
+        $limpio = true;
+        foreach ([$copiaFoto, $copiaTrinquete] as $copia) {
+            if (is_file($copia)) {
+                $limpio = unlink($copia) && $limpio;
+            }
+        }
+        if (is_dir($temporal)) {
+            $limpio = rmdir($temporal) && $limpio;
+        }
     }
-    $check(sha1_file($foto) === sha1($fotoOriginal) && sha1_file($trinquete) === sha1($trinqueteOriginal), 'z1 los dos archivos quedan como estaban (sha1)');
+    $check($huellas([$foto, $trinquete]) === $versionados, 'z1 la foto y la línea base del repositorio no cambiaron (sha1 antes de [a] y después de [c])');
+    $check($limpio && !is_dir($temporal), 'z2 el temporal propio se borró');
 
     return $balance();
 

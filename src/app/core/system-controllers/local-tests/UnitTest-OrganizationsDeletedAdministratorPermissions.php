@@ -3,6 +3,8 @@
 //Un encargado dado de baja (status 6) no gana los permisos de encargado: ni grantsAdministratorPermissions() ni la
 //comprobación de «Mi organización». Por HTTP lo que se alcanza y en proceso lo que no, con filas zz- que crea y retira.
 //@areas src/app/classes/Organizations/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Mappers\OrganizationMapper;

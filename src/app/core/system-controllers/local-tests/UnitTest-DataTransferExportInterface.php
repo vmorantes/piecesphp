@@ -3,6 +3,7 @@
 //Niveles de interfaz de la exportación: rutas por nivel, vista previa que no escribe ni lo lee todo, y elección de columnas.
 //Escribe dos .php temporales en src/tmp (ignorado por git) y los borra en el finally; solo lee la base.
 //@areas src/app/classes/DataImportExportUtility/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;

@@ -3,6 +3,9 @@
 //Actuar como otro usuario (P204 a), por HTTP. Crea y borra usuarios zz-agente-fr-imp-* y una organización inactiva,
 //con sus sesiones, aprobaciones y registros.
 //@areas nucleo
+//@requires-module EventsLog\LogsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use EventsLog\LogsRoutes;
 use EventsLog\Mappers\LogsMapper;

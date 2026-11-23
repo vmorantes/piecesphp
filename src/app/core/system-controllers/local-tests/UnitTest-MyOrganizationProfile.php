@@ -4,6 +4,8 @@
 //Por HTTP. Crea un principal, usuarios y organizaciones, zz-, y los retira.
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Controllers\OrganizationProfileController;

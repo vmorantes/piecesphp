@@ -8,6 +8,10 @@
 //@areas src/app/classes/PiecesPHP/Settings/
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module EventsLog\LogsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module PiecesPHP\Notifications\NotificationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use EventsLog\Mappers\LogsMapper;
 use Organizations\Controllers\OrganizationsController;

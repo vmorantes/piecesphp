@@ -3,6 +3,8 @@
 //Sin la contraseña buena, el acceso y las recuperaciones no dicen si un usuario existe ni en qué estado está (P201). En
 //proceso, con REMOTE_ADDR de documentación propias. Siembra zz- y lo retira.
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;

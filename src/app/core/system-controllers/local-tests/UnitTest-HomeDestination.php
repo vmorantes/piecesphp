@@ -3,6 +3,8 @@
 //Adónde entra cada tipo de usuario al abrir el inicio del panel (HomeDestinationRegistry): los repartos de siempre,
 //idénticos, y uno que registra la suite. Por HTTP con los usuarios zz-agente- y en proceso; repone el registro.
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
@@ -96,6 +98,12 @@ CliActions::make('unit-tests:core/home-destination', function ($args) {
     $agentes = $database->query("SELECT `id`, `type` FROM `" . UsersModel::TABLE . "` WHERE `username` LIKE 'zz-agente-%' ORDER BY `type`, `id`")->fetchAll(\PDO::FETCH_ASSOC);
     $check(count($agentes) > 0, 'banco: hay usuarios zz-agente-', (string) count($agentes));
     $vistos = [];
+    //Un tipo sin rol en esta instalación no entra: vuelve al login. Solo se admite para el 12 con Organizaciones
+    //apagado o en un proyecto (que puede retirar tipos); en el framework, un tipo de fábrica sin rol es un fallo.
+    $rutaLogin = $camino(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login', [], true));
+    $sinRolAdmitido = fn (int $tipo): bool => \Terminal\Distribution::isDistribution() || ($tipo === UsersModel::TYPE_USER_ADMIN_ORG && !CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']);
+    $rolesInstalados = get_config('roles');
+    $conRol = array_map(fn (array $rol): int => (int) $rol['code'], is_array($rolesInstalados) ? (array) ($rolesInstalados['types'] ?? []) : []);
     foreach ($agentes as $agente) {
         $tipo = (int) $agente['type'];
         if (isset($vistos[$tipo])) {
@@ -104,7 +112,9 @@ CliActions::make('unit-tests:core/home-destination', function ($args) {
         $vistos[$tipo] = true;
         $aprobado = SystemApprovalManager::getInstance()->isApproved(UsersModel::class, (int) $agente['id']);
         $r = $pedir((int) $agente['id']);
-        if ($aprobado && in_array($tipo, $conPerfil, true)) {
+        if (!in_array($tipo, $conRol, true) && $sinRolAdmitido($tipo)) {
+            $check($r['status'] === 302 && $r['location'] === $rutaLogin, "p tipo {$tipo} (sin rol en esta instalación): no entra, vuelve al login", "HTTP {$r['status']} · {$r['location']}");
+        } elseif ($aprobado && in_array($tipo, $conPerfil, true)) {
             $check($r['status'] === 302 && $r['location'] === $rutaPerfil, "p tipo {$tipo} (con perfil, aprobado): a Mi perfil", "HTTP {$r['status']} · {$r['location']}");
         } elseif ($aprobado && $tipo === UsersModel::TYPE_USER_COMUNICACIONES) {
             $check($r['status'] === 200 && !str_contains($r['body'], 'data-dashboard ') && str_contains($r['body'], 'dataTables'), "p tipo {$tipo} (comunicaciones, aprobado): su listado de publicaciones", "HTTP {$r['status']}");

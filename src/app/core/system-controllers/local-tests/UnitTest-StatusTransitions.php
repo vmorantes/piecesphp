@@ -6,6 +6,8 @@
 //@areas src/app/classes/PiecesPHP/SystemStatus/
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;

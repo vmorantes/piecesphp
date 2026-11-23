@@ -3,6 +3,9 @@
 //Una categoría de formularios eliminada no vuelve por la interfaz (P380): su formulario, su guardado y eliminarla otra vez
 //responden como un id que no existe, también para root. Por HTTP; siembra zz-prueba- y lo retira.
 //@areas src/app/classes/Forms/Categories/
+//@requires-module Forms\Categories\CategoriesRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Forms\Categories\Controllers\CategoriesController;
 use Forms\Categories\Mappers\CategoriesMapper;

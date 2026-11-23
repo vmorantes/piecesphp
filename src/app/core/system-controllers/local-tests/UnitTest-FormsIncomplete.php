@@ -5,6 +5,10 @@
 //@areas src/app/classes/Forms/
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module Forms\Categories\CategoriesRoutes
+//@requires-module Forms\DocumentTypes\DocumentTypesRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Forms\Categories\Controllers\CategoriesController;
 use Forms\Categories\Mappers\CategoriesMapper;

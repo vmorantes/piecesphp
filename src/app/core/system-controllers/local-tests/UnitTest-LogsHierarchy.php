@@ -5,6 +5,9 @@
 //@areas src/app/classes/EventsLog/
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module EventsLog\LogsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use EventsLog\Controllers\LogsController as ActionsLogController;
 use EventsLog\Mappers\LogsMapper;

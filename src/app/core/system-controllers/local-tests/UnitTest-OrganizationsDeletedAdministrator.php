@@ -3,6 +3,9 @@
 //Un encargado dado de baja no se enseña en el perfil de su organización ni en «Mi organización», que pide asignar otro
 //(P380): dar de baja no limpia `administrator`, se lee como ausente. Por HTTP, con filas zz- que crea y retira.
 //@areas src/app/classes/Organizations/
+//@requires-module Directory\DirectoryRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Directory\Controllers\ProfileController;
 use Organizations\Controllers\MyOrganizationProfileController;

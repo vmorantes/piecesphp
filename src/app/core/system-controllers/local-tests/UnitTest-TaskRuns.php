@@ -4,6 +4,7 @@
 //registran; su estado, en un directorio propio de /tmp; el tope, en una tabla propia que se borra al final.
 //@areas src/app/classes/API/
 //@areas src/app/classes/PiecesPHP/SystemStatus/
+//@requires-module API\APIRoutes
 
 use API\Controllers\APIController;
 use PiecesPHP\Core\BaseModel;

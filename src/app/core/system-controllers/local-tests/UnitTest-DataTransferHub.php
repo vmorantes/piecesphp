@@ -5,6 +5,8 @@
 //@areas src/app/classes/DataImportExportUtility/
 //@areas src/app/classes/EventsLog/
 //@areas src/app/classes/PiecesPHP/Settings/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
+//@requires-module EventsLog\LogsRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Definitions\UsersExportDefinition;

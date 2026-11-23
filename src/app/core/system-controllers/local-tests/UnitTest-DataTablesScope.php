@@ -70,31 +70,42 @@ CliActions::make('unit-tests:core/datatables-scope', function ($args) {
         return $result instanceof ResultOperations ? json_decode((string) json_encode($result->getValues()), true) : [];
     };
 
+    $apagados = fn (array $classes): array => array_values(array_filter($classes, fn (string $c): bool => constant("{$c}::ENABLE") === false));
+
     //Los 22 usos (#320). `scoped`: el total depende de quién mira. `cards`: rawData es HTML de tarjeta.
     $listings = [
         'login-attempts · intentos' => ['call' => $fromModel('getAttempts'), 'scoped' => true],
         'login-attempts · conectados' => ['call' => $fromModel('getLoggedUsers'), 'scoped' => true],
         'login-attempts · no conectados' => ['call' => $fromModel('getNotLoggedUsers'), 'scoped' => true],
-        'banner' => ['call' => $fromController(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::class, 'dataTables')],
-        'newsletter' => ['call' => $fromController(\Newsletter\Controllers\NewsletterController::class, 'dataTables')],
-        'news · categorías' => ['call' => $fromController(\News\Controllers\NewsCategoryController::class, 'dataTables')],
-        'news' => ['call' => $fromController(\News\Controllers\NewsController::class, 'dataTables')],
-        'organizaciones' => ['call' => $fromController(\Organizations\Controllers\OrganizationsController::class, 'dataTables')],
-        'aprobaciones' => ['call' => $fromController(\SystemApprovals\Controllers\SystemApprovalsController::class, 'dataTables'), 'scoped' => true, 'query' => ['elapsedDays' => '0']],
+        'banner' => ['call' => $fromController(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::class, 'dataTables'), 'modules' => [\PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes::class]],
+        'newsletter' => ['call' => $fromController(\Newsletter\Controllers\NewsletterController::class, 'dataTables'), 'modules' => [\Newsletter\NewsletterRoutes::class]],
+        'news · categorías' => ['call' => $fromController(\News\Controllers\NewsCategoryController::class, 'dataTables'), 'modules' => [\News\NewsRoutes::class]],
+        'news' => ['call' => $fromController(\News\Controllers\NewsController::class, 'dataTables'), 'modules' => [\News\NewsRoutes::class]],
+        'organizaciones' => ['call' => $fromController(\Organizations\Controllers\OrganizationsController::class, 'dataTables'), 'modules' => [\Organizations\OrganizationsRoutes::class]],
+        'aprobaciones' => ['call' => $fromController(\SystemApprovals\Controllers\SystemApprovalsController::class, 'dataTables'), 'scoped' => true, 'query' => ['elapsedDays' => '0'], 'modules' => [\SystemApprovals\SystemApprovalsRoutes::class]],
         'ubicaciones · estados' => ['call' => $fromController(\PiecesPHP\App\Locations\Controllers\State::class, 'statesDataTables')],
         'ubicaciones · puntos' => ['call' => $fromController(\PiecesPHP\App\Locations\Controllers\Point::class, 'pointsDataTables')],
         'ubicaciones · ciudades' => ['call' => $fromController(\PiecesPHP\App\Locations\Controllers\City::class, 'citiesDataTables')],
         'ubicaciones · países' => ['call' => $fromController(\PiecesPHP\App\Locations\Controllers\Country::class, 'countriesDataTables')],
-        'documentos' => ['call' => $fromController(\Documents\Controllers\DocumentsController::class, 'dataTables')],
-        'documentos · explorador' => ['call' => $fromController(\Documents\Controllers\DocumentsController::class, 'dataTablesExplorer'), 'cards' => true],
-        'perfiles' => ['call' => $fromController(\Directory\Controllers\AllProfilesController::class, 'dataTables'), 'scoped' => true],
-        'formularios · tipos de documento' => ['call' => $fromController(\Forms\DocumentTypes\Controllers\DocumentTypesController::class, 'dataTables')],
-        'formularios · categorías' => ['call' => $fromController(\Forms\Categories\Controllers\CategoriesController::class, 'dataTables')],
+        'documentos' => ['call' => $fromController(\Documents\Controllers\DocumentsController::class, 'dataTables'), 'modules' => [\Documents\DocumentsRoutes::class]],
+        'documentos · explorador' => ['call' => $fromController(\Documents\Controllers\DocumentsController::class, 'dataTablesExplorer'), 'cards' => true, 'modules' => [\Documents\DocumentsRoutes::class]],
+        'perfiles' => ['call' => $fromController(\Directory\Controllers\AllProfilesController::class, 'dataTables'), 'scoped' => true, 'modules' => [\Directory\DirectoryRoutes::class]],
+        'formularios · tipos de documento' => ['call' => $fromController(\Forms\DocumentTypes\Controllers\DocumentTypesController::class, 'dataTables'), 'modules' => [\Forms\DocumentTypes\DocumentTypesRoutes::class]],
+        'formularios · categorías' => ['call' => $fromController(\Forms\Categories\Controllers\CategoriesController::class, 'dataTables'), 'modules' => [\Forms\Categories\CategoriesRoutes::class]],
         'publicaciones · categorías' => ['call' => $fromController(\Publications\Controllers\PublicationsCategoryController::class, 'dataTables')],
         'publicaciones' => ['call' => $fromController(\Publications\Controllers\PublicationsController::class, 'dataTables'), 'scoped' => true],
-        'registro de acciones' => ['call' => $fromController(\EventsLog\Controllers\LogsController::class, 'dataTables')],
+        'registro de acciones' => ['call' => $fromController(\EventsLog\Controllers\LogsController::class, 'dataTables'), 'modules' => [\EventsLog\LogsRoutes::class]],
         'usuarios' => ['call' => $fromController(\PiecesPHP\UserSystem\Controllers\UsersController::class, 'dataTablesRequestUsers'), 'scoped' => true, 'cards' => true],
     ];
+
+    //Un uso con su módulo apagado sale de a-d; el resto de la suite sigue.
+    foreach ($listings as $name => $listing) {
+        $off = $apagados($listing['modules'] ?? []);
+        if ($off !== []) {
+            echoTerminal("   [OMITIDO] a-d · {$name}: " . implode(', ', $off) . ' apagado');
+            unset($listings[$name]);
+        }
+    }
 
     $previousUser = get_config('current_user');
     $previousStored = get_config('pcsphp_current_user_stored');
@@ -125,7 +136,10 @@ CliActions::make('unit-tests:core/datatables-scope', function ($args) {
         //─── b · El total del administrador de organización ─────────────────────────────────────────────
         echoTerminal('[b] Con alcance: el total es lo que el administrador de organización puede ver');
         $check($orgAdminID !== null, 'b0 existe el administrador de organización zz-prueba-orgadmin-a');
-        if ($orgAdminID !== null) {
+        //Sin Organizaciones, el administrador de organización no tiene rol: no hay alcance que medir.
+        if ($orgAdminID !== null && !\Organizations\OrganizationsRoutes::ENABLE) {
+            echoTerminal('   [OMITIDO] b: Organizations apagado');
+        } elseif ($orgAdminID !== null) {
             $as($orgAdminID);
             foreach ($listings as $name => $listing) {
                 if (!($listing['scoped'] ?? false)) {
@@ -244,10 +258,14 @@ CliActions::make('unit-tests:core/datatables-scope', function ($args) {
             return is_file($errorLog) ? count(file($errorLog) ?: []) : 0;
         };
         $paths = [
-            'processFromQuery · perfiles' => [\Directory\Controllers\AllProfilesController::class, 'dataTables'],
-            'process · organizaciones' => [\Organizations\Controllers\OrganizationsController::class, 'dataTables'],
+            'processFromQuery · perfiles' => [\Directory\Controllers\AllProfilesController::class, 'dataTables', \Directory\DirectoryRoutes::class],
+            'process · organizaciones' => [\Organizations\Controllers\OrganizationsController::class, 'dataTables', \Organizations\OrganizationsRoutes::class],
         ];
-        foreach ($paths as $name => [$class, $method]) {
+        foreach ($paths as $name => [$class, $method, $module]) {
+            if ($apagados([$module]) !== []) {
+                echoTerminal("   [OMITIDO] f · {$name}: {$module} apagado");
+                continue;
+            }
             $linesBefore = $logLines();
             try {
                 $normal = ($fromController($class, $method))($request([]));

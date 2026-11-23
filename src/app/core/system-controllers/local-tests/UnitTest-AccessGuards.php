@@ -4,6 +4,8 @@
 //@areas src/app/classes/PiecesPHP/BuiltIn/
 //@areas src/app/classes/Publications/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseToken;

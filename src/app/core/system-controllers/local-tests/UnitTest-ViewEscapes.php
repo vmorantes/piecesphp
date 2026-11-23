@@ -106,6 +106,14 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         return ['status' => (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE), 'body' => is_string($body) ? $body : ''];
     };
     $escapar = fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    //Omite un caso si alguno de sus módulos está apagado: el criterio de gates (GatesTask::moduleStates).
+    $omitir = function (string $caso, string ...$clases): bool {
+        $fuera = array_map(fn (string $clase): string => basename(str_replace('\\', '/', $clase), 'Routes'), array_filter($clases, fn (string $clase): bool => constant("{$clase}::ENABLE") === false));
+        if ($fuera !== []) {
+            echoTerminal("   [OMITIDO] {$caso}: " . implode(' y ', $fuera) . (count($fuera) > 1 ? ' apagados' : ' apagado'));
+        }
+        return $fuera !== [];
+    };
 
     $prefijo = 'zz-prueba-vistas-' . bin2hex(random_bytes(3));
     $marca = '\'zzq"zzd<zzl>';
@@ -161,13 +169,20 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         preg_match("#last-uri='([^']*)'#", $login['body'], $atributo);
         $valor = $atributo[1] ?? '';
         $check($valor !== '' && str_contains($valor, $escapar($marca)) && !str_contains($login['body'], "?zz={$marca}"), 'a1 el login pinta la URI pedida escapada dentro de last-uri', "HTTP {$login['status']}, atributo " . mb_substr($valor, -60));
-        $contacto = $pedir("/contact/{$marcaURL}", null, null, false, false);
-        $check($contacto['status'] === 200 && str_contains($contacto['body'], $escapar($marca)) && !str_contains($contacto['body'], "?zz={$marca}"), 'a2 el formulario de contacto pinta la URL actual escapada', "HTTP {$contacto['status']}");
-        $database->prepare('INSERT INTO `newsletter_sucribers` (name, email, acceptUpdates, createdAt) VALUES (?, ?, ?, ?)')->execute(["{$prefijo}-suscriptor", "{$prefijo}{$marca}@example.com", 1, $ahora]);
-        $suscriptor = (int) $database->lastInsertId();
-        $suscriptores[] = $suscriptor;
-        $edicion = $pedir($camino(\Newsletter\Controllers\NewsletterController::routeName('forms-edit', ['id' => $suscriptor], true)), $jwtRoot, null, false, false);
-        $check($edicion['status'] === 200 && str_contains($edicion['body'], $escapar("{$prefijo}{$marca}@example.com")) && !str_contains($edicion['body'], "{$prefijo}{$marca}"), 'a3 la edición del suscriptor pinta su correo escapado', "HTTP {$edicion['status']}");
+        if (!PUBLIC_AREA_CONTACT_FORMS) {
+            echoTerminal('   [OMITIDO] a2: PUBLIC_AREA_CONTACT_FORMS apagado');
+        } else {
+            $contacto = $pedir("/contact/{$marcaURL}", null, null, false, false);
+            $check($contacto['status'] === 200 && str_contains($contacto['body'], $escapar($marca)) && !str_contains($contacto['body'], "?zz={$marca}"), 'a2 el formulario de contacto pinta la URL actual escapada', "HTTP {$contacto['status']}");
+        }
+        $suscriptor = 0;
+        if (!$omitir('a3', \Newsletter\NewsletterRoutes::class)) {
+            $database->prepare('INSERT INTO `newsletter_sucribers` (name, email, acceptUpdates, createdAt) VALUES (?, ?, ?, ?)')->execute(["{$prefijo}-suscriptor", "{$prefijo}{$marca}@example.com", 1, $ahora]);
+            $suscriptor = (int) $database->lastInsertId();
+            $suscriptores[] = $suscriptor;
+            $edicion = $pedir($camino(\Newsletter\Controllers\NewsletterController::routeName('forms-edit', ['id' => $suscriptor], true)), $jwtRoot, null, false, false);
+            $check($edicion['status'] === 200 && str_contains($edicion['body'], $escapar("{$prefijo}{$marca}@example.com")) && !str_contains($edicion['body'], "{$prefijo}{$marca}"), 'a3 la edición del suscriptor pinta su correo escapado', "HTTP {$edicion['status']}");
+        }
 
         //──── [b] Las claves de IA ──────────────────────────────────────────────────────────
         echoTerminal('');
@@ -266,18 +281,20 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         }
         $idPublicacion = (int) $publicacion->id;
         $publicaciones[] = $idPublicacion;
-        $database->prepare("INSERT INTO `{$tablaAprobaciones}` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
-            ->execute(["{$prefijo}-publicacion", (string) $idPublicacion, PublicationMapper::TABLE, $ahora, $ahora, $rootID, SystemApprovalsMapper::STATUS_PENDING]);
-        $filaPublicacion = (int) $database->lastInsertId();
-        $aprobacion = $pedir($camino(\SystemApprovals\Controllers\SystemApprovalsController::routeName('forms-approval', ['id' => $filaPublicacion], true)), $jwtRoot, null, false, false);
-        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
-        preg_match('#<iframe[^>]*srcdoc="[^"]*"[^>]*>#', $aprobacion['body'], $marco);
-        $marco = $marco[0] ?? '';
-        $check($marco !== '' && str_contains($marco, 'sandbox=""') && !str_contains($marco, 'allow-scripts'), 'c1 la aprobación pinta el contenido en un iframe sandbox sin allow-scripts', "HTTP {$aprobacion['status']}, iframe " . var_export($marco !== '', true));
-        $check(str_contains($marco, $escapar($contenido)) && !str_contains($aprobacion['body'], '<script>zzScript()'), 'c2 y dentro de srcdoc va escapado: el script no entra en la página', "HTTP {$aprobacion['status']}");
-        //G3-h: la política va al principio del srcdoc, antes del contenido, y solo deja imágenes del sitio y data:.
-        $politica = $escapar('<meta http-equiv="Content-Security-Policy" content="img-src \'self\' data:">');
-        $check(str_starts_with((string) (preg_match('#srcdoc="([^"]*)"#', $marco, $srcdoc) === 1 ? $srcdoc[1] : ''), $politica), 'c2b el srcdoc empieza por la política de imágenes (solo del sitio y data:)', mb_substr($marco, 0, 200));
+        if (!$omitir('c1-c2b', \SystemApprovals\SystemApprovalsRoutes::class)) {
+            $database->prepare("INSERT INTO `{$tablaAprobaciones}` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                ->execute(["{$prefijo}-publicacion", (string) $idPublicacion, PublicationMapper::TABLE, $ahora, $ahora, $rootID, SystemApprovalsMapper::STATUS_PENDING]);
+            $filaPublicacion = (int) $database->lastInsertId();
+            $aprobacion = $pedir($camino(\SystemApprovals\Controllers\SystemApprovalsController::routeName('forms-approval', ['id' => $filaPublicacion], true)), $jwtRoot, null, false, false);
+            //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
+            preg_match('#<iframe[^>]*srcdoc="[^"]*"[^>]*>#', $aprobacion['body'], $marco);
+            $marco = $marco[0] ?? '';
+            $check($marco !== '' && str_contains($marco, 'sandbox=""') && !str_contains($marco, 'allow-scripts'), 'c1 la aprobación pinta el contenido en un iframe sandbox sin allow-scripts', "HTTP {$aprobacion['status']}, iframe " . var_export($marco !== '', true));
+            $check(str_contains($marco, $escapar($contenido)) && !str_contains($aprobacion['body'], '<script>zzScript()'), 'c2 y dentro de srcdoc va escapado: el script no entra en la página', "HTTP {$aprobacion['status']}");
+            //G3-h: la política va al principio del srcdoc, antes del contenido, y solo deja imágenes del sitio y data:.
+            $politica = $escapar('<meta http-equiv="Content-Security-Policy" content="img-src \'self\' data:">');
+            $check(str_starts_with((string) (preg_match('#srcdoc="([^"]*)"#', $marco, $srcdoc) === 1 ? $srcdoc[1] : ''), $politica), 'c2b el srcdoc empieza por la política de imágenes (solo del sitio y data:)', mb_substr($marco, 0, 200));
+        }
         $edicion = $pedir($camino(\Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $idPublicacion], true)), $jwtRoot, null, false, false);
         //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
         preg_match('#<textarea name="content"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
@@ -285,15 +302,17 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         $check($edicion['status'] === 200 && !str_contains($edicion['body'], '</textarea><script>zzScript()'), 'c3 la edición de la publicación no deja que el contenido se salga del textarea', "HTTP {$edicion['status']}");
         //El navegador decodifica el texto de un textarea: lo que el editor carga es lo que se guardó.
         $check($dentro !== null && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === $contenido, 'c4 y lo que hay dentro, decodificado, es el contenido guardado tal cual', 'campo ' . var_export($dentro !== null, true));
-        $database->prepare('INSERT INTO `' . BuiltInBannerMapper::TABLE . '` (title, content, link, desktopImage, mobileImage, orderPosition, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-            ->execute(["{$prefijo}-banner", $contenido, '', 'statics/images/zz-prueba.jpg', '', 0, "{$prefijo}-banner", $ahora, $rootID, BuiltInBannerMapper::ACTIVE, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
-        $banner = (int) $database->lastInsertId();
-        $banners[] = $banner;
-        $edicion = $pedir($camino(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-edit', ['id' => $banner, 'lang' => $lang], true)), $jwtRoot, null, false, false);
-        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
-        preg_match('#<textarea name="content"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
-        $dentro = $campo[1] ?? null;
-        $check($edicion['status'] === 200 && !str_contains($edicion['body'], '</textarea><script>zzScript()') && $dentro !== null && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === $contenido, 'c5 la edición del banner tampoco: dentro, decodificado, el contenido tal cual', "HTTP {$edicion['status']}, campo " . var_export($dentro !== null, true));
+        if (!$omitir('c5', \PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes::class)) {
+            $database->prepare('INSERT INTO `' . BuiltInBannerMapper::TABLE . '` (title, content, link, desktopImage, mobileImage, orderPosition, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                ->execute(["{$prefijo}-banner", $contenido, '', 'statics/images/zz-prueba.jpg', '', 0, "{$prefijo}-banner", $ahora, $rootID, BuiltInBannerMapper::ACTIVE, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
+            $banner = (int) $database->lastInsertId();
+            $banners[] = $banner;
+            $edicion = $pedir($camino(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-edit', ['id' => $banner, 'lang' => $lang], true)), $jwtRoot, null, false, false);
+            //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
+            preg_match('#<textarea name="content"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
+            $dentro = $campo[1] ?? null;
+            $check($edicion['status'] === 200 && !str_contains($edicion['body'], '</textarea><script>zzScript()') && $dentro !== null && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === $contenido, 'c5 la edición del banner tampoco: dentro, decodificado, el contenido tal cual', "HTTP {$edicion['status']}, campo " . var_export($dentro !== null, true));
+        }
 
         //Los otros textarea: el seoDescription de la publicación, las noticias y los documentos.
         $edicion = $pedir($camino(\Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $idPublicacion], true)), $jwtRoot, null, false, false);
@@ -301,68 +320,75 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         preg_match('#<textarea name="seoDescription"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
         $dentro = $campo[1] ?? null;
         $check(!str_contains($edicion['body'], '</textarea><script>zzSeo()') && $dentro !== null && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === '</textarea><script>zzSeo()</script>', 'c6 el seoDescription de la publicación no se sale de su textarea', "HTTP {$edicion['status']}, campo " . var_export($dentro !== null, true));
-        $database->prepare('INSERT INTO `news_categories` (name, iconImage, color, meta) VALUES (?, ?, ?, ?)')->execute(["{$prefijo}-categoria", 'statics/images/zz-prueba.jpg', '#000000', json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
-        $categoriaNoticia = (int) $database->lastInsertId();
-        $categoriasNoticias[] = $categoriaNoticia;
-        $database->prepare('INSERT INTO `' . NewsMapper::TABLE . '` (newsTitle, profilesTarget, content, category, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-            ->execute(["{$prefijo}-noticia", '[]', $contenido, $categoriaNoticia, "{$prefijo}-noticia", $ahora, $rootID, 1, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
-        $noticia = (int) $database->lastInsertId();
-        $noticias[] = $noticia;
-        $edicion = $pedir($camino(\News\Controllers\NewsController::routeName('forms-edit', ['id' => $noticia], true)), $jwtRoot, null, false, false);
-        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
-        preg_match('#<textarea name="content\[[a-z_-]+\]"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
-        $dentro = $campo[1] ?? null;
-        //El div del editor de noticias pinta el contenido crudo (fuera de esta ronda): aquí solo se mira el textarea.
-        $check($edicion['status'] === 200 && $dentro !== null && str_contains($dentro, '&lt;/textarea&gt;') && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === $contenido, 'c7 el textarea de la noticia lleva el contenido escapado y, decodificado, tal cual', "HTTP {$edicion['status']}, campo " . var_export($dentro !== null, true));
-        $database->prepare('INSERT INTO `forms_document_types` (documentTypeName, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?)')->execute(["{$prefijo}-tipo", "{$prefijo}-tipo", 1, $ahora, $rootID, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
-        $tipoDocumento = (int) $database->lastInsertId();
-        $tiposDocumento[] = $tipoDocumento;
-        $descripcion = '</textarea><script>zzDoc()</script>';
-        $database->prepare('INSERT INTO `' . DocumentsMapper::TABLE . '` (documentType, documentName, description, document, documentImage, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-            ->execute([$tipoDocumento, "{$prefijo}-documento", $descripcion, 'statics/images/zz-prueba.jpg', 'statics/images/zz-prueba.jpg', "{$prefijo}-documento", 1, $ahora, $rootID, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
-        $documento = (int) $database->lastInsertId();
-        $documentos[] = $documento;
-        $edicion = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-edit', ['id' => $documento, 'lang' => $lang], true)), $jwtRoot, null, false, false);
-        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
-        preg_match('#<textarea name="description"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
-        $dentro = $campo[1] ?? null;
-        $check($edicion['status'] === 200 && !str_contains($edicion['body'], '</textarea><script>zzDoc()') && $dentro !== null && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === $descripcion, 'c8 la descripción del documento no se sale de su textarea', "HTTP {$edicion['status']}, campo " . var_export($dentro !== null, true));
+        if (!$omitir('c7', \News\NewsRoutes::class)) {
+            $database->prepare('INSERT INTO `news_categories` (name, iconImage, color, meta) VALUES (?, ?, ?, ?)')->execute(["{$prefijo}-categoria", 'statics/images/zz-prueba.jpg', '#000000', json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
+            $categoriaNoticia = (int) $database->lastInsertId();
+            $categoriasNoticias[] = $categoriaNoticia;
+            $database->prepare('INSERT INTO `' . NewsMapper::TABLE . '` (newsTitle, profilesTarget, content, category, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                ->execute(["{$prefijo}-noticia", '[]', $contenido, $categoriaNoticia, "{$prefijo}-noticia", $ahora, $rootID, 1, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
+            $noticia = (int) $database->lastInsertId();
+            $noticias[] = $noticia;
+            $edicion = $pedir($camino(\News\Controllers\NewsController::routeName('forms-edit', ['id' => $noticia], true)), $jwtRoot, null, false, false);
+            //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
+            preg_match('#<textarea name="content\[[a-z_-]+\]"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
+            $dentro = $campo[1] ?? null;
+            //El div del editor de noticias pinta el contenido crudo (fuera de esta ronda): aquí solo se mira el textarea.
+            $check($edicion['status'] === 200 && $dentro !== null && str_contains($dentro, '&lt;/textarea&gt;') && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === $contenido, 'c7 el textarea de la noticia lleva el contenido escapado y, decodificado, tal cual', "HTTP {$edicion['status']}, campo " . var_export($dentro !== null, true));
+        }
+        if (!$omitir('c8', \Documents\DocumentsRoutes::class)) {
+            $database->prepare('INSERT INTO `forms_document_types` (documentTypeName, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?)')->execute(["{$prefijo}-tipo", "{$prefijo}-tipo", 1, $ahora, $rootID, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
+            $tipoDocumento = (int) $database->lastInsertId();
+            $tiposDocumento[] = $tipoDocumento;
+            $descripcion = '</textarea><script>zzDoc()</script>';
+            $database->prepare('INSERT INTO `' . DocumentsMapper::TABLE . '` (documentType, documentName, description, document, documentImage, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                ->execute([$tipoDocumento, "{$prefijo}-documento", $descripcion, 'statics/images/zz-prueba.jpg', 'statics/images/zz-prueba.jpg', "{$prefijo}-documento", 1, $ahora, $rootID, json_encode(['baseLang' => $lang, 'langData' => new \stdClass])]);
+            $documento = (int) $database->lastInsertId();
+            $documentos[] = $documento;
+            $edicion = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-edit', ['id' => $documento, 'lang' => $lang], true)), $jwtRoot, null, false, false);
+            //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
+            preg_match('#<textarea name="description"[^>]*>(.*?)</textarea>#s', $edicion['body'], $campo);
+            $dentro = $campo[1] ?? null;
+            $check($edicion['status'] === 200 && !str_contains($edicion['body'], '</textarea><script>zzDoc()') && $dentro !== null && html_entity_decode($dentro, ENT_QUOTES | ENT_HTML5, 'UTF-8') === $descripcion, 'c8 la descripción del documento no se sale de su textarea', "HTTP {$edicion['status']}, campo " . var_export($dentro !== null, true));
+        }
 
         //──── [e] El boletín ───────────────────────────────────────────────────────────────
         echoTerminal('');
         echoTerminal('[e] La suscripción pública exige un correo válido, y el listado del panel lo escapa');
-        $rutaAlta = $camino(\Newsletter\Controllers\NewsletterController::routeName('add', [], true));
-        $malo = '<img src=x onerror=zzNl()>@zz.test';
-        $alta = $pedir($rutaAlta, null, ['email' => $malo]);
-        $guardados = (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE email = ' . $database->quote($malo))->fetchColumn();
-        $datos = json_decode($alta['body'], true);
-        $check($guardados === 0 && ($datos['success'] ?? null) !== true, 'e1 un alta anónima con «<img …>@zz.test» se rechaza y no se guarda', "HTTP {$alta['status']}, guardados {$guardados}");
-        //El alta no envía correo (addSuscriber solo guarda): el buzón es de mailinator igual.
-        $bueno = $prefijo . '@mailinator.com';
-        echoTerminal("   correo del alta válida (no se envía nada): {$bueno}");
-        $alta = $pedir($rutaAlta, null, ['email' => $bueno]);
-        $idBueno = (int) $database->query('SELECT id FROM `newsletter_sucribers` WHERE email = ' . $database->quote($bueno))->fetchColumn();
-        if ($idBueno > 0) {
-            $suscriptores[] = $idBueno;
+        $rutaAlta = '';
+        if (!$omitir('e1-e3', \Newsletter\NewsletterRoutes::class)) {
+            $rutaAlta = $camino(\Newsletter\Controllers\NewsletterController::routeName('add', [], true));
+            $malo = '<img src=x onerror=zzNl()>@zz.test';
+            $alta = $pedir($rutaAlta, null, ['email' => $malo]);
+            $guardados = (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE email = ' . $database->quote($malo))->fetchColumn();
+            $datos = json_decode($alta['body'], true);
+            $check($guardados === 0 && ($datos['success'] ?? null) !== true, 'e1 un alta anónima con «<img …>@zz.test» se rechaza y no se guarda', "HTTP {$alta['status']}, guardados {$guardados}");
+            //El alta no envía correo (addSuscriber solo guarda): el buzón es de mailinator igual.
+            $bueno = $prefijo . '@mailinator.com';
+            echoTerminal("   correo del alta válida (no se envía nada): {$bueno}");
+            $alta = $pedir($rutaAlta, null, ['email' => $bueno]);
+            $idBueno = (int) $database->query('SELECT id FROM `newsletter_sucribers` WHERE email = ' . $database->quote($bueno))->fetchColumn();
+            if ($idBueno > 0) {
+                $suscriptores[] = $idBueno;
+            }
+            $check($idBueno > 0, 'e2 CANARIO: un correo válido se suscribe', "HTTP {$alta['status']}");
+            //Un registro de antes de la validación, con ese correo: el listado lo pinta escapado.
+            $viejo = new NewsletterSuscriberMapper();
+            $viejo->name = "{$prefijo}-viejo<b>";
+            $viejo->email = $malo;
+            $viejo->acceptUpdates = NewsletterSuscriberMapper::ACCEPT_UPDATES_YES;
+            $viejo->save();
+            $idViejo = (int) $database->query('SELECT id FROM `newsletter_sucribers` WHERE email = ' . $database->quote($malo))->fetchColumn();
+            if ($idViejo > 0) {
+                $suscriptores[] = $idViejo;
+            }
+            $listado = $pedir($camino(\Newsletter\Controllers\NewsletterController::routeName('datatables', [], true)) . '?' . http_build_query(['draw' => 1, 'start' => 0, 'length' => 5000]), $jwtRoot);
+            $filas = json_decode($listado['body'], true);
+            $celdas = '';
+            foreach ((is_array($filas) && is_array($filas['data'] ?? null) ? $filas['data'] : []) as $fila) {
+                $celdas .= implode(' ', array_map(fn ($c) => is_scalar($c) ? (string) $c : '', is_array($fila) ? $fila : []));
+            }
+            $check($idViejo > 0 && !str_contains($celdas, $malo) && str_contains($celdas, $escapar($malo)) && str_contains($celdas, $escapar("{$prefijo}-viejo<b>")), 'e3 el listado pinta escapados el correo y el nombre de un registro viejo', "HTTP {$listado['status']}, crudo " . var_export(str_contains($celdas, $malo), true));
         }
-        $check($idBueno > 0, 'e2 CANARIO: un correo válido se suscribe', "HTTP {$alta['status']}");
-        //Un registro de antes de la validación, con ese correo: el listado lo pinta escapado.
-        $viejo = new NewsletterSuscriberMapper();
-        $viejo->name = "{$prefijo}-viejo<b>";
-        $viejo->email = $malo;
-        $viejo->acceptUpdates = NewsletterSuscriberMapper::ACCEPT_UPDATES_YES;
-        $viejo->save();
-        $idViejo = (int) $database->query('SELECT id FROM `newsletter_sucribers` WHERE email = ' . $database->quote($malo))->fetchColumn();
-        if ($idViejo > 0) {
-            $suscriptores[] = $idViejo;
-        }
-        $listado = $pedir($camino(\Newsletter\Controllers\NewsletterController::routeName('datatables', [], true)) . '?' . http_build_query(['draw' => 1, 'start' => 0, 'length' => 5000]), $jwtRoot);
-        $filas = json_decode($listado['body'], true);
-        $celdas = '';
-        foreach ((is_array($filas) && is_array($filas['data'] ?? null) ? $filas['data'] : []) as $fila) {
-            $celdas .= implode(' ', array_map(fn ($c) => is_scalar($c) ? (string) $c : '', is_array($fila) ? $fila : []));
-        }
-        $check($idViejo > 0 && !str_contains($celdas, $malo) && str_contains($celdas, $escapar($malo)) && str_contains($celdas, $escapar("{$prefijo}-viejo<b>")), 'e3 el listado pinta escapados el correo y el nombre de un registro viejo', "HTTP {$listado['status']}, crudo " . var_export(str_contains($celdas, $malo), true));
 
         //──── [f] La contraseña SMTP y la clave de osTicket ─────────────────────────────────
         echoTerminal('');
@@ -442,23 +468,25 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         echoTerminal('');
         echoTerminal('[g] Un correo con comilla se guarda y se reconoce por marcador; el nombre sale escapado; las credenciales, solo del principal');
         //Una comilla simple es legal en la parte local de un correo: con la consulta concatenada, rompía el literal.
-        $conComilla = "{$prefijo}.o'brien@mailinator.com";
-        echoTerminal("   correo con comilla del alta (no se envía nada): {$conComilla}");
-        $alta = $pedir($rutaAlta, null, ['email' => $conComilla]);
-        $datos = json_decode($alta['body'], true);
-        $idComilla = (int) $database->query('SELECT id FROM `newsletter_sucribers` WHERE email = ' . $database->quote($conComilla))->fetchColumn();
-        if ($idComilla > 0) {
-            $suscriptores[] = $idComilla;
+        if (!$omitir('g1-g4', \Newsletter\NewsletterRoutes::class)) {
+            $conComilla = "{$prefijo}.o'brien@mailinator.com";
+            echoTerminal("   correo con comilla del alta (no se envía nada): {$conComilla}");
+            $alta = $pedir($rutaAlta, null, ['email' => $conComilla]);
+            $datos = json_decode($alta['body'], true);
+            $idComilla = (int) $database->query('SELECT id FROM `newsletter_sucribers` WHERE email = ' . $database->quote($conComilla))->fetchColumn();
+            if ($idComilla > 0) {
+                $suscriptores[] = $idComilla;
+            }
+            $check($idComilla > 0 && ($datos['success'] ?? null) === true, 'g1 un alta anónima con o\'brien en la parte local se guarda', "HTTP {$alta['status']}");
+            $otra = $pedir($rutaAlta, null, ['email' => $conComilla]);
+            $datos = json_decode($otra['body'], true);
+            $repetidos = (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE email = ' . $database->quote($conComilla))->fetchColumn();
+            $check($otra['status'] === 200 && ($datos['success'] ?? null) !== true && $repetidos === 1, 'g2 la segunda igual no se guarda otra vez y responde sin error de servidor', "HTTP {$otra['status']}, filas {$repetidos}");
+            $check(NewsletterSuscriberMapper::existByEmail($conComilla) && !NewsletterSuscriberMapper::existByEmail("{$prefijo}.otro'@mailinator.com"), 'g3 existByEmail reconoce el correo con comilla, y no otro con comilla que no existe');
+            $database->prepare('UPDATE `newsletter_sucribers` SET name = ? WHERE id = ?')->execute(["{$prefijo}-suscriptor{$marca}", $suscriptor]);
+            $edicion = $pedir($camino(\Newsletter\Controllers\NewsletterController::routeName('forms-edit', ['id' => $suscriptor], true)), $jwtRoot, null, false, false);
+            $check($edicion['status'] === 200 && str_contains($edicion['body'], $escapar("{$prefijo}-suscriptor{$marca}")) && !str_contains($edicion['body'], "-suscriptor{$marca}"), 'g4 la edición del suscriptor pinta su nombre escapado', "HTTP {$edicion['status']}");
         }
-        $check($idComilla > 0 && ($datos['success'] ?? null) === true, 'g1 un alta anónima con o\'brien en la parte local se guarda', "HTTP {$alta['status']}");
-        $otra = $pedir($rutaAlta, null, ['email' => $conComilla]);
-        $datos = json_decode($otra['body'], true);
-        $repetidos = (int) $database->query('SELECT COUNT(*) FROM `newsletter_sucribers` WHERE email = ' . $database->quote($conComilla))->fetchColumn();
-        $check($otra['status'] === 200 && ($datos['success'] ?? null) !== true && $repetidos === 1, 'g2 la segunda igual no se guarda otra vez y responde sin error de servidor', "HTTP {$otra['status']}, filas {$repetidos}");
-        $check(NewsletterSuscriberMapper::existByEmail($conComilla) && !NewsletterSuscriberMapper::existByEmail("{$prefijo}.otro'@mailinator.com"), 'g3 existByEmail reconoce el correo con comilla, y no otro con comilla que no existe');
-        $database->prepare('UPDATE `newsletter_sucribers` SET name = ? WHERE id = ?')->execute(["{$prefijo}-suscriptor{$marca}", $suscriptor]);
-        $edicion = $pedir($camino(\Newsletter\Controllers\NewsletterController::routeName('forms-edit', ['id' => $suscriptor], true)), $jwtRoot, null, false, false);
-        $check($edicion['status'] === 200 && str_contains($edicion['body'], $escapar("{$prefijo}-suscriptor{$marca}")) && !str_contains($edicion['body'], "-suscriptor{$marca}"), 'g4 la edición del suscriptor pinta su nombre escapado', "HTTP {$edicion['status']}");
         //La acción de colores solo escribe sus opciones: un nombre y un valor de más, o una clave con el nombre de otra
         //opción, no llegan a ninguna fila. Cambiar el destino del correo y dejar el secreto vacío lo enviaría a otro servidor.
         $admin = new UsersModel();
@@ -713,17 +741,19 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         //──── [d] La longitud ──────────────────────────────────────────────────────────────
         echoTerminal('');
         echoTerminal('[d] La aprobación de una organización pinta su longitud en «Longitud»');
-        $database->prepare("INSERT INTO `{$tablaOrganizaciones}` (code, name, nit, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-            ->execute(['zz' . bin2hex(random_bytes(4)), "{$prefijo}-organizacion", 'zz-' . bin2hex(random_bytes(4)), "{$prefijo}-organizacion", $ahora, $rootID, OrganizationMapper::ACTIVE, json_encode(['baseLang' => $lang, 'langData' => new \stdClass, 'latitude' => 1.25, 'longitude' => 7.75])]);
-        $organizacion = (int) $database->lastInsertId();
-        $organizaciones[] = $organizacion;
-        $database->prepare("INSERT INTO `{$tablaAprobaciones}` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
-            ->execute(["{$prefijo}-organizacion", (string) $organizacion, $tablaOrganizaciones, $ahora, $ahora, $rootID, SystemApprovalsMapper::STATUS_PENDING]);
-        $filaOrganizacion = (int) $database->lastInsertId();
-        $aprobacion = $pedir($camino(\SystemApprovals\Controllers\SystemApprovalsController::routeName('forms-approval', ['id' => $filaOrganizacion], true)), $jwtRoot, null, false, false);
-        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
-        preg_match('#Longitud</div>\s*<div class="base-text">([^<]*)</div>#', $aprobacion['body'], $longitud);
-        $check(trim($longitud[1] ?? '') === '7.75', 'd1 «Longitud» pinta 7.75, la longitud, y no la latitud (1.25)', "HTTP {$aprobacion['status']}, pinta " . var_export($longitud[1] ?? null, true));
+        if (!$omitir('d1', \Organizations\OrganizationsRoutes::class, \SystemApprovals\SystemApprovalsRoutes::class)) {
+            $database->prepare("INSERT INTO `{$tablaOrganizaciones}` (code, name, nit, folder, createdAt, createdBy, status, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+                ->execute(['zz' . bin2hex(random_bytes(4)), "{$prefijo}-organizacion", 'zz-' . bin2hex(random_bytes(4)), "{$prefijo}-organizacion", $ahora, $rootID, OrganizationMapper::ACTIVE, json_encode(['baseLang' => $lang, 'langData' => new \stdClass, 'latitude' => 1.25, 'longitude' => 7.75])]);
+            $organizacion = (int) $database->lastInsertId();
+            $organizaciones[] = $organizacion;
+            $database->prepare("INSERT INTO `{$tablaAprobaciones}` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                ->execute(["{$prefijo}-organizacion", (string) $organizacion, $tablaOrganizaciones, $ahora, $ahora, $rootID, SystemApprovalsMapper::STATUS_PENDING]);
+            $filaOrganizacion = (int) $database->lastInsertId();
+            $aprobacion = $pedir($camino(\SystemApprovals\Controllers\SystemApprovalsController::routeName('forms-approval', ['id' => $filaOrganizacion], true)), $jwtRoot, null, false, false);
+            //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.
+            preg_match('#Longitud</div>\s*<div class="base-text">([^<]*)</div>#', $aprobacion['body'], $longitud);
+            $check(trim($longitud[1] ?? '') === '7.75', 'd1 «Longitud» pinta 7.75, la longitud, y no la latitud (1.25)', "HTTP {$aprobacion['status']}, pinta " . var_export($longitud[1] ?? null, true));
+        }
 
         //──── [n] Ubicaciones pinta escapado lo que viene de la base ─────────────────────────
         echoTerminal('');
@@ -751,6 +781,11 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             'n3 ciudades' => [\PiecesPHP\App\Locations\Controllers\City::class, 7],
             'n4 localidades' => [\PiecesPHP\App\Locations\Controllers\Point::class, 9],
         ];
+        //La siembra va igual (las tablas son del núcleo) para que la limpieza no cambie; solo se omiten las peticiones.
+        if (!LOCATIONS_ENABLED) {
+            echoTerminal('   [OMITIDO] n1-n6: LOCATIONS_ENABLED apagado');
+            $listados = [];
+        }
         foreach ($listados as $caso => [$controlador, $columnas]) {
             $r = $pedir($camino($controlador::routeName('datatables', [], true)) . $consultaListado($columnas), $jwtRoot);
             $filas = json_decode($r['body'], true)['data'] ?? [];
@@ -758,10 +793,12 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
             $check($r['status'] === 200 && !str_contains($celdas, $marca) && str_contains($celdas, $escapar($nombreUbicacion)), "{$caso}: el listado manda el nombre escapado al DataTable", "HTTP {$r['status']}, " . (is_array($filas) ? count($filas) : 0) . ' filas');
         }
         //La clave de la opción se compara con lo guardado para marcarla: escapada una y no lo otro, se pierde la selección.
-        $edicion = $pedir($camino(\PiecesPHP\App\Locations\Controllers\Country::routeName('forms-edit', ['id' => $paisUbicacion], true)), $jwtRoot, null, false, false);
-        $check($edicion['status'] === 200 && !str_contains($edicion['body'], $regionUbicacion) && str_contains($edicion['body'], "<option selected value='" . $escapar($regionUbicacion) . "'>" . $escapar($regionUbicacion) . '</option>'), 'n5 la edición del país pinta su región escapada y SELECCIONADA', "HTTP {$edicion['status']}");
-        $alta = $pedir($camino(\PiecesPHP\App\Locations\Controllers\Country::routeName('forms-add', [], true)), $jwtRoot, null, false, false);
-        $check($alta['status'] === 200 && !str_contains($alta['body'], $regionUbicacion) && str_contains($alta['body'], "value='" . $escapar($regionUbicacion) . "'>"), 'n6 el alta del país pinta la región escapada en el desplegable', "HTTP {$alta['status']}");
+        if (LOCATIONS_ENABLED) {
+            $edicion = $pedir($camino(\PiecesPHP\App\Locations\Controllers\Country::routeName('forms-edit', ['id' => $paisUbicacion], true)), $jwtRoot, null, false, false);
+            $check($edicion['status'] === 200 && !str_contains($edicion['body'], $regionUbicacion) && str_contains($edicion['body'], "<option selected value='" . $escapar($regionUbicacion) . "'>" . $escapar($regionUbicacion) . '</option>'), 'n5 la edición del país pinta su región escapada y SELECCIONADA', "HTTP {$edicion['status']}");
+            $alta = $pedir($camino(\PiecesPHP\App\Locations\Controllers\Country::routeName('forms-add', [], true)), $jwtRoot, null, false, false);
+            $check($alta['status'] === 200 && !str_contains($alta['body'], $regionUbicacion) && str_contains($alta['body'], "value='" . $escapar($regionUbicacion) . "'>"), 'n6 el alta del país pinta la región escapada en el desplegable', "HTTP {$alta['status']}");
+        }
     } finally {
         echoTerminal(' ');
         echoTerminal('[z] Limpieza');

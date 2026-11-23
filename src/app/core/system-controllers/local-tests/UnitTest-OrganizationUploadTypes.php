@@ -3,6 +3,8 @@
 //RUT y logo: un .svg o un .html se rechazan con un mensaje claro y sin registrar error; un anterior fuera de las subidas no se borra.
 //Por HTTP, como el encargado. Crea organización, usuarios y una copia en statics/images/, zz-; repone el logo versionado si cambia.
 //@areas src/app/classes/Organizations/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Controllers\OrganizationsController;

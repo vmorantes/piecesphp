@@ -93,6 +93,14 @@ class ScanMissingLangTask extends TerminalTaskAbstract
         $missingMessagesBaseFolderName = 'lang/missing-lang-messages';
         $missingMessagesBaseFolderPath = app_basepath("{$missingMessagesBaseFolderName}");
 
+        //PhpParser no viene con la aplicación: sin bin/tools/vendor (un proyecto recién clonado) se dice, no se lanza un Error.
+        if (!class_exists('\\PhpParser\\ParserFactory')) {
+            set_config('no_scan_langs', $noScanLangs);
+            echoTerminal("\e[31mNO CORRE:\e[39m {$titleTask} necesita PhpParser, que se instala en bin/tools y no está.");
+            echoTerminal('Instálalo una vez con: composer install --working-dir=bin/tools');
+            exit(2);
+        }
+
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
 

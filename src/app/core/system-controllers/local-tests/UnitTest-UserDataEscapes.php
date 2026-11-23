@@ -105,6 +105,23 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
     $escapado = function (string $html, string $clave, string $nombre, int $status) use ($check, $m, $crudo, $esc): bool {
         return $check($status === 200 && str_contains($html, $esc($m($clave))) && !str_contains($html, $crudo($clave)), $nombre, "HTTP {$status}, escapado " . var_export(str_contains($html, $esc($m($clave))), true) . ', crudo ' . var_export(str_contains($html, $crudo($clave)), true));
     };
+    //Apagado es lo que dice gates (GatesTask::moduleStates): se omite el caso, no la suite. Ni pasa ni falla.
+    $omitir = function (string $caso, array $modulos): bool {
+        $apagados = array_keys(array_filter($modulos, fn (bool $encendido): bool => !$encendido));
+        if ($apagados !== []) {
+            echoTerminal("   [OMITIDO] {$caso}: " . implode(' y ', $apagados) . (count($apagados) > 1 ? ' apagados' : ' apagado'));
+        }
+        return $apagados !== [];
+    };
+    $modOrganizaciones = ['Organizations' => \Organizations\OrganizationsRoutes::ENABLE];
+    $modDirectorio = ['Directory' => \Directory\DirectoryRoutes::ENABLE];
+    $modDocumentos = ['Documents' => \Documents\DocumentsRoutes::ENABLE];
+    $modTiposDocumento = ['Forms\DocumentTypes' => \Forms\DocumentTypes\DocumentTypesRoutes::ENABLE];
+    $modCategoriasFormularios = ['Forms\Categories' => \Forms\Categories\CategoriesRoutes::ENABLE];
+    $modNoticias = ['News' => \News\NewsRoutes::ENABLE];
+    $modBanner = ['Banner' => \PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes::ENABLE];
+    $modRegistro = ['EventsLog' => \EventsLog\LogsRoutes::ENABLE];
+    $modInformes = ['ReportsManage' => \ReportsManage\ReportsManageRoutes::ENABLE];
 
     $tablaUsuarios = UsersModel::TABLE;
     $tablaOrganizaciones = OrganizationMapper::TABLE;
@@ -343,8 +360,10 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             $r = $pedir($rutaPerfil, $jwtRoot);
             $escapado($r['body'], 'zzn', 'c1 profile/profile-not-completed.php: el nombre del usuario', $r['status']);
         }
-        $r = $pedir($rutaPerfilOrg, $jwtRoot);
-        $escapado($r['body'], 'zzo', 'c2 profile-organization/profile-not-completed.php: el nombre de la organización', $r['status']);
+        if (!$omitir('c2 perfil de organización incompleto', $modOrganizaciones)) {
+            $r = $pedir($rutaPerfilOrg, $jwtRoot);
+            $escapado($r['body'], 'zzo', 'c2 profile-organization/profile-not-completed.php: el nombre de la organización', $r['status']);
+        }
         $database->prepare("UPDATE `{$tablaPerfiles}` SET nationality = ? WHERE belongsTo = ?")->execute(['zz-nacionalidad', $adminID]);
         $database->prepare("UPDATE `{$tablaOrganizaciones}` SET logo = ? WHERE id = ?")->execute(['statics/images/zz-prueba.jpg', $orgID]);
         $perfil = ['body' => '', 'status' => 0];
@@ -356,10 +375,13 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
                 $escapado($perfil['body'], $clave, "c3 profile/profile.php: {$que}", $perfil['status']);
             }
         }
-        $perfilOrg = $pedir($rutaPerfilOrg, $jwtRoot);
-        //El contacto es el de la organización, no el de su encargado (#1433 H2).
-        foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzn' => 'el administrador', 'zzinst' => 'una institución', 'zzph' => 'el teléfono', 'zzie' => 'el correo informativo', 'zzowe' => 'la web', 'zzoli' => 'LinkedIn'] as $clave => $que) {
-            $escapado($perfilOrg['body'], $clave, "c4 profile-organization/profile.php: {$que}", $perfilOrg['status']);
+        $perfilOrg = ['body' => '', 'status' => 0];
+        if (!$omitir('c4 perfil de organización', $modOrganizaciones)) {
+            $perfilOrg = $pedir($rutaPerfilOrg, $jwtRoot);
+            //El contacto es el de la organización, no el de su encargado (#1433 H2).
+            foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzn' => 'el administrador', 'zzinst' => 'una institución', 'zzph' => 'el teléfono', 'zzie' => 'el correo informativo', 'zzowe' => 'la web', 'zzoli' => 'LinkedIn'] as $clave => $que) {
+                $escapado($perfilOrg['body'], $clave, "c4 profile-organization/profile.php: {$que}", $perfilOrg['status']);
+            }
         }
         if (!\Directory\DirectoryRoutes::ENABLE) {
             echoTerminal("   \e[33m[OMITIDA]\e[39m c5 y c6 de profile.php: esta instalación tiene Directorio apagado y no hay perfil de persona.");
@@ -367,8 +389,10 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             $check(!str_contains($perfil['body'], "href='javascript:") && str_contains($perfil['body'], $esc("javascript:zzWeb('" . $crudo('zzweb') . "')")), 'c5 profile.php: la web «javascript:» sale como texto, sin enlace', "HTTP {$perfil['status']}");
             $check(str_contains($perfil['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzlin')) . "'"), 'c6 profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfil['status']}");
         }
-        $check(!str_contains($perfilOrg['body'], "href='javascript:") && !str_contains($perfilOrg['body'], "href='" . $esc($m('zzowe'))) && str_contains($perfilOrg['body'], $esc($m('zzowe'))), 'c5 profile-organization/profile.php: la web sin http(s) sale como texto, sin enlace', "HTTP {$perfilOrg['status']}");
-        $check(str_contains($perfilOrg['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzoli')) . "'"), 'c6 profile-organization/profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfilOrg['status']}");
+        if (!$omitir('c5-c6 de profile-organization.php', $modOrganizaciones)) {
+            $check(!str_contains($perfilOrg['body'], "href='javascript:") && !str_contains($perfilOrg['body'], "href='" . $esc($m('zzowe'))) && str_contains($perfilOrg['body'], $esc($m('zzowe'))), 'c5 profile-organization/profile.php: la web sin http(s) sale como texto, sin enlace', "HTTP {$perfilOrg['status']}");
+            $check(str_contains($perfilOrg['body'], "href='" . $esc('https://zz.test/?q=' . $m('zzoli')) . "'"), 'c6 profile-organization/profile.php: CANARIO, LinkedIn con https sí es enlace, escapado', "HTTP {$perfilOrg['status']}");
+        }
 
         if (!\Directory\DirectoryRoutes::ENABLE) {
             echoTerminal("   \e[33m[OMITIDA]\e[39m c7: esta instalación tiene Directorio apagado y no hay perfil de persona.");
@@ -381,31 +405,36 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //──── [d] Mi organización y la asignación de administrador ─────────────────────────────
         echoTerminal('');
         echoTerminal('[d] El formulario de la organización propia y el de asignar administrador');
-        $rutaMiOrg = fn (int $id): string => $camino(\Organizations\Controllers\MyOrganizationProfileController::routeName('my-organization-profile', ['organizationID' => $id], true));
-        $miOrg = $pedir($rutaMiOrg($orgID), $jwtRoot);
-        foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzie' => 'el correo informativo', 'zzph' => 'el teléfono', 'zzoli' => 'LinkedIn', 'zzowe' => 'la web', 'zzn' => 'el administrador (y su opción)', 'zzm' => 'el correo del administrador', 'zzinst' => 'las instituciones (opción y valor)'] as $clave => $que) {
-            $escapado($miOrg['body'], $clave, "d1 my-organization-profile.php: {$que}", $miOrg['status']);
+        if (!$omitir('d1-d4', $modOrganizaciones)) {
+            $rutaMiOrg = fn (int $id): string => $camino(\Organizations\Controllers\MyOrganizationProfileController::routeName('my-organization-profile', ['organizationID' => $id], true));
+            $miOrg = $pedir($rutaMiOrg($orgID), $jwtRoot);
+            foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzie' => 'el correo informativo', 'zzph' => 'el teléfono', 'zzoli' => 'LinkedIn', 'zzowe' => 'la web', 'zzn' => 'el administrador (y su opción)', 'zzm' => 'el correo del administrador', 'zzinst' => 'las instituciones (opción y valor)'] as $clave => $que) {
+                $escapado($miOrg['body'], $clave, "d1 my-organization-profile.php: {$que}", $miOrg['status']);
+            }
+            $check(str_contains($miOrg['body'], "<option selected value='" . $esc($m('zzinst')) . "'>" . $esc($m('zzinst')) . '</option>') || str_contains($miOrg['body'], "<option selected  value='" . $esc($m('zzinst')) . "'>"), 'd2 y la institución guardada sigue marcada como elegida', 'sin la opción marcada');
+            $asignar = $pedir($rutaMiOrg($org2ID), $jwtRoot);
+            $escapado($asignar['body'], 'zzot', 'd3 my-organization-profile-assign-administrator.php: el nombre de la organización', $asignar['status']);
+            $escapado($asignar['body'], 'zzn2', 'd4 y el candidato a administrador en su opción', $asignar['status']);
         }
-        $check(str_contains($miOrg['body'], "<option selected value='" . $esc($m('zzinst')) . "'>" . $esc($m('zzinst')) . '</option>') || str_contains($miOrg['body'], "<option selected  value='" . $esc($m('zzinst')) . "'>"), 'd2 y la institución guardada sigue marcada como elegida', 'sin la opción marcada');
-        $asignar = $pedir($rutaMiOrg($org2ID), $jwtRoot);
-        $escapado($asignar['body'], 'zzot', 'd3 my-organization-profile-assign-administrator.php: el nombre de la organización', $asignar['status']);
-        $escapado($asignar['body'], 'zzn2', 'd4 y el candidato a administrador en su opción', $asignar['status']);
 
         //──── [e] La edición de la organización ─────────────────────────────────────────────
         echoTerminal('');
         echoTerminal('[e] La edición de la organización');
-        $edicionOrg = $pedir($camino(\Organizations\Controllers\OrganizationsController::routeName('forms-edit', ['id' => $orgID, 'lang' => $lang], true)), $jwtRoot);
-        foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzal' => 'una línea de acción añadida (opción y valor)', 'zzph' => 'el teléfono', 'zzie' => 'el correo informativo', 'zzoli' => 'LinkedIn', 'zzowe' => 'la web', 'zznit' => 'el NIT', 'zzaddr' => 'la dirección', 'zzbe' => 'el correo de facturación', 'zzn' => 'el administrador en su opción'] as $clave => $que) {
-            $escapado($edicionOrg['body'], $clave, "e1 organizations/forms/edit.php: {$que}", $edicionOrg['status']);
+        if (!$omitir('e1-e2', $modOrganizaciones)) {
+            $edicionOrg = $pedir($camino(\Organizations\Controllers\OrganizationsController::routeName('forms-edit', ['id' => $orgID, 'lang' => $lang], true)), $jwtRoot);
+            foreach (['zzo' => 'el nombre', 'zzs' => 'el sector', 'zzal' => 'una línea de acción añadida (opción y valor)', 'zzph' => 'el teléfono', 'zzie' => 'el correo informativo', 'zzoli' => 'LinkedIn', 'zzowe' => 'la web', 'zznit' => 'el NIT', 'zzaddr' => 'la dirección', 'zzbe' => 'el correo de facturación', 'zzn' => 'el administrador en su opción'] as $clave => $que) {
+                $escapado($edicionOrg['body'], $clave, "e1 organizations/forms/edit.php: {$que}", $edicionOrg['status']);
+            }
+            $check((bool) preg_match("#<option\s+selected\s+value='" . preg_quote($esc($m('zzal')), '#') . "'#", $edicionOrg['body']), 'e2 y la línea añadida sigue marcada como elegida');
         }
-        $check((bool) preg_match("#<option\s+selected\s+value='" . preg_quote($esc($m('zzal')), '#') . "'#", $edicionOrg['body']), 'e2 y la línea añadida sigue marcada como elegida');
 
         //──── [f] Usuarios: formularios por tipo y la tarjeta del listado ───────────────────────
         echoTerminal('');
         echoTerminal('[f] Los formularios de usuario por tipo y la tarjeta del listado');
         //El {type} del alta va firmado, como lo arma la pantalla de selección (UsersController::selectionTypeToCreate).
         $tipoCifrado = fn (int $tipo): string => \PiecesPHP\UserSystem\Controllers\UsersController::signedType($tipo);
-        foreach ([UsersModel::TYPE_USER_ADMIN_ORG => 'admin-organization', UsersModel::TYPE_USER_COMUNICACIONES => 'comunicaciones', UsersModel::TYPE_USER_GENERAL => 'general', UsersModel::TYPE_USER_INSTITUCIONAL => 'institucional'] as $tipo => $carpeta) {
+        //Sin Organizations el selector no lista organizaciones y el administrador de organización no tiene rol.
+        foreach ($omitir('f1-f2', $modOrganizaciones) ? [] : [UsersModel::TYPE_USER_ADMIN_ORG => 'admin-organization', UsersModel::TYPE_USER_COMUNICACIONES => 'comunicaciones', UsersModel::TYPE_USER_GENERAL => 'general', UsersModel::TYPE_USER_INSTITUCIONAL => 'institucional'] as $tipo => $carpeta) {
             $r = $pedir($camino(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-create', ['type' => $tipoCifrado($tipo)], true)), $jwtRoot);
             $escapado($r['body'], 'zzo', "f1 form-by-type/create/{$carpeta}: la organización en su opción", $r['status']);
             $r = $pedir($camino(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-edit', ['id' => $porTipo[$tipo]], true)), $jwtRoot);
@@ -417,7 +446,11 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         }
         $tarjetas = $pedir($camino(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('datatables', [], true)), $jwtRoot, $tabla);
         $celdas = $celdasDe($tarjetas['body'], 'rawData');
-        foreach (['zzn' => 'el nombre', 'zzu' . $sufijo => 'el usuario', 'zzm' => 'el correo', 'zzo' => 'la organización'] as $clave => $que) {
+        $clavesTarjeta = ['zzn' => 'el nombre', 'zzu' . $sufijo => 'el usuario', 'zzm' => 'el correo', 'zzo' => 'la organización'];
+        if ($omitir('f4 la organización en la tarjeta', $modOrganizaciones)) {
+            unset($clavesTarjeta['zzo']);
+        }
+        foreach ($clavesTarjeta as $clave => $que) {
             $escapado($celdas, $clave, "f4 usuarios/utils/user-card.php: {$que}", $tarjetas['status']);
         }
 
@@ -434,56 +467,64 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             ->execute([$tipoID, $m('zzdn'), $m('zzdd'), 'statics/images/zz-prueba.jpg', 'statics/images/zz-prueba.jpg', "{$prefijo}-documento", 1, $ahora, $rootID, $meta()]);
         $documentoID = (int) $database->lastInsertId();
         $documentos[] = $documentoID;
-        $r = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-add', [], true)), $jwtRoot);
-        $escapado($r['body'], 'zzdt', 'g1 documents/forms/add.php: el tipo de documento en su opción', $r['status']);
-        $r = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-edit', ['id' => $documentoID, 'lang' => $lang], true)), $jwtRoot);
-        $escapado($r['body'], 'zzdn', 'g2 documents/forms/edit.php: el nombre del documento', $r['status']);
-        $escapado($r['body'], 'zzdt', 'g3 y el tipo en su opción', $r['status']);
-        $explorador = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('datatables-explorer', [], true)), $jwtRoot, $tabla);
-        $celdas = $celdasDe($explorador['body'], 'rawData');
-        foreach (['zzdn' => 'el nombre', 'zzdd' => 'la descripción', 'zzdt' => 'el tipo'] as $clave => $que) {
-            $escapado($celdas, $clave, "g4 documents/util/item-explorer.php: {$que}", $explorador['status']);
+        if (!$omitir('g1-g4', $modDocumentos)) {
+            $r = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-add', [], true)), $jwtRoot);
+            $escapado($r['body'], 'zzdt', 'g1 documents/forms/add.php: el tipo de documento en su opción', $r['status']);
+            $r = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-edit', ['id' => $documentoID, 'lang' => $lang], true)), $jwtRoot);
+            $escapado($r['body'], 'zzdn', 'g2 documents/forms/edit.php: el nombre del documento', $r['status']);
+            $escapado($r['body'], 'zzdt', 'g3 y el tipo en su opción', $r['status']);
+            $explorador = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('datatables-explorer', [], true)), $jwtRoot, $tabla);
+            $celdas = $celdasDe($explorador['body'], 'rawData');
+            foreach (['zzdn' => 'el nombre', 'zzdd' => 'la descripción', 'zzdt' => 'el tipo'] as $clave => $que) {
+                $escapado($celdas, $clave, "g4 documents/util/item-explorer.php: {$que}", $explorador['status']);
+            }
         }
-        $r = $pedir($camino(\Forms\DocumentTypes\Controllers\DocumentTypesController::routeName('forms-edit', ['id' => $tipoID, 'lang' => $lang], true)), $jwtRoot);
-        $escapado($r['body'], 'zzdt', 'g5 Forms/DocumentTypes/forms/edit.php: el nombre del tipo', $r['status']);
-        $r = $pedir($camino(\Forms\Categories\Controllers\CategoriesController::routeName('forms-edit', ['id' => $categoriaFormID, 'lang' => $lang], true)), $jwtRoot);
-        $escapado($r['body'], 'zzcat', 'g6 Forms/Categories/forms/edit.php: el nombre de la categoría', $r['status']);
+        if (!$omitir('g5', $modTiposDocumento)) {
+            $r = $pedir($camino(\Forms\DocumentTypes\Controllers\DocumentTypesController::routeName('forms-edit', ['id' => $tipoID, 'lang' => $lang], true)), $jwtRoot);
+            $escapado($r['body'], 'zzdt', 'g5 Forms/DocumentTypes/forms/edit.php: el nombre del tipo', $r['status']);
+        }
+        if (!$omitir('g6', $modCategoriasFormularios)) {
+            $r = $pedir($camino(\Forms\Categories\Controllers\CategoriesController::routeName('forms-edit', ['id' => $categoriaFormID, 'lang' => $lang], true)), $jwtRoot);
+            $escapado($r['body'], 'zzcat', 'g6 Forms/Categories/forms/edit.php: el nombre de la categoría', $r['status']);
+        }
 
         //──── [j] El nombre del archivo subido a Documents ─────────────────────────────────────
         //La subida guarda el nombre del navegador tal cual (handlerUpload); aquí Apache no puede subir: se siembra la fila.
         echoTerminal('');
         echoTerminal('[j] El nombre del archivo subido sale escapado, en el texto y en el enlace');
-        $carpetaSubida = "{$prefijo}-subida";
-        $nombreArchivo = "zz-doc'" . '"' . $crudo('zzfile') . ' ñ.txt';
-        $raizDocumentos = append_to_path_system((string) get_config('upload_dir'), \Documents\Controllers\DocumentsController::UPLOAD_DIR);
-        $urlDocumentos = trim(str_replace(base_url(), '', append_to_url((string) get_config('upload_dir_url'), \Documents\Controllers\DocumentsController::UPLOAD_DIR)), '/');
-        $dirSubida = append_to_path_system($raizDocumentos, $carpetaSubida);
-        $carpetasSubidas[] = $carpetaSubida;
-        //Nace privado, como lo deja moveUploadedToPrivate: el nombre público más el sufijo.
-        //Solo la subcarpeta: crear la raíz con el usuario del terminal dejaría al servidor web sin poder subir.
-        $creado = is_dir($raizDocumentos) && (is_dir($dirSubida) || mkdir($dirSubida, 0755)) && file_put_contents(\PiecesPHP\Core\Statics\ProtectedUploads::privatePath($dirSubida . '/' . $nombreArchivo), 'zz-contenido-del-documento') !== false;
-        $check($creado, 'j0 el archivo de la prueba existe en disco con el nombre del navegador', $dirSubida);
-        $rutaGuardada = "{$urlDocumentos}/{$carpetaSubida}/{$nombreArchivo}";
-        $database->prepare('INSERT INTO `' . DocumentsMapper::TABLE . '` (documentType, documentName, description, document, documentImage, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-            ->execute([$tipoID, "{$prefijo}-subido", 'zz', $rutaGuardada, '', $carpetaSubida, 1, $ahora, $rootID, $meta()]);
-        $subidoID = (int) $database->lastInsertId();
-        $documentos[] = $subidoID;
-        $explorador = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('datatables-explorer', [], true)), $jwtRoot, $tabla);
-        $celdas = $celdasDe($explorador['body'], 'rawData');
-        $edicion = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-edit', ['id' => $subidoID, 'lang' => $lang], true)), $jwtRoot);
-        $check(str_contains($celdas, $esc($nombreArchivo)) && !str_contains($celdas, $crudo('zzfile')), 'j1 item-explorer.php: el nombre sale escapado en el texto y en ningún sitio crudo', "HTTP {$explorador['status']}");
-        $check($edicion['status'] === 200 && !str_contains($edicion['body'], $crudo('zzfile')), 'j2 documents/forms/edit.php: el enlace no lleva el nombre crudo', "HTTP {$edicion['status']}");
-        //CANARIO con un nombre que se sirve: el servido no decodifica la URL, y un espacio, ñ o <> no baja ni antes ni ahora.
-        $creado = $creado && file_put_contents(\PiecesPHP\Core\Statics\ProtectedUploads::privatePath($dirSubida . '/zz-doc-plano.txt'), 'zz-contenido-del-documento') !== false;
-        $database->prepare('INSERT INTO `' . DocumentsMapper::TABLE . '` (documentType, documentName, description, document, documentImage, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-            ->execute([$tipoID, "{$prefijo}-plano", 'zz', "{$urlDocumentos}/{$carpetaSubida}/zz-doc-plano.txt", '', $carpetaSubida, 1, $ahora, $rootID, $meta()]);
-        $documentos[] = (int) $database->lastInsertId();
-        $celdas = $celdasDe($pedir($camino(\Documents\Controllers\DocumentsController::routeName('datatables-explorer', [], true)), $jwtRoot, $tabla)['body'], 'rawData');
-        //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso falla.
-        preg_match('#<a class="ui bottom attached button" target="_blank" rel="noopener" href="([^"]*zz-doc-plano\.txt)"#', $celdas, $enlace);
-        $href = html_entity_decode($enlace[1] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $descarga = $href !== '' ? $pedir($camino(str_contains($href, '://') ? $href : '/' . ltrim($href, '/')), $jwtRoot) : ['status' => 0, 'body' => ''];
-        $check($creado && $descarga['status'] === 200 && $descarga['body'] === 'zz-contenido-del-documento', 'j3 CANARIO: el enlace del explorador descarga el archivo', "HTTP {$descarga['status']}, href " . mb_substr($href, -70));
+        if (!$omitir('j0-j3', $modDocumentos)) {
+            $carpetaSubida = "{$prefijo}-subida";
+            $nombreArchivo = "zz-doc'" . '"' . $crudo('zzfile') . ' ñ.txt';
+            $raizDocumentos = append_to_path_system((string) get_config('upload_dir'), \Documents\Controllers\DocumentsController::UPLOAD_DIR);
+            $urlDocumentos = trim(str_replace(base_url(), '', append_to_url((string) get_config('upload_dir_url'), \Documents\Controllers\DocumentsController::UPLOAD_DIR)), '/');
+            $dirSubida = append_to_path_system($raizDocumentos, $carpetaSubida);
+            $carpetasSubidas[] = $carpetaSubida;
+            //Nace privado, como lo deja moveUploadedToPrivate: el nombre público más el sufijo.
+            //Solo la subcarpeta: crear la raíz con el usuario del terminal dejaría al servidor web sin poder subir.
+            $creado = is_dir($raizDocumentos) && (is_dir($dirSubida) || mkdir($dirSubida, 0755)) && file_put_contents(\PiecesPHP\Core\Statics\ProtectedUploads::privatePath($dirSubida . '/' . $nombreArchivo), 'zz-contenido-del-documento') !== false;
+            $check($creado, 'j0 el archivo de la prueba existe en disco con el nombre del navegador', $dirSubida);
+            $rutaGuardada = "{$urlDocumentos}/{$carpetaSubida}/{$nombreArchivo}";
+            $database->prepare('INSERT INTO `' . DocumentsMapper::TABLE . '` (documentType, documentName, description, document, documentImage, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                ->execute([$tipoID, "{$prefijo}-subido", 'zz', $rutaGuardada, '', $carpetaSubida, 1, $ahora, $rootID, $meta()]);
+            $subidoID = (int) $database->lastInsertId();
+            $documentos[] = $subidoID;
+            $explorador = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('datatables-explorer', [], true)), $jwtRoot, $tabla);
+            $celdas = $celdasDe($explorador['body'], 'rawData');
+            $edicion = $pedir($camino(\Documents\Controllers\DocumentsController::routeName('forms-edit', ['id' => $subidoID, 'lang' => $lang], true)), $jwtRoot);
+            $check(str_contains($celdas, $esc($nombreArchivo)) && !str_contains($celdas, $crudo('zzfile')), 'j1 item-explorer.php: el nombre sale escapado en el texto y en ningún sitio crudo', "HTTP {$explorador['status']}");
+            $check($edicion['status'] === 200 && !str_contains($edicion['body'], $crudo('zzfile')), 'j2 documents/forms/edit.php: el enlace no lleva el nombre crudo', "HTTP {$edicion['status']}");
+            //CANARIO con un nombre que se sirve: el servido no decodifica la URL, y un espacio, ñ o <> no baja ni antes ni ahora.
+            $creado = $creado && file_put_contents(\PiecesPHP\Core\Statics\ProtectedUploads::privatePath($dirSubida . '/zz-doc-plano.txt'), 'zz-contenido-del-documento') !== false;
+            $database->prepare('INSERT INTO `' . DocumentsMapper::TABLE . '` (documentType, documentName, description, document, documentImage, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                ->execute([$tipoID, "{$prefijo}-plano", 'zz', "{$urlDocumentos}/{$carpetaSubida}/zz-doc-plano.txt", '', $carpetaSubida, 1, $ahora, $rootID, $meta()]);
+            $documentos[] = (int) $database->lastInsertId();
+            $celdas = $celdasDe($pedir($camino(\Documents\Controllers\DocumentsController::routeName('datatables-explorer', [], true)), $jwtRoot, $tabla)['body'], 'rawData');
+            //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso falla.
+            preg_match('#<a class="ui bottom attached button" target="_blank" rel="noopener" href="([^"]*zz-doc-plano\.txt)"#', $celdas, $enlace);
+            $href = html_entity_decode($enlace[1] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $descarga = $href !== '' ? $pedir($camino(str_contains($href, '://') ? $href : '/' . ltrim($href, '/')), $jwtRoot) : ['status' => 0, 'body' => ''];
+            $check($creado && $descarga['status'] === 200 && $descarga['body'] === 'zz-contenido-del-documento', 'j3 CANARIO: el enlace del explorador descarga el archivo', "HTTP {$descarga['status']}, href " . mb_substr($href, -70));
+        }
 
         //──── [h] El geovisor ──────────────────────────────────────────────────────────────
         //Los puntos y el detalle viajan en JSON tal cual: el cliente los pone con textContent.
@@ -495,10 +536,12 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             $r = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('viewer', [], true)), $jwtRoot);
             $check($r['status'] === 200 && !str_contains($r['body'], $crudo('zzo')), 'h1 Geo/Views/viewer.php: la organización no sale cruda en la pantalla', "HTTP {$r['status']}");
             //Las opciones del filtro llegan al escribir (GeoController::filterOptions) y Fomantic pinta su name como HTML.
-            $opciones = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('filter-options', ['key' => 'organizations'], true)) . '?' . http_build_query(['search' => $m('zzo')]), $jwtRoot);
-            $nombresOpciones = implode("\n", array_column((array) (json_decode($opciones['body'], true)['results'] ?? []), 'name'));
-            $escapado($nombresOpciones, 'zzo', 'h1b GeoController::filterOptions: la organización en la opción de su filtro', $opciones['status']);
-            $puntos = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('points', [], true)) . '?' . http_build_query(['bbox' => '-75,10,-74,11', 'sources' => \Directory\DirectoryRoutes::ENABLE ? ['persons', 'organizations'] : ['organizations']]), $jwtRoot);
+            if (!$omitir('h1b', $modOrganizaciones)) {
+                $opciones = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('filter-options', ['key' => 'organizations'], true)) . '?' . http_build_query(['search' => $m('zzo')]), $jwtRoot);
+                $nombresOpciones = implode("\n", array_column((array) (json_decode($opciones['body'], true)['results'] ?? []), 'name'));
+                $escapado($nombresOpciones, 'zzo', 'h1b GeoController::filterOptions: la organización en la opción de su filtro', $opciones['status']);
+            }
+            $puntos = $pedir($camino(\PiecesPHP\Geo\Controllers\GeoController::routeName('points', [], true)) . '?' . http_build_query(['bbox' => '-75,10,-74,11', 'sources' => array_keys(array_filter(['persons' => \Directory\DirectoryRoutes::ENABLE, 'organizations' => \Organizations\OrganizationsRoutes::ENABLE]))]), $jwtRoot);
             $geo = json_decode($puntos['body'], true);
             $deFuente = ['persons' => null, 'organizations' => null];
             foreach ((is_array($geo) && is_array($geo['features'] ?? null) ? $geo['features'] : []) as $feature) {
@@ -516,7 +559,9 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             } else {
                 $check($sinHTML($deFuente['persons'], 'zzn'), 'h2 el punto de la persona: su nombre viaja tal cual, sin HTML que escapar en el servidor', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['persons']), 0, 200));
             }
-            $check($sinHTML($deFuente['organizations'], 'zzo'), 'h4 el de la organización, igual', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['organizations']), 0, 200));
+            if (!$omitir('h4', $modOrganizaciones)) {
+                $check($sinHTML($deFuente['organizations'], 'zzo'), 'h4 el de la organización, igual', "HTTP {$puntos['status']}, " . mb_substr((string) json_encode($deFuente['organizations']), 0, 200));
+            }
             if (!\Directory\DirectoryRoutes::ENABLE) {
                 echoTerminal("   \e[33m[OMITIDA]\e[39m h3: esta instalación tiene Directorio apagado y la fuente persons no está registrada.");
             } else {
@@ -534,16 +579,20 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             ->execute([$m('zzbt'), $rico, $m('zzbl'), 'statics/images/zz-prueba.jpg', '', 0, "{$prefijo}-banner", $ahora, $rootID, BuiltInBannerMapper::ACTIVE, $meta()]);
         $bannerID = (int) $database->lastInsertId();
         $banners[] = $bannerID;
-        $r = $pedir($camino(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-edit', ['id' => $bannerID, 'lang' => $lang], true)), $jwtRoot);
-        $escapado($r['body'], 'zzbt', 'i1 Banner/forms/edit.php: el título', $r['status']);
-        $escapado($r['body'], 'zzbl', 'i2 Banner/forms/edit.php: el enlace', $r['status']);
+        if (!$omitir('i1-i2', $modBanner)) {
+            $r = $pedir($camino(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-edit', ['id' => $bannerID, 'lang' => $lang], true)), $jwtRoot);
+            $escapado($r['body'], 'zzbt', 'i1 Banner/forms/edit.php: el título', $r['status']);
+            $escapado($r['body'], 'zzbl', 'i2 Banner/forms/edit.php: el enlace', $r['status']);
+        }
         $r = $pedir($camino(\Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $publicacionID], true)), $jwtRoot);
         $escapado($r['body'], 'zzn', 'i3 publications/forms/edit.php: el autor en su opción', $r['status']);
         //El registro de actividad, con un principal que lleva el marcador en el nombre. Desde el armazón (C4, ronda 2) la
         //pantalla ya no saluda: se mira que el nombre no salga crudo en ninguna parte de la página.
         $principalMarcado = $crearUsuario(UsersModel::TYPE_USER_ROOT, OrganizationMapper::INITIAL_ID_GLOBAL, $m('zzlog'), 'Zz', "{$prefijo}-log@example.com", "{$prefijo}-" . $m('zzlogu'));
-        $r = $pedir($camino(\EventsLog\Controllers\LogsController::routeName('list', [], true)), $jwtDe($principalMarcado));
-        $check($r['status'] === 200 && !str_contains($r['body'], $m('zzlog')), 'i4 EventsLog/log/list.php: el nombre marcado no sale crudo en la pantalla', "HTTP {$r['status']}");
+        if (!$omitir('i4', $modRegistro)) {
+            $r = $pedir($camino(\EventsLog\Controllers\LogsController::routeName('list', [], true)), $jwtDe($principalMarcado));
+            $check($r['status'] === 200 && !str_contains($r['body'], $m('zzlog')), 'i4 EventsLog/log/list.php: el nombre marcado no sale crudo en la pantalla', "HTTP {$r['status']}");
+        }
 
         //──── [k] Intentos de acceso y registro de actividad (listados por JSON) ──────────────
         echoTerminal('');
@@ -563,8 +612,10 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $informe = $pedir($camino(\PiecesPHP\UserSystem\Controllers\LoginAttemptsController::routeName('reports-ajax', ['type' => 'attempts'], true)), $jwtRoot, $tabla + ['xhr' => 'yes']);
         $escapado($celdasDe($informe['body']), 'zzlogin', 'k1 LoginAttemptsModel: el usuario tecleado sale escapado en el informe de intentos', $informe['status']);
         $database->prepare('INSERT INTO `actions_log` (textMessage, textMessageVariables, createdBy, createdAt) VALUES (?, ?, ?, ?)')->execute(['zz-registro', '[]', $principalMarcado, $ahora]);
-        $registro = $pedir($camino(\EventsLog\Controllers\LogsController::routeName('datatables', [], true)), $jwtRoot, $tabla);
-        $escapado($celdasDe($registro['body']), 'zzlogu', 'k2 LogsController: el usuario autor de una entrada del registro sale escapado', $registro['status']);
+        if (!$omitir('k2', $modRegistro)) {
+            $registro = $pedir($camino(\EventsLog\Controllers\LogsController::routeName('datatables', [], true)), $jwtRoot, $tabla);
+            $escapado($celdasDe($registro['body']), 'zzlogu', 'k2 LogsController: el usuario autor de una entrada del registro sale escapado', $registro['status']);
+        }
 
         //──── [l] Roles de contenido, dato propio, palabras clave, buscador y listado de usuarios ───
         echoTerminal('');
@@ -577,18 +628,20 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             ->execute([$m('zzntit'), '[]', $rico, $categoriaNoticiaID, "{$prefijo}-noticia", $ahora, $ahora, $rootID, 1, $meta()]);
         $noticiaID = (int) $database->lastInsertId();
         $noticias[] = $noticiaID;
-        $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
-        $escapado($r['body'], 'zzncat', 'l1 News/categories/forms/edit.php: el nombre de la categoría', $r['status']);
-        $r = $pedir($camino(\News\Controllers\NewsController::routeName('forms-add', [], true)), $jwtRoot);
-        $escapado($r['body'], 'zzncat', 'l2 News/news/forms/add.php: la categoría en su opción', $r['status']);
-        $edicionNoticia = $pedir($camino(\News\Controllers\NewsController::routeName('forms-edit', ['id' => $noticiaID], true)), $jwtRoot);
-        $escapado($edicionNoticia['body'], 'zzntit', 'l3 News/news/forms/edit.php: el título', $edicionNoticia['status']);
-        $escapado($edicionNoticia['body'], 'zzncat', 'l4 y la categoría en su opción', $edicionNoticia['status']);
-        $check(str_contains($edicionNoticia['body'], '">' . $rico . '</div>'), 'l5 CANARIO P106: el div del editor de la noticia pinta el contenido enriquecido tal cual', "HTTP {$edicionNoticia['status']}");
-        $tarjetaNoticia = (string) (new \PiecesPHP\Core\BaseController())->setInstanceViewDir(basepath('app/classes/News/Views/news/'))->render('public/util/item', ['element' => new \News\Mappers\NewsMapper($noticiaID), 'langGroup' => 'news'], false, false);
-        $escapado($tarjetaNoticia, 'zzntit', 'l6 News/news/public/util/item.php (en proceso): el título', 200);
-        $escapado($tarjetaNoticia, 'zzncat', 'l7 y la categoría en el alt', 200);
-        $check(str_contains($tarjetaNoticia, 'rico &amp; enlace') && !str_contains($tarjetaNoticia, '&amp;amp;'), 'l8 y el extracto del editor sale con su «&» escapado UNA vez', 'extracto');
+        if (!$omitir('l1-l8', $modNoticias)) {
+            $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
+            $escapado($r['body'], 'zzncat', 'l1 News/categories/forms/edit.php: el nombre de la categoría', $r['status']);
+            $r = $pedir($camino(\News\Controllers\NewsController::routeName('forms-add', [], true)), $jwtRoot);
+            $escapado($r['body'], 'zzncat', 'l2 News/news/forms/add.php: la categoría en su opción', $r['status']);
+            $edicionNoticia = $pedir($camino(\News\Controllers\NewsController::routeName('forms-edit', ['id' => $noticiaID], true)), $jwtRoot);
+            $escapado($edicionNoticia['body'], 'zzntit', 'l3 News/news/forms/edit.php: el título', $edicionNoticia['status']);
+            $escapado($edicionNoticia['body'], 'zzncat', 'l4 y la categoría en su opción', $edicionNoticia['status']);
+            $check(str_contains($edicionNoticia['body'], '">' . $rico . '</div>'), 'l5 CANARIO P106: el div del editor de la noticia pinta el contenido enriquecido tal cual', "HTTP {$edicionNoticia['status']}");
+            $tarjetaNoticia = (string) (new \PiecesPHP\Core\BaseController())->setInstanceViewDir(basepath('app/classes/News/Views/news/'))->render('public/util/item', ['element' => new \News\Mappers\NewsMapper($noticiaID), 'langGroup' => 'news'], false, false);
+            $escapado($tarjetaNoticia, 'zzntit', 'l6 News/news/public/util/item.php (en proceso): el título', 200);
+            $escapado($tarjetaNoticia, 'zzncat', 'l7 y la categoría en el alt', 200);
+            $check(str_contains($tarjetaNoticia, 'rico &amp; enlace') && !str_contains($tarjetaNoticia, '&amp;amp;'), 'l8 y el extracto del editor sale con su «&» escapado UNA vez', 'extracto');
+        }
         //Publicaciones: categoría, su tarjeta y el extracto del componente público.
         $database->prepare('INSERT INTO `publications_categories` (name, meta) VALUES (?, ?)')->execute([$m('zzpcat'), $meta()]);
         $categoriaPublicacionID = (int) $database->lastInsertId();
@@ -614,17 +667,19 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         }
         $check(str_contains($componente, 'rico &amp; enlace') && !str_contains($componente, '&amp;amp;') && !str_contains($componente, '<strong>rico'), 'l14 publications/public/util/components.php (en proceso): el extracto, escapado una vez y sin etiquetas', 'longitud ' . strlen($componente));
         //Lo propio: el administrador sembrado mira sus pantallas (y la barra superior de cada una).
-        $jwtAdmin = $jwtDe($adminID);
-        foreach (['my-profile/my-profile.php' => $camino(\MySpace\Controllers\MyProfileController::routeName('my-profile', [], true)), 'user-security.php' => $camino(\MySpace\Controllers\MySpaceController::routeName('user-security', [], true))] as $vista => $ruta) {
-            $r = $pedir($ruta, $jwtAdmin);
-            $escapado($r['body'], 'zzn', "l16 {$vista} y la barra superior: el nombre propio", $r['status']);
-            $escapado($r['body'], 'zzm', "l17 {$vista} y la barra superior: el correo propio", $r['status']);
+        if (!$omitir('l16-l20 del administrador de organización', $modOrganizaciones)) {
+            $jwtAdmin = $jwtDe($adminID);
+            foreach (['my-profile/my-profile.php' => $camino(\MySpace\Controllers\MyProfileController::routeName('my-profile', [], true)), 'user-security.php' => $camino(\MySpace\Controllers\MySpaceController::routeName('user-security', [], true))] as $vista => $ruta) {
+                $r = $pedir($ruta, $jwtAdmin);
+                $escapado($r['body'], 'zzn', "l16 {$vista} y la barra superior: el nombre propio", $r['status']);
+                $escapado($r['body'], 'zzm', "l17 {$vista} y la barra superior: el correo propio", $r['status']);
+            }
+            $r = $pedir($camino(\MySpace\Controllers\MyProfileController::routeName('my-profile', [], true)), $jwtAdmin);
+            $escapado($r['body'], 'zzjob', 'l18 my-profile.php: el cargo', $r['status']);
+            $escapado($r['body'], 'zzuinst', 'l19 my-profile.php: las instituciones', $r['status']);
+            $r = $pedir($camino(\MySpace\Controllers\MySpaceController::routeName('user-security', [], true)), $jwtAdmin);
+            $escapado($r['body'], 'zzu' . $sufijo, 'l20 user-security.php: el usuario', $r['status']);
         }
-        $r = $pedir($camino(\MySpace\Controllers\MyProfileController::routeName('my-profile', [], true)), $jwtAdmin);
-        $escapado($r['body'], 'zzjob', 'l18 my-profile.php: el cargo', $r['status']);
-        $escapado($r['body'], 'zzuinst', 'l19 my-profile.php: las instituciones', $r['status']);
-        $r = $pedir($camino(\MySpace\Controllers\MySpaceController::routeName('user-security', [], true)), $jwtAdmin);
-        $escapado($r['body'], 'zzu' . $sufijo, 'l20 user-security.php: el usuario', $r['status']);
         $jwtLog = $jwtDe($principalMarcado);
         //El panel redirige al administrador de organización: lo mira el principal marcado.
         foreach (['dashboard.php' => $camino(\PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('', [], true))] as $vista => $ruta) {
@@ -632,8 +687,10 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             $escapado($r['body'], 'zzlog', "l16 {$vista} y la barra superior: el nombre propio", $r['status']);
             $escapado($r['body'], 'zzlogu', "l17 {$vista} y la barra superior: el usuario propio", $r['status']);
         }
-        $r = $pedir($camino(\ReportsManage\Controllers\ReportsManageController::routeName('generic-report-view', [], true)), $jwtLog);
-        $escapado($r['body'], 'zzlog', 'l22 generic-report-view.php: el nombre en el subtítulo', $r['status']);
+        if (!$omitir('l22', $modInformes)) {
+            $r = $pedir($camino(\ReportsManage\Controllers\ReportsManageController::routeName('generic-report-view', [], true)), $jwtLog);
+            $escapado($r['body'], 'zzlog', 'l22 generic-report-view.php: el nombre en el subtítulo', $r['status']);
+        }
         //Las palabras clave del SEO, plantadas en su fila.
         $plantarOpcion('keywords', (string) json_encode([$m('zzkw')]));
         try {
@@ -655,19 +712,21 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         //──── [m] El texto del registro de actividad lleva el usuario por plantilla ─────────────
         echoTerminal('');
         echoTerminal('[m] Un usuario general con HTML en su usuario cierra sus sesiones; el registro lo pinta escapado');
-        $generalMarcado = $crearUsuario(UsersModel::TYPE_USER_GENERAL, $orgID, 'Zz', 'Registro', "{$prefijo}-rev@example.com", "{$prefijo}-" . $m('zzrev'));
-        $cierre = \Terminal\TestRun::curlInit();
-        \Terminal\TestRun::curlSetoptArray($cierre, [
-            CURLOPT_URL => $base . '/' . ltrim($camino(\MySpace\Controllers\MySpaceController::routeName('revoke-my-sessions', [], true)), '/'),
-            CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTPHEADER => ["{$cabeceraToken}: " . $jwtDe($generalMarcado), 'X-Requested-With: XMLHttpRequest'], CURLOPT_POST => true, CURLOPT_POSTFIELDS => '',
-        ]);
-        //RETORNO-IGNORADO: la respuesta no importa; m0 cuenta la entrada que dejó.
-        curl_exec($cierre);
-        $entradas = (int) $database->query("SELECT COUNT(*) FROM `actions_log` WHERE createdBy = {$generalMarcado}")->fetchColumn();
-        $check($entradas > 0, 'm0 medido: cerrar las propias sesiones deja la entrada en el registro, con el usuario dentro', "entradas {$entradas}");
-        $registro = $pedir($camino(\EventsLog\Controllers\LogsController::routeName('datatables', [], true)), $jwtRoot, $tabla);
-        $escapado($celdasDe($registro['body']), 'zzrev', 'm1 LogsController:160: el texto de la entrada lleva el usuario escapado', $registro['status']);
+        if (!$omitir('m0-m1', $modRegistro)) {
+            $generalMarcado = $crearUsuario(UsersModel::TYPE_USER_GENERAL, $orgID, 'Zz', 'Registro', "{$prefijo}-rev@example.com", "{$prefijo}-" . $m('zzrev'));
+            $cierre = \Terminal\TestRun::curlInit();
+            \Terminal\TestRun::curlSetoptArray($cierre, [
+                CURLOPT_URL => $base . '/' . ltrim($camino(\MySpace\Controllers\MySpaceController::routeName('revoke-my-sessions', [], true)), '/'),
+                CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTPHEADER => ["{$cabeceraToken}: " . $jwtDe($generalMarcado), 'X-Requested-With: XMLHttpRequest'], CURLOPT_POST => true, CURLOPT_POSTFIELDS => '',
+            ]);
+            //RETORNO-IGNORADO: la respuesta no importa; m0 cuenta la entrada que dejó.
+            curl_exec($cierre);
+            $entradas = (int) $database->query("SELECT COUNT(*) FROM `actions_log` WHERE createdBy = {$generalMarcado}")->fetchColumn();
+            $check($entradas > 0, 'm0 medido: cerrar las propias sesiones deja la entrada en el registro, con el usuario dentro', "entradas {$entradas}");
+            $registro = $pedir($camino(\EventsLog\Controllers\LogsController::routeName('datatables', [], true)), $jwtRoot, $tabla);
+            $escapado($celdasDe($registro['body']), 'zzrev', 'm1 LogsController:160: el texto de la entrada lleva el usuario escapado', $registro['status']);
+        }
 
         //──── [n] Los listados de contenido por JSON (bloque 2 de #1002) ───────────────────────
         echoTerminal('');
@@ -680,6 +739,11 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             'categorías de noticias' => [\News\Controllers\NewsCategoryController::routeName('datatables', [], true), ['zzncat' => 'el nombre', 'zznic' => 'el icono en src']],
             'publicaciones' => [\Publications\Controllers\PublicationsController::routeName('datatables', [], true), ['zzptit' => 'el título', 'zzu' . $sufijo => 'el autor']],
         ];
+        foreach (['banner' => $modBanner, 'noticias' => $modNoticias, 'categorías de noticias' => $modNoticias] as $listado => $modulo) {
+            if ($omitir("n1 listado de {$listado}", $modulo)) {
+                unset($listados[$listado]);
+            }
+        }
         foreach ($listados as $listado => [$ruta, $claves]) {
             $r = $pedir($camino($ruta), $jwtRoot, $tabla);
             $celdas = $celdasDe($r['body']);
@@ -694,30 +758,32 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $validador = \PiecesPHP\Core\Validation\Validator::class;
         $check($validador::isColor('#ABC') && $validador::isColor('#ABCDEF') && $validador::isColor('#ABCDEF80') && $validador::isColor('rgba(255, 0, 0, 0.5)') && $validador::isColor('rgb(1,2,3)'), 'o1 Validator::isColor() admite hex de 3, 6 y 8 cifras y rgb()/rgba()');
         $check(!$validador::isColor('') && !$validador::isColor('red') && !$validador::isColor('#123;background:url(x)') && !$validador::isColor("rgba(1,2,3,0.5)'") && !$validador::isColor(['#000']), 'o2 y rechaza el vacío, un nombre, CSS añadido, una comilla y un array');
-        $colorDe = fn (): string => (string) $database->query("SELECT color FROM `news_categories` WHERE id = {$categoriaNoticiaID}")->fetchColumn();
-        $rutaGuardarCategoria = $camino(\News\Controllers\NewsCategoryController::routeName('actions-edit', [], true));
-        $guardarCategoria = function (string $color) use ($base, $rutaGuardarCategoria, $cabeceraToken, $jwtRoot, $categoriaNoticiaID, $lang, $m): string {
-            $peticion = \Terminal\TestRun::curlInit();
-            \Terminal\TestRun::curlSetoptArray($peticion, [
-                CURLOPT_URL => $base . '/' . ltrim($rutaGuardarCategoria, '/'), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTPHEADER => ["{$cabeceraToken}: {$jwtRoot}", 'X-Requested-With: XMLHttpRequest'], CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => http_build_query(['id' => $categoriaNoticiaID, 'lang' => $lang, 'name' => $m('zzncat'), 'color' => $color]),
-            ]);
-            $respuesta = curl_exec($peticion);
-            return is_string($respuesta) ? $respuesta : '';
-        };
-        $antes = $colorDe();
-        $respuesta = $guardarCategoria('#123456;background:url(https://zz.test/x)');
-        $check($colorDe() === $antes, 'o3 un color con CSS añadido se rechaza al guardar y la fila no cambia', mb_substr($respuesta, 0, 120));
-        $respuesta = $guardarCategoria('rgba(10, 20, 30, 0.5)');
-        $check($colorDe() === 'rgba(10, 20, 30, 0.5)', 'o4 CANARIO: un rgba() del selector sí se guarda', mb_substr($respuesta, 0, 120));
-        //Una fila de antes de la validación.
-        $database->prepare('UPDATE `news_categories` SET color = ? WHERE id = ?')->execute(["red;}" . $crudo('zzcss') . "{", $categoriaNoticiaID]);
-        $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('datatables', [], true)), $jwtRoot, $tabla);
-        $celdas = $celdasDe($r['body']);
-        $check(!str_contains($celdas, 'zzcss') && str_contains($celdas, 'background-color: ' . \News\Mappers\NewsCategoryMapper::DEFAULT_COLOR . ';'), 'o5 el listado pinta el color de defecto en vez del plantado', "HTTP {$r['status']}");
-        $tarjetaNoticia = (string) (new \PiecesPHP\Core\BaseController())->setInstanceViewDir(basepath('app/classes/News/Views/news/'))->render('public/util/item', ['element' => new \News\Mappers\NewsMapper($noticiaID), 'langGroup' => 'news'], false, false);
-        $check(!str_contains($tarjetaNoticia, 'zzcss') && str_contains($tarjetaNoticia, '--category-color: ' . \News\Mappers\NewsCategoryMapper::DEFAULT_COLOR . ';'), 'o6 news/public/util/item.php (en proceso): también el de defecto', 'longitud ' . strlen($tarjetaNoticia));
+        if (!$omitir('o3-o6', $modNoticias)) {
+            $colorDe = fn (): string => (string) $database->query("SELECT color FROM `news_categories` WHERE id = {$categoriaNoticiaID}")->fetchColumn();
+            $rutaGuardarCategoria = $camino(\News\Controllers\NewsCategoryController::routeName('actions-edit', [], true));
+            $guardarCategoria = function (string $color) use ($base, $rutaGuardarCategoria, $cabeceraToken, $jwtRoot, $categoriaNoticiaID, $lang, $m): string {
+                $peticion = \Terminal\TestRun::curlInit();
+                \Terminal\TestRun::curlSetoptArray($peticion, [
+                    CURLOPT_URL => $base . '/' . ltrim($rutaGuardarCategoria, '/'), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTPHEADER => ["{$cabeceraToken}: {$jwtRoot}", 'X-Requested-With: XMLHttpRequest'], CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => http_build_query(['id' => $categoriaNoticiaID, 'lang' => $lang, 'name' => $m('zzncat'), 'color' => $color]),
+                ]);
+                $respuesta = curl_exec($peticion);
+                return is_string($respuesta) ? $respuesta : '';
+            };
+            $antes = $colorDe();
+            $respuesta = $guardarCategoria('#123456;background:url(https://zz.test/x)');
+            $check($colorDe() === $antes, 'o3 un color con CSS añadido se rechaza al guardar y la fila no cambia', mb_substr($respuesta, 0, 120));
+            $respuesta = $guardarCategoria('rgba(10, 20, 30, 0.5)');
+            $check($colorDe() === 'rgba(10, 20, 30, 0.5)', 'o4 CANARIO: un rgba() del selector sí se guarda', mb_substr($respuesta, 0, 120));
+            //Una fila de antes de la validación.
+            $database->prepare('UPDATE `news_categories` SET color = ? WHERE id = ?')->execute(["red;}" . $crudo('zzcss') . "{", $categoriaNoticiaID]);
+            $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('datatables', [], true)), $jwtRoot, $tabla);
+            $celdas = $celdasDe($r['body']);
+            $check(!str_contains($celdas, 'zzcss') && str_contains($celdas, 'background-color: ' . \News\Mappers\NewsCategoryMapper::DEFAULT_COLOR . ';'), 'o5 el listado pinta el color de defecto en vez del plantado', "HTTP {$r['status']}");
+            $tarjetaNoticia = (string) (new \PiecesPHP\Core\BaseController())->setInstanceViewDir(basepath('app/classes/News/Views/news/'))->render('public/util/item', ['element' => new \News\Mappers\NewsMapper($noticiaID), 'langGroup' => 'news'], false, false);
+            $check(!str_contains($tarjetaNoticia, 'zzcss') && str_contains($tarjetaNoticia, '--category-color: ' . \News\Mappers\NewsCategoryMapper::DEFAULT_COLOR . ';'), 'o6 news/public/util/item.php (en proceso): también el de defecto', 'longitud ' . strlen($tarjetaNoticia));
+        }
 
         //──── [q] Los listados de entidades por JSON (bloque 3 de #1002) ────────────────────────
         echoTerminal('');
@@ -729,10 +795,11 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
             'categorías de Formularios' => [\Forms\Categories\Controllers\CategoriesController::routeName('datatables', [], true), ['zzcat' => 'el nombre']],
             'perfiles' => [\Directory\Controllers\AllProfilesController::routeName('datatables', [], true), ['zzn' => 'el nombre de la persona', 'zzo' => 'el nombre de la organización']],
         ];
-        //El listado de perfiles es del Directorio.
-        if (!\Directory\DirectoryRoutes::ENABLE) {
-            unset($entidades['perfiles']);
-            echoTerminal("   \e[33m[OMITIDA]\e[39m q1 listado de perfiles: esta instalación tiene Directorio apagado.");
+        //El listado de perfiles es del Directorio: une organizations_elements también con Organizations apagado.
+        foreach (['organizaciones' => $modOrganizaciones, 'documentos' => $modDocumentos, 'tipos de documento' => $modTiposDocumento, 'categorías de Formularios' => $modCategoriasFormularios, 'perfiles' => $modDirectorio] as $listado => $modulos) {
+            if ($omitir("q1 listado de {$listado}", $modulos)) {
+                unset($entidades[$listado]);
+            }
         }
         foreach ($entidades as $listado => [$ruta, $claves]) {
             $r = $pedir($camino($ruta), $jwtRoot, $tabla);
@@ -771,27 +838,41 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
         $check(str_contains($bueno, 'style="background-image: url(&#039;statics/uploads/news-categories/zz/icono_1.png?v=2'), 's7 CANARIO: una ruta normal sigue pintando su fondo, con el atributo escapado', mb_substr((string) strstr($bueno, 'overlay-element'), 0, 200));
         $sinFondo = $ayudante([]);
         $check(str_contains($sinFondo, 'class="overlay-element" style=""'), 's8 y sin imagePreview, igual que antes: style vacío');
-        $database->prepare('UPDATE `news_categories` SET iconImage = ? WHERE id = ?')->execute(['statics/uploads/news-categories/zz/icono_1.png', $categoriaNoticiaID]);
-        $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
-        $check($r['status'] === 200 && str_contains($r['body'], 'src="statics/uploads/news-categories/zz/icono_1.png'), 's9 la edición de categoría de noticias pinta el icono en la tarjeta de imagen', "HTTP {$r['status']}");
-        $database->prepare('UPDATE `news_categories` SET iconImage = ? WHERE id = ?')->execute(["statics/x.png');}" . $crudo('zzbg2'), $categoriaNoticiaID]);
-        $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
-        //Escapar el atributo no basta: el navegador lo decodifica dentro del style. Tiene que no pintarse.
-        $check($r['status'] === 200 && !str_contains($r['body'], $crudo('zzbg2')), 's10 y un icono plantado sale escapado en la tarjeta', "HTTP {$r['status']}");
+        if (!$omitir('s9-s10', $modNoticias)) {
+            $database->prepare('UPDATE `news_categories` SET iconImage = ? WHERE id = ?')->execute(['statics/uploads/news-categories/zz/icono_1.png', $categoriaNoticiaID]);
+            $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
+            $check($r['status'] === 200 && str_contains($r['body'], 'src="statics/uploads/news-categories/zz/icono_1.png'), 's9 la edición de categoría de noticias pinta el icono en la tarjeta de imagen', "HTTP {$r['status']}");
+            $database->prepare('UPDATE `news_categories` SET iconImage = ? WHERE id = ?')->execute(["statics/x.png');}" . $crudo('zzbg2'), $categoriaNoticiaID]);
+            $r = $pedir($camino(\News\Controllers\NewsCategoryController::routeName('forms-edit', ['id' => $categoriaNoticiaID], true)), $jwtRoot);
+            //Escapar el atributo no basta: el navegador lo decodifica dentro del style. Tiene que no pintarse.
+            $check($r['status'] === 200 && !str_contains($r['body'], $crudo('zzbg2')), 's10 y un icono plantado sale escapado en la tarjeta', "HTTP {$r['status']}");
+        }
 
         //──── [t] Las rutas de imagen del banner y del recortador (bloque EU de #1008) ───────────
         echoTerminal('');
         echoTerminal('[t] El formulario del banner y el recortador escapan sus rutas de imagen; las pantallas con recortador se ven igual');
         $database->prepare('UPDATE `' . BuiltInBannerMapper::TABLE . '` SET desktopImage = ?, mobileImage = ? WHERE id = ?')->execute(['statics/' . $m('zzbed') . '.jpg', 'statics/' . $m('zzbem') . '.jpg', $bannerID]);
-        $r = $pedir($camino(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-edit', ['id' => $bannerID, 'lang' => $lang], true)), $jwtRoot);
-        $escapado($r['body'], 'zzbed', 't1 Banner/forms/edit.php: data-image de la imagen de escritorio', $r['status']);
-        $escapado($r['body'], 'zzbem', 't2 Banner/forms/edit.php: data-image de la imagen móvil', $r['status']);
+        if (!$omitir('t1-t2', $modBanner)) {
+            $r = $pedir($camino(\PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-edit', ['id' => $bannerID, 'lang' => $lang], true)), $jwtRoot);
+            $escapado($r['body'], 'zzbed', 't1 Banner/forms/edit.php: data-image de la imagen de escritorio', $r['status']);
+            $escapado($r['body'], 'zzbem', 't2 Banner/forms/edit.php: data-image de la imagen móvil', $r['status']);
+        }
         $recortador = (string) simpleCropperAdapterWorkSpace(['image' => 'statics/' . $m('zzcrop') . '.jpg', 'referenceW' => '400', 'referenceH' => '400'], false);
         //El sello de caché se inserta después de renderizar, y parte la primera entidad (&#039;): se mira el resto del marcador.
         $check(str_contains($recortador, '&quot;&lt;zzcrop&gt;') && !str_contains($recortador, $crudo('zzcrop')), 't3 simple-cropper/workspace.php (en proceso): el src de la imagen sale escapado', mb_substr((string) strstr($recortador, 'class="preview"'), 0, 200));
         $check(str_contains($recortador, 'default-reference-image="') && str_contains($recortador, 'img-gen/400/400'), 't4 y el default-reference-image sigue apuntando a su imagen de referencia');
         //CANARIO: las que pasaron a la tarjeta de imagen (JCZ), y la barra superior, con su foto de perfil.
-        foreach (['organizaciones' => \Organizations\Controllers\OrganizationsController::routeName('forms-edit', ['id' => $orgID, 'lang' => $lang], true), 'banner' => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-add', [], true), 'publicaciones' => \Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $publicacionID], true), 'imagen principal' => \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('forms-home-image', [], true), 'barra superior' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('', [], true)] as $pantalla => $ruta) {
+        $pantallasTarjeta = ['organizaciones' => \Organizations\Controllers\OrganizationsController::routeName('forms-edit', ['id' => $orgID, 'lang' => $lang], true), 'banner' => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::routeName('forms-add', [], true), 'publicaciones' => \Publications\Controllers\PublicationsController::routeName('forms-edit', ['id' => $publicacionID], true), 'imagen principal' => \PiecesPHP\BuiltIn\Helpers\Controllers\GenericContentController::routeName('forms-home-image', [], true), 'barra superior' => \PiecesPHP\AdminPanel\Controllers\AdminPanelController::routeName('', [], true)];
+        foreach (['organizaciones' => $modOrganizaciones, 'banner' => $modBanner] as $pantalla => $modulo) {
+            if ($omitir("t6 {$pantalla}", $modulo)) {
+                unset($pantallasTarjeta[$pantalla]);
+            }
+        }
+        if (!HOME_IMAGE_BANNER) {
+            echoTerminal('   [OMITIDO] t6 imagen principal: HOME_IMAGE_BANNER apagado');
+            unset($pantallasTarjeta['imagen principal']);
+        }
+        foreach ($pantallasTarjeta as $pantalla => $ruta) {
             $r = $pedir($camino($ruta), $jwtRoot);
             $check($r['status'] === 200 && str_contains($r['body'], 'data-image-card=') && !str_contains($r['body'], '<img class="preview" default-reference-image="'), "t6 CANARIO: {$pantalla} pinta la tarjeta de imagen, sin el recortador viejo", "HTTP {$r['status']}");
         }

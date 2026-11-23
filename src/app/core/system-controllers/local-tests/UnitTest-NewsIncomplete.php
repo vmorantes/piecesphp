@@ -5,6 +5,9 @@
 //@areas src/app/classes/News/
 //@areas src/app/classes/Organizations/
 //@areas src/app/classes/SystemApprovals/
+//@requires-module News\NewsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;

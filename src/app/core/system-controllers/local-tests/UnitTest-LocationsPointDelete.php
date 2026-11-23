@@ -3,6 +3,7 @@
 //Eliminar un punto de Ubicaciones (H23), por HTTP: con permiso lo quita; sin permiso, 403; inexistente, 404; y el botón
 //sale en la edición solo con la ruta concedida. Siembra un punto y dos usuarios zz-prueba- y los retira.
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\App\Locations\Controllers\Point;

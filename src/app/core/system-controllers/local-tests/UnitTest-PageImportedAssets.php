@@ -3,6 +3,9 @@
 //Lo que una pantalla importa antes de la cabecera llega a su pie (H261): la campana de la barra no abre lock_assets, y
 //el Gestor de archivos y el alta de documentos traen su JS. Por HTTP, con un usuario zz-agente- propio que se retira.
 //@areas nucleo
+//@requires-module Documents\DocumentsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module PiecesPHP\Notifications\NotificationsRoutes
 
 use Documents\Controllers\DocumentsController;
 use Organizations\Mappers\OrganizationMapper;

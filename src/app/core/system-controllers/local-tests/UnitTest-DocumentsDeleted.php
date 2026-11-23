@@ -2,6 +2,9 @@
 
 //Un documento eliminado no vuelve por la interfaz (P380): responde como un id que no existe y no sale en los listados.
 //@areas src/app/classes/Documents/
+//@requires-module Documents\DocumentsRoutes
+//@requires-module Forms\DocumentTypes\DocumentTypesRoutes
+//@requires-module Organizations\OrganizationsRoutes
 
 use Documents\Controllers\DocumentsController;
 use Documents\Mappers\DocumentsMapper;

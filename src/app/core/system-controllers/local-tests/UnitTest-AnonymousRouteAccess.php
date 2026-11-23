@@ -3,6 +3,7 @@
 //Sin usuario, routeName() da la dirección de todo (correos, cron, zona pública): allowedRoute() y el control de acceso
 //de los módulos tienen que negar al visitante lo que declara require_login, o «podría» todo el panel. Ver D6.
 //@areas src/app/classes/API/
+//@requires-module API\APIRoutes
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;

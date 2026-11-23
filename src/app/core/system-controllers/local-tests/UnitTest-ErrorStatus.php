@@ -3,6 +3,8 @@
 //Las páginas de 404 y 403 salen con su código aunque pesen más que el búfer, el preflight con el suyo, y el idioma de la cabecera se valida.
 //Crea un usuario zz-agente-errores-* y lo retira.
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;

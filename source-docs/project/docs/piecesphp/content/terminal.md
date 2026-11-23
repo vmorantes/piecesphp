@@ -211,6 +211,10 @@ bin/cli clean-all
 ### 6. scan-missing-lang
 Revisa los mensajes faltantes por traducción y genera un archivo con ellos.
 
+Lee el código con PhpParser, que no viene con las dependencias de la aplicación: en tu proyecto, instálalo una vez con
+`composer install --working-dir=bin/tools` (el mismo paso que el PHPStan opcional). Sin él, la orden dice que no corre y
+por qué.
+
 **Parámetros:**
 
 - `--exclude-lang` — Cadena separada por comas de idiomas a ignorar. Ejemplo: `--exclude-lang=es,en`

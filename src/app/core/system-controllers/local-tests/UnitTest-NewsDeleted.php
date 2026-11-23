@@ -3,6 +3,9 @@
 //Una noticia eliminada no vuelve por la interfaz (P380): responde como un id que no existe y no sale en el JSON de todas.
 //Por HTTP. Siembra una categoría, dos noticias y un root, todos zz-, y los retira.
 //@areas src/app/classes/News/
+//@requires-module News\NewsRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use News\Controllers\NewsController;
 use News\Mappers\NewsCategoryMapper;

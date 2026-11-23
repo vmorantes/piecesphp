@@ -4,6 +4,8 @@
 //Escribe un usuario zz-prueba-after-* en una transacción revertida, una entrada en el log de errores y temporales propios.
 //@areas src/app/classes/DataImportExportUtility/
 //@areas src/app/classes/Organizations/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
+//@requires-module Organizations\OrganizationsRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\Definitions\UsersExportDefinition;

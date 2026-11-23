@@ -3,6 +3,7 @@
 //Centro de mando de la IA (ADR 0074): registro, chatHandler() sin llamar a ningún proveedor, recordUsage() y los controles.
 //Escribe filas zz- en pcsphp_ai_usage y las borra; CONTENT_TOKENS_USED y la marca de la anotación fallida se reponen como estaban.
 //@areas nucleo
+//@requires-module API\APIRoutes
 
 use API\Adapters\MistralHandlerAdapter;
 use API\Adapters\OpenAIHandlerAdapter;

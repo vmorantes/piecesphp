@@ -3,6 +3,7 @@
 //Las pantallas de usuarios del prototipo, por HTTP: contadores, búsqueda, alta y edición, y las sesiones (Expulsar y
 //Cerrar sesión, sus etiquetas, el filtro por correo, el orden por inicio y las fechas en <time>).
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;

@@ -3,6 +3,8 @@
 //La disponibilidad de la IA en pantalla (ADR 0077, punto 4): availability() oculta, en su límite o disponible, con la misma
 //resolución que denialReason(), el fin del periodo y el botón «Traducir». Sin red; repone lo que toca y borra su consumo zz-.
 //@areas nucleo
+//@requires-module API\APIRoutes
+//@requires-module PiecesPHP\Mcp\McpRoutes
 
 use PiecesPHP\AI\AICapabilityRegistry;
 use PiecesPHP\AI\AIGateway;

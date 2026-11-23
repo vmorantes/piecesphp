@@ -366,7 +366,7 @@ CliActions::make('unit-tests:core/mcp-panel-server', function ($args) {
                 $url = get_route($nombre, [], true);
                 return is_string($url) && $url !== '' ? '/' . ltrim(str_contains($url, '://') ? (string) parse_url($url, \PHP_URL_PATH) : $url, '/') : '';
             };
-            $nombreToken = SessionToken::tokenName();
+            $nombreToken = SessionToken::headerName();
             $http = function (string $path, array $cabeceras, ?string $cuerpo = null, ?array $formulario = null) use ($base): array {
                 $handle = \Terminal\TestRun::curlInit();
                 $opciones = [

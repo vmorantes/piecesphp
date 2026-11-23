@@ -2,6 +2,7 @@
 
 //H373: ninguna página del panel se titula «Dashboard» ni lleva solo el nombre de la plataforma; y la pestaña de
 //preferencias, en inglés, sin romper los enlaces viejos. Por HTTP, con un root de prueba que se borra al terminar.
+//@requires-module Organizations\OrganizationsRoutes
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\ProjectStart;

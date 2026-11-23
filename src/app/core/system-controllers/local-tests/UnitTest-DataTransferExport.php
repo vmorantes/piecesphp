@@ -4,6 +4,8 @@
 //Escribe usuarios zz-prueba-exp-* (y 501 en una transacción revertida) y los borra en el finally: db-backup antes.
 //@areas src/app/classes/DataImportExportUtility/
 //@areas src/app/classes/Organizations/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
+//@requires-module Organizations\OrganizationsRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;

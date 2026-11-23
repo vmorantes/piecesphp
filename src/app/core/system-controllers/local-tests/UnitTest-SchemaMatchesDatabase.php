@@ -160,10 +160,22 @@ CliActions::make('unit-tests:core/schema-matches-database', function ($args) {
 
     //──── [t] Tablas, columnas, índices y claves ───────────────────────────────────────────────────────
     echoTerminal('[t] Tablas: columnas (tipo, NULL, valor por omisión), índices y claves foráneas');
+    //En un proyecto (ADR 0085 §5), piecesphp_structure.sql es el esquema del NÚCLEO: una tabla que solo está en la base
+    //es del proyecto y no se compara. Las del núcleo, sí, en los dos sentidos.
+    $delProyecto = [];
+    if (\Terminal\Distribution::isDistribution()) {
+        foreach (array_diff_key($presentes, $declaradas) as $nombre => $_) {
+            $delProyecto[] = (string) $nombre;
+        }
+        $comparadaSinCanario = array_values(array_filter($comparadaSinCanario, fn (string $d): bool => !in_array($d, array_map(fn (string $n): string => "tabla {$n}: en la base y NO declarada", $delProyecto), true)));
+    }
+    foreach ($delProyecto as $nombre) {
+        echoTerminal("      · tabla {$nombre}: del proyecto, sin comparar (no está en piecesphp_structure.sql)");
+    }
     foreach ($comparadaSinCanario as $diferencia) {
         echoTerminal("      · {$diferencia}");
     }
-    $check($comparadaSinCanario === [], 't1 piecesphp_structure.sql y la base local cuadran en los dos sentidos', count($comparadaSinCanario) . ' diferencia(s)');
+    $check($comparadaSinCanario === [], 't1 piecesphp_structure.sql y la base local cuadran en los dos sentidos' . ($delProyecto !== [] ? ' (en las tablas del núcleo; ' . count($delProyecto) . ' del proyecto sin comparar)' : ''), count($comparadaSinCanario) . ' diferencia(s)');
     echoTerminal(' ');
 
     //──── [v] Vistas y funciones, por nombre ───────────────────────────────────────────────────────────

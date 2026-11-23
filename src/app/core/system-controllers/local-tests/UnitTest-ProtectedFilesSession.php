@@ -3,6 +3,8 @@
 //P320 (H279): los archivos protegidos con sesión aplican la regla de estado del usuario del panel. Crea y borra usuarios
 //zz-agente-pfs-* y una organización inactiva, con sus sesiones.
 //@areas nucleo
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;

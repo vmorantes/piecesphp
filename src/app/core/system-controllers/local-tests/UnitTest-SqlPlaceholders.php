@@ -47,6 +47,26 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         return $condition;
     };
 
+    //Se omite el caso, no la suite: el criterio de apagado es el de GatesTask::moduleStates().
+    $omitir = function (string $caso, string ...$clases): bool {
+        $apagados = array_values(array_filter($clases, fn (string $clase): bool => constant("{$clase}::ENABLE") === false));
+        if ($apagados === []) {
+            return false;
+        }
+        $nombres = array_map(fn (string $clase): string => mb_substr($clase, (int) strrpos($clase, '\\') + 1, -6), $apagados);
+        echoTerminal("   [OMITIDO] {$caso}: " . implode(' y ', $nombres) . (count($nombres) > 1 ? ' apagados' : ' apagado'));
+        return true;
+    };
+    $mDirectory = \Directory\DirectoryRoutes::class;
+    $mDocuments = \Documents\DocumentsRoutes::class;
+    $mCategories = \Forms\Categories\CategoriesRoutes::class;
+    $mDocumentTypes = \Forms\DocumentTypes\DocumentTypesRoutes::class;
+    $mNews = \News\NewsRoutes::class;
+    $mOrganizations = \Organizations\OrganizationsRoutes::class;
+    $mBanner = \PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes::class;
+    $mGeo = \PiecesPHP\Geo\GeoRoutes::class;
+    $mApprovals = \SystemApprovals\SystemApprovalsRoutes::class;
+
     //Una comilla simple es el carácter que decide: o va como dato, o cierra la cadena del SQL.
     $conComilla = "O'Brien";
     $tabla = 'countries';
@@ -444,45 +464,47 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[10/20]El desplegable de aprobaciones manda el CRUDO en cualquier idioma');
 
     //LEY 29: esto CONSULTA. Y la clave es `app_lang`, no `lang`. Ver T162.
-    $idiomaPrevio = get_config('app_lang');
-    $clavesPorIdioma = [];
-    $textosPorIdioma = [];
-    foreach (['es', 'en'] as $idioma) {
-        set_config('app_lang', $idioma);
-        $opciones = \SystemApprovals\Mappers\SystemApprovalsMapper::getReferencesAliases();
-        $clavesPorIdioma[$idioma] = array_keys($opciones);
-        $textosPorIdioma[$idioma] = array_values($opciones);
+    if (!$omitir('10 desplegable de aprobaciones', $mApprovals)) {
+        $idiomaPrevio = get_config('app_lang');
+        $clavesPorIdioma = [];
+        $textosPorIdioma = [];
+        foreach (['es', 'en'] as $idioma) {
+            set_config('app_lang', $idioma);
+            $opciones = \SystemApprovals\Mappers\SystemApprovalsMapper::getReferencesAliases();
+            $clavesPorIdioma[$idioma] = array_keys($opciones);
+            $textosPorIdioma[$idioma] = array_values($opciones);
+        }
+        set_config('app_lang', $idiomaPrevio);
+
+        //DISCRIMINANTE: sin traducción efectiva, «claves iguales» pasaría siempre.
+        $check(
+            $textosPorIdioma['es'] !== $textosPorIdioma['en'],
+            'DISCRIMINANTE: los TEXTOS sí cambian entre `es` y `en`',
+            'en: ' . (string) json_encode($textosPorIdioma['en'], \JSON_UNESCAPED_UNICODE)
+        );
+        $check(
+            $clavesPorIdioma['es'] === $clavesPorIdioma['en'],
+            'las CLAVES del desplegable son las mismas en `es` y en `en`',
+            'es: ' . json_encode($clavesPorIdioma['es'], \JSON_UNESCAPED_UNICODE)
+                . ' | en: ' . json_encode($clavesPorIdioma['en'], \JSON_UNESCAPED_UNICODE)
+        );
+
+        //LA LISTA BLANCA SALE DEL CONTRATO, no de la base: cada handler declara sus textos.
+        $tiposDeclarados = \SystemApprovals\Util\SystemApprovalManager::getInstance()->getContentTypes();
+        $check(
+            in_array('Usuario independiente', $tiposDeclarados, true),
+            'la lista blanca incluye el segundo texto de UsersApprovalHandler',
+            (string) json_encode($tiposDeclarados, \JSON_UNESCAPED_UNICODE)
+        );
+        $fueraDeLista = array_diff($clavesPorIdioma['es'], $tiposDeclarados);
+        $check(
+            count($fueraDeLista) === 0,
+            'todo alias guardado en la base está DECLARADO por algún handler',
+            count($fueraDeLista) > 0
+                ? 'SIN DECLARAR: ' . json_encode(array_values($fueraDeLista), \JSON_UNESCAPED_UNICODE)
+                : 'la lista blanca cubre lo que hay.'
+        );
     }
-    set_config('app_lang', $idiomaPrevio);
-
-    //DISCRIMINANTE: sin traducción efectiva, «claves iguales» pasaría siempre.
-    $check(
-        $textosPorIdioma['es'] !== $textosPorIdioma['en'],
-        'DISCRIMINANTE: los TEXTOS sí cambian entre `es` y `en`',
-        'en: ' . (string) json_encode($textosPorIdioma['en'], \JSON_UNESCAPED_UNICODE)
-    );
-    $check(
-        $clavesPorIdioma['es'] === $clavesPorIdioma['en'],
-        'las CLAVES del desplegable son las mismas en `es` y en `en`',
-        'es: ' . json_encode($clavesPorIdioma['es'], \JSON_UNESCAPED_UNICODE)
-            . ' | en: ' . json_encode($clavesPorIdioma['en'], \JSON_UNESCAPED_UNICODE)
-    );
-
-    //LA LISTA BLANCA SALE DEL CONTRATO, no de la base: cada handler declara sus textos.
-    $tiposDeclarados = \SystemApprovals\Util\SystemApprovalManager::getInstance()->getContentTypes();
-    $check(
-        in_array('Usuario independiente', $tiposDeclarados, true),
-        'la lista blanca incluye el segundo texto de UsersApprovalHandler',
-        (string) json_encode($tiposDeclarados, \JSON_UNESCAPED_UNICODE)
-    );
-    $fueraDeLista = array_diff($clavesPorIdioma['es'], $tiposDeclarados);
-    $check(
-        count($fueraDeLista) === 0,
-        'todo alias guardado en la base está DECLARADO por algún handler',
-        count($fueraDeLista) > 0
-            ? 'SIN DECLARAR: ' . json_encode(array_values($fueraDeLista), \JSON_UNESCAPED_UNICODE)
-            : 'la lista blanca cubre lo que hay.'
-    );
     echoTerminal(' ');
 
     //──── 11. LO QUE SUSTITUYE A LA GUARDA DE AP (LEY 30) ───────────────────────────────
@@ -681,28 +703,38 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     };
     $viaRechazo('publications · title', fn (?string $v): int => \Publications\Controllers\PublicationsController::_all(1, 50, null, null, null, $v)->totalElements(), $cargaLike, "'", false);
     $viaRechazo('publications · ignoreSlugs', fn (?string $v): int => \Publications\Controllers\PublicationsController::_all(1, 50, null, null, null, null, false, false, $v === null ? [] : [$v])->totalElements(), $cargaNotIn, 'x"', true);
-    $viaRechazo('banner · title', fn (?string $v): int => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
-    $viaRechazo('news · newsTitle', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, $v)->totalElements(), $cargaLike, "'", false);
-    $viaRechazo('news · ignoreSlugs', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, null, false, false, $v === null ? [] : [$v])->totalElements(), $cargaNotIn, 'x"', true);
-    $viaRechazo('organizations · name', fn (?string $v): int => \Organizations\Controllers\OrganizationsController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
+    if (!$omitir('banner · title', $mBanner)) {
+        $viaRechazo('banner · title', fn (?string $v): int => \PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
+    }
+    if (!$omitir('news · newsTitle', $mNews)) {
+        $viaRechazo('news · newsTitle', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, $v)->totalElements(), $cargaLike, "'", false);
+    }
+    if (!$omitir('news · ignoreSlugs', $mNews)) {
+        $viaRechazo('news · ignoreSlugs', fn (?string $v): int => \News\Controllers\NewsController::_all(1, 50, null, null, null, false, false, $v === null ? [] : [$v])->totalElements(), $cargaNotIn, 'x"', true);
+    }
+    if (!$omitir('organizations · name', $mOrganizations)) {
+        $viaRechazo('organizations · name', fn (?string $v): int => \Organizations\Controllers\OrganizationsController::_all(1, 50, null, $v)->totalElements(), $cargaLike, "'", false);
+    }
     //EL GEOVISOR BUSCA EN DOS COLUMNAS con el mismo valor: dos comillas sueltas se emparejan y el SQL concatenado
     //seguiría siendo válido. `'(` no se empareja.
-    if (!\PiecesPHP\Geo\GeoRoutes::ENABLE) {
-        echoTerminal("   \e[33m[OMITIDA]\e[39m geovisor · search (personas y organizaciones): esta instalación tiene Geo apagado y los puntos piden la ruta de miniaturas.");
-    } else {
+    if (!$omitir('geovisor · search (personas)', $mGeo, $mDirectory)) {
         $viaRechazo('geovisor · search (personas)', fn (?string $v): int => (new \Directory\Geo\PersonsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
+    }
+    if (!$omitir('geovisor · search (organizaciones)', $mGeo, $mOrganizations)) {
         $viaRechazo('geovisor · search (organizaciones)', fn (?string $v): int => (new \Organizations\Geo\OrganizationsGeoSource())->points(new \PiecesPHP\Geo\GeoQuery(null, 0, $v === null ? [] : ['search' => $v]))->total(), $cargaLike, "'(", false);
     }
 
     //SIN BASE: la búsqueda del geovisor deja la comilla fuera del SQL y el valor en los reemplazos.
-    try {
-        $grupoGeo = \PiecesPHP\Geo\GeoSourceSql::addSearch(new HavingSegment(), ['fullname', 'fullLocation'], $conComilla);
-        $sqlGeo = $grupoGeo->toString();
-        $check(mb_strpos($sqlGeo, "'") === false && in_array('%' . $conComilla . '%', array_values($grupoGeo->getReplacementValues()), true),
-            'geovisor · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', $sqlGeo);
-        $check(mb_substr_count($sqlGeo, ' OR ') === 1, 'geovisor · search, sin base: fullname y fullLocation siguen unidos con OR', $sqlGeo);
-    } catch (\Throwable $errorGeo) {
-        $check(false, 'geovisor · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', 'EXCEPCIÓN: ' . $errorGeo->getMessage());
+    if (!$omitir('geovisor · search, sin base', $mGeo)) {
+        try {
+            $grupoGeo = \PiecesPHP\Geo\GeoSourceSql::addSearch(new HavingSegment(), ['fullname', 'fullLocation'], $conComilla);
+            $sqlGeo = $grupoGeo->toString();
+            $check(mb_strpos($sqlGeo, "'") === false && in_array('%' . $conComilla . '%', array_values($grupoGeo->getReplacementValues()), true),
+                'geovisor · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', $sqlGeo);
+            $check(mb_substr_count($sqlGeo, ' OR ') === 1, 'geovisor · search, sin base: fullname y fullLocation siguen unidos con OR', $sqlGeo);
+        } catch (\Throwable $errorGeo) {
+            $check(false, 'geovisor · search, sin base: la comilla queda FUERA del SQL y viaja en los reemplazos', 'EXCEPCIÓN: ' . $errorGeo->getMessage());
+        }
     }
 
     //DOCUMENTS: el listado filtra por estado. Un par clave-valor en `implode()` dejaba `WHERE 1`.
@@ -710,21 +742,23 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($fuenteDocs !== '' && mb_strpos($fuenteDocs, '"{$table}.status" => DocumentsMapper::STATUS_ACTIVE') === false
         && mb_strpos($fuenteDocs, '$critery = "{$table}.status = " . DocumentsMapper::STATUS_ACTIVE;') !== false,
         'documents, sin base: el estado del listado es un criterio, no un par clave-valor');
-    try {
-        $tablaDocs = \Documents\Mappers\DocumentsMapper::TABLE;
-        $estadoActivo = \Documents\Mappers\DocumentsMapper::STATUS_ACTIVE;
-        $docsActivos = $contarDirecto("SELECT COUNT(id) AS total FROM {$tablaDocs} WHERE status = {$estadoActivo}");
-        $docsOtros = $contarDirecto("SELECT COUNT(id) AS total FROM {$tablaDocs} WHERE status != {$estadoActivo}");
-        $docsListados = \Documents\Controllers\DocumentsController::_all(1, 1000)->totalElements();
-        if ($docsOtros === 0) {
-            //SIN INACTIVOS NO HAY VEREDICTO: `WHERE 1` y `WHERE status = 1` cuentan lo mismo.
-            echoTerminal("   [NO DISCRIMINA] documents · estado: la base local no tiene documentos inactivos (activos: {$docsActivos}, listados: {$docsListados})");
-        } else {
-            $check($docsListados === $docsActivos, 'documents: el listado solo cuenta los activos',
-                "activos: {$docsActivos} · otros: {$docsOtros} · listados: {$docsListados}");
+    if (!$omitir('documents · estado del listado', $mDocuments)) {
+        try {
+            $tablaDocs = \Documents\Mappers\DocumentsMapper::TABLE;
+            $estadoActivo = \Documents\Mappers\DocumentsMapper::STATUS_ACTIVE;
+            $docsActivos = $contarDirecto("SELECT COUNT(id) AS total FROM {$tablaDocs} WHERE status = {$estadoActivo}");
+            $docsOtros = $contarDirecto("SELECT COUNT(id) AS total FROM {$tablaDocs} WHERE status != {$estadoActivo}");
+            $docsListados = \Documents\Controllers\DocumentsController::_all(1, 1000)->totalElements();
+            if ($docsOtros === 0) {
+                //SIN INACTIVOS NO HAY VEREDICTO: `WHERE 1` y `WHERE status = 1` cuentan lo mismo.
+                echoTerminal("   [NO DISCRIMINA] documents · estado: la base local no tiene documentos inactivos (activos: {$docsActivos}, listados: {$docsListados})");
+            } else {
+                $check($docsListados === $docsActivos, 'documents: el listado solo cuenta los activos',
+                    "activos: {$docsActivos} · otros: {$docsOtros} · listados: {$docsListados}");
+            }
+        } catch (\Throwable $errorDocs) {
+            $check(false, 'documents: el listado filtra por estado', 'EXCEPCIÓN: ' . $errorDocs->getMessage());
         }
-    } catch (\Throwable $errorDocs) {
-        $check(false, 'documents: el listado filtra por estado', 'EXCEPCIÓN: ' . $errorDocs->getMessage());
     }
     echoTerminal(' ');
 
@@ -776,9 +810,15 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $sonda('cities · isDuplicateName', "SELECT name, state FROM {$ciudad} LIMIT 1", 'name', fn (string $v, array $f): bool => \PiecesPHP\App\Locations\Mappers\CityMapper::isDuplicateName($v, (int) ($f['state'] ?? 0), -1));
     $sonda('cities · isDuplicateCode', "SELECT code, state FROM {$ciudad} WHERE code IS NOT NULL AND code != '' LIMIT 1", 'code', fn (string $v, array $f): bool => \PiecesPHP\App\Locations\Mappers\CityMapper::isDuplicateCode($v, (int) ($f['state'] ?? 0), -1));
     $sonda('points · isDuplicate', "SELECT name, city FROM {$punto} LIMIT 1", 'name', fn (string $v, array $f): bool => \PiecesPHP\App\Locations\Mappers\PointMapper::isDuplicate($v, (int) ($f['city'] ?? 0), -1));
-    $sonda('organizations · existsByNit', 'SELECT nit FROM ' . \Organizations\Mappers\OrganizationMapper::TABLE . ' WHERE status != ' . \Organizations\Mappers\OrganizationMapper::DELETED . " AND nit IS NOT NULL AND nit != '' LIMIT 1", 'nit', fn (string $v, array $f): bool => \Organizations\Mappers\OrganizationMapper::existsByNit($v, -1, true));
-    $sonda('news categories · existsByName', 'SELECT name FROM ' . \News\Mappers\NewsCategoryMapper::TABLE . ' LIMIT 1', 'name', fn (string $v, array $f): bool => \News\Mappers\NewsCategoryMapper::existsByName($v, -1));
-    $sonda('documents · existsByDocumentName', 'SELECT documentName FROM ' . \Documents\Mappers\DocumentsMapper::TABLE . ' WHERE status = ' . \Documents\Mappers\DocumentsMapper::STATUS_ACTIVE . ' LIMIT 1', 'documentName', fn (string $v, array $f): bool => \Documents\Mappers\DocumentsMapper::existsByDocumentName($v, -1, true));
+    if (!$omitir('organizations · existsByNit', $mOrganizations)) {
+        $sonda('organizations · existsByNit', 'SELECT nit FROM ' . \Organizations\Mappers\OrganizationMapper::TABLE . ' WHERE status != ' . \Organizations\Mappers\OrganizationMapper::DELETED . " AND nit IS NOT NULL AND nit != '' LIMIT 1", 'nit', fn (string $v, array $f): bool => \Organizations\Mappers\OrganizationMapper::existsByNit($v, -1, true));
+    }
+    if (!$omitir('news categories · existsByName', $mNews)) {
+        $sonda('news categories · existsByName', 'SELECT name FROM ' . \News\Mappers\NewsCategoryMapper::TABLE . ' LIMIT 1', 'name', fn (string $v, array $f): bool => \News\Mappers\NewsCategoryMapper::existsByName($v, -1));
+    }
+    if (!$omitir('documents · existsByDocumentName', $mDocuments)) {
+        $sonda('documents · existsByDocumentName', 'SELECT documentName FROM ' . \Documents\Mappers\DocumentsMapper::TABLE . ' WHERE status = ' . \Documents\Mappers\DocumentsMapper::STATUS_ACTIVE . ' LIMIT 1', 'documentName', fn (string $v, array $f): bool => \Documents\Mappers\DocumentsMapper::existsByDocumentName($v, -1, true));
+    }
     $sonda('publication categories · existsByName', 'SELECT name FROM ' . \Publications\Mappers\PublicationCategoryMapper::TABLE . ' LIMIT 1', 'name', fn (string $v, array $f): bool => \Publications\Mappers\PublicationCategoryMapper::existsByName($v, -1));
     $sonda('publications · existsByTitle', 'SELECT title, category FROM ' . \Publications\Mappers\PublicationMapper::TABLE . ' WHERE status != ' . \Publications\Mappers\PublicationMapper::INACTIVE . ' LIMIT 1', 'title', fn (string $v, array $f): bool => \Publications\Mappers\PublicationMapper::existsByTitle($v, (int) ($f['category'] ?? 0), -1, true));
     //Sin el usuario de sistema: los listados lo excluyen a propósito (B14) y la sonda no discriminaría.
@@ -786,7 +826,9 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $sonda('users · getBy', $usuarios, 'username', fn (string $v, array $f): bool => \PiecesPHP\UserSystem\ORM\UsersModel::getBy($v, 'username') !== null);
     $sonda('users · allByMultipleCriteries', $usuarios, 'username', fn (string $v, array $f): bool => !empty(\PiecesPHP\UserSystem\ORM\UsersModel::allByMultipleCriteries([['column' => 'username', 'value' => $v]])));
     $sonda('users · getByMultipleCriteries', $usuarios, 'username', fn (string $v, array $f): bool => \PiecesPHP\UserSystem\ORM\UsersModel::getByMultipleCriteries([['column' => 'username', 'value' => $v]]) !== null);
-    $sonda('system approvals · getByMultipleCriteries', 'SELECT referenceTable FROM ' . \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE . ' LIMIT 1', 'referenceTable', fn (string $v, array $f): bool => \SystemApprovals\Mappers\SystemApprovalsMapper::getByMultipleCriteries([['column' => 'referenceTable', 'value' => $v]]) !== null);
+    if (!$omitir('system approvals · getByMultipleCriteries', $mApprovals)) {
+        $sonda('system approvals · getByMultipleCriteries', 'SELECT referenceTable FROM ' . \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE . ' LIMIT 1', 'referenceTable', fn (string $v, array $f): bool => \SystemApprovals\Mappers\SystemApprovalsMapper::getByMultipleCriteries([['column' => 'referenceTable', 'value' => $v]]) !== null);
+    }
 
     //LA FUENTE, por tokens: una llamada es `escapeString` seguido de `(`, que no sea su definición.
     //El que queda está PARADO en #037 y #040 a la espera de decisión: no tiene segmento donde ir.
@@ -847,19 +889,23 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //16a. El literal hexadecimal da la MISMA etiqueta que leer el array en PHP, para las once
     //fuentes de los seis mappers (T2 de #040).
     $fuentesEtiquetas = [
-        'organizations · statuses' => \Organizations\Mappers\OrganizationMapper::statuses(),
-        'organizations · sizes' => \Organizations\Mappers\OrganizationMapper::sizes(),
-        'organizations · actionLines' => \Organizations\Mappers\OrganizationMapper::actionLines(),
-        'organizations · esalOptions' => \Organizations\Mappers\OrganizationMapper::esalOptions(),
-        'users · UserTypes labels' => \PiecesPHP\UserSystem\UserTypes::labels(),
-        'users · statusesForDisplayQuery' => \PiecesPHP\UserSystem\ORM\UsersModel::statusesForDisplayQuery(),
-        'banner · statuses' => \PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper::statuses(),
-        'news · statuses' => \News\Mappers\NewsMapper::statuses(),
-        'system approvals · statuses' => \SystemApprovals\Mappers\SystemApprovalsMapper::statuses(),
-        'publications · statuses' => \Publications\Mappers\PublicationMapper::statuses(),
-        'publications · visibilities' => \Publications\Mappers\PublicationMapper::visibilities(),
+        'organizations · statuses' => [$mOrganizations, fn () => \Organizations\Mappers\OrganizationMapper::statuses()],
+        'organizations · sizes' => [$mOrganizations, fn () => \Organizations\Mappers\OrganizationMapper::sizes()],
+        'organizations · actionLines' => [$mOrganizations, fn () => \Organizations\Mappers\OrganizationMapper::actionLines()],
+        'organizations · esalOptions' => [$mOrganizations, fn () => \Organizations\Mappers\OrganizationMapper::esalOptions()],
+        'users · UserTypes labels' => [null, fn () => \PiecesPHP\UserSystem\UserTypes::labels()],
+        'users · statusesForDisplayQuery' => [null, fn () => \PiecesPHP\UserSystem\ORM\UsersModel::statusesForDisplayQuery()],
+        'banner · statuses' => [$mBanner, fn () => \PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper::statuses()],
+        'news · statuses' => [$mNews, fn () => \News\Mappers\NewsMapper::statuses()],
+        'system approvals · statuses' => [$mApprovals, fn () => \SystemApprovals\Mappers\SystemApprovalsMapper::statuses()],
+        'publications · statuses' => [null, fn () => \Publications\Mappers\PublicationMapper::statuses()],
+        'publications · visibilities' => [null, fn () => \Publications\Mappers\PublicationMapper::visibilities()],
     ];
-    foreach ($fuentesEtiquetas as $nombre => $opciones) {
+    foreach ($fuentesEtiquetas as $nombre => [$modulo, $fuente]) {
+        if ($modulo !== null && $omitir($nombre, $modulo)) {
+            continue;
+        }
+        $opciones = $fuente();
         $primeraClave = array_key_first($opciones);
         if ($primeraClave === null) {
             $check(false, "{$nombre}: tiene al menos una etiqueta");
@@ -1006,19 +1052,21 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         //El usuario 1 existe en toda instalación. Su paquete no escribe: la fila TOTP ya la creó el arranque.
         set_config('current_user', (object) ['id' => 1]);
         getLoggedFrameworkUser(true);
-        $respuesta = (new \SystemApprovals\Controllers\SystemApprovalsController())->dataTables($peticionListado([
-            'draw' => 1, 'start' => 0, 'length' => 10, 'elapsedDays' => '0',
-            'columns' => array_fill(0, 4, ['searchable' => 'true']),
-            'search' => ['value' => $conComilla, 'regex' => 'false'],
-        ]), new \PiecesPHP\Core\Routing\ResponseRoute());
-        $valores = json_decode((string) $respuesta->getBody(), true);
-        $having = $havingDe(DataTablesHelper::lastExecutedSQL()['main'] ?? '');
-        $check(mb_strpos($having, ':WH') !== false, 'aprobaciones: el HAVING lleva marcadores', $having);
-        $check(mb_strpos($having, "'" . \PiecesPHP\UserSystem\ORM\UsersModel::TABLE . "'") === false && mb_strpos($having, "'" . \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_APPROVED . "'") === false,
-            'aprobaciones: ni la tabla de usuarios ni APPROVED van como literal en el HAVING');
-        $check(mb_strpos($having, $conComilla) === false, 'aprobaciones: la comilla del buscador no está en el HAVING');
-        $check(is_int($valores['recordsFiltered'] ?? null), 'aprobaciones: la consulta se ejecuta y cuenta',
-            'recordsFiltered: ' . var_export($valores['recordsFiltered'] ?? null, true));
+        if (!$omitir('aprobaciones · dataTables', $mApprovals)) {
+            $respuesta = (new \SystemApprovals\Controllers\SystemApprovalsController())->dataTables($peticionListado([
+                'draw' => 1, 'start' => 0, 'length' => 10, 'elapsedDays' => '0',
+                'columns' => array_fill(0, 4, ['searchable' => 'true']),
+                'search' => ['value' => $conComilla, 'regex' => 'false'],
+            ]), new \PiecesPHP\Core\Routing\ResponseRoute());
+            $valores = json_decode((string) $respuesta->getBody(), true);
+            $having = $havingDe(DataTablesHelper::lastExecutedSQL()['main'] ?? '');
+            $check(mb_strpos($having, ':WH') !== false, 'aprobaciones: el HAVING lleva marcadores', $having);
+            $check(mb_strpos($having, "'" . \PiecesPHP\UserSystem\ORM\UsersModel::TABLE . "'") === false && mb_strpos($having, "'" . \SystemApprovals\Mappers\SystemApprovalsMapper::STATUS_APPROVED . "'") === false,
+                'aprobaciones: ni la tabla de usuarios ni APPROVED van como literal en el HAVING');
+            $check(mb_strpos($having, $conComilla) === false, 'aprobaciones: la comilla del buscador no está en el HAVING');
+            $check(is_int($valores['recordsFiltered'] ?? null), 'aprobaciones: la consulta se ejecuta y cuenta',
+                'recordsFiltered: ' . var_export($valores['recordsFiltered'] ?? null, true));
+        }
 
         foreach (['getAttempts' => 5, 'getLoggedUsers' => 5, 'getNotLoggedUsers' => 3] as $metodo => $columnas) {
             $resultado = \PiecesPHP\UserSystem\ORM\LoginAttemptsModel::$metodo($peticionListado([
@@ -1100,9 +1148,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         }
         $check(\PiecesPHP\UserSystem\Authentication\OTPHandler::getUserDataByUsername('zz-no-existe-' . bin2hex(random_bytes(4))) === null,
             'getUserDataByUsername(): un usuario inexistente da null');
-        $check(\Forms\DocumentTypes\Mappers\DocumentTypesMapper::existsByName("' OR '1'='1") === false
-            && \Forms\Categories\Mappers\CategoriesMapper::existsByName("' OR '1'='1") === false,
-            'existsByName() de DocumentTypes y Categories: con la comilla, «no existe», sin error de SQL');
+        if (!$omitir('existsByName() de DocumentTypes y Categories', $mDocumentTypes, $mCategories)) {
+            $check(\Forms\DocumentTypes\Mappers\DocumentTypesMapper::existsByName("' OR '1'='1") === false
+                && \Forms\Categories\Mappers\CategoriesMapper::existsByName("' OR '1'='1") === false,
+                'existsByName() de DocumentTypes y Categories: con la comilla, «no existe», sin error de SQL');
+        }
     } catch (\Throwable $e) {
         $check(false, 'las búsquedas por marcador se ejecutan', 'EXCEPCIÓN: ' . mb_substr($e->getMessage(), 0, 200));
     }
@@ -1129,14 +1179,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         return str_contains($texto, "where(newWhereSegment([newWhereItem('id',WhereItem::EQUAL_OPERATOR,\$id)]))") && !$interpolaId;
     };
     $objetivos = [
-        [\PiecesPHP\App\Locations\Mappers\PointMapper::class, ['getByID']],
-        [\Documents\Mappers\DocumentsMapper::class, ['getByID', 'existsByID']],
-        [\Forms\Categories\Mappers\CategoriesMapper::class, ['getByID', 'existsByID']],
-        [\Forms\DocumentTypes\Mappers\DocumentTypesMapper::class, ['getByID', 'existsByID']],
+        [\PiecesPHP\App\Locations\Mappers\PointMapper::class, ['getByID'], null],
+        [\Documents\Mappers\DocumentsMapper::class, ['getByID', 'existsByID'], $mDocuments],
+        [\Forms\Categories\Mappers\CategoriesMapper::class, ['getByID', 'existsByID'], $mCategories],
+        [\Forms\DocumentTypes\Mappers\DocumentTypesMapper::class, ['getByID', 'existsByID'], $mDocumentTypes],
     ];
     try {
-        foreach ($objetivos as [$clase, $metodos]) {
+        foreach ($objetivos as [$clase, $metodos, $modulo]) {
             $corto = substr($clase, strrpos($clase, '\\') + 1);
+            if ($modulo !== null && $omitir("{$corto}::getByID()/existsByID()", $modulo)) {
+                continue;
+            }
             foreach ($metodos as $metodo) {
                 $check($porMarcador($cuerpoTokens($clase, $metodo)), "{$corto}::{$metodo}(): where() recibe WhereSegment con el id, sin cadena «id =»");
             }

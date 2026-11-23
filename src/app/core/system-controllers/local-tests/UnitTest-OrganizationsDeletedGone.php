@@ -3,6 +3,8 @@
 //Una organización eliminada no vuelve por la interfaz (P380): se responde como un id que no existe y no sale en los listados.
 //Por HTTP. Crea un principal, un encargado y organizaciones, zz-, y los retira.
 //@areas src/app/classes/Organizations/
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use Organizations\Controllers\MyOrganizationProfileController;
 use Organizations\Controllers\OrganizationProfileController;

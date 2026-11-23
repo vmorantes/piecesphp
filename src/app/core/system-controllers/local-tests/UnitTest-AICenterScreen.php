@@ -4,6 +4,9 @@
 //Deja las filas de las opciones de IA como las encontró (H318, por sha1) y retira sus usuarios zz-.
 //@areas src/app/classes/PiecesPHP/Settings/
 //@areas src/app/classes/API/
+//@requires-module API\APIRoutes
+//@requires-module Organizations\OrganizationsRoutes
+//@requires-module SystemApprovals\SystemApprovalsRoutes
 
 use API\Controllers\APIController;
 use Organizations\Mappers\OrganizationMapper;

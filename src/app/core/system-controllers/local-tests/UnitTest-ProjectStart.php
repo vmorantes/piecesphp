@@ -3,6 +3,8 @@
 //P399: el arranque del proyecto en config.php (public_area, admin_path, login_redirect_route) y el banco de redirecciones.
 //En proceso, con set_config y restaurando; las direcciones servidas con la configuración cambiada se prueban por HTTP aparte.
 //@areas nucleo
+//@requires-module Newsletter\NewsletterRoutes
+//@requires-module PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes
 
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\CustomErrorsHandlers\GenericHandler;

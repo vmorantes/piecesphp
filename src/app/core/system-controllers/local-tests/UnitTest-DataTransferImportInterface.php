@@ -3,6 +3,7 @@
 //Importador: XLSX por defecto (P47), plantilla con ayuda, niveles de interfaz y simulacro que nunca guarda.
 //Lanza bin/cli data-transfer-import en simulacro; si por un fallo creara usuarios zz-prueba-simulacro-*, los borra. Temporales propios.
 //@areas src/app/classes/DataImportExportUtility/
+//@requires-module DataImportExportUtility\DataImportExportUtilityRoutes
 
 use DataImportExportUtility\Controllers\DataTransferController;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
