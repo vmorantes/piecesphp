@@ -19,6 +19,7 @@ use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Mcp\McpTool;
 use PiecesPHP\Core\Mcp\McpToolRegistry;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Mcp\Assistant;
@@ -516,7 +517,7 @@ CliActions::make('unit-tests:core/assistant', function ($args) {
             $check($sinPregunta['status'] === 400 && ($sinPregunta['json']['ok'] ?? null) === false && is_string($sinPregunta['json']['error'] ?? null), '11c sin question: 400 {ok:false, error}', "HTTP {$sinPregunta['status']}");
             $texto = $http($preguntar, ['Content-Type: text/plain', $sesion], '{"question":"zz"}');
             $check($texto['status'] === 415 && $texto['body'] === '', '11d text/plain: 415', "HTTP {$texto['status']}");
-            $nulo = $http($preguntar, [$json, $sesion, 'Origin: null', "Referer: {$base}/admin/"], '{"question":"zz"}');
+            $nulo = $http($preguntar, [$json, $sesion, 'Origin: null', "Referer: {$base}/" . ProjectStart::adminPath() . '/'], '{"question":"zz"}');
             $check($nulo['status'] === 403 && $nulo['body'] === '', '11e «Origin: null»: 403', "HTTP {$nulo['status']}");
         } catch (\Throwable $e) {
             $check(false, 'la parte HTTP corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . $e->getLine());

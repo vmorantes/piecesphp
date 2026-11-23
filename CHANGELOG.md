@@ -1,3 +1,15 @@
+# 10.62.1 (23-11-2026)
+
+- **El banco de redirecciones casa también las direcciones con tildes o espacios**: una entrada como `/quiénes-somos`
+  no redirigía y daba 404. Ahora se escriben como se leen.
+- **El banco de redirecciones ya no actúa sobre una dirección que use una ruta con otro método** (por ejemplo, la que
+  recibe el envío de un formulario): antes, con una o dos partes en la dirección, podía redirigir su GET.
+- **Con `public_area = 'headless'`, el listado de publicaciones ya no da error** cuando hay publicaciones: las tarjetas
+  y los enlaces por idioma ya no piden la página de detalle, que en ese modo no existe. Se recomienda actualizar si usas
+  ese modo.
+- **Las pruebas locales del framework siguen el `admin_path` del proyecto**: con el panel en otra dirección ya no
+  fallan por buscarlo en `/admin`.
+
 # 10.62.0 (20-11-2026)
 
 - **El arranque de un proyecto en tres líneas de `config.php`**: `public_area` (`'headless'`: sin páginas públicas, con

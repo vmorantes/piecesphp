@@ -4,6 +4,7 @@
 //capas viven en `src/index.php` y solo corren al servir. Ver `.agents/docs/pendientes.md` 115.
 //@areas nucleo
 
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Terminal\CliActions;
 
 CliActions::make('unit-tests:core/access-without-session', function ($args) {
@@ -78,7 +79,7 @@ CliActions::make('unit-tests:core/access-without-session', function ($args) {
 
     $protegida = 'admin-about-framework';
     $abierta = 'users-form-login';
-    $rutaProtegida = '/admin/about/';
+    $rutaProtegida = '/' . ProjectStart::adminPath() . '/about/';
     $rutaAbierta = '/users/login/';
 
     //─── Canario ────────────────────────────────────────────────────────────────────────────────

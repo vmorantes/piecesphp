@@ -10,6 +10,7 @@ use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
@@ -54,7 +55,7 @@ CliActions::make('unit-tests:core/organization-default', function ($args) {
     $navegar = function (int $idUsuario) use ($foundHandler, $manejador): void {
         set_config('current_user', (object) ['id' => $idUsuario]);
         set_config('pcsphp_current_user_stored', null);
-        $peticion = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/admin/'), new Headers(), [], [], (new StreamFactory())->createStream(''));
+        $peticion = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/' . ProjectStart::adminPath() . '/'), new Headers(), [], [], (new StreamFactory())->createStream(''));
         $foundHandler($peticion, $manejador);
     };
     $crearUsuario = function (int $tipo, ?int $organizacion, string $sufijo) use ($marca, &$creados): UsersModel {

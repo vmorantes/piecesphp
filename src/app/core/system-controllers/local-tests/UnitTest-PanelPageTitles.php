@@ -4,6 +4,7 @@
 //preferencias, en inglés, sin romper los enlaces viejos. Por HTTP, con un root de prueba que se borra al terminar.
 
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
@@ -102,7 +103,7 @@ CliActions::make('unit-tests:core/panel-page-titles', function ($args) {
             }
             $url = get_route((string) $name, [], true);
             $path = is_string($url) ? (string) parse_url($url, \PHP_URL_PATH) : '';
-            if (!str_contains($path, '/admin/')) {
+            if (!str_contains($path, '/' . ProjectStart::adminPath() . '/')) {
                 continue;
             }
             if (pcsphp_forbidden_match((string) $name, $path, $forbidden, $allowed) !== null) {

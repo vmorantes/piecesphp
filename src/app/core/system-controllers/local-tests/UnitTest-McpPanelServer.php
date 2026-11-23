@@ -19,6 +19,7 @@ use PiecesPHP\Core\Mcp\McpProtocol;
 use PiecesPHP\Core\Mcp\McpTool;
 use PiecesPHP\Core\Mcp\McpToolRegistry;
 use PiecesPHP\Core\Mcp\PanelServer;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Mcp\McpLang;
@@ -462,7 +463,7 @@ CliActions::make('unit-tests:core/mcp-panel-server', function ($args) {
                 //B: el mismo origen, también por Sec-Fetch-Site y sin Origin null.
                 $propio = (string) parse_url($base, \PHP_URL_SCHEME) . '://' . (string) parse_url($base, \PHP_URL_HOST) . (parse_url($base, \PHP_URL_PORT) !== null ? ':' . parse_url($base, \PHP_URL_PORT) : '');
                 //Con un Referer propio, requestIsSameDomain() aceptaría «Origin: null»: lo frena la comprobación propia.
-                $nulo = $http($mcp, [$json, $sesion, 'Origin: null', "Referer: {$base}/admin/"], $lista);
+                $nulo = $http($mcp, [$json, $sesion, 'Origin: null', "Referer: {$base}/" . ProjectStart::adminPath() . '/'], $lista);
                 $check($nulo['status'] === 403 && $nulo['body'] === '', 'B1 DISCRIMINANTE: «Origin: null», aunque el Referer sea propio → 403', "HTTP {$nulo['status']}");
                 $cruzado = $http($mcp, [$json, $sesion, "Origin: {$propio}", 'Sec-Fetch-Site: cross-site'], $lista);
                 $hermano = $http($mcp, [$json, $sesion, "Origin: {$propio}", 'Sec-Fetch-Site: same-site'], $lista);

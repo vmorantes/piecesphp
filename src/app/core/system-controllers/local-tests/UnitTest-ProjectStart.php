@@ -312,6 +312,17 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
         $notice = ProjectStart::legacyRedirectNotice('/zz-viejo/a/b', ['kind' => 'route', 'value' => 'users-list']);
         $start = (string) file_get_contents(basepath('app/core/psr4/PiecesPHP/Core/ProjectStart.php'));
         $check(!str_contains($notice, '?') && str_contains($notice, '«/zz-viejo/a/b» redirige a la ruta «users-list»') && str_contains($start, 'new \\ErrorException(self::legacyRedirectNotice($path, $match), 0, \\E_USER_DEPRECATED'), 'h10 el aviso de desuso lleva la dirección vieja y el destino, nunca la consulta (ADR 0060 §6)', $notice);
+        $claims = fn(string $path): bool => ProjectStart::routeClaims($request('GET', $path));
+        $check($claims('/contact/general'), 'h13 una ruta solo POST de dos segmentos reclama la dirección aunque el GET lo resuelva el comodín');
+        $check($claims('/users/verify'), 'h14 /users/verify (solo POST) reclama la dirección');
+        $check(!$claims('/zz-generica/'), 'h15 una dirección que solo casa con el comodín no está reclamada');
+        $check(!$claims('/zz-no/existe/nada'), 'h16 una dirección sin ruta no está reclamada');
+        $check(ProjectStart::legacyRedirectFor($request('GET', '/contact/general'), ['enabled' => true, 'paths' => ['/contact/general' => 'users-list']]) === null, 'h17 el banco no redirige el GET de una dirección que una ruta POST reclama');
+        $tildes = ['enabled' => true, 'paths' => ['/quiénes-somos' => 'users-list'], 'prefixes' => ['/noticias-viejas' => '/publicaciones-ñ']];
+        $r = ProjectStart::legacyRedirectFor($request('GET', '/qui%C3%A9nes-somos'), $tildes);
+        $check($r !== null && $r->getStatusCode() === 301 && $r->getHeaderLine('Location') === get_route('users-list', [], true), 'h11 una entrada con tilde casa con la petición cifrada, como la descifra Slim', $r !== null ? $r->getStatusCode() . ' ' . $r->getHeaderLine('Location') : 'null');
+        $r = ProjectStart::legacyRedirectFor($request('GET', '/noticias-viejas/a%C3%B1o'), $tildes);
+        $check($r !== null && $r->getStatusCode() === 301 && $r->getHeaderLine('Location') === baseurl('publicaciones-%C3%B1/a%C3%B1o'), 'h12 un prefijo con ñ: 301 con la Location cifrada segmento a segmento', $r !== null ? $r->getStatusCode() . ' ' . $r->getHeaderLine('Location') : 'null');
         echoTerminal(' ');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . $e->getLine());

@@ -8,6 +8,7 @@
 
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Settings\Controllers\SiteFilesController;
@@ -176,7 +177,7 @@ CliActions::make('unit-tests:core/site-files', function ($args) {
             $servidos[$clave] = $r['body'];
             $check($r['status'] === 200 && ($r['h']['content-type'] ?? '') === $tipo && ($r['h']['cache-control'] ?? '') === 'public, max-age=3600', "a1 {$clave}: 200, {$tipo} y caché de una hora", "HTTP {$r['status']} · " . ($r['h']['content-type'] ?? '') . ' · ' . ($r['h']['cache-control'] ?? ''));
         }
-        $check(!preg_match('/^Disallow:\s*\/statics\/\s*$/m', $servidos['robots']) && str_contains($servidos['robots'], 'Disallow: /admin/'), 'a2 robots.txt cierra lo privado y NO cierra /statics/');
+        $check(!preg_match('/^Disallow:\s*\/statics\/\s*$/m', $servidos['robots']) && str_contains($servidos['robots'], 'Disallow: /' . ProjectStart::adminPath() . '/'), 'a2 robots.txt cierra lo privado y NO cierra /statics/');
         $check(preg_match('/^Sitemap: https?:\/\/\S+\/sitemap\.xml$/m', $servidos['robots']) === 1 && str_contains($servidos['robots'], "Sitemap: {$base}/sitemap.xml"), 'a3 y nombra el sitemap con URL absoluta', $servidos['robots']);
         $propietario = (string) SettingsModel::getConfigValue(SettingsController::SEO_OPTION_OWNER, true);
         $check(str_contains($servidos['humans'], '/* TEAM */') && str_contains($servidos['humans'], "Owner: {$propietario}") && stripos($servidos['humans'], 'piecesphp') === false, 'a4 humans.txt con el equipo y el propietario, y sin nombrar el framework', $servidos['humans']);

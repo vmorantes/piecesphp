@@ -20,6 +20,7 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Crypto\Sealed;
 use PiecesPHP\Core\Email\MailDelivery;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\Terminal\CliActions;
@@ -153,7 +154,7 @@ CliActions::make('unit-tests:core/view-escapes', function ($args) {
         //──── [a] Las tres públicas ─────────────────────────────────────────────────────────
         echoTerminal('[a] Las salidas públicas pintan escapada la URL pedida y el correo del suscriptor');
         $marcaURL = "?zz={$marca}";
-        $r = $pedir("/admin/about/{$marcaURL}", null, null, true, false);
+        $r = $pedir('/' . ProjectStart::adminPath() . "/about/{$marcaURL}", null, null, true, false);
         $check($r['status'] === 302, 'a0 banco: una ruta protegida sin sesión redirige al login y deja la URI pedida', "HTTP {$r['status']}");
         $login = $pedir($camino(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('form-login', [], true)), null, null, true, false);
         //RETORNO-IGNORADO: cuenta la captura; si no casa, queda vacía y el caso de abajo falla.

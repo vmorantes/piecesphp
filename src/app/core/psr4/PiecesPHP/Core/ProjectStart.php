@@ -362,7 +362,8 @@ final class ProjectStart
         }
         $langPrefix = get_config('prefix_lang');
         $langPrefix = is_string($langPrefix) ? $langPrefix : '';
-        $path = self::pathWithoutBase($request->getUri()->getPath(), appbase(), $langPrefix);
+        //Descifrada, como la enruta Slim: «/qui%C3%A9nes» casa con la entrada «/quiénes».
+        $path = self::pathWithoutBase(rawurldecode($request->getUri()->getPath()), appbase(), $langPrefix);
         foreach (self::legacyRedirectRules($config)['rejected'] as $rejected) {
             log_soft_error("\$config['legacy_redirects']: se descarta el prefijo {$rejected}: haría un bucle.");
         }
@@ -377,13 +378,13 @@ final class ProjectStart
                 return null;
             }
             //La dirección de la ruta no puede volver a casar con el banco: sería otra vuelta.
-            $target = self::pathWithoutBase((string) parse_url($url, \PHP_URL_PATH), appbase(), $langPrefix);
+            $target = self::pathWithoutBase(rawurldecode((string) parse_url($url, \PHP_URL_PATH)), appbase(), $langPrefix);
             if (self::legacyRedirectMatch($target, $config) !== null) {
                 log_soft_error("\$config['legacy_redirects']: «{$path}» lleva a la ruta «{$match['value']}», cuya dirección vuelve a casar con el banco: 404.");
                 return null;
             }
         } else {
-            $url = baseurl(ltrim($langPrefix . $match['value'], '/'));
+            $url = baseurl(ltrim($langPrefix . implode('/', array_map('rawurlencode', explode('/', $match['value']))), '/'));
         }
         $query = $request->getUri()->getQuery();
         $url .= $query !== '' ? (str_contains($url, '?') ? '&' : '?') . $query : '';
@@ -406,8 +407,7 @@ final class ProjectStart
     }
 
     /**
-     * Si una ruta registrada reclama la dirección de la petición: casa (aunque sea con otro método), y no es un comodín.
-     * Sin el resultado del enrutado, se supone que sí: el banco no actúa a ciegas.
+     * Si una ruta registrada reclama la dirección con cualquier método; los comodines públicos no cuentan. Sin el resultado del enrutado, se supone que sí.
      *
      * @param RequestRoute $request
      * @return bool
@@ -424,7 +424,19 @@ final class ProjectStart
             return false;
         }
         $route = $context->getRoute();
-        return !($status === RoutingResults::FOUND && $route !== null && in_array($route->getName(), self::CATCH_ALL_ROUTES, true));
+        if (!($status === RoutingResults::FOUND && $route !== null && in_array($route->getName(), self::CATCH_ALL_ROUTES, true))) {
+            return true;
+        }
+        //El comodín GET tapa a una ruta de otro método en la misma dirección (con uno o dos segmentos): se pregunta por cada
+        //método. Solo cuenta FOUND: METHOD_NOT_ALLOWED también sale del propio comodín y reclamaría toda dirección corta.
+        $resolver = get_router()->getRouteResolver();
+        foreach (['POST', 'PUT', 'PATCH', 'DELETE'] as $method) {
+            $results = $resolver->computeRoutingResults($request->getUri()->getPath(), $method);
+            if ($results->getRouteStatus() === RoutingResults::FOUND && !in_array($resolver->resolveRoute((string) $results->getRouteIdentifier())->getName(), self::CATCH_ALL_ROUTES, true)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

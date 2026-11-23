@@ -500,7 +500,9 @@ $config['login_redirect_route'] = 'admin';    // adónde lleva el acceso: el NOM
 
 **El banco de redirecciones (opcional, retirado en la `12.0.0`).** Si un proyecto cambia direcciones (por ejemplo, mueve
 el panel), puede declarar las viejas y el nombre de la ruta a la que llevan. Solo actúa cuando ninguna ruta registrada
-reclama la dirección, justo antes del 404: una ruta nueva siempre gana. Responde con una redirección permanente.
+reclama la dirección, justo antes del 404: una ruta nueva siempre gana. Responde con una redirección permanente. Las
+direcciones se escriben como se leen, con sus tildes o espacios (`/quiénes-somos`), no cifradas (`/qui%C3%A9nes-somos`):
+el banco compara la dirección ya descifrada, igual que las rutas.
 
 ### `control_access_login` y `admin_url`
 

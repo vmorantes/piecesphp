@@ -570,7 +570,11 @@ class PublicationMapper extends EntityMapperExtensible
             if ($existOnLang) {
                 $isSameLang = $lang == $currentLang;
                 if (!$isSameLang || $includeCurrentLang) {
-                    $url = PublicationsPublicController::routeName('single', ['slug' => $this->getSlug($lang)]);
+                    //En modo headless la página de detalle no existe: sin URL por idioma.
+                    $url = PublicationsPublicController::routeName('single', ['slug' => $this->getSlug($lang)], true);
+                    if ($url === '') {
+                        continue;
+                    }
                     if (get_config('lang_by_cookie') === true) {
                         $url = URLManager::fromString($url)->withQueryParameter('i18n', $lang)->__toString();
                     } else {

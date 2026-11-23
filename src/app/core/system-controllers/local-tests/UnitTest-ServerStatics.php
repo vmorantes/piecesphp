@@ -4,6 +4,7 @@
 //petición HTTP pide una hoja para que el servidor cree el acceso directo que mira el canario (H72).
 //@areas nucleo
 
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute;
@@ -153,7 +154,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     if ($base !== '') {
         $fabrica = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($fabrica, [
-            CURLOPT_URL => rtrim($base, '/') . '/admin/publications/statics/css/publications.css',
+            CURLOPT_URL => rtrim($base, '/') . '/' . ProjectStart::adminPath() . '/publications/statics/css/publications.css',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_NOBODY => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -187,7 +188,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         foreach (['sass/design-sheet.scss' => true, 'css/design-sheet.css' => false] as $pedido => $rechazo) {
             $h = \Terminal\TestRun::curlInit();
             \Terminal\TestRun::curlSetoptArray($h, [
-                CURLOPT_URL => rtrim($base, '/') . '/admin/statics/' . $pedido,
+                CURLOPT_URL => rtrim($base, '/') . '/' . ProjectStart::adminPath() . '/statics/' . $pedido,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_NOBODY => true,
                 CURLOPT_SSL_VERIFYPEER => false,

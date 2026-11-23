@@ -9,6 +9,7 @@
 
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\UserSessions;
@@ -54,7 +55,7 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
     if ($base !== '') {
         $fabrica = \Terminal\TestRun::curlInit();
         \Terminal\TestRun::curlSetoptArray($fabrica, [
-            CURLOPT_URL => $base . '/admin/publications/statics/css/publications.css',
+            CURLOPT_URL => $base . '/' . ProjectStart::adminPath() . '/publications/statics/css/publications.css',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_NOBODY => true,
             CURLOPT_SSL_VERIFYPEER => false,
@@ -119,8 +120,8 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
         'imagen de statics/images sin cacheStamp' => ['statics/images/favicon.png', 200, 'no-cache'],
         'enlace de server-delegated con cacheStamp' => [$enlace . '?cacheStamp=zzprueba', 200, $anual],
         'enlace de server-delegated sin cacheStamp' => [$enlace, 200, 'no-cache'],
-        'ruta PHP de un estático que PHP sirve entero, con cacheStamp' => ['admin/publications/statics/css/publications.css.map?cacheStamp=zzprueba', 200, $anual],
-        'ruta PHP de un estático que PHP sirve entero, sin cacheStamp' => ['admin/publications/statics/css/publications.css.map', 200, 'no-cache'],
+        'ruta PHP de un estático que PHP sirve entero, con cacheStamp' => [ProjectStart::adminPath() . '/publications/statics/css/publications.css.map?cacheStamp=zzprueba', 200, $anual],
+        'ruta PHP de un estático que PHP sirve entero, sin cacheStamp' => [ProjectStart::adminPath() . '/publications/statics/css/publications.css.map', 200, 'no-cache'],
     ];
 
     echoTerminal('[1] Cada estático, su Cache-Control y UNA sola');
@@ -131,7 +132,7 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
     echoTerminal(' ');
 
     echoTerminal('[2] La ruta PHP de un estático que se delega: redirige al enlace con su consulta, y con la regla');
-    $rutaModulo = 'admin/publications/statics/' . mb_substr($enlace, mb_strlen('statics/server-delegated/app/classes/Publications/Statics/'));
+    $rutaModulo = ProjectStart::adminPath() . '/publications/statics/' . mb_substr($enlace, mb_strlen('statics/server-delegated/app/classes/Publications/Statics/'));
     $r = $cabeceras($rutaModulo . '?cacheStamp=zzprueba');
     $check($r['status'] === 302 && $r['cc'] === [$anual], '2a con cacheStamp: 302, un año e immutable', "HTTP {$r['status']} · " . (string) json_encode($r['cc']));
     $check(str_ends_with($r['location'], $enlace . '?cacheStamp=zzprueba'), '2b y el enlace al que redirige conserva el cacheStamp', $r['location']);
@@ -167,7 +168,7 @@ CliActions::make('unit-tests:core/static-cache', function ($args) {
         $check($pantalla['status'] === 200 && count($pantalla['cc']) === 1 && !$esDeEstatico($pantalla['cc']), '3b una pantalla del panel: la suya, tampoco la de los estáticos', "HTTP {$pantalla['status']} · " . (string) json_encode($pantalla['cc']));
         //La respuesta que fija su Cache-Control (aquí, la ruta PHP de un estático versionado) lo conserva, uno solo, y no
         //hereda el Pragma ni el Expires de 1981 que el framework pone por omisión a una página (su propio Expires sí vale).
-        $propia = $cabeceras('admin/publications/statics/css/publications.css.map?cacheStamp=zzprueba');
+        $propia = $cabeceras(ProjectStart::adminPath() . '/publications/statics/css/publications.css.map?cacheStamp=zzprueba');
         $check($propia['status'] === 200 && $propia['cc'] === [$anual] && $propia['pragma'] === [] && !in_array('Thu, 19 Nov 1981 08:52:00 GMT', $propia['expires'], true),
             '3c la que trae su Cache-Control lo conserva, uno solo, sin el Pragma ni el Expires por omisión', "HTTP {$propia['status']} · " . (string) json_encode($propia));
     } catch (\Throwable $e) {

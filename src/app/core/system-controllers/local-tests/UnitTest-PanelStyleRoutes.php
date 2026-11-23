@@ -4,6 +4,7 @@
 //@areas src/app/classes/PiecesPHP/Settings/
 
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
@@ -123,11 +124,11 @@ CliActions::make('unit-tests:core/panel-style-routes', function ($args) {
 
         echoTerminal(' ');
         echoTerminal('[h] Por HTTP, como root');
-        $r = $pedir('admin/configurations/appearance/panel-style/', $jwtRoot);
+        $r = $pedir(ProjectStart::adminPath() . '/configurations/appearance/panel-style/', $jwtRoot);
         $check($r['status'] === 200 && str_contains($r['body'], 'data-style-panel-tabs'), 'h1 appearance/panel-style/ da 200 con la pantalla de pestañas', "HTTP {$r['status']}");
-        $r = $pedir('admin/configurations/appearance/colors/', $jwtRoot);
+        $r = $pedir(ProjectStart::adminPath() . '/configurations/appearance/colors/', $jwtRoot);
         $check($r['status'] === 302 && $camino($r['location']) === $camino($estiloURL) && str_ends_with($r['location'], 'appearance/panel-style/'), 'h2 appearance/colors/ redirige (302) a appearance/panel-style/, sin fragmento', "HTTP {$r['status']} → {$r['location']}");
-        $r = $pedir('admin/configurations/appearance/accessibility/', $jwtRoot);
+        $r = $pedir(ProjectStart::adminPath() . '/configurations/appearance/accessibility/', $jwtRoot);
         $partes = explode('#', $r['location'], 2);
         $check($r['status'] === 302 && $camino($partes[0]) === $camino($estiloURL) && ($partes[1] ?? null) === 'accessibility', 'h3 appearance/accessibility/ redirige (302) a appearance/panel-style/#accessibility', "HTTP {$r['status']} → {$r['location']}");
 

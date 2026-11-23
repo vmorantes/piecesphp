@@ -29,7 +29,10 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
             continue;
         }
 
-        $singleURL = PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]);
+        //En modo headless la página de detalle no existe: el elemento va sin enlace, nunca con href="".
+        $singleURL = PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()], true);
+        $tag = $singleURL !== '' ? 'a' : 'div';
+        $href = $singleURL !== '' ? ' href="' . $escape($singleURL) . '"' : '';
         $excerptTitle = $element->excerptTitle(100);
         $excerptTitle = mb_strpos($excerptTitle, '...') !== false ? $excerptTitle : $excerptTitle . '...';
         $excerptContent = $element->excerpt(300);
@@ -37,7 +40,7 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
     ?>
 
     <component data-slug="<?= $escape($element->preferSlug); ?>" name="special-main-item">
-        <a class="item" href="<?= $escape($singleURL); ?>">
+        <<?= $tag; ?> class="item"<?= $href; ?>>
             <div class="ui large image">
                 <img src="<?= $escape($element->currentLangData('thumbImage')); ?>" alt="<?= $escape($element->currentLangData('title')); ?>" loading="lazy">
             </div>
@@ -54,11 +57,11 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
                     <?= $escape($element->publicDateFormat()); ?>
                 </div>
             </div>
-        </a>
+        </<?= $tag; ?>>
     </component>
 
     <component data-slug="<?= $escape($element->preferSlug); ?>" name="special-secondary-item">
-        <a class="ui card" href="<?= $escape($singleURL); ?>">
+        <<?= $tag; ?> class="ui card"<?= $href; ?>>
             <div class="image">
                 <img src="<?= $escape($element->currentLangData('thumbImage')); ?>" alt="<?= $escape($element->currentLangData('title')); ?>" loading="lazy">
             </div>
@@ -69,7 +72,7 @@ $escape = fn($value): string => htmlspecialchars(is_scalar($value) ? (string) $v
                 </div>
                 <div class="description"><?= $escape($excerptTitle); ?></div>
             </div>
-        </a>
+        </<?= $tag; ?>>
     </component>
     <?php endforeach; ?>
 

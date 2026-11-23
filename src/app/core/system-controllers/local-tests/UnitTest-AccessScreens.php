@@ -8,6 +8,7 @@ use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Email\MailDelivery;
 use PiecesPHP\Core\Mailer;
+use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
@@ -373,7 +374,7 @@ CliActions::make('unit-tests:core/access-screens', function ($args) {
             //config.php no se cambia por HTTP (no es opción declarada): por HTTP, el estado de fábrica; los demás, en el proceso.
             $paginasDesarrollador = [
                 'acceso' => [$rutaAcceso, null, '//small[contains(@class,"developer-credit")]/img'],
-                'menú lateral' => ['admin/', $jwt, '//img[contains(@class,"developer-logo")]'],
+                'menú lateral' => [ProjectStart::adminPath() . '/', $jwt, '//img[contains(@class,"developer-logo")]'],
             ];
             foreach ($paginasDesarrollador as $nombre => [$ruta, $token, $consulta]) {
                 $imagenes = [];
