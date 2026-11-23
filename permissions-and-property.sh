@@ -30,7 +30,7 @@ echo -e "\n[+] Estableciendo propiedad ($USER_OWNER:$GROUP_OWNER)..."
 sudo chown -R "$USER_OWNER":"$GROUP_OWNER" .
 
 # Permisos restrictivos generales
-echo -e "\n[+] Estableciendo permisos generales (775 para directorios y 664 para archivos)..."
+echo -e "\n[+] Estableciendo permisos generales (755 para directorios y 644 para archivos)..."
 find . -type d -exec chmod 755 {} \;
 find . -type f -exec chmod 644 {} \;
 
@@ -50,6 +50,28 @@ for dir in "${WRITABLE_DIRS[@]}"; do
         find "$dir" -type f -exec chmod 664 {} \;
     fi
 done
+
+# Carpeta de claves de la raíz (el llavero de la aplicación, ADR 0061): la escriben la terminal y el servidor web.
+#Con private/secure-keys en uso no se crea la de la raíz: AppKeyring::directory() la miraría primero y cambiaría de llavero.
+KEYS_DIR="$SCRIPT_DIR/secure-keys"
+KEYS_FILE="$KEYS_DIR/app-key.json"
+
+cd "$SCRIPT_DIR"
+
+if [ ! -d "$KEYS_DIR" ] && [ -d "$SCRIPT_DIR/private/secure-keys" ]; then
+    echo -e "\n[!] Se usa private/secure-keys: no se crea $KEYS_DIR (ajuste esa carpeta a mano: grupo $GROUP_OWNER, 2770; app-key.json 0640)."
+else
+    echo -e "\n[+] Carpeta de claves: $KEYS_DIR ($USER_OWNER:$GROUP_OWNER, 2770; app-key.json 0640)"
+    if [ ! -d "$KEYS_DIR" ]; then
+        mkdir -p "$KEYS_DIR"
+    fi
+    sudo chown "$USER_OWNER":"$GROUP_OWNER" "$KEYS_DIR"
+    sudo chmod 2770 "$KEYS_DIR"
+    if [ -f "$KEYS_FILE" ]; then
+        sudo chown "$USER_OWNER":"$GROUP_OWNER" "$KEYS_FILE"
+        sudo chmod 0640 "$KEYS_FILE"
+    fi
+fi
 
 # Permisos de scripts de utilidad
 export EXECUTABLES_DIR="${SCRIPT_DIR}/bin"

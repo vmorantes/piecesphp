@@ -49,6 +49,27 @@ CliActions::make('unit-tests:core/public-routes-project', function ($args) {
         $source = (string) file_get_contents(basepath('app/controller/PublicAreaController.php'));
         $check(str_contains($source, '], self::projectIgnoredRoutes());'), '2e PublicAreaController::routes() suma esa lista a las rutas que no registra');
         echoTerminal(' ');
+
+        //──── 3. La página de contacto va con los formularios (H464.1) ─────────────────────────
+        //3b-3e piden PUBLIC_AREA_CONTACT_FORMS = false: se cambia constants.php y se restaura en la misma orden, nunca se deja.
+        echoTerminal('[3] Sin PUBLIC_AREA_CONTACT_FORMS no hay página de contacto ni enlace a ella; con la constante, como siempre');
+        $routesNow = (array) get_routes();
+        $hasPage = array_key_exists('public-contact', $routesNow);
+        $hasForm = array_key_exists('contact-forms-general', $routesNow);
+        $check(!$hasPage || $hasForm, '3a la página de contacto solo existe si existe el envío del formulario (su vista lo pide)', 'public-contact ' . var_export($hasPage, true) . ', contact-forms-general ' . var_export($hasForm, true));
+        if (PUBLIC_AREA_CONTACT_FORMS) {
+            $served = PUBLIC_AREA_VIEWS && \PiecesPHP\Core\ProjectStart::publicPages() && !in_array('public-contact', \App\Controller\PublicAreaController::projectIgnoredRoutes(), true);
+            if ($served) {
+                $check($hasPage && \App\Controller\PublicAreaController::routeName('contact', [], true) !== '', '3f encendida y con páginas públicas, public-contact sigue registrada y el menú tiene su dirección');
+            }
+            echoTerminal('   la constante está encendida: los casos 3b a 3e piden apagarla (ver el comentario del bloque 3).');
+        } else {
+            $check(!$hasPage, '3b apagada, public-contact no está registrada');
+            $check(\App\Controller\PublicAreaController::routeName('contact', [], true) === '' && !\App\Controller\PublicAreaController::allowedRoute('contact'), '3c apagada, el menú público no la enlaza (routeName vacío, allowedRoute falso)');
+            $check(\PiecesPHP\PublicSite\PublicSite::pageURL('contact') === '', '3d apagada, el sitio por marcas no tiene dirección para <pcs-link page="contact">');
+            $check(\PiecesPHP\PublicSite\FormActionRegistry::resolve('contact') === null, '3e apagada, <pcs-form action="contact"> no tiene acción');
+        }
+        echoTerminal(' ');
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . $e->getLine());
     } finally {

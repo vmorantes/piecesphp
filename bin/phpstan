@@ -1,0 +1,210 @@
+#!/bin/bash
+
+# Análisis estático en la ÚNICA versión de PHP que el proyecto soporta: 8.5 (ADR 0020).
+#
+# PASADA ÚNICA 8.5, con `phpVersion` FIJO derivado de bin/phpstan.neon. Nunca un RANGO: un rango
+# reporta solo lo que es error en TODAS sus versiones —la INTERSECCIÓN— y así se escaparon nueve
+# llamadas deprecadas en 8.5 durante la campaña. Si vuelve a soportarse otra versión, se repone la
+# unión de pasadas (ver la reversión del ADR 0020).
+
+set -o pipefail
+
+# QUÉ PHP SE USA. Por defecto, EL QUE SIRVE EL NAVEGADOR: durante toda la campaña estas
+# herramientas corrieron con php8.4 mientras Apache servía 8.5.9, así que las suites NUNCA
+# pisaron la versión de producción y las deprecaciones de 8.5 eran invisibles.
+#
+# Se puede fijar otra con PCSPHP_PHP_BIN, que es lo que permite correrlas en las dos:
+#   PCSPHP_PHP_BIN=php8.4 bin/cli unit-tests:core/mapper-finders
+if [ -n "$PCSPHP_PHP_BIN" ]; then
+    PHP_BIN="$PCSPHP_PHP_BIN"
+elif command -v php8.5 >/dev/null 2>&1; then
+    PHP_BIN="php8.5"
+elif command -v php8.4 >/dev/null 2>&1; then
+    PHP_BIN="php8.4"
+else
+    PHP_BIN="php"
+fi
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR/.."
+
+# CAMINO DE CLON (ADR 0085 §4): la raíz tiene `.piecesphp-distribution`. Da la cifra del clon y nada más: sin nuestra
+# línea base, sin trinquete y sin escribir PHPStanResult.* en el árbol. La configuración se deriva de bin/phpstan.neon
+# quitando lo que en el clon no existe (phpstan.services.neon y sus extensiones, las rutas de bin/ que no viajan),
+# marcando cada exclusión como opcional «(?)» y sin avisar de supresiones que ya no casan: son nuestras, no suyas.
+# Sale con 1 solo si el análisis no se pudo hacer; los errores que encuentre no lo hacen fallar.
+if [ -f .piecesphp-distribution ]; then
+    if [ $# -gt 0 ]; then
+        echo "bin/phpstan: en un clon no admite argumentos (recibió: $*)."
+        exit 2
+    fi
+    if [ ! -f src/vendor/autoload.php ] || [ ! -f bin/tools/vendor/bin/phpstan ]; then
+        echo "bin/phpstan: falta src/vendor o bin/tools/vendor; PHPStan es opcional: composer install y composer install --working-dir=bin/tools."
+        exit 1
+    fi
+    CLON_NEON=bin/phpstan.clon.generated.neon
+    CLON_JSON=$(mktemp)
+    $PHP_BIN -r '
+        $c = str_replace("\r\n", "\n", (string) file_get_contents("bin/phpstan.neon"));
+        $out = [];
+        $block = "";
+        $quitadas = [];
+        foreach (explode("\n", $c) as $line) {
+            if (preg_match("/^(\S[^:]*):\s*$/", $line, $m) === 1) {
+                $block = $m[1];
+            } elseif ($block !== "includes" && preg_match("/^    (\w+):\s*$/", $line, $m) === 1) {
+                $block = "parameters." . $m[1];
+            }
+            if (preg_match("/^(    |        )- ([^#\x27\x22]+?)\s*(#.*)?$/", $line, $m) === 1) {
+                $value = trim($m[2]);
+                $sangria = strlen($m[1]);
+                if ((($block === "includes" && $sangria === 4) || ($block === "parameters.paths" && $sangria === 8)) && !file_exists("bin/" . $value)) {
+                    $quitadas[] = $value;
+                    continue;
+                }
+                if ($block === "parameters.excludePaths" && $sangria === 8) {
+                    $line = $m[1] . "- " . $value . " (?)";
+                }
+            }
+            $out[] = $line;
+            if ($line === "parameters:") {
+                $out[] = "    reportUnmatchedIgnoredErrors: false";
+            }
+        }
+        if (!in_array("parameters:", $out, true)) {
+            fwrite(STDERR, "No se encontró «parameters:» en bin/phpstan.neon.\n");
+            exit(1);
+        }
+        file_put_contents($argv[1], implode("\n", $out));
+        echo "Configuración del clon: bin/phpstan.neon sin " . (count($quitadas) > 0 ? implode(", ", $quitadas) : "nada") . " (no están en este clon).\n";
+    ' "$CLON_NEON" || { rm -f "$CLON_NEON" "$CLON_JSON"; exit 1; }
+    $PHP_BIN bin/tools/vendor/bin/phpstan analyse --autoload-file="$PWD/src/vendor/autoload.php" --memory-limit 2000M \
+        -c "$CLON_NEON" --error-format=json --no-progress > "$CLON_JSON" 2>/dev/null
+    $PHP_BIN -r '
+        $raiz = getcwd() . "/";
+        $json = json_decode((string) file_get_contents($argv[1]), true);
+        if (!is_array($json) || !is_array($json["files"] ?? null)) {
+            fwrite(STDERR, "PHPSTAN: la pasada no devolvió un resultado legible: la medición NO se hizo.\n");
+            exit(1);
+        }
+        $noAnalizado = [];
+        foreach ((array) ($json["errors"] ?? []) as $general) {
+            $noAnalizado[] = "(general) " . (is_string($general) ? $general : json_encode($general));
+        }
+        $lineas = [];
+        foreach ($json["files"] as $ruta => $datos) {
+            $ruta = str_starts_with($ruta, $raiz) ? substr($ruta, strlen($raiz)) : $ruta;
+            foreach ($datos["messages"] as $m) {
+                $texto = $ruta . ":" . $m["line"] . " " . $m["message"] . (isset($m["identifier"]) ? " [" . $m["identifier"] . "]" : "");
+                if (($m["identifier"] ?? "") === "phpstan.parse" || preg_match("/^Syntax error|could not be read|File .* does not exist/i", (string) $m["message"]) === 1) {
+                    $noAnalizado[] = $texto;
+                }
+                $lineas[] = $texto;
+            }
+        }
+        if (count($noAnalizado) > 0) {
+            fwrite(STDERR, "PHPSTAN: " . count($noAnalizado) . " archivo(s) o error(es) que impiden el análisis; la cifra NO vale:\n  " . implode("\n  ", $noAnalizado) . "\n");
+            exit(1);
+        }
+        echo implode("\n", $lineas) . (count($lineas) > 0 ? "\n" : "");
+        echo "PHPSTAN DEL CLON: " . count($lineas) . " error(es) en " . count($json["files"]) . " archivo(s), nivel 8, PHP 8.5. Sin línea base ni trinquete: la cifra es para leerla.\n";
+    ' "$CLON_JSON"
+    CODIGO=$?
+    rm -f "$CLON_NEON" "$CLON_JSON"
+    exit $CODIGO
+fi
+
+REPORT_FILE=PHPStanResult.txt
+REPORT_JSON=PHPStanResult.json
+ANALYSE="bin/tools/vendor/bin/phpstan analyse --autoload-file=$SCRIPT_DIR/../src/vendor/autoload.php --memory-limit 2000M"
+
+# 1. La configuración de la pasada, derivada de bin/phpstan.neon y no duplicada: así no puede
+#    quedarse atrás cuando alguien toque los ignores.
+for VERSION in 80500; do
+    $PHP_BIN -r '
+        $c = str_replace("\r\n", "\n", (string) file_get_contents("bin/phpstan.neon"));
+        if (preg_match("/^    phpVersion:\n(?:        .*\n)+/m", $c, $m) !== 1) {
+            fwrite(STDERR, "No se encontró el bloque phpVersion en bin/phpstan.neon.\n");
+            exit(1);
+        }
+        $replacement = "    phpVersion:\n        min: " . $argv[1] . "\n        max: " . $argv[1] . "\n";
+        file_put_contents($argv[2], str_replace("\n", "\r\n", str_replace($m[0], $replacement, $c)));
+    ' "$VERSION" "bin/phpstan.$VERSION.generated.neon" || exit 1
+done
+
+# 2. La tabla legible, de la pasada. Es para leerla; el dato manda en el JSON.
+#    NO QUITAR COLUMNS: sin él la tabla recorta las rutas al ancho de terminal.
+COLUMNS=400 PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 \
+    $PHP_BIN $ANALYSE -c bin/phpstan.80500.generated.neon > "$REPORT_FILE"
+
+# 3. La pasada de máquina.
+$PHP_BIN $ANALYSE -c bin/phpstan.80500.generated.neon --error-format=json --no-progress > PHPStanResult.8.5.json 2>/dev/null
+
+# 4. PHPStanResult.json, deduplicado por (ruta, línea, mensaje) y con la versión anotada en cada error.
+$PHP_BIN -r '
+    $load = function (string $file): array {
+        $json = json_decode((string) @file_get_contents($file), true);
+        return is_array($json) && isset($json["files"]) && is_array($json["files"]) ? $json["files"] : [];
+    };
+    $sources = ["8.5" => $load("PHPStanResult.8.5.json")];
+    if (count($sources["8.5"]) === 0) {
+        fwrite(STDERR, "La pasada devolvió cero archivos: la medición NO se hizo.\n");
+        exit(1);
+    }
+    //UN ARCHIVO QUE NO SE ANALIZA HUNDE LA CIFRA: con un error de sintaxis PHPStan informa solo ese
+    //error y el total cae de cientos a uno. Eso no es una mejora: se nombra y se falla.
+    $raw = json_decode((string) @file_get_contents("PHPStanResult.8.5.json"), true);
+    $notAnalysed = [];
+    foreach ((is_array($raw) && is_array($raw["errors"] ?? null)) ? $raw["errors"] : [] as $general) {
+        $notAnalysed[] = "(general) " . (is_string($general) ? $general : json_encode($general));
+    }
+    foreach ($sources["8.5"] as $path => $data) {
+        foreach ($data["messages"] as $message) {
+            $identifier = (string) ($message["identifier"] ?? "");
+            if ($identifier === "phpstan.parse"
+                || preg_match("/^Syntax error|could not be read|File .* does not exist/i", (string) $message["message"]) === 1) {
+                $notAnalysed[] = $path . ":" . $message["line"] . " " . $message["message"];
+            }
+        }
+    }
+    if (count($notAnalysed) > 0) {
+        fwrite(STDERR, "PHPSTAN: " . count($notAnalysed) . " archivo(s) o error(es) que impiden el análisis; la cifra NO vale:\n  " . implode("\n  ", $notAnalysed) . "\n");
+        exit(1);
+    }
+    $union = [];
+    foreach ($sources as $version => $files) {
+        foreach ($files as $path => $data) {
+            foreach ($data["messages"] as $message) {
+                $key = $path . "|" . $message["line"] . "|" . $message["message"];
+                if (!isset($union[$key])) {
+                    $union[$key] = ["path" => $path, "message" => $message, "versions" => []];
+                }
+                if (!in_array($version, $union[$key]["versions"], true)) {
+                    $union[$key]["versions"][] = $version;
+                }
+            }
+        }
+    }
+    $files = [];
+    $total = 0;
+    foreach ($union as $entry) {
+        $message = $entry["message"];
+        $message["phpVersions"] = $entry["versions"];
+        $files[$entry["path"]]["messages"][] = $message;
+        $total++;
+    }
+    foreach ($files as $path => $data) {
+        $files[$path]["errors"] = count($data["messages"]);
+    }
+    ksort($files);
+    file_put_contents("PHPStanResult.json", json_encode([
+        "totals" => ["errors" => 0, "file_errors" => $total],
+        "files" => $files,
+        "errors" => [],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+' || { rm -f bin/phpstan.80500.generated.neon; exit 1; }
+
+rm -f bin/phpstan.80500.generated.neon
+
+# 5. Resumen y trinquete, a partir de PHPStanResult.json.
+$PHP_BIN "$SCRIPT_DIR/phpstan-process-result.php" "$@"

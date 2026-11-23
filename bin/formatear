@@ -7,6 +7,8 @@
 #   bin/formatear --check --todo              lo mismo con todo el universo
 #   bin/formatear <archivo>… | --desde=… | --todo   formatea en su sitio
 #   bin/formatear --universo [--guardar]      lista el universo; con --guardar escribe files/dev/format-universe.json
+#   bin/formatear … --solo=php,scss,css       se queda con esos lenguajes y no mira los demás: bin/verify, en un clon sin
+#                                             node_modules, deja fuera el JS (necesita su TypeScript) y lo dice
 #   bin/formatear --suelto <archivo>          formatea un archivo aunque esté fuera del universo (el temporal del editor:
 #                                             bin/tools/formato/php-editor, P242)
 #   .piecesphp-formato-excluir, en la raíz y si existe: carpetas o globs (uno por línea; # y vacías se ignoran) que el
@@ -210,10 +212,17 @@ def main(argumentos):
     desde = next((a.split('=', 1)[1] for a in argumentos if a.startswith('--desde=')), '')
     pedidos = [a for a in argumentos if not a.startswith('--')]
     suelto = '--suelto' in argumentos
-    desconocidas = [a for a in argumentos if a.startswith('--') and a not in ('--check', '--todo', '--universo', '--guardar', '--suelto') and not a.startswith('--desde=')]
+    solo = next((a.split('=', 1)[1] for a in argumentos if a.startswith('--solo=')), None)
+    desconocidas = [a for a in argumentos if a.startswith('--') and a not in ('--check', '--todo', '--universo', '--guardar', '--suelto') and not a.startswith(('--desde=', '--solo='))]
     if desconocidas:
         print('bin/formatear: opción desconocida «%s» (bin/formatear --help)' % desconocidas[0], file=sys.stderr)
         return 2
+    lenguajes = EXTENSIONES
+    if solo is not None:
+        lenguajes = tuple('.' + l.strip().lstrip('.') for l in solo.split(',') if l.strip())
+        if not lenguajes or any(l not in EXTENSIONES for l in lenguajes):
+            print('bin/formatear: --solo=%s no es una lista de %s' % (solo, ','.join(e[1:] for e in EXTENSIONES)), file=sys.stderr)
+            return 2
     universo, compilados = clasificar(con_nuevos='--universo' not in argumentos)
     if '--universo' in argumentos:
         if '--guardar' in argumentos:
@@ -239,7 +248,7 @@ def main(argumentos):
         (rutas if ruta in del_universo or (suelto and ruta.endswith(EXTENSIONES)) else fuera).append(ruta)
     for ruta in fuera:
         print('  FUERA      %s (no es del universo: bin/formatear --universo)' % ruta)
-    rutas = sorted(set(rutas))
+    rutas = sorted(set(r for r in rutas if r.endswith(lenguajes)))
     if not rutas:
         print('formatear: ningún archivo del universo que mirar')
         return 1 if fuera else 0

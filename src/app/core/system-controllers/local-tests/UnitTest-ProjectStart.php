@@ -43,7 +43,13 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
     try {
         //──── a. De fábrica ──────────────────────────────────────────────────────────────────
         echoTerminal('[a] De fábrica, todo como antes');
-        $check($previous['public_area'] === true && $previous['admin_path'] === 'admin' && $previous['login_redirect_route'] === 'admin', 'a1 config.php trae public_area = true, admin_path = admin y login_redirect_route = admin', var_export([$previous['public_area'], $previous['admin_path'], $previous['login_redirect_route']], true));
+        //En un clon (ADR 0085 §5), cambiar estos valores de fábrica es una decisión del proyecto, no un fallo.
+        $deFabrica = $previous['public_area'] === true && $previous['admin_path'] === 'admin' && $previous['login_redirect_route'] === 'admin';
+        if (\Terminal\Distribution::isDistribution() && !$deFabrica) {
+            echoTerminal("   \e[33m" . \Terminal\Distribution::NOT_APPLICABLE . " a1 config.php trae public_area, admin_path y login_redirect_route de fábrica: este proyecto los cambió\e[39m");
+        } else {
+            $check($deFabrica, 'a1 config.php trae public_area = true, admin_path = admin y login_redirect_route = admin', var_export([$previous['public_area'], $previous['admin_path'], $previous['login_redirect_route']], true));
+        }
         //En un clon (ADR 0085 §5), el banco encendido es una decisión del proyecto, no un fallo de fábrica.
         if (\Terminal\Distribution::isDistribution() && ProjectStart::legacyRedirectsEnabled($previous['legacy_redirects'])) {
             echoTerminal("   \e[33m" . \Terminal\Distribution::NOT_APPLICABLE . " a2 el banco de redirecciones viene apagado: este proyecto lo encendió\e[39m");

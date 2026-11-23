@@ -202,6 +202,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         'bin/mcp',
         //La verificación de una orden viaja: en un clon sigue su camino ligero (ADR 0085 §3).
         'bin/verify',
+        //PHPStan, opcional en todo clon: sin nuestra línea base ni las extensiones de campaña (ADR 0085 §4).
+        'bin/phpstan', 'bin/phpstan.neon', 'bin/tools/composer.json', 'bin/tools/composer.lock',
     ];
 
     /** La carpeta de las claves viaja solo con su protección, y nada más: algo de más puede ser una clave versionada (ADR 0050). */

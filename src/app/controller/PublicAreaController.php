@@ -539,6 +539,8 @@ class PublicAreaController extends BaseController
         $ignoreRoutes = array_merge([
             //Vistas para ignorar
             "{$namePrefix}-SAMPLE",
+            //Sin formularios no hay a dónde enviar: la página de contacto no se registra (H464.1).
+             ...(PUBLIC_AREA_CONTACT_FORMS ? [] : ["{$namePrefix}-contact"]),
         ], self::projectIgnoredRoutes());
         //Las páginas del sitio público (ADR 0084), antes del comodín; index y contact usan las rutas de arriba.
         $siteRoutes = [];

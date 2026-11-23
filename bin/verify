@@ -8,6 +8,8 @@
 #    está instalado (opcional: `bin/phpstan` y `bin/tools/vendor`) y gates solo en local, con base HTTP y tras un
 #    `bin/cli db-backup` que salió bien. Lo que no puede correr lo dice con «NO CORRE: <motivo>» y sigue; lo que falla
 #    para la cadena con su código. Termina con una línea que dice lo que corrió y lo que no. No admite argumentos.
+#    Sin src/vendor no corren check-routes, verify-integrity, PHPStan ni gates; sin node_modules, el formato deja fuera
+#    el JS (su formateador necesita el TypeScript de package.json) y mira PHP, SCSS y CSS.
 #
 # 2. CAMINO DEL REPOSITORIO DE DESARROLLO (sin esa marca): en orden, check-routes, formato, artefactos, phpstan, lo que
 #    sale de phpstan, verify-integrity y gates. `--changed-since=<commit>` hace la parcial (ADR 0062).
@@ -132,8 +134,24 @@ if [ -f "$ROOT/.piecesphp-distribution" ]; then
 
     cd "$ROOT" || exit 1
 
-    pieza_clon check-routes "formato sintaxis-php verify-integrity phpstan gates" bin/check-routes
-    pieza_clon formato "sintaxis-php verify-integrity phpstan gates" bin/formatear --check --todo
+    # check-routes, verify-integrity, gates y PHPStan arrancan la aplicación: sin las dependencias no pueden correr.
+    SIN_VENDOR="falta src/vendor (composer install)"
+    CON_VENDOR=0
+    [ -f src/vendor/autoload.php ] && CON_VENDOR=1
+
+    if [ $CON_VENDOR -eq 1 ]; then
+        pieza_clon check-routes "formato sintaxis-php verify-integrity phpstan gates" bin/check-routes
+    else
+        no_corre check-routes "$SIN_VENDOR"
+    fi
+
+    # El formato de JS usa node_modules/typescript (bin/tools/formato/js.js); el de PHP, SCSS y CSS, no.
+    if [ -d node_modules/typescript ]; then
+        pieza_clon formato "sintaxis-php verify-integrity phpstan gates" bin/formatear --check --todo
+    else
+        no_corre formato-js "faltan node_modules (npm ci)"
+        pieza_clon formato "sintaxis-php verify-integrity phpstan gates" bin/formatear --check --todo --solo=php,scss,css
+    fi
 
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
         no_corre sintaxis-php "no es un repositorio git, así que no hay «cambiado desde el último commit»"
@@ -141,16 +159,24 @@ if [ -f "$ROOT/.piecesphp-distribution" ]; then
         pieza_clon sintaxis-php "verify-integrity phpstan gates" sintaxis_php
     fi
 
-    pieza_clon verify-integrity "phpstan gates" bin/cli verify-integrity
+    if [ $CON_VENDOR -eq 1 ]; then
+        pieza_clon verify-integrity "phpstan gates" bin/cli verify-integrity
+    else
+        no_corre verify-integrity "$SIN_VENDOR"
+    fi
 
-    # Opcional (ADR 0085 §4): se instala con composer install en bin/tools.
-    if [ -x bin/phpstan ] && [ -d bin/tools/vendor ]; then
+    # Opcional (ADR 0085 §4): se instala con composer install en bin/tools. En un clon da su cifra, sin trinquete.
+    if [ $CON_VENDOR -eq 0 ]; then
+        no_corre phpstan "$SIN_VENDOR"
+    elif [ -x bin/phpstan ] && [ -d bin/tools/vendor ]; then
         pieza_clon phpstan "gates" bin/phpstan
     else
         no_corre phpstan "PHPStan no instalado (opcional)"
     fi
 
-    if ! entorno_local; then
+    if [ $CON_VENDOR -eq 0 ]; then
+        no_corre gates "$SIN_VENDOR"
+    elif ! entorno_local; then
         no_corre gates "el entorno no es local (src/app/config/environment.php no devuelve 'local')"
     elif [ -z "$(base_http)" ]; then
         no_corre gates "sin base HTTP para pedir (ni PCSPHP_WALK_BASE ni files/dev/permissions-matrix.json)"

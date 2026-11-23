@@ -32,6 +32,7 @@ use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
+use Terminal\Tasks\AppKeyCommands;
 use Terminal\Tasks\VerifyIntegrityTask;
 
 CliActions::make('unit-tests:core/app-key-crypto', function ($args) {
@@ -248,7 +249,17 @@ CliActions::make('unit-tests:core/app-key-crypto', function ($args) {
         //RETORNO-IGNORADO: en un temporal propio: si falla, la comprobación que sigue lo dice.
         mkdir(dirname($primer), 0775, true);
         $deRelleno = new AppKeyring('TODO:zz-relleno', [], AppKeyring::SOURCE_CONFIG);
+        $huellaDelArranque = new \ReflectionProperty(Config::class, 'bootGeneratedKeyFingerprint');
+        $huellaPorAvisar = new \ReflectionProperty(Config::class, 'generatedKeyFingerprint');
+        $huellasPrevias = [$huellaDelArranque->getValue(), $huellaPorAvisar->getValue()];
         $generado = Config::first_boot_keyring($deRelleno, $primer);
+        $huellaVista = Config::app_key_generated_this_boot();
+        //Lo que hace announce_generated_app_key() tras avisar, sin escribir el aviso en el registro real.
+        $huellaPorAvisar->setValue(null, null);
+        $huellaTrasAvisar = Config::app_key_generated_this_boot();
+        //Las de este proceso, como estaban: la prueba no cambia lo que vería un generate-app-key ni un aviso posterior.
+        $huellaDelArranque->setValue(null, $huellasPrevias[0]);
+        $huellaPorAvisar->setValue(null, $huellasPrevias[1]);
         $check(!Config::app_key_is_placeholder($generado->current()) && is_file($primer) && $generado->keyFor($deRelleno->currentFingerprint()) === 'TODO:zz-relleno', 'g1 con la de relleno y la carpeta escribible: genera, guarda, y la de relleno queda como anterior');
         $guardado = (string) file_get_contents($primer);
         $segundo = Config::first_boot_keyring($deRelleno, $primer);
@@ -260,6 +271,39 @@ CliActions::make('unit-tests:core/app-key-crypto', function ($args) {
             && !is_file($directorio . '/otra/' . AppKeyring::FILE_NAME)
             && Config::first_boot_keyring($deRelleno, null)->current() === 'TODO:zz-relleno', 'g3 con una clave de verdad, o sin carpeta secure-keys, no genera nada');
         $check(Config::app_key_is_placeholder(Config::DEFAULT_APP_KEY) && Config::app_key_is_placeholder('TODO:x') && !Config::app_key_is_placeholder('zz-clave-de-verdad'), "g4 la de omisión ('secret') también cuenta como relleno");
+        $check($huellaVista === $generado->currentFingerprint() && $huellaTrasAvisar === $huellaVista, 'g5 el arranque recuerda la huella que generó, también después de avisarla (cuando se borra la que espera aviso)', var_export([$huellaVista, $huellaTrasAvisar], true));
+        try {
+            $hecho = AppKeyCommands::generate($primer, $generado, $generado->currentFingerprint());
+        } catch (\RuntimeException $e) {
+            $hecho = ['LANZÓ: ' . $e->getMessage()];
+        }
+        $check(str_contains(implode(' ', $hecho), 'ya se generó en este arranque (huella ' . $generado->currentFingerprint() . ')') && (string) file_get_contents($primer) === $guardado, 'g6 generate-app-key justo tras el arranque que creó el llavero: lo da por hecho con su huella y no toca el archivo', implode(' | ', $hecho));
+        $mensajes = [];
+        foreach ([null, $deRelleno->currentFingerprint()] as $otraHuella) {
+            try {
+                AppKeyCommands::generate($primer, $generado, $otraHuella);
+                $mensajes[] = 'NO LANZÓ';
+            } catch (\RuntimeException $e) {
+                $mensajes[] = $e->getMessage();
+            }
+        }
+        $check(count(array_filter($mensajes, fn(string $m): bool => str_contains($m, 'rotate-app-key'))) === 2 && (string) file_get_contents($primer) === $guardado, 'g7 con un llavero de antes (o de otra clave) se niega y manda a rotate-app-key, sin tocar el archivo', implode(' | ', $mensajes));
+        $sinEscribir = $directorio . '/sin-escribir';
+        //RETORNO-IGNORADO: en un temporal propio: si falla, la comprobación que sigue lo dice.
+        mkdir($sinEscribir, 0555, true);
+        $consejos = [
+            'sin carpeta' => Config::placeholder_app_key_advice(null),
+            'sin escribir' => Config::placeholder_app_key_advice($sinEscribir),
+            'con llavero' => Config::placeholder_app_key_advice(dirname($primer)),
+            'escribible' => Config::placeholder_app_key_advice($directorio . '/otra'),
+        ];
+        $escribible = is_writable($sinEscribir);
+        //RETORNO-IGNORADO: en un temporal propio; lo borra la limpieza del final.
+        @chmod($sinEscribir, 0775);
+        $check(str_contains($consejos['sin carpeta'], 'No hay carpeta de claves') && str_contains($consejos['sin carpeta'], 'permissions-and-property.sh')
+            && ($escribible || (str_contains($consejos['sin escribir'], $sinEscribir) && str_contains($consejos['sin escribir'], 'no la puede escribir') && str_contains($consejos['sin escribir'], 'chmod 2770') && str_contains($consejos['sin escribir'], 'setgid')))
+            && str_contains($consejos['con llavero'], 'no lo puede leer')
+            && str_contains($consejos['escribible'], 'generate-app-key'), 'g8 el aviso de relleno dice la causa: sin carpeta, carpeta sin escritura (con su ruta y qué hacer), llavero ilegible' . ($escribible ? ' (este proceso escribe en una carpeta 0555: el caso sin escritura no se pudo medir)' : ''), (string) json_encode($consejos, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES));
         echoTerminal(' ');
 
         //─── h · Lo publicado, migrado ──────────────────────────────────────────────────────────────────

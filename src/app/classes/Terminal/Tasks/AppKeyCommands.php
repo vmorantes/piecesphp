@@ -28,14 +28,25 @@ final class AppKeyCommands
      * Crea el llavero con una clave nueva. Solo si no hay llavero: con uno, se rota. La clave de ahora (la de config.php
      * o la de relleno) queda como anterior, así lo cifrado con ella se sigue leyendo.
      *
+     * Si el llavero lo acaba de crear el arranque de este mismo proceso (bin/cli genera al arrancar con la de relleno), no
+     * es un error: está hecho, y se dice con su huella (H454).
+     *
      * @param string $keyringPath
      * @param AppKeyring $current
+     * @param string|null $generatedThisBoot La huella que generó este arranque (Config::app_key_generated_this_boot())
      * @return string[] Las líneas que se imprimen
      * @throws \RuntimeException
      */
-    public static function generate(string $keyringPath, AppKeyring $current): array
+    public static function generate(string $keyringPath, AppKeyring $current, ?string $generatedThisBoot = null): array
     {
         if (is_file($keyringPath)) {
+            $stored = AppKeyring::fromFile($keyringPath);
+            if ($generatedThisBoot !== null && $stored !== null && $stored->currentFingerprint() === $generatedThisBoot) {
+                return [
+                    'La clave ya se generó en este arranque (huella ' . $generatedThisBoot . '), en ' . $keyringPath . ': no hay nada más que hacer.',
+                    'Para cambiarla más adelante: bin/cli rotate-app-key.',
+                ];
+            }
             throw new \RuntimeException('Ya hay un llavero en ' . $keyringPath . '. Para cambiar la clave: bin/cli rotate-app-key.');
         }
         $keyring = $current->rotatedTo(AppKeyring::generateKey());

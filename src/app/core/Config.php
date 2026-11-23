@@ -71,6 +71,12 @@ class Config
     private static $generatedKeyFingerprint = null;
 
     /**
+     * @var string|null La misma huella, pero no se borra al avisar: generate-app-key la mira para no fallar justo
+     * después de que el arranque de bin/cli creara el llavero (H454)
+     */
+    private static $bootGeneratedKeyFingerprint = null;
+
+    /**
      * @var bool Si el llavero existe pero este proceso no lo puede leer (permisos, o mal formado)
      */
     private static $keyringUnreadable = false;
@@ -1132,10 +1138,21 @@ class Config
         $generated = $keyring->rotatedTo(AppKeyring::generateKey());
         if ($generated->saveIfAbsent($keyringPath)) {
             self::$generatedKeyFingerprint = $generated->currentFingerprint();
+            self::$bootGeneratedKeyFingerprint = self::$generatedKeyFingerprint;
             return $generated;
         }
         //Otro arranque lo creó a la vez: manda el suyo.
         return AppKeyring::fromFile($keyringPath) ?? $keyring;
+    }
+
+    /**
+     * La huella de la clave que generó ESTE proceso al arrancar (first_boot_keyring()); null si no generó ninguna.
+     *
+     * @return string|null
+     */
+    public static function app_key_generated_this_boot(): ?string
+    {
+        return self::$bootGeneratedKeyFingerprint;
     }
 
     /**
@@ -1177,9 +1194,32 @@ class Config
         if (is_file($marker) && (int) filemtime($marker) > time() - 86400) {
             return;
         }
-        log_exception(new \RuntimeException('app_key es la de relleno (vacía o «TODO…»): las sesiones y los tokens se firman con una clave conocida. Genere una con `bin/cli generate-app-key` (la guarda en secure-keys/app-key.json).'), true);
+        log_exception(new \RuntimeException('app_key es la de relleno (vacía o «TODO…»): las sesiones y los tokens se firman con una clave conocida. ' . self::placeholder_app_key_advice(AppKeyring::directory())), true);
         //RETORNO-IGNORADO: sin la marca el aviso solo se repite; no impide nada.
         @touch($marker);
+    }
+
+    /**
+     * Qué impide que el arranque genere la clave y qué hacer, para el aviso de clave de relleno (H454).
+     *
+     * @param string|null $directory La carpeta de claves (AppKeyring::directory()); null: no hay
+     * @return string
+     */
+    public static function placeholder_app_key_advice(?string $directory): string
+    {
+        $fix = 'dele el grupo del servidor web, con setgid y escritura de grupo (chgrp <grupo> <carpeta> && chmod 2770 <carpeta>), o ejecute permissions-and-property.sh; el próximo arranque genera la clave.';
+        if ($directory === null) {
+            return 'No hay carpeta de claves (secure-keys/ en la raíz, junto a src/, ni private/secure-keys/): créela y ' . $fix;
+        }
+        $keyring = $directory . '/' . AppKeyring::FILE_NAME;
+        if (is_file($keyring)) {
+            return "El llavero {$keyring} existe pero este proceso no lo puede leer: lo tienen que poder leer el servidor web y la terminal (grupo del servidor web y 0640), o ejecute permissions-and-property.sh.";
+        }
+        if (!is_writable($directory)) {
+            $user = function_exists('posix_geteuid') && function_exists('posix_getpwuid') ? (posix_getpwuid(posix_geteuid())['name'] ?? '') : '';
+            return "La carpeta de claves {$directory} no la puede escribir este proceso" . ($user !== '' ? " (usuario {$user})" : '') . ': ' . $fix;
+        }
+        return 'Genere una con `bin/cli generate-app-key` (la guarda en ' . $keyring . ').';
     }
 
     /**

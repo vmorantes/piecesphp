@@ -1,0 +1,20 @@
+{
+    "name": "piecesphp/dev-tools",
+    "description": "piecesphp dev tools",
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        },
+        "sort-packages": true
+    },
+    "require": {
+        "php": ">=8.4 <8.6",
+        "nikic/php-parser": "^5.5",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0"
+    },
+    "require-dev": {
+        "rector/rector": "^2.3"
+    },
+    "scripts": {}
+}

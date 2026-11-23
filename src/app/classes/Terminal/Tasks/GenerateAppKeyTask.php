@@ -6,6 +6,7 @@
 
 namespace Terminal\Tasks;
 
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
@@ -64,13 +65,19 @@ class GenerateAppKeyTask extends TerminalTaskAbstract
      * @param ResponseRoute|null $responseRoute
      * @param array<mixed>|null $parameters
      * @return void
-     * @throws \Throwable Si falla: bin/cli sale con código distinto de 0
      */
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
         $titleTask = 'Generando app_key';
         echoTerminal("\e[32m*** {$titleTask} ***\e[39m");
-        foreach (AppKeyCommands::generate(AppKeyCommands::installationPath(), AppKeyring::get()) as $line) {
+        try {
+            $lines = AppKeyCommands::generate(AppKeyCommands::installationPath(), AppKeyring::get(), Config::app_key_generated_this_boot());
+        } catch (\RuntimeException $e) {
+            //Un error esperado (ya hay llavero, no hay carpeta, no se puede escribir): una línea y código 1, sin traza.
+            echoTerminal("\e[31mERROR:\e[39m " . $e->getMessage());
+            exit(1);
+        }
+        foreach ($lines as $line) {
             echoTerminal("\e[34m{$line}\e[39m");
         }
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");

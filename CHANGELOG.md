@@ -1,3 +1,15 @@
+# 10.62.6 (23-11-2026)
+
+- **Con los formularios de contacto apagados (`PUBLIC_AREA_CONTACT_FORMS = false`), `/contact` ya no da error**: la
+  página de contacto deja de existir y nada la enlaza.
+- **La clave de la aplicación en una instalación nueva**: si el servidor web no puede crearla, el aviso dice por qué
+  (la carpeta `secure-keys/` no se puede escribir) y cómo arreglarlo; `bin/cli generate-app-key` ya no falla cuando el
+  propio arranque acaba de crearla; y `permissions-and-property.sh` prepara también `secure-keys/`.
+- **`bin/verify` en tu proyecto**: dice «NO CORRE» con la causa cuando falta `src/vendor` (`composer install`) o
+  `node_modules`, y corre PHPStan si lo instalas (`composer install` en `bin/tools`), con la configuración del framework
+  y sin la línea base de su desarrollo.
+- **Al actualizar**: si ya ejecutaste `permissions-and-property.sh`, vuelve a ejecutarlo para que cubra `secure-keys/`.
+
 # 10.62.5 (23-11-2026)
 
 - **Nuevo — tu proyecto tiene su verificación en una orden: `bin/verify`.** En un proyecto hecho a partir de PiecesPHP
