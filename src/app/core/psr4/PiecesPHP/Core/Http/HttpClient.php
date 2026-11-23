@@ -35,6 +35,11 @@ class HttpClient
      */
     const MAX_REDIRECTS = 5;
 
+    /**
+     * Fragmentos de nombre (en minúsculas) de las cabeceras que no siguen a una redirección hacia otro origen.
+     */
+    protected const CROSS_ORIGIN_DROPPED_HEADER_FRAGMENTS = ['cookie', 'auth', 'token', 'secret', 'key', 'session', 'password', 'api'];
+
     //NO la vuelvas estatica: cada cliente lleva la suya, y compartirla hacia que construir
     //uno reescribiese la URL base de todos los demas. Ver `core/http-client-request-build`.
     protected string $baseURL = '';
@@ -70,6 +75,16 @@ class HttpClient
      * @var bool
      */
     private static bool $foreignCookiesLogged = false;
+
+    /**
+     * @var bool
+     */
+    private static bool $unsafeCookiesLogged = false;
+
+    /**
+     * @var bool
+     */
+    private static bool $unsafeHeadersLogged = false;
 
     /**
      * @var int|null
@@ -240,14 +255,22 @@ class HttpClient
                 $response = $this->failLikeStreamError($url, 'Redirection limit reached, aborting');
                 break;
             }
+            //El código, del mismo análisis que redirectLocation(): parseReponseHeaders() parte por «:» y una frase de estado
+            //con «:» daría 0.
+            $code = self::statusCode($hopHeaders);
+            $crossOrigin = !self::sameOrigin($url, $next);
+            //Un 307 o 308 reenviaría el cuerpo a otro origen: se devuelve esa respuesta tal cual.
+            $sendsBody = !in_array($streamContextConfiguration['http']['method'], ['GET', 'HEAD'], true) && ($streamContextConfiguration['http']['content'] ?? '') !== '';
+            if ($crossOrigin && ($code === 307 || $code === 308) && $sendsBody) {
+                break;
+            }
             //Las credenciales no siguen a una redirección hacia otro origen. Se rehace desde el array, no filtrando el texto:
             //un salto de línea dentro de un valor esquivaría cualquier patrón por líneas.
-            if (!self::sameOrigin($url, $next)) {
-                $headers_string = $this->headersArrayToString(array_filter($this->requestHeaders, fn($name): bool => !in_array(strtolower((string) $name), ['cookie', 'authorization'], true), ARRAY_FILTER_USE_KEY));
+            if ($crossOrigin) {
+                $headers_string = $this->headersArrayToString(array_filter($this->requestHeaders, fn($name): bool => !self::isCredentialHeader((string) $name), ARRAY_FILTER_USE_KEY));
                 $streamContextConfiguration['http']['header'] = isset($streamContextConfiguration['http']['content']) ? $headers_string : (preg_replace('/^Content-(Type|Length):[^\r\n]*\r\n/mi', '', $headers_string) ?? $headers_string);
             }
             //Lo que hacía el seguimiento de PHP: con 300-303 un POST pasa a GET y pierde el cuerpo; con 307 y 308, no.
-            $code = (int) ($this->parseReponseHeaders($hopHeaders)['response_code'] ?? 0);
             if ($code <= 303 && !in_array($streamContextConfiguration['http']['method'], ['GET', 'HEAD'], true)) {
                 $streamContextConfiguration['http']['method'] = 'GET';
                 unset($streamContextConfiguration['http']['content']);
@@ -326,17 +349,32 @@ class HttpClient
         if ($scheme !== 'http' && $scheme !== 'https') {
             return null;
         }
-        $code = 0;
+        $code = self::statusCode($responseHeaders);
         $location = null;
         foreach ($responseHeaders as $line) {
-            if (preg_match('#^HTTP/[0-9.]+\s+([0-9]+)#', $line, $match) === 1) {
-                $code = (int) $match[1];
-            } elseif (preg_match('/^Location:\s*(.*)$/i', $line, $match) === 1) {
+            if (preg_match('/^Location:\s*(.*)$/i', $line, $match) === 1) {
                 $location = trim($match[1]);
             }
         }
         $followed = ($code >= 300 && $code <= 303) || $code === 307 || $code === 308;
         return $followed && $location !== null && $location !== '' ? $location : null;
+    }
+
+    /**
+     * El código de la última línea de estado de una respuesta, o 0 si no hay.
+     *
+     * @param string[] $responseHeaders Las cabeceras crudas de ESA respuesta
+     * @return int
+     */
+    protected static function statusCode(array $responseHeaders): int
+    {
+        $code = 0;
+        foreach ($responseHeaders as $line) {
+            if (preg_match('#^HTTP/[0-9.]+\s+([0-9]+)#', $line, $match) === 1) {
+                $code = (int) $match[1];
+            }
+        }
+        return $code;
     }
 
     /**
@@ -369,6 +407,23 @@ class HttpClient
         };
         $originA = $origin($a);
         return $originA !== null && $originA === $origin($b);
+    }
+
+    /**
+     * Si el nombre de la cabecera contiene alguno de CROSS_ORIGIN_DROPPED_HEADER_FRAGMENTS, sin distinguir mayúsculas.
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected static function isCredentialHeader(string $name): bool
+    {
+        $name = strtolower($name);
+        foreach (self::CROSS_ORIGIN_DROPPED_HEADER_FRAGMENTS as $fragment) {
+            if (str_contains($name, $fragment)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -453,7 +508,16 @@ class HttpClient
         $http_cookie_header = [];
 
         foreach ($_COOKIE as $name => $value) {
-            $http_cookie_header[] = "$name=$value";
+            $pair = "$name=$value";
+            //Un salto de línea o un «;» dentro de una cookie partiría la cabecera: esa cookie no se manda.
+            if (preg_match('/[\r\n\0;]/', $pair) === 1) {
+                if (!self::$unsafeCookiesLogged) {
+                    self::$unsafeCookiesLogged = true;
+                    log_soft_error('HttpClient: se descarta una cookie con caracteres que no caben en una cabecera.');
+                }
+                continue;
+            }
+            $http_cookie_header[] = $pair;
         }
 
         return implode(';', $http_cookie_header);
@@ -742,6 +806,19 @@ class HttpClient
         }
 
         foreach ($headers as $header => $value) {
+            //Un salto de línea en el nombre o en un valor inyectaría otra cabecera: se descarta, sin lanzar.
+            $values = is_array($value) ? $value : [$value];
+            $unsafe = preg_match('/[\r\n\0]/', (string) $header) === 1;
+            foreach ($values as $one) {
+                $unsafe = $unsafe || (is_string($one) && preg_match('/[\r\n\0]/', $one) === 1);
+            }
+            if ($unsafe) {
+                if (!self::$unsafeHeadersLogged) {
+                    self::$unsafeHeadersLogged = true;
+                    log_soft_error('HttpClient: se descarta una cabecera con saltos de línea o caracteres nulos.');
+                }
+                continue;
+            }
             $header = $this->parseNameHeader($header);
             $processed_headers[$header] = $value;
         }

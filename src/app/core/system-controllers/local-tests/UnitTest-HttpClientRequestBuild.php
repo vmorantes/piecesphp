@@ -66,7 +66,7 @@ CliActions::make('unit-tests:core/http-client-request-build', function ($args) {
     //─── 3/4 · override_defaults = true: las de por defecto se pierden ─────────────────
     echoTerminal('[3/5] override_defaults = true reemplaza, no fusiona');
 
-    $cliente->request('', 'GET', [], ['Accept' => 'text/plain'], true, true);
+    $cliente->request('', 'GET', [], ['Accept' => 'text/plain'], false, true);
     $cabeceras = $cliente->getRequestHeaders();
 
     $check(($cabeceras['Accept'] ?? '') === 'text/plain', 'la cabecera propia manda',
@@ -78,7 +78,7 @@ CliActions::make('unit-tests:core/http-client-request-build', function ($args) {
     //─── 4/4 · override_defaults = false: fusiona ──────────────────────────────────────
     echoTerminal('[4/5] override_defaults = false conserva las de por defecto');
 
-    $cliente->request('', 'POST', ['hi' => 1], ['Content-Type' => 'application/json'], true, false);
+    $cliente->request('', 'POST', ['hi' => 1], ['Content-Type' => 'application/json'], false, false);
     $cabeceras = $cliente->getRequestHeaders();
 
     $check(($cabeceras['Content-Type'] ?? '') === 'application/json', 'la cabecera propia entra',

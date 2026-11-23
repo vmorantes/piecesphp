@@ -1,3 +1,8 @@
+# 10.62.3 (23-11-2026)
+
+- **Seguridad: más refuerzos en las peticiones que la aplicación hace a otros servicios.** Se recomienda actualizar.
+  Escribe las direcciones base de tus integraciones con `https://`.
+
 # 10.62.2 (23-11-2026)
 
 - **Seguridad: refuerzo en las peticiones que la aplicación hace a otros servicios.** Se recomienda actualizar. Si tu

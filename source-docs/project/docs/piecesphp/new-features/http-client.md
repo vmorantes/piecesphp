@@ -49,7 +49,12 @@ $client = new HttpClient(baseurl());
 $client->request('mi-modulo/datos', 'GET', [], [], true); // con la sesión de quien navega, solo hacia aquí
 ```
 
-Al seguir una redirección hacia otro origen tampoco viajan.
+Al seguir una redirección hacia otro origen tampoco viajan, ni las cabeceras con credenciales (`Authorization`, claves
+de API y similares). Y una redirección `307` o `308` hacia otro origen con cuerpo no se sigue: recibes la respuesta de
+redirección y decides tú.
+
+Escribe las direcciones base con `https://`. Pasar de `http://` a `https://` cuenta como cambiar de origen, así que una
+redirección de ese tipo pierde las credenciales en el segundo salto, igual que en `curl` o en el navegador.
 
 ---
 

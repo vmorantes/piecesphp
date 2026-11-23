@@ -34,6 +34,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
             public array $methods = [];
             /** @var string[] */
             public array $headers = [];
+            public ?string $hopStatusLine = null;
             private ?array $last = null;
 
             /**
@@ -55,7 +56,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
                     return false;
                 }
                 $hop = $this->hops[$url];
-                $this->last = ["HTTP/1.1 {$hop[0]} X", 'X-Hop: ' . count($this->visited)];
+                $this->last = [$this->hopStatusLine ?? "HTTP/1.1 {$hop[0]} X", 'X-Hop: ' . count($this->visited)];
                 if (isset($hop[2])) {
                     $this->last[] = "Location: {$hop[2]}";
                 }
@@ -71,7 +72,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
 
     try {
 
-        echoTerminal('[1/5] El esquema, en minúsculas y nada más');
+        echoTerminal('[1/6] El esquema, en minúsculas y nada más');
         foreach ([
             'HTTPS://h/x' => 'https://h/x',
             'HtTpS://h/X?Q=A' => 'https://h/X?Q=A',
@@ -85,7 +86,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         $check(($client->visited[0] ?? '') === 'https://h/X?Q=A', 'n2 request() abre la dirección con el esquema ya en minúsculas', (string) ($client->visited[0] ?? 'nada'));
         echoTerminal(' ');
 
-        echoTerminal('[2/5] El Location se resuelve contra la dirección que lo dio');
+        echoTerminal('[2/6] El Location se resuelve contra la dirección que lo dio');
         foreach ([
             ['https://h/a/b', 'HTTP://o/y', 'http://o/y'],
             ['https://h/a/b', '/x', 'https://h/x'],
@@ -99,7 +100,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         }
         echoTerminal(' ');
 
-        echoTerminal('[3/5] Qué se sigue y qué se corta');
+        echoTerminal('[3/6] Qué se sigue y qué se corta');
         //La referencia: un error de red de verdad, contra un puerto que el sistema dio y ya está cerrado.
         $probe = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
         $name = $probe !== false ? (string) stream_socket_get_name($probe, false) : '';
@@ -159,12 +160,12 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         $check($body === false && count($client->visited) === 1, 'r9 un Location que no es http ni https no se abre');
         echoTerminal(' ');
 
-        echoTerminal('[4/5] Lo que no es http no busca redirecciones');
+        echoTerminal('[4/6] Lo que no es http no busca redirecciones');
         $client = new HttpClient('data://text/plain,OK');
         $check($client->request('', 'GET') === 'OK', 'd1 un data:// se sigue leyendo');
         echoTerminal(' ');
 
-        echoTerminal('[5/5] Las cookies del visitante solo van a la propia instalación');
+        echoTerminal('[5/6] Las cookies del visitante solo van a la propia instalación');
         $cookiesBefore = $_COOKIE;
         try {
             $_COOKIE = ['zz-galleta' => 'zz-valor'];
@@ -211,6 +212,63 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         } finally {
             $_COOKIE = $cookiesBefore;
         }
+        echoTerminal(' ');
+
+        echoTerminal('[6/6] Lo que no cabe en una cabecera no sale, y lo sensible no cambia de origen');
+        $cookiesBefore = $_COOKIE;
+        try {
+            $_COOKIE = ['zz-salto' => "a\nb", 'zz-coma' => 'a;b', 'zz-buena' => 'zz-valor'];
+            $client = $fake($own, ["{$own}/zz-a" => [200, 'OK']]);
+            $client->request('/zz-a', 'GET', [], [], true);
+            $raw = $client->headers[0] ?? '';
+            $check(str_contains($raw, 'zz-buena=zz-valor') && !str_contains($raw, 'zz-salto') && !str_contains($raw, 'zz-coma'), 'k1 una cookie con salto de línea o «;» no entra en la cabecera; las demás sí', str_replace(["\r", "\n"], ['\\r', '\\n'], $raw));
+        } finally {
+            $_COOKIE = $cookiesBefore;
+        }
+
+        $client = $fake($own, ["{$own}/zz-a" => [200, 'OK']]);
+        $client->request('/zz-a', 'GET', [], ['X-Zz-Valor' => "a\r\nX-Inyectada: 1", "X-Zz-Nombre\r\nX-Inyectada2" => 'b', 'X-Zz-Lista' => ['ok', "c\nX-Inyectada3: 1"], 'Accept' => 'text/plain']);
+        $raw = $client->headers[0] ?? '';
+        $check(!str_contains($raw, 'X-Inyectada') && !str_contains($raw, 'X-Zz-') && str_contains($raw, 'Accept:text/plain'), 'k2 una cabecera del llamador con CR/LF (en el nombre, el valor o una lista) no sale; las demás sí', str_replace(["\r", "\n"], ['\\r', '\\n'], $raw));
+
+        $sensible = ['X-API-Key' => 'zz-clave', 'X-Auth-Token' => 'zz-ficha', 'Accept' => 'text/plain'];
+        $client = $fake($own, ["{$own}/zz-a" => [302, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK']]);
+        $client->request('/zz-a', 'GET', [], $sensible);
+        $first = $client->headers[0] ?? '';
+        $second = $client->headers[1] ?? '';
+        $check(count($client->headers) === 2 && str_contains($first, 'zz-clave') && str_contains($first, 'zz-ficha') && !str_contains($second, 'zz-clave') && !str_contains($second, 'zz-ficha') && str_contains($second, 'Accept:text/plain'), 'k3 X-API-Key y X-Auth-Token no viajan al segundo salto a otro origen; Accept sí', count($client->headers) . ' aperturas');
+
+        $client = $fake($own, ["{$own}/zz-a" => [302, '', '/zz-b'], "{$own}/zz-b" => [200, 'OK']]);
+        $client->request('/zz-a', 'GET', [], $sensible);
+        $second = $client->headers[1] ?? '';
+        $check(count($client->headers) === 2 && str_contains($second, 'zz-clave') && str_contains($second, 'zz-ficha'), 'k4 dentro del mismo origen sí viajan', count($client->headers) . ' aperturas');
+
+        $client = $fake($own, ["{$own}/zz-a" => [307, 'cuerpo-307', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'NO-DEBERIA-LLEGAR']]);
+        $body = $client->request('/zz-a', 'POST', ['zz-secreto' => 'zz-valor']);
+        $check(count($client->visited) === 1 && (int) $client->getResponseStatus() === 307 && $body === 'cuerpo-307', 'k5 un 307 con cuerpo a otro origen no se sigue: se devuelve el 307', count($client->visited) . ' aperturas · ' . var_export($client->getResponseStatus(), true));
+
+        $client = $fake($own, ["{$own}/zz-a" => [308, '', '/zz-b'], "{$own}/zz-b" => [200, 'OK-B']]);
+        $body = $client->request('/zz-a', 'POST', ['zz-secreto' => 'zz-valor']);
+        $check(count($client->visited) === 2 && $body === 'OK-B' && $client->methods === ['POST', 'POST'], 'k6 un 308 con cuerpo dentro del mismo origen se sigue, con su POST', count($client->visited) . ' aperturas');
+
+        $client = $fake($own, ["{$own}/zz-a" => [307, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK-B']]);
+        $body = $client->request('/zz-a', 'GET');
+        $check(count($client->visited) === 2 && $body === 'OK-B', 'k7 un 307 sin cuerpo a otro origen se sigue como hoy', count($client->visited) . ' aperturas');
+
+        $client = $fake($own, ["{$own}/zz-a" => [307, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK-B']]);
+        $body = $client->request('/zz-a', 'GET', [], ['Content-Type' => 'application/json']);
+        $check(count($client->visited) === 2 && $body === 'OK-B', 'k8 un GET con JSON vacío no cuenta como cuerpo: su 307 a otro origen se sigue', count($client->visited) . ' aperturas');
+
+        $client = $fake($own, ["{$own}/zz-a" => [0, 'cuerpo-307', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'NO-DEBERIA-LLEGAR']]);
+        $client->hopStatusLine = 'HTTP/1.1 307 Temporary: Redirect';
+        $body = $client->request('/zz-a', 'POST', ['zz-secreto' => 'zz-valor']);
+        $check(count($client->visited) === 1 && $body === 'cuerpo-307', 'k9 una frase de estado con «:» no cambia el código: el 307 con cuerpo a otro origen tampoco se sigue', count($client->visited) . ' aperturas');
+
+        $client = $fake($own, ["{$own}/zz-a" => [302, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK']]);
+        $client->request('/zz-a', 'GET', [], ['Proxy-Authorization' => 'Basic zz-proxy', 'x_api_key' => 'zz-guion', 'X-Zz-Nulo' => "a\0b", 'Accept' => 'text/plain']);
+        $first = $client->headers[0] ?? '';
+        $second = $client->headers[1] ?? '';
+        $check(!str_contains($first, 'X-Zz-Nulo') && str_contains($first, 'zz-proxy') && !str_contains($second, 'zz-proxy') && !str_contains($second, 'zz-guion') && str_contains($second, 'Accept:text/plain'), 'k10 un NUL descarta la cabecera; Proxy-Authorization y x_api_key no cambian de origen', count($client->headers) . ' aperturas');
 
     } catch (\Throwable $e) {
         $check(false, 'x1 la suite terminó sin excepciones', get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')');
