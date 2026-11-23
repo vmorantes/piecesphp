@@ -1,7 +1,9 @@
 //La puerta del sitio (ADR 0076): en lo compilado (dist/**/*.html) no puede quedar nada de MkDocs sin convertir. Falla con
 //código 1, el archivo y una muestra si encuentra un enlace relativo a un .md, un aviso «!!!» o «???» como texto, un
-//fragmento «--8<--» o atributos de MkDocs («{ .clase }», «{: … }») en el texto. Y mira que cada página de la guía y de la
-//API tenga su HTML con tantos avisos como su fuente, y que la descarga de openapi.json sea la fuente. Solo Node.
+//fragmento «--8<--» o atributos de MkDocs («{ .clase }», «{: … }») en el texto, o un enlace Markdown («](…)») o un aviso
+//de GitHub («[!NOTE]»…) sin convertir en el texto. Y mira que cada página de la guía y de la API tenga su HTML con tantos
+//avisos como su fuente, que cada fuente se llame en minúsculas y con guiones, que la guía y las de entorno estén en su
+//nav.yml, y que la descarga de openapi.json sea la fuente. Solo Node.
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
@@ -9,8 +11,8 @@ import { fileURLToPath } from 'node:url'
 
 //El sitio que se compiló (DOCS_SITE, DOCS_BASE y DOCS_OUT_DIR, como astro.config.mjs): sus fuentes, su base y su salida.
 const SITES = {
-	guia: { sources: [{ dir: 'project/docs', prefix: '' }, { dir: 'api/docs', prefix: 'api/' }], base: '/docs', outDir: './dist', openapi: true },
-	entornos: { sources: [{ dir: 'entornos/docs', prefix: '' }], base: '/docs-entornos', outDir: '../../docs-entornos', openapi: false },
+	guia: { sources: [{ dir: 'project/docs', prefix: '', nav: 'project/nav.yml' }, { dir: 'api/docs', prefix: 'api/' }], base: '/docs', outDir: './dist', openapi: true },
+	entornos: { sources: [{ dir: 'entornos/docs', prefix: '', nav: 'entornos/nav.yml' }], base: '/docs-entornos', outDir: '../../docs-entornos', openapi: false },
 }
 const SITE_NAME = process.env.DOCS_SITE || 'guia'
 const SITE = SITES[SITE_NAME]
@@ -69,6 +71,19 @@ if (faviconOf(`<head><link rel="icon" href="${SITE_BASE}favicon.png" type="image
 	console.error('check-dist: la regla del favicon no lee bien su canario: la puerta no miraría nada.')
 	process.exit(1)
 }
+//El nombre de una fuente: minúsculas, cifras y guiones; un espacio o una mayúscula rompe el enlace y la ruta.
+const SOURCE_NAME = /^[a-z0-9-]+\.md$/
+//Las rutas .md que nombra un nav.yml («- Título: ruta.md» o «- ruta.md»).
+const navTargets = (yml) => new Set(yml.replace(/\r\n/g, '\n').split('\n').map((line) => /^\s*-\s+(?:[^\n]*?:\s+)?([^\s:]+\.md)\s*$/.exec(line)?.[1]).filter((target) => target !== undefined))
+if (!SOURCE_NAME.test('ssl-lets-encrypt.md') || SOURCE_NAME.test('Virtual Hosts.md') || SOURCE_NAME.test('PHP.md')) {
+	console.error('check-dist: la regla de nombres de las fuentes no distingue su canario: la puerta no miraría nada.')
+	process.exit(1)
+}
+const navSample = navTargets("nav:\n  - index.md\n  - Grupo:\n      - LAMP:\n          - Apache: a/apache.md\n          - SSL con Let's Encrypt: a/ssl.md\n")
+if (navSample.size !== 3 || !navSample.has('index.md') || !navSample.has('a/apache.md') || !navSample.has('a/ssl.md')) {
+	console.error('check-dist: el lector de nav.yml no lee su canario: la puerta no miraría nada.')
+	process.exit(1)
+}
 if (sha1(Buffer.from('zz')) === sha1(Buffer.from('zz '))) {
 	console.error('check-dist: la comparación de openapi.json no distingue dos contenidos distintos.')
 	process.exit(1)
@@ -83,6 +98,12 @@ const checks = [
 	['fragmento --8<--', /--8(?:<|&lt;)--/],
 ]
 
+//Lo que Markdown no convirtió y quedó en el TEXTO de la página: un enlace («](…)»: por ejemplo, con espacios en la ruta)
+//o un aviso de GitHub, que Starlight no entiende. Se mira en el texto sin etiquetas, sin código y sin scripts ni estilos.
+const textRemains = [
+	['enlace Markdown sin convertir', /\]\([^)\n]*\)/],
+	['aviso de GitHub sin convertir', /\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i],
+]
 //Atributos de MkDocs (attr_list) que quedaron en el TEXTO: se mira sin etiquetas, sin código y sin scripts ni estilos.
 const attributes = /\{:[^}\n]*\}|\{[ \t]*[.#][A-Za-z][\w-]*(?:[ \t]+[.#][A-Za-z][\w-]*|[ \t]+[\w-]+="[^"]*")*[ \t]*\}/
 //El HTML sin bloques ni trozos de código (<pre>, <code>), donde un ejemplo de MkDocs es texto y no un resto.
@@ -102,6 +123,14 @@ if (!checks[0][1].test(withoutCode('<p><a href="otra.md">x</a></p>')) || checks[
 for (const sample of ['<p><a href="/x/">Despliegue</a>{ .md-button }</p>', '<h2>Título {: #ancla }</h2>']) {
 	if (!attributes.test(textOf(sample))) {
 		console.error(`check-dist: la regla de atributos de MkDocs no ve su canario «${sample}»: la puerta no miraría nada.`)
+		process.exit(1)
+	}
+}
+for (const [name, pattern] of textRemains) {
+	const sample = name.startsWith('enlace') ? '<p>Ver [la guía](Virtual Hosts.md)</p>' : '<blockquote><p>[!WARNING] Cuidado</p></blockquote>'
+	const inCode = name.startsWith('enlace') ? '<pre><code>[x](a.md)</code></pre><p><a href="/x/">la guía</a></p>' : '<p><code>&gt; [!NOTE]</code></p>'
+	if (!pattern.test(textOf(sample)) || pattern.test(textOf(inCode))) {
+		console.error(`check-dist: la regla «${name}» no distingue su canario: la puerta no miraría nada o daría falsos.`)
 		process.exit(1)
 	}
 }
@@ -133,6 +162,7 @@ const failures = []
 //Cada página de cada fuente tiene su HTML, con tantos avisos como la fuente.
 let sourcePages = 0
 for (const source of SOURCES) {
+	const inNav = source.nav === undefined ? null : navTargets(readFileSync(join(sourcesRoot, source.nav), 'utf8'))
 	const walkSource = (directory) => {
 		for (const entry of readdirSync(directory, { withFileTypes: true })) {
 			const path = join(directory, entry.name)
@@ -140,11 +170,20 @@ for (const source of SOURCES) {
 				walkSource(path)
 				continue
 			}
-			if (!entry.name.endsWith('.md') || entry.name.startsWith('_')) {
+			if (!entry.name.endsWith('.md')) {
 				continue
 			}
-			sourcePages++
 			const fromSource = relative(join(sourcesRoot, source.dir), path)
+			if (!SOURCE_NAME.test(entry.name)) {
+				failures.push(`source-docs/${source.dir}/${fromSource}: el nombre no es de minúsculas, cifras y guiones (${SOURCE_NAME}).`)
+			}
+			if (entry.name.startsWith('_')) {
+				continue
+			}
+			if (inNav !== null && !inNav.has(fromSource)) {
+				failures.push(`source-docs/${source.dir}/${fromSource}: no está en source-docs/${source.nav}: nadie llegaría a ella desde el menú.`)
+			}
+			sourcePages++
 			const slug = (source.prefix + fromSource.replace(/\.md$/, '')).replace(/(^|\/)index$/, '').toLowerCase()
 			const page = join(dist, slug, 'index.html')
 			const where = `source-docs/${source.dir}/${fromSource}`
@@ -191,6 +230,13 @@ for (const file of files) {
 		}
 	}
 	const text = textOf(html)
+	for (const [name, pattern] of textRemains) {
+		const match = pattern.exec(text)
+		if (match) {
+			const start = Math.max(0, match.index - 40)
+			failures.push(`${relative(dist, file)}: ${name}: …${text.slice(start, match.index + match[0].length + 40).replace(/\s+/g, ' ')}…`)
+		}
+	}
 	const attribute = attributes.exec(text)
 	if (attribute) {
 		const start = Math.max(0, attribute.index - 40)
@@ -209,4 +255,4 @@ if (failures.length > 0) {
 	}
 	process.exit(1)
 }
-console.log(`check-dist (${SITE_NAME}, ${relative(process.cwd(), dist) || '.'}/): ${files.length} página(s), ningún resto de MkDocs (enlaces a .md, avisos, fragmentos ni atributos); las ${sourcePages} de sus fuentes con su HTML y sus avisos; ${SITE.openapi ? 'openapi.json igual a su fuente' : 'sin openapi.json, como debe'}; el favicon (${[...favicons].join(', ')}) en la salida.`)
+console.log(`check-dist (${SITE_NAME}, ${relative(process.cwd(), dist) || '.'}/): ${files.length} página(s), ningún resto de MkDocs (enlaces a .md, avisos, fragmentos ni atributos) ni enlaces o avisos de GitHub sin convertir; las ${sourcePages} de sus fuentes con su HTML y sus avisos, su nombre y su lugar en el menú; ${SITE.openapi ? 'openapi.json igual a su fuente' : 'sin openapi.json, como debe'}; el favicon (${[...favicons].join(', ')}) en la salida.`)

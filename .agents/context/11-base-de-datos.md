@@ -215,7 +215,7 @@ mysql -u <usuario> -p <base> < dumps/<archivo>.sql
 ## Administración
 
 El framework **ya no trae Adminer** (lo retiró el PO el 2026-10-01). Un cliente de base de datos se instala aparte en
-el servidor: `source-docs/entornos/docs/environments/content/lamp/content/Adminer.md`.
+el servidor: `source-docs/entornos/docs/environments/content/lamp/content/adminer.md`.
 
 ## Localización en la conexión
 

@@ -169,10 +169,10 @@ Es la decisión que más fácil se toma mal, así que va con su motivo.
 **Lo que decide si un servidor ejecuta un archivo es su extensión, no su contenido.** Un filtro por tipo de archivo es,
 para esto, insuficiente.
 
-> [!WARNING]
-> Las opciones `uploadAllow` y `uploadDeny` de elFinder siguen la lógica del `Order` de Apache y no sirven para esto
-> mientras `uploadAllow` contenga `'all'`. Antes de tocar la configuración, lee `allowPutMime()` en la biblioteca: una
-> configuración que no protege es peor que no tener ninguna, porque parece hecha.
+!!! warning
+    Las opciones `uploadAllow` y `uploadDeny` de elFinder siguen la lógica del `Order` de Apache y no sirven para esto
+    mientras `uploadAllow` contenga `'all'`. Antes de tocar la configuración, lee `allowPutMime()` en la biblioteca: una
+    configuración que no protege es peor que no tener ninguna, porque parece hecha.
 
 ### La opción que sí decide: `acceptedName`
 
@@ -202,9 +202,9 @@ al descomprimir.
 **Un patrón demasiado estricto no solo frena la subida: rompe el renombrado legítimo y la restauración.** Si lo
 ajustas, pruébalo contra nombres que deban pasar, no solo contra los que deban caer.
 
-> [!NOTE]
-> **Las papeleras NO llevan el patrón, y es una decisión, no un olvido.** Si la papelera llevara el patrón, un archivo
-> con una de esas extensiones que ya estuviera en disco no se podría tirar.
+!!! note
+    **Las papeleras NO llevan el patrón, y es una decisión, no un olvido.** Si la papelera llevara el patrón, un archivo
+    con una de esas extensiones que ya estuviera en disco no se podría tirar.
 
 ### Un efecto de la configuración que conviene conocer
 

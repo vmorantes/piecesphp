@@ -10,9 +10,9 @@ También es el **ejemplo real de la pieza «Ventana de formulario»** de la hoja
 (`src/app/view/panel/built-in/content/form-modal.php`, disparada con `data-content-modal`), sin salir de la página.
 Si quieres ver la pieza funcionando con código de verdad, este módulo es el sitio.
 
-> [!NOTE]
-> Se conserva a propósito (decisión del Product Owner, P144 a). Aunque ningún módulo suyo lo use, no es código muerto:
-> es la plantilla y la referencia del listado con ventana.
+!!! note
+    Se conserva a propósito (decisión del Product Owner, P144 a). Aunque ningún módulo suyo lo use, no es código muerto:
+    es la plantilla y la referencia del listado con ventana.
 
 ## Cómo se activa y se desactiva
 
@@ -58,10 +58,10 @@ del módulo.
 **Quiénes son «los seis»**: los de fábrica que da `UserTypes::codes()` (más los que declare el proyecto): Principal (0), Administrador general (1),
 Administrador de organización (12), Usuario general (2), Institucional (3) y Comunicaciones (4).
 
-> [!WARNING]
-> Lo que declara una ruta **concede, no restringe** (ver [Permisos de ruta](permisos-de-ruta.md)): el acceso real es la
-> unión de esta lista y de lo que el catálogo `src/app/config/roles.php` dé a cada rol. Qué rutas de este módulo tiene
-> cada rol en ese catálogo, **sin verificar**.
+!!! warning
+    Lo que declara una ruta **concede, no restringe** (ver [Permisos de ruta](permisos-de-ruta.md)): el acceso real es la
+    unión de esta lista y de lo que el catálogo `src/app/config/roles.php` dé a cada rol. Qué rutas de este módulo tiene
+    cada rol en ese catálogo, **sin verificar**.
 
 Hay además una regla de negocio por encima de los roles (`CategoriesController::_allowedRoute()`):
 
@@ -132,10 +132,10 @@ para armarlo en tres líneas:
 - `CategoriesMapper::existsByID($id)`, `CategoriesMapper::getBy($valor, 'id', true)` y `CategoriesMapper::allBy($columna, $valor, true)`.
 - La ruta JSON `ajax-all` (`CategoriesController::routeName('ajax-all')`) y su método `CategoriesController::_all($page, $perPage)`.
 
-> [!WARNING]
-> **`allForSelect()`, `all()`, `allBy()` sin filtro y `ajax-all` devuelven también las categorías eliminadas** (las de
-> `status = 0`): ninguna filtra por `status`. El listado del panel sí filtra. En un formulario de otro módulo filtra tú
-> con `allBy('status', CategoriesMapper::STATUS_ACTIVE, true)`, como en el ejemplo.
+!!! warning
+    **`allForSelect()`, `all()`, `allBy()` sin filtro y `ajax-all` devuelven también las categorías eliminadas** (las de
+    `status = 0`): ninguna filtra por `status`. El listado del panel sí filtra. En un formulario de otro módulo filtra tú
+    con `allBy('status', CategoriesMapper::STATUS_ACTIVE, true)`, como en el ejemplo.
 
 Ejemplo: guardar en tu entidad el `id` de una categoría, con un `select` que solo ofrece las activas.
 
@@ -242,9 +242,9 @@ Para clonarlo a otro módulo con campos propios, copia la carpeta y cambia solo 
 nombres, el mapper (`$fields`, `TABLE`, `$translatableProperties`), los campos de la ventana, el `modalId`, el
 `$baseRouteName` y el segmento de URL del controlador.
 
-> [!NOTE]
-> La ventana sirve para **uno o dos campos**. Lo que lleve imágenes, colores o muchos campos va en su página, como
-> pide la hoja de diseño.
+!!! note
+    La ventana sirve para **uno o dos campos**. Lo que lleve imágenes, colores o muchos campos va en su página, como
+    pide la hoja de diseño.
 
 ## Traducciones del módulo
 

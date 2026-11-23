@@ -139,9 +139,9 @@ $cronjobs[] = CronJobTask::make('Proceso Largo', function () {
 })->dailyAt("03:00");
 ```
 
-> [!NOTE]
-> Hay un caso real en `src/app/core/extensions/cronjobs.php`
-> (tarea «Respaldar base de datos», del sistema).
+!!! note
+    Hay un caso real en `src/app/core/extensions/cronjobs.php`
+    (tarea «Respaldar base de datos», del sistema).
 
-> [!IMPORTANT]
-> El comando CLI ignora los límites de tiempo de ejecución de PHP (`max_execution_time`) permitiendo procesos de larga duración, pero ten en cuenta los límites de memoria.
+!!! info
+    El comando CLI ignora los límites de tiempo de ejecución de PHP (`max_execution_time`) permitiendo procesos de larga duración, pero ten en cuenta los límites de memoria.

@@ -7,9 +7,9 @@ noticias, documentos y sus categorías ya están hechas así; son el ejemplo que
 Las piezas se ven funcionando, con su código, en la **hoja de diseño** del panel (en el menú de la rueda, junto a «Acerca
 de»; la ven root y el administrador general).
 
-> [!NOTE]
-> **Provisional.** Esta página crece con el rediseño del panel. La lista completa de componentes, con su ejemplo vivo,
-> está en la **hoja de diseño**; esta página explica cómo usar las piezas desde un módulo.
+!!! note
+    **Provisional.** Esta página crece con el rediseño del panel. La lista completa de componentes, con su ejemplo vivo,
+    está en la **hoja de diseño**; esta página explica cómo usar las piezas desde un módulo.
 
 ## La regla
 

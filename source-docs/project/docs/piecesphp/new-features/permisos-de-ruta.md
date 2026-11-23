@@ -36,10 +36,10 @@ De ahí salen las dos reglas que hay que tener presentes:
   traerse sus permisos puestos, sin tocar la configuración de quien clona.
 - **Declarar NO RESTRINGE.** Un rol que tenga la ruta en el catálogo entra **aunque no esté en la lista que declaraste**.
 
-> [!WARNING]
-> **`rolesAllowed` no es una lista blanca.** Si declaras `[TYPE_USER_ROOT]` no estás diciendo «solo root»: estás
-> diciendo «root también». Para que una ruta sea de verdad solo de un rol, ese rol tiene que ser el único que la tenga
-> **en las dos fuentes**.
+!!! warning
+    **`rolesAllowed` no es una lista blanca.** Si declaras `[TYPE_USER_ROOT]` no estás diciendo «solo root»: estás
+    diciendo «root también». Para que una ruta sea de verdad solo de un rol, ese rol tiene que ser el único que la tenga
+    **en las dos fuentes**.
 
 ### Y la trampa que de verdad muerde: declarar roles NO cierra una ruta
 
@@ -48,11 +48,11 @@ la petición entra. Lo único que cambia es lo que contesta `hasPermissions()` �
 `Controller::allowedRoute()`—, que sí aplica el catálogo. Quien da el 403 por rol es el arranque de la aplicación, y
 **solo lo da si la ruta declara `require_login = true`**.
 
-> [!WARNING]
-> **Para cerrar una ruta hace falta `require_login = true`.** Una ruta con `require_login = false` y una lista de roles
-> es una ruta **pública** con una lista decorativa. Si tu módulo tiene rutas de API que se autentican de otra forma —un
-> token en la cabecera, por ejemplo—, esa comprobación la tiene que hacer el propio controlador: el sistema de rutas no
-> la hace por ti.
+!!! warning
+    **Para cerrar una ruta hace falta `require_login = true`.** Una ruta con `require_login = false` y una lista de roles
+    es una ruta **pública** con una lista decorativa. Si tu módulo tiene rutas de API que se autentican de otra forma —un
+    token en la cabecera, por ejemplo—, esa comprobación la tiene que hacer el propio controlador: el sistema de rutas no
+    la hace por ti.
 
 ### Y el caso simétrico, que también muerde: declarar de MÁS
 
@@ -71,10 +71,10 @@ Lo que eso implica, y es lo que hay que recordar:
   solo el valor de la constante. Medir que la constante vale lo correcto no prueba que alguien la siga mirando: para
   eso hace falta mirar el cuerpo del método, y que la prueba se ponga en rojo si deja de nombrarla.
 
-> [!TIP]
-> La pregunta que distingue los dos errores: *¿la declaración se queda corta o se pasa de larga?* Si se queda corta,
-> entra alguien que no esperabas por el catálogo. Si se pasa de larga, **la declaración miente a quien la lee para
-> saber quién entra**, y el inventario de rutas la copia tal cual.
+!!! tip
+    La pregunta que distingue los dos errores: *¿la declaración se queda corta o se pasa de larga?* Si se queda corta,
+    entra alguien que no esperabas por el catálogo. Si se pasa de larga, **la declaración miente a quien la lee para
+    saber quién entra**, y el inventario de rutas la copia tal cual.
 
 ### Y una trampa de `throw403()` que conviene conocer antes de usarla
 
@@ -89,15 +89,15 @@ Lo que hay que saber es lo que pasa después:
   denegación.** El flujo sigue cortado —no se escribe nada, que es lo que importa—, pero el cliente **no recibe un
   403**: recibe lo que tu `catch` decida, y normalmente eso es un mensaje de error genérico con su referencia de log.
 
-> [!WARNING]
-> **Dos consecuencias prácticas, y ninguna es de seguridad:** quien escriba un cliente o una prueba esperando un 403
-> no lo va a encontrar, y **cada denegación legítima deja una entrada en el registro de errores**, así que ese registro
-> deja de distinguir «no tenías permiso» de «algo se rompió».
->
-> **Y la salida NO es ponerle `return` delante.** `throw403()` lanza **antes** de devolver, así que
-> `return throw403($request);` dentro de ese `try` se lo come el mismo `catch`: el `return` no llega a ejecutarse. Para
-> que el 403 llegue de verdad, la llamada tiene que quedar **fuera** del `try` que captura `\Exception`, o ese `catch`
-> tiene que **relanzar** `HttpForbiddenException` antes de tratar lo demás.
+!!! warning
+    **Dos consecuencias prácticas, y ninguna es de seguridad:** quien escriba un cliente o una prueba esperando un 403
+    no lo va a encontrar, y **cada denegación legítima deja una entrada en el registro de errores**, así que ese registro
+    deja de distinguir «no tenías permiso» de «algo se rompió».
+
+    **Y la salida NO es ponerle `return` delante.** `throw403()` lanza **antes** de devolver, así que
+    `return throw403($request);` dentro de ese `try` se lo come el mismo `catch`: el `return` no llega a ejecutarse. Para
+    que el 403 llegue de verdad, la llamada tiene que quedar **fuera** del `try` que captura `\Exception`, o ese `catch`
+    tiene que **relanzar** `HttpForbiddenException` antes de tratar lo demás.
 
 Desde la `9.0.0` el propio framework lo hace así en todos sus controladores: un `catch (HttpForbiddenException $e)` que
 relanza va **antes** del que recoge `\Exception`. Es la forma que conviene copiar en los módulos propios:

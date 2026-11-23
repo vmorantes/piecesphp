@@ -22,9 +22,9 @@ bin/cli seed module=all limpiar=yes     # borra por id lo sembrado, en orden inv
 | `escribir=yes` | Escribe de verdad. Solo con `module=all` |
 | `limpiar=yes` | Deshace lo sembrado. Solo con `module=all`. No va junto con `escribir=yes` |
 
-> [!IMPORTANT]
-> **Lo seguro es lo que pasa por omisión.** Sin `escribir=yes` ni `limpiar=yes`, la orden **solo simula**. Escribir hay
-> que pedirlo escribiéndolo.
+!!! info
+    **Lo seguro es lo que pasa por omisión.** Sin `escribir=yes` ni `limpiar=yes`, la orden **solo simula**. Escribir hay
+    que pedirlo escribiéndolo.
 
 **Escribir y limpiar van siempre con `module=all`** porque las dependencias cruzan módulos: los usuarios necesitan
 organizaciones, las regiones necesitan países.
@@ -177,10 +177,10 @@ Y lo que tienes a mano:
   como el autor, que no pueden apuntar a un usuario sembrado sin cerrar un ciclo.
 - `$context->passwordHash()` da el hash de una clave aleatoria que no se guarda.
 
-> [!IMPORTANT]
-> **El sembrador comprueba que tu fila cubra los campos obligatorios** antes de escribir: los que no admiten nulo y no
-> tienen valor por defecto, sin contar la clave primaria ni los campos declarados con `'meta' => true`, que no son columnas. Es el mismo criterio con el
-> que el ORM se negaría a guardar. Si falta uno, se para y lo nombra.
+!!! info
+    **El sembrador comprueba que tu fila cubra los campos obligatorios** antes de escribir: los que no admiten nulo y no
+    tienen valor por defecto, sin contar la clave primaria ni los campos declarados con `'meta' => true`, que no son columnas. Es el mismo criterio con el
+    que el ORM se negaría a guardar. Si falta uno, se para y lo nombra.
 
 ### Lo que la aplicación crea sola por tus filas: `ownedRows()`
 
@@ -205,9 +205,9 @@ public function ownedRows(): array
 }
 ```
 
-> [!IMPORTANT]
-> **Sin el `where`, el limpiado borraría aprobaciones de otras tablas que comparten número de id.** La suite
-> `unit-tests:core/seed-round-trip` lo vigila con una aprobación señuelo que tiene que sobrevivir.
+!!! info
+    **Sin el `where`, el limpiado borraría aprobaciones de otras tablas que comparten número de id.** La suite
+    `unit-tests:core/seed-round-trip` lo vigila con una aprobación señuelo que tiene que sobrevivir.
 
 **Y no solo al arrancar: también lo que la aplicación crea cuando alguien USA lo sembrado.** Abrir una noticia
 sembrada deja una fila en `news_readed_relationship` que apunta a ella; sin declararla, el limpiado choca con la clave
@@ -259,10 +259,10 @@ public function row(int $index, SeedContext $context): array
 - Una subcarpeta va con barra tras el prefijo, como los adjuntos de una publicación: `zz-siembra-publicacion-1/attachments`.
   Esa fila no declara `ownedFolder()`: su carpeta vive dentro de la de su publicación, que se borra después.
 
-> [!NOTE]
-> **«Privado en disco» no siempre es «no se sirve».** Una publicación creada por el usuario principal se **aprueba
-> sola**, y una publicación activa, en fechas y aprobada es visible: sus archivos se sirven sin sesión aunque en disco
-> conserven el sufijo de lo protegido. Las publicaciones sembradas están en ese caso. Los documentos no: sin sesión dan 403.
+!!! note
+    **«Privado en disco» no siempre es «no se sirve».** Una publicación creada por el usuario principal se **aprueba
+    sola**, y una publicación activa, en fechas y aprobada es visible: sus archivos se sirven sin sesión aunque en disco
+    conserven el sufijo de lo protegido. Las publicaciones sembradas están en ese caso. Los documentos no: sin sesión dan 403.
 
 ### Lo que el sembrador se comprueba a sí mismo
 

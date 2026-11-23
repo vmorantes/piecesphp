@@ -7,9 +7,9 @@ Los tableros e informes del panel —el informe genérico, el inicio— se arman
 Se ven funcionando, con su código, en la **hoja de diseño** del panel, sección «Gráficos y estadísticas». Es la referencia
 viva: los ejemplos de esta página salen de ahí.
 
-> [!NOTE]
-> **Las piezas pintan el armazón; los datos los pone tu JavaScript.** Cada número lleva un `data-type`, y tu pantalla lo
-> rellena cuando tiene los datos. Los gráficos los dibuja Apache ECharts sobre el contenedor que deja la pieza.
+!!! note
+    **Las piezas pintan el armazón; los datos los pone tu JavaScript.** Cada número lleva un `data-type`, y tu pantalla lo
+    rellena cuando tiene los datos. Los gráficos los dibuja Apache ECharts sobre el contenedor que deja la pieza.
 
 ## Las siete
 

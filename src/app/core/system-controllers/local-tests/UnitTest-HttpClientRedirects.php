@@ -72,7 +72,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
 
     try {
 
-        echoTerminal('[1/6] El esquema, en minúsculas y nada más');
+        echoTerminal('[1/7] El esquema, en minúsculas y nada más');
         foreach ([
             'HTTPS://h/x' => 'https://h/x',
             'HtTpS://h/X?Q=A' => 'https://h/X?Q=A',
@@ -86,7 +86,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         $check(($client->visited[0] ?? '') === 'https://h/X?Q=A', 'n2 request() abre la dirección con el esquema ya en minúsculas', (string) ($client->visited[0] ?? 'nada'));
         echoTerminal(' ');
 
-        echoTerminal('[2/6] El Location se resuelve contra la dirección que lo dio');
+        echoTerminal('[2/7] El Location se resuelve contra la dirección que lo dio');
         foreach ([
             ['https://h/a/b', 'HTTP://o/y', 'http://o/y'],
             ['https://h/a/b', '/x', 'https://h/x'],
@@ -100,7 +100,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         }
         echoTerminal(' ');
 
-        echoTerminal('[3/6] Qué se sigue y qué se corta');
+        echoTerminal('[3/7] Qué se sigue y qué se corta');
         //La referencia: un error de red de verdad, contra un puerto que el sistema dio y ya está cerrado.
         $probe = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
         $name = $probe !== false ? (string) stream_socket_get_name($probe, false) : '';
@@ -160,12 +160,12 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         $check($body === false && count($client->visited) === 1, 'r9 un Location que no es http ni https no se abre');
         echoTerminal(' ');
 
-        echoTerminal('[4/6] Lo que no es http no busca redirecciones');
+        echoTerminal('[4/7] Lo que no es http no busca redirecciones');
         $client = new HttpClient('data://text/plain,OK');
         $check($client->request('', 'GET') === 'OK', 'd1 un data:// se sigue leyendo');
         echoTerminal(' ');
 
-        echoTerminal('[5/6] Las cookies del visitante solo van a la propia instalación');
+        echoTerminal('[5/7] Las cookies del visitante solo van a la propia instalación');
         $cookiesBefore = $_COOKIE;
         try {
             $_COOKIE = ['zz-galleta' => 'zz-valor'];
@@ -214,7 +214,7 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         }
         echoTerminal(' ');
 
-        echoTerminal('[6/6] Lo que no cabe en una cabecera no sale, y lo sensible no cambia de origen');
+        echoTerminal('[6/7] Lo que no cabe en una cabecera no sale, y lo sensible no cambia de origen');
         $cookiesBefore = $_COOKIE;
         try {
             $_COOKIE = ['zz-salto' => "a\nb", 'zz-coma' => 'a;b', 'zz-buena' => 'zz-valor'];
@@ -269,6 +269,60 @@ CliActions::make('unit-tests:core/http-client-redirects', function ($args) {
         $first = $client->headers[0] ?? '';
         $second = $client->headers[1] ?? '';
         $check(!str_contains($first, 'X-Zz-Nulo') && str_contains($first, 'zz-proxy') && !str_contains($second, 'zz-proxy') && !str_contains($second, 'zz-guion') && str_contains($second, 'Accept:text/plain'), 'k10 un NUL descarta la cabecera; Proxy-Authorization y x_api_key no cambian de origen', count($client->headers) . ' aperturas');
+        echoTerminal(' ');
+
+        echoTerminal('[7/7] Sin credenciales en los mensajes, y nada que no quepa en una cabecera');
+        $withUser = 'https://zz-usuario:zz-clave@zz-otro.test/a';
+        $client = $fake($withUser, [$withUser => [302, '', 'http://zz-otro.test/b']]);
+        $message = $client->request('', 'GET');
+        $check(is_string($message) && str_contains($message, 'file_get_contents(https://...@zz-otro.test/a)') && !str_contains($message, 'zz-usuario') && !str_contains($message, 'zz-clave'), 'm1 el mensaje de una redirección rechazada no lleva el usuario ni la clave de la URL', is_string($message) ? $message : var_export($message, true));
+
+        $cookiesBefore = $_COOKIE;
+        try {
+            $_COOKIE = ['zz-lista' => ['1'], 'zz-buena' => 'zz-valor'];
+            $client = $fake($own, ["{$own}/zz-a" => [200, 'OK']]);
+            $client->request('/zz-a', 'GET', [], [], true);
+            $raw = $client->headers[0] ?? '';
+            $check(str_contains($raw, 'zz-buena=zz-valor') && !str_contains($raw, 'zz-lista'), 'm2 una cookie con valor lista no rompe la petición ni viaja', $raw);
+        } finally {
+            $_COOKIE = $cookiesBefore;
+        }
+
+        $client = $fake($own, ["{$own}/zz-a" => [302, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK']]);
+        $client->request('/zz-a', 'GET', [], ['X-Jwt' => 'zz-jwt', 'X-Signature' => 'zz-firma', 'X-Passphrase' => 'zz-frase', 'Accept' => 'text/plain']);
+        $first = $client->headers[0] ?? '';
+        $second = $client->headers[1] ?? '';
+        $check(str_contains($first, 'zz-jwt') && !str_contains($second, 'zz-jwt') && !str_contains($second, 'zz-firma') && !str_contains($second, 'zz-frase') && str_contains($second, 'Accept:text/plain'), 'm3 X-Jwt, X-Signature y X-Passphrase no van al segundo salto a otro origen', count($client->headers) . ' aperturas');
+
+        $client = $fake($own, ["{$own}/zz-a" => [302, '', 'https://zz-otro.test/b'], 'https://zz-otro.test/b' => [200, 'OK']]);
+        $client->request('/zz-a', 'GET', [], ['X-Custom' => 'Bearer zz-portador', 'X-Otro' => 'basic zz-basico', 'Accept' => 'text/plain']);
+        $first = $client->headers[0] ?? '';
+        $second = $client->headers[1] ?? '';
+        $check(str_contains($first, 'zz-portador') && !str_contains($second, 'zz-portador') && !str_contains($second, 'zz-basico') && str_contains($second, 'Accept:text/plain'), 'm4 una cabecera con valor «Bearer …» o «basic …» no va a otro origen, se llame como se llame', count($client->headers) . ' aperturas');
+
+        $raw = (new HttpClient('https://zz-otro.test'))->headersArrayToString(['X-Zz-Valor' => "a\r\nX-Inyectada: 1", 'X-Zz-Lista' => ['ok', "b\nX-Inyectada2: 1"], 'Accept' => 'text/plain']);
+        $check(!str_contains($raw, 'X-Inyectada') && !str_contains($raw, 'X-Zz-') && str_contains($raw, "Accept:text/plain\r\n"), 'm5 headersArrayToString(), llamada directamente, no devuelve cabeceras con CR/LF', str_replace(["\r", "\n"], ['\\r', '\\n'], $raw));
+
+        $client = $fake($own, ["{$own}/zz-a" => [302, '', "/zz-b\0c"]]);
+        $outcome = null;
+        try {
+            $outcome = $client->request('/zz-a', 'GET');
+            $quiet = @$fake($own, ["{$own}/zz-a" => [302, '', "/zz-b\0c"]])->request('/zz-a', 'GET');
+        } catch (\Throwable $e) {
+            $outcome = get_class($e) . ': ' . $e->getMessage();
+            $quiet = null;
+        }
+        $check(count($client->visited) === 1 && is_string($outcome) && str_contains($outcome, 'invalid redirect location') && $quiet === false, 'm6 un Location con un byte nulo da el fallo controlado (false con @), no un ValueError', var_export($outcome, true));
+
+        //El cliente real: con un byte nulo, file_get_contents() lanza ValueError antes de conectar; no sale a la red.
+        try {
+            $outcome = (new HttpClient("http://127.0.0.1/zz\0a"))->request('', 'GET');
+            $quiet = @(new HttpClient("http://127.0.0.1/zz\0a"))->request('', 'GET');
+        } catch (\Throwable $e) {
+            $outcome = get_class($e) . ': ' . $e->getMessage();
+            $quiet = null;
+        }
+        $check(is_string($outcome) && str_contains($outcome, 'operation failed') && $quiet === false, 'm7 una dirección con un byte nulo falla como la red (false con @), no con un ValueError', var_export($outcome, true));
 
     } catch (\Throwable $e) {
         $check(false, 'x1 la suite terminó sin excepciones', get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')');

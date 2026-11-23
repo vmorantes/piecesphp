@@ -9,9 +9,9 @@ Sirve cuando una página pública cargada por AJAX necesita HTML que **ya sabe d
 sus URL y sus datos) y no quieres duplicarlo como cadenas dentro del JavaScript. El caso real del framework es el bloque
 de publicaciones destacadas de la portada.
 
-> [!NOTE]
-> Lo documentado aquí es lo que el código hace hoy (2026-10-22). El módulo tiene partes sin uso (el lector en JS, un
-> grupo de rutas y unas traducciones) que se deciden con su rediseño, en la 10.
+!!! note
+    Lo documentado aquí es lo que el código hace hoy (2026-10-22). El módulo tiene partes sin uso (el lector en JS, un
+    grupo de rutas y unas traducciones) que se deciden con su rediseño, en la 10.
 
 ## Cómo funciona, en cuatro piezas
 
@@ -199,10 +199,10 @@ Consecuencias para quien escribe un grupo:
 - La regla de negocio que oculte la ruta a quien los roles sí permiten iría en `_allowedRoute()`
   (`ComponentProvider.php:227-229`); hoy devuelve siempre `true`.
 
-> [!NOTE]
-> La fila de la matriz de permisos que hay en `files/dev/permissions-matrix.json:1130-1170` es la de las **estáticas** del
-> módulo (`/components-provider/components-provider/statics/`), no la de `provide`. El comportamiento de `provide` por rol
-> medido en vivo: **sin verificar**.
+!!! note
+    La fila de la matriz de permisos que hay en `files/dev/permissions-matrix.json:1130-1170` es la de las **estáticas** del
+    módulo (`/components-provider/components-provider/statics/`), no la de `provide`. El comportamiento de `provide` por rol
+    medido en vivo: **sin verificar**.
 
 ## Ejemplo completo: un grupo «catalog»
 

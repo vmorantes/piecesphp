@@ -281,8 +281,8 @@ chmod +x permissions-and-property.sh;
 ./permissions-and-property.sh;
 ```
 
-> [!IMPORTANT]
-> **Permisos:** Para información sobre permisos ver la [Guía de Permisos y Propiedad](./permissions.md).
+!!! info
+    **Permisos:** Para información sobre permisos ver la [Guía de Permisos y Propiedad](./permissions.md).
 
 #### Paso 4: Composer y Gulp
 

@@ -23,12 +23,12 @@ class UsersModel extends EntityMapperExtensible
 
 Y ya está. No hay que tocar ningún controlador ni ninguna vista.
 
-> [!IMPORTANT]
-> **La constante la lee `BaseEntityMapper`**, que es de donde heredan todos los mappers del framework
-> —`EntityMapperExtensible` incluido, porque hereda de él—. **Un mapper que herede directamente del `EntityMapper` del
-> paquete `database` la declara y no pasa nada, sin aviso.** En el framework no hay ninguno así: el único que extiende
-> ese `EntityMapper` de frente es `BaseEntityMapper`. Si tu módulo crea un mapper desde cero, hereda de
-> `BaseEntityMapper`.
+!!! info
+    **La constante la lee `BaseEntityMapper`**, que es de donde heredan todos los mappers del framework
+    —`EntityMapperExtensible` incluido, porque hereda de él—. **Un mapper que herede directamente del `EntityMapper` del
+    paquete `database` la declara y no pasa nada, sin aviso.** En el framework no hay ninguno así: el único que extiende
+    ese `EntityMapper` de frente es `BaseEntityMapper`. Si tu módulo crea un mapper desde cero, hereda de
+    `BaseEntityMapper`.
 
 **Hoy lo declaran dos tablas del framework**: la de usuarios, con las cuatro de arriba, y la de los secretos del doble
 factor, con `secret`, `oneUseCode` y `twoAuthFactorSecurityCode`.
@@ -44,10 +44,10 @@ Un dato puede salir de un mapper por más caminos de los que parece. Los cuatro 
 | **La meta-propiedad** | Un mapper guardado dentro del JSON de `meta`, como el administrador de una organización |
 | **La conversión a texto** | `"$mapper"`, `(string) $mapper`, `echo $mapper` |
 
-> [!IMPORTANT]
-> **Se oculta SIEMPRE, no solo cuando el mapper va anidado.** Podría parecer suficiente filtrar en la expansión, pero
-> entonces el día que alguien pida el mapper directamente el dato saldría. **Un campo declarado
-> no se serializa, punto.**
+!!! info
+    **Se oculta SIEMPRE, no solo cuando el mapper va anidado.** Podría parecer suficiente filtrar en la expansión, pero
+    entonces el día que alguien pida el mapper directamente el dato saldría. **Un campo declarado
+    no se serializa, punto.**
 
 ## Lo que NO hace, y hay que saberlo
 
@@ -73,12 +73,12 @@ ordenación y la búsqueda. La celda va **vacía**, y la fila conserva su forma.
 Si por cualquier motivo no puede filtrar, **devuelve un objeto vacío**, nunca el volcado completo. Un filtro que ante la
 duda enseña todo no es un filtro.
 
-> [!NOTE]
-> **El ORM usa esta conversión también al GUARDAR, pero no como podría parecer.** Solo la usa si una columna de texto
-> declarada como **referencia** recibe un registro de otra clase; **ninguna de las 39 referencias del framework es de
-> texto**, así que ese camino no se alcanza aquí. Y asignar un registro a una columna de texto **normal nunca guarda su
-> JSON**, ni antes ni ahora: el ORM **rechaza el objeto antes de convertirlo** —lo sustituye por el valor por defecto de
-> la columna, y si no hay ninguno que sirva, lanza—.
+!!! note
+    **El ORM usa esta conversión también al GUARDAR, pero no como podría parecer.** Solo la usa si una columna de texto
+    declarada como **referencia** recibe un registro de otra clase; **ninguna de las 39 referencias del framework es de
+    texto**, así que ese camino no se alcanza aquí. Y asignar un registro a una columna de texto **normal nunca guarda su
+    JSON**, ni antes ni ahora: el ORM **rechaza el objeto antes de convertirlo** —lo sustituye por el valor por defecto de
+    la columna, y si no hay ninguno que sirva, lanza—.
 
 ## Si clonas el framework
 

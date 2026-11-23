@@ -1,3 +1,10 @@
+# 10.62.4 (23-11-2026)
+
+- **Seguridad: los últimos refuerzos en las peticiones que la aplicación hace a otros servicios.** Se recomienda
+  actualizar.
+- **La documentación**: los avisos se ven como avisos (antes, algunos salían como texto entre corchetes) y la
+  compilación se niega a publicar una página con enlaces sin convertir, avisos sin convertir o fuera del menú.
+
 # 10.62.3 (23-11-2026)
 
 - **Seguridad: más refuerzos en las peticiones que la aplicación hace a otros servicios.** Se recomienda actualizar.

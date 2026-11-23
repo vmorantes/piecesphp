@@ -42,10 +42,10 @@ El framework dispara eventos predefinidos en momentos críticos del ciclo de vid
 | `EVENT_ADD_DYNAMIC_TRANSLATIONS_NAME` | `AddDynamicTransaltions` / `added` | Tras cargar las traducciones dinámicas desde la base de datos. |
 | `EVENT_CLI_ROUTE_NOT_FOUND_NAME` | `cli` / `CliRouteNotFound` | Cuando en modo CLI no se encuentra la ruta pedida; sirve para comandos personalizados. Solo se despacha si hay escuchadores. |
 
-> [!NOTE]
-> `AddDynamicTransaltions` está mal escrito en el código (falta una «l»: «Translations»). Es el valor real de la
-> constante; si despachas o escuchas ese contexto a mano, escríbelo tal cual. `defaultListen` y `defaultDispatch` lo
-> usan solos y no necesitas teclearlo.
+!!! note
+    `AddDynamicTransaltions` está mal escrito en el código (falta una «l»: «Translations»). Es el valor real de la
+    constante; si despachas o escuchas ese contexto a mano, escríbelo tal cual. `defaultListen` y `defaultDispatch` lo
+    usan solos y no necesitas teclearlo.
 
 **Ejemplo de uso:**
 

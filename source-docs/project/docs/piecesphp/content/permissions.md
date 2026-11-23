@@ -87,5 +87,5 @@ relativa a `src/` (las líneas en blanco y las que empiezan por `#` se ignoran).
 `src/permissions.sh` y la pantalla **Salud de la instalación**, que dice si cada una se puede escribir. Una carpeta
 nueva que deba escribirse se añade ahí, no en los guiones.
 
-> [!IMPORTANT]
-> Nunca utilices `777` en entornos de producción. El uso de SetGID y una correcta gestión de grupos (`www-data`) es la forma profesional y segura de manejar la escritura.
+!!! info
+    Nunca utilices `777` en entornos de producción. El uso de SetGID y una correcta gestión de grupos (`www-data`) es la forma profesional y segura de manejar la escritura.

@@ -13,9 +13,9 @@ El formato es **uno** y tiene **dos lectores**:
 | **Vista previa** | El ordenador del diseñador, con doble clic en `index.html`, sin servidor | Un JavaScript mínimo (`site/.pcs/`) las pinta con datos de ejemplo |
 | **PiecesPHP** | El proyecto | Convierte cada marca en su pieza real **una vez**, guarda el resultado en caché y lo sirve |
 
-> [!NOTE]
-> **Lo que el diseñador escribe nunca se ejecuta como código del servidor.** El sitio lleva HTML, CSS, JavaScript de
-> navegador, imágenes y fuentes; lo dinámico va solo con marcas. Ver «Seguridad».
+!!! note
+    **Lo que el diseñador escribe nunca se ejecuta como código del servidor.** El sitio lleva HTML, CSS, JavaScript de
+    navegador, imágenes y fuentes; lo dinámico va solo con marcas. Ver «Seguridad».
 
 ## Activarlo
 
