@@ -96,6 +96,19 @@ CliActions::make('unit-tests:core/scss-census-ratchet', function ($args) {
         [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --base=' . escapeshellarg($copia));
         $check($codigo === 0 && str_contains($veredicto, 'baja'), 'd1 si el censo baja, avisa y no falla', "rc {$codigo} · {$veredicto}");
 
+        //El total con lo marcado (A5): meter CSS en un bloque en desuso lo sube aunque lines_total no se mueva.
+        $totalMenor = $original['cifras'];
+        $totalMenor['lines_con_desuso']--;
+        $check($escribirCopia($totalMenor), 'i0 una copia con lines_con_desuso una por debajo');
+        [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --base=' . escapeshellarg($copia));
+        $check($codigo === 1 && str_contains($veredicto, 'lines_con_desuso'), 'i1 DISCRIMINANTE: el total con lo marcado también es trinquete', "rc {$codigo} · {$veredicto}");
+
+        $reglasMenor = $original['cifras'];
+        $reglasMenor['dead_rules_con_desuso']--;
+        $check($escribirCopia($reglasMenor), 'i2 una copia con dead_rules_con_desuso una por debajo');
+        [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --base=' . escapeshellarg($copia));
+        $check($codigo === 1 && str_contains($veredicto, 'dead_rules_con_desuso'), 'i3 DISCRIMINANTE: el total de reglas que no pueden casar también es trinquete', "rc {$codigo} · {$veredicto}");
+
         $incompleta = $original['cifras'];
         unset($incompleta['dead_rules']);
         $check($escribirCopia($incompleta), 'e0 una copia sin dead_rules');

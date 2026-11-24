@@ -11,21 +11,24 @@ viva: los ejemplos de esta página salen de ahí.
     **Las piezas pintan el armazón; los datos los pone tu JavaScript.** Cada número lleva un `data-type`, y tu pantalla lo
     rellena cuando tiene los datos. Los gráficos los dibuja Apache ECharts sobre el contenedor que deja la pieza.
 
-## Las siete
+## Las piezas
 
-| Pieza | Qué pinta | Variantes |
+**Usa las del tema.** Desde la 10.62.9, las pantallas del framework pintan sus estadísticas con la tarjeta del tema
+(`statistic card` dentro de `ui cards`); las piezas de la forma anterior quedan en desuso hasta la `11.0.0`.
+
+| Pieza | Qué pinta | Estado |
 | :-- | :-- | :-- |
-| `statistics-section.php` | La rejilla que ordena las tarjetas; dentro, el HTML que le pases (`content`) | `one-column`, `fullsize` |
-| `statistic-card.php` | Una tarjeta: título y ayuda arriba, un número (`number`) o un contenido (`content`), y su pie (`footer`) | `tall`, `wide`, `fullsize`, `horizontal-center`, `bg-gray`, `fullw-on-break-1` |
-| `chart-card.php` | Una tarjeta con un gráfico: la de **proporción** (`proportion`, una dona con su leyenda) o la de **tendencia** (`trend`, un área con su total y su variación) | `proportion`, `trend` |
-| `chart-legend.php` | La leyenda de un gráfico o de un círculo: una fila por valor, con su color, su nombre y su número | por fila: `level`, `color`, `valueModifiers`, `stack` |
-| `progress-circle.php` | Un círculo de progreso con su porcentaje dentro | `no-margin-t-b` |
-| `number-cards.php` | Cifras en fila, cada una con su icono, su número y su concepto | por cifra: `color` (`green`, `orange`), `icon` |
-| `action-card.php` | Un enlace grande con icono, título y una frase | `tall`, `horizontal-center`, `not-allowed`, `disabled` |
+| `statistic-card.php` con `figure` | La tarjeta de cifra del tema: una cifra (`value`) o varias (`statistics`), su rótulo, ayuda, detalle y, si lleva a algo, su enlace (`url`); `disabled` la pinta apagada, sin enlace ni botones; `variant` da `compact` o `tall` | **vigente** |
+| `chart-card.php` | Una tarjeta con un gráfico: la de **proporción** (`proportion`, una dona con su leyenda) o la de **tendencia** (`trend`, un área con su total y su variación) | **vigente** |
+| `statistics-section.php` | La sección que ordena las tarjetas con `ui cards` | **vigente**; `one-column` y las rejillas `one-column-grid`, `two-columns-grid` y `three-columns-grid`, en desuso |
+| `statistic-card.php` sin `figure` | La tarjeta anterior: título y ayuda arriba, un número o un contenido, y su pie | en desuso hasta la `11.0.0` |
+| `chart-legend.php` suelta | La leyenda anterior, una fila por valor | en desuso hasta la `11.0.0` |
+| `progress-circle.php` | Un círculo de progreso; el del tema es `ui circular progress` | en desuso hasta la `11.0.0` |
+| `number-cards.php` | Cifras en fila; el tema las da con `figure` y `statistics` | en desuso hasta la `11.0.0` |
+| `action-card.php` | Un enlace grande; el tema lo da con `figure` y `url` (o `disabled`) | en desuso hasta la `11.0.0` |
 
 Los parámetros completos de cada una están en su docblock. **Todo texto que les pases sale escapado**; los atributos
-extra pasan por `RowActions::attributes()`. Las rejillas que reparten las tarjetas (`one-column-grid`,
-`two-columns-grid`, `three-columns-grid`) no son piezas: son maquetación de tu vista.
+extra pasan por `RowActions::attributes()`. La hoja de diseño del panel tiene un ejemplo de cada forma vigente.
 
 Las variantes `proportion` y `trend` de `chart-card.php` son tarjetas del tema (`statistic card`, dentro de `ui cards`) y
 llevan los colores del tema: cada serie toma el suyo de `--data-1`…`--data-5`, y los neutros, de las variables del tema.
@@ -250,9 +253,9 @@ $this->helpController->_render('panel/built-in/statistics/chart-card.php', [
 Con ella, el gráfico se dibuja a mano: `echarts.init()` sobre el `.canvas`, con la leyenda nativa declarada y oculta
 (`legend: { show: false }`), y los ayudantes de `statistics-chart-legend.js` que siguen disponibles:
 
-- `linkStatisticsChartLegend(chart, legend)`: enlaza las filas de la leyenda de `chart-legend.php` (`.chart-data`) con
-  las series, o con las porciones de una tarta; la fila se enlaza con la serie que se llama como el texto de su `.name`.
-  Acepta también un gráfico de ApexCharts, en desuso.
+- `linkStatisticsChartLegend(chart, legend)`, **en desuso hasta la `11.0.0`**: enlaza las filas de la leyenda suelta de
+  `chart-legend.php` (`.chart-data`) con las series. Las tarjetas `proportion` y `trend` de `chart-card.php` no la
+  necesitan.
 - `fitStatisticsChart(chart, interior)`: tras `setOption()`, ajusta el radio de cada tarta o dona al lienzo y da al
   tooltip los colores del tema. No pongas `radius` a la serie: lo calcula ella.
 - `resizeStatisticsChart(chart)`: redimensiona con la ventana y al hacerse visible su pestaña.

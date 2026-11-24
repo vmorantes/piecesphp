@@ -1,5 +1,6 @@
 /**
- * Enlaza un gráfico de Apache ECharts con su leyenda de chart-legend.php (`.chart-data`): cada fila enciende o apaga su
+ * Enlaza un gráfico de Apache ECharts con su leyenda de chart-legend.php (`.chart-data`, en desuso hasta la 11.0.0: la
+ * dona del tema enlaza sus filas con drawStatisticsDonut()): cada fila enciende o apaga su
  * serie, o su porción en una tarta o una dona, con el ratón y con el teclado (Enter o Espacio). La de cada fila es la que
  * se LLAMA como el texto de su `.name`: una fila oculta (sin país, por ejemplo) no corre a las demás de sitio, y la que no
  * casa con ninguna serie se queda sin enlazar (H153). La fila apagada lleva la clase `series-hidden`
@@ -9,6 +10,7 @@
  *      ApexCharts ya dibujada (después de su render()), en desuso.
  * @param {HTMLElement|null} legend El `.chart-data` de chart-legend.php.
  * @returns {void}
+ * @deprecated 11.0.0 Con `.chart-data` (chart-legend.php, en desuso): sin uso en el framework; sale en la 11.0.0.
  */
 function linkStatisticsChartLegend(chart, legend) {
 	if (!(legend instanceof HTMLElement) || chart === null || typeof chart !== 'object') {
@@ -83,7 +85,7 @@ function statisticsLegendToggle(item, chart, nameOf, canToggle = null, after = n
  * La leyenda enlazada con un gráfico de ApexCharts (la forma de antes de la 10.1.0). En desuso: sale en la 11.0.0 (H155).
  *
  * @param {Object} chart Ya dibujado (después de su render()).
- * @param {HTMLElement} legend El `.chart-data` de chart-legend.php.
+ * @param {HTMLElement} legend El `.chart-data` de chart-legend.php (en desuso hasta la 11.0.0).
  * @returns {void}
  */
 function linkStatisticsApexChartLegend(chart, legend) {

@@ -359,7 +359,7 @@ aquí; lo que falte, se añade aquí antes que a la pantalla.
   desde JBV, `div.actions` dentro del formulario (sin segmento).
 - **Los gráficos, con Apache ECharts 5.5.1** (JDL, `249dd6ff`), dentro de un `ui chart` del tema (`chart-card.php`,
   `chartModifiers`; una dona, `tall` o más: `square` la deja a la izquierda en `.data` y corta las etiquetas, `#2342`).
-  La leyenda es la nuestra, interactiva: `linkStatisticsChartLegend(chart, leyenda)` con la nativa declarada y oculta
+  La leyenda suelta (`chart-legend.php`, `.chart-data`) y `linkStatisticsChartLegend(chart, leyenda)` están **en desuso hasta la `11.0.0`** (JNX, `697dd442`; las pantallas usan `chart-card.php` `proportion`/`trend`). Antes: `linkStatisticsChartLegend(chart, leyenda)` con la nativa declarada y oculta
   (`legend: {show: false}`): `legendToggleSelect` la usa para ocultar (en una dona funcionó también sin declararla,
   `#2342`; en las líneas, sin medir). Desde JDN acepta también una instancia de ApexCharts (compatibilidad hasta la
   `11.0.0`, H155), y `chart-card.php` sin `chartModifiers` pinta el contenedor de antes, sin `ui chart`. Y `resizeStatisticsChart(chart)` para la

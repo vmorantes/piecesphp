@@ -1,3 +1,12 @@
+# 10.62.10 (23-11-2026)
+
+- **La tarjeta de cifra del panel admite el estado apagado**: `statistic-card.php` con `figure` y `disabled` la pinta
+  apagada, sin enlace ni botones, para lo que el usuario no puede abrir.
+- **En desuso hasta la `11.0.0`: `linkStatisticsChartLegend()`** y la leyenda suelta `.chart-data`; las tarjetas de
+  proporción y de tendencia de `chart-card.php` no las necesitan. La hoja de diseño del panel dice lo que se ve en sus
+  estadísticas.
+- **Al actualizar**: nada que hacer.
+
 # 10.62.9 (23-11-2026)
 
 - **En desuso hasta la `11.0.0`: las piezas antiguas de estadísticas del panel.** Las pantallas del framework ya usan la

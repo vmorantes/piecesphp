@@ -142,9 +142,9 @@ El bloque `$showSQL` que había en diez `<Modulo>Routes` **ya no existe**: era u
 en diez de ellos. La comprobación de que el esquema entero se genera y se deshace está en
 `bin/cli unit-tests:core/scheme-sql-round-trip`.
 
-> **Y el DDL que genera `SchemeCreator` es `CHARSET=utf8 COLLATE=utf8_bin`, o sea `utf8mb3`**,
-> escrito a fuego en el paquete. La *conexión* va en `utf8mb4`; las tablas recién generadas,
-> no.
+> **El DDL que genera `SchemeCreator` es `utf8mb4` con `COLLATE=utf8mb4_bin`** (medido el 2026-11-23:
+> `src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:58`, `DEFAULT_COLLATION`; antes de `database` v5
+> era `utf8`/`utf8_bin`, y las tablas creadas entonces siguen así hasta que un `ALTER` las convierta).
 
 ## Backups
 

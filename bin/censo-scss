@@ -17,6 +17,7 @@
 #   que una clase cambie de cubo no es CSS nuevo); las reglas distintas que no pueden casar (dead_rules) y las líneas
 #   del universo (lines.total). dead_rules y lines.total NO cuentan lo marcado `@en-desuso` (el comentario y el bloque
 #   que lo sigue, con lo anidado), que se borra en la 11.0.0: se cuenta e imprime aparte, «en desuso: N reglas, M líneas».
+#   Y el total con lo marcado (dead_rules_con_desuso, lines_con_desuso): marcar no puede bajar una cifra y subir otra.
 #
 # Cubos, por CLASE DISTINTA (no por ocurrencia):
 #   VIVA               aparece como token literal en el universo de uso;
@@ -40,7 +41,7 @@ import json, os, re, shutil, subprocess, sys
 
 OUT = 'files/dev/scss-census.json'
 BASELINE = 'files/dev/scss-census-baseline.json'
-RATCHET_KEYS = ('SOBRESCRITURA', 'clases_propias', 'dead_rules', 'lines_total')
+RATCHET_KEYS = ('SOBRESCRITURA', 'clases_propias', 'dead_rules', 'lines_total', 'dead_rules_con_desuso', 'lines_con_desuso')
 ROOT = subprocess.run(['git', 'rev-parse', '--show-toplevel'], capture_output=True, text=True, check=True).stdout.strip()
 os.chdir(ROOT)
 
@@ -681,7 +682,10 @@ def main():
     figures = {'SOBRESCRITURA': counts.get('SOBRESCRITURA', 0),
                'clases_propias': counts.get('VIVA', 0) + counts.get('SIN USO LITERAL', 0),
                'dead_rules': len(result['dead_rules']) - deprecated['dead_rules'],
-               'lines_total': total_lines - deprecated['lines']}
+               'lines_total': total_lines - deprecated['lines'],
+               #El total, con lo marcado: marcar mueve de una columna a otra con el total igual; meter CSS dentro de un
+               #bloque marcado lo sube. «En desuso» solo baja de verdad cuando se borra (la 11.0.0).
+               'dead_rules_con_desuso': len(result['dead_rules']), 'lines_con_desuso': total_lines}
     print(f'en desuso (fuera del trinquete): {deprecated["rules"]} reglas ({deprecated["dead_rules"]} que no pueden casar), '
           f'{deprecated["lines"]} líneas')
     detail = {'VIVA': counts.get('VIVA', 0), 'SIN USO LITERAL': counts.get('SIN USO LITERAL', 0)}
@@ -757,7 +761,8 @@ def save_baseline(figures, detail, universe, deprecated):
                       'distintas (origen y selector) que no pueden casar; lines_total, las líneas de los .scss de git ls-files '
                       '--cached --others --exclude-standard (lo versionado y lo nuevo sin ignorar). dead_rules y lines_total '
                       'sin lo marcado @en-desuso (el comentario y el bloque de debajo), que se borra en la 11.0.0 y va en '
-                      'en_desuso_sin_trinquete.',
+                      'en_desuso_sin_trinquete; dead_rules_con_desuso y lines_con_desuso, los totales con lo marcado (marcar '
+                      'mueve de una columna a otra sin cambiar el total).',
             'universo': universe,
             'fecha': datetime.date.today().isoformat(),
         },

@@ -85,6 +85,15 @@ CliActions::make('unit-tests:core/figure-card', function ($args) {
     $scss = (string) preg_replace('/\s+/', '', (string) file_get_contents(basepath('statics/core/sass/includes/_graphs-and-statistics.scss')));
     $check(str_contains($scss, '.ui.cards>.statistic.card>.content>.right.floated.icon.button+.right.floated.icon.button,') && str_contains($css, '.ui.cards>.statistic.card>.content>.right.floated.icon.button+.right.floated.icon.button,') && str_contains($css, '.right.floated.icon.button+.right.floated.icon.button~.header'), 'c18 la hoja compilada corre el segundo botón de esquina y deja hueco al título (sin ella: gulp sass-compile-general)');
     $check($porClase($plegable, 'statistic') !== [] && array_filter($porClase($plegable, 'statistic'), fn ($n) => str_starts_with($n->getAttribute('class'), 'ui ')) === [] && str_contains((string) $plegable->textContent, 'Plegada'), 'c17 `statistics` vacío: la tarjeta del tema, sin ninguna cifra');
+    //Apagada (sin permiso): la tarjeta del tema `ui disabled`, sin enlace aunque se pase `url`, sin botones ni ayuda.
+    $apagada = $leer('panel/built-in/statistics/statistic-card', ['title' => 'Exportar', 'help' => 'zz-ayuda', 'toolbarExtra' => '<button type="button">zz</button>', 'figure' => ['disabled' => true, 'url' => 'zz-url'], 'footer' => ['caption' => 'Ver', 'url' => 'zz-pie']]);
+    $raizApagada = $porClase($apagada, 'card')[0] ?? null;
+    $check($raizApagada instanceof \DOMElement && $raizApagada->tagName === 'div' && $raizApagada->getAttribute('class') === 'ui disabled statistic card' && $raizApagada->getAttribute('aria-disabled') === 'true', 'c19 `disabled`: la tarjeta apagada del tema, un div con aria-disabled', $raizApagada instanceof \DOMElement ? $raizApagada->getAttribute('class') : 'sin tarjeta');
+    $check($apagada->getElementsByTagName('a')->length === 0 && $apagada->getElementsByTagName('button')->length === 0 && str_contains((string) $apagada->textContent, 'Exportar'), 'c20 y sin enlace (ni el de `url` ni el del pie), sin botones ni ayuda, con su título');
+    //Lo que usa la hoja de diseño: solo `disabled` y el título, sin `url`: la tarjeta vale por `disabled`.
+    $soloApagada = $leer('panel/built-in/statistics/statistic-card', ['title' => 'Exportar', 'figure' => ['disabled' => true]]);
+    $raizSola = $porClase($soloApagada, 'card')[0] ?? null;
+    $check($raizSola instanceof \DOMElement && $raizSola->getAttribute('class') === 'ui disabled statistic card' && $porClase($soloApagada, 'card-statistic') === [], 'c21 solo `disabled` y título: la tarjeta apagada del tema, no la forma vieja', $raizSola instanceof \DOMElement ? $raizSola->getAttribute('class') : 'sin tarjeta');
     echoTerminal(' ');
 
     echoTerminal('[1/2] Los botones de filtros');

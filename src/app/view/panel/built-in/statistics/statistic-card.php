@@ -1,9 +1,11 @@
 <?php
 /**
- * Una tarjeta de estadística (`card-statistic`, _graphs-and-statistics.scss): la barra con su título y su ayuda, el dato y
- * el pie con su texto y su flecha. El dato es un número (`number`) o el HTML que pinte quien llama (`content`): un gráfico
- * (chart-card.php), un círculo de progreso (progress-circle.php), una leyenda (chart-legend.php) o unas cifras
- * (number-cards.php). Los números los rellena el JavaScript de quien llama por su `data-type`.
+ * La tarjeta de cifra del tema (`statistic card`, con `figure`): una o varias cifras con su rótulo, el acceso directo
+ * (`url`), la tarjeta apagada (`disabled`) o el HTML de quien llama (`content`), con su título, su ayuda y su pie. Va
+ * dentro de `ui cards`. Los números los rellena el JavaScript de quien llama por su `data-type`.
+ *
+ * Sin `figure`, la tarjeta de antes (`card-statistic`, _graphs-and-statistics.scss), en desuso: la barra con su título y
+ * su ayuda, el dato (`number` o `content`) y el pie con su flecha.
  *
  * @deprecated 11.0.0 La forma sin `figure` (`card-statistic`: `modifiers`, `titleModifiers`, `number`, `content` y el pie
  *      con flecha): sin uso en el framework desde que los ejemplos de la hoja de diseño usan la tarjeta del tema; sale en la
@@ -19,10 +21,12 @@
  * @var string $content HTML del dato, si no es un número; lo pinta (y escapa) quien llama.
  * @var array{caption?:string|null,url?:string|null,two?:bool}|null $footer Sin pie, null. `caption`, su texto; `url`, la
  *      flecha; `two`, la variante `footer two`.
- * @var array{value?:string,dataType?:string,label?:string,statistics?:array<array{value:string,dataType?:string,label?:string}>,url?:string,meta?:string,description?:string,content?:string,variant?:string,size?:string}|null $figure
+ * @var array{value?:string,disabled?:bool,dataType?:string,label?:string,statistics?:array<array{value:string,dataType?:string,label?:string}>,url?:string,meta?:string,description?:string,content?:string,variant?:string,size?:string}|null $figure
  *      La tarjeta de cifra del tema (`statistic card`): va dentro de `ui cards`, y usa `title`, `help`, `toolbarExtra`,
  *      `footer` y `attributes`. `variant`, `compact` o `tall`; `size`, `huge marked`. `content`, HTML que pinta y escapa
- *      quien llama. `statistics`, varias cifras en la misma tarjeta (en lugar de `value`). Con `url`, la tarjeta entera
+ *      quien llama. `statistics`, varias cifras en la misma tarjeta (en lugar de `value`). `disabled` (true), la tarjeta
+ *      apagada del tema (`ui disabled statistic card`): sin enlace, sin botones ni ayuda; el `content` sí se pinta, y lo
+ *      que lleve es cosa de quien llama. Con `url`, la tarjeta entera
  *      es un enlace (acceso directo): el pie no lleva enlace propio, porque un enlace no puede ir dentro de otro. El pie
  *      sale de `footer`: su `caption` es el texto del enlace a `url`; sin `caption`, no hay pie.
  *      `toolbarExtra` son botones `ui right floated mini tertiary icon button`, hermanos de la ayuda (el tema los estila así).
@@ -40,13 +44,16 @@ $content = isset($content) && is_string($content) ? $content : '';
 $footer = isset($footer) && is_array($footer) ? $footer : null;
 $caption = $footer !== null && isset($footer['caption']) && is_string($footer['caption']) ? $footer['caption'] : null;
 $url = $footer !== null && isset($footer['url']) && is_string($footer['url']) ? $footer['url'] : null;
-$figure = isset($figure) && is_array($figure) && (is_string($figure['value'] ?? null) || is_array($figure['statistics'] ?? null) || is_string($figure['url'] ?? null) || is_string($figure['content'] ?? null)) ? $figure : null;
+$figure = isset($figure) && is_array($figure) && (is_string($figure['value'] ?? null) || is_array($figure['statistics'] ?? null) || is_string($figure['url'] ?? null) || is_string($figure['content'] ?? null) || ($figure['disabled'] ?? false) === true) ? $figure : null;
 ?>
 <?php if ($figure !== null): ?>
 <?php
 $figureVariant = in_array($figure['variant'] ?? '', ['compact', 'tall'], true) ? $figure['variant'] . ' ' : '';
 $figureSize = ($figure['size'] ?? '') === 'huge marked' ? 'huge marked ' : '';
-$figureUrl = isset($figure['url']) && is_string($figure['url']) ? $figure['url'] : null;
+//Apagada (sin permiso): ni enlace, ni botones, ni ayuda; el pie, sin enlace.
+$figureDisabled = ($figure['disabled'] ?? false) === true;
+$figureUrl = !$figureDisabled && isset($figure['url']) && is_string($figure['url']) ? $figure['url'] : null;
+$url = $figureDisabled ? null : $url;
 $figureStatistics = [];
 foreach (is_array($figure['statistics'] ?? null) ? $figure['statistics'] : [$figure] as $statistic) {
     if (is_array($statistic) && isset($statistic['value']) && is_string($statistic['value'])) {
@@ -54,13 +61,13 @@ foreach (is_array($figure['statistics'] ?? null) ? $figure['statistics'] : [$fig
     }
 }
 //Un botón no puede ir dentro de un enlace: el acceso directo no lleva ayuda ni botones.
-$toolbarExtra = $figureUrl !== null ? '' : $toolbarExtra;
-$helpButton = $help !== '' && $figureUrl === null ? '<button type="button" class="ui right floated mini tertiary icon button" aria-label="' . escape_html($help) . '" data-tooltip="' . escape_html($help) . '" data-position="bottom right" data-inverted=""><i class="question circle icon" aria-hidden="true"></i></button>' : '';
+$toolbarExtra = $figureUrl !== null || $figureDisabled ? '' : $toolbarExtra;
+$helpButton = $help !== '' && $figureUrl === null && !$figureDisabled ? '<button type="button" class="ui right floated mini tertiary icon button" aria-label="' . escape_html($help) . '" data-tooltip="' . escape_html($help) . '" data-position="bottom right" data-inverted=""><i class="question circle icon" aria-hidden="true"></i></button>' : '';
 $figureFooter = $caption;
 $figureTag = $figureUrl !== null ? 'a' : 'div';
 $figureLabel = $figureUrl !== null ? ' href="' . escape_html($figureUrl) . '" aria-label="' . escape_html(implode(': ', array_filter([$title ?? '', is_string($figure['description'] ?? null) ? $figure['description'] : ''], fn($part) => $part !== ''))) . '"' : '';
 ?>
-<<?= $figureTag; ?> class="<?= $figureUrl !== null ? 'link ' : ''; ?><?= $figureVariant; ?>statistic card"<?= $figureLabel; ?><?= $attributes; ?>>
+<<?= $figureTag; ?> class="<?= $figureDisabled ? 'ui disabled ' : ''; ?><?= $figureUrl !== null ? 'link ' : ''; ?><?= $figureVariant; ?>statistic card"<?= $figureDisabled ? ' aria-disabled="true"' : ''; ?><?= $figureLabel; ?><?= $attributes; ?>>
     <div class="content">
         <?php //Hijos directos de .content, como `.right.floated.icon.button`: así casan con el estilo del tema (card.css). ?>
         <?= $helpButton; ?><?= $toolbarExtra; ?>
