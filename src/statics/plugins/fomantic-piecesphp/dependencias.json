@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "3ffa1d3a",
+  "commit": "e76d628a",
   "fuenteSinCambios": true,
-  "generado": "2026-11-19T23:30:59.347Z",
+  "generado": "2026-11-24T00:13:36.376Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -84,7 +84,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "85 piezas cambian sin él"
+          "icon": "85 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "suelto": {
           "piezas": 143,
@@ -111,7 +111,6 @@
         "sueltoBaseUi": {
           "piezas": 143,
           "propiedades": {
-            "accent-color": 183,
             "font-size": 183,
             "line-height": 183,
             "block-size": 148,
@@ -122,24 +121,18 @@
             "width": 148,
             "min-block-size": 89,
             "min-height": 89,
-            "padding-block-end": 80
+            "padding-block-end": 80,
+            "padding-block-start": 80
           },
           "muestras": [
-            "button.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "button.ui.button en div.: block-size 40px → 45.7031px",
+            "a.ui.button en div.: block-size 40px → 45.7031px",
+            "div.ui.button en div.: block-size 40px → 45.7031px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 143,
-          "propiedades": {
-            "accent-color": 183
-          },
-          "muestras": [
-            "button.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.button en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -191,26 +184,12 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 18,
-          "propiedades": {
-            "accent-color": 18
-          },
-          "muestras": [
-            "div.ui.chart en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "svg.canvas en div.ui.chart: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "polyline. en svg.canvas: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 18,
-          "propiedades": {
-            "accent-color": 18
-          },
-          "muestras": [
-            "div.ui.chart en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "svg.canvas en div.ui.chart: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "polyline. en svg.canvas: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -246,8 +225,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "header": "2 piezas cambian sin él",
-          "grid": "15 piezas cambian sin él"
+          "header": "2 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)",
+          "grid": "15 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)"
         },
         "suelto": {
           "piezas": 275,
@@ -272,9 +251,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 275,
+          "piezas": 267,
           "propiedades": {
-            "accent-color": 275,
             "perspective-origin": 267,
             "transform-origin": 267,
             "inline-size": 263,
@@ -285,24 +263,18 @@
             "margin-inline-start": 16,
             "margin-left": 16,
             "margin-right": 16,
-            "padding-block-end": 12
+            "padding-block-end": 12,
+            "padding-block-start": 12
           },
           "muestras": [
-            "div.ui.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.container: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.text.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.container en div.: inline-size 1136px → 1126.84px",
+            "p. en div.ui.container: inline-size 1136px → 1126.84px",
+            "div.ui.text.container en div.: block-size 147.438px → 168.484px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 275,
-          "propiedades": {
-            "accent-color": 275
-          },
-          "muestras": [
-            "div.ui.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.container: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.text.container en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -336,8 +308,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "header": "26 piezas cambian sin él",
-          "icon": "32 piezas cambian sin él"
+          "header": "26 piezas cambian sin él (font-size, line-height, border-block-end-color, border-block-start-color)",
+          "icon": "32 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)"
         },
         "suelto": {
           "piezas": 55,
@@ -364,7 +336,6 @@
         "sueltoBaseUi": {
           "piezas": 55,
           "propiedades": {
-            "accent-color": 137,
             "font-size": 137,
             "line-height": 125,
             "perspective-origin": 109,
@@ -375,27 +346,27 @@
             "width": 73,
             "background-position": 58,
             "background-size": 58,
-            "bottom": 56
+            "bottom": 56,
+            "inset-block-end": 56
           },
           "muestras": [
-            "div.ui.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.divider en div.: font-size 12px → 13.7143px",
+            "div.ui.vertical.divider en div.: font-size 12px → 13.7143px",
+            "div.ui.vertical.divider en div.: font-size 12px → 13.7143px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 55,
+          "piezas": 4,
           "propiedades": {
-            "accent-color": 137,
             "inset-inline-end": 4,
             "inset-inline-start": 4,
             "left": 4,
             "right": 4
           },
           "muestras": [
-            "div.ui.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.vertical.divider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.vertical.divider en div.: inset-inline-end 687.688px → 685.188px",
+            "div.ui.vertical.divider en div.: inset-inline-end 688.562px → 686.062px",
+            "div.ui.vertical.divider en div.: inset-inline-end 677.5px → 675px"
           ]
         }
       },
@@ -618,7 +589,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "4 piezas cambian sin él"
+          "icon": "4 piezas cambian sin él (perspective-origin, transform-origin, block-size, height)"
         },
         "suelto": {
           "piezas": 36,
@@ -643,9 +614,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 36,
+          "piezas": 28,
           "propiedades": {
-            "accent-color": 37,
             "perspective-origin": 27,
             "transform-origin": 27,
             "column-gap": 26,
@@ -658,21 +628,14 @@
             "min-height": 2
           },
           "muestras": [
-            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.nowrap.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.flex en div.: block-size 40px → 45.7031px",
+            "div.ui.nowrap.flex en div.: block-size 40px → 45.7031px",
+            "div.ui.flex en div.: column-gap 8px → 9.14286px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 36,
-          "propiedades": {
-            "accent-color": 37
-          },
-          "muestras": [
-            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.nowrap.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.flex en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -707,7 +670,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "25 piezas cambian sin él"
+          "icon": "25 piezas cambian sin él (perspective-origin, transform-origin, block-size, height)"
         },
         "suelto": {
           "piezas": 122,
@@ -734,7 +697,6 @@
         "sueltoBaseUi": {
           "piezas": 122,
           "propiedades": {
-            "accent-color": 143,
             "font-size": 143,
             "line-height": 143,
             "perspective-origin": 128,
@@ -745,24 +707,18 @@
             "width": 39,
             "padding-block-end": 27,
             "padding-bottom": 27,
-            "padding-inline-start": 27
+            "padding-inline-start": 27,
+            "padding-left": 27
           },
           "muestras": [
-            "h1.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "h2.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "h3.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "h1.ui.header en div.: block-size 32px → 36.5469px",
+            "h2.ui.header en div.: block-size 24px → 27.4219px",
+            "h3.ui.header en div.: block-size 24px → 27.4219px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 122,
-          "propiedades": {
-            "accent-color": 143
-          },
-          "muestras": [
-            "h1.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "h2.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "h3.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -911,9 +867,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 93,
+          "piezas": 46,
           "propiedades": {
-            "accent-color": 93,
             "font-size": 44,
             "border-bottom-left-radius": 4,
             "border-bottom-right-radius": 4,
@@ -924,24 +879,18 @@
             "border-top-left-radius": 4,
             "border-top-right-radius": 4,
             "margin-inline-end": 3,
-            "margin-inline-start": 3
+            "margin-inline-start": 3,
+            "margin-left": 3
           },
           "muestras": [
-            "img.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img. en div.ui.small.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "img.ui.small.image en div.: font-size 13px → 14.8571px",
+            "div.ui.small.image en div.: font-size 13px → 14.8571px",
+            "img. en div.ui.small.image: font-size 13px → 14.8571px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 93,
-          "propiedades": {
-            "accent-color": 93
-          },
-          "muestras": [
-            "img.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.small.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img. en div.ui.small.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -983,9 +932,9 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "40 piezas cambian sin él",
-          "loader": "34 piezas cambian sin él",
-          "form": "6 piezas cambian sin él"
+          "icon": "40 piezas cambian sin él (font-family, font-style, speak, backface-visibility)",
+          "loader": "34 piezas cambian sin él (border-block-start-color, border-top-color, caret-color, color)",
+          "form": "6 piezas cambian sin él (bottom, inset-block-end, inset-block-start, top)"
         },
         "suelto": {
           "piezas": 191,
@@ -1012,7 +961,6 @@
         "sueltoBaseUi": {
           "piezas": 191,
           "propiedades": {
-            "accent-color": 261,
             "block-size": 261,
             "font-size": 261,
             "height": 261,
@@ -1023,18 +971,18 @@
             "line-height": 185,
             "inset-inline-start": 105,
             "left": 105,
-            "bottom": 75
+            "bottom": 75,
+            "inset-block-end": 75
           },
           "muestras": [
-            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input. en div.ui.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.input en div.: block-size 40px → 45.4219px",
+            "input. en div.ui.input: block-size 40px → 45.4219px",
+            "div.ui.input en div.: block-size 40px → 45.4219px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 191,
+          "piezas": 4,
           "propiedades": {
-            "accent-color": 261,
             "bottom": 4,
             "font-family": 4,
             "inline-size": 4,
@@ -1046,9 +994,9 @@
             "width": 4
           },
           "muestras": [
-            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input. en div.ui.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "input.ui.invisible.file.input en div.: bottom -8430.09px → -8296.28px",
+            "input.ui.invisible.file.input en div.: bottom -8430.09px → -8296.28px",
+            "input.ui.invisible.file.input en div.: bottom -9070.09px → -8936.28px"
           ]
         }
       },
@@ -1085,8 +1033,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "24 piezas cambian sin él",
-          "image": "10 piezas cambian sin él"
+          "icon": "24 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)",
+          "image": "10 piezas cambian sin él (bottom, inset-block-end, inset-block-start, inset-inline-end)"
         },
         "suelto": {
           "piezas": 110,
@@ -1113,7 +1061,6 @@
         "sueltoBaseUi": {
           "piezas": 110,
           "propiedades": {
-            "accent-color": 215,
             "font-size": 215,
             "line-height": 215,
             "block-size": 193,
@@ -1124,18 +1071,18 @@
             "width": 193,
             "bottom": 121,
             "inset-block-end": 121,
-            "inset-inline-start": 100
+            "inset-inline-start": 100,
+            "left": 100
           },
           "muestras": [
-            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.mail.icon en div.ui.label: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.label en div.: block-size 22px → 25.125px",
+            "div.ui.label en div.: block-size 22px → 25.125px",
+            "i.mail.icon en div.ui.label: block-size 12px → 13.7031px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 110,
+          "piezas": 19,
           "propiedades": {
-            "accent-color": 215,
             "bottom": 19,
             "inset-block-end": 19,
             "inset-inline-start": 17,
@@ -1144,9 +1091,9 @@
             "right": 2
           },
           "muestras": [
-            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.label en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.mail.icon en div.ui.label: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "a.ui.left.corner.label en div.: bottom 2209px → 2194px",
+            "a.ui.right.corner.label en div.: bottom 2209px → 2194px",
+            "a.ui.left.corner.red.label en div.: bottom 2209px → 2194px"
           ]
         }
       },
@@ -1184,7 +1131,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "43 piezas cambian sin él"
+          "icon": "43 piezas cambian sin él (font-style, line-height, text-align, backface-visibility)"
         },
         "suelto": {
           "piezas": 464,
@@ -1211,7 +1158,6 @@
         "sueltoBaseUi": {
           "piezas": 464,
           "propiedades": {
-            "accent-color": 767,
             "font-size": 744,
             "line-height": 685,
             "perspective-origin": 620,
@@ -1222,24 +1168,18 @@
             "height": 492,
             "padding-block-end": 171,
             "padding-bottom": 171,
-            "padding-block-start": 171
+            "padding-block-start": 171,
+            "padding-top": 171
           },
           "muestras": [
-            "div.ui.list en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.list en div.: block-size 72px → 82.2188px",
+            "div.item en div.ui.list: block-size 23px → 26.2656px",
+            "div.item en div.ui.list: block-size 26px → 29.6875px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 464,
-          "propiedades": {
-            "accent-color": 767
-          },
-          "muestras": [
-            "div.ui.list en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.item en div.ui.list: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -1291,7 +1231,6 @@
         "sueltoBaseUi": {
           "piezas": 80,
           "propiedades": {
-            "accent-color": 240,
             "font-size": 240,
             "block-size": 231,
             "height": 231,
@@ -1302,27 +1241,27 @@
             "margin-inline-start": 161,
             "margin-left": 161,
             "border-block-end-width": 160,
-            "border-block-start-width": 160
+            "border-block-start-width": 160,
+            "border-bottom-left-radius": 160
           },
           "muestras": [
-            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.active.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.loader en div.: block-size 32px → 36.5714px",
+            "div.ui.loader en div.: block-size 32px → 36.5714px",
+            "div.ui.active.loader en div.: block-size 32px → 36.5625px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 80,
+          "piezas": 4,
           "propiedades": {
-            "accent-color": 240,
             "inset-inline-end": 4,
             "inset-inline-start": 4,
             "left": 4,
             "right": 4
           },
           "muestras": [
-            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.active.loader en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.active.loader en div.: inset-inline-end 663px → 660.5px",
+            "div.ui.active.text.loader en div.: inset-inline-end 618.75px → 616.25px",
+            "div.ui.active.loader en div.: inset-inline-end 663px → 660.5px"
           ]
         }
       },
@@ -1373,9 +1312,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 114,
+          "piezas": 100,
           "propiedades": {
-            "accent-color": 250,
             "inline-size": 159,
             "perspective-origin": 159,
             "transform-origin": 159,
@@ -1386,24 +1324,18 @@
             "left": 55,
             "max-inline-size": 22,
             "max-width": 22,
-            "block-size": 10
+            "block-size": 10,
+            "height": 10
           },
           "muestras": [
-            "div.ui.placeholder en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.image.header en div.ui.placeholder: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.line en div.image.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.placeholder en div.: inline-size 420px → 480px",
+            "div.image.header en div.ui.placeholder: inline-size 420px → 480px",
+            "div.line en div.image.header: inline-size 378px → 438px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 114,
-          "propiedades": {
-            "accent-color": 250
-          },
-          "muestras": [
-            "div.ui.placeholder en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.image.header en div.ui.placeholder: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.line en div.image.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -1458,7 +1390,6 @@
         "sueltoBaseUi": {
           "piezas": 30,
           "propiedades": {
-            "accent-color": 30,
             "block-size": 30,
             "font-size": 30,
             "height": 30,
@@ -1469,18 +1400,18 @@
             "left": 27,
             "right": 27,
             "margin-inline-end": 13,
-            "margin-right": 13
+            "margin-right": 13,
+            "padding-inline-end": 13
           },
           "muestras": [
-            "div.ui.left.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.right.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.left.internal.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.left.rail en div.: block-size 2257px → 2242px",
+            "div.ui.right.rail en div.: block-size 2257px → 2242px",
+            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
           ]
         },
         "sueltoBaseUiMismoRem": {
           "piezas": 30,
           "propiedades": {
-            "accent-color": 30,
             "block-size": 30,
             "height": 30,
             "perspective-origin": 30,
@@ -1491,9 +1422,9 @@
             "left": 15
           },
           "muestras": [
-            "div.ui.left.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.right.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.left.internal.rail en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.left.rail en div.: block-size 2257px → 2242px",
+            "div.ui.right.rail en div.: block-size 2257px → 2242px",
+            "div.ui.left.internal.rail en div.: block-size 2257px → 2242px"
           ]
         }
       },
@@ -1530,7 +1461,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "image": "81 piezas cambian sin él"
+          "image": "81 piezas cambian sin él (block-size, height, inline-size, max-inline-size)"
         },
         "suelto": {
           "piezas": 111,
@@ -1557,7 +1488,6 @@
         "sueltoBaseUi": {
           "piezas": 111,
           "propiedades": {
-            "accent-color": 111,
             "font-size": 101,
             "block-size": 30,
             "height": 30,
@@ -1568,24 +1498,18 @@
             "border-end-end-radius": 15,
             "border-end-start-radius": 15,
             "border-start-end-radius": 15,
-            "border-start-start-radius": 15
+            "border-start-start-radius": 15,
+            "border-top-left-radius": 15
           },
           "muestras": [
-            "div.ui.small.fade.reveal.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img.visible.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img.hidden.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.small.fade.reveal.image en div.: font-size 13px → 14.8571px",
+            "img.visible.content en div.ui.small.fade.reveal.image: font-size 13px → 14.8571px",
+            "img.hidden.content en div.ui.small.fade.reveal.image: font-size 13px → 14.8571px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 111,
-          "propiedades": {
-            "accent-color": 111
-          },
-          "muestras": [
-            "div.ui.small.fade.reveal.image en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img.visible.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img.hidden.content en div.ui.small.fade.reveal.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -1641,9 +1565,9 @@
           "placeholder"
         ],
         "necesidad": {
-          "header": "3 piezas cambian sin él",
-          "label": "6 piezas cambian sin él",
-          "loader": "2 piezas cambian sin él"
+          "header": "3 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)",
+          "label": "6 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)",
+          "loader": "2 piezas cambian sin él (border-block-end-color, border-block-start-color, border-bottom-color, border-inline-end-color)"
         },
         "suelto": {
           "piezas": 127,
@@ -1670,7 +1594,6 @@
         "sueltoBaseUi": {
           "piezas": 127,
           "propiedades": {
-            "accent-color": 149,
             "font-size": 149,
             "block-size": 140,
             "height": 140,
@@ -1681,24 +1604,18 @@
             "padding-bottom": 81,
             "padding-top": 81,
             "padding-inline-end": 76,
-            "padding-inline-start": 76
+            "padding-inline-start": 76,
+            "padding-left": 76
           },
           "muestras": [
-            "div.ui.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.placeholder.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.segment en div.: block-size 62px → 70.5469px",
+            "p. en div.ui.segment: block-size 20px → 22.8594px",
+            "div.ui.placeholder.segment en div.: block-size 260px → 297.141px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 127,
-          "propiedades": {
-            "accent-color": 149
-          },
-          "muestras": [
-            "div.ui.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.placeholder.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -1730,7 +1647,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "112 piezas cambian sin él"
+          "icon": "112 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "suelto": {
           "piezas": 866,
@@ -1755,9 +1672,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 866,
+          "piezas": 834,
           "propiedades": {
-            "accent-color": 1303,
             "font-size": 1223,
             "perspective-origin": 1177,
             "transform-origin": 1177,
@@ -1768,24 +1684,18 @@
             "line-height": 536,
             "bottom": 323,
             "inset-block-end": 323,
-            "inset-block-start": 323
+            "inset-block-start": 323,
+            "top": 323
           },
           "muestras": [
-            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.step en div.ui.steps: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.steps en div.: block-size 50px → 54.5625px",
+            "div.step en div.ui.steps: block-size 48px → 52.5625px",
+            "div.ui.steps en div.: block-size 69px → 78.5625px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 866,
-          "propiedades": {
-            "accent-color": 1303
-          },
-          "muestras": [
-            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.step en div.ui.steps: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.steps en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -1837,7 +1747,6 @@
         "sueltoBaseUi": {
           "piezas": 19,
           "propiedades": {
-            "accent-color": 19,
             "font-size": 19,
             "line-height": 19,
             "padding-block-end": 1,
@@ -1850,21 +1759,14 @@
             "padding-top": 1
           },
           "muestras": [
-            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "span.ui.swatch en div.: font-size 13px → 14.8571px",
+            "span.ui.swatch en div.: font-size 13px → 14.8571px",
+            "span.ui.swatch en div.: font-size 13px → 14.8571px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 19,
-          "propiedades": {
-            "accent-color": 19
-          },
-          "muestras": [
-            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.swatch en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -1914,29 +1816,21 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 76,
+          "piezas": 17,
           "propiedades": {
-            "accent-color": 76,
             "font-size": 17,
             "line-height": 17,
             "letter-spacing": 6
           },
           "muestras": [
-            "span.ui.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.disabled.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.muted.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "span.ui.small.muted.text en div.: font-size 13px → 14.8571px",
+            "span.ui.mini.text en div.: font-size 12px → 13.7143px",
+            "span.ui.tiny.text en div.: font-size 12px → 13.7143px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 76,
-          "propiedades": {
-            "accent-color": 76
-          },
-          "muestras": [
-            "span.ui.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.disabled.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.ui.muted.text en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -1972,8 +1866,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "30 piezas cambian sin él",
-          "segment": "2 piezas cambian sin él"
+          "icon": "30 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)",
+          "segment": "2 piezas cambian sin él (background-color, border-bottom-left-radius, border-bottom-right-radius, border-end-end-radius)"
         },
         "sinEfecto": [
           "placeholder"
@@ -2003,7 +1897,6 @@
         "sueltoBaseUi": {
           "piezas": 105,
           "propiedades": {
-            "accent-color": 122,
             "font-size": 122,
             "line-height": 122,
             "block-size": 104,
@@ -2014,24 +1907,18 @@
             "width": 104,
             "margin-inline-end": 34,
             "margin-inline-start": 34,
-            "margin-left": 34
+            "margin-left": 34,
+            "margin-right": 34
           },
           "muestras": [
-            "div.ui.breadcrumb en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.section en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.divider en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.breadcrumb en div.: block-size 16px → 18.9688px",
+            "a.section en div.ui.breadcrumb: block-size 16px → 18.2812px",
+            "div.divider en div.ui.breadcrumb: block-size 14.8438px → 16.9688px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 105,
-          "propiedades": {
-            "accent-color": 122
-          },
-          "muestras": [
-            "div.ui.breadcrumb en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.section en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.divider en div.ui.breadcrumb: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2074,8 +1961,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "1 piezas cambian sin él",
-          "dropdown": "16 piezas cambian sin él"
+          "icon": "1 piezas cambian sin él (speak)",
+          "dropdown": "16 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)"
         },
         "suelto": {
           "piezas": 49,
@@ -2100,9 +1987,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 49,
+          "piezas": 44,
           "propiedades": {
-            "accent-color": 50,
             "block-size": 35,
             "height": 35,
             "perspective-origin": 35,
@@ -2113,24 +1999,18 @@
             "inline-size": 10,
             "width": 10,
             "line-height": 8,
-            "padding-block-end": 7
+            "padding-block-end": 7,
+            "padding-block-start": 7
           },
           "muestras": [
-            "div.dt-container.dt-semanticUI en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.dt-layout-row en div.dt-container.dt-semanticUI: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.dt-container.dt-semanticUI en div.: block-size 370px → 422.75px",
+            "div.dt-layout-row en div.dt-container.dt-semanticUI: block-size 60px → 68.5469px",
+            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: block-size 36px → 41.1406px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 49,
-          "propiedades": {
-            "accent-color": 50
-          },
-          "muestras": [
-            "div.dt-container.dt-semanticUI en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.dt-layout-row en div.dt-container.dt-semanticUI: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.dt-layout-cell.dt-layout-start en div.dt-layout-row: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2188,9 +2068,9 @@
           "propiedades": {}
         },
         "necesidad": {
-          "input": "174 piezas cambian sin él",
-          "loader": "3 piezas cambian sin él",
-          "segment": "20 piezas cambian sin él"
+          "input": "174 piezas cambian sin él (contain, contain-intrinsic-inline-size, contain-intrinsic-size, contain-intrinsic-width)",
+          "loader": "3 piezas cambian sin él (border-block-end-color, border-block-start-color, border-bottom-color, border-inline-end-color)",
+          "segment": "20 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "sinEfecto": [
           "placeholder"
@@ -2220,7 +2100,6 @@
         "sueltoBaseUi": {
           "piezas": 865,
           "propiedades": {
-            "accent-color": 880,
             "font-size": 880,
             "perspective-origin": 826,
             "transform-origin": 826,
@@ -2231,24 +2110,18 @@
             "line-height": 413,
             "margin-block-end": 373,
             "margin-bottom": 373,
-            "padding-inline-end": 364
+            "padding-inline-end": 364,
+            "padding-right": 364
           },
           "muestras": [
-            "form.ui.form.initial en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.field en form.ui.form.initial: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "label. en div.field: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "form.ui.form.initial en div.: block-size 239.094px → 269.234px",
+            "div.field en form.ui.form.initial: block-size 63.5469px → 72.3438px",
+            "label. en div.field: block-size 17.9844px → 20.5625px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 865,
-          "propiedades": {
-            "accent-color": 880
-          },
-          "muestras": [
-            "form.ui.form.initial en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.field en form.ui.form.initial: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "label. en div.field: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": [
           "error: Form: Field identifier undefined not found"
@@ -2315,7 +2188,6 @@
         "sueltoBaseUi": {
           "piezas": 561,
           "propiedades": {
-            "accent-color": 569,
             "perspective-origin": 543,
             "transform-origin": 543,
             "block-size": 533,
@@ -2326,24 +2198,18 @@
             "padding-inline-start": 353,
             "padding-left": 353,
             "padding-right": 353,
-            "padding-block-end": 268
+            "padding-block-end": 268,
+            "padding-block-start": 268
           },
           "muestras": [
-            "div.ui.grid en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.grid en div.: block-size 82px → 90.5312px",
+            "div.column en div.ui.grid: block-size 82px → 90.5312px",
+            "div.column en div.ui.grid: block-size 82px → 90.5312px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 561,
-          "propiedades": {
-            "accent-color": 569
-          },
-          "muestras": [
-            "div.ui.grid en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.column en div.ui.grid: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2386,7 +2252,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "31 piezas cambian sin él"
+          "icon": "31 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "suelto": {
           "piezas": 365,
@@ -2413,7 +2279,6 @@
         "sueltoBaseUi": {
           "piezas": 365,
           "propiedades": {
-            "accent-color": 735,
             "font-size": 735,
             "line-height": 567,
             "perspective-origin": 526,
@@ -2424,18 +2289,18 @@
             "width": 364,
             "padding-inline-end": 231,
             "padding-inline-start": 231,
-            "padding-left": 231
+            "padding-left": 231,
+            "padding-right": 231
           },
           "muestras": [
-            "div.ui.menu en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.active.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.menu en div.: block-size 52px → 58.8281px",
+            "a.item en div.ui.menu: block-size 50px → 56.8281px",
+            "a.active.item en div.ui.menu: block-size 50px → 56.8281px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 365,
+          "piezas": 6,
           "propiedades": {
-            "accent-color": 735,
             "inline-size": 3,
             "perspective-origin": 3,
             "transform-origin": 3,
@@ -2446,12 +2311,13 @@
             "border-inline-end-color": 2,
             "border-inline-start-color": 2,
             "border-left-color": 2,
-            "border-right-color": 2
+            "border-right-color": 2,
+            "border-top-color": 2
           },
           "muestras": [
-            "div.ui.menu en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.active.item en div.ui.menu: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "a.item en div.ui.secondary.two.item.menu: background-color oklch(0.287803 0.199439 264.051) → rgba(0, 0, 0, 0)",
+            "div.ui.top.fixed.menu en div.: inline-size 1390px → 1385px",
+            "div.ui.bottom.fixed.menu en div.: inline-size 1390px → 1385px"
           ]
         }
       },
@@ -2486,7 +2352,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "109 piezas cambian sin él"
+          "icon": "109 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)"
         },
         "suelto": {
           "piezas": 274,
@@ -2513,7 +2379,6 @@
         "sueltoBaseUi": {
           "piezas": 274,
           "propiedades": {
-            "accent-color": 314,
             "font-size": 314,
             "line-height": 314,
             "block-size": 276,
@@ -2524,24 +2389,18 @@
             "width": 199,
             "min-block-size": 81,
             "min-height": 81,
-            "padding-block-end": 81
+            "padding-block-end": 81,
+            "padding-block-start": 81
           },
           "muestras": [
-            "div.ui.message en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.header en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.message en div.: block-size 66px → 75.3906px",
+            "div.header en div.ui.message: block-size 20px → 22.8438px",
+            "p. en div.ui.message: block-size 20px → 22.8594px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 274,
-          "propiedades": {
-            "accent-color": 314
-          },
-          "muestras": [
-            "div.ui.message en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.header en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.message: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2583,8 +2442,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "327 piezas cambian sin él",
-          "segment": "2 piezas cambian sin él"
+          "icon": "327 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)",
+          "segment": "2 piezas cambian sin él (bottom, inset-block-end, inset-block-start, inset-inline-end)"
         },
         "sinEfecto": [
           "placeholder"
@@ -2614,7 +2473,6 @@
         "sueltoBaseUi": {
           "piezas": 1394,
           "propiedades": {
-            "accent-color": 1441,
             "font-size": 1441,
             "perspective-origin": 1400,
             "transform-origin": 1400,
@@ -2625,24 +2483,18 @@
             "padding-left": 846,
             "padding-right": 846,
             "inline-size": 811,
-            "width": 811
+            "width": 811,
+            "line-height": 242
           },
           "muestras": [
-            "table.ui.table en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "thead. en table.ui.table: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "tr. en thead.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "table.ui.table en div.: block-size 240px → 273.953px",
+            "thead. en table.ui.table: block-size 38px → 43.4219px",
+            "tr. en thead.: block-size 38px → 43.4219px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 1394,
-          "propiedades": {
-            "accent-color": 1441
-          },
-          "muestras": [
-            "table.ui.table en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "thead. en table.ui.table: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "tr. en thead.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2679,7 +2531,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "button": "3 piezas cambian sin él"
+          "button": "3 piezas cambian sin él (cursor, user-select, box-shadow, font-weight)"
         },
         "suelto": {
           "piezas": 27,
@@ -2704,9 +2556,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 27,
+          "piezas": 26,
           "propiedades": {
-            "accent-color": 53,
             "font-size": 29,
             "line-height": 29,
             "block-size": 24,
@@ -2717,24 +2568,18 @@
             "transform": 24,
             "transform-origin": 24,
             "min-block-size": 3,
-            "min-height": 3
+            "min-height": 3,
+            "padding-block-end": 3
           },
           "muestras": [
-            "div.ui.medium.rectangle.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.large.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.leaderboard.test.ad::after en div.: block-size 16px → 18.2812px",
+            "div.ui.large.leaderboard.test.ad::after en div.: block-size 16px → 18.2812px",
+            "div.ui.medium.rectangle.test.ad::after en div.: block-size 16px → 18.2812px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 27,
-          "propiedades": {
-            "accent-color": 53
-          },
-          "muestras": [
-            "div.ui.medium.rectangle.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.large.leaderboard.test.ad en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2779,8 +2624,8 @@
           "placeholder"
         ],
         "necesidad": {
-          "icon": "20 piezas cambian sin él",
-          "loader": "2 piezas cambian sin él"
+          "icon": "20 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)",
+          "loader": "2 piezas cambian sin él (border-block-end-color, border-block-start-color, border-bottom-color, border-inline-end-color)"
         },
         "suelto": {
           "piezas": 359,
@@ -2805,9 +2650,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 359,
+          "piezas": 355,
           "propiedades": {
-            "accent-color": 549,
             "perspective-origin": 510,
             "transform-origin": 510,
             "inline-size": 504,
@@ -2818,24 +2662,18 @@
             "line-height": 158,
             "margin-block-start": 123,
             "margin-top": 123,
-            "padding-block-end": 94
+            "padding-block-end": 94,
+            "padding-block-start": 94
           },
           "muestras": [
-            "div.ui.card en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.image en div.ui.card: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img. en div.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.card en div.: block-size 370.719px → 420.453px",
+            "div.image en div.ui.card: block-size 219.719px → 251.094px",
+            "img. en div.image: block-size 219.719px → 251.094px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 359,
-          "propiedades": {
-            "accent-color": 549
-          },
-          "muestras": [
-            "div.ui.card en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.image en div.ui.card: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img. en div.image: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2872,7 +2710,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "5 piezas cambian sin él"
+          "icon": "5 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)"
         },
         "suelto": {
           "piezas": 307,
@@ -2899,7 +2737,6 @@
         "sueltoBaseUi": {
           "piezas": 307,
           "propiedades": {
-            "accent-color": 309,
             "font-size": 309,
             "line-height": 287,
             "block-size": 265,
@@ -2910,24 +2747,18 @@
             "width": 201,
             "margin-inline-start": 51,
             "margin-left": 51,
-            "margin-block-start": 43
+            "margin-block-start": 43,
+            "margin-top": 43
           },
           "muestras": [
-            "div.ui.comments en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.comment en div.ui.comments: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.avatar en div.comment: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.comments en div.: block-size 534.422px → 610.484px",
+            "div.comment en div.ui.comments: block-size 73.1406px → 83.5469px",
+            "a.avatar en div.comment: block-size 32px → 36.5625px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 307,
-          "propiedades": {
-            "accent-color": 309
-          },
-          "muestras": [
-            "div.ui.comments en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.comment en div.ui.comments: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.avatar en div.comment: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -2962,7 +2793,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "91 piezas cambian sin él"
+          "icon": "91 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)"
         },
         "suelto": {
           "piezas": 751,
@@ -2989,7 +2820,6 @@
         "sueltoBaseUi": {
           "piezas": 751,
           "propiedades": {
-            "accent-color": 935,
             "font-size": 935,
             "perspective-origin": 842,
             "transform-origin": 842,
@@ -3000,24 +2830,18 @@
             "line-height": 432,
             "padding-block-start": 224,
             "padding-top": 224,
-            "margin-block-end": 219
+            "margin-block-end": 219,
+            "margin-bottom": 219
           },
           "muestras": [
-            "div.ui.feed en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.event en div.ui.feed: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.label en div.event: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.feed en div.: block-size 337.641px → 383.719px",
+            "div.event en div.ui.feed: block-size 61px → 69.2344px",
+            "div.label en div.event: block-size 53px → 60.0938px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 751,
-          "propiedades": {
-            "accent-color": 935
-          },
-          "muestras": [
-            "div.ui.feed en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.event en div.ui.feed: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.label en div.event: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -3059,7 +2883,7 @@
           "placeholder"
         ],
         "necesidad": {
-          "icon": "11 piezas cambian sin él"
+          "icon": "11 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)"
         },
         "suelto": {
           "piezas": 259,
@@ -3084,9 +2908,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 259,
+          "piezas": 58,
           "propiedades": {
-            "accent-color": 375,
             "block-size": 38,
             "height": 38,
             "perspective-origin": 38,
@@ -3097,24 +2920,18 @@
             "margin-right": 9,
             "margin-block-end": 6,
             "margin-bottom": 6,
-            "margin-inline-start": 1
+            "margin-inline-start": 1,
+            "margin-left": 1
           },
           "muestras": [
-            "div.ui.items en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.item en div.ui.items: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.image en div.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.content en div.item: block-size 96.8125px → 97.8125px",
+            "div.extra en div.content: margin-block-start 7px → 8px",
+            "div.content en div.item: block-size 96.8125px → 97.8125px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 259,
-          "propiedades": {
-            "accent-color": 375
-          },
-          "muestras": [
-            "div.ui.items en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.item en div.ui.items: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.image en div.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -3166,7 +2983,6 @@
         "sueltoBaseUi": {
           "piezas": 96,
           "propiedades": {
-            "accent-color": 98,
             "block-size": 98,
             "height": 98,
             "perspective-origin": 98,
@@ -3177,24 +2993,18 @@
             "line-height": 66,
             "letter-spacing": 34,
             "margin-block-start": 25,
-            "margin-top": 25
+            "margin-top": 25,
+            "margin-inline-start": 9
           },
           "muestras": [
-            "div.ui.statistic en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.value en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.label en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.statistic en div.: block-size 50px → 57.1094px",
+            "div.value en div.ui.statistic: block-size 32px → 36.5469px",
+            "div.label en div.ui.statistic: block-size 16px → 18.2812px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 96,
-          "propiedades": {
-            "accent-color": 98
-          },
-          "muestras": [
-            "div.ui.statistic en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.value en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.label en div.ui.statistic: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         }
       },
       "cargar": {
@@ -3238,9 +3048,9 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "65 piezas cambian sin él",
-          "input": "1 piezas cambian sin él",
-          "menu": "25 piezas cambian sin él"
+          "icon": "65 piezas cambian sin él (speak)",
+          "input": "1 piezas cambian sin él (contain, contain-intrinsic-inline-size, contain-intrinsic-size, contain-intrinsic-width)",
+          "menu": "25 piezas cambian sin él (user-select, border-block-end-color, border-block-start-color, border-bottom-color)"
         },
         "suelto": {
           "piezas": 303,
@@ -3265,9 +3075,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 303,
+          "piezas": 197,
           "propiedades": {
-            "accent-color": 375,
             "perspective-origin": 173,
             "transform-origin": 173,
             "font-size": 157,
@@ -3278,24 +3087,18 @@
             "width": 109,
             "padding-inline-end": 80,
             "padding-inline-start": 80,
-            "padding-left": 80
+            "padding-left": 80,
+            "padding-right": 80
           },
           "muestras": [
-            "div.ui.accordion en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.active.title en div.ui.accordion: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.dropdown.icon en div.active.title: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "i.dropdown.icon en div.active.title: block-size 14px → 16px",
+            "i.dropdown.icon en div.title: block-size 14px → 16px",
+            "i.dropdown.icon en div.title: block-size 14px → 16px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 303,
-          "propiedades": {
-            "accent-color": 375
-          },
-          "muestras": [
-            "div.ui.accordion en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.active.title en div.ui.accordion: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.dropdown.icon en div.active.title: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -3347,10 +3150,10 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "206 piezas cambian sin él",
-          "table": "4651 piezas cambian sin él",
-          "popup": "2492 piezas cambian sin él",
-          "grid": "258 piezas cambian sin él"
+          "icon": "206 piezas cambian sin él (block-size, height, backface-visibility, display)",
+          "table": "4651 piezas cambian sin él (-webkit-border-horizontal-spacing, -webkit-border-vertical-spacing, block-size, height)",
+          "popup": "2491 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)",
+          "grid": "258 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "sinEfecto": [
           "placeholder"
@@ -3358,18 +3161,18 @@
         "suelto": {
           "piezas": 4716,
           "propiedades": {
-            "accent-color": 4918,
-            "font-size": 4918,
-            "line-height": 4918,
-            "scrollbar-color": 4918,
-            "text-size-adjust": 4918,
-            "box-sizing": 4838,
+            "accent-color": 4916,
+            "font-size": 4916,
+            "line-height": 4916,
+            "scrollbar-color": 4916,
+            "text-size-adjust": 4916,
+            "box-sizing": 4836,
             "scrollbar-width": 4716,
-            "font-family": 4638,
-            "-webkit-font-smoothing": 4638,
-            "block-size": 4162,
-            "height": 4162,
-            "overflow-wrap": 3909
+            "font-family": 4636,
+            "-webkit-font-smoothing": 4636,
+            "block-size": 4161,
+            "height": 4161,
+            "overflow-wrap": 3907
           },
           "muestras": [
             "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
@@ -3378,37 +3181,30 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 4716,
+          "piezas": 4698,
           "propiedades": {
-            "accent-color": 4918,
-            "block-size": 4144,
-            "height": 4144,
-            "font-size": 3415,
-            "line-height": 3015,
-            "padding-block-end": 2322,
-            "padding-block-start": 2322,
-            "padding-bottom": 2322,
-            "padding-top": 2322,
-            "padding-inline-end": 2250,
-            "padding-inline-start": 2250,
-            "padding-left": 2250
+            "block-size": 4143,
+            "height": 4143,
+            "font-size": 3413,
+            "line-height": 3014,
+            "padding-block-end": 2321,
+            "padding-block-start": 2321,
+            "padding-bottom": 2321,
+            "padding-top": 2321,
+            "padding-inline-end": 2249,
+            "padding-inline-start": 2249,
+            "padding-left": 2249,
+            "padding-right": 2249
           },
           "muestras": [
-            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.calendar en div.: block-size 40px → 45.7031px",
+            "div.ui.popup.calendar en div.ui.calendar: font-size 14px → 16px",
+            "table.ui.celled.center.aligned.unstackable.table.day.seven.column en div.ui.popup.calendar: font-size 14px → 16px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 4716,
-          "propiedades": {
-            "accent-color": 4918
-          },
-          "muestras": [
-            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores",
         "sin popup": [
@@ -3462,12 +3258,12 @@
           "propiedades": {}
         },
         "necesidad": {
-          "button": "98 piezas cambian sin él",
-          "icon": "88 piezas cambian sin él",
-          "form": "21 piezas cambian sin él",
-          "popup": "7 piezas cambian sin él",
-          "loader": "2 piezas cambian sin él",
-          "message": "6 piezas cambian sin él"
+          "button": "98 piezas cambian sin él (perspective-origin, transform-origin, user-select, cursor)",
+          "icon": "88 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)",
+          "form": "21 piezas cambian sin él (bottom, inset-block-end, inset-block-start, inset-inline-end)",
+          "popup": "7 piezas cambian sin él (bottom, inset-block-end, inset-block-start, inset-inline-end)",
+          "loader": "2 piezas cambian sin él (inline-size, perspective-origin, transform-origin, width)",
+          "message": "6 piezas cambian sin él (border-block-end-color, border-block-start-color, border-bottom-color, border-inline-end-color)"
         },
         "suelto": {
           "piezas": 160,
@@ -3492,9 +3288,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 160,
+          "piezas": 140,
           "propiedades": {
-            "accent-color": 199,
             "inline-size": 140,
             "width": 140,
             "perspective-origin": 133,
@@ -3505,27 +3300,27 @@
             "line-height": 92,
             "padding-block-end": 50,
             "padding-block-start": 50,
-            "padding-bottom": 50
+            "padding-bottom": 50,
+            "padding-inline-end": 50
           },
           "muestras": [
-            "div.ui.visible.chat en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.header en div.ui.visible.chat: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "h2.title en div.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.visible.chat en div.: inline-size 364px → 416px",
+            "div.header en div.ui.visible.chat: block-size 62px → 67.7031px",
+            "h2.title en div.header: inline-size 248px → 288.625px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 160,
+          "piezas": 7,
           "propiedades": {
-            "accent-color": 199,
             "inset-inline-start": 5,
             "left": 5,
             "inset-inline-end": 2,
             "right": 2
           },
           "muestras": [
-            "div.ui.visible.chat en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.header en div.ui.visible.chat: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "h2.title en div.header: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.visible.chat en div.: inset-inline-start 1026px → 1021px",
+            "div.ui.visible.chat en div.: inset-inline-start 1026px → 1021px",
+            "div.ui.visible.chat.thinking en div.: inset-inline-start 1026px → 1021px"
           ]
         },
         "nota": "JS sin uso de prueba definido"
@@ -3590,7 +3385,6 @@
         "sueltoBaseUi": {
           "piezas": 233,
           "propiedades": {
-            "accent-color": 364,
             "line-height": 364,
             "font-size": 361,
             "inline-size": 355,
@@ -3601,24 +3395,18 @@
             "height": 288,
             "bottom": 206,
             "inset-block-end": 206,
-            "inset-inline-end": 187
+            "inset-inline-end": 187,
+            "right": 187
           },
           "muestras": [
-            "div.ui.checkbox.checked en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input.hidden en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "label. en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.checkbox.checked en div.: font-size 14px → 16px",
+            "input.hidden en div.ui.checkbox.checked: block-size 16px → 18.2812px",
+            "label. en div.ui.checkbox.checked: block-size 20px → 22.8594px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 233,
-          "propiedades": {
-            "accent-color": 364
-          },
-          "muestras": [
-            "div.ui.checkbox.checked en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input.hidden en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "label. en div.ui.checkbox.checked: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -3658,8 +3446,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "input": "51 piezas cambian sin él",
-          "button": "2 piezas cambian sin él"
+          "input": "51 piezas cambian sin él (display, perspective-origin, transform-origin, block-size)",
+          "button": "2 piezas cambian sin él (background-color, border-block-end-color, border-block-end-style, border-block-end-width)"
         },
         "suelto": {
           "piezas": 66,
@@ -3686,7 +3474,6 @@
         "sueltoBaseUi": {
           "piezas": 66,
           "propiedades": {
-            "accent-color": 66,
             "perspective-origin": 65,
             "transform-origin": 65,
             "inline-size": 64,
@@ -3697,25 +3484,23 @@
             "line-height": 48,
             "padding-inline-start": 20,
             "padding-left": 20,
-            "padding-inline-end": 18
+            "padding-inline-end": 18,
+            "padding-right": 18
           },
           "muestras": [
-            "div.ui.colorpicker.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "button.trigger en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input. en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.colorpicker.input en div.: block-size 40px → 45.4219px",
+            "button.trigger en div.ui.colorpicker.input: block-size 24px → 27.4219px",
+            "input. en div.ui.colorpicker.input: block-size 40px → 45.4219px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 66,
+          "piezas": 1,
           "propiedades": {
-            "accent-color": 66,
             "inset-inline-end": 1,
             "right": 1
           },
           "muestras": [
-            "div.ui.colorpicker.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "button.trigger en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input. en div.ui.colorpicker.input: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.colorpicker.panel.visible en div.: inset-inline-end 789px → 784px"
           ]
         },
         "jsConTodo": "sin errores"
@@ -3757,7 +3542,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "header": "2 piezas cambian sin él"
+          "header": "2 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)"
         },
         "suelto": {
           "piezas": 81,
@@ -3782,9 +3567,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 81,
+          "piezas": 34,
           "propiedades": {
-            "accent-color": 81,
             "perspective-origin": 32,
             "transform-origin": 32,
             "inline-size": 29,
@@ -3795,15 +3579,14 @@
             "right": 2
           },
           "muestras": [
-            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.ui.active.dimmer: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.content en div.ui.active.dimmer: block-size 169px → 188.266px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 81,
+          "piezas": 27,
           "propiedades": {
-            "accent-color": 81,
             "inline-size": 25,
             "perspective-origin": 25,
             "transform-origin": 25,
@@ -3812,9 +3595,9 @@
             "right": 2
           },
           "muestras": [
-            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.active.dimmer en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.ui.active.dimmer: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px",
+            "div.ui.active.dimmer en div.: inline-size 1390px → 1385px"
           ]
         },
         "jsConTodo": "sin errores"
@@ -3879,14 +3662,14 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "153 piezas cambian sin él",
-          "transition": "459 piezas cambian sin él",
-          "button": "46 piezas cambian sin él",
-          "flag": "25 piezas cambian sin él",
-          "input": "9 piezas cambian sin él",
-          "label": "21 piezas cambian sin él",
-          "loader": "5 piezas cambian sin él",
-          "message": "1 piezas cambian sin él"
+          "icon": "153 piezas cambian sin él (speak, inline-size, width, perspective-origin)",
+          "transition": "459 piezas cambian sin él (visibility)",
+          "button": "46 piezas cambian sin él (font-weight, perspective-origin, transform-origin, inline-size)",
+          "flag": "25 piezas cambian sin él (backface-visibility, speak, accent-color, align-content)",
+          "input": "9 piezas cambian sin él (contain, contain-intrinsic-inline-size, contain-intrinsic-size, contain-intrinsic-width)",
+          "label": "21 piezas cambian sin él (caret-color, color, column-rule-color, outline-color)",
+          "loader": "5 piezas cambian sin él (border-block-end-color, border-bottom-color, border-inline-end-color, border-inline-start-color)",
+          "message": "1 piezas cambian sin él (margin-inline-end, margin-inline-start, margin-left, margin-right)"
         },
         "sinEfecto": [
           "search"
@@ -3916,7 +3699,6 @@
         "sueltoBaseUi": {
           "piezas": 781,
           "propiedades": {
-            "accent-color": 928,
             "font-size": 928,
             "line-height": 863,
             "padding-block-end": 572,
@@ -3927,18 +3709,18 @@
             "padding-right": 528,
             "padding-inline-start": 525,
             "padding-left": 525,
-            "min-block-size": 367
+            "min-block-size": 367,
+            "min-height": 367
           },
           "muestras": [
-            "div.ui.dropdown en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.text en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.dropdown.icon en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.dropdown en div.: font-size 14px → 16px",
+            "div.text en div.ui.dropdown: font-size 14px → 16px",
+            "i.dropdown.icon en div.ui.dropdown: block-size 14px → 16px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 781,
+          "piezas": 17,
           "propiedades": {
-            "accent-color": 928,
             "caret-color": 23,
             "color": 23,
             "column-rule-color": 23,
@@ -3949,12 +3731,13 @@
             "-webkit-text-fill-color": 23,
             "-webkit-text-stroke-color": 23,
             "border-block-start-color": 18,
-            "border-top-color": 18
+            "border-top-color": 18,
+            "border-block-end-color": 17
           },
           "muestras": [
-            "div.ui.dropdown en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.text en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.dropdown.icon en div.ui.dropdown: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.clearable.inline.dropdown en div.: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "div.text en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)",
+            "i.dropdown.icon en div.ui.clearable.inline.dropdown: border-block-end-color rgb(31, 36, 48) → rgb(0, 0, 0)"
           ]
         },
         "jsConTodo": "sin errores",
@@ -3996,7 +3779,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "13 piezas cambian sin él"
+          "icon": "13 piezas cambian sin él (font-family, font-style, line-height, speak)"
         },
         "suelto": {
           "piezas": 51,
@@ -4021,9 +3804,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 51,
+          "piezas": 13,
           "propiedades": {
-            "accent-color": 77,
             "margin-inline-end": 13,
             "margin-right": 13,
             "font-size": 13,
@@ -4034,24 +3816,18 @@
             "bottom": 4,
             "height": 4,
             "inline-size": 4,
-            "inset-block-end": 4
+            "inset-block-end": 4,
+            "perspective-origin": 4
           },
           "muestras": [
-            "div.ui.embed.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.video.play.icon en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img.placeholder en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "i.video.play.icon en div.ui.embed.active: margin-inline-end 3.5px → 4px",
+            "i.video.play.icon en div.ui.embed: inset-inline-end -3.5px → -4px",
+            "i.video.play.icon en div.ui.embed: inset-inline-end -3.5px → -4px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 51,
-          "propiedades": {
-            "accent-color": 77
-          },
-          "muestras": [
-            "div.ui.embed.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.video.play.icon en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "img.placeholder en div.ui.embed.active: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": [
           "error: Embed: No URL specified [object Object]"
@@ -4099,8 +3875,8 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "37 piezas cambian sin él",
-          "menu": "16 piezas cambian sin él"
+          "icon": "37 piezas cambian sin él (font-family, font-style, speak, line-height)",
+          "menu": "16 piezas cambian sin él (user-select, border-block-end-color, border-block-start-color, border-bottom-color)"
         },
         "sinEfecto": [
           "placeholder"
@@ -4130,7 +3906,6 @@
         "sueltoBaseUi": {
           "piezas": 185,
           "propiedades": {
-            "accent-color": 231,
             "inline-size": 214,
             "perspective-origin": 214,
             "transform-origin": 214,
@@ -4141,18 +3916,18 @@
             "line-height": 88,
             "padding-inline-end": 59,
             "padding-inline-start": 59,
-            "padding-left": 59
+            "padding-left": 59,
+            "padding-right": 59
           },
           "muestras": [
-            "div.ui.visible.left.overlay.flyout en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.close.icon en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.visible.left.overlay.flyout en div.: inline-size 440px → 502.844px",
+            "i.close.icon en div.ui.visible.left.overlay.flyout: block-size 32px → 36.5625px",
+            "div.content en div.ui.visible.left.overlay.flyout: inline-size 440px → 502.844px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 185,
+          "piezas": 89,
           "propiedades": {
-            "accent-color": 231,
             "inline-size": 54,
             "perspective-origin": 54,
             "transform-origin": 54,
@@ -4164,9 +3939,9 @@
             "transform": 9
           },
           "muestras": [
-            "div.ui.visible.left.overlay.flyout en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.close.icon en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.ui.visible.left.overlay.flyout: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.visible.left.overlay.flyout en div.: inset-inline-end 950px → 945px",
+            "div.ui.left.flyout.cat-flyout-local en div.: inset-inline-end 950px → 945px",
+            "div.ui.right.flyout.cat-flyout-local en div.: inset-inline-start 950px → 945px"
           ]
         },
         "jsConTodo": [
@@ -4183,6 +3958,29 @@
         "js": [
           "jquery",
           "flyout"
+        ]
+      }
+    },
+    "loadbar": {
+      "css": [
+        "progress"
+      ],
+      "js": [],
+      "opcional": {},
+      "contenido": [],
+      "comprobacion": {
+        "jsConTodo": "sin errores",
+        "cssDelMarcadoCreado": "su JS crea el marcado de progress"
+      },
+      "cargar": {
+        "css": [
+          "reset",
+          "site",
+          "progress"
+        ],
+        "js": [
+          "jquery",
+          "loadbar"
         ]
       }
     },
@@ -4226,9 +4024,9 @@
           "placeholder"
         ],
         "necesidad": {
-          "header": "2 piezas cambian sin él",
-          "icon": "15 piezas cambian sin él",
-          "dimmer": "2 piezas cambian sin él"
+          "header": "2 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)",
+          "icon": "15 piezas cambian sin él (backface-visibility, font-family, font-style, speak)",
+          "dimmer": "2 piezas cambian sin él (align-items, background-color, block-size, display)"
         },
         "suelto": {
           "piezas": 233,
@@ -4255,7 +4053,6 @@
         "sueltoBaseUi": {
           "piezas": 233,
           "propiedades": {
-            "accent-color": 247,
             "font-size": 247,
             "line-height": 173,
             "padding-block-start": 125,
@@ -4266,24 +4063,18 @@
             "padding-right": 112,
             "padding-block-end": 76,
             "padding-bottom": 76,
-            "block-size": 25
+            "block-size": 25,
+            "height": 25
           },
           "muestras": [
-            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.content: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: block-size 217.859px → 248.938px",
+            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: block-size 52px → 59.4062px",
+            "p. en div.content: block-size 20px → 22.8594px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 233,
-          "propiedades": {
-            "accent-color": 247
-          },
-          "muestras": [
-            "div.ui.active.basic.small.modal.cat-modal-estatico en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.ui.active.basic.small.modal.cat-modal-estatico: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.content: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores",
         "sin dimmer": [
@@ -4329,7 +4120,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "65 piezas cambian sin él"
+          "icon": "65 piezas cambian sin él (backface-visibility, font-family, font-style, speak)"
         },
         "suelto": {
           "piezas": 185,
@@ -4356,7 +4147,6 @@
         "sueltoBaseUi": {
           "piezas": 185,
           "propiedades": {
-            "accent-color": 250,
             "font-size": 250,
             "line-height": 250,
             "block-size": 241,
@@ -4367,18 +4157,18 @@
             "width": 187,
             "bottom": 61,
             "inset-block-end": 61,
-            "inset-block-start": 60
+            "inset-block-start": 60,
+            "top": 60
           },
           "muestras": [
-            "div.ui.nag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.title en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.close.icon en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.nag en div.: block-size 45px → 51.25px",
+            "span.title en div.ui.nag: block-size 20px → 22.8438px",
+            "i.close.icon en div.ui.nag: block-size 24px → 27.4219px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 185,
+          "piezas": 10,
           "propiedades": {
-            "accent-color": 250,
             "inline-size": 5,
             "perspective-origin": 5,
             "transform-origin": 5,
@@ -4387,9 +4177,9 @@
             "left": 5
           },
           "muestras": [
-            "div.ui.nag en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.title en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.close.icon en div.ui.nag: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.overlay.nag en div.: inline-size 1390px → 1385px",
+            "i.close.icon en div.ui.overlay.nag: inset-inline-start 1354px → 1349px",
+            "div.ui.bottom.overlay.nag en div.: inline-size 1390px → 1385px"
           ]
         },
         "jsConTodo": "sin errores"
@@ -4425,7 +4215,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "input": "50 piezas cambian sin él"
+          "input": "50 piezas cambian sin él (line-height, max-inline-size, max-width, inline-size)"
         },
         "suelto": {
           "piezas": 119,
@@ -4452,7 +4242,6 @@
         "sueltoBaseUi": {
           "piezas": 119,
           "propiedades": {
-            "accent-color": 120,
             "perspective-origin": 120,
             "transform-origin": 120,
             "block-size": 119,
@@ -4463,24 +4252,18 @@
             "line-height": 75,
             "column-gap": 15,
             "row-gap": 15,
-            "margin-inline-end": 1
+            "margin-inline-end": 1,
+            "margin-right": 1
           },
           "muestras": [
-            "div.ui.pin.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.cells en div.ui.pin.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.cell.active en span.cells: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.pin.input en div.: block-size 62.5625px → 71.5px",
+            "span.cells en div.ui.pin.input: block-size 62.5625px → 71.5px",
+            "span.cell.active en span.cells: block-size 62.5625px → 71.5px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 119,
-          "propiedades": {
-            "accent-color": 120
-          },
-          "muestras": [
-            "div.ui.pin.input en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.cells en div.ui.pin.input: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "span.cell.active en span.cells: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "nota": "JS sin uso de prueba definido"
       },
@@ -4556,7 +4339,6 @@
         "sueltoBaseUi": {
           "piezas": 105,
           "propiedades": {
-            "accent-color": 171,
             "font-size": 171,
             "line-height": 171,
             "block-size": 162,
@@ -4567,24 +4349,18 @@
             "transform-origin": 107,
             "padding-block-start": 82,
             "padding-top": 82,
-            "margin-block-start": 65
+            "margin-block-start": 65,
+            "margin-inline-start": 65
           },
           "muestras": [
-            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.header en div.ui.visible.bottom.left.popup: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.visible.bottom.left.popup en div.: block-size 46px → 52.2656px",
+            "div.ui.visible.bottom.left.popup en div.: block-size 70px → 79.6719px",
+            "div.header en div.ui.visible.bottom.left.popup: block-size 20px → 22.8438px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 105,
-          "propiedades": {
-            "accent-color": 171
-          },
-          "muestras": [
-            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.visible.bottom.left.popup en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.header en div.ui.visible.bottom.left.popup: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores",
         "sin transition": [
@@ -4643,7 +4419,6 @@
         "sueltoBaseUi": {
           "piezas": 279,
           "propiedades": {
-            "accent-color": 357,
             "block-size": 357,
             "font-size": 357,
             "height": 357,
@@ -4654,24 +4429,18 @@
             "inset-block-end": 113,
             "inset-block-start": 113,
             "margin-block-start": 113,
-            "margin-top": 113
+            "margin-top": 113,
+            "top": 113
           },
           "muestras": [
-            "div.ui.progress.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.bar en div.ui.progress.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.indicating.progress en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.progress.active en div.: block-size 20px → 22.8438px",
+            "div.bar en div.ui.progress.active: block-size 20px → 22.8438px",
+            "div.ui.indicating.progress en div.: block-size 20px → 22.8438px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 279,
-          "propiedades": {
-            "accent-color": 357
-          },
-          "muestras": [
-            "div.ui.progress.active en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.bar en div.ui.progress.active: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.indicating.progress en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -4725,26 +4494,12 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 1023,
-          "propiedades": {
-            "accent-color": 1574
-          },
-          "muestras": [
-            "div.ui.slider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.inner en div.ui.slider: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.track en div.inner: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 1023,
-          "propiedades": {
-            "accent-color": 1574
-          },
-          "muestras": [
-            "div.ui.slider en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.inner en div.ui.slider: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.track en div.inner: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -4778,7 +4533,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "399 piezas cambian sin él"
+          "icon": "399 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)"
         },
         "suelto": {
           "piezas": 399,
@@ -4805,7 +4560,6 @@
         "sueltoBaseUi": {
           "piezas": 399,
           "propiedades": {
-            "accent-color": 726,
             "font-size": 726,
             "line-height": 654,
             "inline-size": 338,
@@ -4816,24 +4570,18 @@
             "padding-block-start": 308,
             "padding-bottom": 308,
             "padding-top": 308,
-            "padding-inline-end": 298
+            "padding-inline-end": 298,
+            "padding-inline-start": 298
           },
           "muestras": [
-            "div.ui.rating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.rating en div.: font-size 14px → 16px",
+            "i.star.icon.active en div.ui.rating: block-size 14px → 16px",
+            "i.star.icon.active en div.ui.rating: block-size 14px → 16px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 399,
-          "propiedades": {
-            "accent-color": 726
-          },
-          "muestras": [
-            "div.ui.rating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.star.icon.active en div.ui.rating: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -4879,9 +4627,9 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "3 piezas cambian sin él",
-          "input": "45 piezas cambian sin él",
-          "transition": "62 piezas cambian sin él"
+          "icon": "3 piezas cambian sin él (backface-visibility, block-size, font-family, font-style)",
+          "input": "45 piezas cambian sin él (perspective-origin, transform-origin, block-size, height)",
+          "transition": "62 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "sinEfecto": [
           "loader"
@@ -4911,7 +4659,6 @@
         "sueltoBaseUi": {
           "piezas": 184,
           "propiedades": {
-            "accent-color": 187,
             "font-size": 187,
             "perspective-origin": 137,
             "transform-origin": 137,
@@ -4922,24 +4669,18 @@
             "line-height": 82,
             "padding-block-end": 59,
             "padding-block-start": 59,
-            "padding-bottom": 59
+            "padding-bottom": 59,
+            "padding-inline-end": 59
           },
           "muestras": [
-            "div.ui.search en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input.prompt en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.results en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.search en div.: block-size 40px → 45.4219px",
+            "input.prompt en div.ui.search: block-size 40px → 45.4219px",
+            "div.results en div.ui.search: font-size 14px → 16px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 184,
-          "propiedades": {
-            "accent-color": 187
-          },
-          "muestras": [
-            "div.ui.search en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "input.prompt en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.results en div.ui.search: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -5000,9 +4741,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 36,
+          "piezas": 8,
           "propiedades": {
-            "accent-color": 36,
             "block-size": 8,
             "height": 8,
             "inline-size": 8,
@@ -5011,21 +4751,14 @@
             "width": 8
           },
           "muestras": [
-            "div.ui.shape en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.sides en div.ui.shape: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.active.side en div.sides: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.shape en div.: block-size 400px → 453.922px",
+            "div.sides en div.ui.shape: block-size 400px → 453.922px",
+            "div.active.side en div.sides: block-size 400px → 453.922px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 36,
-          "propiedades": {
-            "accent-color": 36
-          },
-          "muestras": [
-            "div.ui.shape en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.sides en div.ui.shape: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.active.side en div.sides: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -5074,9 +4807,9 @@
           "propiedades": {}
         },
         "necesidad": {
-          "menu": "123 piezas cambian sin él",
-          "icon": "29 piezas cambian sin él",
-          "segment": "2 piezas cambian sin él"
+          "menu": "123 piezas cambian sin él (border-block-end-color, border-block-start-color, border-bottom-color, border-inline-end-color)",
+          "icon": "29 piezas cambian sin él (backface-visibility, font-family, font-style, speak)",
+          "segment": "2 piezas cambian sin él (border-block-end-color, border-block-start-color, border-bottom-color, border-inline-end-color)"
         },
         "sinEfecto": [
           "header",
@@ -5107,7 +4840,6 @@
         "sueltoBaseUi": {
           "piezas": 125,
           "propiedades": {
-            "accent-color": 246,
             "font-size": 246,
             "line-height": 191,
             "perspective-origin": 184,
@@ -5118,18 +4850,18 @@
             "height": 120,
             "padding-inline-end": 68,
             "padding-inline-start": 68,
-            "padding-left": 68
+            "padding-left": 68,
+            "padding-right": 68
           },
           "muestras": [
-            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.home.icon en a.active.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: font-size 14px → 16px",
+            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: block-size 40px → 46.6875px",
+            "i.home.icon en a.active.item: block-size 14px → 16px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 125,
+          "piezas": 28,
           "propiedades": {
-            "accent-color": 246,
             "inset-inline-end": 16,
             "right": 16,
             "inset-inline-start": 6,
@@ -5140,9 +4872,9 @@
             "width": 6
           },
           "muestras": [
-            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "a.active.item en div.ui.left.vertical.inverted.menu.sidebar.uncover.animating: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "i.home.icon en a.active.item: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.left.vertical.inverted.menu.sidebar.uncover.animating en div.: inset-inline-end 1134px → 1129px",
+            "div.ui.right.vertical.menu.sidebar en div.: inset-inline-start 1134px → 1129px",
+            "div.ui.top.inverted.labeled.icon.menu.sidebar en div.: inline-size 1390px → 1385px"
           ]
         },
         "jsConTodo": [
@@ -5199,7 +4931,7 @@
           "header"
         ],
         "necesidad": {
-          "icon": "8 piezas cambian sin él"
+          "icon": "8 piezas cambian sin él (backface-visibility, font-family, font-style, speak)"
         },
         "suelto": {
           "piezas": 54,
@@ -5224,9 +4956,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 54,
+          "piezas": 48,
           "propiedades": {
-            "accent-color": 63,
             "font-size": 37,
             "line-height": 37,
             "inline-size": 36,
@@ -5237,24 +4968,18 @@
             "height": 19,
             "column-gap": 13,
             "row-gap": 13,
-            "padding-inline-end": 11
+            "padding-inline-end": 11,
+            "padding-inline-start": 11
           },
           "muestras": [
-            "div.ui.shell en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "nav.navigation en div.ui.shell: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.brand en nav.navigation: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "nav.navigation en div.ui.shell: inline-size 256px → 292.562px",
+            "div.brand en nav.navigation: column-gap 12px → 13.7143px",
+            "span.name en div.brand: block-size 24px → 27.4219px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 54,
-          "propiedades": {
-            "accent-color": 63
-          },
-          "muestras": [
-            "div.ui.shell en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "nav.navigation en div.ui.shell: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.brand en nav.navigation: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -5291,7 +5016,7 @@
           "propiedades": {}
         },
         "necesidad": {
-          "icon": "47 piezas cambian sin él"
+          "icon": "47 piezas cambian sin él (backface-visibility, block-size, font-family, font-style)"
         },
         "suelto": {
           "piezas": 463,
@@ -5316,9 +5041,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 463,
+          "piezas": 405,
           "propiedades": {
-            "accent-color": 577,
             "inline-size": 293,
             "perspective-origin": 293,
             "transform-origin": 293,
@@ -5329,24 +5053,18 @@
             "top": 74,
             "border-bottom-left-radius": 67,
             "border-bottom-right-radius": 67,
-            "border-end-end-radius": 67
+            "border-end-end-radius": 67,
+            "border-end-start-radius": 67
           },
           "muestras": [
-            "div.ui.slideshow en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.viewport en div.ui.slideshow: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.slides en div.viewport: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.slideshow en div.: block-size 378px → 432px",
+            "div.viewport en div.ui.slideshow: block-size 378px → 432px",
+            "div.slides en div.viewport: block-size 378px → 432px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 463,
-          "propiedades": {
-            "accent-color": 577
-          },
-          "muestras": [
-            "div.ui.slideshow en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.viewport en div.ui.slideshow: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.slides en div.viewport: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -5407,28 +5125,20 @@
         "sueltoBaseUi": {
           "piezas": 5,
           "propiedades": {
-            "accent-color": 5,
             "block-size": 5,
             "height": 5,
             "perspective-origin": 5,
             "transform-origin": 5
           },
           "muestras": [
-            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.native.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.sticky en div.: block-size 134px → 152.797px",
+            "div.ui.native.sticky en div.: block-size 60px → 65.6875px",
+            "div.ui.sticky en div.: block-size 190px → 216.766px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 5,
-          "propiedades": {
-            "accent-color": 5
-          },
-          "muestras": [
-            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.native.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.sticky en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -5474,8 +5184,8 @@
           "placeholder"
         ],
         "necesidad": {
-          "segment": "35 piezas cambian sin él",
-          "loader": "2 piezas cambian sin él"
+          "segment": "35 piezas cambian sin él (margin-block-end, margin-bottom, padding-block-end, padding-block-start)",
+          "loader": "2 piezas cambian sin él (border-block-end-color, border-block-start-color, border-bottom-color, border-inline-end-color)"
         },
         "suelto": {
           "piezas": 55,
@@ -5500,9 +5210,8 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 55,
+          "piezas": 46,
           "propiedades": {
-            "accent-color": 59,
             "font-size": 47,
             "padding-block-start": 34,
             "padding-top": 34,
@@ -5513,24 +5222,18 @@
             "padding-inline-end": 30,
             "padding-inline-start": 30,
             "padding-left": 30,
-            "padding-right": 30
+            "padding-right": 30,
+            "block-size": 19
           },
           "muestras": [
-            "div.ui.bottom.attached.active.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.bottom.attached.active.tab.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.bottom.attached.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.ui.bottom.attached.active.tab.segment en div.: block-size 142px → 152.547px",
+            "p. en div.ui.bottom.attached.active.tab.segment: block-size 20px → 22.8594px",
+            "div.ui.bottom.attached.tab.segment en div.: font-size 14px → 16px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 55,
-          "propiedades": {
-            "accent-color": 59
-          },
-          "muestras": [
-            "div.ui.bottom.attached.active.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "p. en div.ui.bottom.attached.active.tab.segment: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.ui.bottom.attached.tab.segment en div.: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores"
       },
@@ -5582,9 +5285,9 @@
           "propiedades": {}
         },
         "necesidad": {
-          "button": "26 piezas cambian sin él",
-          "icon": "10 piezas cambian sin él",
-          "image": "4 piezas cambian sin él"
+          "button": "26 piezas cambian sin él (perspective-origin, transform-origin, block-size, height)",
+          "icon": "10 piezas cambian sin él (backface-visibility, font-family, font-style, speak)",
+          "image": "4 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "suelto": {
           "piezas": 323,
@@ -5611,7 +5314,6 @@
         "sueltoBaseUi": {
           "piezas": 323,
           "propiedades": {
-            "accent-color": 338,
             "perspective-origin": 318,
             "transform-origin": 318,
             "block-size": 314,
@@ -5622,24 +5324,18 @@
             "line-height": 94,
             "padding-inline-start": 81,
             "padding-left": 81,
-            "margin-block-end": 79
+            "margin-block-end": 79,
+            "margin-bottom": 79
           },
           "muestras": [
-            "div.floating.toast-box.compact en div.ui.toast-container: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.neutral.ui.toast.compact: accent-color oklch(0.287803 0.199439 264.051) → auto"
+            "div.floating.toast-box.compact en div.ui.toast-container: block-size 67.875px → 77.25px",
+            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: block-size 66px → 75.375px",
+            "div.content en div.neutral.ui.toast.compact: block-size 42px → 47.9688px"
           ]
         },
         "sueltoBaseUiMismoRem": {
-          "piezas": 323,
-          "propiedades": {
-            "accent-color": 338
-          },
-          "muestras": [
-            "div.floating.toast-box.compact en div.ui.toast-container: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.neutral.ui.toast.compact en div.floating.toast-box.compact: accent-color oklch(0.287803 0.199439 264.051) → auto",
-            "div.content en div.neutral.ui.toast.compact: accent-color oklch(0.287803 0.199439 264.051) → auto"
-          ]
+          "piezas": 0,
+          "propiedades": {}
         },
         "jsConTodo": "sin errores",
         "sin transition": [

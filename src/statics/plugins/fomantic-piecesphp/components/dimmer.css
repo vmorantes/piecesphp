@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Dimmer
+ * # Fomantic-UI 1.1.1 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -401,6 +401,13 @@ body.dimmable > .dimmer {
    modo (@textColor de loader) no se leía sobre él en oscuro. Un tema puede afinar el gris. */
 .ui.inverted.dimmer > .ui.loader {
   color: rgba(0, 0, 0, 0.75);
+}
+
+/* Un modal basic no tiene caja: el dimmer es su superficie. Con un velo claro del tema (fluent, 60 % de negro: #666 sobre
+   blanco) sus botones inverted de color quedaban por debajo de AA («No» rojo 2,85:1); con un modal basic activo, el velo
+   vuelve al negro de Fomantic. El dimmer inverted es claro y su modal basic lleva texto oscuro: no se toca. */
+.ui.dimmer:not(.inverted):has(> .ui.basic.modal.active, > .ui.basic.modal.visible) {
+  background-color: rgba(0, 0, 0, 0.85);
 }
 
 /* Velo de los modales (tokens.md §5 y §7): rgba(17, 21, 30, 0.55) con desenfoque de 2px,

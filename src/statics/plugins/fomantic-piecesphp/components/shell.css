@@ -284,7 +284,9 @@
 /* Espaciado de texto amplio (WCAG 1.4.12): sin puntos suspensivos, que ocultaban parte del texto («Gestión de
    organizaciones» no cabía con las letras a 0,12 em); salta de línea. */
 :root[data-text-spacing="wide"] .ui.shell > .navigation > .ui.menu .item > span,
-:root[data-text-spacing="wide"] .ui.shell > .navigation > .ui.menu .item > .title > span {
+[data-text-spacing="wide"]:not(:root) .ui.shell > .navigation > .ui.menu .item > span,
+:root[data-text-spacing="wide"] .ui.shell > .navigation > .ui.menu .item > .title > span,
+[data-text-spacing="wide"]:not(:root) .ui.shell > .navigation > .ui.menu .item > .title > span {
   overflow: visible;
   text-overflow: clip;
   white-space: normal;
@@ -453,6 +455,14 @@
 /* Fork: botones de ícono de la barra sin encogerse (a 390 la barra los estrechaba) */
 .ui.shell > .main > .bar .ui.icon.button {
   flex: none;
+}
+
+/* Fork: un enlace (`<a class="ui tertiary icon button">`) centra su ícono como un <button>, que lo hace solo: con el alto
+   fijo de la barra (piecesphp 36px, fluent 32px) el ícono quedaba 6,6–9px arriba (D67) */
+.ui.shell > .main > .bar a.ui.icon.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Contador sobre un botón de la barra (`ui floating label` dentro del botón) */
@@ -913,6 +923,13 @@
   .ui.shell .narrow.hidden {
     display: none !important;
   }
+  
+/* Fork: en móvil estrecho la barra junta sus controles: con siete (el lanzador del asistente junto a la campana) no
+       cabían a 320 y salían 53px (reflujo, WCAG 1.4.10; 2026-11-23). Los botones conservan su tamaño */
+  .ui.shell > .main > .bar,
+  .ui.shell > .main > .bar > .right {
+    gap: 0.28571429rem;
+  }
 }
 @media only screen and (min-width: 380.02px) {
   .ui.shell .narrow.only {
@@ -1123,7 +1140,8 @@
    de 210px; con 242px caben (medido en piecesphp con Inter y con Atkinson Hyperlegible Next, 2026-11-17). Solo por encima
    del riel: ahí la navegación expandida se superpone con un margen calculado sobre su ancho. */
 @media only screen and (min-width: 1200px) {
-  :root[data-text-spacing="wide"] .ui.shell:not(.collapsed) > .navigation {
+  :root[data-text-spacing="wide"] .ui.shell:not(.collapsed) > .navigation,
+  [data-text-spacing="wide"]:not(:root) .ui.shell:not(.collapsed) > .navigation {
     width: calc(18.285714285714285rem * 1.15);
   }
 }

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Step
+ * # Fomantic-UI 1.1.1 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -175,6 +175,11 @@
   box-shadow: none;
   position: relative;
   display: flex;
+  
+/* Fork: los pasos van unidos por una línea: nunca parten en dos filas. Con el wrap de .ui.steps, a 390 el último
+               saltaba a una segunda fila (de 2px de alto) y su contenido, que sube sobre la línea, tapaba el del primero.
+               Sin salto, los pasos se encogen y su texto parte en líneas (cuatro títulos de una palabra larga a 390 no caben) */
+  flex-wrap: nowrap;
   padding: 1em 0;
   margin: 1em 0;
   

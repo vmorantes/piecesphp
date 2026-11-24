@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Input
+ * # Fomantic-UI 1.1.1 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1183,12 +1183,16 @@ input[type="file"].ui.primary.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
   background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.primary.file.input::file-selector-button,
 .ui.primary.file.input input[type="file"]::file-selector-button {
   background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button:hover, .ui.primary.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
@@ -1217,12 +1221,16 @@ input[type="file"].ui.secondary.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button {
   background: var(--accent-2, #0b7a77);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.secondary.file.input::file-selector-button,
 .ui.secondary.file.input input[type="file"]::file-selector-button {
   background: var(--accent-2, #0b7a77);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.secondary.file.input::-webkit-file-upload-button:hover, .ui.secondary.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
@@ -1251,12 +1259,16 @@ input[type="file"].ui.accent-1.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button {
   background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.accent-1.file.input::file-selector-button,
 .ui.accent-1.file.input input[type="file"]::file-selector-button {
   background: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.accent-1.file.input::-webkit-file-upload-button:hover, .ui.accent-1.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 88%, color(from var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))) srgb calc(1 - r) calc(1 - g) calc(1 - b)));
@@ -1285,12 +1297,16 @@ input[type="file"].ui.accent-2.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button {
   background: var(--accent-2, #0b7a77);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.accent-2.file.input::file-selector-button,
 .ui.accent-2.file.input input[type="file"]::file-selector-button {
   background: var(--accent-2, #0b7a77);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.accent-2.file.input::-webkit-file-upload-button:hover, .ui.accent-2.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: color-mix(in oklab, var(--accent-2, #0b7a77) 88%, black);
@@ -1319,12 +1335,16 @@ input[type="file"].ui.accent-3.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button {
   background: var(--accent-3, #e8730c);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.accent-3.file.input::file-selector-button,
 .ui.accent-3.file.input input[type="file"]::file-selector-button {
   background: var(--accent-3, #e8730c);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.accent-3.file.input::-webkit-file-upload-button:hover, .ui.accent-3.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: color-mix(in oklab, var(--accent-3, #e8730c) 88%, black);
@@ -1353,12 +1373,16 @@ input[type="file"].ui.red.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button, .ui.red.file.input input[type="file"]::-webkit-file-upload-button {
   background: #f04438;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.red.file.input::file-selector-button,
 .ui.red.file.input input[type="file"]::file-selector-button {
   background: #f04438;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button:hover, .ui.red.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #f92516;
@@ -1387,12 +1411,16 @@ input[type="file"].ui.orange.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.orange.file.input::-webkit-file-upload-button, .ui.orange.file.input input[type="file"]::-webkit-file-upload-button {
   background: #ef6820;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.orange.file.input::file-selector-button,
 .ui.orange.file.input input[type="file"]::file-selector-button {
   background: #ef6820;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.orange.file.input::-webkit-file-upload-button:hover, .ui.orange.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #f05706;
@@ -1421,12 +1449,16 @@ input[type="file"].ui.yellow.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.yellow.file.input::-webkit-file-upload-button, .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button {
   background: #f79009;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.yellow.file.input::file-selector-button,
 .ui.yellow.file.input input[type="file"]::file-selector-button {
   background: #f79009;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.yellow.file.input::-webkit-file-upload-button:hover, .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #e78300;
@@ -1455,12 +1487,16 @@ input[type="file"].ui.olive.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.olive.file.input::-webkit-file-upload-button, .ui.olive.file.input input[type="file"]::-webkit-file-upload-button {
   background: #84a11b;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.olive.file.input::file-selector-button,
 .ui.olive.file.input input[type="file"]::file-selector-button {
   background: #84a11b;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.olive.file.input::-webkit-file-upload-button:hover, .ui.olive.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #759112;
@@ -1489,12 +1525,16 @@ input[type="file"].ui.green.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.green.file.input::-webkit-file-upload-button, .ui.green.file.input input[type="file"]::-webkit-file-upload-button {
   background: #17b26a;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.green.file.input::file-selector-button,
 .ui.green.file.input input[type="file"]::file-selector-button {
   background: #17b26a;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.green.file.input::-webkit-file-upload-button:hover, .ui.green.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #0da25d;
@@ -1523,12 +1563,16 @@ input[type="file"].ui.teal.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.teal.file.input::-webkit-file-upload-button, .ui.teal.file.input input[type="file"]::-webkit-file-upload-button {
   background: #06aed4;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.teal.file.input::file-selector-button,
 .ui.teal.file.input input[type="file"]::file-selector-button {
   background: #06aed4;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.teal.file.input::-webkit-file-upload-button:hover, .ui.teal.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #009dc1;
@@ -1557,12 +1601,16 @@ input[type="file"].ui.blue.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.blue.file.input::-webkit-file-upload-button, .ui.blue.file.input input[type="file"]::-webkit-file-upload-button {
   background: #2e90fa;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.blue.file.input::file-selector-button,
 .ui.blue.file.input input[type="file"]::file-selector-button {
   background: #2e90fa;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.blue.file.input::-webkit-file-upload-button:hover, .ui.blue.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #0f83ff;
@@ -1591,12 +1639,16 @@ input[type="file"].ui.violet.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.violet.file.input::-webkit-file-upload-button, .ui.violet.file.input input[type="file"]::-webkit-file-upload-button {
   background: #7a5af8;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.violet.file.input::file-selector-button,
 .ui.violet.file.input input[type="file"]::file-selector-button {
   background: #7a5af8;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.violet.file.input::-webkit-file-upload-button:hover, .ui.violet.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #6239ff;
@@ -1625,12 +1677,16 @@ input[type="file"].ui.purple.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.purple.file.input::-webkit-file-upload-button, .ui.purple.file.input input[type="file"]::-webkit-file-upload-button {
   background: #9e4cc9;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.purple.file.input::file-selector-button,
 .ui.purple.file.input input[type="file"]::file-selector-button {
   background: #9e4cc9;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.purple.file.input::-webkit-file-upload-button:hover, .ui.purple.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #9534c8;
@@ -1659,12 +1715,16 @@ input[type="file"].ui.pink.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.pink.file.input::-webkit-file-upload-button, .ui.pink.file.input input[type="file"]::-webkit-file-upload-button {
   background: #c11574;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.pink.file.input::file-selector-button,
 .ui.pink.file.input input[type="file"]::file-selector-button {
   background: #c11574;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.pink.file.input::-webkit-file-upload-button:hover, .ui.pink.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #b20b67;
@@ -1693,12 +1753,16 @@ input[type="file"].ui.brown.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.brown.file.input::-webkit-file-upload-button, .ui.brown.file.input input[type="file"]::-webkit-file-upload-button {
   background: #6e4a2e;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.brown.file.input::file-selector-button,
 .ui.brown.file.input input[type="file"]::file-selector-button {
   background: #6e4a2e;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.brown.file.input::-webkit-file-upload-button:hover, .ui.brown.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #5f3e24;
@@ -1727,12 +1791,16 @@ input[type="file"].ui.grey.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.grey.file.input::-webkit-file-upload-button, .ui.grey.file.input input[type="file"]::-webkit-file-upload-button {
   background: #687181;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.grey.file.input::file-selector-button,
 .ui.grey.file.input input[type="file"]::file-selector-button {
   background: #687181;
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.grey.file.input::-webkit-file-upload-button:hover, .ui.grey.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: #5d6573;
@@ -1761,12 +1829,16 @@ input[type="file"].ui.black.file.input::-ms-browse:hover,
 }
 input[type="file"].ui.black.file.input::-webkit-file-upload-button, .ui.black.file.input input[type="file"]::-webkit-file-upload-button {
   background: light-dark(#1f2430, #535c6e);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.black.file.input::file-selector-button,
 .ui.black.file.input input[type="file"]::file-selector-button {
   background: light-dark(#1f2430, #535c6e);
-  color: #fff;
+  
+/* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
+  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.black.file.input::-webkit-file-upload-button:hover, .ui.black.file.input input[type="file"]::-webkit-file-upload-button:hover {
   background: light-dark(#2b3140, #5f6879);

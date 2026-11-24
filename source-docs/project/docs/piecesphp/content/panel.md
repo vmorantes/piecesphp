@@ -19,12 +19,17 @@ Lo que queda alrededor de tu vista:
 
 ```
 body
-├─ barra superior (panel/layout/topbar.php): usuario, noticias, opciones de administración, modales del sistema
-└─ div.container-sidebar
-   ├─ aside.sidebar (panel/layout/menu.php): el menú
-   └─ div.content
-      └─ TU VISTA → section.module-view-container
+├─ lo que flota (panel/layout/topbar.php): avisos fijos, noticias, los paneles de Configuración y del perfil, ventanas
+└─ div.pusher
+   └─ div.ui.shell.admin-shell
+      ├─ nav.navigation (panel/layout/menu.php): el menú
+      └─ div.main
+         ├─ header.bar: la barra superior (usuario, avisos)
+         └─ main.content
+            └─ TU VISTA → section.module-view-container
 ```
+
+La página entera es la que se desplaza, no una caja; la barra superior queda fija arriba.
 
 `panel/layout/header-no-sidebar.php` y `footer-no-sidebar.php` son la variante sin menú.
 
@@ -45,7 +50,7 @@ usa cada una, con un ejemplo que se puede copiar, en «Pantallas de contenido»;
 | Pestañas | `.tabs-controls` + `ui tab` con `[data-tab]` |
 | Un desplegable | `ui dropdown` (con `search` si filtra) |
 | Una fecha | el atributo `calendar-js` en el campo |
-| Avisar del resultado de una acción | `successMessage()`, `warningMessage()`, `infoMessage()`, `errorMessage()`: un *toast* arriba al centro. **El mensaje se pinta como HTML** (se puede mandar marcado a propósito, también en el `message` de una respuesta que `genericFormHandler` enseña): si el mensaje lleva algo que escribió el usuario, escápalo antes en el servidor (`htmlspecialchars()`) |
+| Avisar del resultado de una acción | `successMessage()`, `warningMessage()`, `infoMessage()`, `errorMessage()`: un *toast* arriba a la derecha (se cambia con `options.position`). **El mensaje se pinta como HTML** (se puede mandar marcado a propósito, también en el `message` de una respuesta que `genericFormHandler` enseña): si el mensaje lleva algo que escribió el usuario, escápalo antes en el servidor (`htmlspecialchars()`) |
 | Un modal | `div.ui.modal` y `$(selector).modal('show')` |
 | Subir y recortar una imagen | `modalImageUploaderForCropperAdminViews()` |
 | Traducir un texto fijo en HTML | el atributo `lang-group="<grupo>"` |

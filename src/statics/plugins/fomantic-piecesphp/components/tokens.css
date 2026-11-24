@@ -259,7 +259,8 @@ html {
   --font-size-base: calc(var(--font-size-site) + 4px);
 }
 
-:root[data-contrast="more"] {
+:root[data-contrast="more"],
+[data-contrast="more"]:not(:root) {
   --theme-text-muted: color-mix(in srgb, var(--theme-text) 88%, transparent);
   --theme-border: color-mix(in srgb, var(--theme-text) 55%, transparent);
   --ink-light-max: 0.34;
@@ -302,7 +303,8 @@ html {
   --shadow-modal: 0 24px 60px light-dark(rgba(17, 21, 30, 0.28), rgba(0, 0, 0, 0.6));
 }
 
-:root[data-contrast="more"] {
+:root[data-contrast="more"],
+[data-contrast="more"]:not(:root) {
   --accent-600: light-dark(oklch(from var(--accent-1) min(l, 0.5) c h), oklch(from var(--accent-1) max(l, 0.72) min(c, 0.16) h));
   --accent-700: light-dark(oklch(from var(--accent-1) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   --accent-text: var(--accent-700);
@@ -317,10 +319,15 @@ html {
 }
 
 :root[data-contrast="more"] .ui.tinted.segment,
+[data-contrast="more"]:not(:root) .ui.tinted.segment,
 :root[data-contrast="more"] .ui.grid > .tinted.column,
+[data-contrast="more"]:not(:root) .ui.grid > .tinted.column,
 :root[data-contrast="more"] .ui.grid > .row > .tinted.column,
+[data-contrast="more"]:not(:root) .ui.grid > .row > .tinted.column,
 :root[data-contrast="more"] .ui.card > .checkered.image,
-:root[data-contrast="more"] .ui.cards > .card > .checkered.image {
+[data-contrast="more"]:not(:root) .ui.card > .checkered.image,
+:root[data-contrast="more"] .ui.cards > .card > .checkered.image,
+[data-contrast="more"]:not(:root) .ui.cards > .card > .checkered.image {
   --theme-text-muted: color-mix(in srgb, var(--theme-text) 88%, transparent);
 }
 

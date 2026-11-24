@@ -36,6 +36,13 @@
 .ui.ui.ui.colorpicker > .trigger + input {
   padding-left: 3rem;
 }
+
+/* En un campo en línea (`inline field`), el ancho de un color hex: con el `width: 100%` de los campos sobre un contenedor
+   que se ajusta a su contenido (porcentaje cíclico), Chrome y Firefox lo dejaban en ~114px y WebKit en el ancho natural de
+   un input de 20 caracteres (274px: a 390 la fila se salía 91px, 2026-11-20) */
+.ui.form .inline.field > .ui.colorpicker.input > .trigger + input {
+  width: calc(8ch + 3rem + 0.85714286em + 2px);
+}
 .ui.colorpicker > input.hidden,
 .ui.colorpicker > .hidden {
   display: none;

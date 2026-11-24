@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Button
+ * # Fomantic-UI 1.1.1 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -5751,6 +5751,255 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   border-radius: 0;
 }
 
+/* Inactivo con tooltip (pp §3.9 de PiecesPHP, en todos los temas): `.disabled` con aria-disabled="true" (sin el atributo
+   disabled) sigue enfocable, admite el puntero para mostrar su tooltip («No aplica»), lleva cursor not-allowed y no cambia
+   al pasar, enfocar o pulsar: cada estado repite el reposo de su variante. Solo con aria-disabled="true", explícito: un
+   `.disabled` sin él sigue sin puntero (un <a class="ui disabled button"> no debe volver a ser clicable). El clic lo
+   ignora el proyecto. piecesphp afina después la forma de los suyos. */
+
+/* En :where(), sin especificidad: gana a los :hover de los temas, pero el reposo propio de un tema (el borde del neutro de
+   fluent) sigue mandando también al pasar */
+.ui.disabled.button[aria-disabled='true'] {
+  pointer-events: auto !important;
+  cursor: not-allowed;
+}
+.ui.disabled.button[aria-disabled='true']:where(:not(.basic, .tertiary, .inverted)):where(:not(.primary, .secondary, .positive, .negative, [class*="accent-"], .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black)):is(:hover, :focus, :active) {
+  background-color: light-dark(#eef1f5, #262b36);
+  color: var(--theme-text);
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic:where(:not(.primary, .secondary, .positive, .negative, [class*="accent-"], .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black)):is(:hover, :focus, :active) {
+  background: var(--theme-surface);
+  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
+  box-shadow: 0 0 0 1px light-dark(#d8dde5, #3a4150) inset, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
+}
+.ui.disabled.button[aria-disabled='true'].tertiary:where(:not(.primary, .secondary, .positive, .negative, [class*="accent-"], .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black)):is(:hover, :focus, :active) {
+  color: var(--theme-text-muted);
+  background: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].primary:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.primary:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].secondary:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: var(--accent-2, #0b7a77);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.secondary:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--accent-2, #0b7a77) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].accent-1:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
+  color: var(--accent-1-text, color(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.accent-1:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) inset;
+  color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].accent-2:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: var(--accent-2, #0b7a77);
+  color: var(--accent-2-text, color(from var(--accent-2, #0b7a77) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.accent-2:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--accent-2, #0b7a77) inset;
+  color: light-dark(oklch(from var(--accent-2, #0b7a77) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-2, #0b7a77) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].accent-3:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: var(--accent-3, #e8730c);
+  color: var(--accent-3-text, color(from var(--accent-3, #e8730c) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.accent-3:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--accent-3, #e8730c) inset;
+  color: light-dark(oklch(from var(--accent-3, #e8730c) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-3, #e8730c) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].red:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #f04438;
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.red:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #f04438 inset;
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+.ui.disabled.button[aria-disabled='true'].orange:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #ef6820;
+  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.orange:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #ef6820 inset;
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+.ui.disabled.button[aria-disabled='true'].yellow:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #f79009;
+  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.yellow:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #f79009 inset;
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+}
+.ui.disabled.button[aria-disabled='true'].olive:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #84a11b;
+  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.olive:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #84a11b inset;
+  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].green:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #17b26a;
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.green:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #17b26a inset;
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].teal:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #06aed4;
+  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.teal:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #06aed4 inset;
+  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].blue:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #2e90fa;
+  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.blue:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #2e90fa inset;
+  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].violet:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #7a5af8;
+  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.violet:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #7a5af8 inset;
+  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].purple:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #9e4cc9;
+  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.purple:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #9e4cc9 inset;
+  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].pink:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #c11574;
+  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.pink:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #c11574 inset;
+  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].brown:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #6e4a2e;
+  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.brown:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #6e4a2e inset;
+  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].grey:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #687181;
+  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.grey:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #687181 inset;
+  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].black:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: light-dark(#1f2430, #535c6e);
+  color: color(from #1f2430 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.black:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px light-dark(#1f2430, #535c6e) inset;
+  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].positive:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #17b26a;
+  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.positive:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #17b26a inset;
+  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+.ui.disabled.button[aria-disabled='true'].negative:where(:not(.basic, .tertiary, .inverted)):is(:hover, :focus, :active) {
+  background-color: #f04438;
+  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-image: none;
+  box-shadow: none;
+}
+.ui.disabled.button[aria-disabled='true'].basic.negative:is(:hover, :focus, :active) {
+  background: transparent;
+  box-shadow: 0 0 0 1px #f04438 inset;
+  color: light-dark(oklch(from #f04438 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+}
+
 /* -------------------
         Foco
 -------------------- */
@@ -6004,7 +6253,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
 
 /* Solo ícono neutro: conserva superficie y borde; con texto, el gris del botón */
 .ui.disabled.icon.button:not(.labeled):not(.primary):not(.secondary):not(.basic):not(.tertiary):not(.positive):not(.negative):not([class*="accent-"]):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black),
-.ui.disabled.icon.button:not(.labeled):not(.primary):not(.secondary):not(.basic):not(.tertiary):not(.positive):not(.negative):not([class*="accent-"]):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black):hover {
+.ui.disabled.icon.button:not(.labeled):not(.primary):not(.secondary):not(.basic):not(.tertiary):not(.positive):not(.negative):not([class*="accent-"]):not(.red):not(.orange):not(.yellow):not(.olive):not(.green):not(.teal):not(.blue):not(.violet):not(.purple):not(.pink):not(.brown):not(.grey):not(.black):is(:hover, :focus, :active) {
   background: var(--theme-surface);
   color: var(--theme-text-muted);
   box-shadow: 0 0 0 1px light-dark(#d8dde5, #3a4150) inset, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
@@ -6017,12 +6266,15 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
 }
 .ui.disabled.basic.negative.icon.button:not(.labeled),
 .ui.disabled.basic.negative.icon.button:not(.labeled):hover,
-.ui.disabled.basic.negative.button[aria-disabled="true"]:is(:hover, :focus, :active) {
+.ui.disabled.basic.negative.button[aria-disabled="true"]:is(:hover, :focus, :active),
+.ui.disabled.basic.red.button[aria-disabled="true"]:is(:hover, :focus, :active) {
   background: var(--theme-surface);
   color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   box-shadow: 0 0 0 1px light-dark(#fecdca, #7a271a) inset, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));
 }
-:is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).basic:not(.negative):not(.red):is(:hover, :focus, :active) {
+
+/* Solo los basic sin color: los de color conservan su tinta (core) */
+:is(.ui.disabled.icon.button:not(.labeled), .ui.disabled.button[aria-disabled='true'], .ui.icon.button:disabled:not(.labeled)).basic:where(:not(.primary, .secondary, .positive, .negative, [class*="accent-"], .red, .orange, .yellow, .olive, .green, .teal, .blue, .violet, .purple, .pink, .brown, .grey, .black)):is(:hover, :focus, :active) {
   background: var(--theme-surface);
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
   box-shadow: 0 0 0 1px light-dark(#d8dde5, #3a4150) inset, var(--shadow-xs, 0 1px 2px light-dark(rgba(20, 28, 45, 0.04), rgba(0, 0, 0, 0.3)));

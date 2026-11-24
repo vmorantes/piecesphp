@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Modal
+ * # Fomantic-UI 1.1.1 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

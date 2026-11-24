@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Modal
+ * # Fomantic-UI 1.1.1 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -783,8 +783,9 @@
   max-width: 100%;
 }
 
-/* Contenido en text-2 (el basic va sobre el velo oscuro: conserva el texto claro de Fomantic) */
-.ui.modal:not(.basic) > .content {
+/* Contenido en text-2 (el basic va sobre el velo oscuro y el inverted es oscuro: conservan el texto claro de Fomantic;
+   el inverted quedaba en 2,72:1) */
+.ui.modal:not(.basic):not(.inverted) > .content {
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 

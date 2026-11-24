@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Menu
+ * # Fomantic-UI 1.1.1 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2639,6 +2639,24 @@ Floated Menu / Item
   .ui.stackable.secondary.menu:not(.pointing) {
     margin-right: 0;
     margin-left: 0;
+  }
+}
+
+/* Reflujo (WCAG 1.4.10): el menú vertical mide un fijo de 15rem; en un contenedor más estrecho (un segmento a 320) salía
+   28px. Como mucho, el ancho de su contenedor; con sitio, igual que siempre (2026-11-23) */
+.ui.vertical.menu:not(.fluid) {
+  max-width: 100%;
+}
+
+/* Reflujo (WCAG 1.4.10): siete ítems de paginación de 3em no caben a 320 (salían 5–17px). En móvil estrecho, 2.5em:
+   siguen siendo objetivos de más de 24px (WCAG 2.5.8) (2026-11-23) */
+@media only screen and (max-width: 380px) {
+  
+/* .ui.ui: el menu.overrides del tema va después de este y fija su relleno con la misma especificidad (glass-ios, 16px) */
+  .ui.ui.pagination.menu .item {
+    min-width: 2.5em;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
   }
 }
 

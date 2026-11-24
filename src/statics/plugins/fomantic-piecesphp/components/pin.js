@@ -1,6 +1,6 @@
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 0.21.0 - Pin
+ * # Fomantic-UI 1.1.1 - Pin
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

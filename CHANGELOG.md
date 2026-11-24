@@ -1,3 +1,13 @@
+# 10.62.8 (23-11-2026)
+
+- **El tema del panel, a la 1.1.1**: en el móvil, el buscador de los listados cabe en una fila junto a su rótulo, los
+  botones y campos tienen al menos 24 px para el dedo, los textos de los mensajes con × dejan sitio a la ×, y nada se
+  sale del ancho de la pantalla, ni siquiera a 320 px. Trae además preferencias de accesibilidad (contraste,
+  movimiento, foco, espaciado y tamaño del texto) que se pueden aplicar a cualquier bloque, y una barra de carga
+  global (`$.loadbar`).
+- **El manual del panel** describe el marco como es hoy y dice dónde sale el aviso de una acción (arriba a la derecha).
+- **Al actualizar**: nada que hacer; si tu proyecto tiene CSS propio sobre el marco del panel, revísalo en el móvil.
+
 # 10.62.7 (23-11-2026)
 
 - **Las pruebas del framework, en tu proyecto, con tus módulos apagados**: las que necesitan un módulo lo declaran y,

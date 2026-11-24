@@ -102,7 +102,8 @@
     animation: none;
   }
 }
-:root[data-motion="reduce"] .ui.pin.input.focus > .cells > .active.cell:empty::after {
+:root[data-motion="reduce"] .ui.pin.input.focus > .cells > .active.cell:empty::after,
+[data-motion="reduce"]:not(:root) .ui.pin.input.focus > .cells > .active.cell:empty::after {
   animation: none;
 }
 

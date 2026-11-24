@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Form
+ * # Fomantic-UI 1.1.1 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2218,6 +2218,19 @@
 .ui.form .field > .ui.text:last-child:not(:first-child) {
   display: block;
   margin: 0.5em 0 0;
+}
+
+/* Alto explícito de los campos de una línea y del select nativo: el que ya daba Chrome (interlineado + relleno + borde,
+   con las variables del tema). Firefox no deja bajar el line-height de un input de `normal` (22px con la fuente del
+   sistema en Linux: 48 frente a 44px en lumen, 2026-11-20) y en el select aplica el 1.15 de normalize donde Chrome usa la
+   métrica de la fuente (39 frente a 44px): sin alto fijo, la fila de un formulario quedaba desigual según el motor. */
+
+/* Con la especificidad de `.ui.form select` (la de la definición, que pone `height: auto`) y nada más, para que gane el alto
+   propio de un componente (las cajas de `ui pin`). Fuera: el input de búsqueda de un dropdown, colocado aparte con su
+   alto, y el de un `ui action input`, que se estira hasta el alto de su botón */
+.ui.form :where(input:not([type]), input[type="date"], input[type="datetime-local"], input[type="email"], input[type="month"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="time"], input[type="text"], input[type="url"], input[type="week"]):where(:not(.ui.dropdown *, .ui.action.input *)),
+.ui.form select:where(:not([multiple]):not([size])) {
+  height: calc(1.4285714285714286em + 2 * 0.6428571428571429em + 2 * 1px);
 }
 
 /* -------------------

@@ -41,7 +41,8 @@
     transform: none;
   }
 }
-:root[data-motion="reduce"] .ui.chat {
+:root[data-motion="reduce"] .ui.chat,
+[data-motion="reduce"]:not(:root) .ui.chat {
   transform: none;
 }
 
@@ -161,6 +162,12 @@
   gap: 0.5em;
   color: var(--theme-text-muted);
   text-align: center;
+}
+
+/* El texto ocupa el ancho, centrado, como las sugerencias: ajustado a su contenido, cada motor parte la línea en otro
+   punto y su caja quedaba a 6px de la de las sugerencias en WebKit (2026-11-20) */
+.ui.chat > .conversation > .empty > p {
+  align-self: stretch;
 }
 .ui.chat > .conversation > .empty > .suggestions {
   display: flex;

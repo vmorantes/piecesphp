@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Toast
+ * # Fomantic-UI 1.1.1 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -841,6 +841,12 @@
 .ui.inline.toast-container .toast-box {
   width: 100%;
   max-width: 100%;
+}
+
+/* En línea, el toast llena su hueco: el mínimo de 280px de móvil es para el flotante junto al borde de la ventana, y
+       dentro de un segmento a 320 sobresalía 28px (reflujo, WCAG 1.4.10; 2026-11-23) */
+.ui.inline.toast-container .toast-box > * {
+  min-width: 0;
 }
 
 

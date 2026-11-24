@@ -609,12 +609,16 @@ table.dataTable > tbody > tr.child span.dtr-title {
     flex-wrap: wrap;
     gap: 0.42857143rem;
   }
+  
+/* «Buscar:» a la izquierda y el campo en el resto de la fila (diseño de PiecesPHP, fidelidad.md); antes, la etiqueta
+       ocupaba su propia fila */
   .dt-container .dt-search > label {
-    flex: 1 1 100%;
+    flex: 0 0 auto;
     text-align: left;
   }
   .dt-container .dt-search span.ui.input {
-    flex: 1 1 auto;
+    flex: 1 1 0;
+    min-width: 0;
   }
   .dt-container .dt-search .ui.input > input {
     width: 100%;

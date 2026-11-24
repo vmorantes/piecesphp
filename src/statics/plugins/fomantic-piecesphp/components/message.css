@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Message
+ * # Fomantic-UI 1.1.1 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -984,11 +984,11 @@
   margin-top: 0.21428571rem;
 }
 
-/* Con la × (inferido: el mensaje del diseño no se cierra): el texto deja sitio a la × (12px del
-   borde + 14px del glifo + 10px de aire). Con los 16px del padding, a 390px el título largo
-   pasaba por debajo de la × */
+/* Con la × (inferido: el mensaje del diseño no se cierra): el texto deja sitio a la ×. Con los 16px del padding, a 390px
+   el título largo pasaba por debajo; con 36px, a 320 en un icon message (la × a 22px del borde y 17px de glifo) aún la
+   pisaba 3px: 42px (2026-11-23) */
 .ui.message:has(> .close.icon) {
-  padding-right: 2.57142857em;
+  padding-right: 3em;
 }
 
 /* Inverted: sin el contorno de 1px del borde del modo (claro sobre el mensaje oscuro) */

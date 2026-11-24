@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Feed
+ * # Fomantic-UI 1.1.1 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -310,7 +310,9 @@
   line-height: 1;
   height: 2.28571429rem;
   background: light-dark(#eef1f5, #262b36);
-  color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
+  
+/* Fork: texto según el relleno (D36): con el blanco fijo, las iniciales daban 1,92:1 sobre el gris de tinker y lumen */
+  color: color(from light-dark(#eef1f5, #262b36) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   border-radius: 50%;
   padding-top: 0.6em;
   position: relative;
@@ -446,7 +448,10 @@
 }
 .ui.feed > .event > .inverted.primary.basic.label::before,
 .ui.inverted.primary.basic.feed > .event > .label::before {
-  color: oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h);
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .secondary.label::before,
 .ui.secondary.feed > .event > .label::before {
@@ -479,7 +484,10 @@
 }
 .ui.feed > .event > .inverted.secondary.basic.label::before,
 .ui.inverted.secondary.basic.feed > .event > .label::before {
-  color: color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white);
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .accent-1.label::before,
 .ui.accent-1.feed > .event > .label::before {
@@ -512,7 +520,10 @@
 }
 .ui.feed > .event > .inverted.accent-1.basic.label::before,
 .ui.inverted.accent-1.basic.feed > .event > .label::before {
-  color: oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h);
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from oklch(from color-mix(in oklab, var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) 72%, white) max(l, 0.7) c h) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .accent-2.label::before,
 .ui.accent-2.feed > .event > .label::before {
@@ -545,7 +556,10 @@
 }
 .ui.feed > .event > .inverted.accent-2.basic.label::before,
 .ui.inverted.accent-2.basic.feed > .event > .label::before {
-  color: color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white);
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from color-mix(in oklab, var(--accent-2, #0b7a77) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .accent-3.label::before,
 .ui.accent-3.feed > .event > .label::before {
@@ -578,7 +592,10 @@
 }
 .ui.feed > .event > .inverted.accent-3.basic.label::before,
 .ui.inverted.accent-3.basic.feed > .event > .label::before {
-  color: color-mix(in oklab, var(--accent-3, #e8730c) 72%, white);
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from color-mix(in oklab, var(--accent-3, #e8730c) 72%, white) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .red.label::before,
 .ui.red.feed > .event > .label::before {
@@ -611,7 +628,10 @@
 }
 .ui.feed > .event > .inverted.red.basic.label::before,
 .ui.inverted.red.basic.feed > .event > .label::before {
-  color: #f97066;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .orange.label::before,
 .ui.orange.feed > .event > .label::before {
@@ -644,7 +664,10 @@
 }
 .ui.feed > .event > .inverted.orange.basic.label::before,
 .ui.inverted.orange.basic.feed > .event > .label::before {
-  color: #f38744;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .yellow.label::before,
 .ui.yellow.feed > .event > .label::before {
@@ -677,7 +700,10 @@
 }
 .ui.feed > .event > .inverted.yellow.basic.label::before,
 .ui.inverted.yellow.basic.feed > .event > .label::before {
-  color: #fdb022;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .olive.label::before,
 .ui.olive.feed > .event > .label::before {
@@ -710,7 +736,10 @@
 }
 .ui.feed > .event > .inverted.olive.basic.label::before,
 .ui.inverted.olive.basic.feed > .event > .label::before {
-  color: #a6c43a;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .green.label::before,
 .ui.green.feed > .event > .label::before {
@@ -743,7 +772,10 @@
 }
 .ui.feed > .event > .inverted.green.basic.label::before,
 .ui.inverted.green.basic.feed > .event > .label::before {
-  color: #47cd89;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .teal.label::before,
 .ui.teal.feed > .event > .label::before {
@@ -776,7 +808,10 @@
 }
 .ui.feed > .event > .inverted.teal.basic.label::before,
 .ui.inverted.teal.basic.feed > .event > .label::before {
-  color: #22ccee;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .blue.label::before,
 .ui.blue.feed > .event > .label::before {
@@ -809,7 +844,10 @@
 }
 .ui.feed > .event > .inverted.blue.basic.label::before,
 .ui.inverted.blue.basic.feed > .event > .label::before {
-  color: #53b1fd;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .violet.label::before,
 .ui.violet.feed > .event > .label::before {
@@ -842,7 +880,10 @@
 }
 .ui.feed > .event > .inverted.violet.basic.label::before,
 .ui.inverted.violet.basic.feed > .event > .label::before {
-  color: #9b8afb;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .purple.label::before,
 .ui.purple.feed > .event > .label::before {
@@ -875,7 +916,10 @@
 }
 .ui.feed > .event > .inverted.purple.basic.label::before,
 .ui.inverted.purple.basic.feed > .event > .label::before {
-  color: #c084e8;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .pink.label::before,
 .ui.pink.feed > .event > .label::before {
@@ -908,7 +952,10 @@
 }
 .ui.feed > .event > .inverted.pink.basic.label::before,
 .ui.inverted.pink.basic.feed > .event > .label::before {
-  color: #ee46bc;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .brown.label::before,
 .ui.brown.feed > .event > .label::before {
@@ -941,7 +988,10 @@
 }
 .ui.feed > .event > .inverted.brown.basic.label::before,
 .ui.inverted.brown.basic.feed > .event > .label::before {
-  color: #b08463;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .grey.label::before,
 .ui.grey.feed > .event > .label::before {
@@ -974,7 +1024,10 @@
 }
 .ui.feed > .event > .inverted.grey.basic.label::before,
 .ui.inverted.grey.basic.feed > .event > .label::before {
-  color: #99a1af;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: rgba(255, 255, 255, 0.9);
 }
 .ui.ui.feed > .event > .black.label::before,
 .ui.black.feed > .event > .label::before {
@@ -1007,7 +1060,10 @@
 }
 .ui.feed > .event > .inverted.black.basic.label::before,
 .ui.inverted.black.basic.feed > .event > .label::before {
-  color: #4b5363;
+  
+/* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
+                       tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Fork: inverted basic black con el texto inverted (su tono claro, @lightBlack, es gris oscuro y el número y el aro
@@ -1079,7 +1135,8 @@
 
 /* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio, el texto bajo una etiqueta («10:30») no cabía en su ancho
    fijo; la columna de la etiqueta crece con él. */
-:root[data-text-spacing="wide"] .ui.feed > .event > .label:has(> .text) {
+:root[data-text-spacing="wide"] .ui.feed > .event > .label:has(> .text),
+[data-text-spacing="wide"]:not(:root) .ui.feed > .event > .label:has(> .text) {
   width: auto;
   min-width: 2.28571429rem;
 }

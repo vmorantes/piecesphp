@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Header
+ * # Fomantic-UI 1.1.1 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1014,6 +1014,7 @@ h1.ui.header:not(:last-child) {
 }
 
 /* Contraste reforzado (D95): el acento pasa a ser el relleno oscurecido, ilegible como texto en oscuro; la tinta */
-:root[data-contrast="more"] .ui.massive.primary.header {
+:root[data-contrast="more"] .ui.massive.primary.header,
+[data-contrast="more"]:not(:root) .ui.massive.primary.header {
   color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }

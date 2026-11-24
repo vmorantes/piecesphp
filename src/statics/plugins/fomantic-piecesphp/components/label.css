@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Label
+ * # Fomantic-UI 1.1.1 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2385,6 +2385,13 @@ a.ui.ui.circular.label:not(.empty) {
   min-width: max(24px, 1.8333333333333333em);
   min-height: max(24px, 1.8333333333333333em);
 }
+
+/* Fork: el punto lleva relleno simétrico (la parte vertical de @circularPadding). Con el relleno del contador, más
+       estrecho a los lados en varios temas (tinker, glass-ios), salía en píldora vertical y cada tema lo corregía */
+.ui.empty.circular.labels .label,
+.ui.empty.circular.label {
+  padding: 0.41666667em !important;
+}
 .ui.empty.circular.labels .label,
 .ui.empty.circular.label {
   min-width: 0;
@@ -2784,6 +2791,37 @@ a.ui.ui.ui.empty.circular.label::after {
   background-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
   border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
   color: light-dark(color(from #1f2430 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), #1f2430);
+}
+
+/* Attached: la esquina pegada al contenedor sigue su radio (inherit), no @attachedBorderRadius (3px en default), que
+   dentro de un segmento o tarjeta de radio mayor dejaba la esquina asomando recta. La esquina libre de las de esquina
+   (top left…) es la del chip. Venía de lumen y tinker (2026-11-20, a core para todos los temas). */
+.ui.ui.attached.label,
+.ui.ui[class*="top attached"].label {
+  border-radius: 0;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.ui.ui[class*="bottom attached"].label {
+  border-radius: 0;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+.ui.ui[class*="top left attached"].label {
+  border-radius: 0 0 var(--r-sm, 6px);
+  border-top-left-radius: inherit;
+}
+.ui.ui[class*="top right attached"].label {
+  border-radius: 0 0 0 var(--r-sm, 6px);
+  border-top-right-radius: inherit;
+}
+.ui.ui[class*="bottom left attached"].label {
+  border-radius: 0 var(--r-sm, 6px) 0 0;
+  border-bottom-left-radius: inherit;
+}
+.ui.ui[class*="bottom right attached"].label {
+  border-radius: var(--r-sm, 6px) 0 0;
+  border-bottom-right-radius: inherit;
 }
 
 /* -------------------

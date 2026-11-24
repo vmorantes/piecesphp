@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Card
+ * # Fomantic-UI 1.1.1 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -167,6 +167,16 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
+}
+
+/* Fork: un SVG de vista previa (y el botón que lo envuelve) no pasa del ancho del hueco: el logo de correo de 160px se
+       salía 30px de la columna de 150 de una tarjeta horizontal y en WebKit tapaba el texto de al lado (2026-11-20). Su
+       contenido escala con su viewBox */
+.ui.cards > .card > .checkered.image > button,
+.ui.card > .checkered.image > button,
+.ui.cards > .card > .checkered.image svg,
+.ui.card > .checkered.image svg {
+  max-width: 100%;
 }
 .ui.cards > .card > .checkered.image > button:focus-visible,
 .ui.card > .checkered.image > button:focus-visible {
@@ -2659,7 +2669,9 @@ a.ui.basic.inverted.black.card:hover,
   width: calc(12.5% - 1em);
   margin-left: 0.5em;
   margin-right: 0.5em;
-  font-size: 11px;
+  
+/* Fork: en rem con la base del tema (los 11px de Fomantic no crecían con data-text-size, WCAG 1.4.4) */
+  font-size: 0.78571429rem;
 }
 .ui.nine.cards {
   margin-left: -0.5em;
@@ -2669,7 +2681,9 @@ a.ui.basic.inverted.black.card:hover,
   width: calc(11.11111111111111% - 1em);
   margin-left: 0.5em;
   margin-right: 0.5em;
-  font-size: 10px;
+  
+/* Fork: en rem con la base del tema (los 10px de Fomantic no crecían con data-text-size, WCAG 1.4.4) */
+  font-size: 0.71428571rem;
 }
 .ui.ten.cards {
   margin-left: -0.5em;
@@ -3179,6 +3193,38 @@ a.inverted.ui.card:hover,
   }
 }
 
+/* Unas tarjetas que no abren su bloque no suben sobre lo anterior: el margen negativo de Fomantic tapaba chips, buscadores
+   y subtítulos (fluent) y dejaba 6px tras un grid en lumen. Al principio de una pestaña, tampoco suben hasta el subrayado.
+   Venía de fluent; en core para todos los temas (2026-11-19) */
+.ui.cards:not(:first-child),
+.ui.tab > .ui.cards:first-child {
+  margin-top: 0;
+}
+
+/* Tarjeta horizontal en móvil: se apila con la imagen arriba a todo el ancho. Al lado no cabía la información y,
+   apilada sin más, la imagen se quedaba en su ancho de tarjeta horizontal pegada a la izquierda. El damero (checkered
+   image, del fork) mide 180px: pide 200px de mínimo. Venía de tinker, material3, fluent y piecesphp (2026-11-20). */
+@media only screen and (max-width: 767.98px) {
+  .ui.horizontal.cards > .card,
+  .ui.horizontal.card {
+    flex-direction: column;
+    
+/* Apilada no necesita los 270px de mínimo de la definición (son para imagen y texto lado a lado): a 320 la
+           tarjeta salía de su contenedor de 218px (reflujo, WCAG 1.4.10; 2026-11-23) */
+    min-width: 0;
+  }
+  .ui.horizontal.cards > .card > .image,
+  .ui.horizontal.card > .image {
+    width: auto;
+    border-radius: var(--r-lg, 12px) var(--r-lg, 12px) 0 0 !important;
+  }
+  .ui.horizontal.cards > .card > .checkered.image,
+  .ui.horizontal.card > .checkered.image {
+    height: 180px;
+    min-height: 0;
+  }
+}
+
 /* Descripción en Pequeño 12/16 (sin variable de tamaño) y meta con su interlineado */
 .ui.cards > .card > .content > .description,
 .ui.card > .content > .description {
@@ -3289,18 +3335,7 @@ a.ui.link.card > .content > i.right.floated.icon {
 }
 
 /* Tarjeta de imagen (pp-image-card): `ui horizontal card` con la vista previa de 200px
-   (@horizontalImageWidth) que se apila arriba en móvil (el damero es `checkered image`, del fork) */
-@media only screen and (max-width: 767.98px) {
-  .ui.horizontal.cards > .card,
-  .ui.horizontal.card {
-    flex-direction: column;
-  }
-  .ui.horizontal.cards > .card > .image,
-  .ui.horizontal.card > .image {
-    width: auto;
-    border-radius: var(--r-lg, 12px) var(--r-lg, 12px) 0 0 !important;
-  }
-}
+   (@horizontalImageWidth), apilada arriba en móvil por core (el damero es `checkered image`, del fork) */
 
 /* Vista previa apilada en móvil (D52; .pp-image-preview{height:180px}): alto fijo de 180px también
    con el damero (que pide 200px de mínimo); lo de dentro sigue centrado y el relleno que sobra no

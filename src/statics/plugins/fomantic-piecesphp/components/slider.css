@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Slider
+ * # Fomantic-UI 1.1.1 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1161,12 +1161,15 @@
 /* Fork (WCAG 1.4.12, D95): con el espaciado de texto amplio las etiquetas de un slider horizontal, centradas en su marca,
    se montaban unas sobre otras. Una de cada dos (sin contar las de media marca) sube una línea, su marca se alarga
    hasta ella y el slider reserva esa línea arriba. */
-:root[data-text-spacing="wide"] .ui.labeled.slider:not(.vertical):not(.bottom.aligned) {
+:root[data-text-spacing="wide"] .ui.labeled.slider:not(.vertical):not(.bottom.aligned),
+[data-text-spacing="wide"]:not(:root) .ui.labeled.slider:not(.vertical):not(.bottom.aligned) {
   margin-top: 1.6em;
 }
-:root[data-text-spacing="wide"] .ui.labeled.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick)) {
+:root[data-text-spacing="wide"] .ui.labeled.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick)),
+[data-text-spacing="wide"]:not(:root) .ui.labeled.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick)) {
   transform: translate(-50%, calc(-100% - 1.6em));
 }
-:root[data-text-spacing="wide"] .ui.labeled.ticked.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick))::after {
+:root[data-text-spacing="wide"] .ui.labeled.ticked.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick))::after,
+[data-text-spacing="wide"]:not(:root) .ui.labeled.ticked.slider:not(.vertical):not(.bottom.aligned) > .labels .label:nth-child(even of :not(.halftick))::after {
   height: calc(1.28571429em + 1.6em);
 }

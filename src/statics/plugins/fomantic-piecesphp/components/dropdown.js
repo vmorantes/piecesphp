@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 0.21.0 - Dropdown
+ * # Fomantic-UI 1.1.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -675,6 +675,8 @@
                                 .on('click' + eventNamespace, selector.search, module.event.search.focus)
                                 .on('blur' + eventNamespace, selector.search, module.event.search.blur)
                                 .on('click' + eventNamespace, selector.text, module.event.text.focus)
+                                // upstream #3642: un <label for> que apunta al <select> da el foco a la búsqueda, como un campo nativo
+                                .on('click' + eventNamespace, selector.input, module.event.select.click)
                             ;
                             if (module.is.multiple()) {
                                 $module
@@ -1215,6 +1217,10 @@
                     },
                     search: {
                         focus: function (event) {
+                            // upstream #3642: el clic reenviado desde el <label for> no cuenta como foco
+                            if (module.is.forwardedLabelClick(event)) {
+                                return;
+                            }
                             activated = true;
                             if (module.is.multiple()) {
                                 module.remove.activeLabel();
@@ -1362,6 +1368,12 @@
                         },
                     },
                     select: {
+                        // upstream #3642
+                        click: function (event) {
+                            if (!module.is.bubbledLabelClick(event) && !module.is.disabled()) {
+                                module.focusSearch();
+                            }
+                        },
                         mutation: function (mutations) {
                             if (module.is.selectMutation(mutations)) {
                                 module.debug('<select> modified, recreating menu');
@@ -3463,6 +3475,10 @@
                     },
                     animatingOutward: function () {
                         return $menu.transition('is outward');
+                    },
+                    // upstream #3642
+                    forwardedLabelClick: function (event) {
+                        return $(event.target).is($input);
                     },
                     bubbledLabelClick: function (event) {
                         return $(event.target).is('select, input') && $module.closest('label').length > 0;
