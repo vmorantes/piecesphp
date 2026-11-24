@@ -4,6 +4,9 @@
  * cards`, que crece con la letra; con él, _graphs-and-statistics.scss). Dentro, el HTML de quien
  * llama: tarjetas sueltas o las rejillas `one-column-grid`, `two-columns-grid` y `three-columns-grid` con sus tarjetas.
  *
+ * @deprecated 11.0.0 `one-column` (con `fullsize`) y las rejillas de dentro (`one-column-grid`, `two-columns-grid`,
+ *      `three-columns-grid`): sin uso en el framework; salen en la 11.0.0. Sin `one-column`, la rejilla del tema sigue.
+ *
  * @var string $content HTML de dentro, que pinta quien llama (y escapa lo suyo).
  * @var string[] $modifiers `one-column` (una columna) y `fullsize` (a todo el ancho, con `one-column`).
  * @var array<string,string> $attributes Atributos extra, con el filtro de RowActions::attributes().

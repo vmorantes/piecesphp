@@ -5,6 +5,10 @@
  * (chart-card.php), un círculo de progreso (progress-circle.php), una leyenda (chart-legend.php) o unas cifras
  * (number-cards.php). Los números los rellena el JavaScript de quien llama por su `data-type`.
  *
+ * @deprecated 11.0.0 La forma sin `figure` (`card-statistic`: `modifiers`, `titleModifiers`, `number`, `content` y el pie
+ *      con flecha): sin uso en el framework desde que los ejemplos de la hoja de diseño usan la tarjeta del tema; sale en la
+ *      11.0.0. Usa `figure`.
+ *
  * @var string[] $modifiers `tall`, `wide`, `fullsize`, `horizontal-center`, `bg-gray` y `fullw-on-break-1`.
  * @var array<string,string> $attributes Atributos extra (p. ej. `data-type`), con el filtro de RowActions::attributes().
  * @var string|null $title Sin título, la barra solo lleva la ayuda.

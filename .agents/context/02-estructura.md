@@ -54,7 +54,8 @@ semanas en uso y sin fila. Si añades un artefacto, su fila va en el mismo commi
 | `reading-forms-baseline.json` | `bin/censo-formas-de-lectura` |
 | `shared-toolchain.json` | `verify-integrity` (instrumental común de los cinco repositorios) |
 | `css-fingerprint.json` | `bin/huella-css`. El calco **ordenado** del CSS compilado: la puerta de «se ve igual». Pesa ~700 KB **a propósito**, con el detalle de cada regla, porque sin él no se puede auditar una consolidación |
-| `scss-census.json` | `bin/censo-scss`. Las clases declaradas salen del **CSS compilado**, no del texto del SASS |
+| `scss-census.json` | `bin/censo-scss`. Las clases declaradas salen del **CSS compilado**, no del texto del SASS. Es una FOTO |
+| `scss-census-baseline.json` | `bin/censo-scss --trinquete` y la comprobación 71 de `verify-integrity` (JNU, `bf39d694`). **TRINQUETE**: el censo no puede crecer sobre ella (PO, 23: la estética propia se mide, no se afirma). Bajarla es trabajo del bloque, con `--guardar-base` y su reparto |
 | `campaign-removals.json` | `bin/censo-borrados` y la comprobación 40 de `verify-integrity`. **Ojo: la 40 compara la CUENTA de archivos, no el contenido**, así que el artefacto puede estar al día por número y rancio por dentro (`../docs/pendientes.md` 475) |
 | `sql-concat-baseline.json`, `sql-concat-declared.json` | `bin/censo-sql-concatenado`. El segundo, también la suite `UnitTest-SqlPlaceholders` |
 | `volatile-state.json` | `bin/walk-attribute`, `verify-integrity` (tablas volátiles) |

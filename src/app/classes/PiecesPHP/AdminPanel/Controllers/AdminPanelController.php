@@ -577,6 +577,7 @@ class AdminPanelController extends BaseController
             'statics/core/js/statistics-chart-legend.js',
             self::staticRoute('js/design-sheet/estadisticas-grafico.js'),
             self::staticRoute('js/design-sheet/estadisticas-tendencia.js'),
+            self::staticRoute('js/design-sheet/estadisticas-progreso.js'),
         ], 'js');
         //Los gráficos los dibuja Apache ECharts.
         import_echarts();

@@ -1,3 +1,13 @@
+# 10.62.9 (23-11-2026)
+
+- **En desuso hasta la `11.0.0`: las piezas antiguas de estadísticas del panel.** Las pantallas del framework ya usan la
+  tarjeta de estadística del tema (`statistic-card.php` con `figure`). Quedan en desuso, sin borrar: `number-cards.php`,
+  `progress-circle.php`, `action-card.php`, `chart-legend.php` suelta, la forma de `statistic-card.php` sin `figure`, y
+  `statistics-section.php` con `one-column` o con las rejillas `one-column-grid`, `two-columns-grid` y
+  `three-columns-grid`, con sus reglas de CSS. Si tu proyecto las usa, pásalas a la tarjeta del tema: la hoja de diseño
+  del panel muestra las cifras, el progreso, los accesos directos y las tarjetas con ella.
+- **Al actualizar**: nada que hacer ahora; se borran en la `11.0.0`.
+
 # 10.62.8 (23-11-2026)
 
 - **El tema del panel, a la 1.1.1**: en el móvil, el buscador de los listados cabe en una fila junto a su rótulo, los

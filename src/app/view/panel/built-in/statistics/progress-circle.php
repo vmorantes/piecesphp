@@ -3,6 +3,9 @@
  * Un círculo de progreso (`progress-circle`, _graphs-and-statistics.scss), con su porcentaje dentro. El JavaScript de quien
  * llama lo rellena por sus dos `data-type`: el círculo (la variable CSS `--progress`) y el número.
  *
+ * @deprecated 11.0.0 Sin uso en el framework: el círculo es el del tema (`ui circular progress`, con `data-percent` y
+ *      $.fn.progress). Se queda porque un clon puede pintarlo por su nombre; sale en la 11.0.0.
+ *
  * @var string $dataType El del círculo.
  * @var string $numberDataType El del número de dentro.
  * @var int $progress De 0 a 100, el de partida.

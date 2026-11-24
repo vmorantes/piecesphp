@@ -58,6 +58,7 @@ $dashboardCardGap: pxToRem(16);
         width: 100%;
         margin: 0 0 pxToRem(16) 0;
 
+        // @en-desuso 11.0.0: la tarjeta sin `figure` y la de acción (statistic-card.php y action-card.php, en desuso); se borra en la 11.0.0
         > .card-statistic,
         > .card-action {
             min-width: 0;
@@ -65,11 +66,13 @@ $dashboardCardGap: pxToRem(16);
         }
 
         //Plegada, una tarjeta del inicio solo trae su barra y su pie: no se estira al alto de la fila.
+        // @en-desuso 11.0.0: la tarjeta sin `figure` (statistic-card.php, en desuso); se borra en la 11.0.0
         > .card-statistic:not(:has(> :not(.toolbar):not(.footer))) {
             align-self: start;
             height: auto;
         }
 
+        // @en-desuso 11.0.0: `one-column` de statistics-section.php, en desuso; se borra en la 11.0.0
         &.one-column {
             display: grid;
             grid-template-columns: 100%;
@@ -81,6 +84,7 @@ $dashboardCardGap: pxToRem(16);
             }
         }
 
+        // @en-desuso 11.0.0: las rejillas de dentro de statistics-section.php, en desuso; se borra en la 11.0.0
         .one-column-grid {
             display: grid;
             grid-template-columns: auto;
@@ -88,6 +92,7 @@ $dashboardCardGap: pxToRem(16);
             column-gap: $columnGap;
         }
 
+        // @en-desuso 11.0.0: las rejillas de dentro de statistics-section.php, en desuso; se borra en la 11.0.0
         .two-columns-grid {
             display: grid;
             grid-template-columns: auto auto;
@@ -95,6 +100,7 @@ $dashboardCardGap: pxToRem(16);
             column-gap: $columnGap;
         }
 
+        // @en-desuso 11.0.0: las rejillas de dentro de statistics-section.php, en desuso; se borra en la 11.0.0
         .three-columns-grid {
             display: grid;
             //Columnas iguales: con `auto` la de contenido más largo (en Accesos, «Exportar datos») salía más ancha.
@@ -110,6 +116,7 @@ $dashboardCardGap: pxToRem(16);
 
     }
 
+    // @en-desuso 11.0.0: progress-circle.php, en desuso (el círculo es el `ui circular progress` del tema); se borra en la 11.0.0
     .progress-circle {
         --progress: 0;
         width: 200px;
@@ -144,6 +151,7 @@ $dashboardCardGap: pxToRem(16);
         }
     }
 
+    // @en-desuso 11.0.0: chart-legend.php, en desuso (la leyenda de la dona la pinta chart-card.php con `proportion`); se borra en la 11.0.0
     .chart-data {
         width: 100%;
         max-width: max-content;
@@ -278,6 +286,7 @@ $dashboardCardGap: pxToRem(16);
     }
 
     //La tarjeta: la barra arriba, el dato debajo y el pie SIEMPRE abajo y dentro (margin-top: auto).
+    // @en-desuso 11.0.0: la tarjeta sin `figure` (statistic-card.php, en desuso); se borra en la 11.0.0
     .card-statistic {
         display: flex;
         flex-direction: column;
@@ -489,6 +498,7 @@ $dashboardCardGap: pxToRem(16);
 
     //La tarjeta de acción: la misma barra arriba (el título a la altura de los demás), el icono y la frase compactos, y el
     //mismo pie que las de estadística, con su flecha.
+    // @en-desuso 11.0.0: action-card.php, en desuso (el acceso directo del tema); se borra en la 11.0.0
     .card-action,
     a.card-action {
 
@@ -620,6 +630,7 @@ $dashboardCardGap: pxToRem(16);
     }
 
     //Las cifras: compactas y arriba. El icono con el color de la cifra; el número en el color de texto fuerte.
+    // @en-desuso 11.0.0: number-cards.php, en desuso (las cifras de la tarjeta del tema); se borra en la 11.0.0
     .numbers-cards {
 
         display: grid;
@@ -696,6 +707,7 @@ $dashboardCardGap: pxToRem(16);
 
         .statistics-section {
 
+            // @en-desuso 11.0.0: la tarjeta sin `figure` (statistic-card.php, en desuso); se borra en la 11.0.0
             .card-statistic {
                 &.fullw-on-break-1 {
                     width: $fullsizeWidth;
@@ -730,10 +742,12 @@ $dashboardCardGap: pxToRem(16);
 
         .statistics-section {
 
+            // @en-desuso 11.0.0: las rejillas de dentro de statistics-section.php, en desuso; se borra en la 11.0.0
             .two-columns-grid {
                 grid-template-columns: 100% !important;
             }
 
+            // @en-desuso 11.0.0: las rejillas de dentro de statistics-section.php, en desuso; se borra en la 11.0.0
             .three-columns-grid {
                 grid-template-columns: 100% !important;
             }

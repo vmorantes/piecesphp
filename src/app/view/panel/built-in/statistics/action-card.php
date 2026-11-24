@@ -4,6 +4,10 @@
  * (el título), el icono y una frase, y el pie con su flecha; para lo que se hace desde un tablero. Con `not-allowed` o
  * `disabled` se ve apagada y no lleva a ningún sitio.
  *
+ * @deprecated 11.0.0 Sin uso en el framework: la acción es el acceso directo del tema (statistic-card.php con
+ *      `figure` y `url`), y sin permiso la `ui disabled card`. Se queda porque un clon puede pintarla por su nombre; sale
+ *      en la 11.0.0.
+ *
  * @var string $url Adónde lleva; con `not-allowed` o `disabled` se ignora.
  * @var string $icon El icono de Fomantic.
  * @var string $title

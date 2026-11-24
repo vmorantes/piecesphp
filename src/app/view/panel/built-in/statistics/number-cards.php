@@ -3,6 +3,9 @@
  * Cifras en fila (`numbers-cards`, _graphs-and-statistics.scss): cada una con su icono, su número, su concepto y un
  * subconcepto. El JavaScript de quien llama rellena el número por su `data-type`.
  *
+ * @deprecated 11.0.0 Sin uso en el framework: las cifras son la tarjeta de cifra del tema (statistic-card.php con
+ *      `figure` y `statistics`). Se queda porque un clon puede pintarla por su nombre; sale en la 11.0.0.
+ *
  * @var array<array{dataType:string,concept:string,subconcept?:string,color?:string,icon?:string,initial?:string}> $items
  *      `color`: `green` u `orange` (sin color, el primario del panel). `icon`: el de Fomantic (por omisión, `chart bar outline`).
  */

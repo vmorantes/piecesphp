@@ -259,7 +259,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         63 => [self::MAIL_SENDERS_EXCEPTIONS_RELATIVE_PATH],
         65 => ['files/dev/route-inventory.json', self::API_SPEC_RELATIVE_PATH, self::API_EXCLUSIONS_RELATIVE_PATH, 'bin/api-docs'],
         70 => [FormActionFields::DECLARED_RELATIVE_PATH, '.git'],
+        71 => ['bin/censo-scss', self::SCSS_CENSUS_BASELINE_RELATIVE_PATH],
     ];
+
+    /** La línea base del censo de SCSS, relativa a la raíz (comprobación 71). */
+    const SCSS_CENSUS_BASELINE_RELATIVE_PATH = 'files/dev/scss-census-baseline.json';
 
     /** La especificación OpenAPI de la API, fuente de su documentación (comprobación 65). */
     const API_SPEC_RELATIVE_PATH = 'source-docs/api/openapi.json';
@@ -575,6 +579,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 70. Lo que envía cada formulario es lo que lee su acción (H423) ─────────────
         $formFieldFailures = Distribution::applies('70', self::DISTRIBUTION_REQUIREMENTS[70]) ? self::checkFormActionFields() : [];
 
+        //──── 71. El CSS propio no crece: el censo de SCSS solo baja (H163) ──────────────
+        $scssCensusFailures = Distribution::applies('71', self::DISTRIBUTION_REQUIREMENTS[71]) ? self::checkScssCensus() : [];
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -617,7 +624,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
          + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures)
-         + count($structuredDataFailures) + count($formFieldFailures);
+         + count($structuredDataFailures) + count($formFieldFailures) + count($scssCensusFailures);
 
         foreach ($cloneFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
@@ -684,6 +691,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($inlineStyleFailures as $line) {
             echoTerminal("\e[31mSTYLE EN VISTA:\e[39m {$line}");
+        }
+        foreach ($scssCensusFailures as $line) {
+            echoTerminal("\e[31mCENSO DE SCSS:\e[39m {$line}");
         }
         foreach ($unstampedFailures as $line) {
             echoTerminal("\e[31mSCSS SIN HUELLA:\e[39m {$line}");
@@ -3822,6 +3832,52 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         echoTerminal("\e[94mINFO:\e[39m 61 manual: {$count} de " . count($screens) . " pantalla(s) del panel sin capítulo (línea base {$frozen})"
             . ($count < $frozen ? '; BAJA: actualiza ' . self::MANUAL_COVERAGE_BASELINE_RELATIVE_PATH : '') . ($first !== '' ? ". Las primeras: {$first}" : '.'));
         return $failures;
+    }
+
+    /**
+     * 71. El censo de SCSS no sube sobre su línea base (H163): ni clases que pisan al tema, ni clases propias declaradas, ni
+     * reglas que no pueden casar, ni líneas.
+     *
+     * Delega en `bin/censo-scss --trinquete`, que compila con `gulp sass-all` y es donde viven el universo y el método.
+     * Compila porque gulp solo reescribe un CSS que cambia: por la fecha no se puede saber si el compilado está al día.
+     *
+     * @return string[]
+     */
+    protected static function checkScssCensus(): array
+    {
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $script = $root . '/bin/censo-scss';
+
+        if (!is_file($script)) {
+            //Una comprobación que no encuentra su instrumento NO reporta «todo bien». LEY 18.
+            return ['no existe ' . $script . ': el trinquete del censo de SCSS NO se ha comprobado'];
+        }
+
+        $output = [];
+        $status = 0;
+        //RETORNO-IGNORADO: `exec()` devuelve la última línea, y aquí lo que decide es $status.
+        exec('cd ' . escapeshellarg($root) . ' && ' . escapeshellarg($script) . ' --trinquete 2>&1', $output, $status);
+
+        $line = '';
+        $extra = [];
+        foreach ($output as $candidate) {
+            if (mb_strpos($candidate, 'TRINQUETE') === 0) {
+                $line = $candidate;
+            } elseif ($line !== '' && mb_strpos($candidate, '    ') === 0) {
+                $extra[] = trim($candidate);
+            }
+        }
+
+        if ($status !== 0) {
+            return array_merge([$line !== '' ? $line : 'el censo de SCSS salió con código ' . $status . ': ' . mb_substr(implode(' ', $output), -300)], $extra);
+        }
+        //Sin veredicto no se comparó nada (un censo que ignora --trinquete sale con 0 y escribe la foto). LEY 18.
+        if ($line === '') {
+            return ['bin/censo-scss --trinquete salió con 0 sin línea TRINQUETE: el censo de SCSS NO se ha comparado con su línea base'];
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m 71 " . mb_substr($line, mb_strlen('TRINQUETE: ')));
+        return [];
     }
 
     /**

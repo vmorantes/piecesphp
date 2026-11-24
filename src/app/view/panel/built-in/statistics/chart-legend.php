@@ -3,6 +3,9 @@
  * La leyenda de un gráfico o de un círculo de progreso (`chart-data`, _graphs-and-statistics.scss): una fila por valor,
  * con su color, su nombre y su número, que rellena el JavaScript de quien llama por su `data-type`.
  *
+ * @deprecated 11.0.0 Sin uso en el framework: la leyenda de la dona la pinta chart-card.php con `proportion`, y la del
+ *      círculo son las cifras de la tarjeta del tema. Solo la llama la forma vieja de chart-card.php; sale en la 11.0.0.
+ *
  * @var array<array{name:string,dataType:string,level?:string,color?:string,valueModifiers?:string[],stack?:bool,initial?:string}> $items
  *      `level`: `primary` (por omisión) o `secondary`. `color`: el de su punto (#hex o var(--…)), si no es el del nivel.
  *      `valueModifiers`: `neutral`, `right` y `text-black`. `stack`: el nombre y su color encima del número.

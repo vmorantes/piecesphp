@@ -9,6 +9,14 @@
 #   bin/censo-scss                compila con `gulp sass-all` (no ensucia el árbol: el CSS compilado está ignorado) y censa
 #   bin/censo-scss --sin-compilar censa el CSS que ya haya en disco
 #   bin/censo-scss --help
+#   bin/censo-scss --trinquete [--base=<copia>]  no escribe el censo: compara sus cifras con la línea base
+#                                 (files/dev/scss-census-baseline.json) y FALLA si alguna SUBE; si alguna baja, avisa
+#   bin/censo-scss --guardar-base escribe la línea base con lo medido (al bajar, en el commit que baja); no el censo
+#   bin/censo-scss --en-desuso=<archivo.scss>  imprime las líneas que da por marcadas en ese archivo (para la prueba)
+#   Las cifras del trinquete: las clases SOBRESCRITURA; las clases propias declaradas (VIVA + SIN USO LITERAL juntas:
+#   que una clase cambie de cubo no es CSS nuevo); las reglas distintas que no pueden casar (dead_rules) y las líneas
+#   del universo (lines.total). dead_rules y lines.total NO cuentan lo marcado `@en-desuso` (el comentario y el bloque
+#   que lo sigue, con lo anidado), que se borra en la 11.0.0: se cuenta e imprime aparte, «en desuso: N reglas, M líneas».
 #
 # Cubos, por CLASE DISTINTA (no por ocurrencia):
 #   VIVA               aparece como token literal en el universo de uso;
@@ -31,6 +39,8 @@
 import json, os, re, shutil, subprocess, sys
 
 OUT = 'files/dev/scss-census.json'
+BASELINE = 'files/dev/scss-census-baseline.json'
+RATCHET_KEYS = ('SOBRESCRITURA', 'clases_propias', 'dead_rules', 'lines_total')
 ROOT = subprocess.run(['git', 'rev-parse', '--show-toplevel'], capture_output=True, text=True, check=True).stdout.strip()
 os.chdir(ROOT)
 
@@ -349,6 +359,14 @@ def kind_of(path):
 #──── Censo ───────────────────────────────────────────────────────────────────────────────────────
 
 def main():
+    probe = [a[len('--en-desuso='):] for a in sys.argv if a.startswith('--en-desuso=')]
+    if probe:
+        #Para la prueba: las líneas que este guion da por marcadas en un .scss, sin compilar nada.
+        print(json.dumps(sorted(deprecated_lines(probe[0]))))
+        return 0
+    if '--guardar-base' in sys.argv and '--trinquete' in sys.argv:
+        print('PARA: --guardar-base y --trinquete no van juntas: una escribe la línea base y la otra la compara.')
+        return 2
     if '--help' in sys.argv or '-h' in sys.argv:
         print(open(__file__, encoding='utf-8').read().split('\nimport ', 1)[0].split('\n', 1)[1].replace('# ', '').replace('#', ''))
         return 0
@@ -606,6 +624,13 @@ def main():
     print('')
     total_lines = sum(sum(1 for _ in open(s, encoding='utf-8')) for s in scss_all)
     unique_rules = {(r['origin'][0], r['origin'][1], r['selector']) for r in rules_all if r['origin'] is not None}
+    #Lo marcado @en-desuso se borra en la 11.0.0: fuera del trinquete, pero contado aparte y a la vista.
+    marked = {scss: deprecated_lines(scss) for scss in scss_all}
+    is_marked = lambda src, line: line in marked.get(src, set())
+    #unique_rules va en base 0 (el .css.map); unique_dead y deprecated_lines, en base 1.
+    deprecated = {'rules': sum(1 for k in unique_rules if is_marked(k[0], k[1] + 1)),
+                  'dead_rules': sum(1 for k in unique_dead if is_marked(k[0], k[1])),
+                  'lines': sum(len(v) for v in marked.values())}
     print('== Reglas que NO PUEDEN CASAR NUNCA (cada selector de su lista exige al menos una clase SIN USO LITERAL;')
     print('   las de terceros y las no verificables cuentan como presentes; un selector sin clases no se juzga)')
     print(f'reglas compiladas: {len(dead_rules)} muertas de {len(rules_all)} (contando cada hoja que incluye la parcial); '
@@ -651,12 +676,122 @@ def main():
         'dead_rules': [{'source': src, 'line': line, 'selector': selector, 'own_lines': len(lines)}
                        for (src, line, selector), lines in sorted(unique_dead.items(), key=lambda kv: (-len(kv[1]), kv[0]))],
         'per_scss': per_scss,
+        'deprecated': deprecated,
     }
+    figures = {'SOBRESCRITURA': counts.get('SOBRESCRITURA', 0),
+               'clases_propias': counts.get('VIVA', 0) + counts.get('SIN USO LITERAL', 0),
+               'dead_rules': len(result['dead_rules']) - deprecated['dead_rules'],
+               'lines_total': total_lines - deprecated['lines']}
+    print(f'en desuso (fuera del trinquete): {deprecated["rules"]} reglas ({deprecated["dead_rules"]} que no pueden casar), '
+          f'{deprecated["lines"]} líneas')
+    detail = {'VIVA': counts.get('VIVA', 0), 'SIN USO LITERAL': counts.get('SIN USO LITERAL', 0)}
+    if '--guardar-base' in sys.argv:
+        return save_baseline(figures, detail, result['universe'], deprecated)
+    if '--trinquete' in sys.argv:
+        base_arg = [a[len('--base='):] for a in sys.argv if a.startswith('--base=')]
+        return ratchet(figures, base_arg[0] if base_arg else BASELINE)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w', encoding='utf-8', newline='\n') as handle:
         json.dump(result, handle, ensure_ascii=False, indent=4)
         handle.write('\n')
     print(f'\ncenso-scss ejecutado: {len(declared)} clase(s) en {len(sheets)} .css; escrito {OUT}')
+    return 0
+
+
+def deprecated_lines(path):
+    """Las líneas marcadas `@en-desuso` de un .scss: la marca (un comentario `//`), los comentarios que la siguen y el
+    bloque (o la sentencia) de debajo hasta su llave de cierre, con lo anidado. Así casa con la forma del repositorio: la
+    marca en su línea y la regla debajo. Las llaves de una interpolación (`#{}`), de una cadena, de un `url(...)` o de un
+    comentario no cuentan; una marca justo antes del cierre de su padre no se come lo de fuera."""
+    try:
+        lines = open(path, encoding='utf-8').read().splitlines()
+    except OSError:
+        return set()
+
+    def code_of(line):
+        line = re.sub(r'#\{[^{}]*\}', '', line)
+        line = re.sub(r'url\([^)]*\)', 'url()', line)
+        line = re.sub(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'', "''", line)
+        line = re.sub(r'/\*.*?\*/', '', line)
+        return line.split('//', 1)[0]
+
+    def is_comment(line):
+        text = line.lstrip()
+        return text.startswith(('//', '/*')) or (text.startswith('*') and '{' not in code_of(line))
+
+    marked = set()
+    i = 0
+    while i < len(lines):
+        if '@en-desuso' not in lines[i] or not lines[i].lstrip().startswith('//'):
+            i += 1
+            continue
+        block = {i}
+        j = i + 1
+        while j < len(lines) and (lines[j].strip() == '' or is_comment(lines[j])):
+            block.add(j)
+            j += 1
+        depth, opened = 0, False
+        while j < len(lines):
+            code = code_of(lines[j])
+            if not opened and code.lstrip().startswith('}'):
+                break
+            block.add(j)
+            depth += code.count('{') - code.count('}')
+            opened = opened or '{' in code
+            if (opened and depth <= 0) or (not opened and ';' in code):
+                break
+            j += 1
+        marked |= block
+        i = j + 1
+    return {n + 1 for n in marked}
+
+
+def save_baseline(figures, detail, universe, deprecated):
+    import datetime
+    data = {
+        'why': 'El CSS propio solo baja: lo que el tema ya declara no se pisa sin motivo, y lo que no se usa sale (H163, P288 a). '
+               'Nada frena que el censo crezca si es solo una foto.',
+        'medido': {
+            'metodo': 'bin/censo-scss --guardar-base: el CSS compilado por gulp sass-all y su .css.map; por CLASE distinta; '
+                      'clases_propias = VIVA + SIN USO LITERAL (cambiar de cubo no es CSS nuevo); dead_rules son las reglas '
+                      'distintas (origen y selector) que no pueden casar; lines_total, las líneas de los .scss de git ls-files '
+                      '--cached --others --exclude-standard (lo versionado y lo nuevo sin ignorar). dead_rules y lines_total '
+                      'sin lo marcado @en-desuso (el comentario y el bloque de debajo), que se borra en la 11.0.0 y va en '
+                      'en_desuso_sin_trinquete.',
+            'universo': universe,
+            'fecha': datetime.date.today().isoformat(),
+        },
+        'cifras': figures,
+        'detalle_sin_trinquete': detail,
+        'en_desuso_sin_trinquete': deprecated,
+    }
+    with open(BASELINE, 'w', encoding='utf-8', newline='\n') as handle:
+        json.dump(data, handle, ensure_ascii=False, indent=4)
+        handle.write('\n')
+    print('censo-scss ejecutado: línea base escrita en ' + BASELINE + ': ' + json.dumps(figures, ensure_ascii=False))
+    return 0
+
+
+def ratchet(figures, path):
+    try:
+        base = json.load(open(path, encoding='utf-8'))['cifras']
+        missing = [k for k in RATCHET_KEYS if not isinstance(base.get(k), int)]
+    except (OSError, ValueError, KeyError, TypeError):
+        base, missing = None, list(RATCHET_KEYS)
+    if base is None or missing:
+        print(f'TRINQUETE ROTO: {path} no trae cifras.{", cifras.".join(missing)}. SIN LÍNEA BASE NO HAY TRINQUETE.')
+        return 1
+    up = [k for k in RATCHET_KEYS if figures[k] > base[k]]
+    down = [k for k in RATCHET_KEYS if figures[k] < base[k]]
+    shown = ', '.join(f'{k} {base[k]} → {figures[k]}' for k in RATCHET_KEYS)
+    if up:
+        print('TRINQUETE ROTO: el censo de SCSS crece: ' + ', '.join(f'{k} {base[k]} → {figures[k]}' for k in up))
+        print('    o el cambio quita lo que pisa al tema o lo que no se usa, o la subida se justifica y la línea base se rehace con su motivo')
+        return 1
+    if down:
+        print('TRINQUETE: el censo de SCSS baja (' + shown + '): regenera la línea base con bin/censo-scss --guardar-base.')
+        return 0
+    print('TRINQUETE: el censo de SCSS (' + shown + '), igual que la línea base.')
     return 0
 
 

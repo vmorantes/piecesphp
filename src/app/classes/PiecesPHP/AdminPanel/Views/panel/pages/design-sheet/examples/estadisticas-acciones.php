@@ -1,17 +1,18 @@
 <?php
-//Lo que se hace desde un tablero. Sin permiso, `not-allowed`: se ve apagada y no lleva a ningún sitio.
+//Lo que se hace desde un tablero: el acceso directo del tema (la tarjeta entera es el enlace). Sin permiso, la tarjeta
+//apagada del tema (`ui disabled card`) y sin enlace.
 ob_start();
-$this->helpController->_render('panel/built-in/statistics/action-card.php', [
-    'url' => '#',
-    'icon' => 'plus square outline',
+$this->helpController->_render('panel/built-in/statistics/statistic-card.php', [
     'title' => __($langGroup, 'Nueva publicación'),
-    'description' => __($langGroup, 'Escribir y programar una publicación.'),
+    'figure' => ['url' => '#', 'description' => __($langGroup, 'Escribir y programar una publicación.')],
 ]);
-$this->helpController->_render('panel/built-in/statistics/action-card.php', [
-    'icon' => 'file alternate outline',
-    'title' => __($langGroup, 'Exportar el informe'),
-    'modifiers' => ['tall', 'horizontal-center', 'not-allowed'],
-]);
+?>
+<div class="ui disabled statistic card" aria-disabled="true">
+    <div class="content">
+        <div class="header"><?= escape_html(__($langGroup, 'Exportar el informe')); ?></div>
+    </div>
+</div>
+<?php
 $this->helpController->_render('panel/built-in/statistics/statistics-section.php', [
     'content' => (string) ob_get_clean(),
 ]);
