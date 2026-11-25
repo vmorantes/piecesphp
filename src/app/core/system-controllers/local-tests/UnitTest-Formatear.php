@@ -37,14 +37,15 @@ CliActions::make('unit-tests:core/formatear', function ($args) {
         $check(false, '00 la raíz del repositorio existe');
         return $balance();
     }
-    $correr = function (string $argumentos) use ($raiz): array {
+    $correr = function (string $argumentos, ?string $raizFormato = null) use ($raiz): array {
         $salida = [];
         $codigo = 0;
+        $entorno = $raizFormato !== null ? 'PCSPHP_FORMAT_ROOT=' . escapeshellarg($raizFormato) . ' ' : '';
         //RETORNO-IGNORADO: la salida entera llega por $salida; la última línea que devuelve exec() no aporta.
-        exec('cd ' . escapeshellarg($raiz) . " && bin/formatear {$argumentos} 2>&1", $salida, $codigo);
+        exec('cd ' . escapeshellarg($raiz) . " && {$entorno}bin/formatear {$argumentos} 2>&1", $salida, $codigo);
         return [$codigo, implode("\n", $salida)];
     };
-    $prefijo = 'zz-prueba-formatear-' . bin2hex(random_bytes(3));
+    $prefijo = 'zz-prueba-formatear-' . getmypid() . '-' . bin2hex(random_bytes(3));
     //Dentro del universo: nuevo, sin versionar y no ignorado. Fuera: bin/tools/ (de terceros) y un .min.js.
     $carpeta = "{$raiz}/src/app/{$prefijo}";
     $fuera = "{$raiz}/bin/tools/{$prefijo}.php";
@@ -59,6 +60,16 @@ CliActions::make('unit-tests:core/formatear', function ($args) {
         $rutas[$extension] = "{$carpeta}/zz.{$extension}";
     }
     $minificado = "{$carpeta}/zz.min.js";
+    //Lo que no es nuestro: files/design/ y los estáticos de un sitio importado (con pcs.json); los de uno sin pcs.json, sí.
+    //En un repositorio git temporal propio (PCSPHP_FORMAT_ROOT): una suite en paralelo no ve estos pcs.json ni files/design/.
+    $raizAjena = sys_get_temp_dir() . "/{$prefijo}-raiz";
+    $enDiseno = "{$raizAjena}/files/design/{$prefijo}/zz.css";
+    $vistaImportado = "{$raizAjena}/src/app/view/{$prefijo}";
+    $estaticosImportado = "{$raizAjena}/src/statics/{$prefijo}";
+    $estaticosSinManifiesto = "{$raizAjena}/src/statics/{$prefijo}-sin";
+    //Un pcs.json que git ignora (por un .gitignore propio de la vista) no hace importado al sitio: lo decide git, no el disco.
+    $vistaIgnorado = "{$raizAjena}/src/app/view/{$prefijo}-ign";
+    $estaticosIgnorado = "{$raizAjena}/src/statics/{$prefijo}-ign";
     //Los siete defectos de phpfmt y js-beautify que corrige bin/formatear (JBP), cada uno en su archivo.
     $defectos = [
         'B1' => ['zz-b1.php', "<?php\nfunction zzB1(?\\DateTime \$a, ?string \$b = null): ?\\DateTime\n{\n    return \$a;\n}\n"],
@@ -209,6 +220,22 @@ CliActions::make('unit-tests:core/formatear', function ($args) {
         $check(count($lista) > 1000 && $ajenos === [] && !in_array('src/statics/core/js/helpers-lib/UtilPieces.js', $lista, true), 'b3 el universo no tiene terceros, minificados ni lo compilado (UtilPieces.js)', implode(', ', array_slice($ajenos, 0, 5)));
 
         echoTerminal('');
+        echoTerminal('[f] Fuera lo que no es nuestro: files/design/ y los estáticos de un sitio importado');
+        $estadoGit = 1;
+        $salidaGit = [];
+        $bancoAjeno = mkdir($raizAjena, 0700) && exec('git -C ' . escapeshellarg($raizAjena) . ' init -q 2>&1', $salidaGit, $estadoGit) !== false && $estadoGit === 0
+            && mkdir(dirname($enDiseno), 0775, true) && mkdir($vistaImportado, 0775, true) && mkdir($estaticosImportado, 0775, true) && mkdir($estaticosSinManifiesto, 0775, true)
+            && file_put_contents($enDiseno, $mal['css']) !== false && file_put_contents("{$vistaImportado}/pcs.json", "{}\n") !== false
+            && file_put_contents("{$estaticosImportado}/zz.css", $mal['css']) !== false && file_put_contents("{$estaticosSinManifiesto}/zz.css", $mal['css']) !== false
+            && mkdir($vistaIgnorado, 0775, true) && mkdir($estaticosIgnorado, 0775, true) && file_put_contents("{$vistaIgnorado}/.gitignore", "pcs.json\n") !== false
+            && file_put_contents("{$vistaIgnorado}/pcs.json", "{}\n") !== false && file_put_contents("{$estaticosIgnorado}/zz.css", $mal['css']) !== false;
+        [$codigo, $salida] = $correr('--check ' . escapeshellarg($enDiseno) . ' ' . escapeshellarg("{$estaticosImportado}/zz.css") . ' ' . escapeshellarg("{$estaticosSinManifiesto}/zz.css") . ' ' . escapeshellarg("{$estaticosIgnorado}/zz.css"), $raizAjena);
+        $check($bancoAjeno && str_contains($salida, "FUERA      files/design/{$prefijo}/zz.css"), 'f1 un archivo bajo files/design/ es FUERA', "rc {$codigo} · " . mb_substr($salida, -300));
+        $check($bancoAjeno && str_contains($salida, "FUERA      src/statics/{$prefijo}/zz.css"), 'f2 uno bajo src/statics/<sitio>/ de un sitio con pcs.json sin preparar y no ignorado (--others) es FUERA', "rc {$codigo} · " . mb_substr($salida, -300));
+        $check($bancoAjeno && str_contains($salida, "CAMBIARÍA  src/statics/{$prefijo}-sin/zz.css"), 'f3 y uno de un sitio sin pcs.json sigue en el universo', "rc {$codigo} · " . mb_substr($salida, -300));
+        $check($bancoAjeno && str_contains($salida, "CAMBIARÍA  src/statics/{$prefijo}-ign/zz.css"), 'f4 y uno de un sitio cuyo pcs.json ignora git también sigue en el universo', "rc {$codigo} · " . mb_substr($salida, -300));
+
+        echoTerminal('');
         echoTerminal('[c] Lo fijado: TypeScript, y el guion y .vscode/settings.json diciendo lo mismo');
         $paquete = json_decode((string) file_get_contents("{$raiz}/package.json"), true);
         $instalado = json_decode((string) @file_get_contents("{$raiz}/node_modules/typescript/package.json"), true);
@@ -253,8 +280,18 @@ CliActions::make('unit-tests:core/formatear', function ($args) {
             //RETORNO-IGNORADO: lo comprueba z1.
             rmdir($carpeta);
         }
+        //Solo la raíz temporal de esta corrida, con su .git: nada fuera de sys_get_temp_dir().
+        $ajenaLimpia = true;
+        if (is_dir($raizAjena) && str_starts_with($raizAjena, sys_get_temp_dir() . '/zz-prueba-formatear-')) {
+            $iterador = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($raizAjena, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+            foreach ($iterador as $elemento) {
+                $ajenaLimpia = ($elemento->isDir() && !$elemento->isLink() ? rmdir($elemento->getPathname()) : unlink($elemento->getPathname())) && $ajenaLimpia;
+            }
+            $ajenaLimpia = rmdir($raizAjena) && $ajenaLimpia;
+        }
         clearstatcache();
         $check(!file_exists($carpeta) && !file_exists($fuera), 'z1 no quedan los archivos de la prueba');
+        $check($ajenaLimpia && !file_exists($raizAjena), 'z2 ni la raíz git temporal de [f] (files/design/, app/view/ y statics/)', $raizAjena);
     }
 
     return $balance();

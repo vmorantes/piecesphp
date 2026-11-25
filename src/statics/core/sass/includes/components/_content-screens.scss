@@ -3,24 +3,6 @@
 //Colores de esta hoja: el valor es el de antes, literal; cambiarlo cambia su aspecto.
 $-stackedCellLabelColor: rgba(0, 0, 0, 0.6);
 
-//-------- La paginación de una tabla de contenido (su contenedor lo marca main.js, contentTablesStackable()): en el móvil
-//envuelve y no lleva «Primero» ni «Último», que la sacaban de su caja.
-.content-table-container {
-
-    :is(.#{$globalClassPcs}, .admin-shell) & .ui.pagination.menu {
-        @media only screen and (max-width: 767.98px) {
-            flex-wrap: wrap;
-        }
-    }
-
-    :is(.#{$globalClassPcs}, .admin-shell) & .dt-paging-button.first,
-    :is(.#{$globalClassPcs}, .admin-shell) & .dt-paging-button.last {
-        @media only screen and (max-width: 767.98px) {
-            display: none;
-        }
-    }
-}
-
 //-------- La tabla de un listado de contenido: en el móvil Fomantic apila cada fila, y también la cabecera, que sobra.
 //Solo si se apila: DataTables marca la suya `unstackable` y sin cabecera quedaría una tabla sin títulos.
 //`!important` porque el apilado de Fomantic pone `display: block !important` en la cabecera.

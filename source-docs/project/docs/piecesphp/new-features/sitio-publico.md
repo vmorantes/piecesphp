@@ -75,6 +75,8 @@ paquete/
 ├── CHECK.html            el comprobador del diseñador
 ├── GUIDE.html            la guía del diseñador
 ├── pcs.json              el manifiesto: nombre, versión del formato y huellas
+├── DESIGN.md             las reglas del diseño, del diseñador (si las trae)
+├── PROJECT.md            las reglas del proyecto y lo pendiente (solo de ida; no se toca)
 └── AGENTS.md, CLAUDE.md, .agents/, .claude/, .cursor/   instrucciones para su asistente
 ```
 
@@ -88,8 +90,10 @@ Los nombres de sitio, páginas, partes y recursos son **minúsculas, números y 
 | `site/parts/<parte>.html` | `app/view/<sitio>/parts/<parte>.html` |
 | `site/assets/…` | `statics/<sitio>/…` (misma estructura) |
 | `pcs.json` | Se lee para comprobar; en el proyecto se escribe uno nuevo en `app/view/<sitio>/pcs.json` |
+| `DESIGN.md` (raíz del paquete, si existe) | `app/view/<sitio>/DESIGN.md`, copiado byte a byte: son las notas del diseñador |
 
-**Lo que no entra**: `CHECK.html`, `GUIDE.html`, el andamiaje del asistente (`AGENTS.md`, `CLAUDE.md`, `.agents/`,
+**Lo que no entra**: `CHECK.html`, `GUIDE.html`, `PROJECT.md` (las reglas del proyecto, que solo viajan hacia el
+diseñador), el andamiaje del asistente (`AGENTS.md`, `CLAUDE.md`, `.agents/`,
 `.claude/`, `.cursor/`), `site/.pcs/`, `site/data/` (la exportación la regenera de los recursos registrados) y
 `site/parts/parts.js` (el paquete de partes y la lista de recursos que lee la vista previa con doble clic). Un archivo suelto en la raíz de `site/` que no sea `.html`, o una carpeta que no sea `parts/`,
 `assets/` ni `data/`, no se importa y la orden lo avisa.
@@ -170,6 +174,26 @@ Ejemplos mínimos (los de `kit/example/site/` del framework, que se ven funciona
 modos llegara al servidor (una marca cuyo registro cambió después), se pinta **vacía**, se anota en el registro de errores
 y la página sigue: una marca rota no tumba el sitio.
 
+**Lo que finge funcionar, las direcciones ajenas y los bloques copiados** (ADR 0087). `CHECK.html` avisa, además, de:
+
+- un enlace que no lleva a ninguna parte (`href="#"`, `href=""`, `javascript:` o sin `href`, salvo un ancla con `id` o
+  `name`), una imagen sin `alt` y un formulario que no envía (sin `action`, o con `""` o `#`, fuera de `<pcs-form>`);
+- un `<div>` o un `<span>` que finge ser un botón (con `role="button"`, si no lleva `tabindex`; sin `role="button"`, si
+  tiene una clase `btn`, `button` o `w-button`) o que parece un campo sin serlo (una clase `search`, `field` o `input`, o
+  que empiece por `search-`, `field-` o `input-`, sin `<input>`, `<select>` ni `<textarea>` dentro);
+- un recurso (imagen, hoja de estilo, script, fuente, vídeo) que se carga desde un dominio que no está en la lista de
+  servicios conocidos (`knownHosts` en `src/app/classes/PiecesPHP/PublicSite/kit/pcs/rules.json`: fuentes, vídeo y
+  mapas); los enlaces a otras webs no avisan. Se miran los atributos de dirección, los `style` y `<style>`, el JavaScript
+  en línea y los `.css` y `.js` de `site/assets/`, sin sus comentarios. **Es un error** si el final de la ruta de la
+  dirección coincide con un archivo del paquete, desde `site/` o `site/assets/` (`…/img/logo.png` ↔ `assets/img/logo.png`):
+  es una ruta local disfrazada, y en producción el sitio dependería del servidor del diseñador; el aviso dice la ruta
+  local que hay que poner. Si solo coincide el nombre del archivo, es un aviso;
+- un bloque de 300 caracteres o más (sin contar los espacios) que aparece igual en tres páginas o más fuera de
+  `<pcs-part>`: parece una parte.
+
+La importación avisa de los recursos ajenos, de las rutas disfrazadas y de los bloques copiados con los mismos criterios,
+sin parar (lo que finge solo lo mira `CHECK.html`): el comprobador del diseñador es donde se corrigen.
+
 **Lo que el framework trae registrado de fábrica:**
 
 - Recurso `publications`, con los campos `title`, `excerpt`, `url`, `image`, `date` y `category`: las publicaciones que ve
@@ -221,21 +245,42 @@ Al terminar, si `$config['public_site']` no es ese sitio, la orden recuerda la l
 ## La orden de exportar
 
 ```bash
-bin/cli public-site-export site=<nombre> destination=<ruta> [zip=yes]
+bin/cli public-site-export (site=<nombre> | from=<carpeta> [site=<nombre>]) destination=<ruta> [project-file=<ruta>] [zip=yes]
 ```
 
-Arma desde el proyecto la carpeta del diseñador, lista para que siga trabajando: sus páginas, partes y `assets/`; los
+Arma la carpeta del diseñador, lista para que siga trabajando: sus páginas, partes y `assets/`; los
 `data/<recurso>.js` de **todos los recursos registrados** (con los campos y filas de ejemplo de cada contrato); el lector
-de la vista previa; `CHECK.html`, `GUIDE.html`, `pcs.json` con las huellas y el andamiaje de su asistente.
+de la vista previa; `CHECK.html`, `GUIDE.html`, `pcs.json` con las huellas, el andamiaje de su asistente, `DESIGN.md` si
+el origen lo trae y `PROJECT.md` (las reglas del proyecto).
 
-- `destination=` es una carpeta **nueva**: no puede existir, su carpeta padre sí, y no puede quedar dentro del proyecto.
-  No se sobrescribe nada.
+**De dónde sale el sitio** (uno de estos tres; `from=` y un sitio importado con el mismo nombre no se combinan: la orden
+falla):
+
+1. `from=<carpeta>`: una carpeta con `site/` y `pcs.json`, relativa a la raíz del repositorio (por ejemplo
+   `files/design/adaptado`) o absoluta. Pasa las mismas comprobaciones que una importación, y no hace falta que el sitio
+   esté importado. El nombre sale de `site=` o, si falta, del `name` de su `pcs.json`.
+2. `site=<nombre>` de un sitio importado: sale del proyecto.
+3. `site=<nombre>` que no está importado y sin `from=`: sale del sitio de ejemplo del kit, con ese nombre (la orden lo
+   dice).
+
+**Adónde va:**
+
+- `destination=` es una carpeta **nueva**: no puede existir y su carpeta padre sí. No se sobrescribe nada. Una ruta
+  relativa se resuelve contra la raíz del repositorio.
+- **Fuera del repositorio**: el paquete entero para el diseñador. Lleva `PROJECT.md`, que sale de `project-file=<ruta>` (un
+  archivo dentro del repositorio; por omisión, `files/design/PROJECT.md`). **La orden falla sin escribir nada** si ese
+  archivo no existe, es un enlace, está fuera del repositorio o no tiene una línea exactamente igual a
+  `## Pendientes conocidos`. El paquete deja `PROJECT.md` protegido: los permisos que trae el paquete para la herramienta
+  de agentes que los admite le niegan editarlo, y `CHECK.html` da un error si cambia. `DESIGN.md`, en cambio, es del diseñador y se edita.
+- **Dentro de `files/design/`**: solo el sitio (`site/` con `.pcs/`, `pcs.json` y `DESIGN.md` si el origen lo trae), sin el kit ni
+  `CHECK.html`, `GUIDE.html` o `PROJECT.md`. Con `zip=yes` ahí, da error.
+- En cualquier otro sitio del repositorio, la orden no exporta.
 - `zip=yes` deja además `<sitio>-<AAAA-MM-DD>.zip` junto a la carpeta de destino (necesita la extensión `zip` de PHP; si el
   `.zip` ya existe, falla).
-- El sitio tiene que estar importado (con su `pcs.json`).
-- **Falla, y no deja nada**, si falta una pieza del kit (`src/app/classes/PiecesPHP/PublicSite/kit/`: comprobador, guía,
-  lector, skills, subagentes, reglas de Cursor) o si el mapa opcional del kit, `package-map.json`, no tiene la forma
-  esperada o apunta fuera de lo permitido.
+- **Falla, y no deja nada**, si falta el lector de la vista previa del kit (en cualquier destino) o, al exportar fuera del
+  repositorio, otra pieza del kit (`src/app/classes/PiecesPHP/PublicSite/kit/`: comprobador, guía, skills, subagentes,
+  reglas de Cursor) o el mapa opcional del kit, `package-map.json`, no tiene la forma esperada o apunta fuera de lo
+  permitido.
 - **Lista blanca del andamiaje.** El kit solo puede dejar en el paquete, fuera de `site/`: `AGENTS.md`, `CLAUDE.md`,
   `.agents/skills/designer/*`, `.agents/skills/adapt-design/*`, `.claude/skills/designer/*`,
   `.claude/skills/adapt-design/*`, los tres subagentes (`design-explorer`, `design-adapter`, `design-reviewer`) en
@@ -243,7 +288,11 @@ de la vista previa; `CHECK.html`, `GUIDE.html`, `pcs.json` con las huellas y el 
   destino en el mapa hace fallar la exportación.
 - Antes de dejar el paquete pasa por la comprobación de rastro de `bin/entregar-al-cliente` (necesita `bash` y `python3`):
   si queda algo de la metodología del proyecto, la orden falla y enseña la salida. Sin esa comprobación presente, no se
-  exporta.
+  exporta. **`DESIGN.md` y `PROJECT.md` van exentos**: lo que escribas en `PROJECT.md` viaja sin revisar, así que no
+  nombres en él la metodología ni las herramientas del proyecto.
+
+`PROJECT.md` lleva dos secciones obligatorias, «Censo funcional» y «Pendientes conocidos». Hoy la orden solo comprueba la
+segunda; escribe las dos.
 
 Importar y exportar sin cambios de por medio no cambia ningún archivo: los archivos generados se escriben con los mismos
 bytes en PHP y en el navegador.
@@ -282,8 +331,8 @@ public static function routes(RouteGroup $group)
     // Un recurso de lista: <pcs-list resource="team"> … {{name}} {{photo}} {{profile}} …
     ResourceRegistry::register(new ResourceContract('team', [
         'name' => ['type' => ResourceContract::TYPE_TEXT, 'example' => 'Nombre y apellido'],
-        'photo' => ['type' => ResourceContract::TYPE_IMAGE, 'example' => 'https://placehold.co/300x300'],
-        'profile' => ['type' => ResourceContract::TYPE_URL, 'example' => '#'],
+        'photo' => ['type' => ResourceContract::TYPE_IMAGE, 'example' => '.pcs/example.svg'],
+        'profile' => ['type' => ResourceContract::TYPE_URL, 'example' => 'index.html'],
     ], function (int $count, MarkContext $context): array {
         // En un proyecto real: consulta tu mapper y devuelve solo lo que el público puede ver.
         return array_slice([
@@ -335,6 +384,53 @@ pinta una de las siete de fábrica; con `remove()`, se quita.
 
 De los campos y los ejemplos sale el `data/<recurso>.js` de la exportación: **un dato nuevo es el único trabajo de
 programación que pide un cambio de diseño.** El diseñador recibe los campos al exportar de nuevo.
+
+Los `example` de los datos de ejemplo no fingen: una `url` apunta a una página que existe en la vista previa
+(`index.html`) y una `image` a un archivo que viaja con ella (`.pcs/example.svg`, que trae el lector). Los de fábrica de
+`publications` son así.
+
+**Un recurso estimado** (adaptar antes de que exista el módulo que da los datos). Si el diseño ya pide una lista y el
+módulo todavía no está, se registra el contrato con `ResourceContract::estimated($name, $fields, $examples)`: lleva
+sus campos y sus ejemplos, pero su lector **no devuelve filas**. La importación no falla (el recurso existe), la vista
+previa se ve con los ejemplos y el sitio servido pinta la lista vacía. Cuando el módulo exista, se sustituye con
+`ResourceRegistry::replace()` por un contrato normal. Los tres argumentos son obligatorios; `$examples` son las filas de
+ejemplo (con `[]` se hacen tres a partir de los `example` de los campos, como en un contrato normal). Declara **al menos
+`count` ejemplos distintos**, para que el «cargar más» del diseño no repita filas.
+
+```php
+ResourceRegistry::register(ResourceContract::estimated('team', [
+    'name' => ['type' => ResourceContract::TYPE_TEXT, 'example' => 'Nombre y apellido'],
+    'photo' => ['type' => ResourceContract::TYPE_IMAGE, 'example' => '.pcs/example.svg'],
+    'profile' => ['type' => ResourceContract::TYPE_URL, 'example' => 'index.html'],
+], [
+    ['name' => 'Ana Pérez', 'photo' => '.pcs/example.svg', 'profile' => 'index.html'],
+    ['name' => 'Luis Gómez', 'photo' => '.pcs/example.svg', 'profile' => 'index.html'],
+    ['name' => 'Marta Ruiz', 'photo' => '.pcs/example.svg', 'profile' => 'index.html'],
+]));
+```
+
+`$contract->isEstimated()` dice si un contrato lo es; un contrato con lector propio, no.
+
+**Avisos del sistema.** Mientras haya un sitio público activo (`$config['public_site']`) y algún recurso registrado sea
+estimado, Avisos del sistema muestra (gravedad «atención», como aviso flotante) el texto: «El sitio
+público usa datos estimados: `<recursos separados por comas>`. En el sitio servido esas listas salen vacías hasta que el
+módulo registre su lector real.» Lo ven los usuarios root y administrador general; ocultarlo es de root, y cerrar el
+aviso flotante lo aparta unos días. Un recurso estimado nuevo lo vuelve a enseñar. Sin sitio activo, o sin recursos
+estimados, no hay aviso.
+
+### La vista previa y las listas vacías
+
+Dos formas de ver una lista sin filas en la vista previa, para comprobar el diseño del estado vacío:
+
+- `?pcs-vacio=<recurso>` en la dirección de la página (varios, separados por coma: `?pcs-vacio=publications,team`)
+  pinta esas listas con cero filas. Sin valor (`?pcs-vacio`), pinta **todas**.
+- Un `data/<recurso>.js` con `items: []` también da cero filas, pero el proyecto no lo genera así (un contrato sin
+  ejemplos fabrica tres filas) y la exportación regenera `site/data/`: para probar, `?pcs-vacio`. Con `items` ausente se
+  toma una fila con los `example` de los campos; en los demás casos, la vista previa repite las filas que haya, en
+  orden, hasta `count`.
+
+`count` es el **máximo** de filas que pinta una lista. La paginación, el «cargar más» y la búsqueda de una lista los
+hace el JavaScript del diseño sobre las filas ya pintadas, igual en la vista previa y en el sitio servido.
 
 ### Una acción de formulario
 

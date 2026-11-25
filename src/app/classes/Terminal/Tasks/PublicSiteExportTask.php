@@ -36,11 +36,20 @@ class PublicSiteExportTask extends TerminalTaskAbstract
             $startRoute = mb_substr($startRoute, 0, mb_strlen($startRoute) - 1);
         }
         $this->description = new StringArray([
-            "Arma la carpeta del diseñador de un sitio público importado, lista para seguir trabajando.\r\n",
-            "\tParámetros:\r\n",
-            "\t  site=<nombre>        El sitio\r\n",
-            "\t  destination=<ruta>   La carpeta que se crea (no puede existir ni quedar dentro del proyecto)\r\n",
-            "\t  zip=yes              Además, <sitio>-<AAAA-MM-DD>.zip junto al destino\r\n",
+            "Arma la carpeta del diseñador del sitio público, lista para seguir trabajando, o deja solo el sitio en files/design/.\r\n",
+            "\tOrigen (uno de los tres; from= con un sitio ya importado de ese nombre no se combina: falla):\r\n",
+            "\t  from=<carpeta>       Una carpeta con site/ y pcs.json (relativa a la raíz o absoluta), p. ej. files/design/adaptado;\r\n",
+            "\t                       no hace falta un sitio importado. site= da el nombre (si falta, el de su pcs.json)\r\n",
+            "\t  site=<nombre>        Un sitio importado\r\n",
+            "\t  site=<nombre>        Si no está importado y no hay from: el sitio de ejemplo del kit, con ese nombre\r\n",
+            "\tDestino:\r\n",
+            "\t  destination=<ruta>   La carpeta que se crea (relativa a la raíz o absoluta); no puede existir. Fuera del proyecto: el paquete entero del\r\n",
+            "\t                       diseñador (con DESIGN.md y PROJECT.md). Dentro de files/design/: solo site/, pcs.json y\r\n",
+            "\t                       DESIGN.md. En otro sitio del proyecto, no se exporta\r\n",
+            "\tOpciones:\r\n",
+            "\t  project-file=<ruta>  Las reglas del proyecto para el paquete (por omisión files/design/PROJECT.md), dentro del\r\n",
+            "\t                       repositorio. Fuera del proyecto ese archivo tiene que existir, con la línea «## Pendientes conocidos»\r\n",
+            "\t  zip=yes              Además, <sitio>-<AAAA-MM-DD>.zip junto al destino (solo fuera del proyecto)\r\n",
         ]);
         $this->route = "{$startRoute}/public-site-export[/]";
         $this->controller = self::class . '::main';
@@ -58,11 +67,23 @@ class PublicSiteExportTask extends TerminalTaskAbstract
         $terminal = TerminalData::instance();
         $site = $terminal->getArgument('site', '');
         $destination = $terminal->getArgument('destination', '');
+        $from = $terminal->getArgument('from', '');
+        $projectFile = $terminal->getArgument('project-file', '');
+        $from = is_string($from) && $from !== '' ? $from : null;
+        $projectFile = is_string($projectFile) && $projectFile !== '' ? $projectFile : null;
+        //Con from= y sin site=, el nombre que trae la carpeta en su pcs.json; sin él, «faltan parámetros» no diría qué falta.
+        if ((!is_string($site) || $site === '') && $from !== null) {
+            $site = self::siteFromFolder($from, dirname(rtrim(basepath(), '/')));
+            if ($site === null) {
+                echoTerminal("\e[31mERROR:\e[39m la carpeta {$from} no tiene pcs.json (o no dice su nombre): indica site=<nombre>");
+                exit(1);
+            }
+        }
         if (!is_string($site) || $site === '' || !is_string($destination) || $destination === '') {
-            echoTerminal("\e[31mERROR:\e[39m faltan parámetros. Uso: bin/cli public-site-export site=<nombre> destination=<ruta> [zip=yes]");
+            echoTerminal("\e[31mERROR:\e[39m faltan parámetros. Uso: bin/cli public-site-export (site=<nombre> | from=<carpeta> [site=<nombre>]) destination=<ruta> [project-file=<ruta>] [zip=yes]");
             exit(1);
         }
-        $result = (new SiteExporter($site, $destination, $terminal->getArgument('zip', 'no') === 'yes'))->export();
+        $result = (new SiteExporter($site, $destination, $terminal->getArgument('zip', 'no') === 'yes', from: $from, projectFile: $projectFile))->export();
         PublicSiteImportTask::printProblems($result['problems']);
         if ($result['trace'] !== '') {
             echoTerminal($result['trace']);
@@ -71,11 +92,22 @@ class PublicSiteExportTask extends TerminalTaskAbstract
             echoTerminal("\e[31mNo se ha exportado nada.\e[39m");
             exit(1);
         }
-        echoTerminal("\e[32mExportado:\e[39m {$destination} ({$result['files']} archivos).");
+        echoTerminal("\e[32mExportado:\e[39m " . ($result['destination'] ?? $destination) . " ({$result['files']} archivos), desde {$result['origin']}.");
         if ($result['zip'] !== null) {
             echoTerminal("Zip: {$result['zip']}");
         }
         exit(0);
+    }
+
+    /**
+     * El nombre del sitio que dice el pcs.json de `$from` (relativa a `$root` o absoluta); null si no lo hay o no trae `name`.
+     */
+    public static function siteFromFolder(string $from, string $root): ?string
+    {
+        $folder = str_starts_with($from, '/') ? $from : rtrim($root, '/') . '/' . $from;
+        $manifest = is_file("{$folder}/pcs.json") ? json_decode((string) file_get_contents("{$folder}/pcs.json"), true) : null;
+        $name = is_array($manifest) ? ($manifest['name'] ?? null) : null;
+        return is_string($name) && $name !== '' ? $name : null;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

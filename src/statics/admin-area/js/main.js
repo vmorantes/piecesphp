@@ -395,7 +395,7 @@ function contentTablesStackable() {
 		if (!table.is('table.content-table')) {
 			return
 		}
-		//La paginación del contenedor de DataTables, para que envuelva en el móvil (_content-screens.scss).
+		//Gancho para el CSS de un proyecto: el framework no le da estilo (la paginación la envuelve el tema).
 		table.closest('.dt-container').addClass('content-table-container')
 		const actions = table.find('> tbody > tr > td:last-child:has(.row-actions)')
 		if (actions.length > 0) {

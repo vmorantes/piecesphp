@@ -262,13 +262,45 @@
 		element.replaceWith(document.createTextNode(element.textContent))
 	}
 
+	//?pcs-vacio=<recurso>[,<recurso>] en la dirección pinta esas listas sin filas; sin valor, todas.
+	function emptyRequested(resource, search) {
+		var pairs = String(search || '').replace(/^\?/, '').split('&')
+		for (var i = 0; i < pairs.length; i++) {
+			var equals = pairs[i].indexOf('=')
+			if ((equals === -1 ? pairs[i] : pairs[i].slice(0, equals)) !== 'pcs-vacio') {
+				continue
+			}
+			var value = equals === -1 ? '' : pairs[i].slice(equals + 1).replace(/\+/g, ' ')
+			try {
+				value = decodeURIComponent(value)
+			} catch (error) { }
+			if (value.trim() === '') {
+				return true
+			}
+			var names = value.split(',')
+			for (var j = 0; j < names.length; j++) {
+				if (names[j].trim() === resource) {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
 	function exampleItems(resource, count) {
 		var data = (window.PCS_DATA || {})[resource]
 		if (!data) {
 			return null
 		}
 		var fields = data.fields || {}
-		var items = Array.isArray(data.items) && data.items.length > 0 ? data.items : null
+		//items: [] declarado es el estado vacío, como ?pcs-vacio: cero filas, no una fabricada con los example.
+		if ((Array.isArray(data.items) && data.items.length === 0) || emptyRequested(resource, window.location ? window.location.search : '')) {
+			return {
+				fields: fields,
+				items: [],
+			}
+		}
+		var items = Array.isArray(data.items) ? data.items : null
 		if (!items) {
 			var example = {}
 			for (var field in fields) {

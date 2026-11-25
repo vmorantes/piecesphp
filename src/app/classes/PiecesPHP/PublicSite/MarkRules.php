@@ -66,6 +66,23 @@ final class MarkRules
     }
 
     /**
+     * Los servicios de fuera que un sitio puede nombrar con una dirección absoluta (rules.json, knownHosts): fuentes, vídeo
+     * y mapas. La misma lista que lee CHECK.html.
+     *
+     * @return string[] Hosts en minúsculas
+     */
+    public static function knownHosts(): array
+    {
+        $hosts = [];
+        foreach ((array) (self::rules()['knownHosts'] ?? []) as $group) {
+            foreach (is_array($group) ? $group : [] as $host) {
+                $hosts[] = strtolower((string) $host);
+            }
+        }
+        return $hosts;
+    }
+
+    /**
      * @return int
      */
     public static function formatVersion(): int

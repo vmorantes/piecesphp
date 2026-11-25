@@ -37,7 +37,7 @@ lleva a donde se arregla y, para root, la columna «Acciones». Algunos avisos s
 
 ## Los avisos que trae el framework
 
-`SystemStatusRoutes::registerCoreAlerts()` registra **21 avisos** (uno de ellos, `new-errors`, por `NewErrorsAlert::register()`). Seis se pueden ocultar; los marca **Ocultable**.
+`SystemStatusRoutes::registerCoreAlerts()` registra **22 avisos** (uno de ellos, `new-errors`, por `NewErrorsAlert::register()`). Siete se pueden ocultar; los marca **Ocultable**.
 
 | Clave | Gravedad | Quién lo ve | Flotante | Cuándo salta | Dónde se arregla |
 | :-- | :-- | :-- | :-- | :-- | :-- |
@@ -62,6 +62,7 @@ lleva a donde se arregla y, para root, la columna «Acciones». Algunos avisos s
 | `mapbox-key-missing` | atención | root y administrador general | sí | No hay llave de MapBox para este entorno: los mapas del panel no cargan. **Ocultable.** | «Llaves de Mapas» |
 | `support-recipients-placeholder` | atención | root | sí | El formulario de soporte envía a una dirección de ejemplo. **Ocultable.** | `$config['support_form_recipients']` en `config.php` |
 | `allowed-hosts-empty` | atención | root | sí | La lista de dominios permitidos está vacía (fuera de local). **Ocultable.** | `$config['allowed_hosts']` en `config.php` |
+| `public-site-estimated-resources` | atención | root y administrador general | sí | Hay un sitio público activo y algún recurso registrado es un contrato estimado (`ResourceContract::estimated()`): en el sitio servido sus listas salen vacías. **Ocultable**; un recurso estimado nuevo lo vuelve a enseñar. | El módulo registra su lector real y sustituye al estimado |
 
 «Gravedad» sigue el campo `severity` del código (`DANGER` = grave, `WARNING` = atención, `INFO` = información). Los
 avisos de correo no se pueden ocultar: un fallo de correo que se puede silenciar vuelve a ser un fallo que nadie ve.

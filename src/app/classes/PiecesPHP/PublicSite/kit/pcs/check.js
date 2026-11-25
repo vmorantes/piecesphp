@@ -197,7 +197,11 @@
 				continue
 			}
 			if (RAW.indexOf(tag) !== -1) {
-				var endRaw = text.toLowerCase().indexOf('</' + tag, position)
+				//Sin toLowerCase() sobre el texto entero: una «İ» cambia de longitud y desplazaría el cierre.
+				var rawClose = new RegExp('</' + tag, 'gi')
+				rawClose.lastIndex = position
+				var rawFound = rawClose.exec(text)
+				var endRaw = rawFound ? rawFound.index : -1
 				var stop = endRaw === -1 ? text.length : endRaw
 				element.children.push({ tag: '#text', text: text.slice(position, stop), line: lineAt(position), parent: element, raw: true })
 				var closeEnd = endRaw === -1 ? text.length : text.indexOf('>', endRaw)
@@ -213,6 +217,314 @@
 		return value.replace(/&(amp|lt|gt|quot|#39|apos);/g, function (all, name) {
 			return { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'" }[name]
 		})
+	}
+
+	//─── Lo que finge, las URL ajenas y los bloques copiados (ADR 0087, puntos 4, 8 y 10). Las dos últimas, igual que
+	//SiteLint.php en la importación: misma lista (rules.json), mismo recorrido por texto y blancos solo ASCII.
+	var BUTTON_CLASSES = ['btn', 'button', 'w-button']
+	var FIELD_CLASS = /^(search|field|input)(-|$)/i
+	var LINT_URL_ATTRIBUTES = ['src', 'href', 'srcset', 'data-srcset', 'poster', 'data-src', 'data-bg', 'data-background', 'action', 'formaction']
+	var RESOURCE_RELS = ['stylesheet', 'preload', 'modulepreload', 'prefetch', 'icon', 'apple-touch-icon', 'manifest']
+	var SCRIPT_TYPES = ['', 'text/javascript', 'application/javascript', 'module']
+	var NAMESPACE_HOSTS = ['www.w3.org']
+	var BLANK = /[\t\n\f\r ]+/g
+	var TEXT_URL = /[`'"(][\t\n\f\r ]*((?:https?:)?\/\/(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,})(?::\d+)?[^\t\n\f\r '"`()<>]*)/g
+	var STYLE_URL = /url\([\t\n\f\r ]*['"]?((?:https?:)?\/\/[^'")\t\n\f\r ]+)/gi
+	var BLOCK_MINIMUM = 300
+	var BLOCK_PAGES = 3
+
+	function lintFakes(path, tree, report) {
+		walk(tree, function (node) {
+			if (!node.attrs) {
+				return
+			}
+			var classes = (node.attrs['class'] || '').toLowerCase().split(/\s+/).filter(Boolean)
+			if (node.tag === 'a') {
+				var href = node.attrs.href
+				if (href === undefined) {
+					//Un <a id> o <a name> sin href es un ancla de destino, no un enlace.
+					if (!('id' in node.attrs) && !('name' in node.attrs)) {
+						report('aviso', path, node.line, 'Un enlace sin href no lleva a ninguna parte.', 'Ponle su destino (otra página, una sección con #id o una dirección), o usa <button> si es una acción.')
+					}
+				} else if (/^(#?|javascript:.*)$/i.test(href.replace(/\s+/g, ''))) {
+					report('aviso', path, node.line, 'Un enlace finge: href="' + href.trim() + '" no lleva a ninguna parte.', 'Ponle su destino de verdad (otra página, una sección con #id o una dirección), o usa <button> si es una acción.')
+				}
+			} else if (node.tag === 'img' && !('alt' in node.attrs)) {
+				report('aviso', path, node.line, 'Una imagen sin alt.', 'Ponle un alt que diga qué muestra, o alt="" si es solo adorno.')
+			} else if (node.tag === 'form') {
+				var action = node.attrs.action
+				var inPcsForm = false
+				for (var up = node.parent; up; up = up.parent) {
+					inPcsForm = inPcsForm || up.tag === 'pcs-form'
+				}
+				if (!inPcsForm && (action === undefined || action.trim() === '' || action.trim() === '#')) {
+					report('aviso', path, node.line, 'Un formulario que no envía a ninguna parte.', 'Envuélvelo en <pcs-form action="…"> con la acción que te dé el equipo del proyecto.')
+				}
+			} else if (node.tag === 'div' || node.tag === 'span') {
+				//Con role="button" y tabindex ya es un botón accesible (los menús de Webflow): no finge.
+				var fakeButton = (node.attrs.role || '').toLowerCase() === 'button' ? !('tabindex' in node.attrs) : classes.some(function (name) { return BUTTON_CLASSES.indexOf(name) !== -1 })
+				if (fakeButton) {
+					report('aviso', path, node.line, 'Un <' + node.tag + '> finge ser un botón.', 'Usa <button> para una acción o <a> con su destino para ir a otra página.')
+				} else if (classes.some(function (name) { return FIELD_CLASS.test(name) })) {
+					var real = false
+					walk(node, function (child) {
+						real = real || child.tag === 'input' || child.tag === 'select' || child.tag === 'textarea'
+					})
+					if (!real) {
+						report('aviso', path, node.line, 'Un <' + node.tag + '> parece un campo y no lo es.', 'Pon dentro un <input>, <select> o <textarea> de verdad (y su <label>).')
+					}
+				}
+			}
+		})
+	}
+
+	//Los comentarios, en blanco y con sus saltos (las líneas no se mueven): /* */ en CSS; en JS, además // fuera de cadenas
+	//y de expresiones regulares (una / tras ( , = : [ ! & | ? { } ; o al empezar). Límite: no es un analizador de JS.
+	function withoutComments(text, kind) {
+		var out = ''
+		var quote = ''
+		var previous = ''
+		var blank = function (piece) { return piece.replace(/[^\n]/g, ' ') }
+		for (var i = 0; i < text.length; i++) {
+			var ch = text[i]
+			if (quote !== '') {
+				out += ch
+				if (ch === '\\') {
+					out += i + 1 < text.length ? text[++i] : ''
+				} else if (ch === quote) {
+					quote = ''
+				}
+			} else if (ch === '"' || ch === "'" || (kind === 'js' && ch === '`')) {
+				quote = ch
+				out += ch
+			} else if (kind === 'js' && ch === '/' && text[i + 1] !== '/' && text[i + 1] !== '*' && '(,=:[!&|?{};'.indexOf(previous) !== -1) {
+				var inClass = false
+				out += ch
+				for (i++; i < text.length && text[i] !== '\n'; i++) {
+					out += text[i]
+					if (text[i] === '\\') {
+						out += i + 1 < text.length ? text[++i] : ''
+					} else if (text[i] === '[') {
+						inClass = true
+					} else if (text[i] === ']') {
+						inClass = false
+					} else if (text[i] === '/' && !inClass) {
+						break
+					}
+				}
+				previous = '/'
+				continue
+			} else if (ch === '/' && text[i + 1] === '*') {
+				var close = text.indexOf('*/', i + 2)
+				var stop = close === -1 ? text.length : close + 2
+				out += blank(text.slice(i, stop))
+				i = stop - 1
+			} else if (kind === 'js' && ch === '/' && text[i + 1] === '/') {
+				var newline = text.indexOf('\n', i)
+				var end = newline === -1 ? text.length : newline
+				out += blank(text.slice(i, end))
+				i = end - 1
+			} else {
+				out += ch
+			}
+			if (!/[\t\n\f\r ]/.test(ch)) {
+				previous = ch
+			}
+		}
+		return out
+	}
+
+	function knownHostList(rules) {
+		var known = []
+		var groups = rules && rules.knownHosts && typeof rules.knownHosts === 'object' ? rules.knownHosts : {}
+		Object.keys(groups).forEach(function (group) {
+			(Array.isArray(groups[group]) ? groups[group] : []).forEach(function (host) {
+				known.push(String(host).toLowerCase())
+			})
+		})
+		return known
+	}
+
+	//URL absolutas a hosts fuera de la lista; path, el archivo del paquete con su nombre (exact: con el final de su ruta),
+	//lo único que cuenta en la navegación. inputs: [{ file, text, kind: 'html' | 'css' | 'js' }]; packagePaths: [ruta en site/].
+	function externalUrls(inputs, knownHosts, packagePaths) {
+		var found = []
+		function consider(file, line, value, navigation) {
+			var url = String(value).replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '')
+			var match = /^(?:https?:)?\/\/([^/?#]*)([^?#]*)/i.exec(url)
+			if (!match) {
+				return
+			}
+			var host = match[1].replace(/^.*@/, '').replace(/:\d*$/, '').toLowerCase()
+			if (host === '' || NAMESPACE_HOSTS.indexOf(host) !== -1 || knownHosts.indexOf(host) !== -1) {
+				return
+			}
+			var urlPath = match[2]
+			var last = urlPath.split('/').pop()
+			var path = ''
+			var exact = false
+			if (last !== '') {
+				packagePaths.forEach(function (candidate) {
+					var tails = [candidate].concat(candidate.indexOf('assets/') === 0 ? [candidate.slice(7)] : [])
+					//Exacta solo si coincide al menos una carpeta: «…/style.css» de otro dominio es solo el nombre.
+					var isExact = tails.some(function (tail) { return tail.indexOf('/') !== -1 && urlPath.slice(-tail.length - 1) === '/' + tail })
+					if (isExact && !exact) {
+						path = candidate
+						exact = true
+					} else if (!exact && path === '' && candidate.split('/').pop() === last) {
+						path = candidate
+					}
+				})
+			}
+			if (path !== '' || !navigation) {
+				found.push({ file: file, line: line, url: url, host: host, path: path, exact: exact })
+			}
+		}
+		function scanText(file, text, firstLine, kind) {
+			text = withoutComments(text, kind)
+			var lineAt = lineFinder(text)
+			var match
+			TEXT_URL.lastIndex = 0
+			while ((match = TEXT_URL.exec(text))) {
+				consider(file, firstLine + lineAt(match.index) - 1, match[1], false)
+			}
+		}
+		inputs.forEach(function (input) {
+			if (input.kind !== 'html') {
+				scanText(input.file, input.text, 1, input.kind)
+				return
+			}
+			walk(parseHtml(input.text), function (node) {
+				if (node.tag === '#text') {
+					var parent = node.parent
+					if (node.raw && parent && (parent.tag === 'style' || parent.tag === 'script' && !('src' in parent.attrs) && SCRIPT_TYPES.indexOf((parent.attrs.type || '').trim().toLowerCase()) !== -1)) {
+						scanText(input.file, node.text, node.line, parent.tag === 'style' ? 'css' : 'js')
+					}
+					return
+				}
+				var rels = (node.attrs.rel || '').toLowerCase().split(/\s+/)
+				var navigation = node.tag === 'a' || node.tag === 'link' && !rels.some(function (rel) { return RESOURCE_RELS.indexOf(rel) !== -1 })
+				LINT_URL_ATTRIBUTES.forEach(function (name) {
+					if (!(name in node.attrs)) {
+						return
+					}
+					var values = name === 'srcset' || name === 'data-srcset' ? node.attrs[name].split(',').map(function (candidate) { return candidate.replace(/^[\t\n\f\r ]+/, '').split(/[\t\n\f\r ]+/)[0] }) : [node.attrs[name]]
+					values.forEach(function (value) {
+						consider(input.file, node.line, value, navigation && name === 'href')
+					})
+				})
+				if ('style' in node.attrs) {
+					var match
+					STYLE_URL.lastIndex = 0
+					while ((match = STYLE_URL.exec(node.attrs.style))) {
+						consider(input.file, node.line, match[1], false)
+					}
+				}
+			})
+		})
+		return found
+	}
+
+	//Bloques de 300+ caracteres sin blancos, idénticos en 3+ páginas y fuera de <pcs-part>: uno por bloque, el más externo,
+	//en la primera página. Recorrido propio por texto, el mismo de SiteLint.php. pages: { 'site/x.html': texto }.
+	function repeatedBlocks(pages) {
+		var tagPattern = /<(\/?)([a-zA-Z][a-zA-Z0-9:-]*)((?:\s+[^\s"'>\/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*)\s*(\/?)>/g
+		var perPage = {}
+		var pagesOf = {}
+		Object.keys(pages).sort().forEach(function (file) {
+			var text = pages[file]
+			var lineAt = lineFinder(text)
+			var elements = []
+			var stack = []
+			var position = 0
+			while (position < text.length) {
+				var lt = text.indexOf('<', position)
+				if (lt === -1) {
+					break
+				}
+				if (text.startsWith('<!--', lt)) {
+					var endComment = text.indexOf('-->', lt + 4)
+					position = endComment === -1 ? text.length : endComment + 3
+					continue
+				}
+				if (text.startsWith('<!', lt) || text.startsWith('<?', lt)) {
+					var endDecl = text.indexOf('>', lt)
+					position = endDecl === -1 ? text.length : endDecl + 1
+					continue
+				}
+				tagPattern.lastIndex = lt
+				var match = tagPattern.exec(text)
+				if (!match || match.index !== lt) {
+					position = lt + 1
+					continue
+				}
+				var tag = match[2].toLowerCase()
+				position = tagPattern.lastIndex
+				if (match[1] === '/') {
+					for (var index = stack.length - 1; index >= 0; index--) {
+						if (stack[index].tag === tag) {
+							stack[index].end = position
+							stack.length = index
+							break
+						}
+					}
+					continue
+				}
+				if (VOID.indexOf(tag) !== -1 || match[4] === '/' && tag.indexOf('-') === -1) {
+					continue
+				}
+				var element = { tag: tag, start: lt, end: -1, parent: stack.length ? stack[stack.length - 1] : null }
+				elements.push(element)
+				if (RAW.indexOf(tag) !== -1) {
+					//El cierre se busca sin pasar el texto a minúsculas: toLowerCase() cambia longitudes (İ) y desplaza.
+					var closing = new RegExp('</' + tag, 'gi')
+					closing.lastIndex = position
+					var found = closing.exec(text)
+					var closeEnd = found ? text.indexOf('>', found.index) : -1
+					element.end = closeEnd === -1 ? -1 : closeEnd + 1
+					position = closeEnd === -1 ? text.length : closeEnd + 1
+					continue
+				}
+				stack.push(element)
+			}
+			elements.forEach(function (element) {
+				var inPart = false
+				for (var up = element; up; up = up.parent) {
+					inPart = inPart || up.tag === 'pcs-part'
+				}
+				element.norm = element.end === -1 || inPart || ['html', 'head', 'body'].indexOf(element.tag) !== -1 ? null : text.slice(element.start, element.end).replace(BLANK, '')
+				if (element.norm !== null && Array.from(element.norm).length >= BLOCK_MINIMUM) {
+					pagesOf[element.norm] = pagesOf[element.norm] || []
+					if (pagesOf[element.norm].indexOf(file) === -1) {
+						pagesOf[element.norm].push(file)
+					}
+				} else {
+					element.norm = null
+				}
+				element.line = lineAt(element.start)
+			})
+			perPage[file] = elements
+		})
+		var result = []
+		var reported = {}
+		var qualifies = function (candidate) {
+			return candidate.norm !== null && pagesOf[candidate.norm].length >= BLOCK_PAGES
+		}
+		Object.keys(perPage).sort().forEach(function (file) {
+			perPage[file].forEach(function (element) {
+				if (!qualifies(element) || reported[element.norm]) {
+					return
+				}
+				for (var up = element.parent; up; up = up.parent) {
+					if (qualifies(up)) {
+						return
+					}
+				}
+				reported[element.norm] = true
+				result.push({ file: file, line: element.line, pages: pagesOf[element.norm].slice() })
+			})
+		})
+		return result
 	}
 
 	function walk(node, visit, inTemplate) {
@@ -707,6 +1019,44 @@
 			report('aviso', PARTS_FILE, 0, 'El paquete de partes no estaba al día (' + stale.sort().join(', ') + ').', 'Pulsa «Actualizar el paquete»: la vista previa usa el paquete, no los archivos de site/parts/.')
 		}
 
+		//Lo que finge, las URL ajenas y los bloques copiados: avisos (la ruta local disfrazada, error).
+		var htmlPaths = Object.keys(files).filter(function (path) {
+			return /^site\/([^/]+|parts\/[^/]+)\.html$/i.test(path)
+		}).sort()
+		htmlPaths.forEach(function (path) {
+			lintFakes(path, parseHtml(files[path].text || ''), report)
+		})
+		var packagePaths = Object.keys(files).filter(function (path) {
+			return path.indexOf(SITE) === 0 && path.indexOf(READER) !== 0
+		}).map(function (path) {
+			return path.slice(SITE.length)
+		}).sort()
+		var urlInputs = htmlPaths.map(function (path) {
+			return { file: path, text: files[path].text || '', kind: 'html' }
+		}).concat(Object.keys(files).filter(function (path) {
+			return /^site\/assets\/.+\.(css|js)$/i.test(path)
+		}).sort().map(function (path) {
+			return { file: path, text: files[path].text || '', kind: /\.js$/i.test(path) ? 'js' : 'css' }
+		}))
+		externalUrls(urlInputs, knownHostList(rules), packagePaths).forEach(function (url) {
+			if (url.exact) {
+				report('error', url.file, url.line, 'Es una ruta local disfrazada: «' + url.url + '» apunta a un archivo que está en el paquete (' + url.path + ').', 'Enlázalo con su ruta relativa dentro del paquete, la de site/' + url.path + '.')
+			} else if (url.path !== '') {
+				report('aviso', url.file, url.line, 'Quizá una ruta local disfrazada: «' + url.url + '» se llama como un archivo del paquete (' + url.path + ').', 'Si es ese archivo, enlázalo con su ruta relativa (site/' + url.path + '); si es otro de fuera, déjalo.')
+			} else {
+				report('aviso', url.file, url.line, 'Una dirección absoluta a un servicio que el proyecto no conoce (' + url.host + ').', 'Si el archivo es tuyo, ponlo en el paquete y enlázalo con su ruta relativa; si es un servicio de fuera, pídele al equipo del proyecto que lo añada a su lista.')
+			}
+		})
+		var pageTexts = {}
+		htmlPaths.forEach(function (path) {
+			if (/^site\/[^/]+\.html$/i.test(path)) {
+				pageTexts[path] = files[path].text || ''
+			}
+		})
+		repeatedBlocks(pageTexts).forEach(function (block) {
+			report('aviso', block.file, block.line, 'Este bloque aparece igual en ' + block.pages.length + ' páginas (' + block.pages.map(function (path) { return path.slice(SITE.length) }).join(', ') + '): parece una parte.', 'Pásalo a site/parts/<nombre>.html y ponlo en cada página con <pcs-part name="<nombre>"></pcs-part>.')
+		})
+
 		var manifest = { name: '', formatVersion: formatVersion, files: {} }
 		var protectedFiles = null
 		if (files['pcs.json']) {
@@ -791,7 +1141,7 @@
 		}
 	}
 
-	var api = { run: run, safeUrl: safeUrl, parseHtml: parseHtml, sha256: sha256, utf8: utf8, buildRulesJs: buildRulesJs, buildPartsJs: buildPartsJs }
+	var api = { run: run, safeUrl: safeUrl, parseHtml: parseHtml, externalUrls: externalUrls, repeatedBlocks: repeatedBlocks, knownHostList: knownHostList, sha256: sha256, utf8: utf8, buildRulesJs: buildRulesJs, buildPartsJs: buildPartsJs }
 	if (typeof module !== 'undefined' && module.exports) {
 		module.exports = api
 	} else {

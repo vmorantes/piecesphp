@@ -338,6 +338,30 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $animationLists = fn (string $source): bool => str_contains($source, "var ANIMATION_ELEMENTS = ['" . implode("', '", \PiecesPHP\PublicSite\Compiler::ANIMATION_ELEMENTS) . "']") && str_contains($source, "var ANIMATION_VALUE_ATTRIBUTES = ['" . implode("', '", \PiecesPHP\PublicSite\Compiler::ANIMATION_VALUE_ATTRIBUTES) . "']");
     $unsafeElsewhere = (string) substr($previewStripped, (int) strpos($previewStripped, 'function unsafeElsewhere('), 700);
     $check(str_contains($unsafeFunction . $previewStripped, '|| unsafeElsewhere(element, name)') && str_contains($unsafeElsewhere, "=== 'refresh'") && str_contains($unsafeElsewhere, "element.closest('math')") && $animationLists($previewStripped) && $animationLists($checkJs), 'm17 la vista previa no pinta la lista en esos mismos casos (unsafeElsewhere), y pcs.js y check.js usan las listas de animaciones de Compiler');
+    //El estado vacío (ADR 0087, precisión 6): exampleItems() de pcs.js, ejecutado con node, con ?pcs-vacio y con items: [].
+    $emptyRows = function (string $pcsSource): ?array {
+        $functions = '';
+        foreach (['emptyRequested', 'exampleItems'] as $name) {
+            $functions .= preg_match('/\tfunction ' . $name . '\([^)]*\) \{.*?\n\t\}\n/s', $pcsSource, $match) === 1 ? $match[0] : '';
+        }
+        $row = ['title' => 'a'];
+        $full = ['fields' => ['title' => ['type' => 'text', 'example' => 'x']], 'items' => [$row]];
+        $data = ['zz-a' => $full, 'zz-b' => $full, 'zz-c' => $full, 'zz-empty' => ['fields' => $full['fields'], 'items' => []], 'zz-nokey' => ['fields' => $full['fields']]];
+        $cases = [['', 'zz-empty'], ['', 'zz-nokey'], ['?pcs-vacio=zz-a', 'zz-a'], ['?pcs-vacio=zz-a', 'zz-b'], ['?pcs-vacio', 'zz-a'], ['?x=1&pcs-vacio', 'zz-b'], ['?pcs-vacio=zz-a,zz-b', 'zz-a'], ['?pcs-vacio=zz-a,zz-b', 'zz-b'], ['?pcs-vacio=zz-a,zz-b', 'zz-c']];
+        $script = 'const a=JSON.parse(process.argv[1]);process.stdout.write(JSON.stringify(a.cases.map(([search,resource])=>{'
+            . 'const r=new Function("window",a.functions+";return exampleItems")({PCS_DATA:a.data,location:{search}})(resource,1);return r?r.items.length:null})))';
+        $decoded = json_decode((string) shell_exec('node -e ' . escapeshellarg($script) . ' ' . escapeshellarg((string) json_encode(['functions' => $functions, 'data' => $data, 'cases' => $cases], JSON_UNESCAPED_UNICODE)) . ' 2>/dev/null'), true);
+        return is_array($decoded) ? $decoded : null;
+    };
+    $rows = $emptyRows($pcs);
+    $rowsDetail = (string) json_encode($rows);
+    $check($rows !== null && $rows[0] === 0, 'm18 un data/<recurso>.js con items: [] pinta cero filas, no una fabricada con los example', $rowsDetail);
+    $check($rows !== null && $rows[1] === 1, 'm19 sin la clave items, la vista previa fabrica la fila con los example, como antes', $rowsDetail);
+    $check($rows !== null && $rows[2] === 0 && $rows[3] === 1, 'm20 ?pcs-vacio=<recurso> pinta cero filas en ese recurso y no en otro', $rowsDetail);
+    $check($rows !== null && $rows[4] === 0 && $rows[5] === 0, 'm21 ?pcs-vacio sin valor pinta cero filas en todas las listas', $rowsDetail);
+    $check($rows !== null && array_slice($rows, 6) === [0, 0, 1], 'm22 ?pcs-vacio=a,b vacía los dos recursos y deja el resto', $rowsDetail);
+    $mutatedRows = $emptyRows(str_replace('(Array.isArray(data.items) && data.items.length === 0) || ', '', $pcs));
+    $check($mutatedRows !== null && $mutatedRows[0] === 1 && $mutatedRows[2] === 0, 'm23 CANARIO: volver a fabricar la fila con items: [] hace caer m18', (string) json_encode($mutatedRows));
     echoTerminal(' ');
 
     echoTerminal('[5/6] El sitio de ejemplo');
@@ -388,6 +412,10 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $errorsOf = fn (?array $result): array => array_values(array_map(fn (array $p): string => "{$p['file']}: {$p['message']}", array_filter($result['problems'] ?? [['level' => 'error', 'file' => '-', 'message' => 'sin node o sin salida']], fn (array $p): bool => ($p['level'] ?? '') === 'error')));
     $exampleRun = $runCheck($checkJs, $exampleFiles);
     $check($exampleRun !== null && $errorsOf($exampleRun) === [] && !in_array('site/parts/parts.js', $exampleRun['changed'] ?? ['site/parts/parts.js'], true), 'e5 CHECK sobre el ejemplo: sin errores (site/.pcs/ es del lector y lo vigila `protected`) y su parts.js al día', (string) json_encode([$errorsOf($exampleRun), $exampleRun['changed'] ?? null], JSON_UNESCAPED_UNICODE));
+    //El ejemplo es el origen de un sitio nuevo (ADR 0086 §3): con su pcs.json, CHECK no da ni un aviso.
+    $exampleWithManifest = $exampleFiles + ['pcs.json' => ['text' => (string) file_get_contents("{$kit}/example/pcs.json")]];
+    $exampleFull = $runCheck($checkJs, $exampleWithManifest);
+    $check($exampleFull !== null && ($exampleFull['problems'] ?? null) === [], 'e5b CHECK sobre el ejemplo con su pcs.json: ningún error ni aviso', (string) json_encode($exampleFull['problems'] ?? null, JSON_UNESCAPED_UNICODE));
     $mutatedReader = str_replace("if (target.indexOf(READER) === 0) {\n\t\t\t\treturn\n\t\t\t}\n", '', $checkJs);
     $check($mutatedReader !== $checkJs && str_contains(implode("\n", $errorsOf($runCheck($mutatedReader, $exampleFiles))), '«.pcs/pcs.js» no existe'), 'e6 CANARIO: si CHECK comprobara site/.pcs/ como archivos del diseñador, el ejemplo daría error por .pcs/pcs.js');
     $registered = array_map('strval', array_keys(\PiecesPHP\PublicSite\ResourceRegistry::all()));
@@ -427,9 +455,109 @@ CliActions::make('unit-tests:public-site/kit', function ($args) {
     $check(($mapped['.claude/settings.json'] ?? null) === 'agent-settings/settings.json', 's2 package-map.json lleva los ajustes a .claude/settings.json');
     $settings = json_decode($read('agent-settings/settings.json'), true);
     $deny = is_array($settings) ? ($settings['permissions']['deny'] ?? []) : [];
-    $needed = ['Edit(/site/.pcs/**)', 'Edit(/pcs.json)', 'Edit(/AGENTS.md)', 'Edit(/CLAUDE.md)', 'Edit(/.agents/**)', 'Edit(/.claude/**)', 'Edit(/.cursor/**)', 'Bash(rm -rf *)', 'Bash(rm -r *)', 'Bash(git reset --hard *)', 'Bash(git clean *)', 'Bash(git push --force *)'];
+    $needed = ['Edit(/site/.pcs/**)', 'Edit(/pcs.json)', 'Edit(/AGENTS.md)', 'Edit(/CLAUDE.md)', 'Edit(/PROJECT.md)', 'Edit(/.agents/**)', 'Edit(/.claude/**)', 'Edit(/.cursor/**)', 'Bash(rm -rf *)', 'Bash(rm -r *)', 'Bash(git reset --hard *)', 'Bash(git clean *)', 'Bash(git push --force *)'];
     $absentRules = array_values(array_diff($needed, is_array($deny) ? $deny : []));
     $check(is_array($settings) && $absentRules === [] && !array_key_exists('hooks', $settings), 's3 settings.json es JSON, niega lo que no se toca y lo destructivo, y no lleva hooks', implode(', ', $absentRules));
+    echoTerminal(' ');
+
+    //─── Lo que finge, las URL ajenas y los bloques copiados (ADR 0087, puntos 4, 8 y 10) ────────────────────────
+    echoTerminal('[7/7] CHECK avisa de lo que finge, de las URL absolutas ajenas y de los bloques copiados');
+    $head = '<!DOCTYPE html><html><head><title>t</title><script src=".pcs/pcs.js"></script></head><body>';
+    $lint = [
+        'site/.pcs/pcs.js' => ['text' => ''],
+        'site/assets/img/logo.png' => ['text' => 'png'],
+        'site/finge.html' => ['text' => $head . "\n<a href=\"#\">uno</a>\n<a>dos</a>\n<a href=\"javascript:void(0)\">tres</a>\n<a href=\"https://www.google.com/maps\">bien</a>\n"
+            . "<img src=\"assets/img/logo.png\">\n<img src=\"assets/img/logo.png\" alt=\"\">\n<form><input name=\"q\"></form>\n<form action=\"/buscar\"><input name=\"q\"></form>\n"
+            . "<pcs-form action=\"contact\"><form><input name=\"n\"></form></pcs-form>\n<div role=\"button\">x</div>\n<span class=\"w-button\">y</span>\n<button type=\"button\">bien</button>\n"
+            . "<div class=\"search-box\">buscar</div>\n<div class=\"search-box\"><input name=\"q\"></div>\n</body></html>"],
+        'site/urls.html' => ['text' => $head . "\n<script src=\"https://cdn.ajeno-zz.com/x.js\"></script>\n<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=X\">\n"
+            . "<img src=\"https://cdn.ajeno-zz.com/img/logo.png\" alt=\"\">\n<div style=\"background:url(//cdn.ajeno-zz.com/fondo.jpg)\"></div>\n<script>\nfetch('https://api.ajeno-zz.com/datos')\n</script>\n"
+            . "<img srcset=\"assets/img/logo.png 1x, https://cdn.ajeno-zz.com/b.png 2x\" alt=\"\">\n</body></html>"],
+        'site/assets/site.css' => ['text' => "body{}\n@font-face{src:url(\"https://cdn.ajeno-zz.com/f.woff2\")}\n.a{background:url(https://fonts.gstatic.com/x.woff2)}\n"],
+        'site/assets/app.js' => ['text' => "//Comentario: esto no es una dirección\nconst api = 'https://api.ajeno-zz.com/v1'\ndocument.createElementNS('http://www.w3.org/2000/svg', 'svg')\nfetch('http://localhost:3000/a')\n"],
+        'site/mas.html' => ['text' => $head . "\n<a href=\"https://www.instagram.com/zz\">red</a>\n<a href=\"https://cdn.ajeno-zz.com/img/logo.png\">logo</a>\n<link rel=\"canonical\" href=\"https://proyecto-zz.co/\">\n"
+            . "<link rel=\"stylesheet\" href=\"https://cdn.ajeno-zz.com/s.css\">\n<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"logo\":\"https://proyecto-zz.co/logo.png\"}</script>\n"
+            . "<style>.x{background:url(https://cdn.ajeno-zz.com/st.png)}</style>\n<video poster=\"https://cdn.ajeno-zz.com/p.jpg\" data-src=\"https://cdn.ajeno-zz.com/v.mp4\"></video>\n"
+            . "<div data-bg=\"https://cdn.ajeno-zz.com/bg.jpg\"></div>\n<script src=\"https://u:p@CDN.Ajeno-zz.com:8080/a.js\"></script>\n<div role=\"button\" tabindex=\"0\">menú</div>\n<a id=\"destino\"></a>\n"
+            . "<div class=\"btn\">x</div>\n<div class=\"field-wrap\">campo</div>\n<div class=\"research-section\">r</div>\n<form action=\"#\"><input name=\"q\"></form>\n</body></html>"],
+    ];
+    //Con ñ, un emoji y un espacio duro: los blancos son solo ASCII y la longitud, en caracteres, en PHP y en CHECK.
+    $bigBlock = "<section class=\"zz-bloque\"><h2>Un bloque largo copiado, año 🙂</h2><p>" . str_repeat("Texto que se repite en las páginas\u{00A0}sin ser una parte. ", 8) . '</p></section>';
+    $twoBlock = '<aside class="zz-solo-dos"><p>' . str_repeat('Este solo está en dos páginas y no es una parte todavía. ', 8) . '</p></aside>';
+    foreach (['b1', 'b2', 'b3'] as $index => $page) {
+        $lint["site/{$page}.html"] = ['text' => $head . "\n<main>\n" . $bigBlock . "\n" . ($index < 2 ? $twoBlock : '') . "\n</main>\n</body></html>"];
+    }
+    $lintRun = $runCheck($checkJs, $lint);
+    $lintProblems = $lintRun['problems'] ?? [];
+    $has = function (string $level, string $file, int $line, string $text) use ($lintProblems): bool {
+        foreach ($lintProblems as $p) {
+            if (($p['level'] ?? '') === $level && ($p['file'] ?? '') === $file && (int) ($p['line'] ?? 0) === $line && str_contains((string) ($p['message'] ?? ''), $text)) {
+                return true;
+            }
+        }
+        return false;
+    };
+    //Solo los avisos de este bloque: el mismo marcado puede tener otros (un <form> dentro de <pcs-form> ya es error).
+    $lintMessage = '/no lleva a ninguna parte|sin alt|no envía|finge ser un botón|parece un campo|servicio que el proyecto no conoce|ruta local disfrazada|parece una parte/';
+    $at = function (string $file, int $line) use ($lintProblems, $lintMessage): array {
+        return array_values(array_filter(array_map(fn (array $p): string => (string) $p['message'], array_filter($lintProblems, fn (array $p): bool => ($p['file'] ?? '') === $file && (int) ($p['line'] ?? 0) === $line)), fn (string $m): bool => preg_match($lintMessage, $m) === 1));
+    };
+    $f = 'site/finge.html';
+    $check($has('aviso', $f, 2, 'href="#"') && $has('aviso', $f, 3, 'sin href') && $has('aviso', $f, 4, 'javascript:void(0)') && $at($f, 5) === [], 'l1 un enlace con href="#", sin href o con javascript: avisa; uno con destino, no', (string) json_encode($lintProblems, JSON_UNESCAPED_UNICODE));
+    $check($has('aviso', $f, 6, 'sin alt') && $at($f, 7) === [], 'l2 una imagen sin alt avisa; con alt="" no');
+    $check($has('aviso', $f, 8, 'no envía') && $at($f, 9) === [] && $at($f, 10) === [], 'l3 un <form> sin action avisa; con action, o dentro de <pcs-form>, no');
+    $check($has('aviso', $f, 11, 'finge ser un botón') && $has('aviso', $f, 12, 'finge ser un botón') && $at($f, 13) === [], 'l4 un div con role="button" o un span con clase de botón avisan; un <button>, no');
+    $check($has('aviso', $f, 14, 'parece un campo') && $at($f, 15) === [], 'l5 un div con aspecto de campo sin <input> avisa; con <input> dentro, no');
+    $u = 'site/urls.html';
+    $check($has('aviso', $u, 2, 'cdn.ajeno-zz.com') && $at($u, 3) === [], 'l6 una URL absoluta a un servicio que no está en la lista avisa; fonts.googleapis.com (en knownHosts de rules.json), no');
+    $check($has('error', $u, 4, 'ruta local disfrazada'), 'l7 ERROR: una URL absoluta cuyo archivo está en el paquete (logo.png) es una ruta local disfrazada');
+    $check($has('aviso', $u, 5, 'cdn.ajeno-zz.com') && $has('aviso', $u, 7, 'api.ajeno-zz.com') && $has('aviso', $u, 9, 'cdn.ajeno-zz.com'), 'l8 también en style con url(), en el texto de un <script> en línea (con su línea) y en un srcset');
+    $check($has('aviso', 'site/assets/site.css', 2, 'cdn.ajeno-zz.com') && $at('site/assets/site.css', 3) === [] && $has('aviso', 'site/assets/app.js', 2, 'api.ajeno-zz.com') && $at('site/assets/app.js', 1) === [], 'l9 y en los .css y .js de site/assets/ (un «//comentario» no es una dirección)');
+    $blocks = array_values(array_filter($lintProblems, fn (array $p): bool => str_contains((string) ($p['message'] ?? ''), 'parece una parte')));
+    //Una segunda «var URL_ATTRIBUTES» pisaba la de los {{campos}} y dejaba sin vigilar formaction, xlink:href y data-srcset.
+    $check(preg_match_all('/\bvar URL_ATTRIBUTES\b/', $checkJs) === 1 && preg_match('/var URL_ATTRIBUTES = \[[^\]]*\'formaction\'[^\]]*\'xlink:href\'[^\]]*\'data-srcset\'/', $checkJs) === 1, 'l0 URL_ATTRIBUTES (la de los {{campos}}) se declara una vez y sigue con formaction, xlink:href y data-srcset');
+    $m = 'site/mas.html';
+    $check($at($m, 2) === [] && $has('error', $m, 3, 'ruta local disfrazada') && $at($m, 4) === [] && $has('aviso', $m, 5, 'cdn.ajeno-zz.com'), 'l13 en la navegación (<a>, <link rel=canonical>) solo cuenta la ruta disfrazada; un <link rel=stylesheet> ajeno avisa', (string) json_encode($lintProblems, JSON_UNESCAPED_UNICODE));
+    $check($at($m, 6) === [] && $has('aviso', $m, 7, 'cdn.ajeno-zz.com') && $has('aviso', 'site/assets/app.js', 4, 'localhost') && $at('site/assets/app.js', 3) === [], 'l14 un JSON-LD no se mira (sus URL son del sitio); un <style> en línea sí; localhost también; el espacio de nombres de w3.org, no');
+    $check($has('aviso', $m, 8, 'cdn.ajeno-zz.com') && $has('aviso', $m, 9, 'cdn.ajeno-zz.com') && $has('aviso', $m, 10, 'cdn.ajeno-zz.com'), 'l15 poster, data-src y data-bg; y el host sin credenciales, sin puerto y en minúsculas', (string) json_encode($at($m, 10), JSON_UNESCAPED_UNICODE));
+    $check($at($m, 11) === [] && $at($m, 12) === [] && $has('aviso', $m, 13, 'finge ser un botón') && $has('aviso', $m, 14, 'parece un campo') && $at($m, 15) === [] && $has('aviso', $m, 16, 'no envía'), 'l16 role="button" con tabindex y un <a id> no avisan; class="btn" y field-wrap sí; research-section no; un form con action="#" sí');
+    $check(count($blocks) === 1 && ($blocks[0]['file'] ?? '') === 'site/b1.html' && (int) ($blocks[0]['line'] ?? 0) === 3 && str_contains((string) $blocks[0]['message'], '3 páginas'), 'l10 un bloque largo idéntico en 3 páginas avisa una vez (el más externo: <section>, no su <p>); en 2 páginas, no', (string) json_encode($blocks, JSON_UNESCAPED_UNICODE));
+
+    //Paridad: SiteLint.php (la importación) da las mismas URL y los mismos bloques que check.js.
+    $lintInputs = [];
+    $lintPages = [];
+    foreach ($lint as $path => $file) {
+        if (preg_match('#^site/([^/]+|parts/[^/]+)\.html$#', $path) === 1) {
+            $lintInputs[] = ['file' => $path, 'text' => $file['text'], 'kind' => 'html'];
+            if (preg_match('#^site/[^/]+\.html$#', $path) === 1) {
+                $lintPages[$path] = $file['text'];
+            }
+        } elseif (preg_match('#^site/assets/.+\.(css|js)$#', $path) === 1) {
+            $lintInputs[] = ['file' => $path, 'text' => $file['text'], 'kind' => str_ends_with($path, '.js') ? 'js' : 'css'];
+        }
+    }
+    $lintPaths = [];
+    $lintAll = array_keys($lint);
+    sort($lintAll, SORT_STRING);
+    foreach ($lintAll as $path) {
+        if (!str_starts_with($path, 'site/.pcs/')) {
+            $lintPaths[] = substr($path, strlen('site/'));
+        }
+    }
+    $paritySource = 'const a=JSON.parse(process.argv[1]),m={exports:{}};new Function("module",a.check)(m);'
+        . 'process.stdout.write(JSON.stringify({urls:m.exports.externalUrls(a.inputs,m.exports.knownHostList(a.rules),a.names),blocks:m.exports.repeatedBlocks(a.pages)}))';
+    $parityJs = json_decode((string) shell_exec('node -e ' . escapeshellarg($paritySource) . ' ' . escapeshellarg((string) json_encode(['check' => $checkJs, 'inputs' => $lintInputs, 'rules' => $rules, 'names' => $lintPaths, 'pages' => $lintPages], JSON_UNESCAPED_UNICODE)) . ' 2>/dev/null'), true);
+    $parityPhp = ['urls' => \PiecesPHP\PublicSite\SiteLint::externalUrls($lintInputs, \PiecesPHP\PublicSite\MarkRules::knownHosts(), $lintPaths), 'blocks' => \PiecesPHP\PublicSite\SiteLint::repeatedBlocks($lintPages)];
+    $check(is_array($parityJs) && count($parityPhp['urls']) >= 12 && count($parityPhp['blocks']) === 1 && $parityJs === $parityPhp, 'l11 PARIDAD: SiteLint.php y check.js dan las mismas URL (archivo, línea, host, ruta disfrazada y si es exacta) y los mismos bloques, también con texto no ASCII', (string) json_encode(['js' => $parityJs, 'php' => $parityPhp], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    $check(\PiecesPHP\PublicSite\MarkRules::knownHosts() === (function () use ($rules): array {
+        $hosts = [];
+        foreach ($rules['knownHosts'] ?? [] as $group) {
+            foreach ($group as $host) {
+                $hosts[] = strtolower((string) $host);
+            }
+        }
+        return $hosts;
+    })() && in_array('fonts.googleapis.com', \PiecesPHP\PublicSite\MarkRules::knownHosts(), true), 'l12 la lista de servicios sale de rules.json (knownHosts), la misma en PHP y en CHECK');
     echoTerminal(' ');
 
     $total = $passed + $failed;

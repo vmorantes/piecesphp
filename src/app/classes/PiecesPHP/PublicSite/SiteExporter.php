@@ -9,7 +9,12 @@ namespace PiecesPHP\PublicSite;
 /**
  * SiteExporter - `bin/cli public-site-export`: arma desde el proyecto el paquete del diseñador. site/ es el sitio tal
  * cual (las páginas en su raíz, index.html la portada; parts/, assets/, data/ y el lector oculto .pcs/); en la raíz,
- * CHECK.html, GUIDE.html, pcs.json y el andamiaje de su agente (AGENTS.md, CLAUDE.md, .agents/, .claude/, .cursor/).
+ * CHECK.html, GUIDE.html, pcs.json, DESIGN.md si el sitio lo trae, PROJECT.md (las reglas del proyecto) y el andamiaje
+ * de su agente (AGENTS.md, CLAUDE.md, .agents/, .claude/, .cursor/).
+ *
+ * El origen (ADR 0086/0087): una carpeta con site/ y pcs.json (from=), un sitio importado, o, si el sitio no está
+ * importado, el ejemplo del kit. El destino: fuera del proyecto, el paquete entero; dentro de files/design/, solo el
+ * sitio (site/, pcs.json y DESIGN.md), que es lo que el proyecto versiona.
  *
  * Qué sale del kit y adónde: PACKAGE_FILES, más kit/package-map.json si existe ({"files": {destino: origen | null}}).
  * El andamiaje solo puede caer en ALLOWED_AGENT_PATTERNS, y el paquete pasa por la comprobación de rastro de
@@ -67,6 +72,21 @@ final class SiteExporter
     /** Dónde busca el lector en el kit, en orden. */
     const READER_SOURCES = ['site/.pcs', '.pcs', 'pcs'];
 
+    /** Las notas del diseño: viajan con el sitio en los dos sentidos, byte a byte, y el diseñador puede editarlas. */
+    const DESIGN_FILE = 'DESIGN.md';
+
+    /** Las reglas del proyecto para el diseñador: solo van al paquete, protegidas; la importación las ignora. */
+    const PROJECT_FILE = 'PROJECT.md';
+
+    /** La línea que PROJECT.md tiene que llevar tal cual (ADR 0087, precisión 7). */
+    const PENDING_HEADING = '## Pendientes conocidos';
+
+    /** Donde el proyecto guarda el diseño, relativa a la raíz: el único destino permitido dentro del proyecto. */
+    const DESIGN_DIRECTORY = 'files/design';
+
+    /** El sitio de ejemplo del kit, origen de un sitio que aún no existe. */
+    const EXAMPLE_DIRECTORY = 'example';
+
     /** La comprobación de rastro, relativa a la raíz: la del clon (bin/clonar-proyecto la instala ahí) o su plantilla. */
     const TRACE_CHECKS = ['bin/entregar-al-cliente', 'bin/tools/clonar-proyecto/entregar-al-cliente'];
 
@@ -92,6 +112,9 @@ final class SiteExporter
      * @param string|null $kitDirectory null, el kit del framework
      * @param string|null $siteDirectory null, app/view/<sitio>
      * @param string|null $staticsDirectory null, statics/<sitio>
+     * @param string|null $from Una carpeta con site/ y pcs.json como origen (relativa a la raíz o absoluta)
+     * @param string|null $projectFile null, <raíz>/files/design/PROJECT.md (relativa a la raíz o absoluta)
+     * @param string|null $repositoryRoot null, la raíz del repositorio
      */
     public function __construct(
         private readonly string $site,
@@ -100,6 +123,9 @@ final class SiteExporter
         ?string $kitDirectory = null,
         ?string $siteDirectory = null,
         ?string $staticsDirectory = null,
+        private readonly ?string $from = null,
+        private readonly ?string $projectFile = null,
+        private readonly ?string $repositoryRoot = null,
     ) {
         $this->kitDirectory = rtrim($kitDirectory ?? DesignerKit::KIT_DIRECTORY, '/');
         $this->siteDirectory = rtrim($siteDirectory ?? PublicSite::viewDirectory($site), '/');
@@ -193,33 +219,116 @@ final class SiteExporter
     }
 
     /**
-     * @return array{ok:bool,problems:array<int,array{level:string,file:string,line:int,message:string,fix:string}>,files:int,zip:string|null,trace:string}
+     * @return array{ok:bool,problems:array<int,array{level:string,file:string,line:int,message:string,fix:string}>,files:int,zip:string|null,trace:string,origin:string,destination?:string}
      */
     public function export(): array
     {
         $problems = [];
         $fail = function (string $file, string $message, string $fix, string $trace = '') use (&$problems): array {
-            $problems[] = ['level' => 'error', 'file' => $file, 'line' => 0, 'message' => $message, 'fix' => $fix];
-            return ['ok' => false, 'problems' => $problems, 'files' => 0, 'zip' => null, 'trace' => $trace];
+            //Sin órdenes de terminal: el nombre o un archivo pueden venir del diseñador (su pcs.json).
+            $problems[] = ['level' => 'error', 'file' => MarkRules::printable($file), 'line' => 0, 'message' => MarkRules::printable($message), 'fix' => MarkRules::printable($fix)];
+            return ['ok' => false, 'problems' => $problems, 'files' => 0, 'zip' => null, 'trace' => MarkRules::printable($trace), 'origin' => ''];
         };
-        $destination = rtrim($this->destination, '/');
-        $parent = dirname($destination);
-        if (!PublicSite::isValidName($this->site) || !is_file("{$this->siteDirectory}/" . PublicSite::MANIFEST)) {
-            return $fail("app/view/{$this->site}/", "«{$this->site}» no es un sitio importado (falta su pcs.json).", 'Importa antes el sitio con bin/cli public-site-import, o revisa el nombre.');
+        $repository = rtrim($this->repositoryRoot ?? dirname(rtrim(basepath(), '/')), '/');
+        $resolve = fn (string $path): string => str_starts_with($path, '/') ? $path : "{$repository}/{$path}";
+        if (!PublicSite::isValidName($this->site)) {
+            return $fail('', "El nombre del sitio «{$this->site}» no vale.", 'Usa solo minúsculas, números y guiones, por ejemplo site=mi-sitio.');
         }
-        if ($destination === '' || file_exists($destination) || !is_dir($parent)) {
+
+        //El origen: una carpeta (from=), el sitio importado, o el ejemplo del kit si el sitio no existe todavía.
+        $imported = is_file("{$this->siteDirectory}/" . PublicSite::MANIFEST);
+        if ($this->from !== null && $imported) {
+            return $fail('', "«{$this->site}» ya es un sitio importado y además se pide exportar desde una carpeta (from=).", 'Usa uno de los dos: site=<sitio importado> sin from, o from=<carpeta> con un nombre de sitio que no esté importado.');
+        }
+        $folder = null;
+        if ($this->from !== null) {
+            $folder = rtrim($resolve($this->from), '/');
+            $origin = "la carpeta {$folder}";
+        } elseif (!$imported) {
+            $folder = "{$this->kitDirectory}/" . self::EXAMPLE_DIRECTORY;
+            $origin = 'el sitio de ejemplo del kit (el sitio no está importado)';
+        } else {
+            $origin = "el sitio importado «{$this->site}»";
+        }
+        if ($folder !== null) {
+            if (!is_dir("{$folder}/" . DesignerKit::SITE_DIRECTORY) || !is_file("{$folder}/" . PublicSite::MANIFEST)) {
+                return $fail($this->from ?? 'kit/' . self::EXAMPLE_DIRECTORY, 'La carpeta de origen no tiene site/ y pcs.json.', 'Indica con from= una carpeta del diseño: la que tiene site/ y pcs.json (por ejemplo files/design/adaptado).');
+            }
+            //Las mismas comprobaciones que la importación: lo que no se podría importar tampoco se exporta, y sus avisos (lo
+            //que no se importa tampoco viaja) se dicen.
+            $sourceChecks = (new SiteImporter($folder, $this->site, dirname($this->siteDirectory), dirname($this->staticsDirectory)))->check();
+            //El ejemplo se llama «example» en su pcs.json: que el sitio nuevo se llame de otra forma es lo normal.
+            if ($this->from === null) {
+                $sourceChecks = array_values(array_filter($sourceChecks, fn (array $p): bool => !($p['level'] === 'aviso' && $p['file'] === PublicSite::MANIFEST && str_starts_with($p['message'], 'El manifiesto dice que el sitio es'))));
+            }
+            $problems = $sourceChecks;
+            if (array_filter($sourceChecks, fn (array $p): bool => $p['level'] === 'error') !== []) {
+                return $fail($this->from ?? 'kit/' . self::EXAMPLE_DIRECTORY, 'La carpeta de origen no pasa las comprobaciones de la importación (arriba).', 'Corrígela antes de exportarla.');
+            }
+            $pagesDirectory = "{$folder}/" . DesignerKit::SITE_DIRECTORY;
+            $partsDirectory = "{$pagesDirectory}/" . PublicSite::PARTS_DIRECTORY;
+            $assetsDirectory = "{$pagesDirectory}/" . PublicSite::ASSETS_DIRECTORY;
+            $designFile = "{$folder}/" . self::DESIGN_FILE;
+        } else {
+            $pagesDirectory = "{$this->siteDirectory}/" . PublicSite::PAGES_DIRECTORY;
+            $partsDirectory = "{$this->siteDirectory}/" . PublicSite::PARTS_DIRECTORY;
+            $assetsDirectory = $this->staticsDirectory;
+            $designFile = "{$this->siteDirectory}/" . self::DESIGN_FILE;
+        }
+        if (is_link($designFile)) {
+            return $fail(self::DESIGN_FILE, 'DESIGN.md es un enlace simbólico.', 'Cópialo como archivo normal.');
+        }
+        //Se lee una vez: lo que se escribe son estos bytes, aunque el archivo cambie después.
+        $designBytes = is_file($designFile) ? file_get_contents($designFile) : null;
+        if ($designBytes === false) {
+            return $fail(self::DESIGN_FILE, 'No se pudo leer DESIGN.md.', 'Revisa sus permisos.');
+        }
+
+        //El destino: fuera del proyecto, el paquete del diseñador; dentro, solo bajo files/design/ y solo el sitio.
+        //Relativo, contra la raíz del repositorio, como from= y project-file= (bin/cli corre desde src/).
+        $destination = rtrim($this->destination === '' ? '' : $resolve($this->destination), '/');
+        $parent = dirname($destination);
+        if ($destination === '' || file_exists($destination) || is_link($destination) || !is_dir($parent)) {
             return $fail($destination, 'El destino ya existe o su carpeta padre no existe.', 'Indica una carpeta nueva dentro de una que exista: no se sobrescribe nada.');
         }
-        $repository = dirname(rtrim(basepath(), '/'));
         $realParent = realpath($parent);
-        if ($realParent !== false && str_starts_with($realParent . '/', $repository . '/')) {
-            return $fail($destination, 'El destino queda dentro del proyecto.', 'Exporta fuera del repositorio.');
+        $realRepository = realpath($repository);
+        $realDesign = realpath($repository . '/' . self::DESIGN_DIRECTORY);
+        //files/design/ cuenta solo si es esa carpeta de verdad: un enlace la haría apuntar a otro sitio del repositorio o fuera.
+        $designPath = $realRepository === false ? null : $realRepository . '/' . self::DESIGN_DIRECTORY;
+        if ($realDesign !== false && $realDesign !== $designPath) {
+            return $fail(self::DESIGN_DIRECTORY . '/', self::DESIGN_DIRECTORY . '/ es un enlace a otra carpeta.', 'Que sea una carpeta normal del repositorio.');
+        }
+        $inProject = $realParent !== false && $realRepository !== false && str_starts_with($realParent . '/', $realRepository . '/');
+        $inDesign = $inProject && $realDesign !== false && str_starts_with($realParent . '/', $realDesign . '/');
+        if ($realParent === false || ($inProject && !$inDesign)) {
+            return $fail($destination, 'El destino queda dentro del proyecto, fuera de ' . self::DESIGN_DIRECTORY . '/.', 'Exporta fuera del repositorio (el paquete del diseñador) o dentro de ' . self::DESIGN_DIRECTORY . '/ (solo el sitio).');
+        }
+        if ($inDesign && $this->zip) {
+            return $fail($destination, 'zip=yes no vale dentro de ' . self::DESIGN_DIRECTORY . '/: ahí solo se deja el sitio.', 'Quita zip=yes, o exporta fuera del repositorio.');
         }
         if ($this->zip && (file_exists($this->zipPath()) || !class_exists(\ZipArchive::class))) {
             return $fail($this->zipPath(), class_exists(\ZipArchive::class) ? 'El .zip ya existe.' : 'Este PHP no tiene ZipArchive: no se puede crear el .zip.', class_exists(\ZipArchive::class) ? 'Muévelo o bórralo antes.' : 'Exporta sin zip=yes y comprímelo a mano.');
         }
+
+        //PROJECT.md, solo para el paquete: dentro del repositorio, archivo normal y con su sección de pendientes.
+        $projectFile = null;
+        $projectBytes = null;
+        if (!$inDesign) {
+            $projectFile = $resolve($this->projectFile ?? self::DESIGN_DIRECTORY . '/' . self::PROJECT_FILE);
+            $realProject = is_link($projectFile) ? false : realpath($projectFile);
+            if ($realProject === false || !is_file($realProject) || $realRepository === false || !str_starts_with($realProject, $realRepository . '/')) {
+                return $fail($projectFile, 'No está PROJECT.md (las reglas del proyecto para el diseñador), o no es un archivo normal dentro del repositorio.', 'Escríbelo en ' . self::DESIGN_DIRECTORY . '/' . self::PROJECT_FILE . ' (o indica otro dentro del repositorio con project-file=), con su sección «' . self::PENDING_HEADING . '».');
+            }
+            $projectBytes = file_get_contents($realProject);
+            if ($projectBytes === false || !in_array(self::PENDING_HEADING, array_map(fn (string $line): string => rtrim($line, "\r"), explode("\n", $projectBytes)), true)) {
+                return $fail($projectFile, 'PROJECT.md no tiene la línea «' . self::PENDING_HEADING . '».', 'Añádela tal cual, con lo que queda pendiente debajo (o «Ninguno»): sin ella no se exporta.');
+            }
+            $projectFile = $realProject;
+        }
+
         try {
-            $packageFiles = $this->packageFiles();
+            $packageFiles = $inDesign ? [] : $this->packageFiles();
         } catch (\RuntimeException $e) {
             return $fail('kit/' . self::PACKAGE_MAP, 'El mapa del kit está dañado.', 'Corrígelo: {"files": {"<destino en el paquete>": "<origen en el kit>"}}.');
         }
@@ -259,18 +368,18 @@ final class SiteExporter
         $trace = '';
         $previousUmask = umask(0002);
         try {
-            foreach (PublicSite::namesIn("{$this->siteDirectory}/" . PublicSite::PAGES_DIRECTORY) as $name) {
-                SiteImporter::copyFile("{$this->siteDirectory}/pages/{$name}.html", "{$staging}/{$site}/{$name}.html");
+            foreach (PublicSite::namesIn($pagesDirectory) as $name) {
+                SiteImporter::copyFile("{$pagesDirectory}/{$name}.html", "{$staging}/{$site}/{$name}.html");
             }
-            foreach (PublicSite::namesIn("{$this->siteDirectory}/" . PublicSite::PARTS_DIRECTORY) as $name) {
-                SiteImporter::copyFile("{$this->siteDirectory}/parts/{$name}.html", "{$staging}/{$site}/parts/{$name}.html");
+            foreach (PublicSite::namesIn($partsDirectory) as $name) {
+                SiteImporter::copyFile("{$partsDirectory}/{$name}.html", "{$staging}/{$site}/parts/{$name}.html");
             }
             SiteImporter::ensureDirectory("{$staging}/{$site}/parts");
-            foreach (PublicSite::filesIn($this->staticsDirectory) as $relative) {
+            foreach (PublicSite::filesIn($assetsDirectory) as $relative) {
                 if (preg_match(DesignerKit::HIDDEN_PATTERN, $relative) === 1) {
                     continue;
                 }
-                SiteImporter::copyFile("{$this->staticsDirectory}/{$relative}", "{$staging}/{$site}/assets/{$relative}");
+                SiteImporter::copyFile("{$assetsDirectory}/{$relative}", "{$staging}/{$site}/assets/{$relative}");
             }
             SiteImporter::ensureDirectory("{$staging}/{$site}/assets");
             foreach (SiteImporter::generated("{$staging}/{$site}/parts", "{$staging}/{$site}") as $relative => $content) {
@@ -282,6 +391,12 @@ final class SiteExporter
             SiteImporter::write("{$staging}/{$site}/" . DesignerKit::RULES_SCRIPT, DesignerKit::rulesScript());
             foreach ($packageFiles as $to => $from) {
                 SiteImporter::copyFile("{$this->kitDirectory}/{$from}", "{$staging}/{$to}");
+            }
+            if (is_string($designBytes)) {
+                SiteImporter::write("{$staging}/" . self::DESIGN_FILE, $designBytes);
+            }
+            if (is_string($projectBytes)) {
+                SiteImporter::write("{$staging}/" . self::PROJECT_FILE, $projectBytes);
             }
             $siteHashes = [];
             foreach (PublicSite::filesIn("{$staging}/{$site}") as $relative) {
@@ -298,10 +413,15 @@ final class SiteExporter
                     $protected[$to] = (string) hash_file('sha256', "{$staging}/{$to}");
                 }
             }
+            //PROJECT.md, protegido: son las reglas del proyecto. DESIGN.md no: es del diseñador.
+            if (is_string($projectBytes)) {
+                $protected[self::PROJECT_FILE] = (string) hash_file('sha256', "{$staging}/" . self::PROJECT_FILE);
+            }
             SiteImporter::write("{$staging}/" . PublicSite::MANIFEST, DesignerKit::manifest($this->site, $siteHashes, $protected));
 
-            //Exentos: el andamiaje, pcs.json (lista sus rutas en protected) y el lector, que comprueba esas rutas.
-            $exempt = array_merge(array_keys($protected), [PublicSite::MANIFEST]);
+            //Exentos: el andamiaje, pcs.json (lista sus rutas en protected), el lector, que comprueba esas rutas, y las notas
+            //del diseño y del proyecto, que pueden nombrar AGENTS.md sin ser rastro de la metodología.
+            $exempt = array_merge(array_keys($protected), [PublicSite::MANIFEST, self::DESIGN_FILE, self::PROJECT_FILE]);
             [$clean, $trace] = self::traceCheck($staging, $exempt);
             if (!$clean) {
                 SiteImporter::removeTree($staging);
@@ -325,7 +445,7 @@ final class SiteExporter
         } finally {
             umask($previousUmask);
         }
-        return ['ok' => true, 'problems' => $problems, 'files' => count(PublicSite::filesIn($destination)), 'zip' => $this->zip ? $this->zipPath() : null, 'trace' => $trace];
+        return ['ok' => true, 'problems' => $problems, 'files' => count(PublicSite::filesIn($destination)), 'zip' => $this->zip ? $this->zipPath() : null, 'trace' => MarkRules::printable($trace), 'origin' => MarkRules::printable($origin), 'destination' => $destination];
     }
 
     /**

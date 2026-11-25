@@ -27,18 +27,7 @@ $-attachMetaColor: var(--theme-text-muted);
     }
 
     > .ui.label:not(.prompt) {
-
         display: none;
-        background-color: var(--accent-1, var(--accent)) !important;
-        color: white;
-        border-radius: 0px;
-        border-top-right-radius: 6px;
-
-        > i.icon {
-            font-size: pxToRem(18);
-            margin: 0px;
-            padding: 0px;
-        }
     }
 
     &.attached {

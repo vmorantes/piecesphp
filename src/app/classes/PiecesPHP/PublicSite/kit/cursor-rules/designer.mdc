@@ -9,6 +9,8 @@ alwaysApply: true
 Esta carpeta es el sitio público de un proyecto, en el formato que PiecesPHP sirve tal cual. Lo que cambies se ve igual
 en el sitio real. Detalle completo en `.agents/skills/designer/SKILL.md` y en `GUIDE.html`.
 
+- **Primero**: lee `DESIGN.md` (las reglas del diseño, si existe) y `PROJECT.md` (las reglas del proyecto y lo pendiente).
+
 - **Dónde**: el sitio está en `site/` (`site/index.html` es la portada; cada página, un `.html` en la raíz de `site/`);
   `site/parts/` lo repetido, `site/assets/` el CSS, JS, imágenes y fuentes, `site/data/` los datos de ejemplo.
 - **Libre**: el diseño de `site/` (HTML, CSS, JS, imágenes, fuentes). Páginas nuevas, copiando una de `site/` y
@@ -18,7 +20,7 @@ en el sitio real. Detalle completo en `.agents/skills/designer/SKILL.md` y en `G
 - En una `<pcs-list>`, solo los `{{campo}}` que existen en `site/data/`. En un `<pcs-form>`, no cambiar los `name` de los campos.
 - El `<script src=".pcs/pcs.js">` de cada página va en el `<head>`, antes de cualquier otro script y sin `async` ni
   `defer`: no se mueve.
-- Nunca PHP, Shadow DOM ni dependencias nuevas para la vista previa. `site/.pcs/` y `pcs.json` no se tocan.
+- Nunca PHP, Shadow DOM ni dependencias nuevas para la vista previa. `site/.pcs/`, `pcs.json` y `PROJECT.md` no se tocan.
 - Contenido del sistema (noticias, textos traducibles, listas): siempre por marca, nunca escrito a mano.
 - Antes de dar algo por terminado: `CHECK.html` sin avisos y cada página revisada en escritorio y en móvil abriendo `site/index.html`.
 - **Orden de trabajo**: localiza dónde está cada cosa antes de tocar varios archivos; cambia; revisa con la lista de

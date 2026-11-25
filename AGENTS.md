@@ -26,6 +26,7 @@ producción», sino «no embarques una trampa».
 | Tocar rutas o permisos | `.agents/context/05-routing-y-permisos.md` |
 | Tocar mappers o base de datos | `.agents/context/06-orm-mappers.md` y `11-base-de-datos.md` |
 | Clonar un módulo desde Publications | `.agents/context/15-plantilla-clonar-publications.md` |
+| Adaptar un diseño para el sitio público, o integrar una entrega del diseñador | la skill `adaptar-diseno` y `.agents/context/16-frontend-arquitectura.md` («El sitio público por marcas») |
 | Crear o tocar una vista del panel | `.agents/context/16-frontend-arquitectura.md` |
 | Entender la migración de PHP, ya ejecutada | `.agents/context/historico/` |
 | Entender por qué algo está como está | `.agents/context/14-deuda-y-limpieza.md` |

@@ -1,3 +1,53 @@
+# 10.63.0 (24-11-2026)
+
+- **El control del CSS propio del panel es más estricto**: `bin/censo-scss --trinquete` (y la comprobación 71 de
+  `bin/cli verify-integrity`) falla también cuando una cifra baja y no se rehace la línea base, para que el margen
+  ganado no se gaste después sin que se note, y vigila una cifra más: las reglas distintas del CSS compilado.
+- **Menos CSS propio en formularios y tablas del panel**: fuera dos reglas que repetían lo que ya da el tema (la
+  paginación de los listados en el móvil y el icono de una etiqueta oculta de los adjuntos). En pantalla, nada cambia.
+- **En desuso hasta la `11.0.0`: `.section-title`** del panel (el título de sección simple), sin uso en el framework.
+  Si tu proyecto la usa, pásala a un `ui header` del tema. Y fuera la regla propia que hacía saltar de línea la
+  paginación de los listados en el móvil: el tema ya lo hace a cualquier ancho.
+- **Los escaparates del tema, atados al panel**: `bin/cli verify-integrity` avisa (sin fallar) de las pantallas del
+  panel cuyo escaparate en el tema se quedó atrás o que todavía no tienen uno (`files/dev/escaparates.json`).
+- **Adaptar un diseño, más corto**: `bin/cli public-site-export` ya no necesita un sitio importado. Sale de una carpeta
+  (`from=files/design/adaptado`), de un sitio importado o, si `site=` nombra uno no importado, del sitio de ejemplo del kit, y dice de cuál.
+  Hacia `files/design/` escribe solo el sitio (sin el kit), para guardar el adaptado en el repositorio del proyecto;
+  fuera del proyecto, el paquete entero para el diseñador. Un `destination=` relativo se resuelve desde la raíz del
+  proyecto.
+- **Las reglas del diseñador y las del proyecto viajan**: el `DESIGN.md` del diseñador se conserva tal cual al importar
+  (en `app/view/<sitio>/DESIGN.md`) y vuelve en cada exportación; `files/design/PROJECT.md`, las reglas del proyecto,
+  va en la raíz del paquete; la herramienta de agentes del diseñador tiene negado editarlo y `CHECK.html` da un error si cambia.
+- **`public-site-import` resuelve un `folder=` relativo desde la raíz del proyecto**, como la exportación.
+- **`bin/formatear` no toca los archivos del diseñador**: ni `files/design/` ni los estáticos de los sitios importados.
+- **El comprobador del diseñador avisa de lo que finge funcionar**: enlaces que no llevan a ninguna parte, botones y
+  campos que solo son un dibujo, imágenes sin texto alternativo, formularios que no envían, bloques copiados en varias
+  páginas en vez de una parte, y recursos que se cargan desde dominios fuera de una lista de servicios conocidos (los
+  enlaces a otras webs no avisan). Una dirección absoluta cuyo final coincide con un archivo del paquete es un error; si
+  solo coincide el nombre, un aviso. La importación avisa de los recursos ajenos y los bloques, sin parar.
+- **Adaptar sin esperar al módulo**: `ResourceContract::estimated($name, $fields, $examples)` registra un recurso con
+  datos de ejemplo y el lector vacío, para adaptar un diseño antes de que exista su módulo. Avisos del sistema lo dice
+  mientras haya un sitio público activo y algún recurso estimado: en el sitio servido esas listas salen vacías.
+- **La lista vacía, en la vista previa**: `?pcs-vacio=<recurso>` (o `?pcs-vacio`, todas) pinta las listas sin filas.
+  Los datos de ejemplo de las publicaciones ya no llevan `#` ni una imagen de otro dominio: enlazan a la portada de la
+  vista previa y usan una imagen del kit.
+- **El procedimiento de adaptar, reescrito** (la skill del kit y el manual): primero la versión del diseñador, con lo
+  mínimo tocado y lo que finge corregido con la misma apariencia; el logo se queda como imagen salvo decisión del
+  proyecto; el censo funcional lo hace un agente que no adaptó; y el procedimiento no publica con pendientes sin decisión. Un proyecto clonado
+  trae además una skill de la metodología para todo el recorrido.
+- **Al actualizar**: lee el cambio incompatible de abajo si exportas paquetes para un diseñador.
+
+## ⚠ CAMBIO INCOMPATIBLE — exportar para el diseñador pide `files/design/PROJECT.md`
+
+`bin/cli public-site-export` hacia una carpeta fuera del proyecto falla, sin escribir nada, si no encuentra
+`files/design/PROJECT.md` (o el archivo de `project-file=`, que tiene que ser un archivo normal dentro del repositorio)
+con una línea que sea exactamente `## Pendientes conocidos`.
+Es la lista de lo que el sitio todavía no hace (ADR 0087): viaja con el paquete para que el diseñador no dé por
+terminado algo que no funciona.
+
+- **Qué hacer en un clon**: antes de exportar, crea `files/design/PROJECT.md` con dos secciones, `## Censo funcional`
+  y `## Pendientes conocidos` («Ninguno» si no queda nada), y las reglas que el proyecto quiera darle al diseñador.
+
 # 10.62.10 (23-11-2026)
 
 - **La tarjeta de cifra del panel admite el estado apagado**: `statistic-card.php` con `figure` y `disabled` la pinta

@@ -26,8 +26,12 @@
 # salvo en los archivos de bin/ ([bin/*] insert_final_newline = false).
 import fnmatch, json, os, shutil, subprocess, sys, tempfile
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HERRAMIENTAS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#Solo para las pruebas (UnitTest-Formatear): un repositorio git temporal como raíz; las herramientas siguen siendo las de aquí.
+RAIZ = os.path.abspath(os.environ['PCSPHP_FORMAT_ROOT']) if os.environ.get('PCSPHP_FORMAT_ROOT') else HERRAMIENTAS
 UNIVERSO_JSON = 'files/dev/format-universe.json'
+if RAIZ != HERRAMIENTAS:
+    print('formatear: raíz de prueba (PCSPHP_FORMAT_ROOT): ' + RAIZ, file=sys.stderr)
 
 #Los argumentos de la extensión: su configuración por omisión, con lo que declara .vscode/settings.json encima
 #(phpfmt.psr2, phpfmt.indent_with_space y phpfmt.passes, que SUSTITUYE a la lista por omisión). Sin AutoSemicolon, que
@@ -37,7 +41,7 @@ PHP_ARGUMENTOS = ['--psr2', '--indent_with_space=4', '--passes=' + ','.join(PHP_
 
 #──── El universo: lo versionado con estas extensiones, menos lo de terceros, lo compilado y lo dudoso ──────────
 EXTENSIONES = ('.php', '.js', '.scss', '.css')
-FUERA_CARPETAS = ('src/vendor/', 'src/statics/plugins/', 'node_modules/', 'bin/tools/')
+FUERA_CARPETAS = ('src/vendor/', 'src/statics/plugins/', 'node_modules/', 'bin/tools/', 'files/design/')
 FUERA_SUFIJOS = ('.min.js', '.min.css')
 #Lo que el clon declara fuera (ADR 0085 §6). Sin el archivo, nada: el universo de este repositorio no cambia.
 EXCLUIR_DEL_CLON = '.piecesphp-formato-excluir'
@@ -68,6 +72,14 @@ def compilado(ruta):
     if ruta.startswith('src/app/classes/') and ruta.endswith('.css') and '/css/' in ruta:
         return os.path.isfile(os.path.join(RAIZ, ruta.replace('/css/', '/sass/')[:-len('.css')] + '.scss'))
     return False
+
+
+def estaticos_de_sitios_importados():
+    #Los copia SiteImporter tal cual del paquete del diseñador: un sitio importado es el que tiene su pcs.json (PublicSite::MANIFEST).
+    #Lo decide git y no el disco: un pcs.json que git ignora no saca nada; en la pathspec «*» cruza «/», de ahí los cinco tramos.
+    salida = subprocess.run(['git', '-C', RAIZ, 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'src/app/view/*/pcs.json'], capture_output=True, check=True).stdout
+    tramos = sorted({tuple(r.decode('utf-8').split('/')) for r in salida.split(b'\0') if r})
+    return tuple('src/statics/%s/' % t[3] for t in tramos if len(t) == 5)
 
 
 def exclusiones_del_clon():
@@ -101,8 +113,9 @@ def clasificar(con_nuevos=False):
     salida = subprocess.run(['git', '-C', RAIZ, 'ls-files', '-z'] + (['--cached', '--others', '--exclude-standard'] if con_nuevos else []) + ['--'] + ['*' + e for e in EXTENSIONES], capture_output=True, check=True).stdout
     universo, compilados = [], []
     del_clon = exclusiones_del_clon()
+    fuera = FUERA_CARPETAS + estaticos_de_sitios_importados()
     for ruta in sorted(r.decode('utf-8') for r in salida.split(b'\0') if r):
-        if ruta.startswith(FUERA_CARPETAS) or ruta.endswith(FUERA_SUFIJOS) or ruta in DUDOSOS or excluida_por_el_clon(ruta, del_clon):
+        if ruta.startswith(fuera) or ruta.endswith(FUERA_SUFIJOS) or ruta in DUDOSOS or excluida_por_el_clon(ruta, del_clon):
             continue
         if compilado(ruta):
             compilados.append(ruta)
@@ -114,7 +127,7 @@ def clasificar(con_nuevos=False):
 def guardar_universo(universo, compilados):
     datos = {
         'why': 'Lo que formatea bin/formatear (P233, P235, P236): lo versionado .php, .js, .scss y .css, menos lo de terceros, lo compilado y lo dudoso. Las reglas viven en bin/formatear; esto es su foto (bin/artefactos).',
-        'fuera_por_carpeta_o_sufijo': list(FUERA_CARPETAS) + ['*' + s for s in FUERA_SUFIJOS] + exclusiones_del_clon(),
+        'fuera_por_carpeta_o_sufijo': list(FUERA_CARPETAS) + list(estaticos_de_sitios_importados()) + ['*' + s for s in FUERA_SUFIJOS] + exclusiones_del_clon(),
         'compilados': compilados,
         'dudosos': DUDOSOS,
         'por_lenguaje': {e: sum(1 for r in universo if r.endswith(e)) for e in EXTENSIONES},
@@ -150,8 +163,8 @@ def formatear_copias(copias, origenes=None):
             sin_alinear[ruta] = copia + '.sin-alinear.php'
             shutil.copyfile(copia, sin_alinear[ruta])
             argumentos = [a for a in PHP_ARGUMENTOS if not a.startswith('--passes=')] + ['--passes=' + ','.join(p for p in PHP_PASES if p != 'AlignPHPCode')]
-            subprocess.run([php, os.path.join(RAIZ, 'bin/tools/phpfmt/fmt.stub.php')] + argumentos + [sin_alinear[ruta]], cwd=os.path.dirname(os.path.join(RAIZ, ruta)), capture_output=True)
-        resultado = subprocess.run([php, os.path.join(RAIZ, 'bin/tools/phpfmt/fmt.stub.php')] + PHP_ARGUMENTOS + [copia], cwd=os.path.dirname(os.path.join(RAIZ, ruta)), capture_output=True)
+            subprocess.run([php, os.path.join(HERRAMIENTAS, 'bin/tools/phpfmt/fmt.stub.php')] + argumentos + [sin_alinear[ruta]], cwd=os.path.dirname(os.path.join(RAIZ, ruta)), capture_output=True)
+        resultado = subprocess.run([php, os.path.join(HERRAMIENTAS, 'bin/tools/phpfmt/fmt.stub.php')] + PHP_ARGUMENTOS + [copia], cwd=os.path.dirname(os.path.join(RAIZ, ruta)), capture_output=True)
         if resultado.returncode != 0:
             errores[ruta] = 'phpfmt salió con %d' % resultado.returncode
     lote = [(ruta, copia) for ruta, copia in por_lenguaje['.php'] if ruta not in errores]
@@ -159,7 +172,7 @@ def formatear_copias(copias, origenes=None):
         pares = []
         for ruta, copia in lote:
             pares += [(origenes or {}).get(ruta, os.path.join(RAIZ, ruta)), copia, sin_alinear.get(ruta, '-')]
-        resultado = subprocess.run([php_del_proyecto(), os.path.join(RAIZ, 'bin/tools/formato/php.php')] + pares, capture_output=True, text=True)
+        resultado = subprocess.run([php_del_proyecto(), os.path.join(HERRAMIENTAS, 'bin/tools/formato/php.php')] + pares, capture_output=True, text=True)
         vistos = {}
         for linea in resultado.stdout.splitlines():
             try:
@@ -175,7 +188,7 @@ def formatear_copias(copias, origenes=None):
     for extension, guion in (('.js', 'js.js'), ('.css', 'css.js')):
         lote = por_lenguaje[extension]
         if lote:
-            resultado = subprocess.run(['node', os.path.join(RAIZ, 'bin/tools/formato', guion)] + [c for _, c in lote], capture_output=True, text=True)
+            resultado = subprocess.run(['node', os.path.join(HERRAMIENTAS, 'bin/tools/formato', guion)] + [c for _, c in lote], capture_output=True, text=True)
             if resultado.returncode != 0:
                 for ruta, _ in lote:
                     errores.setdefault(ruta, resultado.stderr.strip()[-300:] or 'node salió con %d' % resultado.returncode)

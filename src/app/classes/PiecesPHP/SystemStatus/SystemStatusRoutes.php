@@ -23,6 +23,9 @@ use PiecesPHP\Core\Routing\InvalidRoutes;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
+use PiecesPHP\PublicSite\PublicSite;
+use PiecesPHP\PublicSite\ResourceContract;
+use PiecesPHP\PublicSite\ResourceRegistry;
 use PiecesPHP\Settings\ORM\SettingsModel;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
@@ -462,6 +465,59 @@ class SystemStatusRoutes
             [UsersModel::TYPE_USER_ROOT],
             true
         ));
+
+        //Un recurso estimado (ADR 0087 §5) tiene lector vacío: servido, su lista sale vacía hasta que el módulo exista.
+        SystemAlertRegistry::register(new SystemAlert(
+            'public-site-estimated-resources',
+            SystemAlert::SEVERITY_WARNING,
+            fn(): string => sprintf(
+                __(SystemStatusController::LANG_GROUP, 'El sitio público usa datos estimados: %s. En el sitio servido esas listas salen vacías hasta que el módulo registre su lector real.'),
+                implode(', ', self::estimatedResourcesInUse(PublicSite::activeSite(), ResourceRegistry::all()))
+            ),
+            fn(): bool => self::estimatedResourcesInUse(PublicSite::activeSite(), ResourceRegistry::all()) !== [],
+            true,
+            [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL],
+            true,
+            null,
+            null,
+            [],
+            //Un recurso estimado nuevo cambia la versión: el aviso flotante cerrado vuelve a salir (como new-errors).
+            fn(): string => self::estimatedNagVersion(self::estimatedResourcesInUse(PublicSite::activeSite(), ResourceRegistry::all()))
+        ));
+    }
+
+    /**
+     * La versión del aviso de datos estimados: la huella de la lista ordenada de recursos. Pura.
+     *
+     * @param string[] $names
+     * @return string
+     */
+    public static function estimatedNagVersion(array $names): string
+    {
+        sort($names, \SORT_STRING);
+        return substr(sha1(implode(',', $names)), 0, 12);
+    }
+
+    /**
+     * Los recursos estimados (lector vacío) que importan: ninguno si no hay sitio público activo. Puro.
+     *
+     * @param string|null $activeSite El de PublicSite::activeSite()
+     * @param array<string,ResourceContract> $resources Los de ResourceRegistry::all()
+     * @return string[]
+     */
+    public static function estimatedResourcesInUse(?string $activeSite, array $resources): array
+    {
+        if ($activeSite === null) {
+            return [];
+        }
+        $names = [];
+        foreach ($resources as $contract) {
+            if ($contract->isEstimated()) {
+                $names[] = $contract->name;
+            }
+        }
+        sort($names, \SORT_STRING);
+        return $names;
     }
 
     /**

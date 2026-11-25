@@ -207,11 +207,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v10.62.10');
+    define('APP_VERSION', 'v10.63.0');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', (new \DateTime('2026-11-23'))->format('Y-m-d'));
+    define('APP_VERSION_DATE', (new \DateTime('2026-11-24'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];

@@ -61,7 +61,9 @@ para y se dice qué cae: el hook de push corre lo mismo.
 Se le pregunta al PO, en un solo mensaje numerado, y se escribe lo que conteste (sus palabras, formalizadas):
 
 1. Qué es el proyecto y para quién.
-2. El objetivo de la primera etapa y qué cuenta como terminado.
+2. El objetivo de la primera etapa y qué cuenta como terminado. **Terminado es que funcione** (ADR 0088): lo visible se
+   entrega con su censo funcional, firmado por un agente que no lo construyó, y con su lista «Pendientes conocidos»;
+   «responde 200» y «las pruebas pasan» no lo sustituyen.
 3. Si lleva zona pública. Si no: `$config['public_area'] = false` en `src/app/config/config.php` (el panel puede ir en otra ruta con
    `$config['admin_path']`; en la raíz, todavía no). Si lleva un sitio público desde un diseño: el manual «Adaptar una plantilla,
    de principio a fin» de la documentación de PiecesPHP y la skill `adapt-design` del kit del sitio público. Adónde lleva

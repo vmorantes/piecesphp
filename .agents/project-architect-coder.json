@@ -43,6 +43,6 @@
     "deliverables": {
         "prefixes": ["src/", "bin/", "databases/", "source-docs/", "files/"],
         "files": ["README.md", "CHANGELOG.md", "LICENSE", ".gitignore", ".gitattributes", ".editorconfig"],
-        "excluded": ["src/vendor/", "src/statics/plugins/", "src/composer.lock", "bin/tools/vendor/"]
+        "excluded": ["src/vendor/", "src/statics/plugins/", "src/composer.lock", "bin/tools/vendor/", "files/design/"]
     }
 }

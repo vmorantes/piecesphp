@@ -231,6 +231,8 @@ estar en `PO.md`, que es el único sitio donde deben vivir las cosas del PO (`pe
 
 - **No es un volcado de la conversación.** La bitácora es una entrada por tarea cerrada, no una
   transcripción. Lo que no cambie lo que alguien hará mañana, no entra.
+- **No da por hecho lo que nadie usó.** Una entrega visible sin su censo funcional (ADR 0088) entra en el resumen como
+  «sin verificar su función», no como hecha.
 - **No es un sitio para decidir.** Si en el cierre aparece una decisión, se escribe su ADR y
   `AHORA.md` lo apunta.
 - **No es opcional cuando el día acabó mal.** Un día que termina con un fallo propio se cierra

@@ -73,7 +73,9 @@ footer{color:var(--muted);text-align:center;font-size:14px;padding:0 0 40px}
   data/            los datos de ejemplo de la vista previa (los genera el proyecto: no se tocan)
   .pcs/            el motor de la vista previa (oculto, no se toca)
 CHECK.html         comprueba la carpeta
-GUIDE.html         esta guía</div>
+GUIDE.html         esta guía
+DESIGN.md          tus reglas del diseño, si las escribes
+PROJECT.md         las reglas del proyecto y lo pendiente (se lee, no se toca)</div>
 </section>
 
 <section>
@@ -112,6 +114,7 @@ GUIDE.html         esta guía</div>
 <section>
   <h2>Cuando lo entregas</h2>
   <p class="sub">Comprueba, revisa y entrega la carpeta entera.</p>
+  <p><code>CHECK.html</code> también avisa de lo que parece funcionar y no funciona: un enlace que no lleva a ninguna parte, un botón o un campo que solo es un dibujo, una imagen sin texto alternativo, un formulario que no envía, un bloque copiado en varias páginas que debería ser una pieza repetida, y lo que la página carga desde otros dominios, salvo servicios conocidos como fuentes, vídeos y mapas (los enlaces a otras webs no avisan). Si una dirección apunta a un archivo que ya está en la carpeta, es un error: pon la ruta local que te indica.</p>
   <p>Pasa <code>CHECK.html</code> hasta que no quede ningún aviso, repasa cada página en escritorio y en móvil, y entrega la carpeta tal cual. El equipo la sube con una orden. Si algo no estuviera bien, el sitio real no se rompe: sigue sirviendo la versión anterior hasta que se corrija.</p>
 </section>
 
@@ -122,6 +125,7 @@ GUIDE.html         esta guía</div>
   <details><summary>Necesito un dato que no está en <code>site/data/</code>.</summary><p>Es lo único que pide trabajo de programación. Pídeselo al equipo con la página y el campo; mientras, diseña con un dato de ejemplo parecido.</p></details>
   <details><summary>¿Puedo usar mi framework de CSS o mis librerías de JavaScript?</summary><p>Sí, en <code>site/assets/</code>. Lo que funcione en el navegador funciona en el sitio real.</p></details>
   <details><summary>¿Por qué los datos de la vista previa no son los reales?</summary><p>Son de ejemplo, para que puedas diseñar sin conexión. En el sitio real salen los de verdad, en el mismo lugar y con tu diseño.</p></details>
+  <details><summary>¿Cómo veo una lista vacía?</summary><p>Abre la página con <code>?pcs-vacio=publications</code> al final de la dirección (el nombre del recurso; varios, separados por comas; <code>?pcs-vacio</code> sola vacía todas). Así compruebas que tu diseño también se ve bien cuando no hay nada que mostrar.</p></details>
 </section>
 
 </main>

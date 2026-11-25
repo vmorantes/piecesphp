@@ -163,6 +163,10 @@ la ligereza de mi lenguaje»* (2026-08-24). Su frase textual solo se cita como f
   reemitir la instrucción (2026-08-26, 2026-08-27).
 - **Si un bloque cambia lógica del producto, se le explica en términos de lógica** en el resumen
   (2026-08-26).
+- **Al transmitir una decisión del PO a otra sesión, sus palabras** (ADR 0088 §5); lo deducido, marcado como del
+  arquitecto. **Y mientras el PO conversa con el arquitecto sobre algo, nada de esa conversación sale a otra sesión sin
+  preguntarle** (PO, 2026-11-23). Nace de que el arquitecto le dijo a otro proyecto que algo «salía del framework» sin
+  que el PO lo hubiera dicho.
 - **Puede corregir al coder directamente** a mitad de un bloque. El coder lo hace y lo declara en
   su reporte (2026-08-26).
 - **Trabajo hecho o en vuelo no se deshace por una lectura del arquitecto** (2026-09-30: «perder trabajo es PEOR que
@@ -486,6 +490,24 @@ de correr `gates`, y el commit entró con una prueba rota.
 
 **Un cambio que solo reordena marcado, sin lógica, no repite la ENTERA** (PO, 2026-10-30: «no puede ser que por algo así se deba repetir una verificación entera»):
 basta con las suites que nombren esa vista y `bin/formatear --check` de ese archivo, y el reporte dice sobre qué commit corrió la ENTERA.
+
+### Hecho es que funcione, y lo comprueba otro (ADR 0088)
+
+Lo que ve un usuario —una pantalla, un sitio, un formulario— **no está hecho porque responda 200 ni porque las suites
+pasen**: está hecho cuando hace lo que promete, medido sobre la instalación servida.
+
+1. **Censo funcional.** Toda ronda que entrega algo visible lleva el censo de sus elementos interactivos (enlace, botón,
+   campo, formulario, lista, menú): qué promete cada uno y si lo hace. Cero «falso» sin decisión del PO.
+2. **Lo firma quien no lo construyó.** El coder lanza un agente distinto del que construyó, que recorre y usa cada
+   elemento con `bin/navegador` y entrega el censo. El reporte lo trae tal cual; quien construyó no firma su propio censo.
+3. **Lo aplazado se escribe y bloquea publicar**: una lista «Pendientes conocidos» acompaña la entrega (en un sitio por
+   marcas, en su `PROJECT.md`, ADR 0087; en lo demás, en `abierto.md`). Con algo sin decisión del PO, no se etiqueta
+   ni se publica.
+4. **«Es del framework» no es respuesta.** En un proyecto clonado, lo que el proyecto necesita lo construye el proyecto;
+   lo que le falte al framework se reporta y no se espera.
+
+Nace del 2026-11-23: el primer clon estuvo a punto de publicar un buscador que no buscaba y un «Cargar más» que no
+cargaba, con todas sus páginas en 200.
 
 ### Commits
 

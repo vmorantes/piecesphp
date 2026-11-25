@@ -19,6 +19,8 @@
 # Sin `set -e` a propósito (regla 30): el encadenado es explícito.
 
 set -o pipefail
+#La raíz de prueba de bin/formatear no puede colarse desde el entorno: la puerta de formato miraría otro repositorio.
+unset PCSPHP_FORMAT_ROOT
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT="$SCRIPT_DIR/.."

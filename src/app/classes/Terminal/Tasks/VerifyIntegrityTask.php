@@ -14,6 +14,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Utilities\Helpers\StructuredData;
+use PiecesPHP\PublicSite\SiteExporter;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CliActions;
@@ -260,10 +261,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         65 => ['files/dev/route-inventory.json', self::API_SPEC_RELATIVE_PATH, self::API_EXCLUSIONS_RELATIVE_PATH, 'bin/api-docs'],
         70 => [FormActionFields::DECLARED_RELATIVE_PATH, '.git'],
         71 => ['bin/censo-scss', self::SCSS_CENSUS_BASELINE_RELATIVE_PATH],
+        72 => [self::SHOWCASES_RELATIVE_PATH, '.git'],
     ];
 
     /** La línea base del censo de SCSS, relativa a la raíz (comprobación 71). */
     const SCSS_CENSUS_BASELINE_RELATIVE_PATH = 'files/dev/scss-census-baseline.json';
+
+    /** El registro de escaparates del tema, relativo a la raíz (comprobación 72, H220). */
+    const SHOWCASES_RELATIVE_PATH = 'files/dev/escaparates.json';
 
     /** La especificación OpenAPI de la API, fuente de su documentación (comprobación 65). */
     const API_SPEC_RELATIVE_PATH = 'source-docs/api/openapi.json';
@@ -582,6 +587,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 71. El CSS propio no crece: el censo de SCSS solo baja (H163) ──────────────
         $scssCensusFailures = Distribution::applies('71', self::DISTRIBUTION_REQUIREMENTS[71]) ? self::checkScssCensus() : [];
 
+        //──── 72. El registro de escaparates no se pudre; lo desfasado y lo que no tiene escaparate se avisa (H220) ─
+        $showcaseFailures = Distribution::applies('72', self::DISTRIBUTION_REQUIREMENTS[72]) ? self::checkShowcases() : [];
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -624,7 +632,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
          + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures)
-         + count($structuredDataFailures) + count($formFieldFailures) + count($scssCensusFailures);
+         + count($structuredDataFailures) + count($formFieldFailures) + count($scssCensusFailures) + count($showcaseFailures);
 
         foreach ($cloneFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
@@ -694,6 +702,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($scssCensusFailures as $line) {
             echoTerminal("\e[31mCENSO DE SCSS:\e[39m {$line}");
+        }
+        foreach ($showcaseFailures as $line) {
+            echoTerminal("\e[31mESCAPARATES:\e[39m {$line}");
         }
         foreach ($unstampedFailures as $line) {
             echoTerminal("\e[31mSCSS SIN HUELLA:\e[39m {$line}");
@@ -2548,18 +2559,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         //Al revés: lo que está en 100755 tiene que ser un programa.
-        $ejecutables = 0;
-        $sinPrograma = [];
-        foreach (self::nulSeparated('git -C ' . escapeshellarg($root) . ' ls-files -s -z') as $entry) {
-            if (preg_match('/^(\d{6})\s+\S+\s+\d+\t(.+)$/s', $entry, $matched) !== 1 || $matched[1] !== '100755') {
-                continue;
-            }
-            $ejecutables++;
-            $inicio = (string) @file_get_contents($root . '/' . $matched[2], false, null, 0, 2);
-            if ($inicio !== '#!') {
-                $sinPrograma[] = $matched[2];
-            }
-        }
+        [$ejecutables, $sinPrograma] = self::executablesWithoutShebang($root, self::nulSeparated('git -C ' . escapeshellarg($root) . ' ls-files -s -z'));
         foreach (array_slice($sinPrograma, 0, 10) as $relative) {
             $failures[] = $relative . ' — git lo tiene como 100755 y no empieza por «#!»: no es un programa.'
                 . ' «git update-index --chmod=-x -- ' . $relative . '» (y chmod -x en el disco).';
@@ -2572,6 +2572,30 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             . "{$ejecutables} archivo(s) en 100755 en el índice, " . ($ejecutables - count($sinPrograma)) . ' con «#!».');
 
         return $failures;
+    }
+
+    /**
+     * De las entradas de `git ls-files -s -z`: cuántas están en 100755 y cuáles de ellas no empiezan por «#!».
+     *
+     * @param string[] $entries
+     * @return array{0: int, 1: string[]}
+     */
+    protected static function executablesWithoutShebang(string $root, array $entries): array
+    {
+        $executables = 0;
+        $withoutShebang = [];
+        foreach ($entries as $entry) {
+            //files/design/: los bits del diseñador (un zip de Mac) no son nuestros (ADR 0086 §4).
+            if (preg_match('/^(\d{6})\s+\S+\s+\d+\t(.+)$/s', $entry, $matched) !== 1 || $matched[1] !== '100755' || str_starts_with($matched[2], SiteExporter::DESIGN_DIRECTORY . '/')) {
+                continue;
+            }
+            $executables++;
+            $start = (string) @file_get_contents($root . '/' . $matched[2], false, null, 0, 2);
+            if ($start !== '#!') {
+                $withoutShebang[] = $matched[2];
+            }
+        }
+        return [$executables, $withoutShebang];
     }
 
     /**
@@ -2726,6 +2750,55 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
+     * Del PHP versionado que nombra `$relatives`: [total, analizados, excluidos, sin cubrir] según los bloques de primer nivel del neon.
+     *
+     * @param string[] $relatives
+     * @param array<string, string[]> $blocks
+     * @return array{0: int, 1: int, 2: int, 3: string[]}
+     */
+    protected static function phpStanUniverseTally(string $root, array $relatives, array $blocks): array
+    {
+        $uncovered = [];
+        $analysed = 0;
+        $excludedCount = 0;
+        $total = 0;
+
+        foreach ($relatives as $relative) {
+            $file = $root . '/' . $relative;
+            if (!is_file($file)) {
+                continue;
+            }
+            //files/design/ es el diseño tal como lo entrega el diseñador (ADR 0086 §4): no es código del proyecto.
+            if (str_starts_with($relative, SiteExporter::DESIGN_DIRECTORY . '/') || !self::looksLikePhp($relative, $file)) {
+                continue;
+            }
+            $total++;
+
+            $under = static function (array $prefixes) use ($relative): bool {
+                foreach ($prefixes as $prefix) {
+                    //Cadena vacía = la raíz del repositorio: lo cubre todo.
+                    if ($prefix === '' || $relative === $prefix || str_starts_with($relative, rtrim($prefix, '/') . '/')) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            if ($under($blocks['excludePaths'])) {
+                $excludedCount++;
+                continue;
+            }
+            if ($under($blocks['paths'])) {
+                $analysed++;
+                continue;
+            }
+            $uncovered[] = $relative;
+        }
+
+        return [$total, $analysed, $excludedCount, $uncovered];
+    }
+
+    /**
      * Todo el PHP versionado está DENTRO del análisis estático o DECLARADO fuera.
      *
      * `paths` apunta a la raíz, así que TODO entra por defecto y lo único que saca código es
@@ -2796,41 +2869,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             return [];
         }
 
-        $uncovered = [];
-        $analysed = 0;
-        $excludedCount = 0;
-        $total = 0;
-
-        foreach ($output as $relative) {
-            $file = $root . '/' . $relative;
-            if (!is_file($file)) {
-                continue;
-            }
-            if (!self::looksLikePhp($relative, $file)) {
-                continue;
-            }
-            $total++;
-
-            $under = static function (array $prefixes) use ($relative): bool {
-                foreach ($prefixes as $prefix) {
-                    //Cadena vacía = la raíz del repositorio: lo cubre todo.
-                    if ($prefix === '' || $relative === $prefix || str_starts_with($relative, rtrim($prefix, '/') . '/')) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-
-            if ($under($blocks['excludePaths'])) {
-                $excludedCount++;
-                continue;
-            }
-            if ($under($blocks['paths'])) {
-                $analysed++;
-                continue;
-            }
-            $uncovered[] = $relative;
-        }
+        [$total, $analysed, $excludedCount, $uncovered] = self::phpStanUniverseTally($root, $output, $blocks);
 
         foreach (array_slice($uncovered, 0, 10) as $relative) {
             $failures[] = $relative . ' — ni lo analiza PHPStan ni está excluido. El baseline no lo'
@@ -3835,8 +3874,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * 71. El censo de SCSS no sube sobre su línea base (H163): ni clases que pisan al tema, ni clases propias declaradas, ni
-     * reglas que no pueden casar, ni líneas.
+     * 71. El censo de SCSS no se mueve de su línea base (H163): ni clases que pisan al tema, ni clases propias declaradas, ni
+     * reglas que no pueden casar, ni líneas, ni reglas del CSS compilado. Una bajada sin rehacer la base también cae.
      *
      * Delega en `bin/censo-scss --trinquete`, que compila con `gulp sass-all` y es donde viven el universo y el método.
      * Compila porque gulp solo reescribe un CSS que cambia: por la fecha no se puede saber si el compilado está al día.
@@ -3878,6 +3917,302 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m 71 " . mb_substr($line, mb_strlen('TRINQUETE: ')));
         return [];
+    }
+
+    /**
+     * 72. El registro de escaparates (H220, P300): el tema replica nuestro panel, y `files/dev/escaparates.json` dice qué
+     * escaparate replica cada vista y con qué huella de sus fuentes se concilió.
+     *
+     * FALLA solo si el registro se pudre (forma, rutas, fuentes, commits). Lo desfasado y lo que no tiene escaparate se
+     * AVISA: es trabajo para el agente del tema, no un fallo del framework. No lee el repositorio del tema.
+     *
+     * @return string[]
+     */
+    protected static function checkShowcases(): array
+    {
+        $root = Distribution::root();
+        $routes = get_routes();
+        $review = self::showcaseRegistryReview($root . '/' . self::SHOWCASES_RELATIVE_PATH, $root, is_array($routes) ? $routes : []);
+        if ($review['failures'] !== []) {
+            return $review['failures'];
+        }
+        echoTerminal("\e[94mINFO:\e[39m 72 " . $review['line']);
+        foreach ($review['groups'] as $group => $names) {
+            if ($names !== []) {
+                echoTerminal('    ' . $group . ': ' . implode(', ', $names));
+            }
+        }
+        return [];
+    }
+
+    /**
+     * Revisa el registro de escaparates contra la tabla de rutas y el árbol (comprobación 72; la suite la llama con copias).
+     *
+     * Universo: rutas con GET entre sus métodos, con sesión, sin «statics» en el patrón y bajo la dirección del panel
+     * (ProjectStart::adminPath(), como la 61), menos `no_es_vista`.
+     *
+     * @param string $registryFile El registro (o una copia).
+     * @param string $root Donde se leen las fuentes y se consulta git.
+     * @param array<mixed> $routes Nombre => ['method' => …, 'route' => …, 'require_login' => …], como get_routes().
+     * @param callable(string): bool|null $isOff Si una ruta que no está en la tabla es de un módulo apagado (por omisión,
+     *                                          offModuleOfRoute()): no aplica, como en la 61, y no falla.
+     * @param callable(string, array<mixed>): bool|null $inPanel Si la ruta vive bajo el panel (por omisión, su dirección
+     *                                                         con get_route() contra adminPath(), como la 61).
+     * @return array{failures: string[], line: string, counts: array<string,int>, groups: array<string,string[]>}
+     */
+    public static function showcaseRegistryReview(string $registryFile, string $root, array $routes, ?callable $isOff = null, ?callable $inPanel = null): array
+    {
+        $isOff = $isOff ?? fn (string $routeName): bool => self::offModuleOfRoute($routeName) !== null;
+        if ($inPanel === null) {
+            $panelPattern = '#/' . preg_quote(ProjectStart::adminPath(), '#') . '/#';
+            $inPanel = static function (string $routeName, array $route) use ($panelPattern): bool {
+                //La dirección, con cada parámetro relleno: la de una ruta con {id} también cae bajo el panel.
+                $url = get_route($routeName, array_fill_keys(array_keys((array) ($route['parameters'] ?? [])), '1'), true);
+                return is_string($url) && preg_match($panelPattern, (string) parse_url($url, \PHP_URL_PATH)) === 1;
+            };
+        }
+        $empty = ['failures' => [], 'line' => '', 'counts' => [], 'groups' => []];
+        $name = basename($registryFile);
+        $data = is_file($registryFile) ? json_decode((string) file_get_contents($registryFile), true) : null;
+        if (!is_array($data)) {
+            return ['failures' => ["{$name} no existe o no es JSON válido: el registro de escaparates NO se ha comprobado"]] + $empty;
+        }
+        foreach (['why' => 'string', 'metodo' => 'string', 'vistas' => 'array', 'no_es_vista' => 'array'] as $key => $type) {
+            if (($type === 'string' && !is_string($data[$key] ?? null)) || ($type === 'array' && !is_array($data[$key] ?? null))) {
+                return ['failures' => ["{$name} no trae «{$key}» ({$type}): el registro de escaparates NO se ha comprobado"]] + $empty;
+            }
+        }
+
+        //Por nombre, como la 61: la clave o, si no la hay, su «name».
+        $byName = [];
+        foreach ($routes as $key => $route) {
+            $routeName = is_string($key) && $key !== '' ? $key : (is_array($route) ? (string) ($route['name'] ?? '') : '');
+            if ($routeName !== '' && is_array($route)) {
+                $byName[$routeName] = $route;
+            }
+        }
+        $routes = $byName;
+        if ($routes === []) {
+            return ['failures' => ['la tabla de rutas sale vacía: no se leyó, y el registro de escaparates NO se ha comprobado']] + $empty;
+        }
+        //Lo que el registro puede nombrar (GET, sesión, sin «statics»); el universo, eso mismo bajo el panel.
+        $nameable = [];
+        $universe = [];
+        foreach ($routes as $key => $route) {
+            $methods = array_map('trim', explode('|', strtoupper((string) ($route['method'] ?? ''))));
+            if (in_array('GET', $methods, true) && ($route['require_login'] ?? false) && !str_contains((string) ($route['route'] ?? ''), 'statics')) {
+                $nameable[$key] = true;
+                if ($inPanel($key, $route)) {
+                    $universe[$key] = true;
+                }
+            }
+        }
+        $outside = static fn (string $route): string => "la ruta «{$route}» existe pero el registro no puede nombrarla (sin GET, sin sesión o con «statics»)";
+
+        $failures = [];
+        $seen = [];
+        $notViews = [];
+        $off = [];
+        foreach ($data['no_es_vista'] as $i => $entry) {
+            $route = is_array($entry) ? ($entry['ruta'] ?? null) : null;
+            if (!is_string($route) || !is_string($entry['motivo'] ?? null) || trim($entry['motivo']) === '') {
+                $failures[] = "no_es_vista[{$i}]: le falta «ruta» o «motivo»";
+                continue;
+            }
+            if (!array_key_exists($route, $routes)) {
+                if ($isOff($route)) {
+                    $off[] = $route;
+                } else {
+                    $failures[] = "no_es_vista: la ruta «{$route}» no existe en la tabla de rutas";
+                }
+            } elseif (!isset($nameable[$route])) {
+                $failures[] = 'no_es_vista: ' . $outside($route);
+            }
+            if (isset($seen[$route])) {
+                $failures[] = "la ruta «{$route}» está repetida en el registro";
+            }
+            $seen[$route] = true;
+            $notViews[$route] = true;
+        }
+
+        $stale = [];
+        $unreconciled = [];
+        $withShowcase = [];
+        foreach ($data['vistas'] as $i => $entry) {
+            $route = is_array($entry) ? ($entry['ruta'] ?? null) : null;
+            $sources = is_array($entry) ? ($entry['fuentes'] ?? null) : null;
+            if (!is_string($route) || !array_key_exists('escaparate', $entry) || !is_array($sources) || $sources === []
+                || !array_key_exists('huella', $entry) || !array_key_exists('conciliado', $entry)) {
+                $failures[] = "vistas[{$i}]: le falta «ruta», «escaparate», «fuentes», «huella» o «conciliado»";
+                continue;
+            }
+            //Una cadena, o una lista de cadenas si la vista tiene pestañas con escaparate cada una.
+            $showcases = is_array($entry['escaparate']) ? $entry['escaparate'] : [$entry['escaparate']];
+            if ($showcases === [] || count(array_filter($showcases, fn ($x): bool => is_string($x) && $x !== '')) !== count($showcases)) {
+                $failures[] = "«{$route}»: el escaparate es una cadena o una lista no vacía de cadenas";
+                continue;
+            }
+            if (isset($seen[$route])) {
+                $failures[] = isset($notViews[$route]) ? "la ruta «{$route}» está en vistas y en no_es_vista" : "la ruta «{$route}» está repetida en el registro";
+            }
+            $seen[$route] = true;
+            if (!array_key_exists($route, $routes)) {
+                if ($isOff($route)) {
+                    //De un módulo apagado: sus fuentes pueden no existir en un clon que lo quitó.
+                    $off[] = $route;
+                } else {
+                    $failures[] = "vistas: la ruta «{$route}» no existe en la tabla de rutas";
+                }
+                continue;
+            }
+            if (!isset($nameable[$route])) {
+                $failures[] = 'vistas: ' . $outside($route);
+                continue;
+            }
+            $sourcesOk = true;
+            foreach ($sources as $source) {
+                if (!is_string($source) || !is_file($root . '/' . $source)) {
+                    $failures[] = "«{$route}»: la fuente «" . (is_string($source) ? $source : '?') . '» no existe';
+                    $sourcesOk = false;
+                }
+            }
+            $fingerprint = $entry['huella'];
+            $commit = $entry['conciliado'];
+            if (($fingerprint === null) !== ($commit === null)) {
+                $failures[] = "«{$route}»: huella y conciliado van juntos (las dos o ninguna)";
+                continue;
+            }
+            if ($fingerprint !== null && (!is_string($fingerprint) || preg_match('/^[0-9a-f]{40}$/', $fingerprint) !== 1)) {
+                $failures[] = "«{$route}»: la huella no es un sha1";
+                continue;
+            }
+            if ($commit !== null && (!is_string($commit) || preg_match('/^[0-9a-f]{40}$/', $commit) !== 1)) {
+                $failures[] = "«{$route}»: conciliado «" . (is_string($commit) ? $commit : '?') . '» no es un hash entero (40 hexadecimales)';
+                continue;
+            }
+            if ($commit !== null && !self::isHistoryCommit($root, $commit)) {
+                $failures[] = "«{$route}»: conciliado «{$commit}» no es un commit del historial";
+                continue;
+            }
+            //La huella registrada es la de sus fuentes en el commit conciliado: una inventada no se queda «desfasada» para siempre.
+            if ($commit !== null) {
+                $missing = [];
+                $atCommit = self::showcaseFingerprint($sources, function (string $file) use ($root, $commit, &$missing): ?string {
+                    $content = self::gitBlob($root, $commit, $file);
+                    if ($content === null) {
+                        $missing[] = $file;
+                    }
+                    return $content;
+                });
+                if ($missing !== []) {
+                    $failures[] = "«{$route}»: la fuente «{$missing[0]}» no existía en el commit conciliado {$commit}: recalcula la huella en un commit que tenga todas sus fuentes, o pon huella y conciliado a null hasta conciliarla";
+                    continue;
+                }
+                if ($atCommit !== $fingerprint) {
+                    $failures[] = "«{$route}»: la huella registrada no es la de sus fuentes en el commit conciliado {$commit}";
+                    continue;
+                }
+            }
+            if (isset($universe[$route])) {
+                $withShowcase[] = $route;
+            }
+            if ($fingerprint === null) {
+                $unreconciled[] = $route;
+            } elseif ($sourcesOk && self::showcaseFingerprint($sources, fn (string $file): ?string => ($c = @file_get_contents($root . '/' . $file)) === false ? null : $c) !== $fingerprint) {
+                $stale[] = $route;
+            }
+        }
+        if ($failures !== []) {
+            return ['failures' => $failures] + $empty;
+        }
+
+        //Un universo vacío no es «todo cubierto»: es que la tabla de rutas no se leyó (o el filtro del panel quedó ciego).
+        if ($universe === []) {
+            return ['failures' => ['el universo de la 72 sale con 0 vistas: la tabla de rutas no se leyó (o ninguna cuelga del panel); el registro de escaparates NO se ha comprobado']] + $empty;
+        }
+        $views = array_diff(array_keys($universe), array_keys($notViews));
+        $without = array_values(array_diff($views, $withShowcase));
+        sort($without);
+        sort($stale);
+        sort($unreconciled);
+        sort($off);
+        $counts = ['N' => count($withShowcase), 'M' => count($views), 'K' => count($stale), 'S' => count($unreconciled), 'U' => count($without)];
+        return [
+            'failures' => [],
+            'line' => "escaparates ejecutada: {$counts['N']}/{$counts['M']} vistas del panel con escaparate; {$counts['K']} desfasadas; {$counts['S']} sin conciliar; {$counts['U']} sin escaparate",
+            'counts' => $counts,
+            'groups' => ['desfasadas' => $stale, 'sin conciliar' => $unreconciled, 'sin escaparate' => $without, 'de módulos apagados (no aplican)' => $off],
+        ];
+    }
+
+    /**
+     * La huella de las fuentes de una vista: sha1 de «<ruta>\0<sha1 del contenido>\n» por fuente, ordenadas por ruta. El
+     * contenido con los CRLF pasados a LF, para que el final de línea de la extracción no la cambie.
+     *
+     * @param array<mixed> $sources Rutas relativas a la raíz.
+     * @param callable(string): ?string $read El contenido de una fuente (del árbol o de un commit), o null si no se pudo leer.
+     * @return string|null Null si alguna fuente no se pudo leer.
+     */
+    public static function showcaseFingerprint(array $sources, callable $read): ?string
+    {
+        $paths = array_values(array_filter($sources, 'is_string'));
+        sort($paths, \SORT_STRING);
+        $lines = '';
+        foreach ($paths as $path) {
+            $content = $read($path);
+            if (!is_string($content)) {
+                return null;
+            }
+            $lines .= $path . "\0" . sha1(str_replace("\r\n", "\n", $content)) . "\n";
+        }
+        return sha1($lines);
+    }
+
+    /**
+     * El contenido de un archivo en un commit (`git cat-file blob <commit>:<ruta>`), sin perder bytes, o null si no existía.
+     *
+     * @param string $root
+     * @param string $commit
+     * @param string $path
+     * @return string|null
+     */
+    protected static function gitBlob(string $root, string $commit, string $path): ?string
+    {
+        $process = proc_open(
+            ['git', '-C', $root, '--no-optional-locks', 'cat-file', 'blob', $commit . ':' . $path],
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes
+        );
+        if (!is_resource($process)) {
+            return null;
+        }
+        $content = stream_get_contents($pipes[1]);
+        //RETORNO-IGNORADO: el error de git no aporta; decide el código de salida.
+        stream_get_contents($pipes[2]);
+        //RETORNO-IGNORADO: cerrar la tubería ya leída no cambia el resultado; decide proc_close().
+        fclose($pipes[1]);
+        //RETORNO-IGNORADO: ídem, la del error.
+        fclose($pipes[2]);
+        return proc_close($process) === 0 && is_string($content) ? $content : null;
+    }
+
+    /**
+     * Si el commit existe y está en la historia de HEAD.
+     *
+     * @param string $root
+     * @param string $commit
+     * @return bool
+     */
+    protected static function isHistoryCommit(string $root, string $commit): bool
+    {
+        if (preg_match('/^[0-9a-f]{7,40}$/', $commit) !== 1) {
+            return false;
+        }
+        $output = [];
+        $status = 1;
+        //RETORNO-IGNORADO: lo que decide es $status.
+        exec('git -C ' . escapeshellarg($root) . ' --no-optional-locks merge-base --is-ancestor ' . escapeshellarg($commit) . ' HEAD 2>/dev/null', $output, $status);
+        return $status === 0;
     }
 
     /**

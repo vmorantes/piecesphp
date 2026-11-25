@@ -1,7 +1,8 @@
 # AGENTS.md — carpeta de diseño de un sitio PiecesPHP
 
 Esta carpeta es el sitio público de un proyecto, en el formato que PiecesPHP sirve tal cual: lo que cambies se ve igual
-en el sitio real. Antes de trabajar, lee la skill `designer` (`.agents/skills/designer/SKILL.md`, también copiada
+en el sitio real. Antes de trabajar, lee `DESIGN.md` (las reglas del diseño, si existe) y `PROJECT.md` (las reglas del
+proyecto), y después la skill `designer` (`.agents/skills/designer/SKILL.md`, también copiada
 en `.claude/skills/designer/`) y la guía (`GUIDE.html`). En Cursor, las reglas de `.cursor/rules/` resumen lo mismo.
 
 ## Dónde está cada cosa
@@ -12,6 +13,8 @@ en `.claude/skills/designer/`) y la guía (`GUIDE.html`). En Cursor, las reglas 
   la vista previa (no se toca). `site/parts/parts.js`: el paquete de partes (y la lista de recursos) que lee la vista previa con
   doble clic; lo rehace `CHECK.html` («Actualizar el paquete») al cambiar una parte.
 - `CHECK.html`: el comprobador. `GUIDE.html`: la guía. `pcs.json`: el manifiesto (no se toca).
+- `DESIGN.md`: las reglas del diseño, del diseñador (se cambian como el resto del diseño). `PROJECT.md`: las reglas del
+  proyecto, con lo que queda pendiente (no se toca).
 
 ## Las normas
 
@@ -20,7 +23,7 @@ en `.claude/skills/designer/`) y la guía (`GUIDE.html`). En Cursor, las reglas 
   `site/data/`. En un `<pcs-form>`, los `name` de los campos no cambian.
 - El contenido del sistema (listas, textos traducibles, metadatos) va siempre por marca, nunca escrito a mano.
 - Nunca: PHP, Shadow DOM, dependencias nuevas para la vista previa, ni cambios en `site/.pcs/`, `pcs.json`,
-  `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` o `.cursor/`.
+  `PROJECT.md`, `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` o `.cursor/`.
 - Dentro de la `<template>` de una lista no van otras marcas: en el sitio real no se resuelven.
 - Cada página lleva `<script src=".pcs/pcs.js"></script>` en su `<head>`, antes de cualquier otro script y sin
   `async` ni `defer`: no se mueve.

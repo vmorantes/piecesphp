@@ -181,7 +181,7 @@ $waitOverlayBackground: rgba(0, 0, 0, 0.386);
         }
     }
 
-    //Título de secciones simple
+    // @en-desuso 11.0.0: el título de sección simple, sin uso en el framework (JNY); se borra en la 11.0.0
     .section-title {
 
         width: max-content;

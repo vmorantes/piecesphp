@@ -28,7 +28,9 @@ vuelva a adaptar. Solo hay una regla: **las marcas `<pcs-…>` se respetan**.
 | `<pcs-list resource="…">` | Una lista que llena el sistema. Diseña UN elemento dentro de la `<template>`; `{{campo}}` es el dato. |
 | `<pcs-form action="…">` | Un formulario que recibe el sistema. Diséñalo como quieras; no cambies los `name` de sus campos. |
 
-En la vista previa ves datos de ejemplo (los de `site/data/`). En el proyecto real salen los de verdad.
+En la vista previa ves datos de ejemplo (los de `site/data/`). En el proyecto real salen los de verdad. Para ver cómo
+queda una lista vacía, abre la página con `?pcs-vacio=<recurso>` al final de la dirección (varios, separados por coma;
+`?pcs-vacio` sola, todas).
 
 ## 3. Lo que no se hace
 
@@ -38,7 +40,7 @@ En la vista previa ves datos de ejemplo (los de `site/data/`). En el proyecto re
 - Escribir PHP, o meter el contenido del sistema (noticias, textos traducibles) escrito a mano en el HTML.
 - Mover el `<script src=".pcs/pcs.js">` del `<head>` de una página: va antes de cualquier otro script, sin `async` ni
   `defer`.
-- Tocar `site/.pcs/`, `pcs.json` ni el andamiaje de agente (`AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/`).
+- Tocar `site/.pcs/`, `pcs.json`, `PROJECT.md` (las reglas del proyecto: se leen, no se cambian) ni el andamiaje de agente (`AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/`, `.cursor/`).
 
 ## 4. Antes de entregar
 

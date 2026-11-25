@@ -6,6 +6,11 @@
     "classListPattern": "^-?[_a-zA-Z][-_a-zA-Z0-9]*( +-?[_a-zA-Z][-_a-zA-Z0-9]*)*$",
     "sizesPattern": "^[-a-zA-Z0-9 (),.:%+*/]+$",
     "globalAttributes": ["class", "id", "style", "title", "role", "aria-*", "data-*"],
+    "knownHosts": {
+        "fonts": ["fonts.googleapis.com", "fonts.gstatic.com", "use.typekit.net"],
+        "video": ["www.youtube.com", "www.youtube-nocookie.com", "player.vimeo.com"],
+        "maps": ["maps.googleapis.com", "www.google.com", "api.mapbox.com"]
+    },
     "marks": {
         "pcs-part": {
             "attributes": {

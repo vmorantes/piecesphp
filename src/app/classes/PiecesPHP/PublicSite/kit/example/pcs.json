@@ -1,0 +1,16 @@
+{
+    "name": "example",
+    "formatVersion": 1,
+    "files": {
+        "site/assets/sample.svg": "8a8c965d4e57461d5b4626a577e638d63fe4d15e26c979131f771325a4053f52",
+        "site/assets/site.css": "d6047341fe5a5fd32e86e822de2089ba33489f592ccb74b282f402cea94156ea",
+        "site/contact.html": "3a8be3e1cfd334e87aad2d040c9b8086cc1f1fc4e535ca371ce4378b4bd8a159",
+        "site/data/publications.js": "1bbd9ab55d322e25815060cd36eacead0896f57226754df62bf7bc59d782a049",
+        "site/index.html": "4ba3e292828869162d9399a34aab68d796af44f947e118acc9b1e29734cf79e2",
+        "site/news.html": "8141e7ea178c36aba2805b294c1f53670d581f6094af9b0052c4cfc420856763",
+        "site/parts/footer.html": "3e98ab96c4ee58c153f7016a27d7264c841197757cfc866306d36b7251c4b473",
+        "site/parts/menu.html": "da16f8d919e8f846d4295519e855ebd7476cf2c51a94ddb860ef5ad6fee5f607",
+        "site/parts/parts.js": "f03b9aa26143fe77b3b6cdc72b6513c35f8db472c37fd57035dcd6174d6089af"
+    },
+    "protected": {}
+}

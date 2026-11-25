@@ -143,8 +143,8 @@ en diez de ellos. La comprobación de que el esquema entero se genera y se desha
 `bin/cli unit-tests:core/scheme-sql-round-trip`.
 
 > **El DDL que genera `SchemeCreator` es `utf8mb4` con `COLLATE=utf8mb4_bin`** (medido el 2026-11-23:
-> `src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:58`, `DEFAULT_COLLATION`; antes de `database` v5
-> era `utf8`/`utf8_bin`, y las tablas creadas entonces siguen así hasta que un `ALTER` las convierta).
+> `src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:58`, `DEFAULT_COLLATION`; antes de `database` v3.5.0
+> (`e305498`, medido con `git tag --contains` el 2026-11-24) era `utf8`/`utf8_bin`, y las tablas creadas entonces siguen así hasta que un `ALTER` las convierta).
 
 ## Backups
 

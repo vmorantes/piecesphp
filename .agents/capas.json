@@ -28,6 +28,7 @@
         ".agents/skills/cerrar-jornada/*",
         ".agents/skills/asentar-estado/*",
         ".agents/skills/iniciar-proyecto/*",
+        ".agents/skills/adaptar-diseno/*",
         ".agents/capas.json",
         ".agents/project-architect-coder.json",
         ".agents/docs/sdd.md",

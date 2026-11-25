@@ -24,7 +24,7 @@ $langGroupDatatables = 'datatables';
             ]);
         ?>
 
-        <?php //content-table-container: la paginación en el móvil, la misma regla que los listados (_content-screens.scss). ?>
+        <?php //content-table-container: gancho para el CSS de un proyecto; el framework no le da estilo (la paginación la envuelve el tema). ?>
         <div class="table-to-cards content-table-container">
 
             <div class="ui form component-controls">

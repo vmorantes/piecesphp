@@ -39,7 +39,7 @@ class PublicSiteImportTask extends TerminalTaskAbstract
         $this->description = new StringArray([
             "Importa la carpeta del diseñador como sitio público: la comprueba y la coloca sin dejar nada a medias.\r\n",
             "\tParámetros:\r\n",
-            "\t  folder=<ruta> La carpeta del paquete del diseñador (la que tiene site/ y pcs.json)\r\n",
+            "\t  folder=<ruta> La carpeta del paquete del diseñador (la que tiene site/ y pcs.json), relativa a la raíz o absoluta\r\n",
             "\t  site=<nombre> El nombre del sitio: app/view/<nombre>/ y statics/<nombre>/\r\n",
             "\t  check=yes     Solo comprueba; no coloca nada\r\n",
         ]);
@@ -54,6 +54,18 @@ class PublicSiteImportTask extends TerminalTaskAbstract
         $this->middlewares = [];
     }
 
+    /**
+     * La carpeta del paquete: relativa, contra la raíz del repositorio, como la exportación (bin/cli corre desde src/).
+     *
+     * @param string $folder
+     * @param string $root
+     * @return string
+     */
+    public static function resolveFolder(string $folder, string $root): string
+    {
+        return str_starts_with($folder, '/') ? $folder : rtrim($root, '/') . '/' . $folder;
+    }
+
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
         $terminal = TerminalData::instance();
@@ -64,6 +76,7 @@ class PublicSiteImportTask extends TerminalTaskAbstract
             echoTerminal("\e[31mERROR:\e[39m faltan parámetros. Uso: bin/cli public-site-import folder=<ruta> site=<nombre> [check=yes]");
             exit(1);
         }
+        $folder = self::resolveFolder($folder, dirname(rtrim(basepath(), '/')));
         $importer = new SiteImporter($folder, $site);
         $result = $onlyCheck ? ['ok' => true, 'problems' => $importer->check(), 'backup' => null] : $importer->import();
         $errors = self::printProblems($result['problems']);

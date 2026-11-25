@@ -17,6 +17,8 @@ use PiecesPHP\PublicSite\ResourceRegistry;
 use PiecesPHP\PublicSite\SiteExporter;
 use PiecesPHP\PublicSite\SiteImporter;
 use PiecesPHP\PublicSite\SiteRenderer;
+use PiecesPHP\SystemStatus\SystemAlertRegistry;
+use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CliActions;
 
 CliActions::make('unit-tests:core/public-site', function ($args) {
@@ -240,9 +242,13 @@ HTML;
         $write("{$kit}/" . SiteExporter::PACKAGE_MAP, json_encode(['files' => ['.claude/settings.json' => 'settings-zz.json']]) ?: '');
         $check(SiteExporter::cursorRuleProblem("---\ndescription: x\nalwaysApply: true\n---\n", true) === null && SiteExporter::cursorRuleProblem("---\nalwaysApply: false\n---\n", false) !== null && SiteExporter::cursorRuleProblem('sin cabecera', true) !== null && SiteExporter::cursorRuleProblem("---\nfoo: 1\nalwaysApply: true\n---\n", true) !== null, 'h1 la cabecera de una regla de Cursor se comprueba');
 
+        //La raíz del proyecto de la prueba: su files/design/PROJECT.md, sin tocar el del framework.
+        $repo = "{$root}/repo";
+        $projectText = "# Reglas del proyecto ZZ\n\nNo se toca AGENTS.md.\n\n## Censo funcional\n\nNada.\n\n## Pendientes conocidos\n\nNinguno.\n";
+        $write("{$repo}/files/design/PROJECT.md", $projectText);
         $makeDirectory("{$root}/out");
         $out = "{$root}/out/{$site}";
-        $export = (new SiteExporter($site, $out, true, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}"))->export();
+        $export = (new SiteExporter($site, $out, true, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
         $check($export['ok'], 'h2 se exporta', (string) json_encode($export, JSON_UNESCAPED_UNICODE));
         $expected = array_merge(['site/index.html', 'site/about.html', 'site/parts/menu.html', 'site/parts/parts.js', 'site/assets/css/site.css', 'site/data/zz-items.js', 'site/.pcs/pcs.js', 'site/.pcs/rules.js', 'site/.pcs/rules.json', 'CHECK.html', 'GUIDE.html', 'pcs.json', '.claude/settings.json'], array_keys(SiteExporter::PACKAGE_FILES));
         $missingFiles = array_values(array_filter($expected, fn (string $f): bool => !is_file("{$out}/{$f}") || is_link("{$out}/{$f}")));
@@ -263,18 +269,18 @@ HTML;
         $write("{$kit}/GUIDE.html", "<!DOCTYPE html><title>Guía</title><p>Mira AHORA.md</p>\n");
         $write("{$staticsRoot}/{$site}/guardia.py", "#\n");
         $outBad = "{$root}/out/bad";
-        $bad = (new SiteExporter($site, $outBad, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}"))->export();
+        $bad = (new SiteExporter($site, $outBad, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
         $check(!$bad['ok'] && !file_exists($outBad) && (glob("{$root}/out/.bad.*") ?: []) === [] && str_contains($bad['trace'], 'GUIDE.html') && str_contains($bad['trace'], 'guardia.py'), 'h7 con un rastro de la metodología (en el kit o en el sitio), falla y no deja nada', $bad['trace']);
         $write("{$kit}/GUIDE.html", "<!DOCTYPE html><title>GUIDE.html</title>\n");
         $remove("{$staticsRoot}/{$site}/guardia.py");
         foreach (['h8' => '.agents/rules/zz.md', 'h9' => '.claude/hooks/zz.sh', 'h10' => '.claude/agents/otro.md', 'h11' => '.cursor/hooks.json'] as $label => $outside) {
             $write("{$kit}/" . SiteExporter::PACKAGE_MAP, json_encode(['files' => [$outside => 'settings-zz.json']]) ?: '');
-            $bad = (new SiteExporter($site, $outBad, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}"))->export();
+            $bad = (new SiteExporter($site, $outBad, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
             $check(!$bad['ok'] && !file_exists($outBad) && str_contains((string) json_encode($bad['problems'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $outside), "{$label} {$outside}, fuera de la lista blanca, hace fallar la exportación", (string) json_encode($bad['problems'], JSON_UNESCAPED_UNICODE));
         }
         $write("{$kit}/" . SiteExporter::PACKAGE_MAP, json_encode(['files' => ['.claude/settings.json' => 'settings-zz.json']]) ?: '');
         $remove("{$kit}/subagents/design-adapter.md");
-        $bad = (new SiteExporter($site, $outBad, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}"))->export();
+        $bad = (new SiteExporter($site, $outBad, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
         $check(!$bad['ok'] && !file_exists($outBad) && str_contains((string) json_encode($bad['problems'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'subagents/design-adapter.md'), 'h12 sin uno de los tres subagentes en el kit, falla y dice cuál', (string) json_encode($bad['problems'], JSON_UNESCAPED_UNICODE));
         $write("{$kit}/subagents/design-adapter.md", "Marcador de design-adapter.\n");
 
@@ -286,6 +292,176 @@ HTML;
         $check($again['ok'] && $treeHashes("{$viewRoot}/{$site}") === $viewBefore && $treeHashes("{$staticsRoot}/{$site}") === $staticsBefore, 'i1 mismas huellas en view/<sitio>/ y statics/<sitio>/', (string) json_encode($again['problems'], JSON_UNESCAPED_UNICODE));
         $check(is_string($again['backup']) && is_file("{$again['backup']}/view/pcs.json") && is_dir("{$again['backup']}/statics"), 'i2 lo anterior queda respaldado para volver');
         $check(!$hasAgentFile(array_keys($treeHashes("{$viewRoot}/{$site}"))) && !$hasAgentFile(array_keys($treeHashes("{$staticsRoot}/{$site}"))), 'i3 el andamiaje del diseñador no entra en el proyecto');
+
+        //─── ex · El origen, el destino, DESIGN.md y PROJECT.md (ADR 0086/0087) ──────────────────────────────
+        echoTerminal('[ex] Exportar desde una carpeta o del ejemplo, a files/design/, y las notas del diseño y del proyecto');
+        $designText = "# Notas del diseño ZZ\nNombra AGENTS.md y CLAUDE.md sin ser rastro.\n\x00binario\xff\n";
+        $write("{$viewRoot}/{$site}/DESIGN.md", $designText);
+        $outK = "{$root}/out/k-{$site}";
+        $exportK = (new SiteExporter($site, $outK, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $kManifest = json_decode((string) @file_get_contents("{$outK}/pcs.json"), true);
+        $check($exportK['ok'] && @file_get_contents("{$outK}/DESIGN.md") === $designText && @file_get_contents("{$outK}/PROJECT.md") === $projectText, 'ex1 DESIGN.md y PROJECT.md en la raíz del paquete, byte a byte; DESIGN.md con «AGENTS.md» no hace caer el rastro', (string) json_encode([$exportK['problems'], $exportK['trace']], JSON_UNESCAPED_UNICODE));
+        $check(is_array($kManifest) && isset($kManifest['protected']['PROJECT.md']) && !isset($kManifest['protected']['DESIGN.md']) && !isset($kManifest['files']['DESIGN.md']), 'ex2 PROJECT.md va en protected; DESIGN.md no', (string) json_encode($kManifest['protected'] ?? null));
+        $remove("{$viewRoot}/{$site}/DESIGN.md");
+        $importK = (new SiteImporter($outK, $site, $viewRoot, $staticsRoot, $backupRoot))->import();
+        $check($importK['ok'] && @file_get_contents("{$viewRoot}/{$site}/DESIGN.md") === $designText && !file_exists("{$viewRoot}/{$site}/PROJECT.md") && !file_exists("{$staticsRoot}/{$site}/PROJECT.md"), 'ex3 importar copia DESIGN.md byte a byte a view/<sitio>/; con PROJECT.md no falla y no lo copia', (string) json_encode($importK['problems'], JSON_UNESCAPED_UNICODE));
+        $noDesign = "{$root}/k-sin-diseno";
+        foreach (PublicSite::filesIn($outK) as $relativeFile) {
+            if ($relativeFile !== 'DESIGN.md') {
+                SiteImporter::copyFile("{$outK}/{$relativeFile}", "{$noDesign}/{$relativeFile}");
+            }
+        }
+        $importNoDesign = (new SiteImporter($noDesign, $site, $viewRoot, $staticsRoot, $backupRoot))->import();
+        $noDesignWarning = array_values(array_filter($importNoDesign['problems'], fn (array $p): bool => $p['level'] === 'aviso' && $p['file'] === 'DESIGN.md'));
+        $check($importNoDesign['ok'] && !file_exists("{$viewRoot}/{$site}/DESIGN.md") && is_string($importNoDesign['backup']) && @file_get_contents("{$importNoDesign['backup']}/view/DESIGN.md") === $designText && count($noDesignWarning) === 1 && str_contains($noDesignWarning[0]['message'], 'se quitó el anterior'), 'ex3b reimportar sin DESIGN.md quita el anterior (queda en el respaldo) y avisa', (string) json_encode($importNoDesign['problems'], JSON_UNESCAPED_UNICODE));
+        $reimport = (new SiteImporter($outK, $site, $viewRoot, $staticsRoot, $backupRoot))->import();
+        $check($reimport['ok'] && @file_get_contents("{$viewRoot}/{$site}/DESIGN.md") === $designText, 'ex3c y con DESIGN.md vuelve');
+        $outK2 = "{$root}/out/k2-{$site}";
+        $exportK2 = (new SiteExporter($site, $outK2, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check($exportK2['ok'] && @file_get_contents("{$outK2}/DESIGN.md") === $designText, 'ex4 ida y vuelta: exportar, importar y exportar deja DESIGN.md igual byte a byte');
+
+        $outNo = "{$root}/out/k-sin-proyecto";
+        $remove("{$repo}/files/design/PROJECT.md");
+        $noProject = (new SiteExporter($site, $outNo, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check(!$noProject['ok'] && !file_exists($outNo) && (glob("{$root}/out/.k-sin-proyecto*") ?: []) === [] && str_contains((string) json_encode($noProject['problems'], JSON_UNESCAPED_UNICODE), 'PROJECT.md'), 'ex5 sin PROJECT.md falla y no deja nada', (string) json_encode($noProject['problems'], JSON_UNESCAPED_UNICODE));
+        $write("{$repo}/files/design/PROJECT.md", "# Reglas\n\n## Pendientes\n\nNinguno.\n");
+        $noPending = (new SiteExporter($site, $outNo, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check(!$noPending['ok'] && !file_exists($outNo) && (glob("{$root}/out/.k-sin-proyecto*") ?: []) === [] && str_contains((string) json_encode($noPending['problems'], JSON_UNESCAPED_UNICODE), 'Pendientes conocidos'), 'ex6 DISCRIMINANTE: sin la línea «## Pendientes conocidos» falla y no deja nada', (string) json_encode($noPending['problems'], JSON_UNESCAPED_UNICODE));
+        $outside = "{$root}/fuera-del-repo.md";
+        $write($outside, $projectText);
+        $farProject = (new SiteExporter($site, $outNo, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", projectFile: $outside, repositoryRoot: $repo))->export();
+        $check(!$farProject['ok'] && !file_exists($outNo), 'ex7 un project-file fuera del repositorio no vale');
+        $write("{$repo}/files/design/PROJECT.md", $projectText);
+
+        $fromSite = 'zz-desde-carpeta';
+        $outFrom = "{$root}/out/k-from";
+        $fromExport = (new SiteExporter($fromSite, $outFrom, false, $kit, "{$viewRoot}/{$fromSite}", "{$staticsRoot}/{$fromSite}", from: $package, repositoryRoot: $repo))->export();
+        $fromManifest = json_decode((string) @file_get_contents("{$outFrom}/pcs.json"), true);
+        $check($fromExport['ok'] && !is_dir("{$viewRoot}/{$fromSite}") && @file_get_contents("{$outFrom}/site/index.html") === file_get_contents("{$package}/site/index.html") && is_file("{$outFrom}/site/assets/img/a.png") && ($fromManifest['name'] ?? null) === $fromSite, 'ex8 exportar from=<carpeta> sin sitio importado: el sitio de la carpeta, con el nombre pedido', (string) json_encode($fromExport['problems'], JSON_UNESCAPED_UNICODE));
+        $both = (new SiteExporter($site, "{$root}/out/k-ambos", false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", from: $package, repositoryRoot: $repo))->export();
+        $check(!$both['ok'] && !file_exists("{$root}/out/k-ambos") && str_contains((string) json_encode($both['problems'], JSON_UNESCAPED_UNICODE), 'from='), 'ex9 from= con un sitio importado falla');
+
+        foreach (PublicSite::filesIn(DesignerKit::KIT_DIRECTORY . '/example') as $relative) {
+            SiteImporter::copyFile(DesignerKit::KIT_DIRECTORY . "/example/{$relative}", "{$kit}/example/{$relative}");
+        }
+        $newSite = 'zz-nuevo';
+        $outNew = "{$root}/out/k-nuevo";
+        $newExport = (new SiteExporter($newSite, $outNew, false, $kit, "{$viewRoot}/{$newSite}", "{$staticsRoot}/{$newSite}", repositoryRoot: $repo))->export();
+        $newManifest = json_decode((string) @file_get_contents("{$outNew}/pcs.json"), true);
+        $check($newExport['ok'] && @file_get_contents("{$outNew}/site/index.html") === file_get_contents(DesignerKit::KIT_DIRECTORY . '/example/site/index.html') && ($newManifest['name'] ?? null) === $newSite, 'ex10 un site= no importado y sin from sale del ejemplo del kit, con ese nombre', (string) json_encode($newExport['problems'], JSON_UNESCAPED_UNICODE));
+
+        $designOut = "{$repo}/files/design/adaptado";
+        $toDesign = (new SiteExporter($site, $designOut, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $designTop = array_values(array_unique(array_map(fn (string $f): string => explode('/', $f)[0], PublicSite::filesIn($designOut))));
+        sort($designTop);
+        $check($toDesign['ok'] && $designTop === ['DESIGN.md', 'pcs.json', 'site'] && is_file("{$designOut}/site/index.html") && is_file("{$designOut}/site/.pcs/pcs.js"), 'ex11 a files/design/: solo site/ (con .pcs/), pcs.json y DESIGN.md; sin andamiaje, CHECK, GUIDE ni PROJECT.md', (string) json_encode([$designTop, $toDesign['problems']], JSON_UNESCAPED_UNICODE));
+        $makeDirectory("{$repo}/otra");
+        $inside = (new SiteExporter($site, "{$repo}/otra/paquete", false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check(!$inside['ok'] && !file_exists("{$repo}/otra/paquete") && str_contains((string) json_encode($inside['problems'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'files/design'), 'ex12 dentro del proyecto fuera de files/design/ falla y no deja nada', (string) json_encode($inside['problems'], JSON_UNESCAPED_UNICODE));
+
+        $check(str_contains((string) ($newExport['origin'] ?? ''), 'ejemplo del kit') && str_contains((string) ($fromExport['origin'] ?? ''), $package), 'ex14 el resultado dice de qué origen salió (el ejemplo, la carpeta)', (string) json_encode([$newExport['origin'] ?? null, $fromExport['origin'] ?? null], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+        //Las carpetas de origen que no valen y las guardas de enlaces (LEY 24: cada una, su caso).
+        $badFrom = "{$root}/k-carpetas";
+        foreach (PublicSite::filesIn($package) as $relative) {
+            SiteImporter::copyFile("{$package}/{$relative}", "{$badFrom}/rota/{$relative}");
+            SiteImporter::copyFile("{$package}/{$relative}", "{$badFrom}/con-aviso/{$relative}");
+        }
+        $write("{$badFrom}/rota/site/assets/x.php", "<?php\n");
+        $rota = (new SiteExporter('zz-rota', "{$root}/out/k-rota", false, $kit, "{$viewRoot}/zz-rota", "{$staticsRoot}/zz-rota", from: "{$badFrom}/rota", repositoryRoot: $repo))->export();
+        $check(!$rota['ok'] && !file_exists("{$root}/out/k-rota") && str_contains((string) json_encode($rota['problems'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'x.php'), 'ex15 from= con una carpeta que no pasaría la importación falla, con sus problemas, y no deja nada', (string) json_encode($rota['problems'], JSON_UNESCAPED_UNICODE));
+        $write("{$badFrom}/con-aviso/site/notas.txt", "nota\n");
+        $conAviso = (new SiteExporter('zz-con-aviso', "{$root}/out/k-con-aviso", false, $kit, "{$viewRoot}/zz-con-aviso", "{$staticsRoot}/zz-con-aviso", from: "{$badFrom}/con-aviso", repositoryRoot: $repo))->export();
+        $check($conAviso['ok'] && !file_exists("{$root}/out/k-con-aviso/site/notas.txt") && str_contains((string) json_encode($conAviso['problems'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'notas.txt'), 'ex16 from=: lo que no se importa tampoco viaja, y se dice con su aviso', (string) json_encode($conAviso['problems'], JSON_UNESCAPED_UNICODE));
+        $makeDirectory("{$badFrom}/sin-manifiesto/site");
+        $sinManifiesto = (new SiteExporter('zz-sin', "{$root}/out/k-sin", false, $kit, "{$viewRoot}/zz-sin", "{$staticsRoot}/zz-sin", from: "{$badFrom}/sin-manifiesto", repositoryRoot: $repo))->export();
+        $check(!$sinManifiesto['ok'] && !file_exists("{$root}/out/k-sin"), 'ex17 from= con una carpeta sin pcs.json falla');
+        $zipDesign = (new SiteExporter($site, "{$repo}/files/design/con-zip", true, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check(!$zipDesign['ok'] && !file_exists("{$repo}/files/design/con-zip") && (glob("{$repo}/files/design/*.zip") ?: []) === [], 'ex18 zip=yes dentro de files/design/ falla y no deja nada');
+        $relative = substr("{$repo}/files/design/relativo", strlen("{$repo}/"));
+        $toRelative = (new SiteExporter($site, $relative, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check($toRelative['ok'] && is_file("{$repo}/files/design/relativo/pcs.json"), 'ex19 un destino relativo se resuelve contra la raíz del repositorio (files/design/relativo)', (string) json_encode($toRelative['problems'], JSON_UNESCAPED_UNICODE));
+
+        //Los enlaces: DESIGN.md (al exportar y al importar), PROJECT.md, el destino, site/ y files/design.
+        $secret = "{$root}/secreto.md";
+        $write($secret, "## Pendientes conocidos\nSECRETO-ZZ\n");
+        $remove("{$viewRoot}/{$site}/DESIGN.md");
+        $symlinksOk = symlink($secret, "{$viewRoot}/{$site}/DESIGN.md");
+        $linkDesign = (new SiteExporter($site, "{$root}/out/k-enlace", false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check($symlinksOk && !$linkDesign['ok'] && !file_exists("{$root}/out/k-enlace"), 'ex20 un DESIGN.md enlazado en el sitio importado no se exporta');
+        $remove("{$viewRoot}/{$site}/DESIGN.md");
+        $write("{$viewRoot}/{$site}/DESIGN.md", $designText);
+        $linkImport = "{$badFrom}/enlace-diseno";
+        foreach (PublicSite::filesIn($package) as $relativeFile) {
+            SiteImporter::copyFile("{$package}/{$relativeFile}", "{$linkImport}/{$relativeFile}");
+        }
+        $symlinksOk = symlink($secret, "{$linkImport}/DESIGN.md") && $symlinksOk;
+        $check(str_contains((string) json_encode((new SiteImporter($linkImport, 'zz-enlace', $viewRoot, $staticsRoot, $backupRoot))->check(), JSON_UNESCAPED_UNICODE), 'DESIGN.md'), 'ex21 importar con un DESIGN.md enlazado es error');
+        $remove("{$repo}/files/design/PROJECT.md");
+        $symlinksOk = symlink("{$repo}/files/design/real-project.md", "{$repo}/files/design/PROJECT.md") && $symlinksOk;
+        $write("{$repo}/files/design/real-project.md", $projectText);
+        $linkProject = (new SiteExporter($site, "{$root}/out/k-enlace", false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check(!$linkProject['ok'] && !file_exists("{$root}/out/k-enlace"), 'ex22 un PROJECT.md enlazado no vale (aunque apunte dentro del repositorio)');
+        $remove("{$repo}/files/design/PROJECT.md");
+        $remove("{$repo}/files/design/real-project.md");
+        $write("{$repo}/files/design/PROJECT.md", $projectText);
+        $symlinksOk = symlink("{$root}/out/no-existe", "{$root}/out/k-destino-enlace") && $symlinksOk;
+        $linkDestination = (new SiteExporter($site, "{$root}/out/k-destino-enlace", false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
+        $check(!$linkDestination['ok'] && !file_exists("{$root}/out/no-existe"), 'ex23 un destino que es un enlace (aunque cuelgue) no se usa');
+        $linkSite = "{$badFrom}/enlace-site";
+        $makeDirectory($linkSite);
+        $symlinksOk = symlink("{$package}/site", "{$linkSite}/site") && $symlinksOk;
+        SiteImporter::copyFile("{$package}/pcs.json", "{$linkSite}/pcs.json");
+        $check(str_contains((string) json_encode((new SiteImporter($linkSite, 'zz-enlace-site', $viewRoot, $staticsRoot, $backupRoot))->check(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 'site/'), 'ex24 un site/ enlazado es error: leería (y serviría) otra carpeta');
+        $repoLink = "{$root}/repo-enlazado";
+        $makeDirectory("{$repoLink}/files");
+        $makeDirectory("{$repoLink}/otra");
+        $write("{$repoLink}/otra/PROJECT.md", $projectText);
+        $symlinksOk = symlink("{$repoLink}/otra", "{$repoLink}/files/design") && $symlinksOk;
+        $linkedDesign = (new SiteExporter($site, "{$repoLink}/files/design/adaptado", false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repoLink))->export();
+        $check($symlinksOk && !$linkedDesign['ok'] && !file_exists("{$repoLink}/otra/adaptado"), 'ex25 un files/design que es un enlace a otra carpeta no cuenta como files/design/', (string) json_encode($linkedDesign['problems'], JSON_UNESCAPED_UNICODE));
+
+        //La importación avisa de las URL ajenas, de la ruta local disfrazada y de los bloques copiados (como CHECK).
+        $lintFolder = "{$root}/k-lint";
+        foreach (PublicSite::filesIn($package) as $relativeFile) {
+            SiteImporter::copyFile("{$package}/{$relativeFile}", "{$lintFolder}/{$relativeFile}");
+        }
+        $lintHead = "<!DOCTYPE html>\n<html lang=\"es\">\n<head><meta charset=\"utf-8\"><title>ZZ</title><script src=\".pcs/pcs.js\"></script></head>\n<body>\n";
+        $write("{$lintFolder}/site/urls.html", $lintHead . "<script src=\"https://cdn.ajeno-zz.com/x.js\"></script>\n<img src=\"https://cdn.ajeno-zz.com/img/a.png\" alt=\"\">\n<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=X\">\n</body>\n</html>\n");
+        $lintBlock = '<section class="zz-bloque"><h2>Bloque</h2><p>' . str_repeat('Texto que se repite en las páginas sin ser una parte. ', 8) . '</p></section>';
+        foreach (['b1', 'b2', 'b3'] as $lintPage) {
+            $write("{$lintFolder}/site/{$lintPage}.html", $lintHead . $lintBlock . "\n</body>\n</html>\n");
+        }
+        $lintChecks = (new SiteImporter($lintFolder, 'zz-lint', $viewRoot, $staticsRoot, $backupRoot))->check();
+        $lintFind = function (string $file, int $line, string $text) use ($lintChecks): bool {
+            foreach ($lintChecks as $p) {
+                if ($p['level'] === 'aviso' && $p['file'] === $file && $p['line'] === $line && str_contains($p['message'], $text)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        $lintErrors = array_values(array_filter($lintChecks, fn (array $p): bool => $p['level'] === 'error'));
+        $check($lintErrors === [] && $lintFind('site/urls.html', 5, 'cdn.ajeno-zz.com') && !$lintFind('site/urls.html', 7, 'no conoce'), 'ex26 importar: una URL absoluta a un servicio fuera de knownHosts es aviso (no error); fonts.googleapis.com, nada', (string) json_encode($lintChecks, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        $check($lintFind('site/urls.html', 6, 'ruta local disfrazada'), 'ex27 importar: la ruta local disfrazada (a.png está en el paquete) es aviso; en CHECK es error');
+        $check($lintFind('site/b1.html', 5, 'parece una parte') && !$lintFind('site/b2.html', 5, 'parece una parte'), 'ex28 importar: un bloque largo idéntico en 3 páginas avisa una vez, en la primera');
+
+        $exampleHashes = [];
+        foreach (PublicSite::filesIn(DesignerKit::KIT_DIRECTORY . '/example/site') as $relative) {
+            $exampleHashes[$relative] = (string) hash_file('sha256', DesignerKit::KIT_DIRECTORY . "/example/site/{$relative}");
+        }
+        $check(@file_get_contents(DesignerKit::KIT_DIRECTORY . '/example/pcs.json') === DesignerKit::manifest('example', $exampleHashes, []), 'ex13 el pcs.json del ejemplo del kit es el que escribe DesignerKit::manifest para su site/, con protected vacío: no lleva lector ni andamiaje (si cambia el ejemplo, se regenera)');
+
+        //La importación lee folder= relativo desde la raíz, como la exportación; el aviso de estimados cambia de versión.
+        $check(\Terminal\Tasks\PublicSiteImportTask::resolveFolder('files/design/adaptado', '/r') === '/r/files/design/adaptado' && \Terminal\Tasks\PublicSiteImportTask::resolveFolder('/abs/x', '/r') === '/abs/x', 'ex29 folder= relativo se resuelve contra la raíz del repositorio; absoluto, tal cual');
+        $relativeRun = [];
+        $relativeCode = 1;
+        //RETORNO-IGNORADO: la salida llega por $relativeRun y lo que decide es $relativeCode.
+        exec('cd ' . escapeshellarg(dirname(rtrim(basepath(), '/'))) . ' && bin/cli public-site-import folder=src/app/classes/PiecesPHP/PublicSite/kit/example site=zz-relativa check=yes 2>&1', $relativeRun, $relativeCode);
+        $relativeText = implode("\n", $relativeRun);
+        $check($relativeCode === 0 && !str_contains($relativeText, 'No encuentro la carpeta site/') && !is_dir(basepath('app/view/zz-relativa')), 'ex30 la orden real, con folder= relativo y check=yes, encuentra el paquete y no escribe nada', mb_substr($relativeText, -400));
+        $v1 = \PiecesPHP\SystemStatus\SystemStatusRoutes::estimatedNagVersion(['b', 'a']);
+        $check($v1 === \PiecesPHP\SystemStatus\SystemStatusRoutes::estimatedNagVersion(['a', 'b']) && $v1 !== \PiecesPHP\SystemStatus\SystemStatusRoutes::estimatedNagVersion(['a']) && preg_match('/^[0-9a-f]{12}$/', $v1) === 1, 'ex31 la versión del aviso de datos estimados no depende del orden y cambia con un recurso nuevo');
 
         //─── j · Los hallazgos de la auditoría ───────────────────────────────────────────────────────────
         echoTerminal('[j] Lo que encontró la auditoría');
@@ -380,11 +556,11 @@ HTML;
         $mapResults = [];
         foreach ($mapCases as $label => $map) {
             $write("{$kit}/" . SiteExporter::PACKAGE_MAP, json_encode(['files' => $map]) ?: '');
-            $mapExport = (new SiteExporter($site, $outMap, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}"))->export();
+            $mapExport = (new SiteExporter($site, $outMap, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
             $mapResults[$label] = !$mapExport['ok'] && !file_exists($outMap) && str_contains((string) json_encode($mapExport['problems'], JSON_UNESCAPED_UNICODE), 'rutas que no valen');
         }
         $write("{$kit}/" . SiteExporter::PACKAGE_MAP, json_encode(['files' => ['.claude/settings.json' => 'settings-zz.json']]) ?: '');
-        $mapOk = (new SiteExporter($site, $outMap, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}"))->export();
+        $mapOk = (new SiteExporter($site, $outMap, false, $kit, "{$viewRoot}/{$site}", "{$staticsRoot}/{$site}", repositoryRoot: $repo))->export();
         $check($mapOk['ok'], 'B3b con el mapa sano, el mismo kit sí exporta (el rechazo de arriba es por las rutas)', (string) json_encode($mapOk['problems'], JSON_UNESCAPED_UNICODE));
         $check(!in_array(false, $mapResults, true) && !file_exists("{$root}/out/escape-zz.txt") && !file_exists("{$root}/escape-zz.txt"), 'B3 el mapa del kit no escribe fuera del paquete ni copia de fuera del kit', (string) json_encode($mapResults));
 
@@ -466,6 +642,50 @@ HTML;
         $check($f1Got === array_map(fn (array $case): bool => $case[1], $f1Cases), 'k15 un {{campo}} en el href de MathML, el content de <meta http-equiv=refresh> o to/from/values/by de set/animate/animateTransform/animateMotion no se admite; el content de otro meta, el href de un <a> o el width de un <rect>, sí', (string) json_encode($f1Got));
         echoTerminal(' ');
 
+        //─── l · El contrato estimado y su aviso (ADR 0087 §5, precisiones 6 y 11) ───────────────────────
+        echoTerminal('[l] El contrato estimado, su aviso y los ejemplos que no fingen');
+        $estimatedExamples = [['title' => 'Uno', 'url' => 'index.html'], ['title' => 'Dos', 'url' => 'index.html']];
+        $estimated = ResourceContract::estimated('zz-estimated', ['title' => ['type' => ResourceContract::TYPE_TEXT, 'example' => 'T'], 'url' => ['type' => ResourceContract::TYPE_URL, 'example' => 'index.html']], $estimatedExamples);
+        ResourceRegistry::register($estimated);
+        $estimatedPainted = MarkRegistry::render('pcs-list', ['resource' => 'zz-estimated', 'count' => '2'], '<i>{{title}}</i>', new MarkContext($site, 'index'));
+        $check($estimated->isEstimated() && (ResourceRegistry::get('zz-items')?->isEstimated() ?? true) === false && $estimated->rows(5, new MarkContext($site, 'index')) === [] && $estimatedPainted === '' && $estimated->exampleRows() === $estimatedExamples, 'l1 ResourceContract::estimated(): isEstimated, servido sin filas (la lista se pinta vacía) y con sus ejemplos; un contrato con lector no es estimado', $estimatedPainted);
+        $withoutEstimated = array_filter(ResourceRegistry::all(), fn (ResourceContract $c): bool => !$c->isEstimated());
+        $check(SystemStatusRoutes::estimatedResourcesInUse('zz-site', ResourceRegistry::all()) === ['zz-estimated'] && SystemStatusRoutes::estimatedResourcesInUse(null, ResourceRegistry::all()) === [] && SystemStatusRoutes::estimatedResourcesInUse('zz-site', $withoutEstimated) === [], 'l2 los estimados que importan: solo con sitio activo, y solo los estimados');
+        $estimatedAlert = SystemAlertRegistry::get('public-site-estimated-resources');
+        $estimatedSite = 'zz-estimated-' . getmypid();
+        $estimatedView = PublicSite::viewDirectory($estimatedSite);
+        $savedPublicSite = get_config(PublicSite::CONFIG_KEY);
+        $alertStates = [];
+        $alertMessage = '';
+        try {
+            $write("{$estimatedView}/" . PublicSite::MANIFEST, '{"name":"' . $estimatedSite . '","formatVersion":1,"files":{}}');
+            set_config(PublicSite::CONFIG_KEY, $estimatedSite);
+            $alertStates['on'] = $estimatedAlert !== null && SystemAlertRegistry::isActive($estimatedAlert);
+            $alertMessage = $estimatedAlert?->message() ?? '';
+            ResourceRegistry::remove('zz-estimated');
+            $alertStates['noEstimated'] = $estimatedAlert !== null && SystemAlertRegistry::isActive($estimatedAlert);
+            ResourceRegistry::register($estimated);
+            set_config(PublicSite::CONFIG_KEY, '');
+            $alertStates['noSite'] = $estimatedAlert !== null && SystemAlertRegistry::isActive($estimatedAlert);
+        } finally {
+            set_config(PublicSite::CONFIG_KEY, $savedPublicSite);
+            ResourceRegistry::remove('zz-estimated');
+            if (is_file("{$estimatedView}/" . PublicSite::MANIFEST)) {
+                $remove("{$estimatedView}/" . PublicSite::MANIFEST);
+            }
+            if (is_dir($estimatedView) && !rmdir($estimatedView)) {
+                throw new \RuntimeException("No se pudo borrar {$estimatedView}");
+            }
+        }
+        $check($alertStates === ['on' => true, 'noEstimated' => false, 'noSite' => false] && str_contains($alertMessage, 'zz-estimated') && $estimatedAlert?->isDismissible() === true && $estimatedAlert->audience() === [\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ROOT, \PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ADMIN_GRAL], 'l3 el aviso de datos estimados: encendido con sitio activo y un estimado (y los nombra); apagado sin estimados y sin sitio; descartable, para root y administración general', (string) json_encode([$alertStates, $alertMessage], JSON_UNESCAPED_UNICODE));
+        $check(get_config(PublicSite::CONFIG_KEY) === $savedPublicSite && !file_exists($estimatedView), 'l4 la configuración y la carpeta de vista de la prueba quedan como estaban');
+        $publications = ResourceRegistry::get('publications');
+        $publicationsValues = $publications === null ? [] : array_merge(array_column($publications->fields, 'example'), ...array_map('array_values', $publications->exampleRows()));
+        $fakeValues = array_filter($publicationsValues, fn (mixed $v): bool => $v === '#' || str_contains((string) $v, 'placehold.co'));
+        $check($publications !== null && $publicationsValues !== [] && $fakeValues === [] && ($publications->fields['image']['example'] ?? '') === '.pcs/example.svg' && is_file(DesignerKit::KIT_DIRECTORY . '/pcs/example.svg'), 'l5 los ejemplos de publications no fingen: ni «#» ni placehold.co; la imagen es .pcs/example.svg, que el kit trae', (string) json_encode($fakeValues, JSON_UNESCAPED_UNICODE));
+        $check(is_file("{$out}/site/.pcs/example.svg") && isset($exportManifest['protected']['site/.pcs/example.svg']), 'l6 la exportación copia example.svg con el lector a site/.pcs/, y pcs.json lo protege');
+        echoTerminal(' ');
+
     } catch (\Throwable $e) {
         $check(false, 'x9 la suite terminó sin excepciones', get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')');
     } finally {
@@ -483,4 +703,4 @@ HTML;
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El sitio público por marcas (ADR 0084) sobre un paquete sintético: la importación y su rechazo sin tocar nada, las siete marcas pintadas, el escapado de {{campo}}, la caché por huella, la marca desconocida (vacía y anotada), el PHP del diseñador neutralizado, la exportación con el andamiaje del diseñador, el .zip, la comprobación de rastro y la ida y vuelta idéntica.')->setEffects([CliActions::EFFECT_FILES])->register();
+})->setDescription('El sitio público por marcas (ADR 0084) sobre un paquete sintético: la importación y su rechazo sin tocar nada, las siete marcas pintadas, el escapado de {{campo}}, la caché por huella, la marca desconocida (vacía y anotada), el PHP del diseñador neutralizado, la exportación con el andamiaje del diseñador, el .zip, la comprobación de rastro, la ida y vuelta idéntica, el contrato estimado con su aviso y los ejemplos de publications sin fingir.')->setEffects([CliActions::EFFECT_FILES])->register();

@@ -9,7 +9,8 @@ namespace PiecesPHP\PublicSite;
 /**
  * SiteImporter - `bin/cli public-site-import`: comprueba site/ del paquete del diseñador con las reglas de rules.json
  * (las de CHECK.html), el contrato de los recursos y lo que existe, y la coloca en app/view/<sitio>/ y statics/<sitio>/.
- * Lo demás del paquete (CHECK.html, GUIDE.html, AGENTS.md, CLAUDE.md, .agents/, .claude/, .cursor/, site/.pcs/) se ignora.
+ * DESIGN.md, si está en la raíz del paquete, va byte a byte a app/view/<sitio>/DESIGN.md. Lo demás del paquete
+ * (CHECK.html, GUIDE.html, PROJECT.md, AGENTS.md, CLAUDE.md, .agents/, .claude/, .cursor/, site/.pcs/) se ignora.
  *
  * Coloca de forma atómica: prepara todo en carpetas temporales hermanas y cambia nombres; lo anterior se guarda en
  * app/cache/public-site/backups/. Si algo falla, no queda nada a medias y el sitio anterior sigue sirviendo.
@@ -80,12 +81,20 @@ final class SiteImporter
             $this->error('', 0, "El nombre del sitio «{$this->site}» no vale.", 'Usa solo minúsculas, números y guiones, por ejemplo site=mi-sitio (y no ' . implode(', ', self::RESERVED_SITES) . ').');
             return $this->problems;
         }
+        //Un site/ o un pcs.json enlazados harían leer (e importar, y servir) otra carpeta que la del paquete.
+        if (is_link($siteRoot) || is_link("{$folder}/" . PublicSite::MANIFEST)) {
+            $this->error(is_link($siteRoot) ? DesignerKit::SITE_DIRECTORY . '/' : PublicSite::MANIFEST, 0, 'Es un enlace simbólico.', 'Copia la carpeta del paquete con archivos y carpetas normales.');
+            return $this->problems;
+        }
         if (!is_dir($siteRoot)) {
             $this->error($folder, 0, 'No encuentro la carpeta site/ del paquete.', 'Indica con folder= la carpeta del paquete: la que tiene CHECK.html, pcs.json y site/.');
             return $this->problems;
         }
         $this->checkDestination();
         $this->checkManifest($folder);
+        if (is_link("{$folder}/" . SiteExporter::DESIGN_FILE)) {
+            $this->error(SiteExporter::DESIGN_FILE, 0, 'Es un enlace simbólico.', 'Cópialo como archivo normal.');
+        }
 
         foreach ($this->filesWithLinks($siteRoot) as $relative => $isLink) {
             $path = DesignerKit::SITE_DIRECTORY . "/{$relative}";
@@ -130,7 +139,57 @@ final class SiteImporter
             }
         }
         $this->checkPartGraph($includes['parts/'], $includes['']);
+        $this->checkLint($siteRoot, $pages, $parts);
         return $this->problems;
+    }
+
+    /**
+     * Las URL absolutas a servicios que el proyecto no conoce y los bloques copiados en vez de partes: avisos, como en
+     * CHECK.html (allí la ruta local disfrazada es error; aquí, aviso: el compilador no la mira).
+     *
+     * @param string $siteRoot
+     * @param string[] $pages
+     * @param string[] $parts
+     * @return void
+     */
+    private function checkLint(string $siteRoot, array $pages, array $parts): void
+    {
+        $site = DesignerKit::SITE_DIRECTORY;
+        $inputs = [];
+        $pageTexts = [];
+        foreach ($pages as $name) {
+            $text = (string) file_get_contents("{$siteRoot}/{$name}.html");
+            $inputs[] = ['file' => "{$site}/{$name}.html", 'text' => $text, 'kind' => 'html'];
+            $pageTexts["{$site}/{$name}.html"] = $text;
+        }
+        foreach ($parts as $name) {
+            $inputs[] = ['file' => "{$site}/parts/{$name}.html", 'text' => (string) file_get_contents("{$siteRoot}/parts/{$name}.html"), 'kind' => 'html'];
+        }
+        $packagePaths = [];
+        $all = PublicSite::filesIn($siteRoot);
+        sort($all, \SORT_STRING);
+        foreach ($all as $relative) {
+            if (preg_match(DesignerKit::HIDDEN_PATTERN, $relative) === 1) {
+                continue;
+            }
+            $packagePaths[] = $relative;
+            if (preg_match('#^assets/.+\.(css|js)$#i', $relative, $extension) === 1) {
+                $inputs[] = ['file' => "{$site}/{$relative}", 'text' => (string) file_get_contents("{$siteRoot}/{$relative}"), 'kind' => strtolower($extension[1])];
+            }
+        }
+        foreach (SiteLint::externalUrls($inputs, MarkRules::knownHosts(), $packagePaths) as $url) {
+            if ($url['exact']) {
+                $this->warning($url['file'], $url['line'], "Es una ruta local disfrazada: «{$url['url']}» apunta a un archivo que está en el paquete ({$url['path']}).", "Enlázalo con su ruta relativa dentro del paquete, la de site/{$url['path']}.");
+            } elseif ($url['path'] !== '') {
+                $this->warning($url['file'], $url['line'], "Quizá una ruta local disfrazada: «{$url['url']}» se llama como un archivo del paquete ({$url['path']}).", "Si es ese archivo, enlázalo con su ruta relativa (site/{$url['path']}); si es otro de fuera, déjalo.");
+            } else {
+                $this->warning($url['file'], $url['line'], "Una dirección absoluta a un servicio que el proyecto no conoce ({$url['host']}).", 'Si el archivo es del sitio, va en el paquete con su ruta relativa; si es un servicio de fuera que el sitio necesita, el aviso es solo informativo.');
+            }
+        }
+        foreach (SiteLint::repeatedBlocks($pageTexts) as $block) {
+            $pageList = implode(', ', array_map(fn (string $path): string => substr($path, strlen($site) + 1), $block['pages']));
+            $this->warning($block['file'], $block['line'], 'Este bloque aparece igual en ' . count($block['pages']) . " páginas ({$pageList}): parece una parte.", 'Pásalo a site/parts/<nombre>.html y ponlo en cada página con <pcs-part name="<nombre>"></pcs-part>.');
+        }
     }
 
     /**
@@ -230,6 +289,15 @@ final class SiteImporter
                 $hashes["assets/{$relative}"] = (string) hash_file('sha256', "{$siteRoot}/assets/{$relative}");
             }
             self::ensureDirectory($staticsStaging);
+            //Las notas del diseño viajan con el sitio, dentro de la misma escritura atómica; PROJECT.md no.
+            $designFile = rtrim($this->folder, '/') . '/' . SiteExporter::DESIGN_FILE;
+            if (is_file($designFile) && !is_link($designFile)) {
+                $designBytes = file_get_contents($designFile);
+                if ($designBytes === false) {
+                    throw new \RuntimeException("no se pudo leer {$designFile}");
+                }
+                self::write("{$viewStaging}/" . SiteExporter::DESIGN_FILE, $designBytes);
+            }
             $generated = self::generated("{$viewStaging}/parts", "{$viewStaging}/pages");
             self::write("{$viewStaging}/" . DesignerKit::PARTS_SCRIPT, $generated[DesignerKit::PARTS_SCRIPT]);
             foreach ($generated as $relative => $content) {
@@ -273,6 +341,10 @@ final class SiteImporter
         $hasBackup = is_dir("{$backup}/view") || is_dir("{$backup}/statics");
         if (!$hasBackup) {
             @rmdir($backup); //RETORNO-IGNORADO: era la primera importación: no había nada que respaldar
+        }
+        //El sitio queda como el paquete: sin su DESIGN.md, el anterior sale (y se dice dónde quedó).
+        if (is_file("{$backup}/view/" . SiteExporter::DESIGN_FILE) && !is_file("{$viewTarget}/" . SiteExporter::DESIGN_FILE)) {
+            $problems[] = ['level' => 'aviso', 'file' => SiteExporter::DESIGN_FILE, 'line' => 0, 'message' => 'El paquete no trae DESIGN.md: se quitó el anterior, que está en el respaldo.', 'fix' => MarkRules::printable("Si lo querías, cópialo de {$backup}/view/" . SiteExporter::DESIGN_FILE . ' al paquete y vuelve a importar.')];
         }
         return ['ok' => true, 'problems' => $problems, 'backup' => $hasBackup ? $backup : null];
     }

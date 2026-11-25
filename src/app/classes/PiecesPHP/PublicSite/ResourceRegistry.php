@@ -135,8 +135,8 @@ final class ResourceRegistry
         return new ResourceContract('publications', [
             'title' => ['type' => ResourceContract::TYPE_TEXT, 'example' => 'Título de la publicación'],
             'excerpt' => ['type' => ResourceContract::TYPE_TEXT, 'example' => 'Un resumen corto de la publicación, de unas dos líneas.'],
-            'url' => ['type' => ResourceContract::TYPE_URL, 'example' => '#'],
-            'image' => ['type' => ResourceContract::TYPE_IMAGE, 'example' => 'https://placehold.co/600x400'],
+            'url' => ['type' => ResourceContract::TYPE_URL, 'example' => 'index.html'],
+            'image' => ['type' => ResourceContract::TYPE_IMAGE, 'example' => '.pcs/example.svg'],
             'date' => ['type' => ResourceContract::TYPE_DATE, 'example' => '20/11/2026'],
             'category' => ['type' => ResourceContract::TYPE_TEXT, 'example' => 'Noticias'],
         ], function (int $count): array {

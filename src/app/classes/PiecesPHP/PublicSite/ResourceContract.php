@@ -31,6 +31,11 @@ final class ResourceContract
     private $provider;
 
     /**
+     * @var bool
+     */
+    private $estimated = false;
+
+    /**
      * @param string $name Con forma de nombre (minúsculas, números y guiones)
      * @param array<string,array{type:string,example:scalar}> $fields
      * @param callable(int,MarkContext):array<int,array<string,scalar|null>> $provider Hasta $count filas para quien pide:
@@ -56,6 +61,30 @@ final class ResourceContract
             }
         }
         $this->provider = $provider;
+    }
+
+    /**
+     * Para adaptar un diseño antes de que exista el módulo que da los datos: lector vacío, servido la lista sale vacía.
+     *
+     * @param string $name
+     * @param array<string,array{type:string,example:scalar}> $fields
+     * @param array<int,array<string,scalar>> $examples
+     * @return self
+     * @throws \InvalidArgumentException Si el nombre, un campo o un tipo no tienen la forma permitida
+     */
+    public static function estimated(string $name, array $fields, array $examples): self
+    {
+        $contract = new self($name, $fields, fn (): array => [], $examples);
+        $contract->estimated = true;
+        return $contract;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEstimated(): bool
+    {
+        return $this->estimated;
     }
 
     /**

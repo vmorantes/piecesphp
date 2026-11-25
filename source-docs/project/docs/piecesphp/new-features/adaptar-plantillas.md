@@ -4,6 +4,39 @@ Este manual cuenta el recorrido completo: llega un diseño web de un cliente o d
 sola vez**, PiecesPHP lo sirve como sitio público del proyecto, y el equipo de diseño sigue cambiándolo sin programar.
 La referencia técnica (las marcas, las órdenes, cómo ampliarlo) está en [El sitio público por marcas](sitio-publico.md).
 
+## El resultado: un adaptado, dos sitios funcionales
+
+Del diseño sale **un solo adaptado** y de él, **dos sitios web funcionales**:
+
+| | Versión del diseñador | Versión integrada |
+| :-- | :-- | :-- |
+| Dónde | `files/design/adaptado/`; se abre con doble clic | La sirve el proyecto, tras importar |
+| Datos | De ejemplo, que simulan al detalle lo real | Los reales, del proyecto |
+| Qué funciona | Todo: enlaces, menús, formularios (sin enviar), listas con «cargar más» y búsqueda | Todo, de verdad |
+| Quién lo hace | La adaptación | La integración del proyecto |
+| Terminada cuando | Su censo funcional no tiene ningún «falso» | El censo, repetido sobre el sitio servido, tampoco |
+
+**La primera entrega es la del diseñador, y es la que importa primero**: al recibir un diseño, lo primero es dejar
+`files/design/adaptado/` funcionando con datos de ejemplo y devolvérselo. Del diseño se toca **solo lo imprescindible**,
+y para dos cosas: que sea adaptado (las partes y las marcas) y que funcione (lo que finge). Ni reordenar, ni renombrar,
+ni limpiar, ni partir archivos: cuanto menos se cambie, menos pierde el diseñador y antes sigue trabajando sobre lo
+adaptado.
+
+**Los tres lugares**, cada uno con un solo dueño:
+
+| Lugar | Qué es | Se edita |
+| :-- | :-- | :-- |
+| `files/design/base/` | El export del diseñador, tal cual llegó | No: cada entrega nueva es un commit |
+| `files/design/adaptado/` | El sitio adaptado: `site/` (con su `.pcs/`), `pcs.json` y, si el diseñador lo trajo, `DESIGN.md` | Sí: es donde se adapta. No lleva el comprobador ni las instrucciones del asistente: los pone la exportación |
+| `src/app/view/<sitio>/` y `src/statics/<sitio>/` | Lo que genera la importación | Nunca a mano |
+
+**Los dos pasos:**
+
+- **a) Adaptar y devolver.** Corto y prioritario: se adapta, se comprueba y se devuelve el adaptado al diseñador, con el
+  aviso de que siga trabajando desde él.
+- **b) Integrar.** Después: los contratos reales de las listas, importar, activar el sitio y repetir el censo funcional
+  sobre lo servido.
+
 ## 1. Qué entra y qué sale
 
 - **Entra** cualquier sitio que funcione en un navegador: páginas `.html`, su CSS, su JavaScript, imágenes y fuentes.
@@ -18,25 +51,53 @@ La referencia técnica (las marcas, las órdenes, cómo ampliarlo) está en [El 
 
 ## 2. El recorrido, en ocho pasos
 
+Los pasos 1 a 4 son el paso **a)** (adaptar y devolver); el 5 es del diseñador; del 6 al 8, el **b)** (integrar).
+
 | Paso | Quién | Qué |
 | :-- | :-- | :-- |
-| 1 | Desarrollo | Pide la carpeta de partida al proyecto |
-| 2 | Desarrollo (con su asistente) | Adapta el diseño una vez |
-| 3 | Desarrollo | Comprueba con `CHECK.html` |
-| 4 | Desarrollo | Importa al proyecto y activa el sitio |
-| 5 | Desarrollo | Revisa el sitio servido contra el original |
-| 6 | Desarrollo | Exporta la carpeta para el equipo de diseño |
-| 7 | Diseño | Cambia lo que quiera, comprueba y devuelve la carpeta |
-| 8 | Desarrollo | Importa lo devuelto (y vuelve atrás si hiciera falta) |
+| 1 | Desarrollo | Prepara las reglas del proyecto y la carpeta de partida |
+| 2 | Desarrollo (con su asistente) | Adapta el diseño una vez, con lo que finge corregido |
+| 3 | Desarrollo | Comprueba con `CHECK.html` y hace el censo funcional |
+| 4 | Desarrollo | Exporta el adaptado y se lo entrega al equipo de diseño |
+| 5 | Diseño | Cambia lo que quiera, comprueba y devuelve la carpeta |
+| 6 | Desarrollo | Importa al proyecto y activa el sitio |
+| 7 | Desarrollo | Revisa el sitio servido contra la versión del diseñador |
+| 8 | Desarrollo | Importa lo que el diseño devuelva después (y vuelve atrás si hiciera falta) |
 
 ### 2.1 La carpeta de partida
 
+Antes de exportar, el proyecto necesita `files/design/PROJECT.md`: las reglas del proyecto que viajan con el paquete.
+Sin él, la orden de exportar el paquete falla sin escribir nada. Créalo una vez, desde la raíz del proyecto, con estas
+dos secciones (la orden exige la línea `## Pendientes conocidos` tal cual; «Censo funcional» es la convención del
+ADR 0087):
+
 ```bash
-bin/cli public-site-export site=<nombre> destination=/ruta/de/trabajo
+mkdir -p files/design
+cat > files/design/PROJECT.md <<'EOF'
+# Reglas del proyecto
+
+## Censo funcional
+
+Cada elemento interactivo de cada página (enlace, botón, campo, formulario, lista, menú, vídeo) y cada recurso externo,
+con su estado (funciona, falso o pendiente) y su plan.
+
+## Pendientes conocidos
+
+Ninguno
+EOF
 ```
 
-El nombre del sitio, en minúsculas y sin espacios (por ejemplo `clinica`). Deja la carpeta con su estructura, el
-comprobador, la guía, los datos de ejemplo de cada recurso del proyecto y las instrucciones del asistente.
+El export del diseñador, tal cual llegó, se guarda en `files/design/base/`. La carpeta de partida del adaptado sale de
+la exportación hacia `files/design/adaptado/`:
+
+```bash
+bin/cli public-site-export site=<nombre> destination=files/design/adaptado
+```
+
+El nombre del sitio, en minúsculas y sin espacios (por ejemplo `clinica`). Si el sitio no está importado, la carpeta sale
+del sitio de ejemplo del kit con ese nombre, y se sustituye por el diseño. Dentro de `files/design/` la orden deja solo
+el sitio: `site/` (con `.pcs/`), `pcs.json` y `DESIGN.md` si el origen lo trae; sin comprobador, guía ni `PROJECT.md`.
+`files/design/adaptado` no puede existir antes (su carpeta padre, `files/design`, sí).
 
 ### 2.2 Adaptar
 
@@ -60,35 +121,89 @@ original. Las reglas, en corto:
    | una lista (tres o más elementos con la misma estructura: noticias, testimonios…) | `<pcs-list resource="publications" count="3"><template>…{{title}}…</template></pcs-list>` |
    | un formulario que recibe el sistema | `<pcs-form action="contact">…</pcs-form>` |
 
-5. **No inventar ni mejorar**: ni textos, ni clases, ni páginas que no estaban; las mejoras se anotan para después.
+5. **Lo que finge se corrige; lo demás, no se mejora.** Un campo que es un dibujo, un botón que es un `<div>`, un
+   `href="#"`, una imagen sin `alt` o un formulario que no envía se sustituyen por el elemento verdadero con la misma
+   apariencia (el CSS que haga falta, en `site/assets/css/adaptation-fixes.css`, aparte del del diseñador) y la
+   corrección se anota para el diseñador. **Un destino de enlace que no se sabe no se inventa**: se deja y se anota en
+   «Pendientes conocidos». Ni textos, ni clases, ni páginas que no estaban; las mejoras de gusto se anotan para después.
 6. **El lector de la vista previa**: cada página lleva `<script src=".pcs/pcs.js"></script>` en su `<head>`, sin
    `async` ni `defer` y **antes de cualquier otro `<script>`**, para que las partes estén pintadas cuando corra el
    JavaScript del diseño. El comprobador avisa si no está así.
+7. **Las listas, en la versión del diseñador**: simulan al detalle cómo serán, no solo su aspecto.
+   - `count` es el **máximo** de filas que pinta la lista. Si el diseño trae «cargar más», paginación o búsqueda, el
+     JavaScript del diseño los hace sobre las filas ya pintadas, igual en la vista previa y servido. Más allá de
+     `count`, lo resuelve el proyecto en su integración.
+   - Para ver la lista vacía, abre la página con `?pcs-vacio=<recurso>` (varios, separados por coma; `?pcs-vacio` sin
+     valor, todas). `site/data/` lo genera el proyecto: no se edita.
+   - Si el módulo que da los datos aún no existe, el proyecto registra un contrato **estimado** (lector vacío, con al
+     menos `count` ejemplos distintos para que «cargar más» no repita). Servido, esa lista sale vacía y Avisos del
+     sistema lo dice. Ver [El sitio público por marcas](sitio-publico.md), «Un recurso estimado».
 
 **Con un asistente de IA**, la carpeta trae lo necesario: la skill `adapt-design` con el procedimiento completo (primero
 un mapa de páginas, partes y datos; después la ejecución; y cuándo está terminado) y, en las herramientas que admiten
 subagentes, el adaptador `design-adapter` y el revisor `design-reviewer`. Abre el asistente en la carpeta de trabajo, no
 dentro de `site/`.
 
-### 2.3 Comprobar
+### 2.3 Comprobar y hacer el censo funcional
 
-Abre `CHECK.html` con doble clic, elige la carpeta y corrige hasta que no quede ningún aviso. Cada aviso dice el
-archivo, la línea y qué hacer. Si cambiaste una parte, pulsa «Actualizar el paquete»: la vista previa de doble clic lee
-las partes de un paquete (`site/parts/parts.js`, que también lleva la lista de recursos), porque el navegador no deja
-leer archivos sueltos.
+**El comprobador.** `CHECK.html` viaja solo en el paquete del diseñador (la carpeta de `files/design/adaptado/` no lo
+lleva): para abrirlo, exporta el paquete como en 2.4 a una carpeta temporal fuera del repositorio y ábrelo desde allí.
+Con doble clic, elige la carpeta y corrige hasta que no quede ningún aviso. Cada aviso dice el archivo, la línea y qué
+hacer; además de las marcas, avisa de lo que finge, de los recursos que se cargan de dominios desconocidos (y es un
+error una ruta local disfrazada) y de los bloques copiados. Si cambiaste una parte, pulsa «Actualizar el paquete»: la
+vista previa de doble clic lee las partes de un paquete (`site/parts/parts.js`, que también lleva la lista de recursos),
+porque el navegador no deja leer archivos sueltos.
 
 Abre `site/index.html` y compara página a página con el original, en escritorio y en móvil.
 
-### 2.4 Importar y activar
+**El censo funcional, por quien no adaptó.** Una adaptación no está terminada sin él: cada elemento interactivo de cada
+página (enlace, botón, campo, formulario, lista, menú, vídeo) y cada recurso externo, con su estado (funciona, falso o
+pendiente) y su plan. Lo hace **un agente distinto del que adaptó** (ADR 0088): quien construyó no firma su propio
+censo. Lo recorre y lo usa elemento por elemento (con `bin/navegador`) y lo escribe en la sección `## Censo funcional`
+de `files/design/PROJECT.md`. Lo que quede sin resolver va en `## Pendientes conocidos`, con su página y su motivo.
+Mientras esa lista tenga algo sin decisión del Product Owner, **no se publica**.
+
+### 2.4 Entregar al equipo de diseño
+
+```bash
+bin/cli public-site-export from=files/design/adaptado destination=/ruta/para/diseño zip=yes
+```
+
+`from=` es la carpeta de partida (con `site/` y `pcs.json`); el nombre del sitio sale de `site=` o, si falta, del `name`
+de su `pcs.json`, y **no puede ser el de un sitio ya importado** (con un sitio importado se usa `site=<nombre>` sin
+`from=`). El destino tiene que estar **fuera** del repositorio y no existir (su carpeta padre sí).
+
+Deja la carpeta y, junto a ella, `<nombre>-<fecha>.zip`: es lo que se envía. Lleva su sitio, el comprobador, la guía
+(`GUIDE.html`), los datos de ejemplo de cada recurso del proyecto, `PROJECT.md` (las reglas del proyecto, con el censo y
+los pendientes; los permisos que trae el paquete para la herramienta de agentes que los admite le niegan editarlo), el
+`DESIGN.md` del sitio si lo tiene, y las instrucciones para su asistente, también para Cursor: un `AGENTS.md`, dos
+skills, tres subagentes, los permisos que impiden tocar lo que no se toca y dos reglas de Cursor. **No lleva ningún otro
+archivo de agente**: la orden lo comprueba con una lista exacta y falla si encuentra uno.
+
+Diles que abran la carpeta (la de arriba, no `site/`) en su herramienta, que empiecen por `GUIDE.html` y que **sigan
+trabajando desde esa versión**.
+
+### 2.5 El equipo de diseño trabaja
+
+Cambian con libertad el diseño de `site/`: maquetación, CSS, JavaScript visual, imágenes, fuentes, páginas nuevas. Lo
+único que respetan son las marcas, `site/.pcs/` y `site/data/`. Antes de devolver la carpeta, `CHECK.html` sin avisos.
+
+### 2.6 Importar y activar (paso b)
 
 ```bash
 bin/cli public-site-import folder=/ruta/de/trabajo site=<nombre> check=yes   # solo comprueba
 bin/cli public-site-import folder=/ruta/de/trabajo site=<nombre>             # comprueba y coloca
 ```
 
-La importación usa las mismas reglas que `CHECK.html`. Si algo falla, **no toca nada** y dice qué y dónde. Si va bien,
-coloca las páginas y las partes en `app/view/<nombre>/` y los estáticos en `statics/<nombre>/`, y guarda lo anterior en
-`app/cache/public-site/backups/`.
+`folder=` es la carpeta con `site/` y `pcs.json`: la que el diseñador devolvió o `files/design/adaptado`, dada como ruta
+absoluta o relativa a la raíz del proyecto, como en la exportación.
+
+La importación usa las mismas reglas que `CHECK.html` para las marcas (lo que finge solo lo mira el comprobador). Si algo
+falla, **no toca nada** y dice qué y dónde. Si va bien, coloca las páginas y las partes en `app/view/<nombre>/` y los
+estáticos en `statics/<nombre>/`, y guarda lo anterior en `app/cache/public-site/backups/`.
+
+Antes de importar, **los recursos de las listas tienen que estar registrados**: uno sin registrar hace fallar la
+importación. Si el módulo todavía no existe, regístralo estimado; si existe, con su lector real (sección 3).
 
 Para que el sitio se sirva, en `src/app/config/config.php`:
 
@@ -99,29 +214,13 @@ $config['public_site'] = '<nombre>';
 Desde ese momento, su `index.html` es la portada del proyecto y su `contact.html`, la página de contacto; las demás
 páginas se sirven en `/<página>/`. Una página que el sitio no trae sigue siendo la del framework.
 
-### 2.5 Revisar lo servido
+### 2.7 Revisar lo servido
 
-Recorre cada página servida por el proyecto contra la vista previa: las listas con datos reales, los enlaces, los
-formularios (que llegan a su destino) y las páginas interiores (que cargan su CSS y su JavaScript). La primera vez que
-se pide una página, PiecesPHP la compila y la guarda en caché; un cambio en la carpeta se nota al volver a importar.
-
-### 2.6 Entregar al equipo de diseño
-
-```bash
-bin/cli public-site-export site=<nombre> destination=/ruta/para/diseño zip=yes
-```
-
-Deja la carpeta y, junto a ella, `<nombre>-<fecha>.zip`: es lo que se envía. Lleva su sitio, el comprobador, la guía
-(`GUIDE.html`) y las instrucciones para su asistente, también para Cursor: un `AGENTS.md`, dos skills, tres subagentes,
-los permisos que impiden tocar lo que no se toca y dos reglas de Cursor. **No lleva nada más**: la orden lo comprueba
-con una lista exacta y falla si encuentra otro archivo de agente.
-
-Diles que abran la carpeta (la de arriba, no `site/`) en su herramienta, y que empiecen por `GUIDE.html`.
-
-### 2.7 El equipo de diseño trabaja
-
-Cambian con libertad el diseño de `site/`: maquetación, CSS, JavaScript visual, imágenes, fuentes, páginas nuevas. Lo
-único que respetan son las marcas, `site/.pcs/` y `site/data/`. Antes de devolver la carpeta, `CHECK.html` sin avisos.
+Recorre cada página servida por el proyecto contra la versión del diseñador: las listas con datos reales (o vacías, si
+el recurso es estimado), los enlaces, los formularios (que llegan a su destino) y las páginas interiores (que cargan su
+CSS y su JavaScript). La primera vez que se pide una página, PiecesPHP la compila y la guarda en caché; un cambio en la
+carpeta se nota al volver a importar. Repite aquí el censo funcional (2.3), ahora sobre el sitio servido y también por
+quien no lo construyó: «todas las páginas responden» no es una verificación.
 
 ### 2.8 Recibir lo devuelto
 
@@ -137,7 +236,8 @@ a `app/view/<nombre>/` y `statics/<nombre>/`. No hay orden para eso todavía.
 
 Es el único caso que pide programar. Un recurso nuevo para `<pcs-list>` se declara con su contrato (nombre, campos con
 tipo y ejemplo, y de dónde salen los datos reales) en el `routes()` de un módulo del proyecto; una acción nueva para
-`<pcs-form>`, igual. Después, una exportación nueva lleva sus datos de ejemplo al equipo de diseño. Cómo se registran:
+`<pcs-form>`, igual. Si el módulo aún no existe, el contrato se registra **estimado**, para poder adaptar y devolver sin
+esperarlo. Después, una exportación nueva lleva sus datos de ejemplo al equipo de diseño. Cómo se registran:
 [El sitio público por marcas](sitio-publico.md), «Ampliarlo desde un proyecto».
 
 ## 4. Problemas frecuentes
@@ -149,3 +249,8 @@ tipo y ejemplo, y de dónde salen los datos reales) en el `routes()` de un módu
   simbólico. Se quita de la carpeta: nada de eso es diseño.
 - **Una página choca con una dirección del sistema** (`admin`, `core`, `statics`…): renómbrala.
 - **Dentro de una lista no se resuelven otras marcas**: lo que va dentro de su `<template>` es HTML y `{{campo}}`.
+- **La exportación dice que el sitio ya es un sitio importado**: `from=` y un sitio importado con el mismo nombre no se
+  combinan. Usa `site=<nombre>` sin `from=`, o cambia el nombre (`site=`) de la carpeta que exportas.
+- **La exportación falla por `PROJECT.md`**: falta `files/design/PROJECT.md` o la línea exacta `## Pendientes conocidos`.
+- **Una lista sale vacía en el sitio servido y avisa Avisos del sistema**: su recurso es estimado; falta registrar el
+  lector real del módulo.

@@ -1,6 +1,6 @@
 <?php
 
-//bin/censo-scss --trinquete (H163): falla si una cifra del censo SUBE sobre la línea base y no escribe nada.
+//bin/censo-scss --trinquete (H163): falla si una cifra del censo SUBE sobre la línea base, o BAJA sin rehacerla, y no escribe nada.
 //Compara contra COPIAS de la línea base en un temporal propio (--base=): nunca altera la versionada.
 //@areas nucleo
 
@@ -8,7 +8,7 @@ use PiecesPHP\Terminal\CliActions;
 
 CliActions::make('unit-tests:core/scss-census-ratchet', function ($args) {
 
-    echoTerminal("\e[33m[TEST:ScssCensusRatchet] El censo de SCSS no puede crecer sobre su línea base\e[39m");
+    echoTerminal("\e[33m[TEST:ScssCensusRatchet] El censo de SCSS no puede crecer sobre su línea base ni bajar sin rehacerla\e[39m");
     echoTerminal('');
 
     $passed = 0;
@@ -70,18 +70,24 @@ CliActions::make('unit-tests:core/scss-census-ratchet', function ($args) {
         $json = (string) json_encode($datos, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE);
         return file_put_contents($copia, $json) === strlen($json);
     };
+    //Un sitio importado (src/app/view/<sitio>/pcs.json según git) deja sus estáticos fuera: una parcial suya no suma líneas.
+    //En el repositorio real (el censo mide su universo entero contra la línea base): nombre propio de la corrida y se borra en finally.
+    $sitio = 'zz-prueba-censo-scss-' . getmypid() . '-' . bin2hex(random_bytes(3));
+    $vistaSitio = "{$raiz}/src/app/view/{$sitio}";
+    $estaticosSitio = "{$raiz}/src/statics/{$sitio}";
+    $parcialSitio = "{$estaticosSitio}/_zz.scss";
 
     try {
         $check(mkdir($temporal, 0700), '00 el temporal propio se pudo crear', $temporal);
         //La primera compila (gulp sass-all): las demás miden el mismo CSS.
         [$codigo, $veredicto] = $correr('--trinquete');
-        //Igual o por debajo: un censo que baja no rompe (la línea base se rehace en el commit que baja).
-        $noSube = fn (int $codigo, string $veredicto): bool => $codigo === 0 && (str_contains($veredicto, 'igual que la línea base') || str_contains($veredicto, 'baja'));
-        $check($noSube($codigo, $veredicto), 'a1 con la línea base de verdad, no sube', "rc {$codigo} · {$veredicto}");
+        //Solo «igual» pasa: una bajada sin rehacer la línea base también rompe (se rehace en el commit que baja).
+        $igual = fn (int $codigo, string $veredicto): bool => $codigo === 0 && str_contains($veredicto, 'igual que la línea base');
+        $check($igual($codigo, $veredicto), 'a1 con la línea base de verdad, igual', "rc {$codigo} · {$veredicto}");
 
         $check($escribirCopia($original['cifras']), 'b0 una copia idéntica de la línea base');
         [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --base=' . escapeshellarg($copia));
-        $check($noSube($codigo, $veredicto), 'b1 contra la copia idéntica, no sube', "rc {$codigo} · {$veredicto}");
+        $check($igual($codigo, $veredicto), 'b1 contra la copia idéntica, igual', "rc {$codigo} · {$veredicto}");
 
         //DISCRIMINANTE: una cifra de la línea base por debajo de lo medido es «el censo crece».
         $menor = $original['cifras'];
@@ -94,7 +100,14 @@ CliActions::make('unit-tests:core/scss-census-ratchet', function ($args) {
         $mayor['lines_total']++;
         $check($escribirCopia($mayor), 'd0 una copia con lines_total una por encima');
         [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --base=' . escapeshellarg($copia));
-        $check($codigo === 0 && str_contains($veredicto, 'baja'), 'd1 si el censo baja, avisa y no falla', "rc {$codigo} · {$veredicto}");
+        $check($codigo === 1 && str_contains($veredicto, 'TRINQUETE ROTO') && str_contains($veredicto, 'baja sin rehacer la línea base') && str_contains($veredicto, 'lines_total'), 'd1 DISCRIMINANTE: si el censo baja sin rehacer la línea base, sale con 1 y nombra la cifra', "rc {$codigo} · {$veredicto}");
+
+        //El CSS compilado vivo (JNY): las reglas distintas que llegan al navegador, también las marcadas.
+        $distintasMenor = $original['cifras'];
+        $distintasMenor['rules_distinct']--;
+        $check($escribirCopia($distintasMenor), 'j0 una copia con rules_distinct una por debajo');
+        [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --base=' . escapeshellarg($copia));
+        $check($codigo === 1 && str_contains($veredicto, 'rules_distinct'), 'j1 DISCRIMINANTE: las reglas distintas del CSS compilado también son trinquete', "rc {$codigo} · {$veredicto}");
 
         //El total con lo marcado (A5): meter CSS en un bloque en desuso lo sube aunque lines_total no se mueva.
         $totalMenor = $original['cifras'];
@@ -114,6 +127,16 @@ CliActions::make('unit-tests:core/scss-census-ratchet', function ($args) {
         $check($escribirCopia($incompleta), 'e0 una copia sin dead_rules');
         [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --base=' . escapeshellarg($copia));
         $check($codigo === 1 && str_contains($veredicto, 'SIN LÍNEA BASE NO HAY TRINQUETE'), 'e1 sin una cifra en la línea base no hay trinquete: sale con 1', "rc {$codigo} · {$veredicto}");
+
+        $scssSitio = ".zz-sitio {\n    color: red;\n}\n";
+        $bancoSitio = mkdir($vistaSitio, 0775, true) && mkdir($estaticosSitio, 0775, true) && file_put_contents("{$vistaSitio}/pcs.json", "{}\n") !== false
+            && file_put_contents($parcialSitio, $scssSitio) === strlen($scssSitio);
+        $check($bancoSitio, 'k0 un sitio importado (pcs.json sin preparar) con una parcial .scss en src/statics/<sitio>/');
+        [$codigo, $veredicto] = $correr('--sin-compilar --trinquete');
+        $check($bancoSitio && $igual($codigo, $veredicto), 'k1 los estáticos de un sitio importado no entran en el universo: igual que la línea base', "rc {$codigo} · {$veredicto}");
+        $sinManifiesto = $bancoSitio && unlink("{$vistaSitio}/pcs.json");
+        [$codigo, $veredicto] = $correr('--sin-compilar --trinquete');
+        $check($sinManifiesto && $codigo === 1 && str_contains($veredicto, 'lines_total'), 'k2 CANARIO: sin pcs.json la misma parcial sí cuenta y lines_total sube', "rc {$codigo} · {$veredicto}");
 
         //Lo marcado @en-desuso: la marca, los comentarios que la siguen y el bloque de debajo, con lo anidado; nada más.
         $prueba = "{$temporal}/prueba.scss";
@@ -147,15 +170,29 @@ CliActions::make('unit-tests:core/scss-census-ratchet', function ($args) {
         $todas = [];
         //RETORNO-IGNORADO: la lista llega por $todas.
         exec('cd ' . escapeshellarg($raiz) . " && git --no-optional-locks ls-files --cached --others --exclude-standard -- '*.scss'", $todas);
+        $manifiestos = [];
+        //RETORNO-IGNORADO: la lista llega por $manifiestos; los estáticos de un sitio importado tampoco son del universo (bin/censo-scss).
+        exec('cd ' . escapeshellarg($raiz) . " && git --no-optional-locks ls-files --cached --others --exclude-standard -- 'src/app/view/*/pcs.json'", $manifiestos);
+        $fuera = ['files/design/'];
+        foreach ($manifiestos as $manifiesto) {
+            $tramos = explode('/', $manifiesto);
+            if (count($tramos) === 5) {
+                $fuera[] = "src/statics/{$tramos[3]}/";
+            }
+        }
         $lineasUniverso = 0;
-        foreach ($todas as $archivo) {
+        foreach (array_filter($todas, fn (string $archivo): bool => array_filter($fuera, fn (string $f): bool => str_starts_with($archivo, $f)) === []) as $archivo) {
             //Como Python al iterar el archivo: cada salto, más la última línea si no acaba en salto.
             $contenido = (string) file_get_contents("{$raiz}/{$archivo}");
             $lineasUniverso += substr_count($contenido, "\n") + ($contenido !== '' && !str_ends_with($contenido, "\n") ? 1 : 0);
         }
+        //Contra una copia con todas las cifras muy por encima: la salida de «baja» las nombra todas, también lines_total,
+        //se mueva o no contra la línea base de verdad.
+        $techo = array_map(fn ($cifra): int => 999999999, $original['cifras']);
+        $check($escribirCopia($techo), 'h00 una copia con todas las cifras muy por encima');
         $salida = [];
         //RETORNO-IGNORADO: la salida llega por $salida.
-        exec('cd ' . escapeshellarg($raiz) . ' && bin/censo-scss --sin-compilar --trinquete 2>&1', $salida);
+        exec('cd ' . escapeshellarg($raiz) . ' && bin/censo-scss --sin-compilar --trinquete --base=' . escapeshellarg($copia) . ' 2>&1', $salida);
         $texto = implode("\n", $salida);
         $enDesuso = preg_match('/en desuso \(fuera del trinquete\): (\d+) reglas \((\d+) que no pueden casar\), (\d+) líneas/u', $texto, $d) === 1 ? [(int) $d[1], (int) $d[2], (int) $d[3]] : null;
         $lineasTrinquete = preg_match('/lines_total \d+ → (\d+)/u', $texto, $l) === 1 ? (int) $l[1] : null;
@@ -171,12 +208,23 @@ CliActions::make('unit-tests:core/scss-census-ratchet', function ($args) {
         if (is_dir($temporal)) {
             $limpio = rmdir($temporal) && $limpio;
         }
+        foreach ([$parcialSitio, "{$vistaSitio}/pcs.json"] as $archivo) {
+            if (is_file($archivo)) {
+                $limpio = unlink($archivo) && $limpio;
+            }
+        }
+        foreach ([$estaticosSitio, $vistaSitio] as $directorio) {
+            if (is_dir($directorio)) {
+                $limpio = rmdir($directorio) && $limpio;
+            }
+        }
     }
     $check($huellas() === $antes, 'z1 ni la línea base ni el censo versionados cambiaron (sha1 y fecha): --trinquete no escribe');
     [$codigo, $veredicto] = $correr('--sin-compilar --trinquete --guardar-base');
     $check($codigo === 2 && $huellas() === $antes, 'z3 --guardar-base con --trinquete se rechaza y no escribe nada', "rc {$codigo}");
-    $check($limpio && !is_dir($temporal), 'z2 el temporal propio se borró');
+    clearstatcache();
+    $check($limpio && !is_dir($temporal) && !file_exists($vistaSitio) && !file_exists($estaticosSitio), 'z2 el temporal propio y el sitio de prueba se borraron');
 
     return $balance();
 
-})->setDescription('bin/censo-scss --trinquete: falla si una cifra del censo de SCSS sube sobre la línea base, avisa si baja y no escribe nada')->setEffects([CliActions::EFFECT_FILES])->register();
+})->setDescription('bin/censo-scss --trinquete: falla si una cifra del censo de SCSS sube sobre la línea base o baja sin rehacerla, y no escribe nada')->setEffects([CliActions::EFFECT_FILES])->register();

@@ -441,7 +441,20 @@ panel implementado**, y el tema se compara contra él:
 
 - **Ningún agente cambia el panel para parecerse a un escaparate.** Los escaparates de PiecesPHP
   (`Fomantic-UI/examples/catalogo/paginas/escaparate-piecesphp-*.html`) los pone al día el agente del tema replicando el
-  panel, y pueden ir por detrás (H220: la comprobación que lista los desfasados).
+  panel, y pueden ir por detrás. **Lo que va por detrás se ve** (H220, JNZ, `04965c78`): `files/dev/escaparates.json`
+  registra qué escaparate replica cada vista del panel (por nombre de ruta; el nombre es el de su fuente en
+  `examples/catalogo/escaparates/`, y la página `paginas/escaparate-<nombre>.html` la arma el tema con su marco), sus
+  fuentes de vista y la huella de esas fuentes en el commit en que se concilió; y la comprobación 72 de
+  `verify-integrity` **avisa sin fallar** de las vistas desfasadas (fuentes cambiadas tras conciliarse), las sin
+  conciliar y las que no tienen escaparate, con la cobertura N/M. Una ruta con pestañas lleva una lista de escaparates,
+  uno por pestaña. **Falla** solo si el registro se pudre (una ruta que no existe o que el registro no puede nombrar
+  —sin GET, sin sesión, con `statics`—, una fuente que no está, una huella que no es la de sus fuentes en el commit
+  conciliado o una fuente que no existía en él, un commit que no tiene 40 caracteres, una lista de escaparates vacía o
+  mala). El universo: rutas con GET y sesión, sin `statics`, bajo `adminPath()` (como la 61), menos `no_es_vista`; las
+  de un módulo apagado no aplican. **Al conciliar una vista** se ponen su commit entero y la huella de sus fuentes en
+  ese commit; **al añadirle una fuente** a una ya conciliada, se recalcula la huella o se pone `null` con el commit.
+  **La ronda que etiqueta lleva al agente del tema las desfasadas y las sin escaparate.** El 24 (JOA, `86c8a49f`): 33/91,
+  0 desfasadas, 25 sin conciliar, 58 sin escaparate.
 - **La excepción son los errores evidentes del panel** (texto ilegible, contraste roto, algo desalineado o cortado, y lo
   que el prototipo pedía y no se implementó, como la insignia «Activa» del 2FA en el menú de usuario): no se copian y se
   corrigen aquí. Lo que el escaparate tenga mejor por gusto es una **propuesta**: decide el PO.
@@ -477,6 +490,16 @@ panel implementado**, y el tema se compara contra él:
   - el kit no nombra la herramienta en prosa (`menciones_ia.py` lo cuenta como atribución);
   - las páginas del sitio llevan el `<base>` del framework (sin él, las interiores no cargan sus estáticos; JNB solo
     había medido presencia, no carga): toda medida de este motor comprueba CARGA en una página interior;
-  - `public-site-export` exige un sitio importado (la carpeta de partida sale de importar uno mínimo y exportarlo).
+  - `public-site-export` sale de una carpeta (`from=`), de un sitio importado o, si `site=` nombra uno no importado, del ejemplo del kit; hacia
+    `files/design/` escribe solo el sitio, y fuera del proyecto falla sin `files/design/PROJECT.md` (o el de
+    `project-file=`) con «## Pendientes conocidos» (JOB, `a5c26f08`, `ac03c74a`).
+  - `CHECK` avisa de lo que finge (`lintFakes`, solo en `check.js`); `CHECK` y la importación (`SiteLint.php`, réplica
+    por texto, paridad en `UnitTest-PublicSiteKit` l11) avisan de las URL ajenas (`knownHosts` de `rules.json`; la ruta disfrazada es ERROR en `CHECK` y aviso al
+    importar) y de los bloques copiados (JOC, `8b0e6f3b`, `a6981542`). `parseHtml` de `check.js` busca el cierre de un
+    bloque RAW sin desplazar índices (JOD, `c29d5f7a`: antes, una «İ» se tragaba lo que seguía).
+  - La vista previa: `?pcs-vacio=<recurso>` da cero filas (`items: []` también, pero nada lo genera y la exportación
+    regenera `data/`); `ResourceContract::estimated()` (lector vacío)
+    y el aviso `public-site-estimated-resources` (JOD, `546fc64c`). El salto de comentarios de `.css`/`.js` no es un
+    analizador de JS: una expresión regular tras `)` o tras `return` se toma por división.
 - **Una regla, tres sitios**: `pcs/rules.json` es la única fuente de marcas y atributos para el servidor, `CHECK` y la
   vista previa; la lista blanca de URL vive en `MarkRegistry::safeUrl`, `check.js` y `pcs.js`, con su prueba de paridad.
