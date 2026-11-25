@@ -13,6 +13,7 @@ Sigue el procedimiento completo de `.agents/skills/adapt-design/SKILL.md`. En re
 3. En cada página, `<script src=".pcs/pcs.js"></script>` en el `<head>`, antes de cualquier otro script y sin `async`
    ni `defer`. Lo repetido a `site/parts/<nombre>.html` y `<pcs-part name="<nombre>">` en su lugar.
 4. Marcas solo donde hay dato del sistema: `<pcs-link page>` (con `anchor` y `current-class`), `<pcs-meta>` (con
-   `structured-data="off"` si trae su JSON-LD), `<pcs-image brand>` (con `width` y `height`), `<pcs-text key>`,
+   `structured-data="off"` si trae su JSON-LD), `<pcs-image brand>` (con `width` y `height`; el logo se queda como `<img>` salvo que `PROJECT.md` diga otra cosa), `<pcs-text key>`,
    `<pcs-list resource count>` con `<template>` y `{{campo}}` de `data/`, y `<pcs-form action>`.
-5. `CHECK.html` sin avisos y `START.html` comparado página a página con el original.
+5. `CHECK.html` sin avisos (salvo los anotados como pendientes) y `site/index.html` comparado página a página con el
+   original.

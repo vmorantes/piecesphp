@@ -115,7 +115,7 @@ original. Las reglas, en corto:
    | Si en el diseño hay… | Va |
    | :-- | :-- |
    | un enlace a otra página del sitio (o a una sección suya) | `<pcs-link page="contact">texto</pcs-link>` (`anchor="seccion"` para la sección; `current-class="activo"` para marcar la página actual en el menú) |
-   | título, descripción y vista previa para redes | `<pcs-meta></pcs-meta>` en el `<head>` (`structured-data="off"` si el diseño trae su propio JSON-LD) |
+   | título, descripción y vista previa para redes | nada: el SEO del framework llega por defecto y sustituye el del diseño. `<pcs-meta></pcs-meta>` en el `<head>` solo si debe llegar aunque el proyecto lo excluya, o con `structured-data="off"` si el diseño trae su propio JSON-LD |
    | el logo u otra imagen de la marca | `<pcs-image brand="logo" width="…" height="…"></pcs-image>` (las dimensiones del original) |
    | un texto que se traduce | `<pcs-text key="Texto">Texto</pcs-text>` |
    | una lista (tres o más elementos con la misma estructura: noticias, testimonios…) | `<pcs-list resource="publications" count="3"><template>…{{title}}…</template></pcs-list>` |

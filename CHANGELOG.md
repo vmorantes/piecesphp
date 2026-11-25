@@ -1,3 +1,57 @@
+# 10.64.0 (24-11-2026)
+
+- **Seguridad: los permisos al editar, reforzados en varios módulos del panel.** Actualiza cuanto antes. Si tu proyecto
+  tiene módulos propios con reglas de autorización por registro, revísalos con la guía de módulos del manual
+  («Reglas que los roles no pueden saber»).
+- **Lo global del framework llega al sitio por marcas por defecto**: el SEO (título, descripción, Open Graph, canónica,
+  idiomas alternativos y datos estructurados) aunque la página no lleve `<pcs-meta>`, el favicon de Configuración, el
+  modo de tema (`data-theme`) y las imágenes del cargador de Configuración, el cargador, las fuentes globales y los
+  scripts extra de la zona pública en sus tres puntos (también el de principio del `<body>`). Se añaden `charset` y
+  `viewport` si el diseño no los trae. Lo que el diseñador tuviera de eso se sustituye, para que no se repita.
+- **Quitar lo global, o pedir lo compartido**: `PublicSite::excludeGlobals('seo', 'favicon', 'theme', 'loader',
+  'scripts', 'fonts')` deja fuera lo nombrado (y vuelve lo del diseñador); `PublicSite::useShared('framework-js')`
+  carga en todas las páginas del sitio los JS globales de la zona pública (jQuery, Fomantic, `configurations.min.js`,
+  lo que el proyecto tenga como global y el adaptador de reCAPTCHA si está activo). Se llaman desde el `routes()` del
+  módulo del proyecto o desde la sección del clon de `src/app/config/routes.php`, y valen para todo el sitio. Un
+  nombre que no existe lanza una excepción al arrancar, que tumba todas las peticiones: pruébalo tras cambiarlo.
+  Detalle en el manual, «El sitio público por marcas».
+- **El cargador, sin jQuery**: `showGenericLoader()` y `removeGenericLoader()` funcionan en el sitio por marcas con
+  `statics/core/js/pcsphp-loader.js` y su CSS, que el sitio carga solo. En el panel no cambia nada.
+- **Lo eliminado se trata como lo que no existe**: borrar una publicación, noticia, banner, documento, categoría de
+  formularios u organización eliminada responde 404, también a root, en vez de «sin permisos». Abrir la edición de
+  cualquiera de ellas da 404, y guardarla responde «no existe». De una organización
+  eliminada, abrir su edición o guardarla siguen respondiendo «sin permisos» (se corrige en una versión siguiente).
+- **Importar y exportar**, con su tabla sobre el fondo blanco de los listados del panel.
+- **Al actualizar**: lee el cambio incompatible del sitio por marcas, y recompila los estilos (`cd src && gulp
+  init-project`): el CSS del cargador es nuevo y no viaja compilado.
+
+## ⚠ CAMBIO INCOMPATIBLE — un sitio por marcas ya importado se sirve con lo global del framework
+
+Un sitio importado antes de esta versión se recompila solo en la primera visita, sin ninguna orden, y desde entonces
+recibe lo global por defecto. Lo que se nota:
+
+- **Sin `<pcs-meta>`**: el `<title>` pasa a ser el del framework, con el nombre de la aplicación detrás (« - <nombre>»)
+  si es distinto; la descripción del diseño, si la trae, se corta a 150 caracteres (más «...»); y llegan las metas,
+  Open Graph, canónica y datos estructurados de Configuración. Los del diseñador desaparecen.
+- **Los scripts extra de la zona pública** (Configuración) llegan a las páginas del sitio: un script que esté a la vez
+  en el diseño y en el panel (una analítica, por ejemplo) se carga dos veces. Llegan también el cargador y las fuentes
+  globales.
+- **El modo de tema**: el `data-theme` del diseñador se sustituye por el de Configuración (de fábrica, `auto`: sigue
+  al sistema del visitante).
+- **El favicon**: el de Configuración sustituye al del diseñador, si hay uno configurado.
+- **Qué hacer en un clon**: revisa el sitio tras actualizar. Para conservar algo del diseñador, exclúyelo con
+  `PublicSite::excludeGlobals(...)` (por ejemplo `'theme'` para su `data-theme`, `'seo'` para su título y sus metas).
+
+## ⚠ Aviso que faltó en la 10.63.0 — `public-site-import` lee un `folder=` relativo desde la raíz
+
+No cambia nada en esta versión: el cambio salió en la 10.63.0 sin su aviso. Desde la 10.63.0,
+`bin/cli public-site-import folder=<carpeta>` resuelve una ruta relativa desde la raíz del proyecto, como
+`public-site-export`; hasta la 10.62.x se leía desde `src/`. Una ruta absoluta funciona igual que antes.
+
+- **Qué hacer en un clon que viene de la 10.62.x o anterior**: si tus órdenes o guiones pasaban una ruta relativa a
+  `src/`, pásala relativa a la raíz o absoluta. Si no, la orden falla sin tocar nada: «No encuentro la carpeta site/ del
+  paquete».
+
 # 10.63.0 (24-11-2026)
 
 - **El control del CSS propio del panel es más estricto**: `bin/censo-scss --trinquete` (y la comprobación 71 de

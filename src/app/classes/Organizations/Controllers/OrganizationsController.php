@@ -40,6 +40,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * OrganizationsController.
@@ -339,7 +340,16 @@ class OrganizationsController extends AdminPanelController
     public function action(Request $request, Response $response)
     {
         //LA OPERACIÓN LA DECIDE LA RUTA, que es lo mismo que concede el permiso. Ver T120.
-        return $this->saveOrganization($request, $response, self::isEditRoute($request));
+        $isEdit = self::isEditRoute($request);
+        //Un POST no concede más que su GET: editar exige lo mismo que abrir su formulario (_allowedRoute).
+        if ($isEdit) {
+            $body = $request->getParsedBody();
+            $bodyID = is_array($body) && Validator::isInteger($body['id'] ?? null) ? (int) $body['id'] : null;
+            if ($bodyID !== null && OrganizationMapper::existsNotDeletedByID($bodyID) && !self::allowedRoute('forms-edit', ['id' => $bodyID])) {
+                return throw403($request);
+            }
+        }
+        return $this->saveOrganization($request, $response, $isEdit);
     }
 
     /**
@@ -1145,6 +1155,10 @@ class OrganizationsController extends AdminPanelController
                 $exists = OrganizationMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
+                    //La guarda pudo ver el id aún sin crear: lo creado entre medias no se borra sin su permiso.
+                    if (!self::allowedRoute('actions-delete', ['id' => $id])) {
+                        return throw403($request);
+                    }
 
                     //Dirección de redirección en caso de creación
                     $redirectURLOn = self::routeName('list');
@@ -1197,9 +1211,13 @@ class OrganizationsController extends AdminPanelController
                     }
 
                 } else {
-                    $resultOperation->setMessage($notExistsMessage);
+                    //Lo inexistente y lo eliminado responden 404, como su formulario de edición (H489).
+                    return $response->withStatus(404)->withJson($resultOperation->setMessage($notExistsMessage));
                 }
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación.
+                throw $e;
             } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
@@ -1607,13 +1625,13 @@ class OrganizationsController extends AdminPanelController
 
                 if ($name == 'actions-delete') {
 
-                    $allow = false;
                     $id = ($getParam)('id');
                     $id = Validator::isInteger($id) ? (int) $id : -1;
                     $initialInmutableID = OrganizationMapper::INITIAL_ID_GLOBAL;
                     $organization = OrganizationMapper::getBy($id, 'id');
-                    //Lo eliminado se niega como lo que no existe (P380).
+                    //Lo inexistente y lo eliminado no se deciden aquí: el método responde 404 (P380, H489).
                     $organization = $organization !== null && (int) $organization->status !== OrganizationMapper::DELETED ? $organization : null;
+                    $allow = $organization === null;
 
                     if ($organization !== null && $initialInmutableID != $id) {
 

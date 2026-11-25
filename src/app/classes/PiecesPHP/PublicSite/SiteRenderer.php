@@ -7,7 +7,10 @@
 namespace PiecesPHP\PublicSite;
 
 use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
+use PiecesPHP\Core\Utilities\Helpers\MetaTags;
+use PiecesPHP\Core\Utilities\Helpers\StructuredData;
 use PiecesPHP\LocalizationSystem\Controllers\LocalizationSystemController;
+use PiecesPHP\Settings\Controllers\SettingsController;
 
 /**
  * SiteRenderer - Pinta las páginas y partes de un sitio desde su vista compilada en caché. Cada vista se compila una vez
@@ -22,6 +25,23 @@ use PiecesPHP\LocalizationSystem\Controllers\LocalizationSystemController;
  */
 final class SiteRenderer
 {
+
+    /** Cómo llega el SEO a una página: por defecto (sin pcs-meta), o lo pinta pcs-meta (con o sin datos estructurados). */
+    const SEO_DEFAULT = 'default';
+    const SEO_MARK = 'mark';
+    const SEO_MARK_WITHOUT_STRUCTURED_DATA = 'mark-without-structured-data';
+
+    /** Lo del <head> del diseñador que el framework sustituye por lo suyo (designerHead()). */
+    const DESIGNER_SEO = 'seo';
+    const DESIGNER_ROBOTS = 'robots';
+    const DESIGNER_THEME_COLOR = 'theme-color';
+    const DESIGNER_STRUCTURED_DATA = 'structured-data';
+    const DESIGNER_FAVICON = 'favicon';
+
+    /** El cargador del framework, suelto, para las páginas sin configurations.min.js. */
+    const LOADER_CSS = 'statics/core/css/pcsphp-loader.css';
+    const LOADER_JS = 'statics/core/js/pcsphp-loader.js';
+    const LOADER_ELEMENT_JS = 'statics/core/js/helpers-lib/GenericLoaderElement.js';
 
     /** Partes dentro de partes: más allá, la parte se pinta vacía y se anota. */
     const MAX_PART_DEPTH = 8;
@@ -290,13 +310,14 @@ final class SiteRenderer
     }
 
     /**
-     * Lo que va al final del <head> de cada página: lo que lee el JavaScript del framework, la regla de las imágenes de
-     * marca con versión oscura (solo con data-theme="dark" en <html>) y los scripts extra del panel.
+     * Lo que va al final del <head> de cada página: lo que lee el JavaScript del framework, el SEO (si la página no trae
+     * pcs-meta), el favicon, la regla de las imágenes de marca, las fuentes, la hoja del cargador y los scripts extra.
      *
      * @param MarkContext $context
+     * @param string $seoMode SEO_DEFAULT, SEO_MARK o SEO_MARK_WITHOUT_STRUCTURED_DATA: lo decide el compilador
      * @return string
      */
-    public static function headFragment(MarkContext $context): string
+    public static function headFragment(MarkContext $context, string $seoMode = self::SEO_DEFAULT): string
     {
         $metas = [
             'cache-stamp' => (string) get_config('cacheStamp'),
@@ -308,19 +329,154 @@ final class SiteRenderer
         foreach ($metas as $name => $value) {
             $html .= '<meta name="' . $name . '" value="' . escape_html($value) . '">';
         }
-        $html .= '<style>.brand-image-dark{display:none}html[data-theme="dark"] .brand-image-light{display:none}html[data-theme="dark"] .brand-image-dark{display:revert}html[data-theme="dark"] .invert-on-dark{filter:invert(1)}</style>';
-        return $html . ExtraScripts::getScriptsFor('public', 'head');
+        if ($seoMode === self::SEO_DEFAULT && !PublicSite::isGlobalExcluded('seo')) {
+            $html .= MetaTags::getMetaTagsGeneric() . MetaTags::getMetaTagsOpenGraph() . StructuredData::get();
+        }
+        $html .= self::faviconTag();
+        $dark = '.brand-image-light{display:none}html[data-theme="%1$s"] .brand-image-dark{display:revert}html[data-theme="%1$s"] .invert-on-dark{filter:invert(1)}';
+        $html .= '<style>.brand-image-dark{display:none}html[data-theme="dark"] ' . sprintf($dark, 'dark') . '@media (prefers-color-scheme:dark){html[data-theme="auto"] ' . sprintf($dark, 'auto') . '}</style>';
+        if (!PublicSite::isGlobalExcluded('fonts')) {
+            ob_start();
+            load_font();
+            $html .= (string) ob_get_clean();
+        }
+        if (!PublicSite::isGlobalExcluded('loader')) {
+            $html .= '<link rel="stylesheet" href="' . escape_html(add_cache_stamp_to_url(baseurl(self::LOADER_CSS))) . '">';
+        }
+        return $html . (PublicSite::isGlobalExcluded('scripts') ? '' : ExtraScripts::getScriptsFor(ExtraScripts::ZONE_PUBLIC, ExtraScripts::POSITION_HEAD));
     }
 
     /**
-     * Lo que va al final del <body>: los scripts extra del panel.
+     * Lo que va al principio del <body>: los scripts extra del panel de ese punto.
+     *
+     * @param MarkContext $context
+     * @return string
+     */
+    public static function bodyStartFragment(MarkContext $context): string
+    {
+        return PublicSite::isGlobalExcluded('scripts') ? '' : ExtraScripts::getScriptsFor(ExtraScripts::ZONE_PUBLIC, ExtraScripts::POSITION_BODY_START);
+    }
+
+    /**
+     * Lo que va al final del <body>: el JavaScript del cargador (si no viene ya con configurations.min.js) y los scripts extra.
      *
      * @param MarkContext $context
      * @return string
      */
     public static function bodyEndFragment(MarkContext $context): string
     {
-        return ExtraScripts::getScriptsFor('public', 'body_end');
+        $html = '';
+        if (!PublicSite::isGlobalExcluded('loader') && !self::frameworkJsLoaded()) {
+            //El elemento antes que su envoltorio: así no tiene que pedirlo él (su red de seguridad).
+            $html .= '<script src="' . escape_html(add_cache_stamp_to_url(baseurl(self::LOADER_ELEMENT_JS))) . '"></script>';
+            $html .= '<script src="' . escape_html(add_cache_stamp_to_url(baseurl(self::LOADER_JS))) . '"></script>';
+        }
+        return $html . (PublicSite::isGlobalExcluded('scripts') ? '' : ExtraScripts::getScriptsFor(ExtraScripts::ZONE_PUBLIC, ExtraScripts::POSITION_BODY_END));
+    }
+
+    /**
+     * Los atributos del <html> que se deciden al servir, escapados y con un espacio delante: data-theme y data-loader-*.
+     *
+     * @param array<string,string> $designer Los mismos atributos del diseñador: se pintan los suyos si ese global se excluye
+     * @return string
+     */
+    public static function htmlAttributes(array $designer): string
+    {
+        $values = [];
+        $designerLoader = array_filter($designer, fn (string $name): bool => str_starts_with($name, 'data-loader-'), \ARRAY_FILTER_USE_KEY);
+        if (PublicSite::isGlobalExcluded('theme')) {
+            $values += array_key_exists('data-theme', $designer) ? ['data-theme' => $designer['data-theme']] : [];
+        } else {
+            $values['data-theme'] = SettingsController::accessibilityThemeMode();
+        }
+        $values += PublicSite::isGlobalExcluded('loader') ? $designerLoader : SettingsController::loaderAttributeValues();
+        $attributes = '';
+        foreach ($values as $name => $value) {
+            if (MarkRegistry::isSafeAttributeName($name)) {
+                $attributes .= ' ' . $name . '="' . escape_html($value) . '"';
+            }
+        }
+        return $attributes;
+    }
+
+    /**
+     * Un elemento del <head> del diseñador que el framework sustituye: se pinta solo si el framework no pinta el suyo.
+     *
+     * @param string $kind Un DESIGNER_*
+     * @param string $html El elemento, ya reescrito por el compilador
+     * @param string $seoMode SEO_DEFAULT, SEO_MARK o SEO_MARK_WITHOUT_STRUCTURED_DATA
+     * @return string
+     */
+    public static function designerHead(string $kind, string $html, string $seoMode): string
+    {
+        $frameworkSeo = $seoMode !== self::SEO_DEFAULT || !PublicSite::isGlobalExcluded('seo');
+        $replaced = match ($kind) {
+            self::DESIGNER_FAVICON => self::faviconTag() !== '',
+            self::DESIGNER_ROBOTS => $frameworkSeo && MetaTags::getRobots() !== null,
+            self::DESIGNER_THEME_COLOR => $frameworkSeo && MetaTags::getThemeColor() !== null,
+            self::DESIGNER_STRUCTURED_DATA => $frameworkSeo && $seoMode !== self::SEO_MARK_WITHOUT_STRUCTURED_DATA,
+            default => $frameworkSeo,
+        };
+        return $replaced ? '' : $html;
+    }
+
+    /**
+     * Qué es, para el framework, un elemento del <head> del diseñador (DESIGNER_*), o null si no lo sustituye.
+     *
+     * @param string $tag
+     * @param string $name
+     * @param string $property
+     * @param string $rel
+     * @param string $hreflang
+     * @param string $type
+     * @return string|null
+     */
+    public static function designerHeadKind(string $tag, string $name, string $property, string $rel, string $hreflang, string $type): ?string
+    {
+        $name = mb_strtolower(trim($name));
+        $property = mb_strtolower(trim($property));
+        $rels = preg_split('/\s+/', mb_strtolower(trim($rel)), -1, \PREG_SPLIT_NO_EMPTY) ?: [];
+        return match (true) {
+            $tag === 'title' => self::DESIGNER_SEO,
+            $tag === 'meta' && $name === 'robots' => self::DESIGNER_ROBOTS,
+            $tag === 'meta' && $name === 'theme-color' => self::DESIGNER_THEME_COLOR,
+            $tag === 'meta' && (in_array($name, ['description', 'keywords', 'author'], true) || str_starts_with($name, 'twitter:') || str_starts_with($property, 'og:') || str_starts_with($property, 'twitter:')) => self::DESIGNER_SEO,
+            $tag === 'link' && in_array('icon', $rels, true) => self::DESIGNER_FAVICON,
+            $tag === 'link' && (in_array('canonical', $rels, true) || (in_array('alternate', $rels, true) && trim($hreflang) !== '')) => self::DESIGNER_SEO,
+            $tag === 'script' && mb_strtolower(trim($type)) === 'application/ld+json' => self::DESIGNER_STRUCTURED_DATA,
+            default => null,
+        };
+    }
+
+    /**
+     * El favicon de Configuración; vacío si se excluyó o no hay.
+     *
+     * @return string
+     */
+    public static function faviconTag(): string
+    {
+        $favicon = get_config('favicon');
+        if (PublicSite::isGlobalExcluded('favicon') || !is_string($favicon) || trim($favicon) === '') {
+            return '';
+        }
+        return '<link rel="icon" href="' . escape_html(add_cache_stamp_to_url(trim($favicon))) . '">';
+    }
+
+    /**
+     * Si la página ya carga configurations.min.js, que trae el cargador: con pcs-form o useShared('framework-js').
+     *
+     * @return bool
+     */
+    private static function frameworkJsLoaded(): bool
+    {
+        $assets = get_config('global_assets');
+        $js = is_array($assets) && is_array($assets['js'] ?? null) ? $assets['js'] : [];
+        foreach ($js as $file) {
+            if (is_string($file) && str_ends_with((string) strtok($file, '?#'), 'configurations.min.js')) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

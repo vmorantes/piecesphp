@@ -6,6 +6,8 @@
 
 use App\Controller\ContactFormsController;
 use App\Controller\PublicAreaController;
+use PiecesPHP\Core\Utilities\Helpers\ExtraScripts;
+use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\PublicSite\Compiler;
 use PiecesPHP\PublicSite\DesignerKit;
 use PiecesPHP\PublicSite\MarkContext;
@@ -17,6 +19,7 @@ use PiecesPHP\PublicSite\ResourceRegistry;
 use PiecesPHP\PublicSite\SiteExporter;
 use PiecesPHP\PublicSite\SiteImporter;
 use PiecesPHP\PublicSite\SiteRenderer;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\SystemStatus\SystemAlertRegistry;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CliActions;
@@ -686,6 +689,107 @@ HTML;
         $check(is_file("{$out}/site/.pcs/example.svg") && isset($exportManifest['protected']['site/.pcs/example.svg']), 'l6 la exportación copia example.svg con el lector a site/.pcs/, y pcs.json lo protege');
         echoTerminal(' ');
 
+        //─── m · Lo global del framework llega por defecto y se excluye por nombre (H488) ────────────────
+        echoTerminal('[m] Lo global del framework: por defecto, sus exclusiones y lo compartido');
+        $globalsSite = 'zz-globals';
+        $globalsView = "{$root}/globals-view/{$globalsSite}";
+        $globalsCache = "{$root}/cache-globals";
+        $write("{$globalsView}/pages/plain.html", '<!DOCTYPE html><html data-theme="light" data-loader-logo="zz-designer.png"><head><title>Plano ZZ</title><meta name="description" content="Desc plano ZZ"><meta name="keywords" content="kw-zz"><meta property="og:title" content="og-zz"><meta name="twitter:card" content="tw-zz"><link rel="canonical" href="https://example.org/canon-zz"><link rel="icon" href="assets/img/fav-zz.png"><link rel="shortcut icon" href="fav-zz.ico"><script type="application/ld+json">{"zz":"designer-ld"}</script></head><body><p>PLANO-ZZ</p></body></html>');
+        $write("{$globalsView}/pages/meta.html", '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=500"><title>Meta ZZ</title><meta name="description" content="Desc meta ZZ"><link rel="canonical" href="https://example.org/canon-zz"><script type="application/ld+json">{"zz":"designer-ld"}</script><pcs-meta></pcs-meta></head><body><p>META-ZZ</p></body></html>');
+        $write("{$globalsView}/pages/meta-off.html", '<!DOCTYPE html><html><head><title>Off ZZ</title><pcs-meta structured-data="off"></pcs-meta><script type="application/ld+json">{"zz":"designer-ld"}</script></head><body><p>OFF-ZZ</p></body></html>');
+        $write("{$globalsView}/pages/form.html", '<!DOCTYPE html><html><head><title>Form ZZ</title></head><body><pcs-form action="contact"><input name="name"></pcs-form></body></html>');
+        $globalsConfig = ['favicon', 'title_app', 'title', 'global_assets', ExtraScripts::CONFIG_NAME];
+        $savedGlobalsConfig = array_combine($globalsConfig, array_map(fn (string $name): mixed => get_config($name), $globalsConfig));
+        $metaTagsProperties = array_filter((new \ReflectionClass(MetaTags::class))->getProperties(\ReflectionProperty::IS_STATIC), fn (\ReflectionProperty $p): bool => $p->getDeclaringClass()->getName() === MetaTags::class);
+        $savedMetaTags = array_map(fn (\ReflectionProperty $p): mixed => $p->getValue(), $metaTagsProperties);
+        $globalsRenderer = new SiteRenderer($globalsSite, $globalsView, $globalsCache);
+        $htmlTagOf = fn (string $html): string => preg_match('/<html\b[^>]*>/', $html, $match) === 1 ? $match[0] : '';
+        $renderGlobals = function (string $page, string ...$excluded) use ($globalsRenderer): string {
+            PublicSite::resetGlobals();
+            if ($excluded !== []) {
+                PublicSite::excludeGlobals(...$excluded);
+            }
+            return $globalsRenderer->renderPage($page);
+        };
+        try {
+            set_config('favicon', 'statics/zz-fav.ico');
+            $globalAssets = get_config('global_assets');
+            set_config('global_assets', ['js' => [], 'css' => [], 'font' => ['statics/zz-font.css']] + (is_array($globalAssets) ? $globalAssets : []));
+            set_config(ExtraScripts::CONFIG_NAME, json_encode([
+                ['label' => 'zz', 'zone' => 'public', 'position' => 'head', 'active' => true, 'code' => '<!--ZZ-HEAD-SCRIPT-->'],
+                ['label' => 'zz', 'zone' => 'public', 'position' => 'body_start', 'active' => true, 'code' => '<!--ZZ-START-SCRIPT-->'],
+                ['label' => 'zz', 'zone' => 'public', 'position' => 'body_end', 'active' => true, 'code' => '<!--ZZ-END-SCRIPT-->'],
+            ]));
+            $plain = $renderGlobals('plain');
+            $plainHead = (string) strstr($plain, '</head>', true);
+            $plainBody = (string) strstr($plain, '<body>');
+            $htmlTag = $htmlTagOf($plain);
+            $check(substr_count($plain, '<meta charset="utf-8">') === 1 && substr_count($plain, 'name="viewport"') === 1 && str_contains($plain, '<head><meta charset="utf-8"><base href='), 'm1 sin charset ni viewport del diseñador, la página los recibe una vez, el charset delante del <base>', substr($plainHead, 0, 300));
+            $metaPage = $renderGlobals('meta');
+            $check(substr_count($metaPage, 'charset=') === 1 && substr_count($metaPage, 'name="viewport"') === 1 && str_contains($metaPage, 'content="width=500"'), 'm2 con los suyos, ni charset ni viewport se repiten');
+            $check(str_contains($htmlTag, ' dlang="' . escape_html((string) get_config('default_lang')) . '"') && str_contains($htmlTag, ' data-theme="' . SettingsController::accessibilityThemeMode() . '"') && str_contains($htmlTag, SettingsController::loaderHtmlAttributes()) && !str_contains($htmlTag, 'light') && !str_contains($htmlTag, 'zz-designer'), 'm3 el <html> lleva dlang, el modo de color del sitio y los data-loader-*; los del diseñador, no', $htmlTag);
+            $check(str_contains($plainHead, 'html[data-theme="auto"] .brand-image-dark{display:revert}') && str_contains($plainHead, '@media (prefers-color-scheme:dark)'), 'm4 la regla de las imágenes de marca cubre el modo auto con prefers-color-scheme');
+            $check(substr_count($plain, '<title>') === 1 && !str_contains($plain, 'Plano ZZ</title>') && !str_contains($plain, 'Desc plano ZZ') && !str_contains($plain, 'kw-zz') && !str_contains($plain, 'og-zz') && !str_contains($plain, 'tw-zz') && !str_contains($plain, 'canon-zz') && !str_contains($plain, 'designer-ld') && substr_count($plain, "rel='canonical'") === 1 && substr_count($plain, 'application/ld+json') === 1 && str_contains($plain, "property='og:title'") && str_contains($plain, "name='twitter:card'"), 'm5 sin pcs-meta, el SEO entero del framework llega por defecto y quita los equivalentes del diseñador', substr($plainHead, 0, 600));
+            $check(substr_count($plain, 'rel="icon"') === 1 && str_contains($plain, 'zz-fav.ico') && !str_contains($plain, 'fav-zz'), 'm6 el favicon de Configuración sustituye el icon y el shortcut icon del diseñador');
+            $check(str_contains($plainHead, '<!--ZZ-HEAD-SCRIPT-->') && str_contains($plainBody, '<!--ZZ-END-SCRIPT-->') && strpos($plainBody, '<!--ZZ-START-SCRIPT-->') < strpos($plainBody, 'PLANO-ZZ') && str_contains($plainHead, 'zz-font.css'), 'm7 los scripts extra (cabecera, principio y final del <body>) y las fuentes de load_font() llegan', substr($plainBody, 0, 200));
+            $check(str_contains($plainHead, 'statics/core/css/pcsphp-loader.css') && str_contains($plainBody, 'statics/core/js/pcsphp-loader.js'), 'm8 sin configurations.min.js, el cargador llega entero: la hoja en el <head> y el JavaScript al final del <body>');
+            $check(substr_count($metaPage, '<title>') === 1 && substr_count($metaPage, "rel='canonical'") === 1 && substr_count($metaPage, "name='description'") === 1 && !str_contains($metaPage, 'Desc meta ZZ') && substr_count($metaPage, 'application/ld+json') === 1 && !str_contains($metaPage, 'designer-ld') && !str_contains($metaPage, 'canon-zz'), 'm9 con pcs-meta, sin duplicados: un título, una canónica, una descripción y un JSON-LD');
+            $metaOff = $renderGlobals('meta-off');
+            $check(substr_count($metaOff, 'application/ld+json') === 1 && str_contains($metaOff, 'designer-ld') && substr_count($metaOff, '<title>') === 1, 'm10 con pcs-meta structured-data="off", el JSON-LD es el del diseñador, y solo uno');
+            $metaSeoExcluded = $renderGlobals('meta', 'seo');
+            $check(substr_count($metaSeoExcluded, "rel='canonical'") === 1 && !str_contains($metaSeoExcluded, 'Meta ZZ</title>'), 'm11 con pcs-meta, excluir seo no cambia nada: la marca lo pide');
+
+            $exclusions = [
+                'seo' => fn (string $h): bool => str_contains($h, 'Plano ZZ</title>') && substr_count($h, '<title>') === 1 && str_contains($h, 'Desc plano ZZ') && str_contains($h, 'kw-zz') && str_contains($h, 'og-zz') && str_contains($h, 'tw-zz') && str_contains($h, 'canon-zz') && str_contains($h, 'designer-ld') && !str_contains($h, "rel='canonical'") && substr_count($h, 'application/ld+json') === 1,
+                'favicon' => fn (string $h): bool => str_contains($h, 'fav-zz.png') && str_contains($h, 'fav-zz.ico') && !str_contains($h, 'zz-fav.ico'),
+                'theme' => fn (string $h): bool => str_contains($htmlTagOf($h), 'data-theme="light"') && substr_count($htmlTagOf($h), 'data-theme=') === 1,
+                'loader' => fn (string $h): bool => !str_contains($h, 'pcsphp-loader') && str_contains($htmlTagOf($h), 'data-loader-logo="zz-designer.png"') && !str_contains($htmlTagOf($h), 'data-loader-animation'),
+                'scripts' => fn (string $h): bool => !str_contains($h, 'ZZ-HEAD-SCRIPT') && !str_contains($h, 'ZZ-START-SCRIPT') && !str_contains($h, 'ZZ-END-SCRIPT'),
+                'fonts' => fn (string $h): bool => !str_contains($h, 'zz-font.css'),
+            ];
+            $exclusionResults = array_map(fn (string $name): bool => $exclusions[$name]($renderGlobals('plain', $name)), array_combine(PublicSite::GLOBALS, PublicSite::GLOBALS));
+            $check($exclusionResults === array_fill_keys(PublicSite::GLOBALS, true), 'm12 cada nombre de excludeGlobals() quita lo suyo y devuelve lo del diseñador', (string) json_encode($exclusionResults));
+
+            $thrown = [];
+            foreach (['excludeGlobals' => fn () => PublicSite::excludeGlobals('seo', 'zz-nope'), 'useShared' => fn () => PublicSite::useShared('zz-nope')] as $method => $call) {
+                PublicSite::resetGlobals();
+                try {
+                    $call();
+                    $thrown[$method] = 'sin excepción';
+                } catch (\InvalidArgumentException $e) {
+                    $thrown[$method] = str_contains($e->getMessage(), 'zz-nope') && str_contains($e->getMessage(), implode(', ', $method === 'useShared' ? PublicSite::SHARED : PublicSite::GLOBALS)) ? 'ok' : $e->getMessage();
+                }
+            }
+            $check($thrown === ['excludeGlobals' => 'ok', 'useShared' => 'ok'] && !PublicSite::isGlobalExcluded('seo'), 'm13 un nombre desconocido lanza InvalidArgumentException con la lista válida, y no aplica ninguno', (string) json_encode($thrown, JSON_UNESCAPED_UNICODE));
+
+            PublicSite::resetGlobals();
+            $sharedBefore = [PublicSite::keepsFrameworkJs(false), PublicSite::keepsFrameworkJs(true)];
+            PublicSite::useShared('framework-js');
+            $check($sharedBefore === [false, true] && PublicSite::keepsFrameworkJs(false) && PublicSite::isShared('framework-js'), 'm14 useShared(\'framework-js\') conserva el JavaScript del framework como pcs-form');
+
+            set_config('global_assets', ['js' => ['statics/plugins/jquery/jquery.min.js', 'statics/core/js/configurations.min.js']] + (array) get_config('global_assets'));
+            $form = $renderGlobals('form');
+            $check(str_contains($form, 'pcsphp-loader.css') && !str_contains($form, 'pcsphp-loader.js') && substr_count($form, 'configurations.min.js') === 1, 'm15 con configurations.min.js (pcs-form o framework-js), solo la hoja del cargador: su JavaScript no se duplica', (string) strstr($form, '<body>'));
+
+            foreach ($metaTagsProperties as $property) {
+                $property->setValue(null, is_bool($property->getValue()) ? false : null);
+            }
+            set_config('title_app', 'ZZ "app" <script>zz-xss()</script>');
+            set_config('title', false);
+            set_config('favicon', 'zz-fav.ico" onerror="zz-xss()');
+            $hostilePage = $renderGlobals('plain');
+            $check(!str_contains($hostilePage, '<script>zz-xss') && !str_contains($hostilePage, '" onerror="zz-xss') && str_contains($hostilePage, '&lt;script&gt;zz-xss()&lt;/script&gt;') && str_contains($hostilePage, 'zz-fav.ico&quot; onerror=&quot;zz-xss()'), 'm16 los valores de Configuración (title_app, favicon) salen escapados', substr((string) strstr($hostilePage, '</head>', true), 0, 800));
+        } finally {
+            PublicSite::resetGlobals();
+            foreach ($savedGlobalsConfig as $name => $value) {
+                set_config($name, $value);
+            }
+            foreach ($metaTagsProperties as $index => $property) {
+                $property->setValue(null, $savedMetaTags[$index]);
+            }
+        }
+        echoTerminal(' ');
+
     } catch (\Throwable $e) {
         $check(false, 'x9 la suite terminó sin excepciones', get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')');
     } finally {
@@ -703,4 +807,4 @@ HTML;
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('El sitio público por marcas (ADR 0084) sobre un paquete sintético: la importación y su rechazo sin tocar nada, las siete marcas pintadas, el escapado de {{campo}}, la caché por huella, la marca desconocida (vacía y anotada), el PHP del diseñador neutralizado, la exportación con el andamiaje del diseñador, el .zip, la comprobación de rastro, la ida y vuelta idéntica, el contrato estimado con su aviso y los ejemplos de publications sin fingir.')->setEffects([CliActions::EFFECT_FILES])->register();
+})->setDescription('El sitio público por marcas (ADR 0084) sobre un paquete sintético: la importación y su rechazo sin tocar nada, las siete marcas pintadas, el escapado de {{campo}}, la caché por huella, la marca desconocida (vacía y anotada), el PHP del diseñador neutralizado, la exportación con el andamiaje del diseñador, el .zip, la comprobación de rastro, la ida y vuelta idéntica, el contrato estimado con su aviso, los ejemplos de publications sin fingir y lo global del framework por defecto, con sus exclusiones (H488).')->setEffects([CliActions::EFFECT_FILES])->register();

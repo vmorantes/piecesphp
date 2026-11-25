@@ -1,0 +1,3 @@
+//La hoja suelta del cargador (pcsphp-loader.js): solo el cargador, con las animaciones prefijadas para un diseño ajeno.
+@use 'includes/global-loader' as loader;
+@include loader.global-loader($spin: pcsphp-spin, $counterSpin: null);

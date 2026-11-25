@@ -501,5 +501,16 @@ panel implementado**, y el tema se compara contra él:
     regenera `data/`); `ResourceContract::estimated()` (lector vacío)
     y el aviso `public-site-estimated-resources` (JOD, `546fc64c`). El salto de comentarios de `.css`/`.js` no es un
     analizador de JS: una expresión regular tras `)` o tras `return` se toma por división.
+- **Lo global llega por defecto** (H488, JOF `b3246749`, `ccb6d522`): `PublicSite::GLOBALS` (seo, favicon, theme,
+  loader, scripts, fonts) se aplica AL SERVIR (`SiteRenderer::headFragment`, `bodyStartFragment`, `bodyEndFragment`,
+  `htmlAttributes`, `designerHead`), no al compilar: las exclusiones no entran en la huella y cambiarlas no recompila.
+  `excludeGlobals()`/`useShared()` son estado ESTÁTICO del proceso, para todo el sitio, y validan todos los nombres antes
+  de aplicar ninguno; se llaman al arrancar (el `routes()` del módulo o la sección del clon de `config/routes.php`).
+  Lo del `<head>` del diseñador (y su JSON-LD) que el framework sustituye lo clasifica `designerHeadKind()`; su
+  `data-theme` y sus `data-loader-*` los quita `Compiler::finishPage` y los decide `htmlAttributes()`. Un nombre mal
+  escrito en `excludeGlobals()` lanza al arrancar: tumba todas las peticiones. Subir `PublicSite::ENGINE_VERSION`
+  recompila solo, en la primera visita, todo sitio ya importado: su salida cambia, y eso es un CAMBIO INCOMPATIBLE en
+  el CHANGELOG. `pcsphp-loader.css` es compilado (`.gitignore` ignora `src/statics/core/css/*`) y la distribución sale
+  de `git archive`: no viaja; el clon compila.
 - **Una regla, tres sitios**: `pcs/rules.json` es la única fuente de marcas y atributos para el servidor, `CHECK` y la
   vista previa; la lista blanca de URL vive en `MarkRegistry::safeUrl`, `check.js` y `pcs.js`, con su prueba de paridad.

@@ -188,7 +188,11 @@ class MiModuloController extends AdminPanelController
 - **Un valor que llega de la petición entra al SQL por marcador** (`where([...])` o `WhereSegment`), nunca
   concatenado.
 - Escribe `_allowedRoute()` solo si el módulo tiene reglas que los roles no pueden saber (por ejemplo, «solo el autor
-  puede editar este registro»).
+  puede editar este registro»). **Reglas que los roles no pueden saber**: si las tiene, la acción que guarda un registro
+  existente comprueba el permiso sobre ESE registro antes de tocar nada, con
+  `self::allowedRoute('forms-edit', ['id' => $mapper->id])` y `return throw403($request);` si no, y relanza
+  `HttpForbiddenException` antes de su `catch (\Exception)` (si no, el 403 llega como un error genérico). El modelo es
+  la acción de guardar de `PublicationsController`.
 - Si el módulo tiene zona pública, añade `MiModuloPublicController extends BaseController` como
   `PublicationsPublicController`, y la firma pasa a `routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)`.
 

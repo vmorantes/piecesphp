@@ -143,6 +143,19 @@ final class SiteExporter
     }
 
     /**
+     * Una ruta de las órdenes del sitio (from=, destination=, project-file=, folder=): absoluta, tal cual; relativa, desde la
+     * raíz del repositorio (bin/cli corre desde src/). La única regla, para exportar y para importar.
+     *
+     * @param string $path
+     * @param string $root
+     * @return string
+     */
+    public static function fromRoot(string $path, string $root): string
+    {
+        return str_starts_with($path, '/') ? $path : rtrim($root, '/') . '/' . $path;
+    }
+
+    /**
      * Qué se copia del kit: PACKAGE_FILES con lo que añada o quite kit/package-map.json.
      *
      * @return array<string,string> Destino en el paquete => origen en el kit
@@ -230,7 +243,7 @@ final class SiteExporter
             return ['ok' => false, 'problems' => $problems, 'files' => 0, 'zip' => null, 'trace' => MarkRules::printable($trace), 'origin' => ''];
         };
         $repository = rtrim($this->repositoryRoot ?? dirname(rtrim(basepath(), '/')), '/');
-        $resolve = fn (string $path): string => str_starts_with($path, '/') ? $path : "{$repository}/{$path}";
+        $resolve = fn (string $path): string => self::fromRoot($path, $repository);
         if (!PublicSite::isValidName($this->site)) {
             return $fail('', "El nombre del sitio «{$this->site}» no vale.", 'Usa solo minúsculas, números y guiones, por ejemplo site=mi-sitio.');
         }

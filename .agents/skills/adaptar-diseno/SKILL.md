@@ -34,9 +34,10 @@ toca solo lo imprescindible: las marcas y lo que finge.
 4. **Adaptar**: un agente sigue `adapt-design` sobre `files/design/base/` hacia `files/design/adaptado/`. Si un recurso
    del sitio todavía no existe en el proyecto, el coder registra su contrato estimado
    (`ResourceContract::estimated()`, con sus campos y al menos tantos ejemplos distintos como el `count` de la lista).
-5. **Comprobar**: `files/design/adaptado/` no lleva `CHECK.html`: exporta el paquete a una carpeta temporal fuera del
-   proyecto y que un agente abra su `CHECK.html` con un navegador; sin avisos (salvo un servicio externo legítimo,
-   anotado en «Pendientes conocidos»). Y capturas a 1440 y a 390 de cada página frente a
+5. **Comprobar**: `bin/cli public-site-import folder=files/design/adaptado site=<nombre> check=yes` comprueba las marcas
+   sin colocar nada; lo que finge lo mira el `CHECK.html` del paquete (exportado a una carpeta temporal fuera del
+   proyecto), que necesita a una persona o un navegador con ventana, y si no, queda para el censo del paso 6. Sin avisos,
+   salvo los anotados en «Pendientes conocidos» (un servicio externo legítimo, un destino o una acción que no se saben). Y capturas a 1440 y a 390 de cada página frente a
    `base/` en lo estático.
 6. **El censo funcional, por OTRO agente** (no el que adaptó): cada elemento interactivo y cada recurso externo de cada
    página, con su estado y su plan, en `## Censo funcional`; lo que quede, en `## Pendientes conocidos`. Con un «falso»

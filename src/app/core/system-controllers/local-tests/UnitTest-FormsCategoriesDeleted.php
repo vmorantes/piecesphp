@@ -162,6 +162,7 @@ CliActions::make('unit-tests:core/forms-categories-deleted', function ($args) {
         $borrarOtraVez = $eliminar($eliminada);
         echoTerminal('      medido: eliminar un id inexistente ' . $resumen($borrarNada) . ', la eliminada ' . $resumen($borrarOtraVez));
         $check($borrarOtraVez['status'] === $borrarNada['status'] && $mensaje($borrarOtraVez) === $mensaje($borrarNada) && ($json($borrarOtraVez)['success'] ?? null) !== true, 'b5 eliminarla otra vez responde como eliminar un id que no existe', 'eliminada ' . $resumen($borrarOtraVez) . ', inexistente ' . $resumen($borrarNada));
+        $check($borrarOtraVez['status'] === 404 && $borrarNada['status'] === 404, 'b5b DISCRIMINANTE: y los dos con 404, no 403, también a root (H489)', 'eliminada ' . $resumen($borrarOtraVez) . ', inexistente ' . $resumen($borrarNada));
 
         echoTerminal('');
         echoTerminal('[c] Los listados ya filtran por ACTIVE');

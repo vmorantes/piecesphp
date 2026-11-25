@@ -136,6 +136,22 @@ CliActions::make('unit-tests:public-site/lint', function ($args) {
     $bodyJs = $jsLint([], [], $sameBody);
     $check(count($bodyBlocks) === 1 && $bodyBlocks[0]['line'] === 3 && is_array($bodyJs) && $bodyJs['blocks'] === $bodyBlocks, 'b2 con <html>, <head> y <body> idénticos, el bloque es el <div> (línea 3), no el <html> ni el <body>', (string) json_encode([$bodyBlocks, $bodyJs['blocks'] ?? null]));
 
+    //─── Los datos de ejemplo del kit, atados al registro (por contenido, no por formato) ──────────────────────────
+    echoTerminal('[5] El ejemplo del kit y el registro; el aviso de datos estimados, cableado');
+    $dataOf = function (string $script): ?array {
+        $runner = 'const window={};new Function("window",process.argv[1])(window);process.stdout.write(JSON.stringify(window.PCS_DATA||null))';
+        $decoded = json_decode((string) shell_exec('node -e ' . escapeshellarg($runner) . ' ' . escapeshellarg($script) . ' 2>/dev/null'), true);
+        return is_array($decoded) ? $decoded : null;
+    };
+    $generated = \PiecesPHP\PublicSite\DesignerKit::dataScripts()['data/publications.js'] ?? '';
+    $exampleData = $dataOf((string) file_get_contents("{$kit}/example/site/data/publications.js"));
+    $registryData = $dataOf($generated);
+    $check($exampleData !== null && $exampleData === $registryData, 'k1 el data/publications.js del ejemplo del kit dice lo mismo que genera el registro (si cambian los ejemplos, se regenera)', (string) json_encode([$exampleData, $registryData], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    \PiecesPHP\SystemStatus\SystemStatusRoutes::registerCoreAlerts();
+    $estimatedAlert = \PiecesPHP\SystemStatus\SystemAlertRegistry::get('public-site-estimated-resources');
+    $expectedVersion = \PiecesPHP\SystemStatus\SystemStatusRoutes::estimatedNagVersion(\PiecesPHP\SystemStatus\SystemStatusRoutes::estimatedResourcesInUse(\PiecesPHP\PublicSite\PublicSite::activeSite(), \PiecesPHP\PublicSite\ResourceRegistry::all()));
+    $check($estimatedAlert !== null && $estimatedAlert->nagVersion() !== '' && $estimatedAlert->nagVersion() === $expectedVersion, 'k2 el aviso registrado lleva la versión de su lista de recursos (el cableado, no solo la función)', (string) json_encode([$estimatedAlert?->nagVersion(), $expectedVersion]));
+
     $root = rtrim(sys_get_temp_dir(), '/') . '/zz-public-site-lint-' . getmypid() . '-' . bin2hex(random_bytes(3));
     $write = function (string $file, string $content): void {
         if ((!is_dir(dirname($file)) && !mkdir(dirname($file), 0775, true)) || file_put_contents($file, $content) !== strlen($content)) {

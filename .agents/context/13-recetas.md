@@ -164,7 +164,7 @@ class MiModuloRoutes
 ```
 
 ### 7. `MiModuloController.php`
-Extiende `App\Controller\AdminPanelController`, define `$URLDirectory`,
+Extiende `PiecesPHP\AdminPanel\Controllers\AdminPanelController`, define `$URLDirectory`,
 `$baseRouteName`, `$title`, las constantes `BASE_VIEW_DIR` / `BASE_JS_DIR` /
 `BASE_CSS_DIR` / `LANG_GROUP`, el constructor (modelo, título, `setInstanceViewDir`,
 assets globales), los métodos de acción y `routes()`.
@@ -531,7 +531,7 @@ La variante completa añade la organización. Se extrajo de `ApplicationCallsCon
 `PublicationsController`.
 
 ```php
-private static function _allowedRoute(string $name, string $route, array $params = [])
+protected static function _allowedRoute(string $name, string $route, array $params = [])
 {
     $allow = $route !== '';
 
@@ -587,13 +587,37 @@ private static function _allowedRoute(string $name, string $route, array $params
 > repetidas. Si tu módulo tiene más rutas con el mismo patrón, se añaden a la tabla y el
 > cuerpo no crece.
 
+> **La acción que guarda comprueba el permiso sobre el registro que guarda.** Al cargar el
+> registro existente y antes de tocar nada (subidas incluidas), pregunta lo mismo que el
+> formulario:
+>
+> ```php
+> //Un POST no concede más que su GET: editar exige lo mismo que abrir su formulario (_allowedRoute).
+> if ($exists && !self::allowedRoute('forms-edit', ['id' => $mapper->id])) {
+>     return throw403($request);
+> }
+> ```
+>
+> Y como `throw403()` lanza `HttpForbiddenException`, la acción la relanza antes de su
+> `catch (\Exception)`; si no, el 403 se convierte en el error genérico:
+>
+> ```php
+> } catch (HttpForbiddenException $e) {
+>     //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+>     throw $e;
+> } catch (\Exception $e) {
+> ```
+>
+> Es el patrón de `PublicationsController` (su acción de guardar) y de los módulos del framework
+> con reglas por registro.
+
 ### Patrón 2 · Conflicto de interés
 
 **Nadie decide sobre sí mismo.** Extraído de `SystemApprovalsController`, donde impide que un
 usuario apruebe su propia solicitud.
 
 ```php
-private static function _allowedRoute(string $name, string $route, array $params = [])
+protected static function _allowedRoute(string $name, string $route, array $params = [])
 {
     $allow = $route !== '';
 
@@ -619,7 +643,7 @@ private static function _allowedRoute(string $name, string $route, array $params
 recoge los elementos huérfanos, así que borrarla dejaría datos colgando.
 
 ```php
-private static function _allowedRoute(string $name, string $route, array $params = [])
+protected static function _allowedRoute(string $name, string $route, array $params = [])
 {
     $allow = $route !== '';
 

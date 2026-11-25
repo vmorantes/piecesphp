@@ -44,6 +44,16 @@ final class Compiler
     private $kind = self::KIND_PAGE;
 
     /**
+     * @var string El modo de SEO de la página (SiteRenderer::SEO_*), según traiga o no pcs-meta
+     */
+    private $seoMode = SiteRenderer::SEO_DEFAULT;
+
+    /**
+     * @var string La marca de sustitución de los atributos del <html>; vacía hasta finishPage()
+     */
+    private $htmlAttributesSlot = '';
+
+    /**
      * @var array<int,string> Marca de sustitución => PHP que la reemplaza
      */
     private $slots = [];
@@ -80,6 +90,8 @@ final class Compiler
     {
         $this->nonce = bin2hex(random_bytes(6));
         $this->kind = $kind;
+        $this->htmlAttributesSlot = '';
+        $this->seoMode = SiteRenderer::SEO_DEFAULT;
         $this->slots = [];
         $this->problems = [];
         $this->meta = ['css' => [], 'js' => [], 'parts' => [], 'formActions' => [], 'usesImage' => false, 'title' => '', 'description' => ''];
@@ -124,6 +136,9 @@ final class Compiler
         }
 
         $serialized = $kind === self::KIND_PAGE ? $document->saveHtml() : $root->innerHTML;
+        if ($kind === self::KIND_PAGE && $this->htmlAttributesSlot !== '') {
+            $serialized = (string) preg_replace('/ ' . preg_quote($this->htmlMarker(), '/') . '=""/', $this->htmlAttributesSlot, $serialized, 1);
+        }
         return $this->result($serialized);
     }
 
@@ -194,72 +209,123 @@ final class Compiler
     }
 
     /**
-     * Título y descripción del diseñador; con pcs-meta, se quitan los suyos para que no se repitan.
+     * Título y descripción del diseñador, y si la página trae pcs-meta (con o sin sus datos estructurados).
      *
      * @param \Dom\HTMLDocument $document
      * @return void
      */
     private function preparePage(\Dom\HTMLDocument $document): void
     {
+        $this->seoMode = SiteRenderer::SEO_DEFAULT;
         $head = $document->head;
         if ($head === null) {
             return;
         }
         $title = $head->getElementsByTagName('title')->item(0);
         $this->meta['title'] = $title !== null ? trim((string) $title->textContent) : '';
-        $hasMeta = false;
         foreach (iterator_to_array($document->getElementsByTagName('meta')) as $meta) {
-            if ($meta->getAttribute('data-pcs-mark') === 'pcs-meta') {
-                $hasMeta = true;
+            if ($meta->getAttribute('data-pcs-mark') === 'pcs-meta' && $this->seoMode === SiteRenderer::SEO_DEFAULT) {
+                $this->seoMode = $meta->getAttribute('structured-data') === 'off' ? SiteRenderer::SEO_MARK_WITHOUT_STRUCTURED_DATA : SiteRenderer::SEO_MARK;
             }
             if (mb_strtolower((string) $meta->getAttribute('name')) === 'description') {
                 $this->meta['description'] = trim((string) $meta->getAttribute('content'));
             }
         }
-        if (!$hasMeta) {
-            return;
-        }
-        $title?->remove();
-        foreach (iterator_to_array($head->childNodes) as $node) {
-            if (!$node instanceof \Dom\Element) {
-                continue;
-            }
-            $property = mb_strtolower((string) $node->getAttribute('property'));
-            $metaName = mb_strtolower((string) $node->getAttribute('name'));
-            $rel = mb_strtolower((string) $node->getAttribute('rel'));
-            if (($node->localName === 'meta' && ($metaName === 'description' || str_starts_with($property, 'og:') || str_starts_with($metaName, 'twitter:'))) || ($node->localName === 'link' && $rel === 'canonical')) {
-                $node->remove();
-            }
-        }
     }
 
     /**
-     * Lo que el framework pone en toda página: el <base> de su cabecera (sin él, los estáticos relativos no cargan en una
-     * página interior), idioma, lo de su <head> y su final de <body>, y los estáticos si el diseñador no tenía dónde.
+     * Lo que el framework pone en toda página: <base>, charset y viewport si faltan, atributos del <html>, <head> y <body>.
+     * Lo del diseñador que sustituye (SEO, favicon) se decide al servir: PublicSite::excludeGlobals() no se conoce aquí.
      *
      * @param \Dom\HTMLDocument $document
      * @return void
      */
     private function finishPage(\Dom\HTMLDocument $document): void
     {
-        $document->documentElement?->setAttribute('lang', $this->slot('<?php echo escape_html((string) get_config(\'app_lang\')); ?>'));
+        $html = $document->documentElement;
+        if ($html !== null) {
+            $html->setAttribute('lang', $this->slot('<?php echo escape_html((string) get_config(\'app_lang\')); ?>'));
+            $html->setAttribute('dlang', $this->slot('<?php echo escape_html((string) get_config(\'default_lang\')); ?>'));
+            $designerAttributes = [];
+            foreach (iterator_to_array($html->attributes) as $attribute) {
+                if ($attribute->name === 'data-theme' || str_starts_with($attribute->name, 'data-loader-')) {
+                    $designerAttributes[$attribute->name] = (string) $attribute->value;
+                    $html->removeAttribute($attribute->name);
+                }
+            }
+            $html->setAttribute($this->htmlMarker(), '');
+            $this->htmlAttributesSlot = $this->slot('<?php echo \\PiecesPHP\\PublicSite\\SiteRenderer::htmlAttributes(' . var_export($designerAttributes, true) . '); ?>');
+        }
         $head = $document->head;
         $body = $document->body;
         if ($head !== null) {
+            foreach (iterator_to_array($head->children) as $node) {
+                $kind = SiteRenderer::designerHeadKind($node->localName, (string) $node->getAttribute('name'), (string) $node->getAttribute('property'), (string) $node->getAttribute('rel'), (string) $node->getAttribute('hreflang'), (string) $node->getAttribute('type'));
+                if ($kind !== null) {
+                    $this->replaceByDesignerHead($document, $node, $kind);
+                }
+            }
+            foreach (iterator_to_array($document->getElementsByTagName('script')) as $script) {
+                if ($script->isConnected && SiteRenderer::designerHeadKind('script', '', '', '', '', (string) $script->getAttribute('type')) !== null) {
+                    $this->replaceByDesignerHead($document, $script, SiteRenderer::DESIGNER_STRUCTURED_DATA);
+                }
+            }
             $base = $document->createElement('base');
             $base->setAttribute('href', $this->slot('<?php echo escape_html(baseurl()); ?>'));
             $head->prepend($base);
+            $hasCharset = false;
+            $hasViewport = false;
+            foreach (iterator_to_array($head->getElementsByTagName('meta')) as $meta) {
+                $hasCharset = $hasCharset || $meta->hasAttribute('charset') || mb_strtolower(trim((string) $meta->getAttribute('http-equiv'))) === 'content-type';
+                $hasViewport = $hasViewport || mb_strtolower(trim((string) $meta->getAttribute('name'))) === 'viewport';
+            }
+            if (!$hasViewport) {
+                $viewport = $document->createElement('meta');
+                $viewport->setAttribute('name', 'viewport');
+                $viewport->setAttribute('content', 'width=device-width, initial-scale=1');
+                $base->after($viewport);
+            }
+            if (!$hasCharset) {
+                $charset = $document->createElement('meta');
+                $charset->setAttribute('charset', 'utf-8');
+                $head->prepend($charset);
+            }
             if ($this->meta['css'] === []) {
                 $head->append($document->createComment($this->commentSlot('<?php load_css(); ?>')));
             }
-            $head->append($document->createComment($this->commentSlot('<?php echo \\PiecesPHP\\PublicSite\\SiteRenderer::headFragment($pcs); ?>')));
+            $head->append($document->createComment($this->commentSlot('<?php echo \\PiecesPHP\\PublicSite\\SiteRenderer::headFragment($pcs, ' . var_export($this->seoMode, true) . '); ?>')));
         }
         if ($body !== null) {
+            $body->prepend($document->createComment($this->commentSlot('<?php echo \\PiecesPHP\\PublicSite\\SiteRenderer::bodyStartFragment($pcs); ?>')));
             if ($this->meta['js'] === []) {
                 $body->append($document->createComment($this->commentSlot('<?php load_js(); ?>')));
             }
             $body->append($document->createComment($this->commentSlot('<?php echo \\PiecesPHP\\PublicSite\\SiteRenderer::bodyEndFragment($pcs); ?>')));
         }
+    }
+
+    /**
+     * Un elemento del diseñador que el framework puede sustituir: queda como una llamada que, al servir, lo pinta o no.
+     *
+     * @param \Dom\HTMLDocument $document
+     * @param \Dom\Element $element
+     * @param string $kind
+     * @return void
+     */
+    private function replaceByDesignerHead(\Dom\HTMLDocument $document, \Dom\Element $element, string $kind): void
+    {
+        $markup = $this->phpStringWithSlots($document->saveHtml($element));
+        $element->replaceWith($document->createComment($this->commentSlot('<?php echo \\PiecesPHP\\PublicSite\\SiteRenderer::designerHead(' . var_export($kind, true) . ', ' . $markup . ', ' . var_export($this->seoMode, true) . '); ?>')));
+    }
+
+    /**
+     * El atributo provisional del <html> que se cambia, ya serializado, por los atributos que se deciden al servir.
+     *
+     * @return string
+     */
+    private function htmlMarker(): string
+    {
+        return "data-pcs-html-{$this->nonce}";
     }
 
     /**

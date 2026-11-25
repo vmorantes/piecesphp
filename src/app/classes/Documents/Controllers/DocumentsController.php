@@ -44,6 +44,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * DocumentsController.
@@ -500,8 +501,15 @@ class DocumentsController extends AdminPanelController
 
                 //Solo un tipo activo, o el que el documento ya tiene aunque se borrara después (H31): cualquier otro id, fuera.
                 $currentDocumentType = null;
-                if ($isEdit) {
-                    $currentDocument = new DocumentsMapper((int) $id);
+                //Se carga UNA vez: lo que se comprueba es lo que se guarda, o uno creado entre dos lecturas se guardaría sin comprobar.
+                $currentDocument = $isEdit ? new DocumentsMapper((int) $id) : null;
+                //Lo eliminado no se guarda: responde como lo que no existe (P380).
+                $exists = $currentDocument !== null && $currentDocument->id !== null && DocumentsMapper::existsNotDeletedByID($currentDocument->id);
+                if ($currentDocument !== null) {
+                    //Un POST no concede más que su GET: editar exige lo mismo que abrir su formulario (_allowedRoute).
+                    if ($exists && !self::allowedRoute('forms-edit', ['id' => $currentDocument->id])) {
+                        return throw403($request);
+                    }
                     $currentDocumentType = $currentDocument->documentType instanceof DocumentTypesMapper ? $currentDocument->documentType->id : $currentDocument->documentType;
                 }
                 if (!array_key_exists((string) $documentType, self::documentTypesForSelect($currentDocumentType))) {
@@ -558,11 +566,9 @@ class DocumentsController extends AdminPanelController
                 } else {
                     //Existente
 
-                    $mapper = new DocumentsMapper((int) $id);
-                    //Lo eliminado no se guarda: responde como lo que no existe (P380).
-                    $exists = $mapper->id !== null && DocumentsMapper::existsNotDeletedByID($mapper->id);
+                    $mapper = $currentDocument;
 
-                    if ($exists) {
+                    if ($exists && $mapper !== null) {
 
                         $mapper->setLangData($lang, 'documentType', $documentType);
                         $mapper->setLangData($lang, 'documentName', $documentName);
@@ -648,6 +654,9 @@ class DocumentsController extends AdminPanelController
 
                 $resultOperation->setMessage($e->getMessage());
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+                throw $e;
             } catch (\Exception $e) {
                 $reference = log_exception($e);
 
@@ -669,6 +678,9 @@ class DocumentsController extends AdminPanelController
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
 
+        } catch (HttpForbiddenException $e) {
+            //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+            throw $e;
         } catch (\Exception $e) {
             $reference = log_exception($e);
 
@@ -748,6 +760,10 @@ class DocumentsController extends AdminPanelController
                 $exists = DocumentsMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
+                    //La guarda pudo ver el id aún sin crear: lo creado entre medias no se borra sin su permiso.
+                    if (!self::allowedRoute('actions-delete', ['id' => $id])) {
+                        return throw403($request);
+                    }
 
                     $table = DocumentsMapper::TABLE;
                     $inactiveStatus = DocumentsMapper::STATUS_INACTIVE;
@@ -802,9 +818,13 @@ class DocumentsController extends AdminPanelController
                     }
 
                 } else {
-                    $resultOperation->setMessage($notExistsMessage);
+                    //Lo inexistente y lo eliminado responden 404, como su formulario de edición (H489).
+                    return $response->withStatus(404)->withJson($resultOperation->setMessage($notExistsMessage));
                 }
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación.
+                throw $e;
             } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
@@ -1270,10 +1290,9 @@ class DocumentsController extends AdminPanelController
 
                 if ($name == 'actions-delete') {
 
-                    $allow = false;
                     $id = $params['id'];
                     $element = DocumentsMapper::getBy($id, 'id');
-                    //Lo eliminado se niega como lo que no existe (P380).
+                    //Lo inexistente y lo eliminado no se deciden aquí: el método responde 404 (P380, H489).
                     $element = $element !== null && (int) $element->status !== DocumentsMapper::STATUS_INACTIVE ? $element : null;
 
                     if ($element !== null) {

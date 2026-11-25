@@ -186,6 +186,7 @@ CliActions::make('unit-tests:core/documents-deleted', function ($args) {
             $borrarNada = $eliminar($inexistente, $jwt);
             $borrarOtraVez = $eliminar($eliminado['id'], $jwt);
             $check($borrarOtraVez['status'] === $borrarNada['status'] && $mensaje($borrarOtraVez) === $mensaje($borrarNada) && !$exito($borrarOtraVez), "b5 {$quien}: eliminarlo otra vez responde como eliminar un id que no existe", 'eliminado ' . $resumen($borrarOtraVez) . ', inexistente ' . $resumen($borrarNada));
+            $check($borrarOtraVez['status'] === 404 && $borrarNada['status'] === 404, "b5b DISCRIMINANTE {$quien}: y los dos con 404, no 403 (H489)", 'eliminado ' . $resumen($borrarOtraVez) . ', inexistente ' . $resumen($borrarNada));
             //Sin arreglo en el módulo: la carpeta se protege solo con sesión (protected-files.php), que no mira el documento.
             $archivoBorrado = $pedir($eliminado['archivo'], $jwt);
             echoTerminal("   [MEDIDA] {$quien}: el archivo del eliminado responde HTTP {$archivoBorrado['status']}" . (str_contains($archivoBorrado['body'], "{$prefijo}-contenido-eliminado") ? ', con su contenido' : ', sin su contenido'));

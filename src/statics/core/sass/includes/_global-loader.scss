@@ -1,0 +1,204 @@
+//El cargador (GenericLoaderElement.js) en un solo sitio: helpers.scss (panel) y pcsphp-loader.scss (suelta: prefija $spin; $counterSpin null la omite).
+@use 'variables' as *;
+//Colores literales: la reserva del cargador donde no hay tema (zona pública, hoja suelta); en el panel mandan los tokens.
+$-loaderBackground: rgba(255, 255, 255, 1);
+$-loaderBorder: rgb(150, 150, 150);
+$-loaderMark: #6435C9;
+$-loaderInvertOnDark: brightness(0) invert(1);
+$globalClassPcs: 'ui-pcs';
+
+@mixin global-loader($spin: spin, $counterSpin: counter-spin) {
+    .#{$globalClassPcs}-global-loader {
+        position: fixed;
+        z-index: 2000;
+        top: 0px;
+        left: 0px;
+        display: none;
+        width: 100%;
+        height: 100%;
+        background-color: var(--theme-surface, $-loaderBackground);
+
+        img {
+            max-width: 100%;
+        }
+
+        &.active {
+            display: block;
+        }
+
+        .#{$globalClassPcs}-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+
+            //El «Logo del cargador», debajo y con su propio alto (H345). `hidden` cuando no hay: el tema no lo oculta aquí.
+            .#{$globalClassPcs}-logo {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0.75rem auto 0 auto;
+
+                &[hidden] {
+                    display: none;
+                }
+
+                img {
+                    width: auto;
+                    height: 48px;
+                    max-width: min(320px, 80vw);
+                    object-fit: contain;
+                    border-radius: 0;
+                }
+            }
+
+            //La animación a su tamaño, sin forzar alto: el logo completo cabe a 640 px de ancho; una «P» o un aro, en 240.
+            .#{$globalClassPcs}-loader {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                img {
+                    width: auto;
+                    height: auto;
+                    max-width: min(640px, 90vw);
+                    max-height: 240px;
+                    object-fit: contain;
+                }
+            }
+
+            .#{$globalClassPcs}-loader-fallback {
+                position: relative;
+                border: 16px solid var(--theme-border, $-loaderBorder);
+                border-top: 16px solid var(--accent-1, var(--accent, $-loaderMark));
+                border-radius: 50%;
+                width: 120px;
+                height: 120px;
+                margin: 15px auto 0 auto;
+                animation: #{$spin} 2s linear infinite !important;
+            }
+
+            .#{$globalClassPcs}-progress-container {
+                width: max-content;
+                max-width: 100%;
+                margin: 0px auto 0px auto;
+
+                .#{$globalClassPcs}-progress {
+                    font-weight: $fwBold;
+                    text-align: center;
+                    color: var(--theme-text, black);
+                    font-size: 25px;
+                }
+            }
+
+            .#{$globalClassPcs}-text-message {
+                //Sin él, en una página sin reset de border-box (ui-pcs.css, Fomantic), el 100% más el relleno se sale 10 px de un móvil.
+                box-sizing: border-box;
+                text-align: center;
+                padding: 0.5rem 5px;
+                font-weight: $fwBold;
+                color: var(--theme-text, black);
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+
+                //Vacío está siempre en la caja (role="status"): fuera de la vista pero no del árbol de accesibilidad, sin display: none.
+                &:empty {
+                    position: absolute;
+                    width: 1px;
+                    height: 1px;
+                    padding: 0;
+                    margin: -1px;
+                    overflow: hidden;
+                    clip-path: inset(50%);
+                    white-space: nowrap;
+                }
+            }
+        }
+
+        //Movimiento reducido (GenericLoaderElement.js): ni animación ni aro, solo el logo quieto.
+        .#{$globalClassPcs}-loader-reduced {
+            display: none;
+        }
+
+        //La pantalla de carga (H417): a pantalla completa y recortada al centro. Lleva una sola imagen: la del modo y la
+        //orientación de ahora la elige GenericLoaderElement.js, que la cambia al girar o al cambiar de modo.
+        .#{$globalClassPcs}-screen {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+
+            img,
+            canvas {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                object-fit: cover;
+                object-position: center;
+            }
+        }
+
+        //Con pantalla, sin franja (PO): la caja de siempre, sin fondo, y sus textos en --theme-text sobre el centro limpio de la
+        //pantalla; el contraste lo da la pantalla, no un velo.
+        @keyframes #{$spin} {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @if $counterSpin {
+            @keyframes #{$counterSpin} {
+                0% {
+                    transform: translate(-50%, -50%) rotate(0deg);
+                }
+
+                100% {
+                    transform: translate(-50%, -50%) rotate(-360deg);
+                }
+            }
+        }
+    }
+
+    //Las imágenes del cargador con su modo oscuro (H345): las reglas de ui-pcs.scss, repetidas y acotadas al cargador porque
+    //la zona pública carga esta hoja sin ui-pcs.css. Por el elemento y no por su clase: el prefijo de la clase es opcional.
+    generic-loader-element {
+
+        html:not([data-theme="dark"]):not([data-theme="auto"]) & .brand-image-dark,
+        [data-theme="dark"] & .brand-image-light {
+            display: none !important;
+        }
+
+        [data-theme="dark"] & .invert-on-dark {
+            filter: $-loaderInvertOnDark;
+        }
+
+        @media (prefers-color-scheme: light) {
+            [data-theme="auto"] & .brand-image-dark {
+                display: none !important;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            [data-theme="auto"] & .brand-image-light {
+                display: none !important;
+            }
+
+            [data-theme="auto"] & .invert-on-dark {
+                filter: $-loaderInvertOnDark;
+            }
+        }
+    }
+}

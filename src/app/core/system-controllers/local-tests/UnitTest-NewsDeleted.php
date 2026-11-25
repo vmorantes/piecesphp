@@ -184,6 +184,7 @@ CliActions::make('unit-tests:core/news-deleted', function ($args) {
         $borrarNada = $eliminar($inexistente);
         $borrarOtraVez = $eliminar($noticias['eliminada']);
         $check($igual($borrarOtraVez, $borrarNada) && !$exito($borrarOtraVez), 'd4 eliminarla otra vez responde como eliminar un id que no existe', 'eliminada ' . $contar($borrarOtraVez) . ', inexistente ' . $contar($borrarNada));
+        $check($borrarOtraVez['status'] === 404 && $borrarNada['status'] === 404, 'd4b DISCRIMINANTE: y los dos con 404, no 403, también a root (H489)', 'eliminada ' . $contar($borrarOtraVez) . ', inexistente ' . $contar($borrarNada));
 
         $leerNada = $leer($inexistente);
         $leerBorrada = $leer($noticias['eliminada']);

@@ -12,6 +12,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\PublicSite\PublicSite;
+use PiecesPHP\PublicSite\SiteExporter;
 use PiecesPHP\PublicSite\SiteImporter;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
@@ -63,7 +64,7 @@ class PublicSiteImportTask extends TerminalTaskAbstract
      */
     public static function resolveFolder(string $folder, string $root): string
     {
-        return str_starts_with($folder, '/') ? $folder : rtrim($root, '/') . '/' . $folder;
+        return SiteExporter::fromRoot($folder, $root);
     }
 
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void

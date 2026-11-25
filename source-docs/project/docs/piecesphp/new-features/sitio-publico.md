@@ -46,18 +46,55 @@ por otra ruta. Si aun así una colisión llegara al servidor, esa página no se 
 
 **Qué se carga del framework con el sitio activo** (solo en las páginas del sitio):
 
-- Los **CSS globales del framework no se cargan**: el sitio trae los suyos.
-- Los **JS globales del framework no se cargan**, salvo que la página lleve un `<pcs-form>`: entonces sí, más el JavaScript
-  propio de esa acción (el del contacto, por ejemplo).
+- Los **CSS globales del framework no se cargan**: el sitio trae los suyos. Llegan solo el CSS del cargador y las
+  fuentes globales (ver «Lo global», abajo).
+- Los **JS globales del framework** (jQuery, Fomantic, `configurations.min.js`) **no se cargan**, salvo que la página
+  lleve un `<pcs-form>` (entonces sí, más el JavaScript propio de esa acción: el del contacto, por ejemplo) o que el
+  proyecto los pida para todo el sitio con `PublicSite::useShared('framework-js')` (junto con lo demás que el proyecto
+  tenga como JS global de la zona pública, y el adaptador de reCAPTCHA si está activo).
 - Los CSS y JS de `assets/` que el diseñador enlaza entran por `set_custom_assets()`, **en su orden**. El primero ocupa el
   lugar del enlace original; si la página no tenía ninguno, los estáticos se añaden al final del `<head>` y del `<body>`.
-- Se mantienen el atributo `lang` de `<html>` (el idioma de la aplicación), las etiquetas `<meta>` que lee el JavaScript
-  del framework, la regla que alterna las imágenes de marca claras y oscuras y los scripts extra del panel
-  (zona pública).
+- Siempre se mantienen, y no se pueden quitar: el atributo `lang` de `<html>` (el idioma de la aplicación) y `dlang`, el
+  `<base>`, las etiquetas `<meta>` que lee el JavaScript del framework, `charset` y `viewport` si el diseño no los trae,
+  y la regla que alterna las imágenes de marca claras y oscuras (también con el modo `auto`).
 - Las referencias a la vista previa (`.pcs/`, `data/`, `parts/parts.js`) se quitan: no existen en el proyecto.
 
-El título y la descripción del `<head>` se pasan por `__()` con el grupo `public-site-<sitio>`, usando el texto literal
-como clave: se pueden traducir como cualquier otro texto.
+### Lo global, y cómo quitarlo
+
+Lo global del framework llega a todas las páginas del sitio **por defecto**. Cada pieza tiene un nombre, y lo que el
+diseñador tuviera de lo mismo se sustituye, para que no se repita:
+
+| Nombre | Qué llega | Qué sustituye del diseñador |
+| :-- | :-- | :-- |
+| `seo` | El `<title>`, las metas de descripción, palabras clave y autor, robots, `theme-color`, la canónica, los idiomas alternativos (si hay varios), Open Graph y los datos estructurados, de Configuración y de la página | Su `<title>`, esas metas, las `og:*` y `twitter:*`, la canónica, los alternativos con `hreflang` y su JSON-LD. Robots y `theme-color`, solo si el framework tiene los suyos |
+| `favicon` | El favicon de Configuración de la apariencia › Imágenes de marca | Sus `<link rel="icon">`. Si no hay favicon configurado, se queda el suyo |
+| `theme` | `data-theme` en `<html>`: el modo de tema de Configuración (`light`, `dark` o `auto`; de fábrica, `auto`) | Su `data-theme` |
+| `loader` | Las imágenes del cargador de Configuración (`data-loader-*` en `<html>`), su CSS y `statics/core/js/pcsphp-loader.js`, que da `showGenericLoader()` y `removeGenericLoader()` sin jQuery | Sus `data-loader-*` |
+| `scripts` | Los scripts extra del panel para la zona pública, en sus tres puntos: `<head>`, principio y final del `<body>` | — |
+| `fonts` | Las fuentes globales del proyecto (`load_font()`) | — |
+
+El título y la descripción salen del `<head>` del diseño, pasados por `__()` con el grupo `public-site-<sitio>` (con el
+texto literal como clave: se traducen como cualquier otro texto). Al título se le añade el nombre de la aplicación
+(« - <nombre>») si es distinto; la descripción del diseño, si la trae, se corta a 150 caracteres (más «...»), y si no
+la trae sale la de Configuración. En la portada, el título para redes (Open Graph) es el «Título para compartir» de
+Configuración; el `<title>` no cambia. Con `<pcs-meta>` en el `<head>`, el SEO del framework llega siempre, aunque se excluya
+`seo`.
+
+Para quitar una pieza (y que vuelva la del diseñador) o pedir lo compartido, el proyecto llama a `PublicSite` antes de
+que se pinte, desde el `routes()` de su módulo o desde la sección del clon de `src/app/config/routes.php`:
+
+```php
+use PiecesPHP\PublicSite\PublicSite;
+
+PublicSite::excludeGlobals('theme', 'fonts'); // el data-theme del diseñador, y sin las fuentes globales
+PublicSite::useShared('framework-js');        // jQuery, Fomantic y configurations.min.js en todas las páginas
+```
+
+- Los nombres válidos de `excludeGlobals()` son los de la tabla (`PublicSite::GLOBALS`); el de `useShared()`, hoy solo
+  `framework-js` (`PublicSite::SHARED`). Un nombre que no existe lanza `InvalidArgumentException` y no aplica ninguno.
+  Como se llama al arrancar, esa excepción tumba todas las peticiones: tras cambiar la lista, abre el sitio.
+- Vale para todo el sitio: no hay exclusiones por página.
+- Cambiarlas no obliga a recompilar: se aplican al servir.
 
 ## La carpeta del diseñador
 
@@ -125,7 +162,7 @@ En el proyecto ese script no se carga.
 | :-- | :-- | :-- | :-- |
 | `<pcs-part name="menu">` | `name` (obligatorio) | vacío | La parte `parts/menu.html`, ya compilada |
 | `<pcs-link page="contact">…</pcs-link>` | `page` (obligatorio); `anchor` (un fragmento, sin `#`); `current-class` (una o más clases) | en línea | Un `<a>` a la URL de esa página en el idioma actual (más `#anchor` si lo lleva), con el contenido dentro y el resto de atributos. Si apunta a la página que se pinta, añade `aria-current="page"` y las clases de `current-class` |
-| `<pcs-meta>` | `structured-data="off"` (opcional) | vacío | Título, descripción, Open Graph, datos estructurados (salvo con `structured-data="off"`, para el diseño que trae su propio JSON-LD) y canónica del framework (`MetaTags`). Se quitan los que el diseñador tuviera, para que no se repitan |
+| `<pcs-meta>` | `structured-data="off"` (opcional) | vacío | El SEO del framework (`MetaTags`: lo de `seo` en «Lo global, y cómo quitarlo»), en ese punto del `<head>` y aunque el proyecto excluya `seo`. Con `structured-data="off"`, sin los datos estructurados, y el JSON-LD del diseñador se queda. Sin la marca, el SEO llega igual por defecto |
 | `<pcs-image brand="logo">` | `brand` (obligatorio): `logo`, `partners`, `partners-vertical`, `loader-animation`, `loader-logo`, `loader-screen`, `loader-screen-mobile`; `alt`, `class`; `width` y `height` (enteros de 1 a 10000), `loading` (`lazy`, `eager`), `decoding` (`async`, `sync`, `auto`), `sizes` | vacío | La imagen de marca configurada en el panel, con su versión clara y oscura (`SettingsController::brandImageTag()`) |
 | `<pcs-text key="…">texto</pcs-text>` | `key` (obligatorio) | texto | `__()` con el grupo `public-site-<sitio>` y esa clave; si no hay traducción, el texto escrito dentro. Siempre escapado |
 | `<pcs-list resource="…" count="n">` | `resource` (obligatorio); `count`, de 1 a 100 (sin él, 10) | una `<template>` con `{{campo}}` | La plantilla repetida con las filas reales del recurso, escapadas |

@@ -26,7 +26,7 @@ final class PublicSite
     const CONFIG_KEY = 'public_site';
 
     /** Sube cuando cambia lo que escribe el compilador: invalida todas las vistas compiladas. */
-    const ENGINE_VERSION = '6';
+    const ENGINE_VERSION = '7';
 
     const MANIFEST = 'pcs.json';
 
@@ -46,10 +46,116 @@ final class PublicSite
     /** Su dirección chocaría con otra zona o con una ruta del framework: la comprobación las rechaza. */
     const RESERVED_PAGES = ['admin', 'core', 'statics', 'terminal', 'tokens', 'components', 'unsubscribe', 'general', 'site'];
 
+    /** Lo global del framework que llega a cada página por defecto; excludeGlobals() quita lo nombrado. */
+    const GLOBALS = ['seo', 'favicon', 'theme', 'loader', 'scripts', 'fonts'];
+
+    /** Lo del framework que solo llega si se pide con useShared(). */
+    const SHARED = ['framework-js'];
+
     /**
      * @var bool
      */
     private static $misconfigurationLogged = false;
+
+    /**
+     * @var array<string,true>
+     */
+    private static $excludedGlobals = [];
+
+    /**
+     * @var array<string,true>
+     */
+    private static $sharedGlobals = [];
+
+    /**
+     * Quita del sitio, en esta petición, lo global nombrado (GLOBALS); se llama antes de pintar.
+     *
+     * @param string ...$names
+     * @return void
+     * @throws \InvalidArgumentException Si un nombre no está en GLOBALS
+     */
+    public static function excludeGlobals(string ...$names): void
+    {
+        self::assertNames($names, self::GLOBALS, 'excludeGlobals');
+        foreach ($names as $name) {
+            self::$excludedGlobals[$name] = true;
+        }
+    }
+
+    /**
+     * Añade al sitio, en esta petición, lo compartido nombrado (SHARED); se llama antes de pintar.
+     *
+     * @param string ...$names
+     * @return void
+     * @throws \InvalidArgumentException Si un nombre no está en SHARED
+     */
+    public static function useShared(string ...$names): void
+    {
+        self::assertNames($names, self::SHARED, 'useShared');
+        foreach ($names as $name) {
+            self::$sharedGlobals[$name] = true;
+        }
+    }
+
+    /**
+     * Si lo global nombrado se excluyó con excludeGlobals().
+     *
+     * @param string $name
+     * @return bool
+     */
+    public static function isGlobalExcluded(string $name): bool
+    {
+        return isset(self::$excludedGlobals[$name]);
+    }
+
+    /**
+     * Si lo compartido nombrado se pidió con useShared().
+     *
+     * @param string $name
+     * @return bool
+     */
+    public static function isShared(string $name): bool
+    {
+        return isset(self::$sharedGlobals[$name]);
+    }
+
+    /**
+     * Si la página conserva el JavaScript global del framework (jQuery, Fomantic, configurations.min.js): con pcs-form o useShared('framework-js').
+     *
+     * @param bool $usesForm
+     * @return bool
+     */
+    public static function keepsFrameworkJs(bool $usesForm): bool
+    {
+        return $usesForm || self::isShared('framework-js');
+    }
+
+    /**
+     * Vuelve a lo de fábrica: nada excluido ni compartido (las pruebas).
+     *
+     * @return void
+     */
+    public static function resetGlobals(): void
+    {
+        self::$excludedGlobals = [];
+        self::$sharedGlobals = [];
+    }
+
+    /**
+     * @param string[] $names
+     * @param string[] $valid
+     * @param string $method
+     * @return void
+     * @throws \InvalidArgumentException
+     */
+    private static function assertNames(array $names, array $valid, string $method): void
+    {
+        foreach ($names as $name) {
+            if (!in_array($name, $valid, true)) {
+                throw new \InvalidArgumentException("PublicSite::{$method}(): «{$name}» no vale; los válidos son " . implode(', ', $valid) . '.');
+            }
+        }
+    }
 
     /**
      * El sitio activo: `$config['public_site']` con forma de nombre y su app/view/<sitio>/pcs.json en disco; si no, null.

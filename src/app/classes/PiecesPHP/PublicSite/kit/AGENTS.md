@@ -27,7 +27,8 @@ en `.claude/skills/designer/`) y la guía (`GUIDE.html`). En Cursor, las reglas 
 - Dentro de la `<template>` de una lista no van otras marcas: en el sitio real no se resuelven.
 - Cada página lleva `<script src=".pcs/pcs.js"></script>` en su `<head>`, antes de cualquier otro script y sin
   `async` ni `defer`: no se mueve.
-- Nada se da por terminado sin `CHECK.html` sin avisos y cada página revisada en escritorio y en móvil.
+- Nada se da por terminado sin `CHECK.html` sin avisos (salvo los que `PROJECT.md` anota como pendientes) y cada página
+  revisada en escritorio y en móvil.
 
 ## Delegación
 

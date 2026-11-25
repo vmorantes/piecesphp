@@ -37,6 +37,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * NewsController.
@@ -738,6 +739,10 @@ class NewsController extends AdminPanelController
                 $exists = NewsMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
+                    //La guarda pudo ver el id aún sin crear: lo creado entre medias no se borra sin su permiso.
+                    if (!self::allowedRoute('actions-delete', ['id' => $id])) {
+                        return throw403($request);
+                    }
 
                     //Dirección de redirección en caso de creación
                     $redirectURLOn = self::routeName('list');
@@ -790,9 +795,13 @@ class NewsController extends AdminPanelController
                     }
 
                 } else {
-                    $resultOperation->setMessage($notExistsMessage);
+                    //Lo inexistente y lo eliminado responden 404, como su formulario de edición (H489).
+                    return $response->withStatus(404)->withJson($resultOperation->setMessage($notExistsMessage));
                 }
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación.
+                throw $e;
             } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
@@ -1388,10 +1397,9 @@ class NewsController extends AdminPanelController
 
                 if ($name == 'actions-delete') {
 
-                    $allow = false;
                     $id = ($getParam)('id');
                     $news = NewsMapper::getBy($id, 'id');
-                    //Lo eliminado se niega como lo que no existe (P380).
+                    //Lo inexistente y lo eliminado no se deciden aquí: el método responde 404 (P380, H489).
                     $news = $news !== null && (int) $news->status !== NewsMapper::INACTIVE ? $news : null;
 
                     if ($news !== null) {

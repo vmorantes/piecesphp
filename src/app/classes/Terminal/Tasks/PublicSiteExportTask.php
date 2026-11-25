@@ -104,7 +104,7 @@ class PublicSiteExportTask extends TerminalTaskAbstract
      */
     public static function siteFromFolder(string $from, string $root): ?string
     {
-        $folder = str_starts_with($from, '/') ? $from : rtrim($root, '/') . '/' . $from;
+        $folder = SiteExporter::fromRoot($from, $root);
         $manifest = is_file("{$folder}/pcs.json") ? json_decode((string) file_get_contents("{$folder}/pcs.json"), true) : null;
         $name = is_array($manifest) ? ($manifest['name'] ?? null) : null;
         return is_string($name) && $name !== '' ? $name : null;

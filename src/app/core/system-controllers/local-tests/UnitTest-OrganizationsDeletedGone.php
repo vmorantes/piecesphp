@@ -236,6 +236,7 @@ CliActions::make('unit-tests:core/organizations-deleted-gone', function ($args) 
         $medida('actions-delete, inexistente', $eliminarNada);
         $medida('actions-delete, eliminada', $eliminarOtraVez);
         $check($eliminarOtraVez['status'] === $eliminarNada['status'] && $mensaje($eliminarOtraVez) === $mensaje($eliminarNada) && !$exito($eliminarOtraVez), 'b5 eliminarla otra vez responde como eliminar un id que no existe', $resumen($eliminarOtraVez) . ' / inexistente ' . $resumen($eliminarNada));
+        $check($eliminarOtraVez['status'] === 404 && $eliminarNada['status'] === 404, 'b5b DISCRIMINANTE: y los dos con 404, no 403, también a root (H489)', $resumen($eliminarOtraVez) . ' / inexistente ' . $resumen($eliminarNada));
 
         $perfilNada = $perfil($inexistente, $root);
         $perfilBorrada = $perfil($eliminada, $root);

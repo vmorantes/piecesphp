@@ -37,6 +37,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * BuiltInBannerController.
@@ -692,6 +693,10 @@ class BuiltInBannerController extends AdminPanelController
                 $exists = BuiltInBannerMapper::existsNotDeletedByID($id);
 
                 if ($exists) {
+                    //La guarda pudo ver el id aún sin crear: lo creado entre medias no se borra sin su permiso.
+                    if (!self::allowedRoute('actions-delete', ['id' => $id])) {
+                        return throw403($request);
+                    }
 
                     //Dirección de redirección en caso de creación
                     $redirectURLOn = self::routeName('list');
@@ -744,9 +749,13 @@ class BuiltInBannerController extends AdminPanelController
                     }
 
                 } else {
-                    $resultOperation->setMessage($notExistsMessage);
+                    //Lo inexistente y lo eliminado responden 404, como su formulario de edición (H489).
+                    return $response->withStatus(404)->withJson($resultOperation->setMessage($notExistsMessage));
                 }
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación.
+                throw $e;
             } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
@@ -1159,10 +1168,9 @@ class BuiltInBannerController extends AdminPanelController
 
                 if ($name == 'actions-delete') {
 
-                    $allow = false;
                     $id = ($getParam)('id');
                     $builtInBanner = BuiltInBannerMapper::getBy($id, 'id');
-                    //Lo eliminado se niega como lo que no existe (P380).
+                    //Lo inexistente y lo eliminado no se deciden aquí: el método responde 404 (P380, H489).
                     $builtInBanner = $builtInBanner !== null && (int) $builtInBanner->status !== BuiltInBannerMapper::INACTIVE ? $builtInBanner : null;
 
                     if ($builtInBanner !== null) {

@@ -1,8 +1,9 @@
+//Expresión y no declaración: una segunda carga (el paquete y la suelta, pcsphp-loader.js) no redeclara la clase.
 /**
  * Clase que representa un elemento de cargador genérico y expone la API para gestionar cargadores genéricos
  * Hereda de HTMLElement y configura todos los elementos del cargador
  */
-class GenericLoaderElement extends HTMLElement {
+window.GenericLoaderElement = window.GenericLoaderElement || customElements.get('generic-loader-element') || class GenericLoaderElement extends HTMLElement {
 
 	/**
 	 * @param {String} [name='DEFAULT'] Nombre del cargador
@@ -423,5 +424,7 @@ class GenericLoaderElement extends HTMLElement {
 	}
 }
 
-//Registrar el elemento personalizado
-customElements.define('generic-loader-element', GenericLoaderElement)
+//Registrar el elemento personalizado, una sola vez aunque el archivo se cargue dos
+if (!customElements.get('generic-loader-element')) {
+	customElements.define('generic-loader-element', window.GenericLoaderElement)
+}

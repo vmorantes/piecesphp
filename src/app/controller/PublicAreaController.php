@@ -125,11 +125,7 @@ class PublicAreaController extends BaseController
 
         set_title(__(LANG_GROUP, 'Inicio'));
 
-        //El «Título para compartir» de «Identidad y SEO» es el de la tarjeta de la portada.
-        $shareTitle = get_config(SettingsController::SEO_OPTION_SHARE_TITLE);
-        if (is_string($shareTitle) && trim($shareTitle) !== '') {
-            MetaTags::setShareTitle(trim($shareTitle));
-        }
+        self::applyShareTitle();
 
         set_custom_assets([
             'statics/css/style.css',
@@ -223,7 +219,7 @@ class PublicAreaController extends BaseController
 
     /**
      * La página del sitio activo, o null si no hay sitio o no tiene esa página. Solo carga los estáticos del diseñador:
-     * los CSS del framework no van, y su JavaScript solo si la página lleva un formulario (pcs-form).
+     * los CSS del framework no van, y su JavaScript solo con pcs-form o useShared('framework-js') (PublicSite).
      *
      * @param string $page
      * @param Response $res
@@ -246,13 +242,29 @@ class PublicAreaController extends BaseController
         if ($info['description'] !== '') {
             MetaTags::setDescription(__(PublicSite::langGroup($site), $info['description']));
         }
+        if ($page === 'index') {
+            self::applyShareTitle();
+        }
         set_global_assets([], 'css');
-        if (!$info['usesForm']) {
+        if (!PublicSite::keepsFrameworkJs($info['usesForm'])) {
             set_global_assets([], 'js');
         }
         set_custom_assets($info['css'], 'css');
         set_custom_assets($info['js'], 'js');
         return $res->write($renderer->renderPage($page));
+    }
+
+    /**
+     * El «Título para compartir» de «Identidad y SEO» es el de la tarjeta de la portada: la del framework y la del sitio.
+     *
+     * @return void
+     */
+    private static function applyShareTitle(): void
+    {
+        $shareTitle = get_config(SettingsController::SEO_OPTION_SHARE_TITLE);
+        if (is_string($shareTitle) && trim($shareTitle) !== '') {
+            MetaTags::setShareTitle(trim($shareTitle));
+        }
     }
 
     /**

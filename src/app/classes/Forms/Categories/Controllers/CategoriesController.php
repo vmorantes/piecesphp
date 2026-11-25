@@ -35,6 +35,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * CategoriesController.
@@ -387,6 +388,11 @@ class CategoriesController extends AdminPanelController
                     //Lo eliminado no se guarda: responde como lo que no existe (P380).
                     $exists = $mapper->id !== null && CategoriesMapper::existsNotDeletedByID($mapper->id);
 
+                    //Un POST no concede más que su GET: editar exige lo mismo que abrir su formulario (_allowedRoute).
+                    if ($exists && !self::allowedRoute('forms-edit', ['id' => $mapper->id])) {
+                        return throw403($request);
+                    }
+
                     if ($exists) {
 
                         $mapper->setLangData($lang, 'categoryName', $categoryName);
@@ -420,6 +426,9 @@ class CategoriesController extends AdminPanelController
 
                 $resultOperation->setMessage($e->getMessage());
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+                throw $e;
             } catch (\Exception $e) {
                 $reference = log_exception($e);
 
@@ -441,6 +450,9 @@ class CategoriesController extends AdminPanelController
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
 
+        } catch (HttpForbiddenException $e) {
+            //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+            throw $e;
         } catch (\Exception $e) {
             $reference = log_exception($e);
 
@@ -520,6 +532,10 @@ class CategoriesController extends AdminPanelController
                 $exists = $element->id !== null && CategoriesMapper::existsNotDeletedByID($element->id);
 
                 if ($exists) {
+                    //La guarda pudo ver el id aún sin crear: lo creado entre medias no se borra sin su permiso.
+                    if (!self::allowedRoute('actions-delete', ['id' => $id])) {
+                        return throw403($request);
+                    }
 
                     $table = CategoriesMapper::TABLE;
                     $inactiveStatus = CategoriesMapper::STATUS_INACTIVE;
@@ -574,9 +590,13 @@ class CategoriesController extends AdminPanelController
                     }
 
                 } else {
-                    $resultOperation->setMessage($notExistsMessage);
+                    //Lo inexistente y lo eliminado responden 404, como su formulario de edición (H489).
+                    return $response->withStatus(404)->withJson($resultOperation->setMessage($notExistsMessage));
                 }
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación.
+                throw $e;
             } catch (SafeException $e) {
 
                 $resultOperation->setMessage($e->getMessage());
@@ -884,10 +904,9 @@ class CategoriesController extends AdminPanelController
 
                 if ($name == 'actions-delete') {
 
-                    $allow = false;
                     $id = $params['id'];
                     $element = CategoriesMapper::getBy($id, 'id');
-                    //Lo eliminado se niega como lo que no existe (P380).
+                    //Lo inexistente y lo eliminado no se deciden aquí: el método responde 404 (P380, H489).
                     $element = $element !== null && (int) $element->status !== CategoriesMapper::STATUS_INACTIVE ? $element : null;
 
                     if ($element !== null) {

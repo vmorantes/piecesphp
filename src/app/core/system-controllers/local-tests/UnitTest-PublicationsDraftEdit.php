@@ -250,6 +250,8 @@ CliActions::make('unit-tests:core/publications-draft-edit', function ($args) {
         $check($intruso['status'] === 403, 'b3 y su POST de edición se rechaza con 403', "HTTP {$intruso['status']}");
         $titulo = (string) $database->query("SELECT title FROM `{$tablaPublicaciones}` WHERE id = {$publicacion}")->fetchColumn();
         $check($titulo !== "{$prefijo}-intruso" && $estado() === PublicationMapper::DRAFT, 'b4 la publicación queda como estaba', "título {$titulo}, estado " . $estado());
+        $borrarAjeno = $pedir($camino('actions-delete', ['id' => $publicacion]), $ajeno, ['id' => (string) $publicacion]);
+        $check($borrarAjeno['status'] === 403 && $estado() === PublicationMapper::DRAFT, 'b5 el ajeno no la elimina: 403, y sigue como estaba', "HTTP {$borrarAjeno['status']}, estado " . $estado());
 
         echoTerminal('');
         echoTerminal('[c] Lo eliminado no vuelve por la interfaz (P380): responde como un id que no existe');
@@ -285,6 +287,10 @@ CliActions::make('unit-tests:core/publications-draft-edit', function ($args) {
         $formularioNada = $pedir($camino('forms-edit', ['id' => $inexistente]), $root);
         $formularioBorrada = $pedir($camino('forms-edit', ['id' => $publicacion]), $root);
         $check($formularioBorrada['status'] === $formularioNada['status'] && $formularioBorrada['status'] !== 200, 'c3 su formulario de edición responde como el de un id que no existe', "eliminada HTTP {$formularioBorrada['status']}, inexistente HTTP {$formularioNada['status']}");
+        $check($formularioBorrada['status'] === 404 && $formularioNada['status'] === 404, 'c3b DISCRIMINANTE: y los dos con 404, no 403, también a root (H489)', "eliminada HTTP {$formularioBorrada['status']}, inexistente HTTP {$formularioNada['status']}");
+        $formularioAutor = $pedir($camino('forms-edit', ['id' => $publicacion]), $autor);
+        $formularioAjeno = $pedir($camino('forms-edit', ['id' => $publicacion]), $ajeno);
+        $check($formularioAutor['status'] === 404 && $formularioAjeno['status'] === 404, 'c3c y 404 al autor y al ajeno: eliminada no se distingue de lo que no existe', "autor HTTP {$formularioAutor['status']}, ajeno HTTP {$formularioAjeno['status']}");
         $guardarNada = $pedir($camino('actions-edit'), $root, array_merge($camposEliminada, ['id' => (string) $inexistente]));
         $guardarBorrada = $pedir($camino('actions-edit'), $root, array_merge($camposEliminada, ['title' => "{$prefijo}-resucitada"]));
         $titulo = (string) $database->query("SELECT title FROM `{$tablaPublicaciones}` WHERE id = {$publicacion}")->fetchColumn();
@@ -300,6 +306,10 @@ CliActions::make('unit-tests:core/publications-draft-edit', function ($args) {
         $borrarNada = $eliminar($inexistente);
         $borrarOtraVez = $eliminar($publicacion);
         $check($borrarOtraVez['status'] === $borrarNada['status'] && $mensaje($borrarOtraVez) === $mensaje($borrarNada), 'c6 eliminarla otra vez responde como eliminar un id que no existe', "eliminada HTTP {$borrarOtraVez['status']} «{$mensaje($borrarOtraVez)}», inexistente HTTP {$borrarNada['status']} «{$mensaje($borrarNada)}»");
+        $check($borrarOtraVez['status'] === 404 && $borrarNada['status'] === 404 && $mensaje($borrarNada) !== '', 'c6b DISCRIMINANTE: y los dos con 404 y su mensaje, no 403, también a root (H489)', "eliminada HTTP {$borrarOtraVez['status']}, inexistente HTTP {$borrarNada['status']}");
+        $borrarAutor = $pedir($camino('actions-delete', ['id' => $publicacion]), $autor, ['id' => (string) $publicacion]);
+        $borrarAjenoEliminada = $pedir($camino('actions-delete', ['id' => $publicacion]), $ajeno, ['id' => (string) $publicacion]);
+        $check($borrarAutor['status'] === 404 && $borrarAjenoEliminada['status'] === 404 && $estado() === PublicationMapper::INACTIVE, 'c6c y 404 al autor y al ajeno, y sigue INACTIVE', "autor HTTP {$borrarAutor['status']}, ajeno HTTP {$borrarAjenoEliminada['status']}, estado " . $estado());
 
         echoTerminal('');
         echoTerminal('[d] El bloque público de publicaciones enseña lo mismo que la vista individual');
@@ -412,4 +422,4 @@ CliActions::make('unit-tests:core/publications-draft-edit', function ($args) {
 
     return $balance();
 
-})->setDescription('Editar una publicación respeta su casilla de borrador (guardar sin tocar no publica; desmarcada publica; marcada vuelve a borrador), un usuario del mismo tipo sin relación con una publicación ajena no la edita por POST (403), y una eliminada responde como un id que no existe en su formulario, su acción de edición, eliminar, la API de detalle y el bloque público, no sale en los listados ni con status=0 o ANY, y sus archivos no se sirven (P380). Por HTTP, con los campos que pinta el formulario.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Editar una publicación respeta su casilla de borrador (guardar sin tocar no publica; desmarcada publica; marcada vuelve a borrador), un usuario del mismo tipo sin relación con una publicación ajena no la edita por POST ni la elimina (403), y una eliminada responde como un id que no existe (404 en su formulario y al eliminarla, también a root) en su formulario, su acción de edición, eliminar, la API de detalle y el bloque público, no sale en los listados ni con status=0 o ANY, y sus archivos no se sirven (P380). Por HTTP, con los campos que pinta el formulario.')->setEffects([CliActions::EFFECT_DATABASE])->register();

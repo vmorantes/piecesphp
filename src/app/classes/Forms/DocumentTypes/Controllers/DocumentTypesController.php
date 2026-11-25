@@ -36,6 +36,7 @@ use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
+use Slim\Exception\HttpForbiddenException;
 
 /**
  * DocumentTypesController.
@@ -393,6 +394,11 @@ class DocumentTypesController extends AdminPanelController
                     $mapper = new DocumentTypesMapper((int) $id);
                     $exists = !is_null($mapper->id);
 
+                    //Un POST no concede más que su GET: editar exige lo mismo que abrir su formulario (_allowedRoute).
+                    if ($exists && !self::allowedRoute('forms-edit', ['id' => $mapper->id])) {
+                        return throw403($request);
+                    }
+
                     if ($exists) {
 
                         $mapper->setLangData($lang, 'documentTypeName', $documentTypeName);
@@ -426,6 +432,9 @@ class DocumentTypesController extends AdminPanelController
 
                 $resultOperation->setMessage($e->getMessage());
 
+            } catch (HttpForbiddenException $e) {
+                //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+                throw $e;
             } catch (\Exception $e) {
                 $reference = log_exception($e);
 
@@ -447,6 +456,9 @@ class DocumentTypesController extends AdminPanelController
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
 
+        } catch (HttpForbiddenException $e) {
+            //throw403() lanza: sin esto, el catch de \Exception se come la denegación y responde el error genérico (B16).
+            throw $e;
         } catch (\Exception $e) {
             $reference = log_exception($e);
 

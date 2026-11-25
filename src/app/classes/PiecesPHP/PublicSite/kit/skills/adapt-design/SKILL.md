@@ -28,6 +28,8 @@ Nada más: ni reordenar, ni renombrar, ni limpiar, ni partir archivos.
 - **Entra** cualquier sitio que funcione en un navegador: páginas `.html`, su CSS, su JavaScript, imágenes y fuentes. Si
   la herramienta del diseñador compila (React, Vue, un generador estático), se adapta su **salida estática**, no su
   código fuente.
+- **Se parte siempre de una carpeta exportada por el proyecto**: trae `site/.pcs/` (el lector) y `pcs.json`, que no se
+  escriben a mano. Fuera de un proyecto, pídesela a quien lo lleva.
 - **Sale** la carpeta del sitio:
 
   ```
@@ -63,10 +65,13 @@ Nada más: ni reordenar, ni renombrar, ni limpiar, ni partir archivos.
 3. **Mover, no reescribir.** El marcado se copia tal cual (clases, atributos, texto, orden). Se tocan las rutas, los
    bloques comunes (que pasan a `<pcs-part>`), los datos del sistema (que pasan a marcas) y lo que finge (regla 5).
 4. **No inventar.** Ningún texto, cifra, imagen, página o destino que no esté en el original. **Un destino de enlace que
-   no se sabe se deja como está y se anota** para «Pendientes conocidos».
+   no se sabe se deja como está y se anota** para «Pendientes conocidos»: así deja de ser «falso» y pasa a «pendiente»,
+   con su pregunta.
 5. **Lo que finge se corrige, con la misma apariencia.** Un campo que es un dibujo, un botón que es un `<div>`, un
    `href="#"`, una imagen sin `alt`, un formulario que no envía: se sustituye por el elemento verdadero (`<input>`,
-   `<button>`, `<a>` con su destino, `alt`, `<pcs-form>`). Si hace falta CSS para que se vea igual, va en
+   `<button>`, `<a>` con su destino, `alt`, `<pcs-form>`). Lo que lleva a otra página o sección es `<a>`; lo que hace
+   algo en la misma página es `<button type="button">`. Si no se sabe qué hace o adónde lleva, el elemento verdadero
+   con la misma apariencia y, sin inventar, su destino o su acción a «Pendientes conocidos» (regla 4). Si hace falta CSS para que se vea igual, va en
    `site/assets/css/adaptation-fixes.css`, nunca en el CSS del diseñador. Lo que es de gusto no se toca. Cada corrección
    se anota para el diseñador.
 6. **Sin archivos extra.** Nada de README, resúmenes ni copias de seguridad dentro de la carpeta. Lo que haya que anotar
@@ -76,9 +81,10 @@ Nada más: ni reordenar, ni renombrar, ni limpiar, ni partir archivos.
 
 ## 3. El procedimiento
 
-1. **Antes de tocar nada**, lee `DESIGN.md` (si existe) y `PROJECT.md`. Si `PROJECT.md` no dice los dominios del
-   diseñador (pruebas, staging, Webflow), pregúntalos: sus direcciones absolutas a archivos de la entrega son rutas
-   locales disfrazadas (paso 3).
+1. **Antes de tocar nada**, lee `DESIGN.md` y `PROJECT.md` si existen (una entrega nueva puede no traerlos). Los
+   dominios del diseñador (pruebas, staging, Webflow) son los de las direcciones absolutas que apuntan a archivos de la
+   entrega; si `PROJECT.md` los nombra, mejor. Con una persona delante, pregunta lo que no esté claro; si te lanzaron
+   como subagente, no esperes: anótalo en tu respuesta y sigue.
 2. **El mapa.** Escríbelo primero, en tu respuesta. Si trabajas con una persona delante, enséñaselo y espera su visto
    bueno; si te lanzaron como subagente, no esperes: escríbelo y sigue.
    - **Origen**: de qué herramienta viene y qué trae (jQuery, `webflow.js`, atributos propios por página como
@@ -96,7 +102,8 @@ Nada más: ni reordenar, ni renombrar, ni limpiar, ni partir archivos.
 3. **Estáticos tal cual.** Copia CSS, JS, imágenes y fuentes a `site/assets/`, conservando su estructura, y corrige las
    rutas de las páginas. No reescribas el CSS ni el JS del diseñador: si funcionaba, sigue funcionando. **Una dirección
    absoluta a un archivo que viene en la entrega pasa a ruta local**: relativa en HTML y CSS; en JS, con la ayuda de
-   rutas (§4). Si el archivo no viene en la entrega, PARA y pregunta.
+   rutas (§4). Si el archivo no viene en la entrega, no lo descargues ni lo sustituyas: déjalo, anótalo como pendiente
+   y dilo en tu respuesta.
 4. **El lector.** Cada página lleva `<script src=".pcs/pcs.js"></script>` en su `<head>`, sin `async` ni `defer` y
    antes de cualquier otro `<script>`: así, en la vista previa, las partes están pintadas cuando corre el JavaScript del
    diseño (menús, carruseles). `CHECK.html` avisa si no está así.
@@ -107,9 +114,9 @@ Nada más: ni reordenar, ni renombrar, ni limpiar, ni partir archivos.
    | Si en el diseño hay… | Pon |
    | :-- | :-- |
    | un enlace a otra página del sitio | `<pcs-link page="contact">texto</pcs-link>` (el nombre del archivo de la página en `site/`, sin `.html`); `anchor="seccion"` para ir a una sección; `current-class="w--current"` (la clase que el original usa para la página activa) en los enlaces del menú |
-   | título, descripción y vista previa para redes | `<pcs-meta></pcs-meta>` en el `<head>`; `structured-data="off"` si el original trae su propio JSON-LD |
+   | título, descripción y vista previa para redes | `<pcs-meta></pcs-meta>` en el `<head>` (un `<title>` no la exige: al servir, el proyecto pone sus metadatos igual); `structured-data="off"` si el original trae su propio JSON-LD |
    | una imagen de la marca **que el proyecto haya decidido** (regla 7) | `<pcs-image brand="logo" width="…" height="…"></pcs-image>`, con las dimensiones y el `loading` del original (en el sitio real solo pasan `class`, `alt`, `width`, `height`, `loading`, `decoding` y `sizes`) |
-   | un texto que se traduce | `<pcs-text key="Texto en español">Texto en español</pcs-text>` |
+   | un texto que se traduce (solo si el sitio tiene más de un idioma; cuáles, lo dice `PROJECT.md`) | `<pcs-text key="Texto en español">Texto en español</pcs-text>` |
    | una lista de cosas del sistema | `<pcs-list resource="publications" count="3"><template>…{{title}}…</template></pcs-list>` |
    | un formulario que el sistema recibe | `<pcs-form action="contact">…</pcs-form>`, conservando los `name` del original (los campos que la acción no espera llegan igual al correo) |
 
@@ -129,13 +136,17 @@ Nada más: ni reordenar, ni renombrar, ni limpiar, ni partir archivos.
 9. **Comprueba**: abre `CHECK.html`, elige la carpeta y corrige hasta que no quede ningún aviso: también avisa de lo que
    finge, de los recursos de dominios desconocidos (y es un error una ruta local disfrazada, cuando el final de la ruta
    coincide con un archivo del paquete) y de los bloques copiados. En el proyecto, `files/design/adaptado/` no lleva
-   `CHECK.html`: se exporta el paquete a una carpeta temporal fuera del proyecto y se abre el suyo (un agente lo hace con
-   un navegador).
+   `CHECK.html`: se exporta el paquete a una carpeta temporal fuera del proyecto y se abre el suyo. Un agente sin
+   ventana no puede usar su selector de carpetas: en el proyecto, `bin/cli public-site-import folder=<carpeta>
+   site=<nombre> check=yes` hace las comprobaciones de la importación sin colocar nada (marcas, partes, recursos ajenos y
+   bloques copiados); lo que finge lo mira el motor de `CHECK.html`, `site/.pcs/check.js`, que también se puede llamar
+   desde node (exporta su API); si no, queda para el censo del paso 10.
    Abre `site/index.html` y compara página a página con el diseño original, en escritorio y en móvil.
 10. **El censo funcional, por un agente que NO hizo la adaptación**: cada elemento interactivo de cada página
     (enlace, botón, campo, formulario, lista, menú, vídeo) y cada recurso externo, con su estado (funciona / falso /
     pendiente) y su plan. En el proyecto va en «Censo funcional» de `files/design/PROJECT.md`, y lo que quede, en
-    «Pendientes conocidos».
+    «Pendientes conocidos». Si te encargaron adaptar y censar a la vez, adapta y di en tu respuesta que el censo lo
+    tiene que hacer otro agente: no firmes el tuyo.
 11. **Devuelve el adaptado al diseñador** (en el proyecto: `bin/cli public-site-export from=files/design/adaptado
     destination=<carpeta fuera del proyecto> zip=yes`; si el sitio ya está importado con ese nombre, `from=` no vale:
     importa antes el adaptado y exporta con `site=<nombre>`), con el aviso de que siga trabajando desde ahí.
@@ -162,8 +173,8 @@ se entregó.
 ## 5. Terminado cuando
 
 - Hay una página en `site/` por cada página del original, y ningún archivo que esta skill no pida.
-- `CHECK.html` no da ningún aviso, salvo el de un servicio externo legítimo que no está en su lista, anotado en
-  «Pendientes conocidos».
+- `CHECK.html` no da ningún aviso, salvo los anotados en «Pendientes conocidos»: un servicio externo legítimo que no
+  está en su lista, o un destino o una acción que no se saben (regla 4).
 - **Fidelidad**: fuera de las marcas y de lo que fingía, el texto y el marcado de cada página son los del original (sin
   contar espacios, saltos de línea ni rutas), y abierta con doble clic se ve igual en escritorio y en móvil.
 - Ninguna ruta local (`src`, `href`, `srcset`, `url()`) está rota y ninguna apunta al dominio del diseñador.

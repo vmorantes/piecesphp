@@ -44,40 +44,42 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
             <?php if (count($importers) === 0): ?>
             <p><?= __($langGroup, 'No hay importadores disponibles para tu usuario.'); ?></p>
             <?php else: ?>
-            <table class="ui selectable very basic table content-table" data-transfer-table="import">
-                <thead>
-                    <tr>
-                        <th><?= __($langGroup, 'Entidad'); ?></th>
-                        <th><?= __($langGroup, 'Descripción'); ?></th>
-                        <th class="collapsing"><?= __($langGroup, 'Acciones'); ?></th>
-                        <?php if ($isRoot): ?>
-                        <th class="collapsing"><?= __($langGroup, 'Activo'); ?></th>
-                        <?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($importers as $importer): ?>
-                    <?php //Apagada: gris y sin enlaces; el interruptor sigue activo para volver a encenderla. ?>
-                    <?php $off = $importer['enabled'] ? '' : 'disabled'; ?>
-                    <tr data-transfer-row="import-<?= $escape($importer['key']); ?>">
-                        <td class="<?= $off; ?>"><?= $escape($importer['title']); ?></td>
-                        <td class="<?= $off; ?>"><?= $escape($importer['description']); ?></td>
-                        <td class="collapsing <?= $off; ?>">
-                            <?php
-                                $templates = [RowActions::action(__($langGroup, 'Plantilla XLSX'), $importer['templateXlsx'], 'file excel outline')];
-                                if ($importer['templateCsv'] !== null) {
-                                    $templates[] = RowActions::action(__($langGroup, 'Plantilla CSV'), $importer['templateCsv'], 'file alternate outline');
-                                }
-                            ?>
-                            <?= RowActions::cell(RowActions::action(__($langGroup, 'Importar'), $importer['link'], 'file import'), $templates); ?>
-                        </td>
-                        <?php if ($isRoot): ?>
-                        <td><?= $toggle('import', $importer); ?></td>
-                        <?php endif; ?>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <div class="ui segment">
+                <table class="ui selectable very basic table content-table" data-transfer-table="import">
+                    <thead>
+                        <tr>
+                            <th><?= __($langGroup, 'Entidad'); ?></th>
+                            <th><?= __($langGroup, 'Descripción'); ?></th>
+                            <th class="collapsing"><?= __($langGroup, 'Acciones'); ?></th>
+                            <?php if ($isRoot): ?>
+                            <th class="collapsing"><?= __($langGroup, 'Activo'); ?></th>
+                            <?php endif; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($importers as $importer): ?>
+                        <?php //Apagada: gris y sin enlaces; el interruptor sigue activo para volver a encenderla. ?>
+                        <?php $off = $importer['enabled'] ? '' : 'disabled'; ?>
+                        <tr data-transfer-row="import-<?= $escape($importer['key']); ?>">
+                            <td class="<?= $off; ?>"><?= $escape($importer['title']); ?></td>
+                            <td class="<?= $off; ?>"><?= $escape($importer['description']); ?></td>
+                            <td class="collapsing <?= $off; ?>">
+                                <?php
+                                    $templates = [RowActions::action(__($langGroup, 'Plantilla XLSX'), $importer['templateXlsx'], 'file excel outline')];
+                                    if ($importer['templateCsv'] !== null) {
+                                        $templates[] = RowActions::action(__($langGroup, 'Plantilla CSV'), $importer['templateCsv'], 'file alternate outline');
+                                    }
+                                ?>
+                                <?= RowActions::cell(RowActions::action(__($langGroup, 'Importar'), $importer['link'], 'file import'), $templates); ?>
+                            </td>
+                            <?php if ($isRoot): ?>
+                            <td><?= $toggle('import', $importer); ?></td>
+                            <?php endif; ?>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
             <?php endif; ?>
         </div>
 
@@ -86,42 +88,44 @@ $toggle = function (string $kind, array $row) use ($escape, $langGroup): string 
             <?php if (count($exporters) === 0): ?>
             <p><?= __($langGroup, 'No hay exportadores disponibles para tu usuario.'); ?></p>
             <?php else: ?>
-            <table class="ui selectable very basic table content-table" data-transfer-table="export">
-                <thead>
-                    <tr>
-                        <th><?= __($langGroup, 'Entidad'); ?></th>
-                        <th><?= __($langGroup, 'Descripción'); ?></th>
-                        <th class="collapsing"><?= __($langGroup, 'Acciones'); ?></th>
-                        <?php if ($isRoot): ?>
-                        <th class="collapsing"><?= __($langGroup, 'Activo'); ?></th>
-                        <?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($exporters as $exporter): ?>
-                    <?php $off = $exporter['enabled'] ? '' : 'disabled'; ?>
-                    <tr data-transfer-row="export-<?= $escape($exporter['key']); ?>">
-                        <td class="<?= $off; ?>"><?= $escape($exporter['title']); ?></td>
-                        <td class="<?= $off; ?>"><?= $escape($exporter['description']); ?></td>
-                        <td class="collapsing <?= $off; ?>">
-                            <?php
-                                $downloads = [];
-                                if ($exporter['downloadXlsx'] !== null) {
-                                    $downloads[] = RowActions::action(__($langGroup, 'Descargar XLSX'), $exporter['downloadXlsx'], 'file excel');
-                                }
-                                if ($exporter['downloadCsv'] !== null) {
-                                    $downloads[] = RowActions::action(__($langGroup, 'Descargar CSV'), $exporter['downloadCsv'], 'file csv');
-                                }
-                            ?>
-                            <?= RowActions::cell(RowActions::action(__($langGroup, 'Exportar'), $exporter['link'], 'file export'), $downloads); ?>
-                        </td>
-                        <?php if ($isRoot): ?>
-                        <td><?= $toggle('export', $exporter); ?></td>
-                        <?php endif; ?>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <div class="ui segment">
+                <table class="ui selectable very basic table content-table" data-transfer-table="export">
+                    <thead>
+                        <tr>
+                            <th><?= __($langGroup, 'Entidad'); ?></th>
+                            <th><?= __($langGroup, 'Descripción'); ?></th>
+                            <th class="collapsing"><?= __($langGroup, 'Acciones'); ?></th>
+                            <?php if ($isRoot): ?>
+                            <th class="collapsing"><?= __($langGroup, 'Activo'); ?></th>
+                            <?php endif; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($exporters as $exporter): ?>
+                        <?php $off = $exporter['enabled'] ? '' : 'disabled'; ?>
+                        <tr data-transfer-row="export-<?= $escape($exporter['key']); ?>">
+                            <td class="<?= $off; ?>"><?= $escape($exporter['title']); ?></td>
+                            <td class="<?= $off; ?>"><?= $escape($exporter['description']); ?></td>
+                            <td class="collapsing <?= $off; ?>">
+                                <?php
+                                    $downloads = [];
+                                    if ($exporter['downloadXlsx'] !== null) {
+                                        $downloads[] = RowActions::action(__($langGroup, 'Descargar XLSX'), $exporter['downloadXlsx'], 'file excel');
+                                    }
+                                    if ($exporter['downloadCsv'] !== null) {
+                                        $downloads[] = RowActions::action(__($langGroup, 'Descargar CSV'), $exporter['downloadCsv'], 'file csv');
+                                    }
+                                ?>
+                                <?= RowActions::cell(RowActions::action(__($langGroup, 'Exportar'), $exporter['link'], 'file export'), $downloads); ?>
+                            </td>
+                            <?php if ($isRoot): ?>
+                            <td><?= $toggle('export', $exporter); ?></td>
+                            <?php endif; ?>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
             <?php endif; ?>
         </div>
 
