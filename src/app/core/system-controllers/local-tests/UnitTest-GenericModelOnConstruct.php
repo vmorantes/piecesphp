@@ -101,11 +101,11 @@ CliActions::make('unit-tests:core/generic-model-on-construct', function ($args) 
         $check($constructor !== '' && mb_strpos($constructor, $forma) === false,
             "c3 el constructor no nombra «{$forma}»");
     }
-    //Y la firma se conserva aunque el tercer argumento ya no decida nada: un clon puede pasarlo.
+    //La firma: el tercer parámetro, que no decidía nada, salió (P413). Un clon que aún lo pase no rompe: PHP ignora el sobrante.
     $parametros = (new \ReflectionMethod(BaseController::class, '__construct'))->getParameters();
     $nombres = array_map(fn (\ReflectionParameter $p): string => $p->getName(), $parametros);
-    $check($nombres === ['auto_model', 'group_database_model', 'system_models'],
-        'c4 la firma del constructor no cambió', implode(', ', $nombres));
+    $check($nombres === ['auto_model', 'group_database_model'],
+        'c4 la firma del constructor es auto_model y group_database_model', implode(', ', $nombres));
 
     echoTerminal(' ');
     $total = $passed + $failed;

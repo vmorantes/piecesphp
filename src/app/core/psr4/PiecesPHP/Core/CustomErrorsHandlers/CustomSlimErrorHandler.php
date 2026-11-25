@@ -75,6 +75,10 @@ class CustomSlimErrorHandler
                     'reference' => $reference,
                 ]);
             }
+            $branded = $this->brandedPage($message, $reference);
+            if ($branded !== null) {
+                return $response->withStatus(500)->write($branded);
+            }
             $title = function_exists('__') ? __('general', 'Error interno') : 'Error interno';
             $safe = fn(string $text): string => htmlspecialchars($text, \ENT_QUOTES, 'UTF-8');
             $html = "
@@ -171,6 +175,62 @@ class CustomSlimErrorHandler
             return $response->withStatus(500)->write($html);
 
         }
+    }
+
+    /**
+     * La página 500 con la marca, pintada a una cadena; null si no se puede, y entonces sale la suelta: un 500 no puede
+     * depender de lo que acaba de fallar.
+     *
+     * @param string $message
+     * @param string $reference
+     * @return string|null
+     */
+    private function brandedPage(string $message, string $reference): ?string
+    {
+        if (!function_exists('app_basepath')) {
+            return null;
+        }
+        $level = ob_get_level();
+        try {
+            //Dentro del try: si lo que falló es la configuración, app_basepath() puede volver a lanzar.
+            $view = $this->brandedViewPath();
+            if (!is_file($view)) {
+                throw new \RuntimeException('No existe la vista de la página 500.');
+            }
+            ob_start();
+            (static function (string $view, string $errorMessage, string $errorReference): void {
+                require $view;
+            })($view, $message, $reference);
+            //Una vista que deje búferes abiertos o cierre de más no da una página fiable.
+            if (ob_get_level() !== $level + 1) {
+                throw new \RuntimeException('Búferes de salida descuadrados al pintar la página 500.');
+            }
+            $html = ob_get_clean();
+            if (!is_string($html) || $html === '') {
+                throw new \RuntimeException('La vista de la página 500 no pintó nada.');
+            }
+            return $html;
+        } catch (\Throwable $e) {
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+            //Sin anotarlo, un clon con la página rota serviría siempre la suelta sin enterarse; la nota no puede lanzar.
+            try {
+                GenericHandler::logSoft($e, 'page500', ['reference' => $reference, 'class' => $e::class]);
+            } catch (\Throwable $ignored) {
+            }
+            return null;
+        }
+    }
+
+    /**
+     * La vista de la página 500 con la marca.
+     *
+     * @return string
+     */
+    protected function brandedViewPath(): string
+    {
+        return app_basepath('view/pages/500.php');
     }
 
     /**

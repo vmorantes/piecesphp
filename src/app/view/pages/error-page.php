@@ -10,8 +10,10 @@
  * @var string $errorText
  * @var string $errorFootnote Bajo el texto, en pequeño: «Código 403» o la hora.
  * @var array<int,array{text:string,url:string,icon?:string}> $errorActions La primera es la principal.
+ * @var bool $errorWithoutSession Sin preguntar por la persona: las preferencias del sitio y el selector de sin sesión.
  */
 $errorActions = isset($errorActions) && is_array($errorActions) ? $errorActions : [];
+$errorWithoutSession = isset($errorWithoutSession) && $errorWithoutSession === true;
 //El pie, como el del acceso: el propietario (vacío, el nombre de la aplicación) y los patrocinadores.
 $errorOwner = trim((string) get_config('owner'));
 $errorOwner = $errorOwner !== '' ? $errorOwner : (string) get_config('title_app');
@@ -19,17 +21,17 @@ $errorPartnersText = \PiecesPHP\Settings\Controllers\SettingsController::partner
 $errorPartners = trim((string) get_config('partners'));
 ?>
 <!DOCTYPE html>
-<html lang="<?= escape_html((string) get_config('app_lang')); ?>" dlang="<?= escape_html((string) get_config('default_lang')); ?>" class="no-js"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes(); ?>>
+<html lang="<?= escape_html((string) get_config('app_lang')); ?>" dlang="<?= escape_html((string) get_config('default_lang')); ?>" class="no-js"<?= \PiecesPHP\AdminPanel\Controllers\AdminPanelController::htmlPreferenceAttributes($errorWithoutSession); ?>>
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title><?= escape_html($errorPageTitle); ?></title>
-    <base href="<?= base_url(); ?>">
+    <base href="<?= escape_html(base_url()); ?>">
     <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon')); ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/plugins/fomantic-piecesphp/semantic.min.css'); ?>">
-    <link rel="stylesheet" href="<?= \PiecesPHP\CSSVariables::globalVersionedURL(); ?>">
+    <link rel="stylesheet" href="<?= escape_html(\PiecesPHP\CSSVariables::globalVersionedURL()); ?>">
     <link rel="stylesheet" href="<?= add_cache_stamp_to_url('statics/core/css/ui-pcs.css'); ?>">
     <?php $themeTogglePart = 'head'; include app_basepath('view/panel/built-in/content/theme-toggle.php'); ?>
 </head>
@@ -40,7 +42,7 @@ $errorPartners = trim((string) get_config('partners'));
     <div class="ui fullscreen vertical flex">
 
         <header class="ui basic center aligned segment">
-            <a class="ui medium header inline relaxed flex" href="<?= base_url(); ?>">
+            <a class="ui medium header inline relaxed flex" href="<?= escape_html(base_url()); ?>">
                 <?= \PiecesPHP\Settings\Controllers\SettingsController::brandImageTag('logo', 'ui mini image'); ?>
                 <?= escape_html((string) get_config('title_app')); ?>
             </a>

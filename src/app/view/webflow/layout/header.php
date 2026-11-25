@@ -14,10 +14,10 @@ $alternativesURL = Config::get_config('alternatives_url');
     <meta name="lang-messages-from-server-url" value="<?=base64_encode(\PiecesPHP\LocalizationSystem\Controllers\LocalizationSystemController::routeName('get-lang-messages-by-group'));?>">
     <meta name="config-admin-url" value="<?=base64EncodeOrDefault(jsonEncodeFallbackNull(get_config('admin_url')), '{}');?>">
     <meta name="front-configurations" value="<?=base64EncodeOrDefault(jsonEncodeFallbackNull(get_front_configurations()), '[]');?>">
-    <base href="<?=baseurl();?>">
-    <link href="<?=baseurl('statics/wf/css/normalize.css');?>" rel="stylesheet" type="text/css">
-    <link href="<?=baseurl('statics/wf/css/webflow.css');?>" rel="stylesheet" type="text/css">
-    <link href="<?=baseurl('statics/wf/css/PROJECT.webflow.css');?>" rel="stylesheet" type="text/css">
+    <base href="<?= escape_html(baseurl()); ?>">
+    <link href="<?= escape_html(baseurl('statics/wf/css/normalize.css')); ?>" rel="stylesheet" type="text/css">
+    <link href="<?= escape_html(baseurl('statics/wf/css/webflow.css')); ?>" rel="stylesheet" type="text/css">
+    <link href="<?= escape_html(baseurl('statics/wf/css/PROJECT.webflow.css')); ?>" rel="stylesheet" type="text/css">
     <script type="text/javascript">
     ! function(o, c) {
         var n = c.documentElement,

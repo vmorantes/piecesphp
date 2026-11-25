@@ -207,6 +207,12 @@ $lang = [
         'Ir a Inicio'                                                          => 'Go to home',
         "Reportar problema"                                                    => "Report problem",
     ],
+    'page500' => [
+        '500 - Error interno' => '500 - Internal error',
+        'Error interno'       => 'Internal error',
+        'Volver al inicio'    => 'Back to home',
+        'Reportar problema'   => 'Report problem',
+    ],
     'page503' => [
         '503 - En mantenimiento'                                   => '503 - In maintenance',
         'Mantenimiento'                                            => 'Maintenance',

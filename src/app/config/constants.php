@@ -34,6 +34,8 @@ define('ROOT_ID_AS_CONNECT_CONFIG_NAME', 'RootIsLoggedAsUser');
 //── Del clon ──
 //Importación y exportación sobre DataTransfer (lote 8, ADR 0022)
 define('DATA_IMPORT_EXPORT_MODULE', true);
+//Los importadores y exportadores de usuarios del módulo; en false, sin rutas, sin enlace en Ajustes ni fila en el centro
+define('DATA_IMPORT_EXPORT_USERS', true);
 
 //Módulo de imágenes integrado
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);

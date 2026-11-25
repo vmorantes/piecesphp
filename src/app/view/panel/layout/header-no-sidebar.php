@@ -14,7 +14,7 @@
     <meta name="logout-url" value="<?= base64_encode(\PiecesPHP\UserSystem\Controllers\UserSessionsController::routeName('logout')); ?>">
     <meta name="config-admin-url" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_config('admin_url')), '{}'); ?>">
     <meta name="front-configurations" value="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_front_configurations()), '[]'); ?>">
-    <base href="<?= baseurl(); ?>">
+    <base href="<?= escape_html(baseurl()); ?>">
     <?php \PiecesPHP\Core\Utilities\Helpers\MetaTags::setRobots('noindex, nofollow'); ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph(); ?>

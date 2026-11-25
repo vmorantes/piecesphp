@@ -374,9 +374,10 @@ class AdminPanelController extends BaseController
      * no. Detrás, las imágenes del cargador (`data-loader-*`, SettingsController::loaderHtmlAttributes()). Los usan los
      * encabezados del panel y las páginas con `<html>` propio (el acceso, sus problemas, los tokens, el error).
      *
+     * @param bool $withoutUser Los del sitio sin preguntar por la persona: la página 500 puede venir de la base caída
      * @return string
      */
-    public static function htmlPreferenceAttributes(): string
+    public static function htmlPreferenceAttributes(bool $withoutUser = false): string
     {
         $site = [
             'data-theme' => SettingsController::accessibilityThemeMode(),
@@ -389,7 +390,7 @@ class AdminPanelController extends BaseController
         ];
         //La página de error también la usa, y puede pintarse con la base caída: sin la persona, los del sitio.
         try {
-            $user = getLoggedFrameworkUser();
+            $user = $withoutUser ? null : getLoggedFrameworkUser();
             $values = $user === null ? $site : [
                 'data-theme' => self::themeModeOf((int) $user->id),
                 'data-text-size' => self::textSizeOf((int) $user->id),

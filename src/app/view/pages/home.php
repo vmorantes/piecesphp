@@ -60,7 +60,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div class="navigation-dots"></div>
 
                 <div class="item">
-                    <img loading="lazy" src="<?= baseurl("img-gen/400/300"); ?>">
+                    <img loading="lazy" src="<?= escape_html(baseurl("img-gen/400/300")); ?>">
                     <div class="caption">
                         <div class="title">Lorem ipsum dolor sit.</div>
                         <div class="text">Reiciendis dolore minima officia assumenda asperiores quam</div>
@@ -68,7 +68,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 </div>
 
                 <a class="item" href="//google.com" rel="noreferrer" target="_blank">
-                    <img loading="lazy" src="<?= baseurl("img-gen/400/300"); ?>">
+                    <img loading="lazy" src="<?= escape_html(baseurl("img-gen/400/300")); ?>">
                     <div class="caption">
                         <div class="title">Lorem ipsum dolor sit.</div>
                         <div class="text">Reiciendis dolore minima officia assumenda asperiores quam</div>
@@ -76,25 +76,25 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 </a>
 
                 <a class="item" href="//google.com" rel="noreferrer" target="_blank">
-                    <img loading="lazy" src="<?= baseurl("img-gen/400/300"); ?>">
+                    <img loading="lazy" src="<?= escape_html(baseurl("img-gen/400/300")); ?>">
                 </a>
 
                 <div class="item">
-                    <img loading="lazy" src="<?= baseurl("img-gen/400/300"); ?>">
+                    <img loading="lazy" src="<?= escape_html(baseurl("img-gen/400/300")); ?>">
                     <div class="caption">
                         <div class="title">Lorem ipsum dolor sit.</div>
                     </div>
                 </div>
 
                 <div class="item">
-                    <img loading="lazy" src="<?= baseurl("img-gen/400/300"); ?>">
+                    <img loading="lazy" src="<?= escape_html(baseurl("img-gen/400/300")); ?>">
                     <div class="caption">
                         <div class="text">Reiciendis dolore minima officia assumenda asperiores quam</div>
                     </div>
                 </div>
 
                 <div class="item">
-                    <img loading="lazy" src="<?= baseurl("img-gen/400/300"); ?>">
+                    <img loading="lazy" src="<?= escape_html(baseurl("img-gen/400/300")); ?>">
                 </div>
 
             </div>

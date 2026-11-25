@@ -40,7 +40,7 @@ El framework dispara eventos predefinidos en momentos críticos del ciclo de vid
 | --- | --- | --- |
 | `EVENT_INIT_ROUTES_NAME` | `AppRoutes` / `InitRoutes` | Al terminar de registrar todas las rutas del sistema. |
 | `EVENT_ADD_DYNAMIC_TRANSLATIONS_NAME` | `AddDynamicTransaltions` / `added` | Tras cargar las traducciones dinámicas desde la base de datos. |
-| `EVENT_CLI_ROUTE_NOT_FOUND_NAME` | `cli` / `CliRouteNotFound` | Cuando en modo CLI no se encuentra la ruta pedida; sirve para comandos personalizados. Solo se despacha si hay escuchadores. |
+| `EVENT_CLI_ROUTE_NOT_FOUND_NAME` | `cli` / `CliRouteNotFound` | Cuando `bin/cli` recibe una acción que no existe; sirve para comandos personalizados. Solo se despacha si hay escuchadores, y entonces en lugar de la lista de acciones. Recibe el nombre de la acción tal como se tecleó: trátalo como entrada no confiable (compáralo con una lista cerrada o un patrón; nunca lo metas en una orden de shell, una ruta o SQL, y quítale los caracteres de control antes de imprimirlo). El escuchador que no la atiende termina con `exit(1)`, para que una errata no pase en silencio. |
 
 !!! note
     `AddDynamicTransaltions` está mal escrito en el código (falta una «l»: «Translations»). Es el valor real de la

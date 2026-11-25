@@ -64,12 +64,9 @@ class BaseController
      * @param boolean $auto_model En true establece un modelo genérico por defecto.
      * @param string $group_database_model El grupo de configuraciones de base de datos por defecto. Nota: Esto si se está usando con las
      * configuraciones automáticas en PiecesPHP
-     * @param boolean $system_models YA NO SE USA. Se conserva en la firma porque un clon puede
-     * estar pasándolo: buscaba el modelo entre los predefinidos del sistema, y esa búsqueda se
-     * retiró con la deducción por nombre de clase.
      * @return BaseController
      */
-    public function __construct(bool $auto_model = true, string $group_database_model = 'default', $system_models = false)
+    public function __construct(bool $auto_model = true, string $group_database_model = 'default')
     {
 
         if (!get_config('lock_assets')) {

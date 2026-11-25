@@ -39,7 +39,7 @@ if RAIZ != HERRAMIENTAS:
 PHP_PASES = ['AlignPHPCode', 'MergeNamespaceWithOpenTag', 'RemoveSemicolonAfterCurly', 'RestoreComments', 'ShortArray', 'ExtraCommaInArray']
 PHP_ARGUMENTOS = ['--psr2', '--indent_with_space=4', '--passes=' + ','.join(PHP_PASES)]
 
-#──── El universo: lo versionado con estas extensiones, menos lo de terceros, lo compilado y lo dudoso ──────────
+#──── El universo: lo versionado y lo nuevo no ignorado con estas extensiones, menos terceros, compilado y dudoso ──
 EXTENSIONES = ('.php', '.js', '.scss', '.css')
 FUERA_CARPETAS = ('src/vendor/', 'src/statics/plugins/', 'node_modules/', 'bin/tools/', 'files/design/')
 FUERA_SUFIJOS = ('.min.js', '.min.css')
@@ -108,9 +108,10 @@ def excluida_por_el_clon(ruta, exclusiones):
     return False
 
 
-def clasificar(con_nuevos=False):
-    #Con los nuevos sin versionar (y no ignorados) para formatearlos antes de su commit; la foto, solo lo versionado.
-    salida = subprocess.run(['git', '-C', RAIZ, 'ls-files', '-z'] + (['--cached', '--others', '--exclude-standard'] if con_nuevos else []) + ['--'] + ['*' + e for e in EXTENSIONES], capture_output=True, check=True).stdout
+def clasificar():
+    #Con los nuevos sin versionar (y no ignorados): la comprobación y la foto miran el mismo universo, o una verificación
+    #corrida antes del commit de un archivo nuevo daría la foto por buena y quedaría rancia al commitearlo.
+    salida = subprocess.run(['git', '-C', RAIZ, 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--'] + ['*' + e for e in EXTENSIONES], capture_output=True, check=True).stdout
     universo, compilados = [], []
     del_clon = exclusiones_del_clon()
     fuera = FUERA_CARPETAS + estaticos_de_sitios_importados()
@@ -126,7 +127,7 @@ def clasificar(con_nuevos=False):
 
 def guardar_universo(universo, compilados):
     datos = {
-        'why': 'Lo que formatea bin/formatear (P233, P235, P236): lo versionado .php, .js, .scss y .css, menos lo de terceros, lo compilado y lo dudoso. Las reglas viven en bin/formatear; esto es su foto (bin/artefactos).',
+        'why': 'Lo que formatea bin/formatear (P233, P235, P236): lo versionado y lo nuevo no ignorado .php, .js, .scss y .css, menos lo de terceros, lo compilado y lo dudoso. Las reglas viven en bin/formatear; esto es su foto (bin/artefactos).',
         'fuera_por_carpeta_o_sufijo': list(FUERA_CARPETAS) + list(estaticos_de_sitios_importados()) + ['*' + s for s in FUERA_SUFIJOS] + exclusiones_del_clon(),
         'compilados': compilados,
         'dudosos': DUDOSOS,
@@ -236,7 +237,7 @@ def main(argumentos):
         if not lenguajes or any(l not in EXTENSIONES for l in lenguajes):
             print('bin/formatear: --solo=%s no es una lista de %s' % (solo, ','.join(e[1:] for e in EXTENSIONES)), file=sys.stderr)
             return 2
-    universo, compilados = clasificar(con_nuevos='--universo' not in argumentos)
+    universo, compilados = clasificar()
     if '--universo' in argumentos:
         if '--guardar' in argumentos:
             guardar_universo(universo, compilados)

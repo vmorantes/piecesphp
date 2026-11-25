@@ -63,8 +63,10 @@ class DataImportExportUtilityRoutes
         if (self::ENABLE) {
 
             $groupAdministration = DataTransferController::routes($groupAdministration);
-            $groupAdministration = self::importer($groupAdministration, UsersImportDefinition::class);
-            $groupAdministration = self::exporter($groupAdministration, UsersExportDefinition::class);
+            if (DATA_IMPORT_EXPORT_USERS) {
+                $groupAdministration = self::importer($groupAdministration, UsersImportDefinition::class);
+                $groupAdministration = self::exporter($groupAdministration, UsersExportDefinition::class);
+            }
 
             self::staticResolver($groupAdministration);
 

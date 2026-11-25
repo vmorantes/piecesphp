@@ -215,7 +215,7 @@ CliActions::make('unit-tests:core/formatear', function ($args) {
         [$codigo, $salida] = $correr('--universo');
         $lista = explode("\n", $salida);
         //La foto es lo versionado: lo nuevo se formatea (a2), pero no entra en la lista hasta su commit.
-        $check(in_array('src/index.php', $lista, true) && !in_array("src/app/{$prefijo}/zz.php", $lista, true), 'b2 CANARIO: --universo lista lo versionado (src/index.php), no lo nuevo sin versionar');
+        $check(in_array('src/index.php', $lista, true) && in_array("src/app/{$prefijo}/zz.php", $lista, true), 'b2 CANARIO: --universo lista lo versionado (src/index.php) y lo nuevo sin versionar, como --check');
         $ajenos = array_filter($lista, fn (string $r): bool => preg_match('#^(src/vendor/|src/statics/plugins/|node_modules/|bin/tools/)|\.min\.(js|css)$#', $r) === 1);
         $check(count($lista) > 1000 && $ajenos === [] && !in_array('src/statics/core/js/helpers-lib/UtilPieces.js', $lista, true), 'b3 el universo no tiene terceros, minificados ni lo compilado (UtilPieces.js)', implode(', ', array_slice($ajenos, 0, 5)));
 

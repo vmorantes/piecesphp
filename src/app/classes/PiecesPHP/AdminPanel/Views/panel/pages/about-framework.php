@@ -25,7 +25,7 @@ $langGroup = 'about-framework';
         <div class="ui segment">
             <div class="ui stackable two column middle aligned grid">
                 <div class="column">
-                    <img class="about-framework-logo invert-on-dark" src="<?= base_url('statics/images/framework/main_logo.svg') ?>" alt="PiecesPHP">
+                    <img class="about-framework-logo invert-on-dark" src="<?= escape_html(base_url('statics/images/framework/main_logo.svg')); ?>" alt="PiecesPHP">
                     <div class="ui horizontal relaxed list">
                         <div class="item">
                             <div class="content">
@@ -55,7 +55,7 @@ $langGroup = 'about-framework';
                     </p>
                 </div>
                 <div class="computer only right aligned column">
-                    <img class="about-framework-decorated" src="<?= base_url('statics/images/framework/animated_square.gif') ?>" alt="">
+                    <img class="about-framework-decorated" src="<?= escape_html(base_url('statics/images/framework/animated_square.gif')); ?>" alt="">
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@ $langGroup = 'about-framework';
         </div>
 
         <div class="about-framework-footer">
-            <img class="invert-on-dark" src="<?= base_url('statics/images/framework/developer_by_logo.png'); ?>" alt="">
+            <img class="invert-on-dark" src="<?= escape_html(base_url('statics/images/framework/developer_by_logo.png')); ?>" alt="">
             <div><?= date('Y') ?></div>
         </div>
 

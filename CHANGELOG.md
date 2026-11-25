@@ -1,3 +1,26 @@
+# 10.65.0 (24-11-2026)
+
+- **La página de error 500, con la imagen de marca**: fuera de local, un error interno que se responde en HTML sale con
+  la misma página que el 403, el 404 y el 503 (logo, tema claro u oscuro, «Volver al inicio» y «Reportar problema»),
+  con el mensaje genérico y la referencia para reportarlo. No enseña nada del error. Si esa página no puede pintarse,
+  sale la página simple de siempre y queda anotado (también si la base cae antes de que la aplicación termine de
+  arrancar). Las respuestas JSON y lo que se ve en local no cambian. Los textos van en el grupo de traducción
+  `page500`. `AdminPanelController::htmlPreferenceAttributes()` admite un parámetro opcional: si tu proyecto la
+  redeclara en una subclase, añádele `bool $withoutUser = false`.
+- **Las páginas de error, endurecidas**: escapan lo que imprimen de la dirección de la instalación. Configura
+  `$config['allowed_hosts']` en producción si aún no lo has hecho (Avisos del sistema te lo recuerda).
+- **`EVENT_CLI_ROUTE_NOT_FOUND` se dispara**: una acción de `bin/cli` que no existe llega al evento si hay quien lo
+  escuche (antes nunca se alcanzaba, aunque la documentación lo prometía). El escuchador recibe el nombre de la
+  acción y decide; si no la atiende, debe terminar con `exit(1)`, o una errata en una orden encadenada pasaría en
+  silencio. Sin escuchadores, todo sigue igual.
+- **Los importadores de usuarios, opcionales**: con la constante `DATA_IMPORT_EXPORT_USERS` en `false` (sección «Del
+  clon» de `src/app/config/constants.php`), el framework no registra el importador ni el exportador de usuarios: sin sus
+  rutas, sin la fila en Importar y exportar y sin el enlace «Importar usuarios» de Ajustes. Si tu `constants.php` no la
+  trae, vale `true` (todo como antes).
+- **`BaseController::__construct()` pierde su tercer parámetro**, `$system_models`, que no hacía nada desde la
+  campaña. Pasarlo por posición sigue funcionando (PHP ignora el argumento de más); pasarlo con nombre
+  (`system_models:`) da un error: quítalo.
+
 # 10.64.0 (24-11-2026)
 
 - **Seguridad: los permisos al editar, reforzados en varios módulos del panel.** Actualiza cuanto antes. Si tu proyecto

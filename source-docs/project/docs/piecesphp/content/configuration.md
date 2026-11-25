@@ -797,6 +797,7 @@ Casi todo son banderas de módulos, en `true` o `false`. Cada módulo las lee en
 | `PUBLICATIONS_MODULE`, `NEWS_MODULE`, `NEWSLETTER_MODULE`, `EVENTS_LOG_MODULE`, `FILE_MANAGER_MODULE` | los módulos del mismo nombre |
 | `DOCUMENTS_MODULE_ENABLE`, `FORMS_MODULE_ENABLE`, `FORMS_MODULE_CATEGORIES_ENABLE`, `FORMS_MODULE_DOCUMENTS_TYPES_ENABLE` | Documentos y Formularios. Dependen entre sí: las categorías exigen también `FORMS_MODULE_ENABLE`; los tipos de documento exigen además `DOCUMENTS_MODULE_ENABLE` y `FORMS_MODULE_ENABLE`; Documentos exige que los tipos estén activos. |
 | `DATA_IMPORT_EXPORT_MODULE` | [Importar y exportar datos](../new-features/data-transfer.md) |
+| `DATA_IMPORT_EXPORT_USERS` | El importador y el exportador de usuarios de Importar y exportar. Si tu `constants.php` no la tiene, vale `true`. |
 | `PIECES_PHP_DYNAMIC_IMAGES_ENABLE` | el módulo de imágenes integrado |
 | `LOCATIONS_ENABLED` | Ubicaciones |
 | `DIRECTORY_MODULE`, `GEO_MODULE`, `NOTIFICATIONS_MODULE`, `MCP_MODULE` | El Directorio, el Mapa de contenidos, las notificaciones (con Notificaciones apagada no hay campana ni se guardan avisos nuevos) y el asistente con sus herramientas. Si tu `constants.php` es anterior a la 10.54 y no las tiene, valen `true`. |

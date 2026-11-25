@@ -1020,6 +1020,11 @@ if (TerminalData::getInstance()->isTerminal()) {
                     exit(1);
                 }
             } else {
+                //Quien escucha el evento decide qué hacer con lo desconocido, antes de la lista: si no, nunca se alcanzaría.
+                if (BaseEventDispatcher::hasDefaultListeners(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME)) {
+                    BaseEventDispatcher::defaultDispatch(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME, $actionName);
+                    return;
+                }
                 echoTerminal("Acción no reconocida: {$actionName}", true, "\r\n", '33');
                 foreach ($cliActions as $action) {
                     $name = $action->getName();
@@ -1031,7 +1036,7 @@ if (TerminalData::getInstance()->isTerminal()) {
             return;
         } elseif (BaseEventDispatcher::hasDefaultListeners(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME)) {
             //Por eventos desacoplados del sistema de rutas
-            BaseEventDispatcher::defaultDispatch(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME, null);
+            BaseEventDispatcher::defaultDispatch(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME, $actionName);
             return;
         } else {
             echoTerminal("No coincide ninguna ruta y no hay órdenes disponibles", true, "\r\n", '33');

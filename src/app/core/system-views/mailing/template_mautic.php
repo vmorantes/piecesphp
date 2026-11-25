@@ -39,7 +39,7 @@ $langGroup = 'TestPCSPHP-Lang';
     </li>
 </ul>
 
-<a href="<?= baseurl(); ?>" target="_blank" style="font-size: 20px; font-weight: bold;">
+<a href="<?= escape_html(baseurl()); ?>" target="_blank" style="font-size: 20px; font-weight: bold;">
     <?= __($langGroup, 'Ver más'); ?>
 </a>
 

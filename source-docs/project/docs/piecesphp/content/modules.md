@@ -192,7 +192,8 @@ class MiModuloController extends AdminPanelController
   existente comprueba el permiso sobre ESE registro antes de tocar nada, con
   `self::allowedRoute('forms-edit', ['id' => $mapper->id])` y `return throw403($request);` si no, y relanza
   `HttpForbiddenException` antes de su `catch (\Exception)` (si no, el 403 llega como un error genérico). El modelo es
-  la acción de guardar de `PublicationsController`.
+  la acción de guardar de `PublicationsController`. Si el método que guarda lo llama además otra acción con su propia autorización, la
+  recomprobación va en la acción de la ruta, antes de delegar (como `OrganizationsController::action()`).
 - Si el módulo tiene zona pública, añade `MiModuloPublicController extends BaseController` como
   `PublicationsPublicController`, y la firma pasa a `routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)`.
 

@@ -32,7 +32,7 @@ Cuando ejecutas un comando en la terminal, PiecesPHP sigue este orden estricto d
 
 1.  **Rutas del Sistema:** Primero intenta hacer coincidir la acción contra las rutas registradas en el cargador de la aplicación.
 2.  **Acciones Personalizadas (`CliActions`):** Si no hay coincidencia en rutas, busca en las acciones registradas mediante `CliActions::make()`.
-3.  **Eventos desacoplados:** Si falla lo anterior, dispara el evento `EVENT_CLI_ROUTE_NOT_FOUND_NAME`.
+3.  **Eventos desacoplados:** Si falla lo anterior y hay quien escuche el evento `EVENT_CLI_ROUTE_NOT_FOUND_NAME`, se dispara con el nombre de la acción, en lugar de la lista de acciones. El escuchador que no la atiende termina con `exit(1)`.
 4.  **Error:** Si nada de lo anterior responde, muestra el mensaje de error de terminal.
 
 ---

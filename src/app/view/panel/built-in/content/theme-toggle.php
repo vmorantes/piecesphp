@@ -6,11 +6,16 @@
  *
  * @var string $themeTogglePart `head` (el script en línea, que aplica lo guardado antes de pintar) o `button`.
  */
-//La página de error puede pintarse con la base caída: sin poder saberlo, como sin sesión.
-try {
-    $themeToggleSession = getLoggedFrameworkUser() !== null;
-} catch (\Throwable $e) {
+//La página de error puede pintarse con la base caída: sin poder saberlo, como sin sesión. La 500, sin la persona ya
+//cargada, ni pregunta ($errorWithoutSession).
+if (isset($errorWithoutSession) && $errorWithoutSession === true) {
     $themeToggleSession = false;
+} else {
+    try {
+        $themeToggleSession = getLoggedFrameworkUser() !== null;
+    } catch (\Throwable $e) {
+        $themeToggleSession = false;
+    }
 }
 if ($themeToggleSession) {
     return;

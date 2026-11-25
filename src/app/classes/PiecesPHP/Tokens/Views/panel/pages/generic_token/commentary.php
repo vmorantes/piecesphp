@@ -6,7 +6,7 @@ $langGroup = GenericTokenController::LANG_GROUP;
 
 <div class="ui fixed inverted menu">
     <div class="ui container" id="conaner">
-        <a href='<?= base_url(); ?>' class="header item">
+        <a href='<?= escape_html(base_url()); ?>' class="header item">
             <?= get_title(); ?>
         </a>
 

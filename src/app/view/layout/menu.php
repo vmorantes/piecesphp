@@ -124,7 +124,7 @@ if (!empty($langs)) {
 
         <div class="logo">
             <a href="./">
-                <img src="<?= baseurl('statics/images/navbar-logo.png'); ?>">
+                <img src="<?= escape_html(baseurl('statics/images/navbar-logo.png')); ?>">
             </a>
         </div>
 

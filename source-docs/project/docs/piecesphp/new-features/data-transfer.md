@@ -45,6 +45,9 @@ para verlos funcionar, cópialos a tu módulo y regístralos (lo explica cada p�
 
 - **El módulo entero**: la constante `DATA_IMPORT_EXPORT_MODULE` de `src/app/config/constants.php`. En `false` no hay
   rutas, ni menú, ni portada, y registrar una definición no hace nada ni da error.
+- **El importador y el exportador de usuarios del framework**: la constante `DATA_IMPORT_EXPORT_USERS`, en la misma
+  sección del clon de `constants.php`. En `false` no se registran: sin sus rutas, sin su fila en la portada y sin el
+  enlace «Importar usuarios» de Ajustes. Si tu `constants.php` no la trae, vale `true`.
 - **Un importador o exportador concreto, desde el panel**: root tiene un interruptor por fila en la portada. Apagado,
   desaparece para los demás y **todas sus entradas responden 403**: formulario, subida, plantilla, descarga, vista
   previa, filtros guardados y terminal (también para root, hasta que lo vuelva a encender). Se guarda en la
