@@ -1,3 +1,33 @@
+# 10.66.0 (25-11-2026)
+
+- **Los tipos de usuario de fábrica, ajustables otra vez**: en `src/app/config/user-types.php`, el usuario general, el
+  institucional, comunicaciones, el administrador de organización y Google Play admiten lo mismo que un tipo propio
+  (perfil, organización, prioridad por debajo de 400, autoridad sobre los de su tipo, aprobación automática, acceso con
+  un proveedor externo, su lista de permisos y rutas de más). Root y la administración general solo admiten lo que
+  añade: textos, si se pueden crear, perfil y rutas. Hasta la versión 7 esto se hacía editando constantes de
+  `UsersModel`; la 10.45.0 movió esas lecturas a un registro y dejó los tipos de fábrica solo con su nombre, sin
+  avisarlo. **Si tu proyecto venía de la 7 con esas constantes editadas, pásalas a `user-types.php`**: la tabla de
+  equivalencias está en el manual, «Los tipos de usuario». Ningún tipo recibe todas las rutas, y una ruta reservada a
+  root no debe ir en `routes`: Avisos del sistema la marca y `bin/cli verify-integrity` falla.
+- **Lo que decide por esos ajustes los sigue**: la aprobación automática de un usuario, el listado de investigadores por
+  país de los informes y el Directorio leen ahora los tipos efectivos del proyecto, no una lista fija. Si tu proyecto
+  tiene tipos propios con perfil, desde esta versión **aparecen en el Directorio**.
+- **El administrador de organización sin organización avisa**: si `user-types.php` se la quita con el módulo de
+  organizaciones encendido, `bin/cli verify-integrity` lo dice (el módulo lo usa como administrador).
+
+- **Vuelven los formularios de usuario por tipo**: al crear, editar o ver el perfil de un usuario, el panel pinta el
+  formulario de su tipo (`src/app/classes/PiecesPHP/UserSystem/Views/usuarios/form-by-type/<modo>/<tipo>/form.php`) si existe, y el genérico si no.
+  Es lo que hacía antes de la 10.45.0, que lo cambió sin avisarlo: si tu proyecto había personalizado el formulario de
+  un tipo, vuelve a usarse. Los formularios de fábrica siguen incluyendo el genérico, con todo lo que ganó (etiquetas,
+  valores escapados, contraseña obligatoria al crear). Un tipo propio usa la carpeta `type-<código>`; un archivo vacío
+  cae al genérico. Ya no están en desuso. **Si conservas un formulario de usuario por tipo personalizado de antes, vuelve
+  a pintarse: revísalo** (que escape lo que imprime). Cómo escribir uno, en el manual, «Tipos de usuario».
+
+## ⚠ CAMBIOS INCOMPATIBLES
+
+- `UserTypes::CORE_TYPE_KEYS` sale (las claves que admite un tipo protegido son ahora `UserTypes::PROTECTED_TYPE_KEYS`).
+- `AllProfilesController::ONLY_TYPES` sale: el Directorio lista los tipos con perfil (`UserTypes::profileTypes()`).
+
 # 10.65.0 (24-11-2026)
 
 - **La página de error 500, con la imagen de marca**: fuera de local, un error interno que se responde en HTML sale con

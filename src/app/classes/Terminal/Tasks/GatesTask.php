@@ -57,6 +57,7 @@ class GatesTask extends TerminalTaskAbstract
         'unit-tests:core/backups-screen' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/cors' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/http-client' => ['bin/tools/sumidero-http/router.php'],
+        'unit-tests:core/retire-agents' => ['bin/tools/retirar-usuarios.php'],
         'unit-tests:core/lang-missing-english' => ['bin/tools/i18n/llamadas-i18n.js'],
         'unit-tests:core/injected-scripts' => [self::PERMISSIONS_MATRIX],
         'unit-tests:core/mail-log-screen' => [self::PERMISSIONS_MATRIX],

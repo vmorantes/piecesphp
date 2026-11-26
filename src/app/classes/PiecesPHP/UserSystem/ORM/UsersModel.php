@@ -116,7 +116,7 @@ class UsersModel extends EntityMapperExtensible
         self::STATUS_USER_REJECTED,
     ];
     /**
-     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::isAutoApproval(); sale en la 11.0.0
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::isAutoApproval(), y para ajustarlo 'autoApproval' en user-types.php; sale en la 11.0.0
      */
     const ARE_AUTO_APPROVAL = UserTypes::CORE_AUTO_APPROVAL;
 
@@ -145,27 +145,27 @@ class UsersModel extends EntityMapperExtensible
     const TYPES_USERS = UserTypes::CORE_LABELS;
 
     /**
-     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::priorities() o priority(); sale en la 11.0.0
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::priorities() o priority(), y para ajustarlo 'priority' en user-types.php; sale en la 11.0.0
      */
     const TYPES_USER_PRIORITY = UserTypes::CORE_PRIORITY;
 
     /**
-     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::hasAuthorityOverSameType(); sale en la 11.0.0
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::hasAuthorityOverSameType(), y para ajustarlo 'authorityOverSameType' en user-types.php; sale en la 11.0.0
      */
     const TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE = UserTypes::CORE_NO_AUTHORITY_OVER_SAME_TYPE;
 
     /**
-     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::requiresOrganization(); sale en la 11.0.0
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::requiresOrganization(), y para ajustarlo 'organization' en user-types.php; sale en la 11.0.0
      */
     const TYPES_USER_DONT_REQUIRE_ORGANIZATION = UserTypes::CORE_NO_ORGANIZATION;
 
     /**
-     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::shouldHaveProfile() o profileTypes(); sale en la 11.0.0
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::shouldHaveProfile() o profileTypes(), y para ajustarlo 'profile' en user-types.php; sale en la 11.0.0
      */
     const TYPES_USER_SHOULD_HAVE_PROFILE = UserTypes::CORE_PROFILE;
 
     /**
-     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::hasExternalLogin(); sale en la 11.0.0
+     * @deprecated 10.44.x: solo los de fábrica; usa UserTypes::hasExternalLogin(), y para ajustarlo 'externalLogin' en user-types.php; sale en la 11.0.0
      */
     const TYPES_WITH_EXTERNAL_LOGIN = UserTypes::CORE_EXTERNAL_LOGIN;
 

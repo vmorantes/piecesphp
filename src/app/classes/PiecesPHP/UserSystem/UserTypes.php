@@ -14,11 +14,11 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
  *
  * El registro de los tipos de usuario: cuáles hay, cómo se llaman, su prioridad y lo que cada uno
  * necesita. Los de fábrica son las constantes CORE_*; el proyecto añade, ajusta o retira en
- * `src/app/config/user-types.php` (ADR 0078), que se lee al primer uso. Con un error en el archivo
+ * `src/app/config/user-types.php` (ADR 0078 y 0090), que se lee al primer uso. Con un error en el archivo
  * no se aplica nada de él: rigen los de fábrica y el error queda en errors().
  *
  * Las listas `TYPES_*` y `ARE_AUTO_APPROVAL` de `UsersModel` son alias en desuso de estas constantes:
- * una constante no puede leer el archivo del proyecto, y estos métodos sí podrán.
+ * una constante no puede leer el archivo del proyecto, y estos métodos sí lo leen.
  *
  * @package     PiecesPHP\UserSystem
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -131,14 +131,15 @@ final class UserTypes
     ];
 
     /**
-     * Las claves que admite un tipo propio en `user-types.php`.
+     * Las claves que admite un tipo propio en `user-types.php`, y uno de fábrica que se puede retirar (ADR 0090).
      */
     const TYPE_KEYS = ['id', 'label', 'translations', 'description', 'descriptionTranslations', 'priority', 'organization', 'profile', 'externalLogin', 'authorityOverSameType', 'autoApproval', 'creatable', 'permissions', 'routes'];
 
     /**
-     * Las únicas que admite un tipo de fábrica: lo demás lo usa el código del framework.
+     * Las únicas que admiten root y la administración general: lo que añade. Su prioridad, su organización, su
+     * aprobación, su acceso externo, su segmento y su autoridad quedan fijos: administran la instalación (ADR 0090).
      */
-    const CORE_TYPE_KEYS = ['id', 'label', 'translations', 'description', 'descriptionTranslations', 'creatable'];
+    const PROTECTED_TYPE_KEYS = ['id', 'label', 'translations', 'description', 'descriptionTranslations', 'creatable', 'profile', 'routes'];
 
     /**
      * Las tres listas de rutas de `roles.php` con las que puede empezar un tipo propio.
@@ -151,7 +152,8 @@ final class UserTypes
     const PRIORITY_LIMIT = 500;
 
     /**
-     * Desde aquí, un tipo propio queda al nivel de la administración general: se avisa.
+     * Desde aquí, un tipo queda al nivel de la administración general: uno propio se avisa; uno de fábrica es error,
+     * porque puede llegar por el alta pública (ADR 0090, precisión 3).
      */
     const PRIORITY_WARNING = 400;
 
@@ -231,13 +233,32 @@ final class UserTypes
     }
 
     /**
-     * Lo que se aplica pero conviene revisar (una prioridad desde 400).
+     * Lo que se aplica pero conviene revisar: una prioridad desde 400, o un ajuste que choca con un módulo encendido
+     * (ADR 0090 §6). Lo del módulo se evalúa al pedirlo, como moduleConflicts(): al leer el archivo aún no existen sus
+     * constantes.
      *
      * @return string[]
      */
     public static function warnings(): array
     {
-        return self::state()['warnings'];
+        return array_merge(self::state()['warnings'], self::moduleWarnings(defined('ORGANIZATIONS_MODULE') && constant('ORGANIZATIONS_MODULE') === true));
+    }
+
+    /**
+     * Los avisos de un ajuste que choca con un módulo: el administrador de organización sin organización, con el módulo
+     * de organizaciones encendido. Aparte de warnings() para que la suite lo pruebe con el módulo encendido y apagado.
+     *
+     * @param bool $organizationsModule
+     * @return string[]
+     */
+    private static function moduleWarnings(bool $organizationsModule): array
+    {
+        $code = UsersModel::TYPE_USER_ADMIN_ORG;
+        $type = self::state()['types'][$code] ?? null;
+        if ($organizationsModule && $type !== null && !$type['organization']) {
+            return ["el tipo {$code} no pertenece a una organización (organization false) y ORGANIZATIONS_MODULE está encendido: " . self::MODULE_ASSIGNMENTS[$code]['ORGANIZATIONS_MODULE']];
+        }
+        return [];
     }
 
     /**
@@ -506,6 +527,37 @@ final class UserTypes
     }
 
     /**
+     * Las rutas reservadas a root que algún tipo con rol, distinto de root, trae en `routes`: se las daría a quien no
+     * es root (ADR 0090, precisión 4). Se evalúa con las rutas ya registradas, como moduleConflicts(); sin registro,
+     * nada (verify-integrity lo comprueba aparte). Reservada es la que tiene como roles admitidos solo a root en el
+     * registro de rutas (`get_routes()`). Los tipos sin rol se saltan porque sus `routes` no conceden nada: los mismos
+     * que salta roles().
+     *
+     * @return string[]
+     */
+    public static function rootOnlyRoutes(): array
+    {
+        $registered = get_routes();
+        if (!is_array($registered)) {
+            return [];
+        }
+        $withRole = array_column(self::roles(['generals' => [], 'administratives' => [], 'superiors' => []]), 'code');
+        $found = [];
+        foreach (self::state()['types'] as $code => $type) {
+            if ($code === UsersModel::TYPE_USER_ROOT || !in_array($code, $withRole, true)) {
+                continue;
+            }
+            foreach (array_unique($type['routes']) as $name) {
+                $roles = $registered[$name]['roles_allowed'] ?? null;
+                if (is_array($roles) && array_values(array_unique(array_map('intval', $roles))) === [UsersModel::TYPE_USER_ROOT]) {
+                    $found[] = "el tipo {$code} trae en routes «{$name}», que es solo de root";
+                }
+            }
+        }
+        return $found;
+    }
+
+    /**
      * Lo efectivo, leído del archivo la primera vez y memorizado.
      *
      * @return array{types:array<int,array{label:?string,priority:int,organization:bool,profile:bool,externalLogin:bool,authorityOverSameType:bool,autoApproval:bool,creatable:bool,permissions:string,routes:string[],translations:array<string,string>,description:?string,descriptionTranslations:array<string,string>}>,retired:int[],errors:string[],warnings:string[]}
@@ -620,10 +672,11 @@ final class UserTypes
                 continue;
             }
             $isCore = array_key_exists($id, $factory);
+            $isProtected = in_array($id, self::PROTECTED, true);
             foreach (array_keys($entry) as $key) {
-                if (!in_array($key, $isCore ? self::CORE_TYPE_KEYS : self::TYPE_KEYS, true)) {
-                    $errors[] = $isCore
-                        ? "{$where} es de fábrica y solo admite label, translations, description, descriptionTranslations y creatable («{$key}»)"
+                if (!in_array($key, $isProtected ? self::PROTECTED_TYPE_KEYS : self::TYPE_KEYS, true)) {
+                    $errors[] = $isProtected
+                        ? "{$where} está protegido y solo admite " . implode(', ', array_slice(self::PROTECTED_TYPE_KEYS, 1)) . " («{$key}»)"
                         : "{$where}: clave desconocida «{$key}»";
                 }
             }
@@ -685,45 +738,50 @@ final class UserTypes
                 }
             }
 
-            if (!$isCore) {
+            //Uno propio necesita su prioridad; uno de fábrica que se puede retirar la cambia si la declara (ADR 0090).
+            if (!$isProtected && (!$isCore || array_key_exists('priority', $entry))) {
                 $priority = $entry['priority'] ?? null;
                 if (!is_int($priority)) {
-                    $errors[] = "{$where}: priority es obligatoria y entera";
+                    $errors[] = $isCore ? "{$where}: priority tiene que ser entera" : "{$where}: priority es obligatoria y entera";
                 } elseif ($priority >= self::PRIORITY_LIMIT) {
                     $errors[] = "{$where}: priority tiene que ser menor que " . self::PRIORITY_LIMIT . " (la de root), y es {$priority}";
+                } elseif ($isCore && $priority >= self::PRIORITY_WARNING) {
+                    $errors[] = "{$where}: priority tiene que ser menor que " . self::PRIORITY_WARNING . " en un tipo de fábrica, y es {$priority}: quedaría al nivel de la administración general";
                 } else {
                     $type['priority'] = $priority;
                     if ($priority >= self::PRIORITY_WARNING) {
                         $warnings[] = "{$where}: priority {$priority} lo pone al nivel de la administración general";
                     }
                 }
-                foreach (['organization', 'profile', 'externalLogin', 'authorityOverSameType', 'autoApproval'] as $key) {
-                    if (array_key_exists($key, $entry)) {
-                        if (is_bool($entry[$key])) {
-                            $type[$key] = $entry[$key];
-                        } else {
-                            $errors[] = "{$where}: {$key} tiene que ser true o false";
-                        }
+            }
+            //Un protegido solo puede añadir: el perfil y rutas. Lo demás ya es un error de clave, arriba.
+            $flags = $isProtected ? ['profile'] : ['organization', 'profile', 'externalLogin', 'authorityOverSameType', 'autoApproval'];
+            foreach ($flags as $key) {
+                if (array_key_exists($key, $entry)) {
+                    if (is_bool($entry[$key])) {
+                        $type[$key] = $entry[$key];
+                    } else {
+                        $errors[] = "{$where}: {$key} tiene que ser true o false";
                     }
                 }
-                if (array_key_exists('permissions', $entry)) {
-                    if (is_string($entry['permissions']) && in_array($entry['permissions'], self::SEGMENTS, true)) {
-                        $type['permissions'] = $entry['permissions'];
-                    } else {
-                        $errors[] = "{$where}: permissions tiene que ser generals, administratives o superiors";
-                    }
+            }
+            if (!$isProtected && array_key_exists('permissions', $entry)) {
+                if (is_string($entry['permissions']) && in_array($entry['permissions'], self::SEGMENTS, true)) {
+                    $type['permissions'] = $entry['permissions'];
+                } else {
+                    $errors[] = "{$where}: permissions tiene que ser generals, administratives o superiors";
                 }
-                if (array_key_exists('routes', $entry)) {
-                    $routes = $entry['routes'];
-                    $valid = is_array($routes) && array_is_list($routes);
-                    foreach ($valid ? $routes : [] as $route) {
-                        $valid = $valid && is_string($route) && trim($route) !== '';
-                    }
-                    if ($valid && is_array($routes)) {
-                        $type['routes'] = $routes;
-                    } else {
-                        $errors[] = "{$where}: routes tiene que ser una lista de nombres de ruta";
-                    }
+            }
+            if (array_key_exists('routes', $entry)) {
+                $routes = $entry['routes'];
+                $valid = is_array($routes) && array_is_list($routes);
+                foreach ($valid ? $routes : [] as $route) {
+                    $valid = $valid && is_string($route) && trim($route) !== '';
+                }
+                if ($valid && is_array($routes)) {
+                    $type['routes'] = $routes;
+                } else {
+                    $errors[] = "{$where}: routes tiene que ser una lista de nombres de ruta";
                 }
             }
             $types[$id] = $type;

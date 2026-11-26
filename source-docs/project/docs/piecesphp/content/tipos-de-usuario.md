@@ -1,11 +1,11 @@
 # Los tipos de usuario
 
-Cada proyecto decide qué tipos de usuario tiene: añade los suyos, cambia el nombre de los de fábrica, deja de ofrecer
-alguno al crear usuarios o lo retira. Se hace en un archivo del proyecto, `src/app/config/user-types.php`, que solo
+Cada proyecto decide qué tipos de usuario tiene: añade los suyos, ajusta los de fábrica (su nombre, su perfil, su
+organización, su prioridad…), deja de ofrecer alguno al crear usuarios o lo retira. Se hace en un archivo del proyecto, `src/app/config/user-types.php`, que solo
 lleva **las diferencias** con los de fábrica. Sin ese archivo, o vacío, los tipos son los de fábrica.
 
 Lo lee el registro `PiecesPHP\UserSystem\UserTypes`, que es lo único que el código consulta para saber qué tipos hay
-(ADR 0078).
+(ADR 0078; los ajustes de los de fábrica, ADR 0090).
 
 ## Los de fábrica
 
@@ -41,8 +41,9 @@ return [
             'translations' => ['en' => 'Telemarketing'],
             'priority' => 3,
         ],
-        //Uno de fábrica: solo se puede cambiar su etiqueta, sus traducciones, su descripción y si se puede crear.
-        ['id' => UsersModel::TYPE_USER_INSTITUCIONAL, 'creatable' => false],
+        //Uno de fábrica: admite lo mismo que uno propio salvo id; root y la administración general, solo textos,
+        //creatable, profile y routes.
+        ['id' => UsersModel::TYPE_USER_INSTITUCIONAL, 'profile' => true],
     ],
     'retire' => [],
 ];
@@ -60,7 +61,7 @@ módulos. No llames a `__()` ni a otros ayudantes, ni uses constantes de módulo
 | `translations` | Su nombre en otros idiomas, `['en' => '…']` | ninguna (se ve en español) |
 | `description` | El texto de la pantalla de elegir tipo al crear un usuario | el genérico |
 | `descriptionTranslations` | Ese texto en otros idiomas, `['en' => '…']` | ninguna |
-| `priority` | Su lugar en la jerarquía: tiene autoridad sobre los de prioridad menor. Menor que 500 (la de root); desde 400 se aplica, pero `verify-integrity` avisa: queda al nivel de la administración general | obligatoria |
+| `priority` | Su lugar en la jerarquía: tiene autoridad sobre los de prioridad igual o menor. Menor que 500 (la de root). En un tipo propio, desde 400 se aplica con un aviso (queda al nivel de la administración general); en uno de fábrica, desde 400 es un error | obligatoria (en uno de fábrica, si falta, la suya) |
 | `organization` | Si pertenece a una organización | `true` |
 | `profile` | Si tiene perfil público | `false` |
 | `externalLogin` | Si puede entrar con un proveedor externo | `false` |
@@ -70,8 +71,51 @@ módulos. No llames a `__()` ni a otros ayudantes, ni uses constantes de módulo
 | `permissions` | Con qué rutas empieza: `generals`, `administratives` o `superiors`, las tres listas de `roles.php` | `generals` |
 | `routes` | Nombres de ruta de más, solo para este tipo | `[]` |
 
-**Una clave que no está en esta tabla es un error**: así un nombre mal escrito no pasa en silencio. Un tipo de fábrica dentro de `types` solo admite `label`, `translations`, `description`, `descriptionTranslations` y `creatable`: lo demás lo usa el
-código del framework.
+**Una clave que no está en esta tabla es un error**: así un nombre mal escrito no pasa en silencio.
+
+### Ajustar un tipo de fábrica
+
+Los que se pueden retirar (2, 3, 4, 12 y 50) admiten **todas las claves de la tabla salvo `id`**, con las mismas reglas
+que un tipo propio, más una: su `priority` tiene que quedar por debajo de 400. Lo que no declares conserva su valor de
+fábrica.
+
+**Root (0) y la administración general (1) solo admiten lo que añade**: `label`, `translations`, `description`,
+`descriptionTranslations`, `creatable`, `profile` y `routes`. Su prioridad, su organización, su aprobación, su acceso
+externo, su lista de `permissions` y su autoridad sobre los de su tipo quedan fijos: declararlos es un error del archivo.
+
+**Ningún tipo recibe todas las rutas.** Lo que haga falta se nombra en `routes`. Una ruta que el framework reserva a root
+(las que declaran `rolesAllowed` solo con root) no debe ir en `routes`: Avisos del sistema la marca como crítica y
+`bin/cli verify-integrity` falla.
+
+Hasta la versión 7 esto se hacía editando constantes de `UsersModel`. Su equivalente:
+
+| Constante de la 7 | Clave en `user-types.php` |
+| :-- | :-- |
+| `TYPES_USER_PRIORITY` | `priority` |
+| `TYPES_USER_DONT_REQUIRE_ORGANIZATION` | `organization` (en `false`) |
+| `TYPES_USER_SHOULD_HAVE_PROFILE` | `profile` |
+| `TYPES_WITH_EXTERNAL_LOGIN` | `externalLogin` |
+| `TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE` | `authorityOverSameType` (en `false`) |
+| `ARE_AUTO_APPROVAL` | `autoApproval` |
+| los permisos por tipo de `roles.php` (`allowed_routes`) | `permissions` y `routes` (`all` ya no existe) |
+
+Un ejemplo frecuente: el usuario general suele ser el escalón más bajo del proyecto, y lo natural es darle el nombre del
+oficio en vez de crear un tipo propio para lo mismo. Aquí se renombra el 2, se le da perfil y se retiran el institucional
+y el administrador de organización:
+
+```php
+return [
+    'types' => [
+        ['id' => UsersModel::TYPE_USER_GENERAL, 'label' => 'Operario', 'translations' => ['en' => 'Operator'], 'profile' => true],
+    ],
+    'retire' => [UsersModel::TYPE_USER_INSTITUCIONAL, UsersModel::TYPE_USER_ADMIN_ORG],
+];
+```
+
+**Cambiar un tipo no reescribe a sus usuarios.** Si le das perfil a un tipo que ya tiene usuarios, quedan sin perfil
+hasta que lo creen o hasta la acción de `bin/cli` que crea los que faltan (`bin/cli help` la lista). Si le exiges
+organización, habrá que elegirla al editar cada uno. Si vas a retirar un tipo que tiene usuarios, root les cambia antes el
+tipo desde el panel. Y un tipo con `profile` aparece en el Directorio y en el geovisor.
 
 ### Retirar o dejar de ofrecer
 
@@ -90,9 +134,10 @@ paran con el error a la vista; la terminal sigue, y `bin/cli verify-integrity` l
 permitido, `verify-integrity` solo avisa. No se aplica a medias: aceptar las entradas buenas y tirar las malas daría un reparto que
 nadie escribió.
 
-## Los permisos de un tipo propio
+## Los permisos de un tipo
 
-El permiso de PiecesPHP es el nombre de la ruta (ver [Permisos](permissions.md)). Un tipo propio recibe:
+El permiso de PiecesPHP es el nombre de la ruta (ver [Permisos](permissions.md)). Un tipo propio, o uno de fábrica que
+las ajusta, recibe:
 
 - las rutas de su lista de `permissions` y las de `routes`;
 - las rutas que el framework concede «a todos los roles» (las que se declaran con `UserTypes::codes()`), sin hacer nada;
@@ -102,6 +147,22 @@ Las rutas del framework que nombran tipos concretos no lo incluyen.
 
 Al añadir o retirar un tipo cambian los permisos de muchas rutas, así que `bin/cli verify-integrity` marcará esas rutas
 como cambiadas: es lo esperado. Revísalo y regenera la foto con `bin/cli verify-integrity update-permissions=yes`.
+
+## El formulario de un tipo
+
+Al crear, editar o ver el perfil de un usuario, el panel pinta el formulario de su tipo si existe y no está vacío, y el
+genérico si no. Viven en `src/app/classes/PiecesPHP/UserSystem/Views/usuarios/form-by-type/`, en una subcarpeta por modo
+(`create`, `edit` o `profile`) y dentro, una por tipo, con su `form.php`. La carpeta de un tipo de fábrica es `root`, `admin-general`, `admin-organization`, `general`, `institucional` o
+`comunicaciones`; la de un tipo propio, `type-<código>`. Los de fábrica incluyen el genérico (`user-form.php`).
+
+Para escribir el de un tipo:
+
+- Conserva `defined("BASEPATH") or die(...)` al principio, las clases `users <modo>` del formulario y los `name` de
+  los campos: el JavaScript y la acción que guarda dependen de ellos.
+- Escapa con `escape_html()` todo lo que imprimas.
+- No vuelques el usuario editado entero: lleva datos que no van a la pantalla.
+- El formulario se elige por el tipo del usuario EDITADO, no por quien lo mira: ocultar un campo no es un permiso. Lo
+  que alguien no puede cambiar lo impide la acción que guarda, no la vista.
 
 ## Leer los tipos desde el código
 

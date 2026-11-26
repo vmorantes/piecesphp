@@ -17,8 +17,8 @@ return [
         //    'translations' => ['en' => 'Telemarketing'],
         //    'priority' => 3,
         //],
-        //@codigo-comentado · Uno de fábrica: solo se puede cambiar su etiqueta, sus traducciones, su descripción y si se puede crear.
-        //['id' => UsersModel::TYPE_USER_INSTITUCIONAL, 'creatable' => false],
+        //@codigo-comentado · Uno de fábrica: admite lo mismo que uno propio salvo id; root y la administración general, solo textos, creatable, profile y routes.
+        //['id' => UsersModel::TYPE_USER_INSTITUCIONAL, 'profile' => true],
     ],
     'retire' => [],
 ];

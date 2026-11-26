@@ -23,6 +23,7 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 /**
@@ -53,10 +54,6 @@ class AllProfilesController extends AdminPanelController
 
     const BASE_JS_DIR = 'js';
     const LANG_GROUP = DirectoryLang::LANG_GROUP;
-    const ONLY_TYPES = [
-        UsersModel::TYPE_USER_GENERAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
-    ];
 
     public function __construct()
     {
@@ -79,7 +76,8 @@ class AllProfilesController extends AdminPanelController
         $havingString = null;
         $and = 'AND';
 
-        $allowedUserTypes = implode(',', self::ONLY_TYPES);
+        //Los tipos que tienen perfil, de UserTypes (ADR 0090). Sin ninguno, IN (NULL) no casa nada.
+        $allowedUserTypes = UserTypes::profileTypes() !== [] ? implode(',', array_map('intval', UserTypes::profileTypes())) : 'NULL';
 
         $where = [];
         //PARENTIZADO: sin ellos sale `A AND B OR C` y los usuarios se listan sin comprobar su

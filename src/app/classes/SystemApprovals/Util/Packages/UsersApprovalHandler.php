@@ -109,13 +109,7 @@ class UsersApprovalHandler extends BaseApprovalHandler
     public static function isAutoApprovalSpecificMapper(int|UsersModel $reference): bool
     {
         $userMapper = $reference instanceof UsersModel ? $reference : new UsersModel($reference);
-        $autoApprovalUserTypes = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_INSTITUCIONAL,
-            UsersModel::TYPE_USER_COMUNICACIONES,
-        ];
-        return in_array($userMapper->type, $autoApprovalUserTypes) || $userMapper->status == UsersModel::STATUS_USER_ACTIVE || UserTypes::isAutoApproval((int) $userMapper->type);
+        return UserTypes::isAutoApproval((int) $userMapper->type) || $userMapper->status == UsersModel::STATUS_USER_ACTIVE;
     }
 
     /**

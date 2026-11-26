@@ -1,13 +1,23 @@
 <?php
 
-//El registro de los tipos de usuario (UserTypes, ADR 0078): los valores de fábrica, los alias de UsersModel, los roles
-//que construye, la jerarquía por prioridad y la consulta de perfiles con la lista vacía. En proceso; solo lee la base.
+//Los tipos de usuario (UserTypes, ADR 0078 y 0090): fábrica, alias, roles, jerarquía, perfiles con la lista vacía y
+//los de fábrica ajustables. En proceso; escribe solo en una transacción que se deshace (j11-j13).
 //@areas nucleo
 
+use Directory\Controllers\AllProfilesController;
 use MySpace\Controllers\Util\ProfileTasksUtilities;
+use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
+use PiecesPHP\UserSystem\UserTypesAlert;
+use ReportsManage\Queries\ReportsManageQueries;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
+use SystemApprovals\Util\Packages\UsersApprovalHandler;
 
 CliActions::make('unit-tests:core/user-types', function ($args) {
 
@@ -193,8 +203,8 @@ CliActions::make('unit-tests:core/user-types', function ($args) {
         'g6 id: negativo' => [['types' => [['id' => -1] + $own]], 'id tiene que ser un entero no negativo'],
         'g7 id: repetido' => [['types' => [$own, ['label' => 'zz-Otra'] + $own]], 'está declarado dos veces'],
         'g8 id: el 99, reservado' => [['types' => [['id' => 99] + $own]], 'del usuario del sistema'],
-        'g9 id: el 50 solo admite lo de un tipo de fábrica' => [['types' => [['id' => 50, 'label' => 'zz-Google Play', 'priority' => 3]]], 'es de fábrica y solo admite'],
-        'g10 fábrica: una clave que no se admite' => [['types' => [['id' => 2, 'priority' => 9]]], 'es de fábrica y solo admite'],
+        'g9 protegido: priority en root' => [['types' => [['id' => 0, 'priority' => 9]]], 'el tipo 0 está protegido y solo admite label, translations, description, descriptionTranslations, creatable, profile, routes («priority»)'],
+        'g10 protegido: autoApproval en la administración general' => [['types' => [['id' => 1, 'autoApproval' => false]]], 'el tipo 1 está protegido y solo admite'],
         'g11 retire: en types y en retire a la vez' => [['types' => [$own], 'retire' => [5]], 'en types y en retire a la vez'],
         'g12 retire: un protegido' => [['retire' => [0]], 'está protegido'],
         'g13 retire: un reservado' => [['retire' => [50]], 'está reservado'],
@@ -264,6 +274,175 @@ CliActions::make('unit-tests:core/user-types', function ($args) {
     UserTypes::fromArray(['types' => [['id' => 50, 'creatable' => false]]]);
     $check(str_contains(implode(' | ', UserTypes::errors()), 'label tiene que ser'), 'h15 el 50 sin etiqueta no se enciende: es un error');
 
+    //──── i) Los de fábrica, ajustables (ADR 0090) ─────────────────────────────────────────────
+    echoTerminal('');
+    echoTerminal("\e[36m i) Los de fábrica que se retiran admiten lo de uno propio; root y la administración general, solo lo que añade\e[39m");
+
+    //Atributo => [el ajuste sobre el institucional (3), lo que devuelve su método con él]; de fábrica, el contrario.
+    $adjustable = [
+        'priority' => [7, fn(): mixed => UserTypes::priority(3)],
+        'organization' => [false, fn(): mixed => UserTypes::requiresOrganization(3)],
+        'profile' => [true, fn(): mixed => UserTypes::shouldHaveProfile(3) && in_array(3, UserTypes::profileTypes(), true)],
+        'externalLogin' => [true, fn(): mixed => UserTypes::hasExternalLogin(3)],
+        'authorityOverSameType' => [false, fn(): mixed => UserTypes::hasAuthorityOverSameType(3)],
+        'autoApproval' => [false, fn(): mixed => UserTypes::isAutoApproval(3)],
+    ];
+    foreach ($adjustable as $key => [$value, $read]) {
+        UserTypes::fromArray([]);
+        $factoryValue = $read();
+        UserTypes::fromArray(['types' => [['id' => 3, $key => $value]]]);
+        $got = $read();
+        $check(UserTypes::errors() === [] && $got === $value && $factoryValue !== $value, "i1 {$key} en el 3 cambia lo que devuelve su método ({$show($factoryValue)} → {$show($got)})", implode(' | ', UserTypes::errors()));
+    }
+    UserTypes::fromArray(['types' => [['id' => 3, 'permissions' => 'administratives', 'routes' => ['zz-ruta']]]]);
+    $byCode = array_column(UserTypes::roles($segments), null, 'code');
+    $check(UserTypes::errors() === [] && ($byCode[3]['allowed_routes'] ?? null) === ['g', 'a', 'zz-ruta'], 'i2 permissions y routes en el 3: su rol, con el segmento declarado y sus rutas', $show($byCode[3] ?? null));
+    UserTypes::fromArray(['types' => [['id' => 2, 'priority' => 450]]]);
+    $check(str_contains(implode(' | ', UserTypes::errors()), 'el tipo 2: priority tiene que ser menor que 400 en un tipo de fábrica') && UserTypes::priority(2) === 1, 'i3 priority desde 400 en uno de fábrica: error (precisión 3), y rigen los de fábrica');
+    UserTypes::fromArray(['types' => [['id' => 3, 'priority' => 500]]]);
+    $check(str_contains(implode(' | ', UserTypes::errors()), 'el tipo 3: priority tiene que ser menor que 500') && UserTypes::priority(3) === 100 && UserTypes::isAutoApproval(3), 'i4 priority 500 en el 3: error, y rigen los de fábrica');
+    UserTypes::fromArray(['types' => [['id' => 3, 'label' => 'zz-Institucional']]]);
+    $check(UserTypes::errors() === [] && UserTypes::priority(3) === 100, 'i5 sin priority, uno de fábrica conserva la suya: no es obligatoria');
+    UserTypes::fromArray(['types' => [['id' => 50, 'label' => 'zz-Google Play', 'priority' => 3, 'externalLogin' => false]]]);
+    $check(UserTypes::errors() === [] && UserTypes::priority(50) === 3 && !UserTypes::hasExternalLogin(50), 'i6 el 50, encendido con su etiqueta, también se ajusta', implode(' | ', UserTypes::errors()));
+    UserTypes::fromArray(['types' => [['id' => 50, 'priority' => 3]]]);
+    $check(str_contains(implode(' | ', UserTypes::errors()), 'label tiene que ser'), 'i7 el 50 sin etiqueta sigue sin encenderse, aunque declare otra cosa');
+    //Lo que root y la administración general no admiten, uno por uno: cada uno es un error y rigen los de fábrica.
+    foreach ([0, 1] as $code) {
+        foreach (['priority' => 9, 'organization' => true, 'externalLogin' => true, 'authorityOverSameType' => false, 'autoApproval' => false, 'permissions' => 'generals'] as $key => $value) {
+            UserTypes::fromArray(['types' => [['id' => $code, 'label' => 'zz-Protegido', $key => $value]]]);
+            $check(str_contains(implode(' | ', UserTypes::errors()), "el tipo {$code} está protegido y solo admite") && UserTypes::labels() === UserTypes::CORE_LABELS && UserTypes::priority($code) === UserTypes::CORE_PRIORITY[$code], "i8 {$key} en el {$code}: error, y rigen los de fábrica (tampoco su etiqueta nueva)");
+        }
+    }
+    UserTypes::fromArray(['types' => [['id' => 1, 'profile' => true, 'routes' => ['zz-ruta-admin']], ['id' => 0, 'creatable' => false]]]);
+    $byCode = array_column(UserTypes::roles($segments), null, 'code');
+    $check(UserTypes::errors() === [] && UserTypes::shouldHaveProfile(1) && ($byCode[1]['allowed_routes'] ?? null) === ['g', 'a', 'zz-ruta-admin'] && UserTypes::priority(1) === 400 && UserTypes::isAutoApproval(1) && !UserTypes::isCreatable(0), 'i9 profile y routes en el 1 se aplican (las rutas, en su rol) y root puede no crearse', implode(' | ', UserTypes::errors()) . ' ' . $show($byCode[1] ?? null));
+    foreach ([['id' => 3, 'all' => true], ['id' => 1, 'all' => true], ['id' => 0, 'all' => true], ['all' => true] + $own] as $entryAll) {
+        UserTypes::fromArray(['types' => [$entryAll]]);
+        $rolesAll = array_column(UserTypes::roles($segments), 'all');
+        $check(str_contains(implode(' | ', UserTypes::errors()), '«all»') && !in_array(true, $rolesAll, true), "i10 'all' en el tipo {$entryAll['id']}: error, y ningún rol con todas las rutas");
+    }
+
+    //El aviso de un ajuste que choca con un módulo encendido (ADR 0090 §6), con el módulo encendido y apagado.
+    $moduleWarnings = new \ReflectionMethod(UserTypes::class, 'moduleWarnings');
+    UserTypes::fromArray(['types' => [['id' => 12, 'organization' => false]]]);
+    $on = $moduleWarnings->invoke(null, true);
+    $off = $moduleWarnings->invoke(null, false);
+    $check(UserTypes::errors() === [] && count($on) === 1 && str_contains($on[0], 'ORGANIZATIONS_MODULE') && $off === [], 'i11 el 12 sin organización: aviso con el módulo encendido, ninguno con él apagado', $show([$on, $off]));
+    $check(ORGANIZATIONS_MODULE === true ? str_contains(implode(' | ', UserTypes::warnings()), 'el tipo 12 no pertenece') : !str_contains(implode(' | ', UserTypes::warnings()), 'el tipo 12'), 'i12 warnings() lo suma según el módulo de esta instalación');
+    UserTypes::fromArray([]);
+    $check($moduleWarnings->invoke(null, true) === [], 'i13 con los de fábrica (el 12 con organización), ningún aviso aunque el módulo esté encendido');
+
+    //Quien decide la aprobación automática lo lee de UserTypes, no de una lista escrita a mano.
+    $pending = new UsersModel();
+    $pending->type = UsersModel::TYPE_USER_INSTITUCIONAL;
+    $pending->status = UsersModel::STATUS_USER_APPROVED_PENDING;
+    UserTypes::fromArray([]);
+    $factoryApproval = UsersApprovalHandler::isAutoApprovalSpecificMapper($pending);
+    UserTypes::fromArray(['types' => [['id' => 3, 'autoApproval' => false]]]);
+    $check($factoryApproval && !UsersApprovalHandler::isAutoApprovalSpecificMapper($pending), 'i14 isAutoApprovalSpecificMapper(): un 3 pendiente con autoApproval false ya no se aprueba solo (de fábrica, sí)');
+    UserTypes::fromArray(['types' => [['id' => 2, 'autoApproval' => true]]]);
+    $pending->type = UsersModel::TYPE_USER_GENERAL;
+    $check(UsersApprovalHandler::isAutoApprovalSpecificMapper($pending), 'i15 y un 2 pendiente con autoApproval true, sí');
+
+    //──── j) Las precisiones 3, 4 y 6 del ADR 0090 ──────────────────────────────────────────────
+    echoTerminal('');
+    echoTerminal("\e[36m j) Prioridad de fábrica bajo 400, rutas de root en routes, avisos en el panel y los que siguen a los tipos con perfil\e[39m");
+
+    foreach ([400, 499] as $priority) {
+        UserTypes::fromArray(['types' => [['id' => 12, 'priority' => $priority]]]);
+        $check(str_contains(implode(' | ', UserTypes::errors()), "el tipo 12: priority tiene que ser menor que 400 en un tipo de fábrica, y es {$priority}") && UserTypes::priority(12) === 1, "j1 priority {$priority} en el 12: error, y rigen los de fábrica");
+    }
+    UserTypes::fromArray(['types' => [['id' => 12, 'priority' => 399]]]);
+    $check(UserTypes::errors() === [] && UserTypes::priority(12) === 399 && !str_contains(implode(' | ', UserTypes::warnings()), 'priority'), 'j2 priority 399 en el 12: se aplica, sin aviso de prioridad', implode(' | ', UserTypes::errors()));
+    UserTypes::fromArray(['types' => [['priority' => 450] + $own]]);
+    $check(UserTypes::errors() === [] && UserTypes::priority(5) === 450 && str_contains(implode(' | ', UserTypes::warnings()), 'el tipo 5: priority 450'), 'j3 priority 450 en uno propio: se aplica, con aviso (como desde el 0078)');
+
+    //Una ruta solo de root (configurations-integrations-scripts-save: guarda los scripts del sitio) en el routes del 2.
+    $rootRoute = 'configurations-integrations-scripts-save';
+    $registeredRoutes = get_routes();
+    $rootRoles = is_array($registeredRoutes) ? array_map('intval', array_values((array) ($registeredRoutes[$rootRoute]['roles_allowed'] ?? []))) : null;
+    $check($rootRoles === [UsersModel::TYPE_USER_ROOT], "j4 CANARIO: {$rootRoute} está registrada y es solo de root", $show($rootRoles));
+    UserTypes::fromArray([]);
+    $check(UserTypes::rootOnlyRoutes() === [], 'j5 con los de fábrica (ningún routes), ninguna ruta de root');
+    UserTypes::fromArray(['types' => [['id' => 2, 'routes' => [$rootRoute, 'users-edit-request']]]]);
+    $rootOnly = UserTypes::rootOnlyRoutes();
+    $check($rootOnly === ["el tipo 2 trae en routes «{$rootRoute}», que es solo de root"], 'j6 la ruta de root en el routes del 2 se lista; la normal (users-edit-request), no', $show($rootOnly));
+    UserTypes::fromArray(['types' => [['id' => 1, 'routes' => [$rootRoute]]]]);
+    $check(UserTypes::rootOnlyRoutes() !== [] && str_contains(UserTypes::rootOnlyRoutes()[0], 'el tipo 1'), 'j7 también en la administración general, que admite routes');
+    UserTypes::fromArray(['types' => [['id' => 0, 'routes' => [$rootRoute]]]]);
+    $check(UserTypes::errors() === [] && UserTypes::rootOnlyRoutes() === [], 'j7b root con una ruta suya en routes no se señala', $show(UserTypes::rootOnlyRoutes()));
+    UserTypes::fromArray(['types' => [['id' => 12, 'routes' => [$rootRoute, $rootRoute]]]]);
+    $check(UserTypes::rootOnlyRoutes() === (CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE'] ? ["el tipo 12 trae en routes «{$rootRoute}», que es solo de root"] : []), 'j7c el 12 se señala una vez, y solo si el módulo de organizaciones le da rol', $show(UserTypes::rootOnlyRoutes()));
+
+    //Lo que enseña Avisos del sistema: el aviso de warnings() y el crítico de las rutas de root.
+    $alertsAfter = function (array $data): array {
+        UserTypes::fromArray($data);
+        $found = [];
+        foreach ([UserTypesAlert::KEY_WARNINGS, UserTypesAlert::KEY_ROOT_ROUTES] as $key) {
+            $alert = \PiecesPHP\SystemStatus\SystemAlertRegistry::get($key);
+            $found[$key] = $alert === null ? 'sin registrar' : ($alert->evaluateActive() ? [$alert->severity(), $alert->message()] : null);
+        }
+        return $found;
+    };
+    $alerts = $alertsAfter(['types' => [['priority' => 450] + $own]]);
+    $check(($alerts[UserTypesAlert::KEY_WARNINGS][0] ?? null) === \PiecesPHP\SystemStatus\SystemAlert::SEVERITY_WARNING && str_contains((string) ($alerts[UserTypesAlert::KEY_WARNINGS][1] ?? ''), 'priority 450') && $alerts[UserTypesAlert::KEY_ROOT_ROUTES] === null, 'j8 UserTypesAlert enseña el aviso de warnings() como aviso, no crítico', $show($alerts));
+    $alerts = $alertsAfter(['types' => [['id' => 2, 'routes' => [$rootRoute]]]]);
+    $check(($alerts[UserTypesAlert::KEY_ROOT_ROUTES][0] ?? null) === \PiecesPHP\SystemStatus\SystemAlert::SEVERITY_DANGER && str_contains((string) ($alerts[UserTypesAlert::KEY_ROOT_ROUTES][1] ?? ''), $rootRoute), 'j9 y la ruta de root como crítico, con el tipo y la ruta', $show($alerts));
+    $alerts = $alertsAfter([]);
+    $check($alerts[UserTypesAlert::KEY_WARNINGS] === null && $alerts[UserTypesAlert::KEY_ROOT_ROUTES] === null, 'j10 con los de fábrica, ninguno de los dos', $show($alerts));
+
+    //Los informes y el Directorio siguen a profileTypes(): un 3 con perfil, activo y aprobado, en una transacción que se deshace.
+    $pdo = UsersModel::model()::getDb(Config::app_db('default')['db']);
+    $previousUser = get_config('current_user');
+    //RETORNO-IGNORADO: la conexión va en ERRMODE_EXCEPTION; si no pudiera abrir la transacción, lanzaría.
+    $pdo->beginTransaction();
+    try {
+        $rootRow = $pdo->query("SELECT id FROM `" . UsersModel::TABLE . "` WHERE username = 'zz-agente-root'")->fetchColumn();
+        $country = $pdo->query('SELECT id FROM `' . \PiecesPHP\App\Locations\Mappers\CountryMapper::PREFIX_TABLE . \PiecesPHP\App\Locations\Mappers\CountryMapper::TABLE . '` ORDER BY id LIMIT 1')->fetchColumn();
+        $country = $country === false ? null : (int) $country;
+        $pdo->prepare("INSERT INTO `" . UsersModel::TABLE . "` (organization, username, password, firstname, firstLastname, email, meta, type, status, failedAttempts, createdAt)
+            SELECT organization, 'zz-agente-suite-perfil', password, 'Zzperfilsuite', 'Tipotres', 'zz-agente-suite-perfil@example.invalid', meta, ?, ?, 0, NOW() FROM `" . UsersModel::TABLE . "` WHERE username = 'zz-agente-root'")
+            ->execute([UsersModel::TYPE_USER_INSTITUCIONAL, UsersModel::STATUS_USER_ACTIVE]);
+        $userID = (int) $pdo->lastInsertId();
+        $pdo->prepare('INSERT INTO `' . \PiecesPHP\UserSystem\Profile\UserProfileMapper::TABLE . '` (country, publicVisible, belongsTo, createdAt, createdBy) VALUES (?, 1, ?, NOW(), ?)')->execute([$country, $userID, (int) $rootRow]);
+        $pdo->prepare('INSERT INTO `' . \SystemApprovals\Mappers\SystemApprovalsMapper::TABLE . "` (referenceAlias, referenceValue, referenceTable, referenceDate, createdAt, createdBy, status) VALUES ('zz-suite', ?, ?, NOW(), NOW(), ?, 'APPROVED')")
+            ->execute([(string) $userID, UsersModel::TABLE, (int) $rootRow]);
+
+        $researchers = function () use ($country): int {
+            $qty = 0;
+            foreach (ReportsManageQueries::getResearchersByCountry() as $row) {
+                $qty += $row['country'] === $country ? $row['qty'] : 0;
+            }
+            return $qty;
+        };
+        $directory = function () use ($rootRow): int {
+            set_config('current_user', (object) ['id' => (int) $rootRow]);
+            getLoggedFrameworkUser(true);
+            $request = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/datatables'), new Headers(['X-Requested-With' => 'XMLHttpRequest']), [], [], (new StreamFactory())->createStream(''));
+            $request = $request->withQueryParams(['draw' => 1, 'start' => 0, 'length' => 10, 'columns' => array_fill(0, 3, ['searchable' => 'true']), 'search' => ['value' => 'Zzperfilsuite', 'regex' => 'false']]);
+            $values = json_decode((string) (new AllProfilesController())->dataTables($request, new ResponseRoute())->getBody(), true);
+            return is_array($values) ? (int) ($values['recordsFiltered'] ?? -1) : -1;
+        };
+        UserTypes::fromArray([]);
+        $withoutResearchers = $researchers();
+        $withoutDirectory = $directory();
+        UserTypes::fromArray(['types' => [['id' => 3, 'profile' => true]]]);
+        $withResearchers = $researchers();
+        $withDirectory = $directory();
+        $check($withResearchers === $withoutResearchers + 1, 'j11 los investigadores por país (ReportsManageQueries) cuentan al 3 con perfil; sin el ajuste, no', "sin {$withoutResearchers}, con {$withResearchers}");
+        $check($withoutDirectory === 0 && $withDirectory === 1, 'j12 el Directorio (AllProfilesController) lista al 3 con perfil; sin el ajuste, no', "sin {$withoutDirectory}, con {$withDirectory}");
+    } finally {
+        if ($pdo->inTransaction()) {
+            //RETORNO-IGNORADO: deshacer es lo único que queda; si falla, lanza.
+            $pdo->rollBack();
+        }
+        set_config('current_user', $previousUser);
+        getLoggedFrameworkUser(true);
+    }
+    $leftover = $pdo->query("SELECT COUNT(*) FROM `" . UsersModel::TABLE . "` WHERE username = 'zz-agente-suite-perfil'")->fetchColumn();
+    $check((int) $leftover === 0, 'j13 la transacción se deshizo: no queda el usuario de la prueba');
+
     //Vuelta al archivo: lo que corra después en este proceso ve los tipos de verdad.
     UserTypes::reload();
     $check(UserTypes::errors() === $cargados['errors'] && UserTypes::labels() === $cargados['labels'], 'h16 reload(): de vuelta al archivo del proyecto, el mismo que se cargó al empezar');
@@ -279,4 +458,4 @@ CliActions::make('unit-tests:core/user-types', function ($args) {
         : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
     return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('Los tipos de usuario (UserTypes): los valores de fábrica, los alias de UsersModel, los roles, la jerarquía por prioridad, los perfiles con la lista vacía, y las reglas y lo que aplica user-types.php.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Los tipos de usuario (UserTypes): los valores de fábrica, los alias de UsersModel, los roles, la jerarquía por prioridad, los perfiles con la lista vacía, las reglas y lo que aplica user-types.php, y los tipos de fábrica ajustables (ADR 0090).')->setEffects([CliActions::EFFECT_DATABASE])->register();

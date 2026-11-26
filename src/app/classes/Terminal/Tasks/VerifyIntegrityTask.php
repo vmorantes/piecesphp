@@ -590,6 +590,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 72. El registro de escaparates no se pudre; lo desfasado y lo que no tiene escaparate se avisa (H220) ─
         $showcaseFailures = Distribution::applies('72', self::DISTRIBUTION_REQUIREMENTS[72]) ? self::checkShowcases() : [];
 
+        //──── 73. La puerta del desuso, en MODO INFORME: lista las marcas y no falla (H491 (7)) ─
+        $deprecationGateFailures = self::checkDeprecationMarks();
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -632,7 +635,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($unstampedFailures) + count($matrixFailures) + count($docCliFailures) + count($docMethodFailures)
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
          + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures)
-         + count($structuredDataFailures) + count($formFieldFailures) + count($scssCensusFailures) + count($showcaseFailures);
+         + count($structuredDataFailures) + count($formFieldFailures) + count($scssCensusFailures) + count($showcaseFailures)
+         + count($deprecationGateFailures);
 
         foreach ($cloneFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
@@ -3917,6 +3921,220 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m 71 " . mb_substr($line, mb_strlen('TRINQUETE: ')));
         return [];
+    }
+
+    /**
+     * 73. La puerta del desuso (H491 (7)), en MODO INFORME: lista toda marca de desuso de un comentario de `src/` y dice
+     * si lleva su cola (sustituto y prueba, o la decisión del PO que la mata). No falla nunca: es la primera ronda.
+     *
+     * @return string[] Siempre vacío mientras esté en modo informe.
+     */
+    protected static function checkDeprecationMarks(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $root = dirname($repoRoot);
+        $canary = self::deprecationGateCanary();
+        if ($canary !== '') {
+            echoTerminal("\e[94mINFO:\e[39m desuso (73), MODO INFORME: CANARIO MUERTO, {$canary}: la lista de abajo no vale.");
+        }
+        $decisions = $root . '/.agents/docs/decisiones-del-po.md';
+        $decisionsText = is_file($decisions) ? (string) file_get_contents($decisions) : null;
+        $files = 0;
+        $counts = ['válida' => 0, 'inválida' => 0, 'sin comprobar' => 0, 'no aplica' => 0];
+        $lines = [];
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($repoRoot, \FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $file) {
+            $path = str_replace('\\', '/', (string) $file->getPathname());
+            $relative = mb_substr($path, mb_strlen($repoRoot) + 1);
+            $extension = strtolower((string) pathinfo($path, \PATHINFO_EXTENSION));
+            //Los enlaces (los de statics/server-delegated, al servir) repetirían su origen.
+            if (!$file->isFile() || $file->isLink() || !in_array($extension, ['php', 'js', 'ts', 'scss'], true) || str_ends_with($path, '.min.js')
+                || preg_match('#(^|/)(vendor|node_modules)/|^statics/plugins/|^statics/server-delegated/|^app/logs/|^app/cache/#', $relative) === 1) {
+                continue;
+            }
+            $files++;
+            $content = (string) file_get_contents($path);
+            if (mb_stripos($content, 'deprecated') === false && mb_stripos($content, 'en desuso') === false) {
+                continue;
+            }
+            foreach (self::deprecationMarks($content, $extension) as $mark) {
+                [$verdict, $reason] = self::deprecationVerdict(self::deprecationMarkParts($mark['text']), $decisionsText);
+                $counts[$verdict]++;
+                $lines[] = "src/{$relative}:{$mark['line']} · {$verdict}" . ($reason !== '' ? " ({$reason})" : '') . ' · ' . mb_substr(trim($mark['text']), 0, 160, 'UTF-8');
+            }
+        }
+        foreach ($lines as $line) {
+            echoTerminal("\e[94mDESUSO:\e[39m {$line}");
+        }
+        echoTerminal("\e[94mINFO:\e[39m desuso (73) ejecutada en MODO INFORME (no falla): " . count($lines) . " marca(s) en {$files} archivo(s) de src/ (php, js, ts y scss; sin vendor, node_modules, *.min.js, statics/plugins, logs ni caché): {$counts['válida']} válida(s), {$counts['inválida']} inválida(s), {$counts['sin comprobar']} sin comprobar, {$counts['no aplica']} que no aplica(n) aquí.");
+        return [];
+    }
+
+    /**
+     * Las marcas de desuso de un archivo, solo dentro de comentarios: por tokens en PHP; en JS, TS y SCSS, con un lector
+     * que salta las cadenas. Una por línea que la lleve.
+     *
+     * @param string $content
+     * @param string $extension php, js, ts o scss
+     * @return array<int,array{line:int,text:string}>
+     */
+    protected static function deprecationMarks(string $content, string $extension): array
+    {
+        $comments = [];
+        if ($extension === 'php') {
+            foreach (token_get_all($content) as $token) {
+                if (is_array($token) && ($token[0] === \T_COMMENT || $token[0] === \T_DOC_COMMENT)) {
+                    $comments[] = [(int) $token[2], (string) $token[1]];
+                }
+            }
+        } else {
+            $length = strlen($content);
+            $line = 1;
+            for ($i = 0; $i < $length; $i++) {
+                $char = $content[$i];
+                if ($char === "\n") {
+                    $line++;
+                } elseif ($char === '"' || $char === "'" || $char === '`') {
+                    for ($i++; $i < $length && $content[$i] !== $char; $i++) {
+                        if ($content[$i] === '\\') {
+                            $i++;
+                            //Una cadena partida con la barra al final de la línea también cuenta esa línea.
+                            if (($content[$i] ?? '') === "\n") {
+                                $line++;
+                            }
+                        } elseif ($content[$i] === "\n") {
+                            $line++;
+                        }
+                    }
+                } elseif ($char === '/' && ($content[$i + 1] ?? '') === '/') {
+                    $end = strpos($content, "\n", $i);
+                    $end = $end === false ? $length : $end;
+                    $comments[] = [$line, substr($content, $i, $end - $i)];
+                    $i = $end - 1;
+                } elseif ($char === '/' && ($content[$i + 1] ?? '') === '*') {
+                    $end = strpos($content, '*/', $i + 2);
+                    $end = $end === false ? $length : $end + 2;
+                    $block = substr($content, $i, $end - $i);
+                    $comments[] = [$line, $block];
+                    $line += substr_count($block, "\n");
+                    $i = $end - 1;
+                }
+            }
+        }
+        $marks = [];
+        $needle = '/(@' . 'deprecated|en desuso)/iu';
+        foreach ($comments as [$start, $text]) {
+            foreach (preg_split('/\R/', $text) ?: [] as $offset => $row) {
+                if (preg_match($needle, $row) === 1) {
+                    $marks[] = ['line' => $start + $offset, 'text' => $row];
+                }
+            }
+        }
+        return $marks;
+    }
+
+    /**
+     * La cola de una marca: `<desde> sale en <X.Y.Z> · sustituto: <símbolo> · prueba: <suite> <caso>` o
+     * `<desde> sale en <X.Y.Z> · muere: decisiones-del-po <AAAA-MM-DD> «<cita>»`. Sin ninguna de las dos, `form` es null.
+     *
+     * @param string $text
+     * @return array{form:string|null,substitute?:string,suite?:string,case?:string,date?:string,quote?:string}
+     */
+    protected static function deprecationMarkParts(string $text): array
+    {
+        $head = '(?:@' . 'deprecated|en desuso)\s+\S+\s+sale en\s+\d+\.\d+\.\d+\s*·\s*';
+        if (preg_match('/' . $head . 'sustituto:\s*(\S+)\s*·\s*prueba:\s*(\S+)\s+(.+?)\s*(?:\*\/)?\s*$/iu', $text, $m) === 1) {
+            return ['form' => 'substitute', 'substitute' => $m[1], 'suite' => $m[2], 'case' => $m[3]];
+        }
+        if (preg_match('/' . $head . 'muere:\s*decisiones-del-po\s+(\d{4}-\d{2}-\d{2})\s+«(.+?)»/iu', $text, $m) === 1) {
+            return ['form' => 'decision', 'date' => $m[1], 'quote' => $m[2]];
+        }
+        return ['form' => null];
+    }
+
+    /**
+     * El veredicto de una marca con su cola: válida, inválida, sin comprobar (un símbolo que no se reconoce) o no aplica
+     * (la decisión del PO, en una distribución, donde su registro no viaja).
+     *
+     * @param array{form:string|null,substitute?:string,suite?:string,case?:string,date?:string,quote?:string} $parts
+     * @param string|null $decisionsText El registro de decisiones del PO, o null si no está
+     * @return array{0:string,1:string}
+     */
+    protected static function deprecationVerdict(array $parts, ?string $decisionsText): array
+    {
+        $substitute = $parts['substitute'] ?? '';
+        $suiteName = $parts['suite'] ?? '';
+        $case = $parts['case'] ?? '';
+        $date = $parts['date'] ?? '';
+        $quote = $parts['quote'] ?? '';
+        if ($parts['form'] === null) {
+            return ['inválida', 'sin la cola: «sale en X.Y.Z · sustituto: … · prueba: …» o «· muere: decisiones-del-po …»'];
+        }
+        if ($parts['form'] === 'decision') {
+            if ($decisionsText === null) {
+                return ['no aplica', 'el registro de decisiones del PO no viaja'];
+            }
+            foreach (preg_split('/\R/', $decisionsText) ?: [] as $row) {
+                if (str_contains($row, $date) && str_contains($row, $quote)) {
+                    return str_contains(mb_strtolower($row), 'tachada') ? ['inválida', 'la decisión está tachada'] : ['válida', ''];
+                }
+            }
+            return ['inválida', 'no hay fila con esa fecha y esa cita en decisiones-del-po.md'];
+        }
+        $suite = 'unit-tests:' . $suiteName;
+        $action = \PiecesPHP\Terminal\CliActions::exists($suite) ? \PiecesPHP\Terminal\CliActions::get($suite) : null;
+        if ($action === null) {
+            return ['inválida', "la suite {$suite} no existe"];
+        }
+        $suiteFile = (string) $action->definedIn();
+        //El caso, como comienzo del nombre entre comillas dentro de un $check (también con el nombre en otra línea): «v1»
+        //no casa con «v10».
+        $suiteText = is_file($suiteFile) ? (string) file_get_contents($suiteFile) : '';
+        $caseFound = $case !== '' && preg_match('/\$check\([^;]*?[\'"]' . preg_quote($case, '/') . '[\s\'"]/s', $suiteText) === 1;
+        if (!$caseFound) {
+            return ['inválida', "el caso «{$case}» no está en un \$check de {$suite}"];
+        }
+        $symbol = ltrim($substitute, '\\');
+        $symbol = preg_replace('/\(\)$/', '', $symbol) ?? $symbol;
+        if (str_contains($symbol, '::')) {
+            [$class, $member] = explode('::', $symbol, 2);
+            $known = class_exists($class) && (method_exists($class, $member) || defined($symbol) || property_exists($class, ltrim($member, '$')));
+        } else {
+            $known = class_exists($symbol) || interface_exists($symbol) || trait_exists($symbol) || function_exists($symbol) || defined($symbol);
+        }
+        if (!$known && function_exists('get_config') && get_config($symbol) !== false) {
+            $known = true;
+        }
+        return $known ? ['válida', ''] : ['sin comprobar', "no reconozco el sustituto «{$substitute}»"];
+    }
+
+    /**
+     * El canario de la 73: ve una marca bien formada de un comentario, rechaza una sin sustituto e ignora una cadena que
+     * dice lo mismo fuera de un comentario. Devuelve '' si está vivo, o qué falló.
+     *
+     * @return string
+     */
+    protected static function deprecationGateCanary(): string
+    {
+        $tag = '@' . 'deprecated';
+        $php = "<?php\n// {$tag} 1.0.0 sale en 2.0.0 · sustituto: PiecesPHP\\Core\\Config · prueba: core/zz zz1\n/* {$tag} 1.0.0 sale en 2.0.0 */\n\$a = '{$tag} 1.0.0';\n";
+        $marks = self::deprecationMarks($php, 'php');
+        if (count($marks) !== 2) {
+            return 'en PHP ve ' . count($marks) . ' marca(s) de 2 (las dos de comentario, y no la cadena)';
+        }
+        $good = self::deprecationMarkParts($marks[0]['text']);
+        if ($good['form'] !== 'substitute' || ($good['substitute'] ?? '') !== 'PiecesPHP\\Core\\Config' || ($good['suite'] ?? '') !== 'core/zz') {
+            return 'no lee la cola de la marca bien formada';
+        }
+        if (self::deprecationMarkParts($marks[1]['text'])['form'] !== null) {
+            return 'acepta una marca sin sustituto';
+        }
+        $js = "var a = \"{$tag} x\";\n// {$tag} 1.0.0 sale en 2.0.0 · muere: decisiones-del-po 2026-01-01 «zz»\n/*\n {$tag} 1.0.0\n*/\n";
+        $jsMarks = self::deprecationMarks($js, 'js');
+        if (count($jsMarks) !== 2 || $jsMarks[0]['line'] !== 2 || $jsMarks[1]['line'] !== 4 || self::deprecationMarkParts($jsMarks[0]['text'])['form'] !== 'decision') {
+            return 'en JS no ve las marcas de los comentarios (de línea y de bloque), o ve la de la cadena';
+        }
+        return '';
     }
 
     /**
@@ -7484,8 +7702,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     }
 
     /**
-     * 68. `src/app/config/user-types.php` se aplica entero (con un error rigen los de fábrica, y aquí cae) y ningún tipo
-     * retirado lo sigue asignando un módulo encendido. Lo que solo conviene revisar (una prioridad desde 400, una
+     * 68. `src/app/config/user-types.php` se aplica entero (con un error rigen los de fábrica, y aquí cae), ningún tipo
+     * retirado lo sigue asignando un módulo encendido y ningún tipo trae en `routes` una ruta solo de root (ADR 0090). Lo que solo conviene revisar (una prioridad desde 400, una
      * etiqueta o una descripción sin traducción a un idioma permitido) se imprime como aviso y no falla.
      *
      * @return string[]
@@ -7496,7 +7714,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach (UserTypes::errors() as $error) {
             $failures[] = "src/app/config/user-types.php: {$error}; rigen los tipos de fábrica";
         }
-        foreach (UserTypes::moduleConflicts() as $conflict) {
+        //Sin rutas registradas, rootOnlyRoutes() no puede mirar: eso es un fallo, no un verde.
+        if (!is_array(get_routes())) {
+            $failures[] = 'src/app/config/user-types.php: no hay rutas registradas, así que no se pudo comprobar si algún tipo trae en routes una ruta solo de root';
+        }
+        foreach (array_merge(UserTypes::moduleConflicts(), UserTypes::rootOnlyRoutes()) as $conflict) {
             $failures[] = "src/app/config/user-types.php: {$conflict}";
         }
         $warnings = array_merge(UserTypes::warnings(), UserTypes::missingTranslations(Config::get_allowed_langs()));

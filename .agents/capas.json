@@ -153,6 +153,8 @@
         ".agents/docs/adr/0086-*",
         ".agents/docs/adr/0087-*",
         ".agents/docs/adr/0088-*",
+        ".agents/docs/adr/0089-*",
+        ".agents/docs/adr/0090-*",
         ".agents/scripts/vikunja.py",
         ".agents/docs/auditorias/*",
         ".agents/estado/AHORA.md",

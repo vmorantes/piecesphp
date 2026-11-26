@@ -143,6 +143,19 @@ class UsersController extends AdminPanelController
         'organization',
     ];
 
+    /**
+     * La carpeta del formulario de cada tipo de fábrica en `usuarios/form-by-type/<modo>/` (ADR 0089); un tipo propio usa
+     * `type-<código>`. Sin carpeta para el tipo, se pinta el genérico `user-form.php`.
+     */
+    const FORM_TYPE_FOLDERS = [
+        UsersModel::TYPE_USER_ROOT => 'root',
+        UsersModel::TYPE_USER_ADMIN_GRAL => 'admin-general',
+        UsersModel::TYPE_USER_ADMIN_ORG => 'admin-organization',
+        UsersModel::TYPE_USER_GENERAL => 'general',
+        UsersModel::TYPE_USER_INSTITUCIONAL => 'institucional',
+        UsersModel::TYPE_USER_COMUNICACIONES => 'comunicaciones',
+    ];
+
     const NO_ERROR = 'NO_ERROR';
     const GENERIC_ERROR = 'GENERIC_ERROR';
     const DUPLICATE_USER = 'DUPLICATE_USER';
@@ -226,6 +239,22 @@ class UsersController extends AdminPanelController
         //Sus veintitrés vistas viven en el módulo. Lo del armazón —el layout y el recortador— lo
         //pide el ayudante, que no lleva este directorio.
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
+    }
+
+    /**
+     * La vista del formulario de un tipo en un modo (ADR 0089): la suya si existe; si no, el genérico.
+     *
+     * @param string $mode 'create', 'edit' o 'profile'
+     * @param int $typeCode
+     * @return string
+     */
+    private function formViewByType(string $mode, int $typeCode): string
+    {
+        $folder = self::FORM_TYPE_FOLDERS[$typeCode] ?? "type-{$typeCode}";
+        $view = "usuarios/form-by-type/{$mode}/{$folder}/form";
+        $file = $this->getInstanceViewDir() . $view . '.php';
+        //Uno vaciado cuenta como ausente (ADR 0089): pintarlo dejaría la pantalla sin formulario.
+        return is_file($file) && filesize($file) > 0 ? $view : 'usuarios/form-by-type/user-form';
     }
 
     /**
@@ -733,8 +762,7 @@ class UsersController extends AdminPanelController
             $data_form = [];
             $data_form['status_options'] = $status_options;
 
-            //Un solo formulario para cualquier tipo, con su código (ADR 0078).
-            $form = $this->render('usuarios/form-by-type/user-form', array_merge($data_form, ['formMode' => 'create', 'typeCode' => (int) $type]), false);
+            $form = $this->render($this->formViewByType('create', (int) $type), array_merge($data_form, ['formMode' => 'create', 'typeCode' => (int) $type]), false);
 
             $data = [];
             $data['form'] = $form;
@@ -812,7 +840,7 @@ class UsersController extends AdminPanelController
                 $data_form['status_options'] = $status_options;
                 $data_form['edit_user'] = $user;
 
-                $form = $this->render('usuarios/form-by-type/user-form', array_merge($data_form, ['formMode' => 'edit', 'typeCode' => (int) $type]), false);
+                $form = $this->render($this->formViewByType('edit', (int) $type), array_merge($data_form, ['formMode' => 'edit', 'typeCode' => (int) $type]), false);
 
                 $data = [];
                 $data['form'] = $form;
@@ -891,7 +919,7 @@ class UsersController extends AdminPanelController
             $data_form = [];
             $data_form['edit_user'] = $user;
 
-            $form = $this->render('usuarios/form-by-type/user-form', array_merge($data_form, ['formMode' => 'profile', 'typeCode' => (int) $type]), false);
+            $form = $this->render($this->formViewByType('profile', (int) $type), array_merge($data_form, ['formMode' => 'profile', 'typeCode' => (int) $type]), false);
 
             $data = [];
             $data['form'] = $form;

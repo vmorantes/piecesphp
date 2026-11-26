@@ -3,29 +3,21 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\Controllers\UsersController;
-use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
 
 /**
- * El formulario de un usuario, para cualquier tipo (ADR 0078): UsersController lo pinta con el código del tipo. Los 18 de
- * form-by-type (`<mode>/<tipo>/form.php`), en desuso, lo pintan con la carpeta del tipo. users-forms.js lo toma por las
- * clases del `form` (`users <modo>`); el servidor, por sus `name`.
+ * El formulario genérico de un usuario (ADR 0078 y 0089): UsersController pinta el de su tipo, `<modo>/<carpeta>/form.php`,
+ * si existe, y este si no. Los de fábrica lo incluyen. users-forms.js lo toma por las clases del `form` (`users <modo>`);
+ * el servidor, por sus `name`.
  *
  * @var string $formMode 'create', 'edit' o 'profile'.
  * @var int $typeCode El código del tipo; sin él, sale de $formType.
- * @var string $formType En desuso: la carpeta del tipo de fábrica ('root', 'admin-general', 'admin-organization', 'general', 'institucional' o 'comunicaciones').
+ * @var string $formType La carpeta del tipo de fábrica (UsersController::FORM_TYPE_FOLDERS), si lo incluye un envoltorio sin el código.
  * @var array<string,int> $status_options Sin 'profile'.
  * @var \stdClass $edit_user Sin 'create'.
  */
 $langGroup = UsersController::LANG_GROUP;
-$typeConstants = [
-    'root' => UsersModel::TYPE_USER_ROOT,
-    'admin-general' => UsersModel::TYPE_USER_ADMIN_GRAL,
-    'admin-organization' => UsersModel::TYPE_USER_ADMIN_ORG,
-    'general' => UsersModel::TYPE_USER_GENERAL,
-    'institucional' => UsersModel::TYPE_USER_INSTITUCIONAL,
-    'comunicaciones' => UsersModel::TYPE_USER_COMUNICACIONES,
-];
+$typeConstants = array_flip(UsersController::FORM_TYPE_FOLDERS);
 $isCreate = $formMode === 'create';
 $isProfile = $formMode === 'profile';
 //Un tipo que no esté en la tabla pertenece a una organización, como hasta ahora.

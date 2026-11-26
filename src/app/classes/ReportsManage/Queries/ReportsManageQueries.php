@@ -17,6 +17,7 @@ use PiecesPHP\Core\Database\ORM\Statements\JoinSegment;
 use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserTypes;
 use Publications\Mappers\PublicationMapper;
 use ReportsManage\ReportsManageLang;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
@@ -83,7 +84,7 @@ class ReportsManageQueries
     }
 
     /**
-     * Las personas que cuentan (tipo usuario general o administrador de organización, con perfil, activas y aprobadas),
+     * Las personas que cuentan (de un tipo con perfil según UserTypes::profileTypes(), con perfil, activas y aprobadas),
      * agrupadas por el país de su perfil.
      *
      * @return list<array{country:int|null,name:string|null,qty:int}>
@@ -106,11 +107,8 @@ class ReportsManageQueries
         //Asociar tabla de usuarios
         $joinSegment->addCritery(new JoinItem("{$tableUser}.id", JoinItem::EQUAL_OPERATOR, "{$table}.belongsTo"));
 
-        //Filtrar por tipo de usuario
-        $types = implode(',', [
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
-        ]);
+        //Filtrar por tipo de usuario: los que tienen perfil, de UserTypes (ADR 0090). Sin ninguno, IN (NULL) no casa nada.
+        $types = UserTypes::profileTypes() !== [] ? implode(',', array_map('intval', UserTypes::profileTypes())) : 'NULL';
         $joinSegment->addCritery(new JoinItem("{$tableUser}.type", JoinItem::IN_OPERATOR, "({$types})"));
 
         //Filtrar por estado
