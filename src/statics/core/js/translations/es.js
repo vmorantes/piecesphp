@@ -83,7 +83,11 @@ var PCSPHP_TRANSLATIONS_ES = {
 		}
 	},
 	semantic_dropdown: {
+		addResult: 'Añadir <b>{term}</b>',
+		count: '{count} seleccionados',
+		maxSelections: 'Máximo {maxCount} seleccionados',
 		noResults: 'Sin resultados.',
+		serverError: 'Hubo un error al contactar con el servidor',
 	},
 	semantic_search: {
 		error: {
@@ -175,6 +179,9 @@ var PCSPHP_TRANSLATIONS_ES = {
 		'Sí': 'Sí',
 		'No': 'No',
 		'Aceptar': 'Aceptar',
+	},
+	zoneLoader: {
+		'Cargando…': 'Cargando…',
 	},
 	loginForm: {
 		'Error': 'Error',

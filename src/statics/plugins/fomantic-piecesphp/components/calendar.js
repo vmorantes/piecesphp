@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Calendar
+ * # Fomantic-UI 1.4.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -73,6 +73,8 @@
                 focusDateUsedForRange = false,
                 selectionComplete = false,
                 classObserver,
+                ariaId,
+                ariaOpen = false,
                 module
             ;
 
@@ -182,11 +184,15 @@
                             };
                         }
                         var onShow = function () {
+                            ariaOpen = true;
                             // reset the focus date onShow
                             module.set.focusDate(module.get.date());
                             module.set.mode(module.get.validatedMode(settings.startMode));
+                            var result = settings.onShow.apply($container, arguments);
+                            ariaOpen = result !== false;
+                            module.set.aria();
 
-                            return settings.onShow.apply($container, arguments);
+                            return result;
                         };
                         var on = module.setting('on');
                         var options = $.extend({}, settings.popupOptions, {
@@ -197,7 +203,15 @@
                             closable: on === 'click',
                             onShow: onShow,
                             onVisible: onVisible,
-                            onHide: settings.onHide,
+                            onHide: function () {
+                                var result = settings.onHide.apply($container, arguments);
+                                if (result !== false) {
+                                    ariaOpen = false;
+                                    module.set.aria();
+                                }
+
+                                return result;
+                            },
                             onHidden: onHidden,
                         });
                         module.popup(options);
@@ -514,6 +528,7 @@
                                 module.refreshTooltips();
                             }
                         }
+                        module.set.aria();
                     },
                 },
 
@@ -548,6 +563,9 @@
                             }
                             $cell.toggleClass(className.rangeCell, inRange && !active && !disabled);
                         });
+                        if (container === $container) {
+                            module.set.aria();
+                        }
                     },
                 },
 
@@ -904,6 +922,93 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): patrón combobox de WAI-ARIA 1.2 con una rejilla (grid) como emergente. El foco se
+                    // queda en el campo (o en el calendario en línea sin campo, que es un group) y aria-activedescendant
+                    // apunta a la celda que Fomantic ya resalta con las flechas (.focus). Cada tabla es un grid con nombre de
+                    // su título; cada celda, su fecha completa (formatter.date, month o year: respeta el idioma) y su estado
+                    // desde las clases que pone el módulo. Se llama al pintar y al mover el foco; nunca pisa lo del autor
+                    aria: function () {
+                        if (!ariaId) {
+                            ariaId = '_' + ($module.attr('id') || namespace + Math.random().toString(16).slice(2, 10)) + '_calendar';
+                        }
+                        var
+                            mode = module.get.mode(),
+                            format = formatter[{ year: 'year', month: 'month', day: 'date' }[mode] || 'cellTime'],
+                            open = settings.inline || ariaOpen,
+                            focusedId = null,
+                            gridIds = [],
+                            titleId = null,
+                            $focus = $input.length > 0 ? $input : $container,
+                            own = function ($element, name, value) {
+                                if ($element.attr(name) === undefined || $element.data('ariaOwn-' + name)) {
+                                    if (value === null) {
+                                        $element.removeAttr(name);
+                                    } else {
+                                        $element.attr(name, value);
+                                    }
+                                    $element.data('ariaOwn-' + name, true);
+                                }
+                            }
+                        ;
+                        $container.find('table').each(function (t) {
+                            var
+                                $table = $(this),
+                                tableId = ariaId + '_' + t,
+                                $title = $table.find('thead th[colspan] > span').not('.prev, .next').first()
+                            ;
+                            gridIds.push(tableId);
+                            $table.attr({ id: tableId, role: 'grid' });
+                            if ($title.length > 0) {
+                                $title.attr('id', tableId + '_title');
+                                $table.attr('aria-labelledby', tableId + '_title');
+                                titleId = titleId || tableId + '_title';
+                            }
+                            $table.find('tbody td').each(function (c) {
+                                var
+                                    $cell = $(this),
+                                    cellDate = $cell.data(metadata.date)
+                                ;
+                                if (!cellDate || module.helper.isTodayButton($cell)) {
+                                    return;
+                                }
+                                $cell.attr({
+                                    id: tableId + '_' + c,
+                                    'aria-label': module.helper.dateFormat(format, cellDate),
+                                    'aria-selected': $cell.hasClass(className.activeCell) ? 'true' : 'false',
+                                });
+                                if ($cell.hasClass(className.disabledCell)) {
+                                    $cell.attr('aria-disabled', 'true');
+                                } else {
+                                    $cell.removeAttr('aria-disabled');
+                                }
+                                if ($cell.hasClass(className.focusCell)) {
+                                    focusedId = tableId + '_' + c;
+                                }
+                            });
+                        });
+                        if ($input.length > 0) {
+                            own($input, 'role', 'combobox');
+                            own($input, 'aria-haspopup', 'grid');
+                            own($input, 'aria-controls', gridIds.join(' ') || null);
+                            own($input, 'aria-expanded', open ? 'true' : 'false');
+                        } else {
+                            own($container, 'role', 'group');
+                            // El nombre que el autor dé al módulo (sin título, como en uno de solo hora, no hay otro)
+                            own($container, 'aria-label', $module.attr('aria-label') || null);
+                            if ($container.attr('aria-label') === undefined) {
+                                own($container, 'aria-labelledby', $module.attr('aria-labelledby') || titleId);
+                            }
+                            if (!settings.inline && $activator.length > 0) {
+                                if (!$container.attr('id')) {
+                                    $container.attr('id', ariaId);
+                                }
+                                own($activator, 'aria-haspopup', 'grid');
+                                own($activator, 'aria-controls', $container.attr('id'));
+                                own($activator, 'aria-expanded', open ? 'true' : 'false');
+                            }
+                        }
+                        own($focus, 'aria-activedescendant', open ? focusedId : null);
+                    },
                     date: function (date, updateInput, fireChange) {
                         updateInput = updateInput !== false;
                         fireChange = fireChange !== false;

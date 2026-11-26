@@ -689,6 +689,33 @@ table.dataTable > tbody > tr.child span.dtr-title {
   }
 }
 
+/* Lo que piecesphp ya hacía (D84, D89) y faltaba en los demás temas (regla «partida» de geometria.mjs, 2026-11-23: fechas
+   partidas por sus guiones, también a 1400 en correos-enviados, y palabras técnicas partidas a 390 en rutas-permisos) */
+
+/* La fecha (con hora) no parte: el ancho lo ceden las demás columnas */
+table.dataTable td.dt-type-date {
+  white-space: nowrap;
+}
+
+/* En tableta y móvil, la tabla mide su contenido y la desplaza su contenedor (en móvil una tabla es una tabla, como en
+   PiecesPHP), con cada celda en una línea, en vez de estrujarse hasta partir las palabras */
+@media only screen and (max-width: 991.98px) {
+  .dt-container > .dt-layout-table > .dt-layout-full {
+    overflow-x: auto;
+  }
+  table.ui.table.dataTable > tbody > tr > td {
+    white-space: nowrap;
+  }
+  
+/* Un título con imagen en una celda (avatar y nombre) es `inline-block` con `max-width: 100%` en algunos temas, y su
+       avatar también: esos porcentajes no cuentan para el ancho mínimo de la columna (la imagen cuenta 0) y, ya en una línea, el nombre tapaba la celda de al lado
+       (glass-ios, lumen y tinker a 320) */
+  table.ui.table.dataTable > tbody > tr > td .ui.header,
+  table.ui.table.dataTable > tbody > tr > td .ui.header > .ui.image {
+    max-width: none;
+  }
+}
+
 /* stylelint-disable selector-class-pattern -- las clases son las de DataTables (dataTable, dataTables_empty) */
 
 /* -------------------

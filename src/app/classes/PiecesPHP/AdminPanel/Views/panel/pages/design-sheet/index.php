@@ -88,6 +88,7 @@ $sections = [
             'mensajes-bloque' => [__($langGroup, 'Mensajes'), __($langGroup, 'Un aviso que se queda mientras sea cierto: una configuración que falta, un estado del registro.')],
             'mensajes-emergentes' => [__($langGroup, 'Avisos emergentes'), __($langGroup, 'El resultado de una acción: guardado, error al guardar. Desaparecen solos.')],
             'mensajes-confirmacion' => [__($langGroup, 'Preguntar antes de una acción'), __($langGroup, 'La única forma de preguntar: confirmAction() devuelve una promesa con true o false. Nunca los diálogos del navegador (confirm, alert).')],
+            'mensajes-carga' => [__($langGroup, 'Cargador por zona'), __($langGroup, 'Mientras se recarga una parte de la página (un listado, unas tarjetas), el atenuador del tema la cubre solo a ella: showZoneLoader(zona) y removeZoneLoader(zona). El indicador queda en el centro de lo que se ve de la zona. La pantalla de carga completa queda para la primera carga.')],
         ],
     ],
     'tarjetas' => [

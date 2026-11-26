@@ -575,6 +575,7 @@ class AdminPanelController extends BaseController
             self::staticRoute('js/design-sheet/contenido-pestanas.js'),
             self::staticRoute('js/design-sheet/mensajes-emergentes.js'),
             self::staticRoute('js/design-sheet/mensajes-confirmacion.js'),
+            self::staticRoute('js/design-sheet/mensajes-carga.js'),
             'statics/core/js/statistics-chart-legend.js',
             self::staticRoute('js/design-sheet/estadisticas-grafico.js'),
             self::staticRoute('js/design-sheet/estadisticas-tendencia.js'),

@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 1.1.1
+ * # Fomantic UI - 1.4.0
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 1.1.1 - Site
+ * # Fomantic-UI 1.4.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -513,7 +513,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Form Validation
+ * # Fomantic-UI 1.4.0 - Form Validation
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2713,7 +2713,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Accordion
+ * # Fomantic-UI 1.4.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2767,6 +2767,9 @@
                 element  = this,
                 instance = $module.data(moduleNamespace),
                 observer,
+                ariaObserver,
+                ariaFrame,
+                ariaId   = (Math.random().toString(16) + '000000000').slice(2, 10),
                 module
             ;
 
@@ -2777,6 +2780,25 @@
                     module.bind.events();
                     if (settings.observeChanges) {
                         module.observeChanges();
+                    }
+                    module.set.aria();
+                    // Fork (P320): aria-expanded sigue a la clase active de cada título, la ponga quien la ponga
+                    if ('MutationObserver' in window) {
+                        ariaObserver = new MutationObserver(function () {
+                            if (!ariaFrame) {
+                                ariaFrame = requestAnimationFrame(function () {
+                                    ariaFrame = null;
+                                    module.refresh();
+                                    module.set.aria();
+                                });
+                            }
+                        });
+                        ariaObserver.observe(element, {
+                            attributes: true,
+                            attributeFilter: ['class'],
+                            childList: true,
+                            subtree: true,
+                        });
                     }
                     module.instantiate();
                 },
@@ -2794,6 +2816,36 @@
                         .off(eventNamespace)
                         .removeData(moduleNamespace)
                     ;
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
+                },
+
+                set: {
+                    // Fork (P320, WCAG 2.1.1 y 4.1.2): los títulos (div.title) no se podían alcanzar con Tab ni abrir con el
+                    // teclado, y nada decía si estaban abiertos. Cada título es un botón enfocable con aria-expanded y
+                    // aria-controls hacia su contenido; sin pisar lo que ponga el autor (un <button> o un enlace ya enfocan)
+                    aria: function () {
+                        $title.each(function (index) {
+                            var
+                                $eachTitle   = $(this),
+                                $eachContent = $eachTitle.next(selector.content)
+                            ;
+                            if (!$eachTitle.is('a[href], button, input, select, textarea, [tabindex]')) {
+                                $eachTitle.attr('tabindex', 0);
+                            }
+                            if (!$eachTitle.is('button') && !$eachTitle.attr('role')) {
+                                $eachTitle.attr('role', 'button');
+                            }
+                            $eachTitle.attr('aria-expanded', $eachTitle.hasClass(className.active) ? 'true' : 'false');
+                            if ($eachContent.length > 0) {
+                                if (!$eachContent.attr('id')) {
+                                    $eachContent.attr('id', '_' + ariaId + '_content' + index);
+                                }
+                                $eachTitle.attr('aria-controls', $eachContent.attr('id'));
+                            }
+                        });
+                    },
                 },
 
                 refresh: function () {
@@ -2820,11 +2872,19 @@
                         module.debug('Binding delegated events');
                         $module
                             .on(settings.on + eventNamespace, selector.trigger, module.event.click)
+                            .on('keydown' + eventNamespace, selector.trigger, module.event.keydown)
                         ;
                     },
                 },
 
                 event: {
+                    // Fork (P320): Intro y Espacio sobre el título (no sobre un control que contenga) lo abren o cierran
+                    keydown: function (event) {
+                        if (event.target === this && (event.which === 13 || event.which === 32)) {
+                            event.preventDefault();
+                            module.toggle.call(this);
+                        }
+                    },
                     click: function (event) {
                         if ($(event.target).closest(selector.ignore).length === 0) {
                             module.toggle.call(this);
@@ -3059,10 +3119,7 @@
                         var $element = $(this);
                         $element.css('display', '');
                         if ($element.attr('style') === '') {
-                            $element
-                                .attr('style', '')
-                                .removeAttr('style')
-                            ;
+                            $element.removeAttr('style');
                         }
                     },
 
@@ -3071,10 +3128,7 @@
                         var $element = $(this);
                         $element.css('opacity', '');
                         if ($element.attr('style') === '') {
-                            $element
-                                .attr('style', '')
-                                .removeAttr('style')
-                            ;
+                            $element.removeAttr('style');
                         }
                     },
 
@@ -3309,7 +3363,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Calendar
+ * # Fomantic-UI 1.4.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3383,6 +3437,8 @@
                 focusDateUsedForRange = false,
                 selectionComplete = false,
                 classObserver,
+                ariaId,
+                ariaOpen = false,
                 module
             ;
 
@@ -3492,11 +3548,15 @@
                             };
                         }
                         var onShow = function () {
+                            ariaOpen = true;
                             // reset the focus date onShow
                             module.set.focusDate(module.get.date());
                             module.set.mode(module.get.validatedMode(settings.startMode));
+                            var result = settings.onShow.apply($container, arguments);
+                            ariaOpen = result !== false;
+                            module.set.aria();
 
-                            return settings.onShow.apply($container, arguments);
+                            return result;
                         };
                         var on = module.setting('on');
                         var options = $.extend({}, settings.popupOptions, {
@@ -3507,7 +3567,15 @@
                             closable: on === 'click',
                             onShow: onShow,
                             onVisible: onVisible,
-                            onHide: settings.onHide,
+                            onHide: function () {
+                                var result = settings.onHide.apply($container, arguments);
+                                if (result !== false) {
+                                    ariaOpen = false;
+                                    module.set.aria();
+                                }
+
+                                return result;
+                            },
                             onHidden: onHidden,
                         });
                         module.popup(options);
@@ -3824,6 +3892,7 @@
                                 module.refreshTooltips();
                             }
                         }
+                        module.set.aria();
                     },
                 },
 
@@ -3858,6 +3927,9 @@
                             }
                             $cell.toggleClass(className.rangeCell, inRange && !active && !disabled);
                         });
+                        if (container === $container) {
+                            module.set.aria();
+                        }
                     },
                 },
 
@@ -4214,6 +4286,93 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): patrón combobox de WAI-ARIA 1.2 con una rejilla (grid) como emergente. El foco se
+                    // queda en el campo (o en el calendario en línea sin campo, que es un group) y aria-activedescendant
+                    // apunta a la celda que Fomantic ya resalta con las flechas (.focus). Cada tabla es un grid con nombre de
+                    // su título; cada celda, su fecha completa (formatter.date, month o year: respeta el idioma) y su estado
+                    // desde las clases que pone el módulo. Se llama al pintar y al mover el foco; nunca pisa lo del autor
+                    aria: function () {
+                        if (!ariaId) {
+                            ariaId = '_' + ($module.attr('id') || namespace + Math.random().toString(16).slice(2, 10)) + '_calendar';
+                        }
+                        var
+                            mode = module.get.mode(),
+                            format = formatter[{ year: 'year', month: 'month', day: 'date' }[mode] || 'cellTime'],
+                            open = settings.inline || ariaOpen,
+                            focusedId = null,
+                            gridIds = [],
+                            titleId = null,
+                            $focus = $input.length > 0 ? $input : $container,
+                            own = function ($element, name, value) {
+                                if ($element.attr(name) === undefined || $element.data('ariaOwn-' + name)) {
+                                    if (value === null) {
+                                        $element.removeAttr(name);
+                                    } else {
+                                        $element.attr(name, value);
+                                    }
+                                    $element.data('ariaOwn-' + name, true);
+                                }
+                            }
+                        ;
+                        $container.find('table').each(function (t) {
+                            var
+                                $table = $(this),
+                                tableId = ariaId + '_' + t,
+                                $title = $table.find('thead th[colspan] > span').not('.prev, .next').first()
+                            ;
+                            gridIds.push(tableId);
+                            $table.attr({ id: tableId, role: 'grid' });
+                            if ($title.length > 0) {
+                                $title.attr('id', tableId + '_title');
+                                $table.attr('aria-labelledby', tableId + '_title');
+                                titleId = titleId || tableId + '_title';
+                            }
+                            $table.find('tbody td').each(function (c) {
+                                var
+                                    $cell = $(this),
+                                    cellDate = $cell.data(metadata.date)
+                                ;
+                                if (!cellDate || module.helper.isTodayButton($cell)) {
+                                    return;
+                                }
+                                $cell.attr({
+                                    id: tableId + '_' + c,
+                                    'aria-label': module.helper.dateFormat(format, cellDate),
+                                    'aria-selected': $cell.hasClass(className.activeCell) ? 'true' : 'false',
+                                });
+                                if ($cell.hasClass(className.disabledCell)) {
+                                    $cell.attr('aria-disabled', 'true');
+                                } else {
+                                    $cell.removeAttr('aria-disabled');
+                                }
+                                if ($cell.hasClass(className.focusCell)) {
+                                    focusedId = tableId + '_' + c;
+                                }
+                            });
+                        });
+                        if ($input.length > 0) {
+                            own($input, 'role', 'combobox');
+                            own($input, 'aria-haspopup', 'grid');
+                            own($input, 'aria-controls', gridIds.join(' ') || null);
+                            own($input, 'aria-expanded', open ? 'true' : 'false');
+                        } else {
+                            own($container, 'role', 'group');
+                            // El nombre que el autor dé al módulo (sin título, como en uno de solo hora, no hay otro)
+                            own($container, 'aria-label', $module.attr('aria-label') || null);
+                            if ($container.attr('aria-label') === undefined) {
+                                own($container, 'aria-labelledby', $module.attr('aria-labelledby') || titleId);
+                            }
+                            if (!settings.inline && $activator.length > 0) {
+                                if (!$container.attr('id')) {
+                                    $container.attr('id', ariaId);
+                                }
+                                own($activator, 'aria-haspopup', 'grid');
+                                own($activator, 'aria-controls', $container.attr('id'));
+                                own($activator, 'aria-expanded', open ? 'true' : 'false');
+                            }
+                        }
+                        own($focus, 'aria-activedescendant', open ? focusedId : null);
+                    },
                     date: function (date, updateInput, fireChange) {
                         updateInput = updateInput !== false;
                         fireChange = fireChange !== false;
@@ -5356,7 +5515,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.1.1 - Chat
+ * # Fomantic-UI 1.4.0 - Chat
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -6103,7 +6262,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Checkbox
+ * # Fomantic-UI 1.4.0 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -6995,7 +7154,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.1.1 - Colorpicker
+ * # Fomantic-UI 1.4.0 - Colorpicker
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -9369,7 +9528,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Dimmer
+ * # Fomantic-UI 1.4.0 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10102,7 +10261,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Dropdown
+ * # Fomantic-UI 1.4.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10205,6 +10364,10 @@
                 selectObserver,
                 menuObserver,
                 classObserver,
+                ariaObserver,
+                ariaFrame,
+                authorActive = false,
+                opened = false,
                 module,
                 tempDisableApiCache = false
             ;
@@ -10224,6 +10387,10 @@
 
                         module.create.id();
                         module.setup.layout();
+                        // Fork (P320): `active` puesto por el autor (el ítem de la sección actual en un menú) chocaba con el
+                        // `active` que marca el desplegable abierto: ni el clic ni el teclado lo abrían. Se recuerda, no se
+                        // quita al cerrar y el estado abierto se lleva aparte
+                        authorActive = $module.hasClass(className.active) && !module.is.visible();
 
                         if (settings.values) {
                             module.set.initialLoad();
@@ -10238,6 +10405,7 @@
 
                         module.save.defaults();
                         module.restore.selected();
+                        module.set.aria();
 
                         module.bind.events();
 
@@ -10274,6 +10442,9 @@
                     module.disconnect.menuObserver();
                     module.disconnect.selectObserver();
                     module.disconnect.classObserver();
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
                 },
 
                 observeChanges: function () {
@@ -10285,6 +10456,22 @@
                         module.observe.select();
                         module.observe.menu();
                         module.observe.class();
+                        // Fork (P320): el estado ARIA sigue a las clases que ya pone el módulo (visible, active, selected,
+                        // disabled, filtered), estén donde estén en el código: un solo observador, agrupado por fotograma
+                        ariaObserver = new MutationObserver(function () {
+                            if (!ariaFrame) {
+                                ariaFrame = requestAnimationFrame(function () {
+                                    ariaFrame = null;
+                                    module.set.aria();
+                                });
+                            }
+                        });
+                        ariaObserver.observe($module[0], {
+                            attributes: true,
+                            attributeFilter: ['class'],
+                            childList: true,
+                            subtree: true,
+                        });
                     }
                 },
 
@@ -12625,6 +12812,98 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): patrón combobox de WAI-ARIA 1.2. Un desplegable de selección (selection, con
+                    // <select> o input oculto, o con buscador) es un combobox con su listbox de options; uno de acciones es un
+                    // botón con su menu de menuitems. El rol va en lo que recibe el foco (el buscador, si lo hay). El nombre
+                    // sale de la etiqueta del campo si el autor no puso aria-label ni aria-labelledby. aria-activedescendant
+                    // sigue al ítem resaltado con las flechas (el foco no sale del combobox)
+                    aria: function () {
+                        if (!$menu || $menu.length === 0) {
+                            return;
+                        }
+                        var
+                            listbox   = module.is.selection() || module.has.input() || module.is.search(),
+                            $focus    = module.is.searchSelection() ? $search : $module,
+                            expanded  = module.is.visible(),
+                            $options  = $menu.find(selector.item),
+                            $highlight,
+                            $label
+                        ;
+                        if (!$menu.attr('id')) {
+                            $menu.attr('id', '_' + module.get.id() + '_menu');
+                        }
+                        $menu.attr('role', listbox ? 'listbox' : 'menu');
+                        if (listbox && module.is.multiple()) {
+                            $menu.attr('aria-multiselectable', 'true');
+                        }
+                        $menu.find(selector.menu).attr('role', listbox ? 'group' : 'menu');
+                        $menu.find('.divider').attr('role', 'separator');
+                        $menu.find('.header').not(selector.item).attr('role', 'presentation');
+                        $options.each(function (index) {
+                            var $option = $(this);
+                            if (!this.id) {
+                                this.id = '_' + module.get.id() + '_item' + index;
+                            }
+                            $option.attr('role', listbox ? 'option' : 'menuitem');
+                            if (listbox) {
+                                $option.attr('aria-selected', $option.hasClass(className.active) ? 'true' : 'false');
+                            }
+                            if ($option.hasClass(className.disabled)) {
+                                $option.attr('aria-disabled', 'true');
+                            } else {
+                                $option.removeAttr('aria-disabled');
+                            }
+                        });
+                        $menu.find(selector.item).children('.icon, .flag, i').attr('aria-hidden', 'true');
+                        if (listbox) {
+                            $focus.attr({ role: 'combobox', 'aria-haspopup': 'listbox' });
+                            if (module.is.searchSelection()) {
+                                $focus.attr('aria-autocomplete', 'list');
+                                if ($module.attr('role') === 'combobox') {
+                                    $module.removeAttr('role aria-haspopup aria-expanded aria-controls aria-activedescendant');
+                                }
+                            }
+                        } else {
+                            $focus.attr({ role: 'button', 'aria-haspopup': 'menu' });
+                        }
+                        $focus.attr({ 'aria-expanded': expanded ? 'true' : 'false', 'aria-controls': $menu.attr('id') });
+                        if (module.is.disabled()) {
+                            $focus.attr('aria-disabled', 'true');
+                        } else {
+                            $focus.removeAttr('aria-disabled');
+                        }
+                        $highlight = $options.filter('.' + className.selected).filter(':visible').first();
+                        if (expanded && $highlight.length > 0) {
+                            $focus.attr('aria-activedescendant', $highlight.attr('id'));
+                        } else {
+                            $focus.removeAttr('aria-activedescendant');
+                        }
+                        // El nombre que el autor dio al desplegable o a su <select> (o input oculto) pasa a lo que recibe el foco
+                        [$module, $input].forEach(function ($named) {
+                            if ($named.length > 0 && $named[0] !== $focus[0] && !$focus.attr('aria-label') && !$focus.attr('aria-labelledby')) {
+                                $focus.attr({ 'aria-label': $named.attr('aria-label'), 'aria-labelledby': $named.attr('aria-labelledby') });
+                            }
+                        });
+                        if (!$focus.attr('aria-label') && !$focus.attr('aria-labelledby')) {
+                            $label = $module.prev('label');
+                            if ($label.length === 0 && $input.attr('id')) {
+                                $label = $('label[for="' + $input.attr('id') + '"]');
+                            }
+                            if ($label.length === 0) {
+                                $label = $module.closest('.field').children('label');
+                            }
+                            $label = $label.first();
+                            if ($label.length > 0) {
+                                if (!$label.attr('id')) {
+                                    $label.attr('id', '_' + module.get.id() + '_formLabel');
+                                }
+                                $focus.attr('aria-labelledby', $label.attr('id'));
+                            } else if (listbox && module.get.placeholderText()) {
+                                // Sin etiqueta, el texto de marcador, como el placeholder de un <input>
+                                $focus.attr('aria-label', module.get.placeholderText());
+                            }
+                        }
+                    },
                     filtered: function () {
                         var
                             isMultiple       = module.is.multiple(),
@@ -12902,6 +13181,7 @@
                         }
                     },
                     active: function () {
+                        opened = true;
                         $module
                             .addClass(className.active)
                         ;
@@ -13229,7 +13509,10 @@
 
                 remove: {
                     active: function () {
-                        $module.removeClass(className.active);
+                        opened = false;
+                        if (!authorActive) {
+                            $module.removeClass(className.active);
+                        }
                     },
                     activeLabel: function () {
                         $module.find(selector.label).removeClass(className.active);
@@ -13571,7 +13854,9 @@
 
                 is: {
                     active: function () {
-                        return $module.hasClass(className.active);
+                        return authorActive
+                            ? opened
+                            : $module.hasClass(className.active);
                     },
                     animatingInward: function () {
                         return $menu.transition('is inward');
@@ -14652,7 +14937,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Embed
+ * # Fomantic-UI 1.4.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -14755,6 +15040,27 @@
                                 .on('click' + eventNamespace, selector.placeholder, module.createAndShow)
                                 .on('click' + eventNamespace, selector.icon, module.createAndShow)
                             ;
+                            // Fork (P320, WCAG 2.1.1 y 4.1.2): la portada solo se activaba con el ratón. El ícono (o la imagen, si
+                            // no hay ícono) es un botón enfocable que Intro y Espacio activan; su nombre, el del autor o el alt
+                            var
+                                $trigger = $module.children(selector.icon).first(),
+                                name     = $module.attr('aria-label') || $module.children(selector.placeholder).attr('alt') || ''
+                            ;
+                            if ($trigger.length === 0) {
+                                $trigger = $module.children(selector.placeholder).first();
+                            }
+                            if (!$trigger.is('a[href], button, [tabindex]')) {
+                                $trigger.attr({ tabindex: 0, role: 'button' }).data('ariaOwnTrigger', true);
+                                if (name && !$trigger.attr('aria-label')) {
+                                    $trigger.attr('aria-label', name);
+                                }
+                            }
+                            $module.on('keydown' + eventNamespace, selector.icon + ', ' + selector.placeholder, function (event) {
+                                if (event.which === 13 || event.which === 32) {
+                                    event.preventDefault();
+                                    module.createAndShow();
+                                }
+                            });
                         }
                     },
                 },
@@ -14829,6 +15135,7 @@
                     module.remove.active();
                     module.remove.embed();
                     module.showPlaceholder();
+                    $module.children(selector.icon + ', ' + selector.placeholder).filter(function () { return $(this).data('ariaOwnTrigger'); }).attr('tabindex', 0);
                     settings.onReset.call(element);
                 },
 
@@ -14836,6 +15143,8 @@
                 show: function () {
                     module.debug('Showing embed');
                     module.set.active();
+                    // Fork (P320): con el vídeo a la vista, la portada oculta sale del orden de Tab
+                    $module.children(selector.icon + ', ' + selector.placeholder).filter(function () { return $(this).data('ariaOwnTrigger'); }).attr('tabindex', -1);
                     settings.onDisplay.call(element);
                 },
 
@@ -15341,7 +15650,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Flyout
+ * # Fomantic-UI 1.4.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -15367,7 +15676,6 @@
             $window         = $(window),
             $document       = $(document),
             $html           = $('html'),
-            $head           = $('head'),
             $body           = $('body'),
 
             time            = Date.now(),
@@ -15416,7 +15724,6 @@
 
                 $flyouts             = $module.children(selector.flyout),
                 $pusher              = $context.children(selector.pusher),
-                $style,
 
                 isFlyoutComponent    = $module.hasClass('flyout'),
 
@@ -15458,6 +15765,7 @@
                         }
                     }
                     $module.addClass(settings.class);
+                    module.set.aria();
                     if (settings.title !== '') {
                         $module.find(selector.header).html(module.helpers.escape(settings.title, settings.preserveHTML)).addClass(settings.classTitle);
                     }
@@ -15631,6 +15939,17 @@
                     close: function (event) {
                         module.hide();
                     },
+                    // Fork (P320): un botón de acción escrito como <div> (con role="button" de set.aria) se activa con Intro y
+                    // Espacio, como un <button>
+                    actionKeyDown: function (event) {
+                        var
+                            keyCode = event.which
+                        ;
+                        if (keyCode === settings.keys.enter || keyCode === settings.keys.space) {
+                            event.preventDefault();
+                            $(this).trigger('click');
+                        }
+                    },
                     closeKeyUp: function (event) {
                         var
                             keyCode   = event.which
@@ -15710,6 +16029,7 @@
                             .on('click' + eventNamespace, selector.close, module.event.close)
                             .on('click' + eventNamespace, selector.approve, module.event.approve)
                             .on('click' + eventNamespace, selector.deny, module.event.deny)
+                            .on('keydown' + eventNamespace, '.actions [role="button"]:not(a, button, input)', module.event.actionKeyDown)
                         ;
                         $closeIcon
                             .on('keyup' + elementNamespace, module.event.closeKeyUp)
@@ -15764,71 +16084,17 @@
                 },
 
                 add: {
+                    // Fork (#3633 del original, sin fusionar; CSP estricta): la distancia va en una variable CSS del contexto
+                    // (CSSOM, que style-src 'self' permite) en vez de una etiqueta <style>; el LESS la lee
                     inlineCSS: function () {
                         var
-                            width     = module.cache.width || $module.outerWidth(),
-                            height    = module.cache.height || $module.outerHeight(),
-                            isRTL     = module.is.rtl(),
                             direction = module.get.direction(),
-                            distance  = {
-                                left: width,
-                                right: -width,
-                                top: height,
-                                bottom: -height,
-                            },
-                            style
+                            distance  = direction === 'top' || direction === 'bottom'
+                                ? module.cache.height || $module.outerHeight()
+                                : module.cache.width || $module.outerWidth()
                         ;
-
-                        if (isRTL) {
-                            module.verbose('RTL detected, flipping widths');
-                            distance.left = -width;
-                            distance.right = width;
-                        }
-
-                        style = '<style>';
-
-                        if (direction === 'left' || direction === 'right') {
-                            module.debug('Adding CSS rules for animation distance', width);
-                            style += ''
-                                + ' .ui.visible.' + direction + '.flyout ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.flyout ~ .pusher {'
-                                + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                + ' }';
-                        } else if (direction === 'top' || direction === 'bottom') {
-                            style += ''
-                                + ' .ui.visible.' + direction + '.flyout ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.flyout ~ .pusher {'
-                                + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                + ' }';
-                        }
-
-                        /* IE is only browser not to create context with transforms */
-                        /* https://www.w3.org/Bugs/Public/show_bug.cgi?id=16328 */
-                        if (module.is.ie()) {
-                            if (direction === 'left' || direction === 'right') {
-                                module.debug('Adding CSS rules for animation distance', width);
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.flyout ~ .pusher::after {'
-                                    + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                    + ' }';
-                            } else if (direction === 'top' || direction === 'bottom') {
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.flyout ~ .pusher::after {'
-                                    + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                    + ' }';
-                            }
-                            /* opposite sides visible forces content overlay */
-                            style += ''
-                                + ' body.pushable > .ui.visible.left.flyout ~ .ui.visible.right.flyout ~ .pusher::after,'
-                                + ' body.pushable > .ui.visible.right.flyout ~ .ui.visible.left.flyout ~ .pusher::after {'
-                                + '           transform: translate3d(0, 0, 0);'
-                                + ' }';
-                        }
-                        style += '</style>';
-                        $style = $(style)
-                            .appendTo($head)
-                        ;
-                        module.debug('Adding sizing css to head', $style);
+                        module.debug('Adding CSS variable for animation distance', distance);
+                        $context[0].style.setProperty('--flyout-' + direction + '-distance', distance + 'px');
                     },
                     keyboardShortcuts: function () {
                         module.verbose('Adding keyboard shortcuts');
@@ -15940,12 +16206,19 @@
                             module.debug('Adding wrapper element for flyout');
                             module.error(error.pusher);
                             $pusher = $('<div class="pusher" />');
+                            // Fork (P320): envolver mueve el contenido y el elemento enfocado pierde el foco antes de que show()
+                            // lo guarde (un `$('body').flyout('alert')` desde un botón dejaba el foco en body al cerrarse): se le
+                            // devuelve tras envolver
+                            var focused = document.activeElement;
                             $context
                                 .children()
                                 .not(selector.omitted)
                                 .not($flyouts)
                                 .wrapAll($pusher)
                             ;
+                            if (focused && focused !== document.body && focused !== document.activeElement && document.documentElement.contains(focused)) {
+                                focused.focus({ preventScroll: true });
+                            }
                             module.refresh();
                         }
                         if ($module.nextAll(selector.pusher).length === 0 || $module.nextAll(selector.pusher)[0] !== $pusher[0]) {
@@ -16018,13 +16291,16 @@
                         }
                         module.set.dimmerStyles();
                         module.set.observeAttributes(false);
+                        // Fork (P320): el foco se guarda antes de animar. Al terminar, el observador de cambios ya había
+                        // enfocado los botones que crea una plantilla (alert, confirm, prompt), save.focus lo encontraba dentro
+                        // del flyout y, al cerrarlo, el foco acababa en body en vez de volver al disparador
+                        module.save.focus();
                         module.pushPage(function () {
                             callback.call(element);
                             settings.onVisible.call(element);
                             if (settings.keyboardShortcuts) {
                                 module.add.keyboardShortcuts();
                             }
-                            module.save.focus();
                             module.refreshInputs();
                             requestAnimationFrame(module.set.observeAttributes);
                         });
@@ -16199,6 +16475,35 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): un flyout escrito en el marcado no tenía rol ni nombre accesible (solo los que
+                    // crea el JS). Se completa lo que falte, sin pisar lo que haya puesto el autor: role="dialog", aria-modal
+                    // y aria-labelledby con su encabezado (al que se da un id si no lo tiene)
+                    aria: function () {
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'dialog');
+                        }
+                        if ($module.attr('aria-modal') === undefined) {
+                            $module.attr('aria-modal', !!settings.dimPage);
+                        }
+                        if (!$module.attr('aria-labelledby') && !$module.attr('aria-label')) {
+                            var
+                                $title = $module.children(selector.header + ', .header').first()
+                            ;
+                            if ($title.length > 0) {
+                                if (!$title.attr('id')) {
+                                    $title.attr('id', '_' + module.get.id() + 'title');
+                                }
+                                $module.attr('aria-labelledby', $title.attr('id'));
+                            }
+                        }
+                        // El ícono de cerrar y los botones de acción escritos como <i>/<div> no se podían alcanzar con Tab:
+                        // se hacen enfocables (closeKeyUp y event.actionKeyDown los activan con Intro y Espacio)
+                        $closeIcon.add($module.find(selector.actions).find('.button'))
+                            .not('a[href], button, input, select, textarea, [tabindex]')
+                            .attr({ tabindex: 0, role: 'button' })
+                        ;
+                        $closeIcon.not('[aria-label]').attr('aria-label', settings.text.close);
+                    },
                     observeAttributes: function (state) {
                         observeAttributes = state !== false;
                     },
@@ -16271,9 +16576,22 @@
                 remove: {
 
                     inlineCSS: function () {
-                        module.debug('Removing inline css styles', $style);
-                        if ($style && $style.length > 0) {
-                            $style.remove();
+                        var
+                            direction = module.get.direction(),
+                            $visible  = $flyouts.not($module).filter('.' + className.visible + '.' + direction).last()
+                        ;
+                        // Otro flyout visible del mismo lado conserva su distancia
+                        if ($visible.length > 0) {
+                            $context[0].style.setProperty('--flyout-' + direction + '-distance', (direction === 'top' || direction === 'bottom'
+                                ? $visible.outerHeight()
+                                : $visible.outerWidth()) + 'px');
+
+                            return;
+                        }
+                        module.debug('Removing CSS variable for animation distance');
+                        $context[0].style.removeProperty('--flyout-' + direction + '-distance');
+                        if ($context.attr('style') === '') {
+                            $context.removeAttr('style');
                         }
                     },
                     keyboardShortcuts: function () {
@@ -16900,7 +17218,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.1.1 - Loadbar
+ * # Fomantic-UI 1.4.0 - Loadbar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -17349,7 +17667,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Modal
+ * # Fomantic-UI 1.4.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -17460,6 +17778,7 @@
                         }
                     }
                     $module.addClass(settings.class);
+                    module.set.aria();
                     if (settings.title !== '') {
                         $module.find(selector.title).html(module.helpers.escape(settings.title, settings.preserveHTML)).addClass(settings.classTitle);
                     }
@@ -17733,6 +18052,7 @@
                             .on('click' + eventNamespace, selector.close, module.event.close)
                             .on('click' + eventNamespace, selector.approve, module.event.approve)
                             .on('click' + eventNamespace, selector.deny, module.event.deny)
+                            .on('keydown' + eventNamespace, '.actions [role="button"]:not(a, button, input)', module.event.actionKeyDown)
                         ;
                         $closeIcon
                             .on('keyup' + elementEventNamespace, module.event.closeKeyUp)
@@ -17799,6 +18119,17 @@
                     },
                     close: function () {
                         module.hide();
+                    },
+                    // Fork (P320): un botón de acción escrito como <div> (con role="button" de set.aria) se activa con Intro y
+                    // Espacio, como un <button>
+                    actionKeyDown: function (event) {
+                        var
+                            keyCode = event.which
+                        ;
+                        if (keyCode === settings.keys.enter || keyCode === settings.keys.space) {
+                            event.preventDefault();
+                            $(this).trigger('click');
+                        }
                     },
                     closeKeyUp: function (event) {
                         var
@@ -17951,6 +18282,9 @@
 
                             return;
                         }
+                        // Fork (P320): el foco se guarda antes de animar, como en flyout. Al terminar, el observador de
+                        // cambios puede haber enfocado ya un control del modal y save.focus no guardaría el disparador
+                        module.save.focus();
                         hadScrollbar = module.has.scrollbar();
                         module.showDimmer();
                         module.cacheSizes();
@@ -17998,7 +18332,6 @@
                                             if (settings.keyboardShortcuts) {
                                                 module.add.keyboardShortcuts();
                                             }
-                                            module.save.focus();
                                             module.set.active();
                                             module.refreshInputs();
                                             requestAnimationFrame(module.set.observeAttributes);
@@ -18411,6 +18744,35 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): un modal escrito en el marcado no tenía rol ni nombre accesible (solo los que
+                    // crea el JS). Se completa lo que falte, sin pisar lo que haya puesto el autor: role="dialog", aria-modal
+                    // y aria-labelledby con su encabezado (al que se da un id si no lo tiene)
+                    aria: function () {
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'dialog');
+                        }
+                        if ($module.attr('aria-modal') === undefined) {
+                            $module.attr('aria-modal', true);
+                        }
+                        if (!$module.attr('aria-labelledby') && !$module.attr('aria-label')) {
+                            var
+                                $title = $module.children('.header').first()
+                            ;
+                            if ($title.length > 0) {
+                                if (!$title.attr('id')) {
+                                    $title.attr('id', '_' + module.get.id() + 'title');
+                                }
+                                $module.attr('aria-labelledby', $title.attr('id'));
+                            }
+                        }
+                        // El ícono de cerrar y los botones de acción escritos como <i>/<div> no se podían alcanzar con Tab:
+                        // se hacen enfocables (closeKeyUp y event.actionKeyDown los activan con Intro y Espacio)
+                        $closeIcon.add($module.find(selector.actions).find('.button'))
+                            .not('a[href], button, input, select, textarea, [tabindex]')
+                            .attr({ tabindex: 0, role: 'button' })
+                        ;
+                        $closeIcon.not('[aria-label]').attr('aria-label', settings.text.close);
+                    },
                     observeAttributes: function (state) {
                         observeAttributes = state !== false;
                     },
@@ -18988,7 +19350,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Nag
+ * # Fomantic-UI 1.4.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -19556,7 +19918,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.1.1 - Pin
+ * # Fomantic-UI 1.4.0 - Pin
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -20148,7 +20510,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Popup
+ * # Fomantic-UI 1.4.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -20579,6 +20941,7 @@
                 animate: {
                     show: function (callback) {
                         callback = isFunction(callback) ? callback : function () {};
+                        module.set.tooltipAria(true);
                         if (settings.transition && module.can.useElement('transition')) {
                             module.set.visible();
                             $popup
@@ -20611,6 +20974,7 @@
                                     verbose: settings.verbose,
                                     silent: settings.silent,
                                     onComplete: function () {
+                                        module.set.tooltipAria(false);
                                         module.reset();
                                         callback.call($popup, element);
                                         settings.onHidden.call($popup, element);
@@ -20896,6 +21260,29 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): un popup de pasar el ratón o de foco cuyo contenido es solo texto es un tooltip: el
+                    // disparador lo describe (aria-describedby) mientras está abierto. Uno con controles dentro no lo es
+                    tooltipAria: function (open) {
+                        if (!$popup || $popup.length === 0 || (settings.on !== 'hover' && settings.on !== 'focus')) {
+                            return;
+                        }
+                        if (open) {
+                            if ($popup.find('a[href], button, input, select, textarea, [tabindex]').length > 0) {
+                                return;
+                            }
+                            if (!$popup.attr('id')) {
+                                $popup.attr('id', '_' + module.get.id() + '_popup');
+                            }
+                            if (!$popup.attr('role')) {
+                                $popup.attr('role', 'tooltip');
+                            }
+                            if (!$module.attr('aria-describedby')) {
+                                $module.attr('aria-describedby', $popup.attr('id')).data('ariaOwnDescribedby', true);
+                            }
+                        } else if ($module.data('ariaOwnDescribedby')) {
+                            $module.removeAttr('aria-describedby').removeData('ariaOwnDescribedby');
+                        }
+                    },
                     position: function (position, calculations) {
                         // exit conditions
                         if ($target.length === 0 || $popup.length === 0) {
@@ -21178,6 +21565,18 @@
                                 .on(module.get.endEvent() + eventNamespace, module.event.end)
                             ;
                         }
+                        // Fork (P320, WCAG 2.1.1): lo que se abre al pasar el ratón también se abre al llegar con el teclado
+                        if (settings.on === 'hover') {
+                            $module
+                                .on('focusin' + eventNamespace, module.event.start)
+                                .on('focusout' + eventNamespace, function (event) {
+                                    // El foco que pasa al popup (también al popup mismo, como el calendario sin campo) no lo cierra
+                                    if (!(event.relatedTarget && $popup && $popup.length > 0 && ($popup[0] === event.relatedTarget || $.contains($popup[0], event.relatedTarget)))) {
+                                        module.event.end();
+                                    }
+                                })
+                            ;
+                        }
                         if (settings.target) {
                             module.debug('Target set to element', $target);
                         }
@@ -21196,6 +21595,14 @@
                         if (settings.hideOnScroll === true || (settings.hideOnScroll === 'auto' && settings.on !== 'click')) {
                             module.bind.closeOnScroll();
                         }
+                        // Fork (P320, WCAG 1.4.13): Escape descarta el popup abierto sin mover el ratón ni el foco
+                        $document
+                            .on('keydown' + elementNamespace, function (event) {
+                                if (event.which === 27 && module.is.visible()) {
+                                    module.hide();
+                                }
+                            })
+                        ;
                         if (module.is.closable()) {
                             module.bind.clickaway();
                         } else if (settings.on === 'hover' && openedWithTouch) {
@@ -21711,7 +22118,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Progress
+ * # Fomantic-UI 1.4.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -21828,6 +22235,7 @@
 
                     module.read.metadata();
                     module.read.settings();
+                    module.set.aria(module.helper.sum(module.helper.forceArray(module.percent || 0)));
 
                     module.instantiate();
                 },
@@ -22173,6 +22581,27 @@
                         ;
                         // Fork: porcentaje total como propiedad CSS, para la variación circular (anillo)
                         element.style.setProperty('--progress-percent', String(module.helper.sum(percents)));
+                        module.set.aria(module.helper.sum(percents));
+                    },
+                    // Fork (P320, WCAG 4.1.2): la barra no decía qué era ni cuánto llevaba. role="progressbar" con su
+                    // porcentaje (sin valor si es indeterminada) y, sin nombre propio, el de su etiqueta (.label)
+                    aria: function (percent) {
+                        var
+                            $label = $module.children('.label').first()
+                        ;
+                        $module.attr({ role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100 });
+                        if ($module.hasClass('indeterminate')) {
+                            $module.removeAttr('aria-valuenow');
+                        } else {
+                            $module.attr('aria-valuenow', Math.round(Math.min(100, Math.max(0, percent))));
+                        }
+                        if (!$module.attr('aria-label') && !$module.attr('aria-labelledby') && $label.length > 0) {
+                            if (!$label.attr('id')) {
+                                $label.attr('id', '_' + (element.id || Math.random().toString(16).slice(2, 10)) + '_progress');
+                            }
+                            $module.attr('aria-labelledby', $label.attr('id'));
+                        }
+                        $bars.find('.progress').attr('aria-hidden', 'true');
                     },
                     duration: function (duration) {
                         duration = duration || settings.duration;
@@ -22693,7 +23122,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Slider
+ * # Fomantic-UI 1.4.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -22823,7 +23252,8 @@
 
                 setup: {
                     layout: function () {
-                        if ($module.attr('tabindex') === undefined) {
+                        // Fork (P320): en un rango el foco va a cada tirador (set.aria), no al módulo
+                        if ($module.attr('tabindex') === undefined && !module.is.range()) {
                             $module.attr('tabindex', 0);
                         }
                         if ($module.find('.inner').length === 0) {
@@ -22946,6 +23376,10 @@
                     keyboardEvents: function () {
                         module.verbose('Binding keyboard events');
                         $module.on('keydown' + eventNamespace, module.event.keydown);
+                        // Fork (P320): en un rango, el tirador con el foco es el que mueven las flechas
+                        $module.on('focusin' + eventNamespace, '.thumb', function () {
+                            $currThumb = $(this);
+                        });
                     },
                     globalKeyboardEvents: function () {
                         $document.on('keydown' + eventNamespace + documentEventID, module.event.activateFocus);
@@ -22998,6 +23432,7 @@
                             .off('touchcancel' + eventNamespace)
                         ;
                         $module.off('keydown' + eventNamespace);
+                        $module.off('focusin' + eventNamespace);
                         $module.off('focusout' + eventNamespace);
                         $document.off('keydown' + eventNamespace + documentEventID, module.event.activateFocus);
                         $window.off('resize' + eventNamespace);
@@ -23142,7 +23577,10 @@
                         if (module.is.disabled()) {
                             return;
                         }
-                        if (settings.preventCrossover && module.is.range() && module.thumbVal === module.secondThumbVal) {
+                        var $focusedThumb = $module.find('.thumb:focus');
+                        if ($focusedThumb.length > 0) {
+                            $currThumb = $focusedThumb;
+                        } else if (settings.preventCrossover && module.is.range() && module.thumbVal === module.secondThumbVal) {
                             $currThumb = undefined;
                         }
                         if (module.is.focused()) {
@@ -23181,7 +23619,7 @@
                         if (!module.is.disabled() && !module.is.focused() && module.is.hover() && module.determine.keyMovement(event) !== NO_STEP) {
                             event.preventDefault();
                             module.event.keydown(event, true);
-                            $module.trigger('focus');
+                            (module.is.range() ? ($currThumb || $thumb) : $module).trigger('focus');
                         }
                     },
                     resize: function (_event) {
@@ -23280,7 +23718,7 @@
                         return isHover;
                     },
                     focused: function () {
-                        return $module.is(':focus');
+                        return $module.is(':focus') || $module.find('.thumb:focus').length > 0;
                     },
                     disabled: function () {
                         return $module.hasClass(className.disabled);
@@ -23735,6 +24173,85 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): el deslizador ya era enfocable y se movía con las flechas, pero no decía qué era
+                    // ni su valor. role="slider" con mínimo, máximo y valor; en un rango (dos tiradores, un solo foco), el
+                    // texto del valor es «desde – hasta». Las marcas y etiquetas de la escala no se leen sueltas
+                    aria: function (thumbVal, secondThumbVal) {
+                        var
+                            precision = module.get.precision(),
+                            round     = function (number) { return Math.round(number * precision) / precision; },
+                            min       = module.get.min(),
+                            max       = module.get.max(),
+                            now       = round(thumbVal === undefined ? module.thumbVal || min : thumbVal)
+                        ;
+                        var orientation = module.is.vertical() ? 'vertical' : 'horizontal';
+                        if (module.is.range()) {
+                            // Patrón de varios tiradores de WAI-ARIA: el módulo es el grupo con nombre y cada tirador, un slider
+                            // enfocable; con preventCrossover, cada uno no pasa del otro. El de menor valor es el inicio
+                            var
+                                second = round(secondThumbVal === undefined ? module.secondThumbVal || min : secondThumbVal),
+                                firstIsStart = now <= second
+                            ;
+                            $module.attr('role', 'group').removeAttr('aria-valuemin aria-valuemax aria-valuenow aria-valuetext aria-orientation');
+                            $.each([[$thumb, now, second, firstIsStart], [$secondThumb, second, now, !firstIsStart]], function (_i, item) {
+                                var
+                                    $item = item[0],
+                                    value = item[1],
+                                    other = item[2],
+                                    start = item[3]
+                                ;
+                                if (!$item || $item.length === 0) {
+                                    return;
+                                }
+                                $item.attr({
+                                    role: 'slider',
+                                    tabindex: module.is.disabled() ? -1 : 0,
+                                    'aria-label': start ? settings.text.rangeStart : settings.text.rangeEnd,
+                                    'aria-valuemin': settings.preventCrossover && !start ? other : min,
+                                    'aria-valuemax': settings.preventCrossover && start ? other : max,
+                                    'aria-valuenow': value,
+                                    'aria-orientation': orientation,
+                                });
+                                if (module.is.disabled()) {
+                                    $item.attr('aria-disabled', 'true');
+                                } else {
+                                    $item.removeAttr('aria-disabled');
+                                }
+                            });
+                        } else {
+                            $module.attr({
+                                role: 'slider',
+                                'aria-valuemin': min,
+                                'aria-valuemax': max,
+                                'aria-valuenow': now,
+                                'aria-orientation': orientation,
+                            });
+                            $module.removeAttr('aria-valuetext');
+                        }
+                        if (module.is.disabled()) {
+                            $module.attr('aria-disabled', 'true');
+                        } else {
+                            $module.removeAttr('aria-disabled');
+                        }
+                        $module.find('.labels').attr('aria-hidden', 'true');
+                        // Sin nombre propio, el de la etiqueta del campo
+                        if (!$module.attr('aria-label') && !$module.attr('aria-labelledby')) {
+                            var $label = $module.prev('label');
+                            if ($label.length === 0 && element.id) {
+                                $label = $('label[for="' + element.id + '"]');
+                            }
+                            if ($label.length === 0) {
+                                $label = $module.closest('.field').children('label');
+                            }
+                            $label = $label.first();
+                            if ($label.length > 0) {
+                                if (!$label.attr('id')) {
+                                    $label.attr('id', '_' + (element.id || Math.random().toString(16).slice(2, 10)) + '_label');
+                                }
+                                $module.attr('aria-labelledby', $label.attr('id'));
+                            }
+                        }
+                    },
                     active: function (thumbVal, secondThumbVal) {
                         if (settings.highlightRange) {
                             if (secondThumbVal < thumbVal) {
@@ -23887,6 +24404,7 @@
                             thumbVal = newValue;
                         }
                         module.set.active(thumbVal, secondThumbVal);
+                        module.set.aria(thumbVal, secondThumbVal);
                         var
                             trackPosValue,
                             thumbPosValue,
@@ -24188,6 +24706,12 @@
         autoAdjustLabels: true,
         labelDistance: 100,
         preventCrossover: true,
+
+        // Fork (P320): nombre de cada tirador de un rango (el de menor valor es el inicio)
+        text: {
+            rangeStart: 'Minimum',
+            rangeEnd: 'Maximum',
+        },
         fireOnInit: false,
         interpretLabel: false,
         letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -24240,7 +24764,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Rating
+ * # Fomantic-UI 1.4.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -24315,6 +24839,8 @@
                     module.set.initialLoad();
                     module.set.rating(module.get.initialRating());
                     module.remove.initialLoad();
+                    $module.on('keydown' + eventNamespace, module.event.keydown);
+                    module.set.aria();
                     module.instantiate();
                 },
 
@@ -24330,6 +24856,7 @@
                     module.verbose('Destroying previous instance', instance);
                     module.remove.events();
                     $module
+                        .off('keydown' + eventNamespace)
                         .removeData(moduleNamespace)
                     ;
                 },
@@ -24354,6 +24881,34 @@
                 },
 
                 event: {
+                    // Fork (P320): con las flechas sube o baja una estrella; Inicio y Fin, al mínimo y al máximo
+                    keydown: function (event) {
+                        var
+                            key     = event.which,
+                            current = Math.ceil(module.get.rating()),
+                            max     = $icon.length,
+                            min     = (settings.clearable === 'auto' ? $icon.length === 1 : settings.clearable) ? 0 : 1,
+                            next    = null
+                        ;
+                        if (module.is.disabled()) {
+                            return;
+                        }
+                        if (key === 39 || key === 38) {
+                            next = Math.min(max, current + 1);
+                        } else if (key === 37 || key === 40) {
+                            next = Math.max(min, current - 1);
+                        } else if (key === 36) {
+                            next = min;
+                        } else if (key === 35) {
+                            next = max;
+                        }
+                        if (next !== null) {
+                            event.preventDefault();
+                            if (next !== current) {
+                                module.set.rating(next);
+                            }
+                        }
+                    },
                     mouseenter: function () {
                         var
                             $activeIcon = $(this)
@@ -24430,6 +24985,7 @@
                     $module
                         .removeClass(className.disabled)
                     ;
+                    module.set.aria();
                 },
 
                 disable: function () {
@@ -24438,6 +24994,7 @@
                     $module
                         .addClass(className.disabled)
                     ;
+                    module.set.aria();
                 },
 
                 is: {
@@ -24487,6 +25044,35 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 2.1.1 y 4.1.2): una valoración solo se podía cambiar con el ratón y no decía su valor.
+                    // Interactiva, es un deslizador (role="slider") enfocable con su valor; de solo lectura, una imagen cuyo
+                    // nombre es el valor. Las estrellas no se leen una a una. Sin pisar el nombre que ponga el autor
+                    aria: function () {
+                        var
+                            rating    = module.get.rating(),
+                            max       = $icon.length,
+                            valueText = rating + ' / ' + max
+                        ;
+                        $icon.attr('aria-hidden', 'true');
+                        if (module.is.disabled()) {
+                            $module.attr('role', 'img').removeAttr('tabindex aria-valuemin aria-valuemax aria-valuenow aria-valuetext');
+                            if (!$module.attr('aria-labelledby') && (!$module.attr('aria-label') || $module.data('ariaOwnLabel'))) {
+                                $module.attr('aria-label', valueText).data('ariaOwnLabel', true);
+                            }
+                        } else {
+                            if ($module.data('ariaOwnLabel')) {
+                                $module.removeAttr('aria-label').removeData('ariaOwnLabel');
+                            }
+                            $module.attr({
+                                role: 'slider',
+                                tabindex: $module.attr('tabindex') || 0,
+                                'aria-valuemin': 0,
+                                'aria-valuemax': max,
+                                'aria-valuenow': rating,
+                                'aria-valuetext': valueText,
+                            });
+                        }
+                    },
                     rating: function (rating) {
                         var
                             ratingIndex = Math.floor(
@@ -24533,6 +25119,9 @@
                         }
                         if (!module.is.initialLoad()) {
                             settings.onRate.call(element, rating);
+                        }
+                        if (instance !== undefined || !module.is.initialLoad()) {
+                            module.set.aria();
                         }
                     },
                     initialLoad: function () {
@@ -24781,7 +25370,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Search
+ * # Fomantic-UI 1.4.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -24842,6 +25431,9 @@
 
                 disabledBubbled  = false,
                 resultsDismissed = false,
+                ariaObserver,
+                ariaFrame,
+                ariaId           = (Math.random().toString(16) + '000000000').slice(2, 10),
 
                 module
             ;
@@ -24855,6 +25447,25 @@
                     module.bind.events();
                     module.set.type();
                     module.create.results();
+                    module.set.aria();
+                    // Fork (P320): el estado ARIA sigue a lo que ya hace el módulo (resultados visibles, resultado activo,
+                    // resultados nuevos): un solo observador, agrupado por fotograma
+                    if ('MutationObserver' in window) {
+                        ariaObserver = new MutationObserver(function () {
+                            if (!ariaFrame) {
+                                ariaFrame = requestAnimationFrame(function () {
+                                    ariaFrame = null;
+                                    module.set.aria();
+                                });
+                            }
+                        });
+                        ariaObserver.observe(element, {
+                            attributes: true,
+                            attributeFilter: ['class', 'style'],
+                            childList: true,
+                            subtree: true,
+                        });
+                    }
                     module.instantiate();
                 },
                 instantiate: function () {
@@ -24870,6 +25481,9 @@
                         .off(eventNamespace)
                         .removeData(moduleNamespace)
                     ;
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
                 },
 
                 refresh: function () {
@@ -25304,6 +25918,63 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): patrón combobox de WAI-ARIA 1.2. El campo (.prompt) es un combobox con
+                    // autocompletado en lista; los resultados, un listbox de options (agrupados por categoría), y el resultado
+                    // activo con las flechas, su aria-activedescendant. El mensaje de «sin resultados» se anuncia (status)
+                    aria: function () {
+                        module.refreshResults();
+                        if ($prompt.length === 0) {
+                            return;
+                        }
+                        var
+                            $options = $results.find(selector.result),
+                            expanded = module.is.visible() && $options.length > 0,
+                            $active  = $options.filter('.' + className.active).first(),
+                            $label
+                        ;
+                        if ($results.length > 0) {
+                            if (!$results.attr('id')) {
+                                $results.attr('id', '_' + ariaId + '_results');
+                            }
+                            if ($options.length > 0) {
+                                $results.attr('role', 'listbox');
+                            } else {
+                                $results.removeAttr('role');
+                            }
+                            $results.find(selector.category).attr('role', 'group');
+                            $results.children('.message').attr('role', 'status');
+                            $options.each(function (index) {
+                                if (!this.id) {
+                                    this.id = '_' + ariaId + '_result' + index;
+                                }
+                                $(this).attr({ role: 'option', 'aria-selected': $(this).hasClass(className.active) ? 'true' : 'false' });
+                            });
+                        }
+                        $prompt.attr({
+                            role: 'combobox',
+                            'aria-autocomplete': 'list',
+                            'aria-haspopup': 'listbox',
+                            'aria-expanded': expanded ? 'true' : 'false',
+                        });
+                        if ($results.length > 0) {
+                            $prompt.attr('aria-controls', $results.attr('id'));
+                        }
+                        if (expanded && $active.length > 0) {
+                            $prompt.attr('aria-activedescendant', $active.attr('id'));
+                        } else {
+                            $prompt.removeAttr('aria-activedescendant');
+                        }
+                        // Sin nombre propio, el de la etiqueta del campo (si no hay, el placeholder del input ya lo da)
+                        if (!$prompt.attr('aria-label') && !$prompt.attr('aria-labelledby') && !($prompt.attr('id') && $('label[for="' + $prompt.attr('id') + '"]').length > 0)) {
+                            $label = $module.prev('label').add($module.closest('.field').children('label')).first();
+                            if ($label.length > 0) {
+                                if (!$label.attr('id')) {
+                                    $label.attr('id', '_' + ariaId + '_label');
+                                }
+                                $prompt.attr('aria-labelledby', $label.attr('id'));
+                            }
+                        }
+                    },
                     focus: function () {
                         $module.addClass(className.focus);
                     },
@@ -26439,7 +27110,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Shape
+ * # Fomantic-UI 1.4.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -26588,26 +27259,15 @@
 
                 reset: function () {
                     module.verbose('Animating states reset');
-                    $module
-                        .removeClass(className.animating)
-                        .attr('style', '')
-                        .removeAttr('style')
-                    ;
-                    // removeAttr style does not consistently work in safari
-                    $sides
-                        .attr('style', '')
-                        .removeAttr('style')
-                    ;
-                    $side
-                        .attr('style', '')
-                        .removeAttr('style')
-                        .removeClass(className.hidden)
-                    ;
-                    $nextSide
-                        .removeClass(className.animating)
-                        .attr('style', '')
-                        .removeAttr('style')
-                    ;
+                    $module.removeClass(className.animating);
+                    $side.removeClass(className.hidden);
+                    $nextSide.removeClass(className.animating);
+                    // Fork (#3633 del original; CSP estricta): sin escribir style="" antes de quitarlo. Chrome conserva un
+                    // atributo style vacío si no se lee antes de quitarlo
+                    $module.add($sides).add($side).add($nextSide).each(function () {
+                        this.getAttribute('style');
+                        this.removeAttribute('style');
+                    });
                 },
 
                 is: {
@@ -27237,7 +27897,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Sidebar
+ * # Fomantic-UI 1.4.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27264,7 +27924,6 @@
             $document       = $(document),
             $body           = $('body'),
             $html           = $('html'),
-            $head           = $('head'),
 
             time            = Date.now(),
             performance     = [],
@@ -27309,7 +27968,6 @@
                 $sidebars       = $module.children(selector.sidebar),
                 $fixed          = $context.children(selector.fixed),
                 $pusher         = $context.children(selector.pusher),
-                $style,
 
                 element         = this,
                 instance        = $module.data(moduleNamespace),
@@ -27320,6 +27978,7 @@
                 initialBodyMargin = '',
                 tempBodyMargin = '',
                 hadScrollbar = false,
+                focusReturn,
 
                 module
             ;
@@ -27452,71 +28111,17 @@
                 },
 
                 add: {
+                    // Fork (#3633 del original, sin fusionar; CSP estricta): la distancia va en una variable CSS del contexto
+                    // (CSSOM, que style-src 'self' permite) en vez de una etiqueta <style>; el LESS la lee
                     inlineCSS: function () {
                         var
-                            width     = module.cache.width || $module.outerWidth(),
-                            height    = module.cache.height || $module.outerHeight(),
-                            isRTL     = module.is.rtl(),
                             direction = module.get.direction(),
-                            distance  = {
-                                left: width,
-                                right: -width,
-                                top: height,
-                                bottom: -height,
-                            },
-                            style
+                            distance  = direction === 'top' || direction === 'bottom'
+                                ? module.cache.height || $module.outerHeight()
+                                : module.cache.width || $module.outerWidth()
                         ;
-
-                        if (isRTL) {
-                            module.verbose('RTL detected, flipping widths');
-                            distance.left = -width;
-                            distance.right = width;
-                        }
-
-                        style = '<style>';
-
-                        if (direction === 'left' || direction === 'right') {
-                            module.debug('Adding CSS rules for animation distance', width);
-                            style += ''
-                                + ' .ui.visible.' + direction + '.sidebar ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.sidebar ~ .pusher {'
-                                + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                + ' }';
-                        } else if (direction === 'top' || direction === 'bottom') {
-                            style += ''
-                                + ' .ui.visible.' + direction + '.sidebar ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.sidebar ~ .pusher {'
-                                + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                + ' }';
-                        }
-
-                        /* IE is only browser not to create context with transforms */
-                        /* https://www.w3.org/Bugs/Public/show_bug.cgi?id=16328 */
-                        if (module.is.ie()) {
-                            if (direction === 'left' || direction === 'right') {
-                                module.debug('Adding CSS rules for animation distance', width);
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.sidebar ~ .pusher::after {'
-                                    + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                    + ' }';
-                            } else if (direction === 'top' || direction === 'bottom') {
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.sidebar ~ .pusher::after {'
-                                    + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                    + ' }';
-                            }
-                            /* opposite sides visible forces content overlay */
-                            style += ''
-                                + ' body.pushable > .ui.visible.left.sidebar ~ .ui.visible.right.sidebar ~ .pusher::after,'
-                                + ' body.pushable > .ui.visible.right.sidebar ~ .ui.visible.left.sidebar ~ .pusher::after {'
-                                + '           transform: translate3d(0, 0, 0);'
-                                + ' }';
-                        }
-                        style += '</style>';
-                        $style = $(style)
-                            .appendTo($head)
-                        ;
-                        module.debug('Adding sizing css to head', $style);
+                        module.debug('Adding CSS variable for animation distance', distance);
+                        $context[0].style.setProperty('--sidebar-' + direction + '-distance', distance + 'px');
                     },
                 },
 
@@ -27554,12 +28159,17 @@
                             module.debug('Adding wrapper element for sidebar');
                             module.error(error.pusher);
                             $pusher = $('<div class="pusher" />');
+                            // Fork (P320): como en flyout, envolver no debe quitar el foco al elemento que lo tenía
+                            var focused = document.activeElement;
                             $context
                                 .children()
                                 .not(selector.omitted)
                                 .not($sidebars)
                                 .wrapAll($pusher)
                             ;
+                            if (focused && focused !== document.body && focused !== document.activeElement && document.documentElement.contains(focused)) {
+                                focused.focus({ preventScroll: true });
+                            }
                             module.refresh();
                         }
                         if ($module.nextAll(selector.pusher).length === 0 || $module.nextAll(selector.pusher)[0] !== $pusher[0]) {
@@ -27619,6 +28229,7 @@
 
                             return;
                         }
+                        module.keyboard.open();
                         if (settings.overlay) {
                             module.error(error.overlay);
                             settings.transition = 'overlay';
@@ -27641,6 +28252,7 @@
                         }
                         module.set.dimmerStyles();
                         module.pushPage(function () {
+                            module.keyboard.focusIn();
                             callback.call(element);
                             settings.onVisible.call(element);
                         });
@@ -27657,12 +28269,97 @@
                     if ((module.is.visible() || module.is.animating()) && settings.onHide.call(element) !== false) {
                         module.debug('Hiding sidebar', callback);
                         module.refreshSidebars();
+                        module.keyboard.close();
                         module.pullPage(function () {
+                            module.keyboard.focusOut();
                             callback.call(element);
                             settings.onHidden.call(element);
                         });
                         settings.onChange.call(element);
                     }
+                },
+
+                // Fork (P320, WCAG 2.1.1, 2.1.2, 2.4.3 y 4.1.2): el sidebar es un diálogo como el flyout (del que viene su
+                // teclado): rol y nombre, Escape lo cierra si es closable, el foco entra al abrirse, queda dentro con dimPage
+                // y vuelve al cerrar a quien lo tenía. Las teclas, en un espacio de eventos propio (otros off() del módulo
+                // quitan los de elementNamespace)
+                keyboard: {
+                    namespace: function () {
+                        return elementNamespace + 'teclado';
+                    },
+                    focusables: function () {
+                        return $module.find('a[href], button, input, select, textarea, [tabindex]').filter(':visible').filter(function () {
+                            return !this.disabled && $(this).closest('.disabled').length === 0 && this.tabIndex >= 0;
+                        });
+                    },
+                    open: function () {
+                        module.set.aria();
+                        var
+                            active = document.activeElement,
+                            $owner = active ? $(active).closest('.ui.sidebar') : $()
+                        ;
+                        // Desde otro sidebar (exclusive lo cierra), la vuelta es la de aquel, no un elemento que se oculta
+                        if ($owner.length > 0 && $owner[0] !== element) {
+                            focusReturn = $owner.data('sidebarFocusReturn') || focusReturn;
+                        } else if (active && active !== document.body && !$.contains(element, active) && active !== element) {
+                            focusReturn = active;
+                        }
+                        $module.data('sidebarFocusReturn', focusReturn);
+                        $document.off('keydown' + module.keyboard.namespace()).on('keydown' + module.keyboard.namespace(), module.keyboard.keydown);
+                    },
+                    close: function () {
+                        $document.off('keydown' + module.keyboard.namespace());
+                    },
+                    focusIn: function () {
+                        if (!settings.autofocus || $.contains(element, document.activeElement)) {
+                            return;
+                        }
+                        var $first = module.keyboard.focusables().first();
+                        if ($first.length === 0) {
+                            $module.attr('tabindex', -1);
+                            $first = $module;
+                        }
+                        $first.trigger('focus');
+                    },
+                    focusOut: function () {
+                        var active = document.activeElement;
+                        if (focusReturn && document.documentElement.contains(focusReturn) && (!active || active === document.body || $.contains(element, active) || active === element)) {
+                            focusReturn.focus({ preventScroll: true });
+                        }
+                        focusReturn = undefined;
+                    },
+                    keydown: function (event) {
+                        if (event.which === settings.keys.escape) {
+                            if (settings.closable) {
+                                module.hide();
+                                event.preventDefault();
+                            }
+
+                            return;
+                        }
+                        if (event.which !== settings.keys.tab || !settings.dimPage) {
+                            return;
+                        }
+                        var
+                            $items = module.keyboard.focusables(),
+                            active = document.activeElement
+                        ;
+                        if ($items.length === 0) {
+                            event.preventDefault();
+
+                            return;
+                        }
+                        if (!$.contains(element, active) && active !== element) {
+                            $items.first().trigger('focus');
+                            event.preventDefault();
+                        } else if (event.shiftKey && (active === $items[0] || active === element)) {
+                            $items.last().trigger('focus');
+                            event.preventDefault();
+                        } else if (!event.shiftKey && active === $items[$items.length - 1]) {
+                            $items.first().trigger('focus');
+                            event.preventDefault();
+                        }
+                    },
                 },
 
                 othersAnimating: function () {
@@ -27812,6 +28509,24 @@
                 },
 
                 set: {
+                    // Fork (P320): diálogo (modal si atenúa la página) con el nombre del autor o de su .header; nunca pisa lo suyo
+                    aria: function () {
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'dialog');
+                        }
+                        if ($module.attr('aria-modal') === undefined || $module.data('ariaOwnModal')) {
+                            $module.attr('aria-modal', settings.dimPage ? 'true' : 'false').data('ariaOwnModal', true);
+                        }
+                        if (!$module.attr('aria-labelledby') && !$module.attr('aria-label')) {
+                            var $title = $module.children('.header').first();
+                            if ($title.length > 0) {
+                                if (!$title.attr('id')) {
+                                    $title.attr('id', '_' + id + 'title');
+                                }
+                                $module.attr('aria-labelledby', $title.attr('id'));
+                            }
+                        }
+                    },
                     bodyMargin: function () {
                         var position = module.can.leftBodyScrollbar() ? 'left' : 'right';
                         $context.css((isBody ? 'margin-' : 'padding-') + position, tempBodyMargin + 'px');
@@ -27872,9 +28587,22 @@
                 remove: {
 
                     inlineCSS: function () {
-                        module.debug('Removing inline css styles', $style);
-                        if ($style && $style.length > 0) {
-                            $style.remove();
+                        var
+                            direction = module.get.direction(),
+                            $visible  = $sidebars.not($module).filter('.' + className.visible + '.' + direction).last()
+                        ;
+                        // Otro sidebar visible del mismo lado conserva su distancia
+                        if ($visible.length > 0) {
+                            $context[0].style.setProperty('--sidebar-' + direction + '-distance', (direction === 'top' || direction === 'bottom'
+                                ? $visible.outerHeight()
+                                : $visible.outerWidth()) + 'px');
+
+                            return;
+                        }
+                        module.debug('Removing CSS variable for animation distance');
+                        $context[0].style.removeProperty('--sidebar-' + direction + '-distance');
+                        if ($context.attr('style') === '') {
+                            $context.removeAttr('style');
                         }
                     },
 
@@ -28242,6 +28970,13 @@
         exclusive: false,
         closable: true,
         dimPage: true,
+
+        // Fork (P320): al abrirse, el foco va al primer control (o al sidebar); Escape cierra si es closable
+        autofocus: true,
+        keys: {
+            escape: 27,
+            tab: 9,
+        },
         scrollLock: false,
         returnScroll: false,
         delaySetup: false,
@@ -28294,7 +29029,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.1.1 - Shell
+ * # Fomantic-UI 1.4.0 - Shell
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29087,7 +29822,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.1.1 - Slideshow
+ * # Fomantic-UI 1.4.0 - Slideshow
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29874,7 +30609,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Sticky
+ * # Fomantic-UI 1.4.0 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -30803,7 +31538,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Tab
+ * # Fomantic-UI 1.4.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -30885,6 +31620,7 @@
                 activeTabPath,
                 parameterArray,
                 module,
+                ariaObserver,
 
                 historyEvent
             ;
@@ -30920,6 +31656,14 @@
                         $.address.autoUpdate(autoUpdate);
                     }
 
+                    if (!isWindow(element)) {
+                        module.set.aria();
+                        // Fork (P320): aria-selected sigue a la clase active del ítem, la ponga quien la ponga
+                        if ('MutationObserver' in window) {
+                            ariaObserver = new MutationObserver(module.set.aria);
+                            ariaObserver.observe(element, { attributes: true, attributeFilter: ['class'] });
+                        }
+                    }
                     module.instantiate();
                 },
 
@@ -30937,6 +31681,9 @@
                         .removeData(moduleNamespace)
                         .off(eventNamespace)
                     ;
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
                 },
 
                 bind: {
@@ -30946,6 +31693,7 @@
                             module.debug('Attaching tab activation events to element', $module);
                             $module
                                 .on('click' + eventNamespace, module.event.click)
+                                .on('keydown' + eventNamespace, module.event.keydown)
                             ;
                         }
                     },
@@ -31011,6 +31759,24 @@
                 },
 
                 event: {
+                    // Fork (P320): Intro y Espacio activan la pestaña; las flechas (y Inicio/Fin) llevan el foco a la vecina y la
+                    // activan, como pide el patrón de pestañas de WAI-ARIA
+                    keydown: function (event) {
+                        var
+                            key   = event.which,
+                            $all  = $module.parent().children().filter(function () { return $(this).data(moduleNamespace) !== undefined && !$(this).hasClass('disabled'); }),
+                            index = $all.index($module),
+                            $next
+                        ;
+                        if (key === 13 || key === 32) {
+                            event.preventDefault();
+                            $module.trigger('click');
+                        } else if ([35, 36, 37, 39].indexOf(key) !== -1 && $all.length > 1) {
+                            $next = key === 36 ? $all.first() : key === 35 ? $all.last() : $all.eq((index + (key === 39 ? 1 : -1) + $all.length) % $all.length);
+                            event.preventDefault();
+                            $next.trigger('focus').trigger('click');
+                        }
+                    },
                     click: function (event) {
                         var
                             tabPath = $(this).data(metadata.tab)
@@ -31082,6 +31848,40 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 2.1.1 y 4.1.2): los ítems de un menú de pestañas (<a class="item" data-tab>, sin href) no
+                    // se alcanzaban con Tab ni decían que eran pestañas. Cada ítem es un tab enfocable con aria-selected y
+                    // aria-controls hacia su panel (tabpanel); su menú, un tablist. Sin pisar lo que ponga el autor
+                    aria: function () {
+                        var
+                            tabPath = $module.data(metadata.tab),
+                            $panel  = tabPath !== undefined && $tabs ? module.get.tabElement(tabPath) : $()
+                        ;
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'tab');
+                        }
+                        if (!$module.parent().attr('role')) {
+                            $module.parent().attr('role', 'tablist');
+                        }
+                        if (!$module.is('a[href], button, [tabindex]')) {
+                            $module.attr('tabindex', 0);
+                        }
+                        $module.attr('aria-selected', $module.hasClass(className.active) ? 'true' : 'false');
+                        if ($panel && $panel.length === 1) {
+                            if (!element.id) {
+                                element.id = '_tab_' + String(tabPath).replace(/[^\w-]/g, '_');
+                            }
+                            if (!$panel.attr('id')) {
+                                $panel.attr('id', '_tabpanel_' + String(tabPath).replace(/[^\w-]/g, '_'));
+                            }
+                            $module.attr('aria-controls', $panel.attr('id'));
+                            if (!$panel.attr('role')) {
+                                $panel.attr('role', 'tabpanel');
+                            }
+                            if (!$panel.attr('aria-labelledby') && !$panel.attr('aria-label')) {
+                                $panel.attr('aria-labelledby', element.id);
+                            }
+                        }
+                    },
                     auto: function () {
                         var
                             url = typeof settings.path === 'string'
@@ -31769,7 +32569,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Toast
+ * # Fomantic-UI 1.4.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32734,7 +33534,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Transition
+ * # Fomantic-UI 1.4.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32958,10 +33758,7 @@
                 force: {
                     visible: function () {
                         var
-                            style          = $module.attr('style'),
-                            userStyle      = module.get.userStyle(style),
                             displayType    = module.get.displayType(),
-                            overrideStyle  = userStyle + 'display: ' + displayType + ' !important;',
                             inlineDisplay  = $module[0].style.display,
                             mustStayHidden = !displayType || (inlineDisplay === 'none' && settings.skipInlineHidden) || $module[0].tagName.match(/(script|link|style)/i)
                         ;
@@ -32971,9 +33768,8 @@
                             return false;
                         }
                         module.verbose('Overriding default display to show element', displayType);
-                        $module
-                            .attr('style', overrideStyle)
-                        ;
+                        // Fork (#3633 del original, sin fusionar; CSP estricta): una propiedad del CSSOM, no el atributo style
+                        $module[0].style.setProperty('display', displayType, 'important');
 
                         return true;
                     },
@@ -33331,11 +34127,6 @@
                         }
 
                         return $module.data(metadata.displayType);
-                    },
-                    userStyle: function (style) {
-                        style = style || $module.attr('style') || '';
-
-                        return style.replace(/display.*?;/, '');
                     },
                     transitionExists: function (animation) {
                         return $.fn.transition.exists[animation];
@@ -33769,7 +34560,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - API
+ * # Fomantic-UI 1.4.0 - API
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -34995,7 +35786,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - State
+ * # Fomantic-UI 1.4.0 - State
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -35693,7 +36484,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 1.1.1 - Visibility
+ * # Fomantic-UI 1.4.0 - Visibility
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

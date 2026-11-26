@@ -670,11 +670,14 @@ function friendlyURL(str, maxWords) {
 
 /**
  * dataTableServerProccesing
- * @description Requiere datatables y jquery
+ * @description Requiere datatables y jquery. Al recargar, el cargador por zona (showZoneLoader) cubre el <table>; el
+ * indicador propio de DataTables va apagado (processing: false).
  * @param {String} table 
  * @param {String} ajaxURL 
  * @param {Number} perPage 
- * @param {Object} options 
+ * @param {Object} options Las de DataTables, más:
+ * @param {Number} [options.searchDelay=350] Milisegundos que el buscador espera desde la última tecla
+ * @param {Boolean} [options.zoneLoader=true] Con false, sin cargador al recargar (lo pinta quien llama)
  * @returns {$}
  */
 function dataTableServerProccesing(table, ajaxURL, perPage, options) {
@@ -816,11 +819,47 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 			configDataTable.ajax = ajaxURL
 		}
 
-		configDataTable.processing = true
+		//El indicador propio de DataTables se centra en la tabla y en una larga queda fuera de la pantalla (H513): en su lugar,
+		//el cargador por zona sobre el <table>, sin tapar el buscador ni los controles.
+		const zoneLoader = configDataTable.zoneLoader !== false
+		delete configDataTable.zoneLoader
+		configDataTable.processing = false
 		configDataTable.serverSide = true
+		//Una búsqueda cuando se deja de escribir, no una por tecla.
+		if (typeof configDataTable.searchDelay != 'number') {
+			configDataTable.searchDelay = 350
+		}
 		configDataTable.pageLength = perPage
 		//Si perPage no está entre las opciones, el selector de «Ver [ ] elementos» sale vacío: se añade, en orden.
 		configDataTable.lengthMenu = Array.from(new Set([10, 25, 50, 100, perPage])).sort((a, b) => a - b)
+
+		if (zoneLoader) {
+			const zone = table instanceof $ ? table.get(0) : table
+			$(zone).on('processing.dt.zoneLoader', function (e, settings, processing) {
+				if (e.target !== zone) {
+					return
+				}
+				if (processing) {
+					showZoneLoader(zone)
+				} else {
+					removeZoneLoader(zone)
+				}
+			})
+			//Si la petición falla, DataTables no dispara processing falso (sigue dibujando): xhr.dt llega con json null.
+			$(zone).on('xhr.dt.zoneLoader', function (e, settings, json) {
+				if (e.target === zone && (json === null || typeof json != 'object')) {
+					removeZoneLoader(zone)
+				}
+			})
+			//destroy sube por el DOM: el de una tabla anidada no suelta los de esta.
+			$(zone).on('destroy.dt.zoneLoader', function (e) {
+				if (e.target !== zone) {
+					return
+				}
+				$(zone).off('.zoneLoader')
+				removeZoneLoader(zone)
+			})
+		}
 
 		table.DataTable(configDataTable)
 
@@ -879,6 +918,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 		let nameLoader = 'PROCCESSING_dataTablesServerProccesingOnCards'
 		let table = container.find('table')
 		let cardsContainer, cards
+		let initialized = false
 
 		showGenericLoader(nameLoader)
 
@@ -958,10 +998,27 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 					onChange: orderEvent,
 				})
 
-				//Buscador
-				search.on('keyup', function () {
-					thisDataTable.search(search.val()).draw()
+				//Buscador: cuando se deja de escribir (350 ms) y solo si el texto cambió; con Enter o con la «x» del campo, en el acto.
+				let lastSearch = thisDataTable.search()
+				let searchTimer = null
+				const runSearch = function () {
+					clearTimeout(searchTimer)
+					searchTimer = null
+					const value = String(search.val())
+					if (value !== lastSearch) {
+						lastSearch = value
+						thisDataTable.search(value).draw()
+					}
+				}
+				search.on('keyup', function (e) {
+					if (e.key === 'Enter') {
+						runSearch()
+						return
+					}
+					clearTimeout(searchTimer)
+					searchTimer = setTimeout(runSearch, 350)
 				})
+				search.on('search', runSearch)
 
 				//Cantidad de elementos por página
 				if (lengthPagination.attr('min') == undefined) {
@@ -982,7 +1039,14 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 					thisDataTable.page.len(length).draw()
 				})
 
-				thisDataTable.draw()
+				//Desde aquí, cada redibujado cubre solo las tarjetas; el global se queda en esta primera carga.
+				initialized = true
+
+				//La primera respuesta llegó antes de que existiera el contenedor: se pintan sus datos; un draw() aquí la pediría
+				//otra vez, idéntica.
+				cardsContainer = container.find(customClassesCards.containerCardsSelector)
+				drawCallback(settings)
+				paintCards(json)
 
 				initCompleteEnd(wrapper)
 
@@ -996,8 +1060,6 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 				cardsContainer = container.find(customClassesCards.containerCardsSelector)
 				cards = cardsContainer.find(customClassesCards.cardsSelector)
 
-				cardsContainer.html('')
-
 			},
 			drawCallback: function (settings) {
 
@@ -1005,25 +1067,36 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 
 				this.find('tbody').remove()
 
-				let json = settings.json
-				let rawData = json.rawData
-
-				for (let data of rawData) {
-					cardsContainer.append(data)
-				}
-
-				cards = cardsContainer.find(customClassesCards.cardsSelector)
-
-				if (cards.length == 0) {
-					cardsContainer.html(`<h3>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
-				}
-
-				drawCallbackEnd(cards)
+				paintCards(settings.json)
 
 			},
 		}
 
+		//Las tarjetas de una respuesta, en su contenedor. Las de antes se quedan, bajo el cargador, hasta que llegan las nuevas.
+		const paintCards = function (json) {
+			if (!(cardsContainer instanceof $) || cardsContainer.length === 0 || json === null || typeof json != 'object') {
+				return
+			}
+			const rawData = Array.isArray(json.rawData) ? json.rawData : []
+
+			cardsContainer.html('')
+
+			for (let data of rawData) {
+				cardsContainer.append(data)
+			}
+
+			cards = cardsContainer.find(customClassesCards.cardsSelector)
+
+			if (cards.length == 0) {
+				cardsContainer.html(`<h3>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
+			}
+
+			drawCallbackEnd(cards)
+		}
+
 		options.exportButton = false
+		//La tabla está oculta: el cargador va sobre las tarjetas (abajo), no sobre ella.
+		options.zoneLoader = false
 		options.dom = optionsDataTables.dom
 		options.initComplete = optionsDataTables.initComplete
 		options.preDrawCallback = optionsDataTables.preDrawCallback
@@ -1031,15 +1104,40 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 
 		table = dataTableServerProccesing(table, processURL, perPage, options)
 
-		table.on('processing.dt', function (e, settings, proccesing) {
+		//La primera carga la cubre el cargador global (hasta initComplete); las siguientes, solo el contenedor de las tarjetas,
+		//nunca los controles ni la paginación.
+		table.on('processing.dt.zoneLoader', function (e, settings, proccesing) {
+			const zone = container.find(customClassesCards.containerCardsSelector).get(0)
+			if (!initialized || !(zone instanceof HTMLElement)) {
+				return
+			}
 			if (proccesing) {
-
-				if (!activeGenericLoader(nameLoader)) {
-					showGenericLoader(nameLoader)
-				}
-
+				showZoneLoader(zone)
 			} else {
+				removeZoneLoader(zone)
+			}
+		})
+		//Una petición que falla no dispara processing falso: se quita el de las tarjetas y, si era la primera carga, el global.
+		table.on('xhr.dt.zoneLoader', function (e, settings, json) {
+			if (json !== null && typeof json == 'object') {
+				return
+			}
+			const zone = container.find(customClassesCards.containerCardsSelector).get(0)
+			if (zone instanceof HTMLElement) {
+				removeZoneLoader(zone)
+			}
+			if (!initialized) {
 				removeGenericLoader(nameLoader)
+			}
+		})
+		table.on('destroy.dt.zoneLoader', function (e) {
+			if (e.target !== table.get(0)) {
+				return
+			}
+			table.off('.zoneLoader')
+			const zone = container.find(customClassesCards.containerCardsSelector).get(0)
+			if (zone instanceof HTMLElement) {
+				removeZoneLoader(zone)
 			}
 		})
 
@@ -1501,6 +1599,9 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 		}
 		select.attr('data-simulator', uniqueID)
 		selectSimulator.setAttribute('simulator', uniqueID)
+		//Solo para el aviso nativo de «obligatorio»: ni parada del tabulador ni lo anuncian los lectores (el desplegable ya lo es).
+		selectSimulator.setAttribute('tabindex', '-1')
+		selectSimulator.setAttribute('aria-hidden', 'true')
 		selectSimulator.setAttribute('style', [
 			"display: block !important;",
 			"height: 0px !important;",

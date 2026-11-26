@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Form
+ * # Fomantic-UI 1.4.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -620,7 +620,7 @@
 .ui.form .field.error input[type="week"] {
   color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#fef3f2, #351513);
-  border-color: #f04438;
+  border-color: #de3027;
   border-radius: "";
   box-shadow: none;
 }
@@ -631,7 +631,7 @@
 .ui.form:not(.initial) .field input:user-invalid {
   color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#fef3f2, #351513);
-  border-color: #f04438;
+  border-color: #de3027;
   border-radius: "";
   box-shadow: none;
 }
@@ -653,13 +653,13 @@
 .ui.form .field.error input[type="url"]:focus,
 .ui.form .field.error input[type="week"]:focus {
   background: light-dark(#fef3f2, #351513);
-  border-color: #f04438;
+  border-color: #de3027;
   color: light-dark(oklch(from #b42318 min(l, var(--ink-light-max, 1)) c h), oklch(from #fda29b max(l, var(--ink-dark-min, 0)) c h));
-  box-shadow: 0 0 0 3px color-mix(in srgb, #f04438 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #de3027 22%, transparent);
 }
 .ui.form .field.error > textarea:hover:not(:focus),
 .ui.form .field.error > input:hover:not(:focus) {
-  border-color: #f04438;
+  border-color: #de3027;
 }
 
 /* Preserve Native Select Stylings */
@@ -729,15 +729,15 @@
 }
 .ui.form .fields.error .field .ui.dropdown,
 .ui.form .field.error .ui.dropdown {
-  border-color: #f04438 !important;
+  border-color: #de3027 !important;
 }
 .ui.form .fields.error .field .ui.dropdown:hover,
 .ui.form .field.error .ui.dropdown:hover {
-  border-color: #f04438 !important;
+  border-color: #de3027 !important;
 }
 .ui.form .fields.error .field .ui.dropdown:hover .menu,
 .ui.form .field.error .ui.dropdown:hover .menu {
-  border-color: #f04438;
+  border-color: #de3027;
 }
 .ui.form .fields.error .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.error .ui.multiple.selection.dropdown > .label {
@@ -774,7 +774,7 @@
 .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.error .checkbox:not(.toggle):not(.slider) label::before {
   background: light-dark(#fef3f2, #351513);
-  border-color: #f04438;
+  border-color: #de3027;
 }
 .ui.form .fields.error .field .checkbox label::after,
 .ui.form .field.error .checkbox label::after {
@@ -907,7 +907,7 @@
 .ui.form .field.info input[type="week"] {
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#ecfdff, #0a2a33);
-  border-color: #06aed4;
+  border-color: #007fa3;
   border-radius: "";
   box-shadow: none;
 }
@@ -932,13 +932,13 @@
 .ui.form .field.info input[type="url"]:focus,
 .ui.form .field.info input[type="week"]:focus {
   background: light-dark(#ecfdff, #0a2a33);
-  border-color: #06aed4;
+  border-color: #007fa3;
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
-  box-shadow: 0 0 0 3px color-mix(in srgb, #06aed4 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #007fa3 22%, transparent);
 }
 .ui.form .field.info > textarea:hover:not(:focus),
 .ui.form .field.info > input:hover:not(:focus) {
-  border-color: #06aed4;
+  border-color: #007fa3;
 }
 
 /* Preserve Native Select Stylings */
@@ -1008,15 +1008,15 @@
 }
 .ui.form .fields.info .field .ui.dropdown,
 .ui.form .field.info .ui.dropdown {
-  border-color: #06aed4 !important;
+  border-color: #007fa3 !important;
 }
 .ui.form .fields.info .field .ui.dropdown:hover,
 .ui.form .field.info .ui.dropdown:hover {
-  border-color: #06aed4 !important;
+  border-color: #007fa3 !important;
 }
 .ui.form .fields.info .field .ui.dropdown:hover .menu,
 .ui.form .field.info .ui.dropdown:hover .menu {
-  border-color: #06aed4;
+  border-color: #007fa3;
 }
 .ui.form .fields.info .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.info .ui.multiple.selection.dropdown > .label {
@@ -1053,7 +1053,7 @@
 .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.info .checkbox:not(.toggle):not(.slider) label::before {
   background: light-dark(#ecfdff, #0a2a33);
-  border-color: #06aed4;
+  border-color: #007fa3;
 }
 .ui.form .fields.info .field .checkbox label::after,
 .ui.form .field.info .checkbox label::after {
@@ -1186,7 +1186,7 @@
 .ui.form .field.success input[type="week"] {
   color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#ecfdf3, #0c2a1c);
-  border-color: #17b26a;
+  border-color: #008742;
   border-radius: "";
   box-shadow: none;
 }
@@ -1211,13 +1211,13 @@
 .ui.form .field.success input[type="url"]:focus,
 .ui.form .field.success input[type="week"]:focus {
   background: light-dark(#ecfdf3, #0c2a1c);
-  border-color: #17b26a;
+  border-color: #008742;
   color: light-dark(oklch(from #067647 min(l, var(--ink-light-max, 1)) c h), oklch(from #75e0a7 max(l, var(--ink-dark-min, 0)) c h));
-  box-shadow: 0 0 0 3px color-mix(in srgb, #17b26a 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #008742 22%, transparent);
 }
 .ui.form .field.success > textarea:hover:not(:focus),
 .ui.form .field.success > input:hover:not(:focus) {
-  border-color: #17b26a;
+  border-color: #008742;
 }
 
 /* Preserve Native Select Stylings */
@@ -1287,15 +1287,15 @@
 }
 .ui.form .fields.success .field .ui.dropdown,
 .ui.form .field.success .ui.dropdown {
-  border-color: #17b26a !important;
+  border-color: #008742 !important;
 }
 .ui.form .fields.success .field .ui.dropdown:hover,
 .ui.form .field.success .ui.dropdown:hover {
-  border-color: #17b26a !important;
+  border-color: #008742 !important;
 }
 .ui.form .fields.success .field .ui.dropdown:hover .menu,
 .ui.form .field.success .ui.dropdown:hover .menu {
-  border-color: #17b26a;
+  border-color: #008742;
 }
 .ui.form .fields.success .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.success .ui.multiple.selection.dropdown > .label {
@@ -1332,7 +1332,7 @@
 .ui.form .fields.success .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.success .checkbox:not(.toggle):not(.slider) label::before {
   background: light-dark(#ecfdf3, #0c2a1c);
-  border-color: #17b26a;
+  border-color: #008742;
 }
 .ui.form .fields.success .field .checkbox label::after,
 .ui.form .field.success .checkbox label::after {
@@ -1465,7 +1465,7 @@
 .ui.form .field.warning input[type="week"] {
   color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
   background: light-dark(#fffaeb, #2e2108);
-  border-color: #f79009;
+  border-color: #bb5900;
   border-radius: "";
   box-shadow: none;
 }
@@ -1490,13 +1490,13 @@
 .ui.form .field.warning input[type="url"]:focus,
 .ui.form .field.warning input[type="week"]:focus {
   background: light-dark(#fffaeb, #2e2108);
-  border-color: #f79009;
+  border-color: #bb5900;
   color: light-dark(oklch(from #b54708 min(l, var(--ink-light-max, 1)) c h), oklch(from #fdb022 max(l, var(--ink-dark-min, 0)) c h));
-  box-shadow: 0 0 0 3px color-mix(in srgb, #f79009 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #bb5900 22%, transparent);
 }
 .ui.form .field.warning > textarea:hover:not(:focus),
 .ui.form .field.warning > input:hover:not(:focus) {
-  border-color: #f79009;
+  border-color: #bb5900;
 }
 
 /* Preserve Native Select Stylings */
@@ -1566,15 +1566,15 @@
 }
 .ui.form .fields.warning .field .ui.dropdown,
 .ui.form .field.warning .ui.dropdown {
-  border-color: #f79009 !important;
+  border-color: #bb5900 !important;
 }
 .ui.form .fields.warning .field .ui.dropdown:hover,
 .ui.form .field.warning .ui.dropdown:hover {
-  border-color: #f79009 !important;
+  border-color: #bb5900 !important;
 }
 .ui.form .fields.warning .field .ui.dropdown:hover .menu,
 .ui.form .field.warning .ui.dropdown:hover .menu {
-  border-color: #f79009;
+  border-color: #bb5900;
 }
 .ui.form .fields.warning .field .ui.multiple.selection.dropdown > .label,
 .ui.form .field.warning .ui.multiple.selection.dropdown > .label {
@@ -1611,7 +1611,7 @@
 .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::before,
 .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label::before {
   background: light-dark(#fffaeb, #2e2108);
-  border-color: #f79009;
+  border-color: #bb5900;
 }
 .ui.form .fields.warning .field .checkbox label::after,
 .ui.form .field.warning .checkbox label::after {

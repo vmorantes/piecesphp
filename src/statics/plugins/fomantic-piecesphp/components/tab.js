@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Tab
+ * # Fomantic-UI 1.4.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81,6 +81,7 @@
                 activeTabPath,
                 parameterArray,
                 module,
+                ariaObserver,
 
                 historyEvent
             ;
@@ -116,6 +117,14 @@
                         $.address.autoUpdate(autoUpdate);
                     }
 
+                    if (!isWindow(element)) {
+                        module.set.aria();
+                        // Fork (P320): aria-selected sigue a la clase active del ítem, la ponga quien la ponga
+                        if ('MutationObserver' in window) {
+                            ariaObserver = new MutationObserver(module.set.aria);
+                            ariaObserver.observe(element, { attributes: true, attributeFilter: ['class'] });
+                        }
+                    }
                     module.instantiate();
                 },
 
@@ -133,6 +142,9 @@
                         .removeData(moduleNamespace)
                         .off(eventNamespace)
                     ;
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
                 },
 
                 bind: {
@@ -142,6 +154,7 @@
                             module.debug('Attaching tab activation events to element', $module);
                             $module
                                 .on('click' + eventNamespace, module.event.click)
+                                .on('keydown' + eventNamespace, module.event.keydown)
                             ;
                         }
                     },
@@ -207,6 +220,24 @@
                 },
 
                 event: {
+                    // Fork (P320): Intro y Espacio activan la pestaña; las flechas (y Inicio/Fin) llevan el foco a la vecina y la
+                    // activan, como pide el patrón de pestañas de WAI-ARIA
+                    keydown: function (event) {
+                        var
+                            key   = event.which,
+                            $all  = $module.parent().children().filter(function () { return $(this).data(moduleNamespace) !== undefined && !$(this).hasClass('disabled'); }),
+                            index = $all.index($module),
+                            $next
+                        ;
+                        if (key === 13 || key === 32) {
+                            event.preventDefault();
+                            $module.trigger('click');
+                        } else if ([35, 36, 37, 39].indexOf(key) !== -1 && $all.length > 1) {
+                            $next = key === 36 ? $all.first() : key === 35 ? $all.last() : $all.eq((index + (key === 39 ? 1 : -1) + $all.length) % $all.length);
+                            event.preventDefault();
+                            $next.trigger('focus').trigger('click');
+                        }
+                    },
                     click: function (event) {
                         var
                             tabPath = $(this).data(metadata.tab)
@@ -278,6 +309,40 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 2.1.1 y 4.1.2): los ítems de un menú de pestañas (<a class="item" data-tab>, sin href) no
+                    // se alcanzaban con Tab ni decían que eran pestañas. Cada ítem es un tab enfocable con aria-selected y
+                    // aria-controls hacia su panel (tabpanel); su menú, un tablist. Sin pisar lo que ponga el autor
+                    aria: function () {
+                        var
+                            tabPath = $module.data(metadata.tab),
+                            $panel  = tabPath !== undefined && $tabs ? module.get.tabElement(tabPath) : $()
+                        ;
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'tab');
+                        }
+                        if (!$module.parent().attr('role')) {
+                            $module.parent().attr('role', 'tablist');
+                        }
+                        if (!$module.is('a[href], button, [tabindex]')) {
+                            $module.attr('tabindex', 0);
+                        }
+                        $module.attr('aria-selected', $module.hasClass(className.active) ? 'true' : 'false');
+                        if ($panel && $panel.length === 1) {
+                            if (!element.id) {
+                                element.id = '_tab_' + String(tabPath).replace(/[^\w-]/g, '_');
+                            }
+                            if (!$panel.attr('id')) {
+                                $panel.attr('id', '_tabpanel_' + String(tabPath).replace(/[^\w-]/g, '_'));
+                            }
+                            $module.attr('aria-controls', $panel.attr('id'));
+                            if (!$panel.attr('role')) {
+                                $panel.attr('role', 'tabpanel');
+                            }
+                            if (!$panel.attr('aria-labelledby') && !$panel.attr('aria-label')) {
+                                $panel.attr('aria-labelledby', element.id);
+                            }
+                        }
+                    },
                     auto: function () {
                         var
                             url = typeof settings.path === 'string'

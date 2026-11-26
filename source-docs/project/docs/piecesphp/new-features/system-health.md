@@ -27,6 +27,23 @@ orden.» si no hay nada); después, una pestaña por bloque.
 | Carpetas | Si cada carpeta que debe escribirse se puede escribir | `src/app/config/writable-dirs.txt` y `secure-keys/` |
 | Seguridad | Si las carpetas de subidas niegan PHP (con Apache; con otro servidor, «depende del servidor»), la lista de dominios permitidos y el entorno | El `.htaccess` del subsistema (`ProtectedUploads`), `$config['allowed_hosts']`, `AppEnvironment` |
 
+## Exportar en Markdown
+
+Cada pestaña tiene su botón **«Exportar MD»**, y la cabecera de la página otro para la vista entera. El archivo lleva,
+justo bajo el título, una línea que avisa de que es un documento interno; después, la fecha de generación y la versión del framework, una
+tabla por bloque (dato, estado, valor y origen) y, debajo de cada tabla, por cada dato: **qué mide, qué hacer si está mal y cuándo es una falsa alarma**. Sirve para pegarlo en un ticket o
+dárselo a quien mantiene el servidor.
+
+- Ruta `system-status-health-export` (GET, solo root, como la pantalla), con `?group=<bloque>` para uno solo y
+  `group=attention` para «Lo que pide atención». Un bloque que no existe responde `400`.
+- Las explicaciones salen de `SystemHealth::explanations()`, por la clave de cada tipo de fila (`key`), y el Markdown de
+  `SystemHealth::markdown()`. Una fila nueva necesita su clave y sus tres textos: la suite `core/system-health` falla si
+  falta.
+- Cada exportación queda en el registro de actividad («Salud de la instalación exportada»: quién y qué bloque).
+- Lo que llega de la instalación se escapa para que no se lea como marcado de Markdown.
+- El archivo no lleva rutas absolutas ni secretos, pero sí versiones, los dominios permitidos configurados y el estado
+  de la instalación: **es un documento interno**.
+
 ## Lo que todavía no enseña
 
 Los resultados de las verificaciones, cuánto se ha desviado el clon del framework, la última versión publicada, las

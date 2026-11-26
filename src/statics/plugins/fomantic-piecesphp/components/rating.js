@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Rating
+ * # Fomantic-UI 1.4.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -74,6 +74,8 @@
                     module.set.initialLoad();
                     module.set.rating(module.get.initialRating());
                     module.remove.initialLoad();
+                    $module.on('keydown' + eventNamespace, module.event.keydown);
+                    module.set.aria();
                     module.instantiate();
                 },
 
@@ -89,6 +91,7 @@
                     module.verbose('Destroying previous instance', instance);
                     module.remove.events();
                     $module
+                        .off('keydown' + eventNamespace)
                         .removeData(moduleNamespace)
                     ;
                 },
@@ -113,6 +116,34 @@
                 },
 
                 event: {
+                    // Fork (P320): con las flechas sube o baja una estrella; Inicio y Fin, al mínimo y al máximo
+                    keydown: function (event) {
+                        var
+                            key     = event.which,
+                            current = Math.ceil(module.get.rating()),
+                            max     = $icon.length,
+                            min     = (settings.clearable === 'auto' ? $icon.length === 1 : settings.clearable) ? 0 : 1,
+                            next    = null
+                        ;
+                        if (module.is.disabled()) {
+                            return;
+                        }
+                        if (key === 39 || key === 38) {
+                            next = Math.min(max, current + 1);
+                        } else if (key === 37 || key === 40) {
+                            next = Math.max(min, current - 1);
+                        } else if (key === 36) {
+                            next = min;
+                        } else if (key === 35) {
+                            next = max;
+                        }
+                        if (next !== null) {
+                            event.preventDefault();
+                            if (next !== current) {
+                                module.set.rating(next);
+                            }
+                        }
+                    },
                     mouseenter: function () {
                         var
                             $activeIcon = $(this)
@@ -189,6 +220,7 @@
                     $module
                         .removeClass(className.disabled)
                     ;
+                    module.set.aria();
                 },
 
                 disable: function () {
@@ -197,6 +229,7 @@
                     $module
                         .addClass(className.disabled)
                     ;
+                    module.set.aria();
                 },
 
                 is: {
@@ -246,6 +279,35 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 2.1.1 y 4.1.2): una valoración solo se podía cambiar con el ratón y no decía su valor.
+                    // Interactiva, es un deslizador (role="slider") enfocable con su valor; de solo lectura, una imagen cuyo
+                    // nombre es el valor. Las estrellas no se leen una a una. Sin pisar el nombre que ponga el autor
+                    aria: function () {
+                        var
+                            rating    = module.get.rating(),
+                            max       = $icon.length,
+                            valueText = rating + ' / ' + max
+                        ;
+                        $icon.attr('aria-hidden', 'true');
+                        if (module.is.disabled()) {
+                            $module.attr('role', 'img').removeAttr('tabindex aria-valuemin aria-valuemax aria-valuenow aria-valuetext');
+                            if (!$module.attr('aria-labelledby') && (!$module.attr('aria-label') || $module.data('ariaOwnLabel'))) {
+                                $module.attr('aria-label', valueText).data('ariaOwnLabel', true);
+                            }
+                        } else {
+                            if ($module.data('ariaOwnLabel')) {
+                                $module.removeAttr('aria-label').removeData('ariaOwnLabel');
+                            }
+                            $module.attr({
+                                role: 'slider',
+                                tabindex: $module.attr('tabindex') || 0,
+                                'aria-valuemin': 0,
+                                'aria-valuemax': max,
+                                'aria-valuenow': rating,
+                                'aria-valuetext': valueText,
+                            });
+                        }
+                    },
                     rating: function (rating) {
                         var
                             ratingIndex = Math.floor(
@@ -292,6 +354,9 @@
                         }
                         if (!module.is.initialLoad()) {
                             settings.onRate.call(element, rating);
+                        }
+                        if (instance !== undefined || !module.is.initialLoad()) {
+                            module.set.aria();
                         }
                     },
                     initialLoad: function () {

@@ -756,26 +756,6 @@ $dashboardCardGap: pxToRem(16);
 
 }
 
-//Dos botones de esquina en una tarjeta de cifra (la ayuda y el plegado del Inicio): el tema pone todo `.right.floated`
-//en la misma esquina, así que el segundo se corre a la izquierda del primero y el título deja hueco para los dos.
-.ui.cards > .statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button,
-.ui.statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button {
-    right: calc(1.42857143rem + 1.42857143rem + 0.28571429rem);
-}
-
-.ui.cards > .statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button ~ .header,
-.ui.statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button ~ .header {
-    padding-right: 3.75rem;
-}
-
-@media only screen and (max-width: 767.98px) {
-
-    .ui.cards > .statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button,
-    .ui.statistic.card > .content > .right.floated.icon.button + .right.floated.icon.button {
-        right: calc(1.28571429rem + 1.71428571rem + 0.28571429rem);
-    }
-}
-
 //Las tarjetas del Inicio (home.php): la cifra arriba, bajo el título, y a la izquierda como su rótulo, como la
 //tarjeta-resumen del tema. El tema la empuja al fondo del contenido (margin-top: auto) y centra el valor sobre el rótulo.
 [data-dashboard] .ui.cards > .statistic.card > .content > .ui.statistic,

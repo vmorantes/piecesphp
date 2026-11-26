@@ -6,6 +6,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var array<int,array{group:string,label:string,value:string,state:string,origin:string}> $rows SystemHealth::rows()
  * @var array<string,string> $groupTitles
  * @var string $description
+ * @var array<string,string> $exportURLs La exportación en Markdown: '' la vista entera; por grupo y 'attention', cada bloque.
  * @var \PiecesPHP\AdminPanel\Controllers\HelperController $helpController El que pinta las piezas del panel.
  */
 use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
@@ -14,6 +15,16 @@ use PiecesPHP\SystemStatus\SystemHealth;
 //Pintada fuera del controlador (la suite la incluye con sus propias variables): la cabecera, con lo que haya.
 $helpController = isset($helpController) && $helpController instanceof \PiecesPHP\AdminPanel\Controllers\HelperController ? $helpController : new \PiecesPHP\AdminPanel\Controllers\HelperController();
 $description = isset($description) && is_string($description) ? $description : '';
+$exportURLs = isset($exportURLs) && is_array($exportURLs) ? $exportURLs : [];
+$exportText = __($langGroup, 'Exportar MD');
+//El botón de exportar de cada bloque, con la forma de los demás botones de exportar del panel.
+$exportButton = function (string $block) use ($exportURLs, $exportText): string {
+    $url = $exportURLs[$block] ?? '';
+    if (!is_string($url) || $url === '') {
+        return '';
+    }
+    return '<a class="ui right floated basic labeled icon button" href="' . escape_html($url) . '" download data-system-health-export="' . escape_html($block) . '"><i class="download icon" aria-hidden="true"></i>' . escape_html($exportText) . '</a>';
+};
 
 $states = [
     SystemHealth::STATE_OK => [StatusLabel::POSITIVE, __($langGroup, 'Bien')],
@@ -30,6 +41,12 @@ $attentionRows = array_values(array_filter($rows, fn(array $row): bool => in_arr
         $helpController->_render('panel/built-in/content/page-header.php', [
             'title' => $title,
             'description' => $description,
+            'secondaryActions' => isset($exportURLs['']) && is_string($exportURLs['']) && $exportURLs[''] !== '' ? [[
+                'text' => $exportText,
+                'url' => $exportURLs[''],
+                'icon' => 'download',
+                'attributes' => ['download' => '', 'data-system-health-export' => 'all'],
+            ]] : [],
         ]);
     ?>
 
@@ -43,6 +60,7 @@ $attentionRows = array_values(array_filter($rows, fn(array $row): bool => in_arr
 
     <div class="ui active tab" data-tab="system-health-summary">
     <section class="ui segment" aria-labelledby="system-health-summary-title" data-system-health-summary>
+        <?= $exportButton(SystemHealth::GROUP_ATTENTION); ?>
         <h2 class="ui header" id="system-health-summary-title"><?= __($langGroup, 'Resumen'); ?></h2>
         <?php if ($attentionRows === []): ?>
         <div class="ui positive message" data-system-health-all-ok><?= __($langGroup, 'Todo en orden.'); ?></div>
@@ -85,6 +103,7 @@ $attentionRows = array_values(array_filter($rows, fn(array $row): bool => in_arr
     <?php $groupId = 'system-health-' . preg_replace('/[^a-z0-9-]/', '-', mb_strtolower((string) $group)); ?>
     <div class="ui tab" data-tab="<?= escape_html($groupId); ?>">
     <section class="ui segment" aria-labelledby="<?= escape_html($groupId); ?>" data-system-health-group="<?= escape_html($group); ?>">
+        <?= $exportButton((string) $group); ?>
         <h2 class="ui header" id="<?= escape_html($groupId); ?>"><?= escape_html($groupTitle); ?></h2>
         <div class="ui basic fitted horizontal scrolling mirrored segment" role="region" tabindex="0" aria-label="<?= escape_html($groupTitle); ?>">
         <table class="ui very basic unstackable table" aria-label="<?= escape_html($groupTitle); ?>">

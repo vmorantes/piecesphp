@@ -98,8 +98,24 @@ actions-buttons`), o el JS lo tomaría por una.
 | Pestañas | `div.tabs-controls > div[data-tab]` y `div.ui.tab.tab-element` | :45-52 |
 | Tabla | `div.mirror-scroll-x > div.container-standard-table > table[url].ui.basic.table`; última columna `th[order=false][class-name=buttons]` | :54-71 |
 
-El JS de la tabla es `dataTableServerProccesing(...)` (`src/statics/core/js/helpers.js:757`), llamado desde
+El JS de la tabla es `dataTableServerProccesing(...)` (`src/statics/core/js/helpers.js:683`), llamado desde
 `Statics/js/publications/list.js:84`.
+
+**El cargador al recargar (JOS, 2026-11-25; H513).** `dataTableServerProccesing` pone `processing: false` y enciende
+`showZoneLoader` sobre el `<table>` (cabecera incluida) con `processing.dt`; `searchDelay` 350 salvo que la llamada traiga
+el suyo (DataTables 3.1.4 ponía 400 con `serverSide`). `dataTablesServerProccesingOnCards` (`:894`) deja el global
+(`showGenericLoader`) solo para la primera carga, pasa `zoneLoader: false` a la tabla oculta y pone la zona sobre el
+contenedor de tarjetas; su buscador espera 350 ms y solo busca si el texto cambió (Enter y el evento `search`, al
+momento); las tarjetas viejas se vacían en `drawCallback`, no en `preDrawCallback` (si no, la página encoge y salta al
+principio). Trampas medidas:
+- DataTables busca a los 10 ms de un clic en su campo (`mouseup.DT`, pensado para la «x»): un guion que hace clic y
+  teclea al instante ve dos peticiones; una persona, una. No es el retardo.
+- Si la petición falla, DataTables no dispara `processing` falso: el atenuador se quita con `xhr.dt`, que sí se dispara en
+  el error (JOT). `destroy.dt` suelta los manejadores, comprobando `e.target`.
+- La primera carga de las tarjetas no hace un segundo `draw()` (JOT, H523.9): `drawCallbackEnd` corre una vez.
+- `ZoneLoader.js` va en el paquete del panel (`configurations.min.js`, por el glob de `helpers-lib/`), no en el cargador
+  suelto del sitio público: allí no está el atenuador del tema.
+- El centrado cuenta como visible la franja de la barra y la de los avisos fijos del pie.
 
 **Formulario** (`.../publications/forms/add.php`): la misma cabecera (:16-24) y `.tabs-controls` (:33); después
 `form.ui.form.<modulo>` (:41) `> div.container-standard-form` (:43) `> div.ui.tab[data-tab]`. Campos con

@@ -185,6 +185,21 @@ minuto y segundo** (PO, 2026-10-03), secciones numeradas, y estos cinco puntos:
 5. **Espera al PO**: lista numerada que pueda contestar punto por punto, **cada punto con su
    contexto y su predeterminado**. Él no ha visto el trabajo: se le contextualiza.
 
+**Y todo preparado, y al PO solo el empuje** (PO, 2026-11-25: «se supone que me dejas todo listo y solo me das la
+instrucción de empuje»; «tampoco me diste el empuje de la doc pública»). Antes del resumen:
+
+- **Cada versión etiquetada sin distribuir**, en orden y una a una: `bin/make-distribution <versión> <ruta de la
+  distribución>` y las órdenes de su `PUBLICAR.txt` **salvo el push** (preparar, comprobar las dos cifras, commit,
+  etiqueta, `last-stable`). Lo hace el coder; si su clasificador lo niega, el arquitecto con la orden del PO.
+- **La documentación pública de `last-stable`**: `bin/docs desplegar <copia local del sitio>` y su commit, con rutas
+  (`git add -- docs`, nunca `-A`), si la copia no tiene ya esa versión.
+- **Cada repositorio que va por delante de su remoto**: el framework, la distribución, el sitio de la documentación,
+  los cuatro paquetes y el tema. Se mide sin tocar los remotos, contra las copias locales
+  (`git rev-list --left-right --count <remoto>/<rama>...<rama>`), y se dice que esa copia puede estar rancia. Un
+  repositorio sin nada por subir se nombra igual, con su «nada».
+- **En `PO.md` §3 y en el chat, solo las órdenes de empuje**, exactas, pegables y con la ruta literal
+  (`bin/push-all …`, `git -C <ruta> push …`). Nunca «sube lo de hoy», y nunca una orden que no sea el empuje.
+
 Y las dos órdenes de renombrado otra vez, al cierre, para que las tenga a mano la próxima vez
 (regla 30).
 

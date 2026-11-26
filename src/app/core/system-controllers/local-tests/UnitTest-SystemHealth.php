@@ -4,14 +4,24 @@
 //deja ver una llave o una contraseña, la pantalla miente o filtra (P179).
 //@areas src/app/classes/PiecesPHP/SystemStatus/
 
+use EventsLog\LogsRoutes;
+use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\AppEnvironment;
+use PiecesPHP\Core\AppVersion;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\SystemStatus\Controllers\SystemStatusController;
 use PiecesPHP\SystemStatus\SystemHealth;
 use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Factory\UriFactory;
+use Slim\Psr7\Headers;
 
 CliActions::make('unit-tests:core/system-health', function ($args) {
 
@@ -30,9 +40,17 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
         }
     };
 
+    //Exportar deja una línea en el registro de acciones: las de la prueba se borran al final (por SQL preparado, como hace
+    //UnitTest-DataTransferHub: el mapper no borra a propósito).
+    $logsBefore = LogsMapper::model();
+    $logsBefore->resetAll();
+    $logsBefore->select(['MAX(id) AS maxID'])->execute();
+    $maxLogBefore = (int) (((array) (((array) $logsBefore->result())[0] ?? []))['maxID'] ?? 0);
+    $exportedText = LogsMapper::MESSAGES[LogsMapper::MSG_SYSTEM_HEALTH_EXPORTED];
+
     try {
 
-        echoTerminal('[1/3] Las filas');
+        echoTerminal('[1/4] Las filas');
         $rows = SystemHealth::rows();
         $groups = array_keys(SystemHealth::groupTitles());
         $withoutOrigin = array_filter($rows, fn(array $row): bool => trim($row['origin']) === '');
@@ -93,7 +111,7 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
         $check(!in_array($vista, SystemHealth::databaseViews(), true), 's8 la vista de la prueba ya no está');
         echoTerminal(' ');
 
-        echoTerminal('[2/3] El HTML no deja ver ningún secreto');
+        echoTerminal('[2/4] El HTML no deja ver ningún secreto');
         $langGroup = SystemStatusController::LANG_GROUP;
         $title = 'Salud de la instalación';
         $groupTitles = SystemHealth::groupTitles();
@@ -135,14 +153,106 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
         $check(count($leaked) === 0, 'b1 el HTML no contiene la app_key, ni la contraseña de la base, ni la del correo', count($present) . ' secreto(s) buscados (' . implode(', ', $present) . '); aparecen: ' . implode(', ', $leaked));
         echoTerminal(' ');
 
-        echoTerminal('[3/3] Solo root');
+        echoTerminal('[3/4] Solo root');
         $others = array_filter(array_keys(UsersModel::getTypesUser()), fn($type): bool => (int) $type !== UsersModel::TYPE_USER_ROOT);
         $allowedOthers = array_filter($others, fn($type): bool => Roles::hasPermissions('system-status-health', (int) $type));
         $check(Roles::hasPermissions('system-status-health', UsersModel::TYPE_USER_ROOT) && count($others) > 0 && count($allowedOthers) === 0, 'c1 solo root tiene la ruta system-status-health', 'otros con permiso: ' . implode(', ', $allowedOthers));
         echoTerminal(' ');
 
+        echoTerminal('[4/4] Exportar en Markdown (H510)');
+        $synthetic = [
+            ['group' => SystemHealth::GROUP_SECURITY, 'label' => 'zz-dato-bien', 'value' => 'zz', 'state' => SystemHealth::STATE_OK, 'origin' => 'zz-origen', 'key' => 'security-environment'],
+            ['group' => SystemHealth::GROUP_FOLDERS, 'label' => 'zz-dato-en-aviso', 'value' => "zz|uno\ndos", 'state' => SystemHealth::STATE_MISSING, 'origin' => 'zz|origen', 'key' => 'folder-keys'],
+        ];
+        $full = SystemHealth::markdown($synthetic, $groupTitles);
+        $check(str_starts_with($full, '# ' . __($langGroup, 'Salud de la instalación') . "\n") && str_contains($full, AppVersion::version()) && preg_match('/\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}/', $full) === 1, 'm1 la cabecera: el título, la fecha y hora de generación y la versión del framework');
+        $root = rtrim(str_replace('\\', '/', basepath('')), '/');
+        //Con un dominio de verdad en la petición: la cabecera no lo toma (las filas sí pueden: «Dominios permitidos»).
+        $previousHost = $_SERVER['HTTP_HOST'] ?? null;
+        $_SERVER['HTTP_HOST'] = 'zz-dominio-de-prueba.test';
+        try {
+            $withHost = SystemHealth::markdown($synthetic, $groupTitles);
+        } finally {
+            if ($previousHost === null) {
+                unset($_SERVER['HTTP_HOST']);
+            } else {
+                $_SERVER['HTTP_HOST'] = $previousHost;
+            }
+        }
+        $check(!str_contains($withHost, $root) && !str_contains($withHost, dirname($root)) && !str_contains($withHost, 'zz-dominio-de-prueba.test'), 'm2 la cabecera y el armazón, sin rutas absolutas del servidor ni el dominio de la petición');
+        $check(str_contains($full, '| zz-dato-en-aviso | ' . __($langGroup, 'Falta') . ' | zz\\|uno<br>dos | zz\\|origen |') && !str_contains($full, "uno\ndos"), 'm3 DISCRIMINANTE: las celdas escapan | y los saltos de línea', (string) json_encode(array_values(array_filter(explode("\n", $full), fn($l) => str_contains($l, 'zz-dato-en-aviso'))), JSON_UNESCAPED_UNICODE));
+        $raro = ['group' => SystemHealth::GROUP_PHP, 'label' => 'zz_*nombre*', 'value' => 'a\\b `c` *d* _e_ <f> [g] |h', 'state' => SystemHealth::STATE_OK, 'origin' => 'zz', 'key' => 'php-ini'];
+        $rare = SystemHealth::markdown([$raro], $groupTitles, SystemHealth::GROUP_PHP);
+        $check(str_contains($rare, '| zz\\_\\*nombre\\* | ') && str_contains($rare, '| a\\\\b \\`c\\` \\*d\\* \\_e\\_ \\<f\\> \\[g\\] \\|h |') && str_contains($rare, '- **zz\\_\\*nombre\\***: '), 'm3b DISCRIMINANTE: celdas y nombres escapan \\ ` * _ < > [ ] y |', (string) json_encode(array_values(array_filter(explode("\n", $rare), fn($l) => str_contains($l, 'zz'))), JSON_UNESCAPED_UNICODE));
+        $lines = explode("\n", $full);
+        $check(($lines[2] ?? '') === __($langGroup, 'Documento interno: describe esta instalación (versiones, configuración y estado). No lo publiques.'), 'm12 tras el título, la línea de documento interno', (string) ($lines[2] ?? ''));
+        $check(SystemHealth::keysLabel('C:\\inst\\secure-keys', 'C:/inst') === '../secure-keys' && SystemHealth::keysLabel('C:\\inst/private\\secure-keys', 'C:/inst') === '../private/secure-keys', 'k1 DISCRIMINANTE: con \\ (Windows), la carpeta de claves bajo la raíz sale relativa', SystemHealth::keysLabel('C:\\inst\\secure-keys', 'C:/inst'));
+        $outside = [SystemHealth::keysLabel('D:\\otro\\private\\secure-keys', 'C:/inst'), SystemHealth::keysLabel('/srv/fuera/secure-keys', '/var/www/inst'), SystemHealth::keysLabel(null, '/var/www/inst')];
+        $check($outside === ['private/secure-keys', 'secure-keys', 'secure-keys'], 'k2 fuera de la raíz, o sin carpeta, solo su nombre: nunca una ruta absoluta', (string) json_encode($outside));
+        $attentionTitle = '## ' . __($langGroup, 'Lo que pide atención');
+        $attentionPart = (string) strstr((string) strstr($full, $attentionTitle), "\n## ", true);
+        $check(str_contains($full, $attentionTitle) && strpos($full, $attentionTitle) < strpos($full, '## ' . $groupTitles[SystemHealth::GROUP_FRAMEWORK]) && str_contains($attentionPart, 'zz-dato-en-aviso') && !str_contains($attentionPart, 'zz-dato-bien'), 'm4 primero lo que pide atención (solo los avisos y las faltas), después los grupos');
+        $order = array_map(fn(string $title): int|false => strpos($full, "\n## {$title}\n"), array_values($groupTitles));
+        $check(!in_array(false, $order, true) && $order === array_values(array_unique($order)) && $order == array_values(array_filter($order)) && $order === (function (array $o): array { sort($o); return $o; })($order), 'm5 un bloque por grupo, en el orden de groupTitles()');
+        $explanations = SystemHealth::explanations();
+        $keysExplanation = $explanations['folder-keys'];
+        $check(str_contains($full, '- **zz-dato-en-aviso**: ' . $keysExplanation['measures'] . ' ' . __($langGroup, 'Si está mal:') . ' ' . $keysExplanation['ifWrong'] . ' ' . __($langGroup, 'Falsa alarma:') . ' ' . $keysExplanation['falseAlarm']), 'm6 bajo la tabla, cada fila con qué mide, qué hacer y cuándo es una falsa alarma');
+        $onlyAttention = SystemHealth::markdown($synthetic, $groupTitles, SystemHealth::GROUP_ATTENTION);
+        $check(str_contains($onlyAttention, $attentionTitle) && !str_contains($onlyAttention, '## ' . $groupTitles[SystemHealth::GROUP_FOLDERS]), 'm7 con group=attention, solo el bloque de atención');
+        $onlyFolders = SystemHealth::markdown($synthetic, $groupTitles, SystemHealth::GROUP_FOLDERS);
+        $check(str_contains($onlyFolders, '## ' . $groupTitles[SystemHealth::GROUP_FOLDERS]) && !str_contains($onlyFolders, $attentionTitle) && !str_contains($onlyFolders, '## ' . $groupTitles[SystemHealth::GROUP_SECURITY]), 'm8 con un grupo, solo ese grupo');
+        $rejected = false;
+        try {
+            SystemHealth::markdown($synthetic, $groupTitles, 'zz-no-existe');
+        } catch (\InvalidArgumentException) {
+            $rejected = true;
+        }
+        $check($rejected, 'm9 DISCRIMINANTE: un grupo que no existe lanza InvalidArgumentException');
+        $realRows = SystemHealth::rows();
+        $withoutExplanation = array_values(array_filter($realRows, fn(array $row): bool => !isset($explanations[$row['key']])));
+        $check($withoutExplanation === [] && array_filter($explanations, fn(array $e): bool => trim($e['measures']) === '' || trim($e['ifWrong']) === '' || trim($e['falseAlarm']) === '') === [], 'm10 toda fila real tiene su explicación, con los tres textos', (string) json_encode(array_column($withoutExplanation, 'label'), JSON_UNESCAPED_UNICODE));
+        $realMarkdown = SystemHealth::markdown($realRows, $groupTitles);
+        //El valor sale escapado para Markdown: se busca crudo y escapado (como el HTML, crudo y con htmlspecialchars).
+        $leakedMarkdown = array_filter($present, fn(string $name): bool => str_contains($realMarkdown, (string) $secrets[$name]) || str_contains($realMarkdown, SystemHealth::escapeMarkdown((string) $secrets[$name])));
+        $check($leakedMarkdown === [] && !str_contains($realMarkdown, $root), 'm11 el Markdown real no lleva ningún secreto buscado ni la ruta de la instalación', 'aparecen: ' . implode(', ', $leakedMarkdown));
+
+        $info = get_route_info('system-status-health-export');
+        $healthInfo = get_route_info('system-status-health');
+        $allowedOthersExport = array_filter($others, fn($type): bool => Roles::hasPermissions('system-status-health-export', (int) $type));
+        $check(is_array($info) && ($info['require_login'] ?? false) === true && ($info['method'] ?? null) === ($healthInfo['method'] ?? 'zz') && Roles::hasPermissions('system-status-health-export', UsersModel::TYPE_USER_ROOT) && $allowedOthersExport === [], 'e1 la ruta pide sesión y, como la de la vista, solo root (sin sesión no entra: index.php la corta)', 'otros con permiso: ' . implode(', ', $allowedOthersExport));
+        $export = function (?string $group): \Psr\Http\Message\ResponseInterface {
+            $query = $group === null ? '' : '?' . http_build_query(['group' => $group]);
+            $request = new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/zz' . $query), new Headers(), [], [], (new StreamFactory())->createStream(''));
+            return (new SystemStatusController())->healthExport($request, new ResponseRoute());
+        };
+        $ok = $export(null);
+        $body = (string) $ok->getBody();
+        $check($ok->getStatusCode() === 200 && $ok->getHeaderLine('Content-Type') === 'text/markdown; charset=utf-8' && $ok->getHeaderLine('Content-Disposition') === 'attachment; filename="salud-completa-' . date('Y-m-d') . '.md"' && str_starts_with($body, '# '), 'e2 la vista entera: 200, text/markdown y su Content-Disposition', $ok->getStatusCode() . ' · ' . $ok->getHeaderLine('Content-Type') . ' · ' . $ok->getHeaderLine('Content-Disposition'));
+        $okGroup = $export(SystemHealth::GROUP_PHP);
+        $check($okGroup->getStatusCode() === 200 && $okGroup->getHeaderLine('Content-Disposition') === 'attachment; filename="salud-' . SystemHealth::GROUP_PHP . '-' . date('Y-m-d') . '.md"' && !str_contains((string) $okGroup->getBody(), $attentionTitle), 'e3 un grupo: 200 y su nombre de archivo');
+        $bad = $export('zz-no-existe');
+        $check($bad->getStatusCode() === 400 && $bad->getHeaderLine('Content-Disposition') === '' && str_contains((string) $bad->getBody(), 'zz-no-existe'), 'e4 DISCRIMINANTE: un grupo que no existe, 400 con su mensaje y sin archivo', $bad->getStatusCode() . ' · ' . (string) $bad->getBody());
+        $odd = $export('<zz>"raro"');
+        $check($odd->getStatusCode() === 400 && !str_contains((string) $odd->getBody(), 'zz') && (string) $odd->getBody() === __($langGroup, 'Ese bloque no existe en la salud de la instalación.'), 'e4b DISCRIMINANTE: un grupo sin la forma de un bloque, 400 sin repetirlo', (string) $odd->getBody());
+        if (LogsRoutes::ENABLE) {
+            $logs = LogsMapper::model();
+            $logs->resetAll();
+            $logs->select(['id', 'textMessage'])->where(new WhereSegment([new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $maxLogBefore)]))->execute();
+            $logged = array_filter((array) $logs->result(), fn($l) => (((array) $l)['textMessage'] ?? '') === $exportedText);
+            $check(count($logged) === 2, 'l1 cada exportación (e2, e3) queda en el registro de acciones, y las de 400 no', (string) count($logged));
+        }
+        echoTerminal(' ');
+
     } catch (\Throwable $e) {
         $check(false, 'x1 la suite terminó sin excepciones', get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')');
+    } finally {
+        $logsDatabase = LogsMapper::model()->getDatabase();
+        if ($logsDatabase !== null) {
+            $logsDatabase->prepare('DELETE FROM `' . LogsMapper::TABLE . '` WHERE `id` > ? AND `textMessage` = ?')->execute([$maxLogBefore, $exportedText]);
+            $remaining = $logsDatabase->prepare('SELECT COUNT(*) FROM `' . LogsMapper::TABLE . '` WHERE `id` > ? AND `textMessage` = ?');
+            $remaining->execute([$maxLogBefore, $exportedText]);
+            $check((int) $remaining->fetchColumn() === 0, 'z1 no queda ninguna línea de la prueba en el registro de acciones');
+        }
     }
 
     $total = $passed + $failed;

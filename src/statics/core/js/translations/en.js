@@ -100,6 +100,9 @@ var PCSPHP_TRANSLATIONS_EN = {
 		'No': 'No',
 		'Aceptar': 'OK',
 	},
+	zoneLoader: {
+		'Cargando…': 'Loading…',
+	},
 	loginForm: {
 		'Error': 'Error',
 		'Ha ocurrido un error inesperado, intente más tarde.': 'An unexpected error has occurred, try again later.',

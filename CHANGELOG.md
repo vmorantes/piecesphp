@@ -1,3 +1,48 @@
+# 10.68.0 (26-11-2026)
+
+- **El tema del panel, en la 1.4.0** (antes 1.1.1). Las etiquetas y botones rellenos de color llevan texto blanco con
+  contraste AA (el verde, el rojo y el amarillo, que ahora es ámbar, pasan de 4,5:1); cada color se expone como variable CSS
+  (`--color-<color>` y `--color-<color>-text`); las pestañas enseñan el cursor de mano y se manejan con el teclado; y el
+  panel carga los textos de las piezas del tema en el idioma de la página (inglés, español y francés): en español, una
+  ventana del tema dice «Aceptar», «Cancelar» y «Cerrar» en lugar de «Ok», «Cancel» y «Close». Los textos que ya fija el
+  framework (los desplegables, el calendario, los formularios) siguen mandando.
+- **El recortador de imágenes ya no pinta de gris todo su contenido**: la hoja `cropper-adapter.scss` dejaba en `#646464`
+  el propio contenedor, sus títulos y sus etiquetas. Ahora el título usa `ui muted header`, que sigue al tema y al modo
+  oscuro, y el resto, el color del tema. **Al actualizar**: si tu proyecto tiene una copia de
+  `view/panel/built-in/utilities/cropper/workspace.php` o pone texto propio dentro de `.cropper-adapter`, añade `muted`
+  al título o dale tú el color.
+- **Los dos botones de esquina de la tarjeta de cifra los coloca el tema**: la hoja propia ya no los repite; se ven igual.
+- **Las tablas y las tarjetas del panel ya no tapan la pantalla al recargar**. Al buscar, ordenar, cambiar de página o
+  de cantidad, un atenuador cubre solo la tabla o las tarjetas, y su indicador queda en el centro de la parte que se ve,
+  aunque la tabla sea larga; el buscador y los controles siguen usables. El cargador de pantalla completa solo sale en la
+  primera carga de una vista en tarjetas. El buscador de las tarjetas espera a que se deje de escribir (350 ms) y busca
+  al momento con Enter o con la «x» del campo; el de las tablas espera 350 ms (antes, 400). Si la petición falla, el
+  cargador se quita (antes se quedaba puesto), y se recoloca cuando la zona cambia de tamaño o se hace visible.
+- **Usuarios carga sus tarjetas una vez por pestaña** (antes, dos: 12 peticiones para 6 pestañas), y el explorador de
+  documentos, una vez (antes, dos).
+- **El campo oculto que valida los desplegables obligatorios ya no se lleva una parada del tabulador** ni lo anuncian
+  los lectores de pantalla; el aviso de «campo obligatorio» sigue saliendo.
+- **Nuevo: el cargador por zona**, `showZoneLoader(zona)` y `removeZoneLoader(zona)`, para cualquier parte de una
+  pantalla del panel que se recarga. Usa el atenuador del tema (`ui dimmer` y `ui loader`), sigue al modo oscuro y lo
+  anuncia a los lectores de pantalla. Ejemplo en la Hoja de diseño, «Mensajes y avisos». Guía: «El panel», «Qué usar en
+  cada caso».
+- **Salud de la instalación, exportable en Markdown**: un botón «Exportar MD» para la vista entera y otro en cada bloque.
+  Cada dato lleva qué mide, qué hacer si está mal y cuándo es una falsa alarma (por ejemplo, el PHP de la terminal frente
+  al del servidor web). Solo para root, como la pantalla. El archivo describe la instalación (versiones, los dominios
+  permitidos y el estado) y lo dice justo bajo el título: trátalo como un documento interno. Cada exportación queda en
+  el registro de actividad («Salud de la instalación exportada»), con quién la hizo y qué bloque.
+- **Arreglado: textos en inglés en los desplegables del panel en español** («Add …» al añadir un valor nuevo, la cuenta
+  de seleccionados, el máximo y el error del servidor).
+- **Para quien desarrolla**: `dataTableServerProccesing()` desactiva el indicador propio de DataTables (`processing:
+  false`) y pone el cargador por zona sobre el `<table>`; si tu proyecto pintaba algo con `.dt-processing` o escuchaba
+  `processing.dt`, revísalo. Una llamada puede pasar `searchDelay` y `zoneLoader: false` (sin cargador). En
+  `dataTablesServerProccesingOnCards()`, las tarjetas viejas se vacían al llegar las nuevas (en `drawCallback`), no
+  antes de pedir: si tu `preDrawCallback` contaba con el contenedor vacío, muévelo a `drawCallback`. Y la primera carga
+  ya no hace un segundo dibujado: `drawCallbackEnd` se llama una vez (antes, dos, la primera sin tarjetas) e
+  `initCompleteEnd` recibe las tarjetas ya pintadas.
+- **`bin/traer-tema` registra en `ORIGEN.json` el commit del compilado** (el de su `VERSION.json`) y, si el repositorio
+  del tema está en otro, lo anota aparte en `punta`.
+
 # 10.67.0 (25-11-2026)
 
 - **El MCP de desarrollo explica los permisos**: dos herramientas nuevas en `bin/mcp`. `route_explain` dice de dónde sale

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - State
+ * # Fomantic-UI 1.4.0 - State
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

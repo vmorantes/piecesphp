@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Dropdown
+ * # Fomantic-UI 1.4.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -102,6 +102,10 @@
                 selectObserver,
                 menuObserver,
                 classObserver,
+                ariaObserver,
+                ariaFrame,
+                authorActive = false,
+                opened = false,
                 module,
                 tempDisableApiCache = false
             ;
@@ -121,6 +125,10 @@
 
                         module.create.id();
                         module.setup.layout();
+                        // Fork (P320): `active` puesto por el autor (el ítem de la sección actual en un menú) chocaba con el
+                        // `active` que marca el desplegable abierto: ni el clic ni el teclado lo abrían. Se recuerda, no se
+                        // quita al cerrar y el estado abierto se lleva aparte
+                        authorActive = $module.hasClass(className.active) && !module.is.visible();
 
                         if (settings.values) {
                             module.set.initialLoad();
@@ -135,6 +143,7 @@
 
                         module.save.defaults();
                         module.restore.selected();
+                        module.set.aria();
 
                         module.bind.events();
 
@@ -171,6 +180,9 @@
                     module.disconnect.menuObserver();
                     module.disconnect.selectObserver();
                     module.disconnect.classObserver();
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
                 },
 
                 observeChanges: function () {
@@ -182,6 +194,22 @@
                         module.observe.select();
                         module.observe.menu();
                         module.observe.class();
+                        // Fork (P320): el estado ARIA sigue a las clases que ya pone el módulo (visible, active, selected,
+                        // disabled, filtered), estén donde estén en el código: un solo observador, agrupado por fotograma
+                        ariaObserver = new MutationObserver(function () {
+                            if (!ariaFrame) {
+                                ariaFrame = requestAnimationFrame(function () {
+                                    ariaFrame = null;
+                                    module.set.aria();
+                                });
+                            }
+                        });
+                        ariaObserver.observe($module[0], {
+                            attributes: true,
+                            attributeFilter: ['class'],
+                            childList: true,
+                            subtree: true,
+                        });
                     }
                 },
 
@@ -2522,6 +2550,98 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): patrón combobox de WAI-ARIA 1.2. Un desplegable de selección (selection, con
+                    // <select> o input oculto, o con buscador) es un combobox con su listbox de options; uno de acciones es un
+                    // botón con su menu de menuitems. El rol va en lo que recibe el foco (el buscador, si lo hay). El nombre
+                    // sale de la etiqueta del campo si el autor no puso aria-label ni aria-labelledby. aria-activedescendant
+                    // sigue al ítem resaltado con las flechas (el foco no sale del combobox)
+                    aria: function () {
+                        if (!$menu || $menu.length === 0) {
+                            return;
+                        }
+                        var
+                            listbox   = module.is.selection() || module.has.input() || module.is.search(),
+                            $focus    = module.is.searchSelection() ? $search : $module,
+                            expanded  = module.is.visible(),
+                            $options  = $menu.find(selector.item),
+                            $highlight,
+                            $label
+                        ;
+                        if (!$menu.attr('id')) {
+                            $menu.attr('id', '_' + module.get.id() + '_menu');
+                        }
+                        $menu.attr('role', listbox ? 'listbox' : 'menu');
+                        if (listbox && module.is.multiple()) {
+                            $menu.attr('aria-multiselectable', 'true');
+                        }
+                        $menu.find(selector.menu).attr('role', listbox ? 'group' : 'menu');
+                        $menu.find('.divider').attr('role', 'separator');
+                        $menu.find('.header').not(selector.item).attr('role', 'presentation');
+                        $options.each(function (index) {
+                            var $option = $(this);
+                            if (!this.id) {
+                                this.id = '_' + module.get.id() + '_item' + index;
+                            }
+                            $option.attr('role', listbox ? 'option' : 'menuitem');
+                            if (listbox) {
+                                $option.attr('aria-selected', $option.hasClass(className.active) ? 'true' : 'false');
+                            }
+                            if ($option.hasClass(className.disabled)) {
+                                $option.attr('aria-disabled', 'true');
+                            } else {
+                                $option.removeAttr('aria-disabled');
+                            }
+                        });
+                        $menu.find(selector.item).children('.icon, .flag, i').attr('aria-hidden', 'true');
+                        if (listbox) {
+                            $focus.attr({ role: 'combobox', 'aria-haspopup': 'listbox' });
+                            if (module.is.searchSelection()) {
+                                $focus.attr('aria-autocomplete', 'list');
+                                if ($module.attr('role') === 'combobox') {
+                                    $module.removeAttr('role aria-haspopup aria-expanded aria-controls aria-activedescendant');
+                                }
+                            }
+                        } else {
+                            $focus.attr({ role: 'button', 'aria-haspopup': 'menu' });
+                        }
+                        $focus.attr({ 'aria-expanded': expanded ? 'true' : 'false', 'aria-controls': $menu.attr('id') });
+                        if (module.is.disabled()) {
+                            $focus.attr('aria-disabled', 'true');
+                        } else {
+                            $focus.removeAttr('aria-disabled');
+                        }
+                        $highlight = $options.filter('.' + className.selected).filter(':visible').first();
+                        if (expanded && $highlight.length > 0) {
+                            $focus.attr('aria-activedescendant', $highlight.attr('id'));
+                        } else {
+                            $focus.removeAttr('aria-activedescendant');
+                        }
+                        // El nombre que el autor dio al desplegable o a su <select> (o input oculto) pasa a lo que recibe el foco
+                        [$module, $input].forEach(function ($named) {
+                            if ($named.length > 0 && $named[0] !== $focus[0] && !$focus.attr('aria-label') && !$focus.attr('aria-labelledby')) {
+                                $focus.attr({ 'aria-label': $named.attr('aria-label'), 'aria-labelledby': $named.attr('aria-labelledby') });
+                            }
+                        });
+                        if (!$focus.attr('aria-label') && !$focus.attr('aria-labelledby')) {
+                            $label = $module.prev('label');
+                            if ($label.length === 0 && $input.attr('id')) {
+                                $label = $('label[for="' + $input.attr('id') + '"]');
+                            }
+                            if ($label.length === 0) {
+                                $label = $module.closest('.field').children('label');
+                            }
+                            $label = $label.first();
+                            if ($label.length > 0) {
+                                if (!$label.attr('id')) {
+                                    $label.attr('id', '_' + module.get.id() + '_formLabel');
+                                }
+                                $focus.attr('aria-labelledby', $label.attr('id'));
+                            } else if (listbox && module.get.placeholderText()) {
+                                // Sin etiqueta, el texto de marcador, como el placeholder de un <input>
+                                $focus.attr('aria-label', module.get.placeholderText());
+                            }
+                        }
+                    },
                     filtered: function () {
                         var
                             isMultiple       = module.is.multiple(),
@@ -2799,6 +2919,7 @@
                         }
                     },
                     active: function () {
+                        opened = true;
                         $module
                             .addClass(className.active)
                         ;
@@ -3126,7 +3247,10 @@
 
                 remove: {
                     active: function () {
-                        $module.removeClass(className.active);
+                        opened = false;
+                        if (!authorActive) {
+                            $module.removeClass(className.active);
+                        }
                     },
                     activeLabel: function () {
                         $module.find(selector.label).removeClass(className.active);
@@ -3468,7 +3592,9 @@
 
                 is: {
                     active: function () {
-                        return $module.hasClass(className.active);
+                        return authorActive
+                            ? opened
+                            : $module.hasClass(className.active);
                     },
                     animatingInward: function () {
                         return $menu.transition('is inward');

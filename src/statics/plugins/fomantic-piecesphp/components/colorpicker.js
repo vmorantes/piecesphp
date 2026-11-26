@@ -1,6 +1,6 @@
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.1.1 - Colorpicker
+ * # Fomantic-UI 1.4.0 - Colorpicker
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

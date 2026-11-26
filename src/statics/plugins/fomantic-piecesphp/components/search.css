@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Search
+ * # Fomantic-UI 1.4.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -123,7 +123,7 @@
 }
 .ui.search > .results .result .price {
   float: right;
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from #008742 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #008742 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
   
 /* Fork: tinta legible en ambos modos (D36) */
 }

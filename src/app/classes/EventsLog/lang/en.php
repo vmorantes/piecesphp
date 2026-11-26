@@ -52,6 +52,7 @@ return [
     "Cuerpo de un correo consultado" => "Email body viewed",
     "Cuerpo de un correo ilegible" => "Unreadable email body",
     "Importador o exportador encendido o apagado" => "Importer or exporter turned on or off",
+    "Salud de la instalación exportada" => "Installation health exported",
     "Sesión cerrada" => "Session closed",
     "Prueba de un correo del catálogo" => "Test of a catalog email",
     "Sesión extendida" => "Session extended",

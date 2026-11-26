@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Sidebar
+ * # Fomantic-UI 1.4.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -26,7 +26,6 @@
             $document       = $(document),
             $body           = $('body'),
             $html           = $('html'),
-            $head           = $('head'),
 
             time            = Date.now(),
             performance     = [],
@@ -71,7 +70,6 @@
                 $sidebars       = $module.children(selector.sidebar),
                 $fixed          = $context.children(selector.fixed),
                 $pusher         = $context.children(selector.pusher),
-                $style,
 
                 element         = this,
                 instance        = $module.data(moduleNamespace),
@@ -82,6 +80,7 @@
                 initialBodyMargin = '',
                 tempBodyMargin = '',
                 hadScrollbar = false,
+                focusReturn,
 
                 module
             ;
@@ -214,71 +213,17 @@
                 },
 
                 add: {
+                    // Fork (#3633 del original, sin fusionar; CSP estricta): la distancia va en una variable CSS del contexto
+                    // (CSSOM, que style-src 'self' permite) en vez de una etiqueta <style>; el LESS la lee
                     inlineCSS: function () {
                         var
-                            width     = module.cache.width || $module.outerWidth(),
-                            height    = module.cache.height || $module.outerHeight(),
-                            isRTL     = module.is.rtl(),
                             direction = module.get.direction(),
-                            distance  = {
-                                left: width,
-                                right: -width,
-                                top: height,
-                                bottom: -height,
-                            },
-                            style
+                            distance  = direction === 'top' || direction === 'bottom'
+                                ? module.cache.height || $module.outerHeight()
+                                : module.cache.width || $module.outerWidth()
                         ;
-
-                        if (isRTL) {
-                            module.verbose('RTL detected, flipping widths');
-                            distance.left = -width;
-                            distance.right = width;
-                        }
-
-                        style = '<style>';
-
-                        if (direction === 'left' || direction === 'right') {
-                            module.debug('Adding CSS rules for animation distance', width);
-                            style += ''
-                                + ' .ui.visible.' + direction + '.sidebar ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.sidebar ~ .pusher {'
-                                + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                + ' }';
-                        } else if (direction === 'top' || direction === 'bottom') {
-                            style += ''
-                                + ' .ui.visible.' + direction + '.sidebar ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.sidebar ~ .pusher {'
-                                + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                + ' }';
-                        }
-
-                        /* IE is only browser not to create context with transforms */
-                        /* https://www.w3.org/Bugs/Public/show_bug.cgi?id=16328 */
-                        if (module.is.ie()) {
-                            if (direction === 'left' || direction === 'right') {
-                                module.debug('Adding CSS rules for animation distance', width);
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.sidebar ~ .pusher::after {'
-                                    + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                    + ' }';
-                            } else if (direction === 'top' || direction === 'bottom') {
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.sidebar ~ .pusher::after {'
-                                    + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                    + ' }';
-                            }
-                            /* opposite sides visible forces content overlay */
-                            style += ''
-                                + ' body.pushable > .ui.visible.left.sidebar ~ .ui.visible.right.sidebar ~ .pusher::after,'
-                                + ' body.pushable > .ui.visible.right.sidebar ~ .ui.visible.left.sidebar ~ .pusher::after {'
-                                + '           transform: translate3d(0, 0, 0);'
-                                + ' }';
-                        }
-                        style += '</style>';
-                        $style = $(style)
-                            .appendTo($head)
-                        ;
-                        module.debug('Adding sizing css to head', $style);
+                        module.debug('Adding CSS variable for animation distance', distance);
+                        $context[0].style.setProperty('--sidebar-' + direction + '-distance', distance + 'px');
                     },
                 },
 
@@ -316,12 +261,17 @@
                             module.debug('Adding wrapper element for sidebar');
                             module.error(error.pusher);
                             $pusher = $('<div class="pusher" />');
+                            // Fork (P320): como en flyout, envolver no debe quitar el foco al elemento que lo tenía
+                            var focused = document.activeElement;
                             $context
                                 .children()
                                 .not(selector.omitted)
                                 .not($sidebars)
                                 .wrapAll($pusher)
                             ;
+                            if (focused && focused !== document.body && focused !== document.activeElement && document.documentElement.contains(focused)) {
+                                focused.focus({ preventScroll: true });
+                            }
                             module.refresh();
                         }
                         if ($module.nextAll(selector.pusher).length === 0 || $module.nextAll(selector.pusher)[0] !== $pusher[0]) {
@@ -381,6 +331,7 @@
 
                             return;
                         }
+                        module.keyboard.open();
                         if (settings.overlay) {
                             module.error(error.overlay);
                             settings.transition = 'overlay';
@@ -403,6 +354,7 @@
                         }
                         module.set.dimmerStyles();
                         module.pushPage(function () {
+                            module.keyboard.focusIn();
                             callback.call(element);
                             settings.onVisible.call(element);
                         });
@@ -419,12 +371,97 @@
                     if ((module.is.visible() || module.is.animating()) && settings.onHide.call(element) !== false) {
                         module.debug('Hiding sidebar', callback);
                         module.refreshSidebars();
+                        module.keyboard.close();
                         module.pullPage(function () {
+                            module.keyboard.focusOut();
                             callback.call(element);
                             settings.onHidden.call(element);
                         });
                         settings.onChange.call(element);
                     }
+                },
+
+                // Fork (P320, WCAG 2.1.1, 2.1.2, 2.4.3 y 4.1.2): el sidebar es un diálogo como el flyout (del que viene su
+                // teclado): rol y nombre, Escape lo cierra si es closable, el foco entra al abrirse, queda dentro con dimPage
+                // y vuelve al cerrar a quien lo tenía. Las teclas, en un espacio de eventos propio (otros off() del módulo
+                // quitan los de elementNamespace)
+                keyboard: {
+                    namespace: function () {
+                        return elementNamespace + 'teclado';
+                    },
+                    focusables: function () {
+                        return $module.find('a[href], button, input, select, textarea, [tabindex]').filter(':visible').filter(function () {
+                            return !this.disabled && $(this).closest('.disabled').length === 0 && this.tabIndex >= 0;
+                        });
+                    },
+                    open: function () {
+                        module.set.aria();
+                        var
+                            active = document.activeElement,
+                            $owner = active ? $(active).closest('.ui.sidebar') : $()
+                        ;
+                        // Desde otro sidebar (exclusive lo cierra), la vuelta es la de aquel, no un elemento que se oculta
+                        if ($owner.length > 0 && $owner[0] !== element) {
+                            focusReturn = $owner.data('sidebarFocusReturn') || focusReturn;
+                        } else if (active && active !== document.body && !$.contains(element, active) && active !== element) {
+                            focusReturn = active;
+                        }
+                        $module.data('sidebarFocusReturn', focusReturn);
+                        $document.off('keydown' + module.keyboard.namespace()).on('keydown' + module.keyboard.namespace(), module.keyboard.keydown);
+                    },
+                    close: function () {
+                        $document.off('keydown' + module.keyboard.namespace());
+                    },
+                    focusIn: function () {
+                        if (!settings.autofocus || $.contains(element, document.activeElement)) {
+                            return;
+                        }
+                        var $first = module.keyboard.focusables().first();
+                        if ($first.length === 0) {
+                            $module.attr('tabindex', -1);
+                            $first = $module;
+                        }
+                        $first.trigger('focus');
+                    },
+                    focusOut: function () {
+                        var active = document.activeElement;
+                        if (focusReturn && document.documentElement.contains(focusReturn) && (!active || active === document.body || $.contains(element, active) || active === element)) {
+                            focusReturn.focus({ preventScroll: true });
+                        }
+                        focusReturn = undefined;
+                    },
+                    keydown: function (event) {
+                        if (event.which === settings.keys.escape) {
+                            if (settings.closable) {
+                                module.hide();
+                                event.preventDefault();
+                            }
+
+                            return;
+                        }
+                        if (event.which !== settings.keys.tab || !settings.dimPage) {
+                            return;
+                        }
+                        var
+                            $items = module.keyboard.focusables(),
+                            active = document.activeElement
+                        ;
+                        if ($items.length === 0) {
+                            event.preventDefault();
+
+                            return;
+                        }
+                        if (!$.contains(element, active) && active !== element) {
+                            $items.first().trigger('focus');
+                            event.preventDefault();
+                        } else if (event.shiftKey && (active === $items[0] || active === element)) {
+                            $items.last().trigger('focus');
+                            event.preventDefault();
+                        } else if (!event.shiftKey && active === $items[$items.length - 1]) {
+                            $items.first().trigger('focus');
+                            event.preventDefault();
+                        }
+                    },
                 },
 
                 othersAnimating: function () {
@@ -574,6 +611,24 @@
                 },
 
                 set: {
+                    // Fork (P320): diálogo (modal si atenúa la página) con el nombre del autor o de su .header; nunca pisa lo suyo
+                    aria: function () {
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'dialog');
+                        }
+                        if ($module.attr('aria-modal') === undefined || $module.data('ariaOwnModal')) {
+                            $module.attr('aria-modal', settings.dimPage ? 'true' : 'false').data('ariaOwnModal', true);
+                        }
+                        if (!$module.attr('aria-labelledby') && !$module.attr('aria-label')) {
+                            var $title = $module.children('.header').first();
+                            if ($title.length > 0) {
+                                if (!$title.attr('id')) {
+                                    $title.attr('id', '_' + id + 'title');
+                                }
+                                $module.attr('aria-labelledby', $title.attr('id'));
+                            }
+                        }
+                    },
                     bodyMargin: function () {
                         var position = module.can.leftBodyScrollbar() ? 'left' : 'right';
                         $context.css((isBody ? 'margin-' : 'padding-') + position, tempBodyMargin + 'px');
@@ -634,9 +689,22 @@
                 remove: {
 
                     inlineCSS: function () {
-                        module.debug('Removing inline css styles', $style);
-                        if ($style && $style.length > 0) {
-                            $style.remove();
+                        var
+                            direction = module.get.direction(),
+                            $visible  = $sidebars.not($module).filter('.' + className.visible + '.' + direction).last()
+                        ;
+                        // Otro sidebar visible del mismo lado conserva su distancia
+                        if ($visible.length > 0) {
+                            $context[0].style.setProperty('--sidebar-' + direction + '-distance', (direction === 'top' || direction === 'bottom'
+                                ? $visible.outerHeight()
+                                : $visible.outerWidth()) + 'px');
+
+                            return;
+                        }
+                        module.debug('Removing CSS variable for animation distance');
+                        $context[0].style.removeProperty('--sidebar-' + direction + '-distance');
+                        if ($context.attr('style') === '') {
+                            $context.removeAttr('style');
                         }
                     },
 
@@ -1004,6 +1072,13 @@
         exclusive: false,
         closable: true,
         dimPage: true,
+
+        // Fork (P320): al abrirse, el foco va al primer control (o al sidebar); Escape cierra si es closable
+        autofocus: true,
+        keys: {
+            escape: 27,
+            tab: 9,
+        },
         scrollLock: false,
         returnScroll: false,
         delaySetup: false,

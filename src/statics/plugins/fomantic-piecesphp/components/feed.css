@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Feed
+ * # Fomantic-UI 1.4.0 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -599,428 +599,428 @@
 }
 .ui.ui.feed > .event > .red.label::before,
 .ui.red.feed > .event > .label::before {
-  background: #f04438;
+  background: var(--color-red, #de3027);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-red, #de3027) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.red.connected.feed > .event::before,
 .ui.connected.feed > .red.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.inverted.red.connected.feed > .event::before,
 .ui.connected.feed > .inverted.red.event::before {
-  border-color: #f97066;
+  border-color: var(--_color-red-light, #f97066);
 }
 .ui.ui.feed > .event > .red.basic.label::before,
 .ui.red.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.feed > .event > .inverted.red.label::before,
 .ui.inverted.red.feed > .event > .label::before {
-  background: #f97066;
-  color: color(from #f97066 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-red-light, #f97066);
+  color: color(from var(--_color-red-light, #f97066) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.red.basic.label::before,
 .ui.inverted.red.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-red-light, #f97066) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .orange.label::before,
 .ui.orange.feed > .event > .label::before {
-  background: #ef6820;
+  background: var(--color-orange, #cd4800);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-orange, #cd4800) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.orange.connected.feed > .event::before,
 .ui.connected.feed > .orange.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.inverted.orange.connected.feed > .event::before,
 .ui.connected.feed > .inverted.orange.event::before {
-  border-color: #f38744;
+  border-color: var(--_color-orange-light, #f38744);
 }
 .ui.ui.feed > .event > .orange.basic.label::before,
 .ui.orange.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.feed > .event > .inverted.orange.label::before,
 .ui.inverted.orange.feed > .event > .label::before {
-  background: #f38744;
-  color: color(from #f38744 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-orange-light, #f38744);
+  color: color(from var(--_color-orange-light, #f38744) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.orange.basic.label::before,
 .ui.inverted.orange.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-orange-light, #f38744) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .yellow.label::before,
 .ui.yellow.feed > .event > .label::before {
-  background: #f79009;
+  background: var(--color-yellow, #bb5900);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-yellow, #bb5900) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.yellow.connected.feed > .event::before,
 .ui.connected.feed > .yellow.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.inverted.yellow.connected.feed > .event::before,
 .ui.connected.feed > .inverted.yellow.event::before {
-  border-color: #fdb022;
+  border-color: var(--_color-yellow-light, #fdb022);
 }
 .ui.ui.feed > .event > .yellow.basic.label::before,
 .ui.yellow.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.feed > .event > .inverted.yellow.label::before,
 .ui.inverted.yellow.feed > .event > .label::before {
-  background: #fdb022;
-  color: color(from #fdb022 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-yellow-light, #fdb022);
+  color: color(from var(--_color-yellow-light, #fdb022) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.yellow.basic.label::before,
 .ui.inverted.yellow.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-yellow-light, #fdb022) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .olive.label::before,
 .ui.olive.feed > .event > .label::before {
-  background: #84a11b;
+  background: var(--color-olive, #647e00);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-olive, #647e00) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.olive.connected.feed > .event::before,
 .ui.connected.feed > .olive.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  border-color: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.inverted.olive.connected.feed > .event::before,
 .ui.connected.feed > .inverted.olive.event::before {
-  border-color: #a6c43a;
+  border-color: var(--_color-olive-light, #a6c43a);
 }
 .ui.ui.feed > .event > .olive.basic.label::before,
 .ui.olive.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.olive.label::before,
 .ui.inverted.olive.feed > .event > .label::before {
-  background: #a6c43a;
-  color: color(from #a6c43a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-olive-light, #a6c43a);
+  color: color(from var(--_color-olive-light, #a6c43a) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.olive.basic.label::before,
 .ui.inverted.olive.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-olive-light, #a6c43a) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .green.label::before,
 .ui.green.feed > .event > .label::before {
-  background: #17b26a;
+  background: var(--color-green, #008742);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-green, #008742) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.green.connected.feed > .event::before,
 .ui.connected.feed > .green.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  border-color: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.inverted.green.connected.feed > .event::before,
 .ui.connected.feed > .inverted.green.event::before {
-  border-color: #47cd89;
+  border-color: var(--_color-green-light, #47cd89);
 }
 .ui.ui.feed > .event > .green.basic.label::before,
 .ui.green.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.green.label::before,
 .ui.inverted.green.feed > .event > .label::before {
-  background: #47cd89;
-  color: color(from #47cd89 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-green-light, #47cd89);
+  color: color(from var(--_color-green-light, #47cd89) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.green.basic.label::before,
 .ui.inverted.green.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-green-light, #47cd89) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .teal.label::before,
 .ui.teal.feed > .event > .label::before {
-  background: #06aed4;
+  background: var(--color-teal, #007fa3);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-teal, #007fa3) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.teal.connected.feed > .event::before,
 .ui.connected.feed > .teal.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.inverted.teal.connected.feed > .event::before,
 .ui.connected.feed > .inverted.teal.event::before {
-  border-color: #22ccee;
+  border-color: var(--_color-teal-light, #22ccee);
 }
 .ui.ui.feed > .event > .teal.basic.label::before,
 .ui.teal.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.teal.label::before,
 .ui.inverted.teal.feed > .event > .label::before {
-  background: #22ccee;
-  color: color(from #22ccee srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-teal-light, #22ccee);
+  color: color(from var(--_color-teal-light, #22ccee) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.teal.basic.label::before,
 .ui.inverted.teal.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-teal-light, #22ccee) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .blue.label::before,
 .ui.blue.feed > .event > .label::before {
-  background: #2e90fa;
+  background: var(--color-blue, #0074dc);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-blue, #0074dc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.blue.connected.feed > .event::before,
 .ui.connected.feed > .blue.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  border-color: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.inverted.blue.connected.feed > .event::before,
 .ui.connected.feed > .inverted.blue.event::before {
-  border-color: #53b1fd;
+  border-color: var(--_color-blue-light, #53b1fd);
 }
 .ui.ui.feed > .event > .blue.basic.label::before,
 .ui.blue.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.blue.label::before,
 .ui.inverted.blue.feed > .event > .label::before {
-  background: #53b1fd;
-  color: color(from #53b1fd srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-blue-light, #53b1fd);
+  color: color(from var(--_color-blue-light, #53b1fd) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.blue.basic.label::before,
 .ui.inverted.blue.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-blue-light, #53b1fd) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .violet.label::before,
 .ui.violet.feed > .event > .label::before {
-  background: #7a5af8;
+  background: var(--color-violet, #7a5af8);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-violet, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.violet.connected.feed > .event::before,
 .ui.connected.feed > .violet.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.inverted.violet.connected.feed > .event::before,
 .ui.connected.feed > .inverted.violet.event::before {
-  border-color: #9b8afb;
+  border-color: var(--_color-violet-light, #9b8afb);
 }
 .ui.ui.feed > .event > .violet.basic.label::before,
 .ui.violet.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.violet.label::before,
 .ui.inverted.violet.feed > .event > .label::before {
-  background: #9b8afb;
-  color: color(from #9b8afb srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-violet-light, #9b8afb);
+  color: color(from var(--_color-violet-light, #9b8afb) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.violet.basic.label::before,
 .ui.inverted.violet.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-violet-light, #9b8afb) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .purple.label::before,
 .ui.purple.feed > .event > .label::before {
-  background: #9e4cc9;
+  background: var(--color-purple, #9e4cc9);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-purple, #9e4cc9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.purple.connected.feed > .event::before,
 .ui.connected.feed > .purple.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.inverted.purple.connected.feed > .event::before,
 .ui.connected.feed > .inverted.purple.event::before {
-  border-color: #c084e8;
+  border-color: var(--_color-purple-light, #c084e8);
 }
 .ui.ui.feed > .event > .purple.basic.label::before,
 .ui.purple.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.purple.label::before,
 .ui.inverted.purple.feed > .event > .label::before {
-  background: #c084e8;
-  color: color(from #c084e8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-purple-light, #c084e8);
+  color: color(from var(--_color-purple-light, #c084e8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.purple.basic.label::before,
 .ui.inverted.purple.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-purple-light, #c084e8) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .pink.label::before,
 .ui.pink.feed > .event > .label::before {
-  background: #c11574;
+  background: var(--color-pink, #c11574);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-pink, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.pink.connected.feed > .event::before,
 .ui.connected.feed > .pink.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.inverted.pink.connected.feed > .event::before,
 .ui.connected.feed > .inverted.pink.event::before {
-  border-color: #ee46bc;
+  border-color: var(--_color-pink-light, #ee46bc);
 }
 .ui.ui.feed > .event > .pink.basic.label::before,
 .ui.pink.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.pink.label::before,
 .ui.inverted.pink.feed > .event > .label::before {
-  background: #ee46bc;
-  color: color(from #ee46bc srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-pink-light, #ee46bc);
+  color: color(from var(--_color-pink-light, #ee46bc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.pink.basic.label::before,
 .ui.inverted.pink.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-pink-light, #ee46bc) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .brown.label::before,
 .ui.brown.feed > .event > .label::before {
-  background: #6e4a2e;
+  background: var(--color-brown, #6e4a2e);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-brown, #6e4a2e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.brown.connected.feed > .event::before,
 .ui.connected.feed > .brown.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  border-color: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.inverted.brown.connected.feed > .event::before,
 .ui.connected.feed > .inverted.brown.event::before {
-  border-color: #b08463;
+  border-color: var(--_color-brown-light, #b08463);
 }
 .ui.ui.feed > .event > .brown.basic.label::before,
 .ui.brown.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.brown.label::before,
 .ui.inverted.brown.feed > .event > .label::before {
-  background: #b08463;
-  color: color(from #b08463 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-brown-light, #b08463);
+  color: color(from var(--_color-brown-light, #b08463) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.brown.basic.label::before,
 .ui.inverted.brown.basic.feed > .event > .label::before {
   
 /* Fork: rama clara de la tinta sobre inverted, como la etiqueta inverted basic (label.less, D36): con el
                        tono claro tal cual, el número se quedaba en 3,5–4,3:1 en tinker y fluent (auditar.mjs con contadores) */
-  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-brown-light, #b08463) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.feed > .event > .grey.label::before,
 .ui.grey.feed > .event > .label::before {
-  background: #687181;
+  background: var(--color-grey, #687181);
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-grey, #687181) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.grey.connected.feed > .event::before,
 .ui.connected.feed > .grey.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  border-color: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.inverted.grey.connected.feed > .event::before,
 .ui.connected.feed > .inverted.grey.event::before {
-  border-color: #99a1af;
+  border-color: var(--_color-grey-light, #99a1af);
 }
 .ui.ui.feed > .event > .grey.basic.label::before,
 .ui.grey.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.grey.label::before,
 .ui.inverted.grey.feed > .event > .label::before {
-  background: #99a1af;
-  color: color(from #99a1af srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-grey-light, #99a1af);
+  color: color(from var(--_color-grey-light, #99a1af) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.grey.basic.label::before,
 .ui.inverted.grey.basic.feed > .event > .label::before {
@@ -1031,32 +1031,32 @@
 }
 .ui.ui.feed > .event > .black.label::before,
 .ui.black.feed > .event > .label::before {
-  background: light-dark(#1f2430, #535c6e);
+  background: var(--color-black, light-dark(#1f2430, #535c6e));
   
 /* Fork: el número sobre el relleno, por su luminosidad (D36); quedaba en el color
                    neutro y no se leía sobre los rellenos oscuros */
-  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-black, light-dark(#1f2430, #535c6e)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.black.connected.feed > .event::before,
 .ui.connected.feed > .black.event::before {
   
 /* Fork: el punto y la línea son indicadores: clave `indicator` (black y grey se distinguen en oscuro) */
-  border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  border-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.inverted.black.connected.feed > .event::before,
 .ui.connected.feed > .inverted.black.event::before {
-  border-color: #4b5363;
+  border-color: var(--_color-black-light, #4b5363);
 }
 .ui.ui.feed > .event > .black.basic.label::before,
 .ui.black.basic.feed > .event > .label::before {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 .ui.feed > .event > .inverted.black.label::before,
 .ui.inverted.black.feed > .event > .label::before {
-  background: #4b5363;
-  color: color(from #4b5363 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background: var(--_color-black-light, #4b5363);
+  color: color(from var(--_color-black-light, #4b5363) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.feed > .event > .inverted.black.basic.label::before,
 .ui.inverted.black.basic.feed > .event > .label::before {

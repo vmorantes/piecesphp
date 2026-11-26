@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Input
+ * # Fomantic-UI 1.4.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1048,120 +1048,120 @@ input[type="file"].ui.file.input:focus + label.ui.accent-3.button:not(.basic):no
 }
 input[type="file"].ui.file.input:focus + label.ui.red.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.red.button:not(.basic):not(.tertiary) {
-  background-color: #f92516;
+  background-color: var(--_color-red-hover, #d52017);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.red.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.red.button:not(.basic):not(.tertiary).inverted {
-  background-color: #ff3b2d;
+  background-color: var(--_color-red-light-hover, #ff3b2d);
 }
 input[type="file"].ui.file.input:focus + label.ui.orange.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.orange.button:not(.basic):not(.tertiary) {
-  background-color: #f05706;
+  background-color: var(--_color-orange-hover, #b43f00);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.orange.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.orange.button:not(.basic):not(.tertiary).inverted {
-  background-color: #fb6609;
+  background-color: var(--_color-orange-light-hover, #fb6609);
 }
 input[type="file"].ui.file.input:focus + label.ui.yellow.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.yellow.button:not(.basic):not(.tertiary) {
-  background-color: #e78300;
+  background-color: var(--_color-yellow-hover, #a24d00);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.yellow.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.yellow.button:not(.basic):not(.tertiary).inverted {
-  background-color: #ec9900;
+  background-color: var(--_color-yellow-light-hover, #ec9900);
 }
 input[type="file"].ui.file.input:focus + label.ui.olive.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.olive.button:not(.basic):not(.tertiary) {
-  background-color: #759112;
+  background-color: var(--_color-olive-hover, #506500);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.olive.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.olive.button:not(.basic):not(.tertiary).inverted {
-  background-color: #88a229;
+  background-color: var(--_color-olive-light-hover, #88a229);
 }
 input[type="file"].ui.file.input:focus + label.ui.green.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.green.button:not(.basic):not(.tertiary) {
-  background-color: #0da25d;
+  background-color: var(--_color-green-hover, #006e36);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.green.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.green.button:not(.basic):not(.tertiary).inverted {
-  background-color: #2ab76f;
+  background-color: var(--_color-green-light-hover, #2ab76f);
 }
 input[type="file"].ui.file.input:focus + label.ui.teal.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.teal.button:not(.basic):not(.tertiary) {
-  background-color: #009dc1;
+  background-color: var(--_color-teal-hover, #006b8a);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.teal.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.teal.button:not(.basic):not(.tertiary).inverted {
-  background-color: #06b4d7;
+  background-color: var(--_color-teal-light-hover, #06b4d7);
 }
 input[type="file"].ui.file.input:focus + label.ui.blue.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.blue.button:not(.basic):not(.tertiary) {
-  background-color: #0f83ff;
+  background-color: var(--_color-blue-hover, #0067c3);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.blue.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.blue.button:not(.basic):not(.tertiary).inverted {
-  background-color: #1e9aff;
+  background-color: var(--_color-blue-light-hover, #1e9aff);
 }
 input[type="file"].ui.file.input:focus + label.ui.violet.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.violet.button:not(.basic):not(.tertiary) {
-  background-color: #6239ff;
+  background-color: var(--_color-violet-hover, #6239ff);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.violet.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.violet.button:not(.basic):not(.tertiary).inverted {
-  background-color: #6d53ff;
+  background-color: var(--_color-violet-light-hover, #6d53ff);
 }
 input[type="file"].ui.file.input:focus + label.ui.purple.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.purple.button:not(.basic):not(.tertiary) {
-  background-color: #9534c8;
+  background-color: var(--_color-purple-hover, #9534c8);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.purple.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.purple.button:not(.basic):not(.tertiary).inverted {
-  background-color: #ab52e7;
+  background-color: var(--_color-purple-light-hover, #ab52e7);
 }
 input[type="file"].ui.file.input:focus + label.ui.pink.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.pink.button:not(.basic):not(.tertiary) {
-  background-color: #b20b67;
+  background-color: var(--_color-pink-hover, #b20b67);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.pink.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.pink.button:not(.basic):not(.tertiary).inverted {
-  background-color: #f40daf;
+  background-color: var(--_color-pink-light-hover, #f40daf);
 }
 input[type="file"].ui.file.input:focus + label.ui.brown.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.brown.button:not(.basic):not(.tertiary) {
-  background-color: #5f3e24;
+  background-color: var(--_color-brown-hover, #5f3e24);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.brown.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.brown.button:not(.basic):not(.tertiary).inverted {
-  background-color: #986a48;
+  background-color: var(--_color-brown-light-hover, #986a48);
 }
 input[type="file"].ui.file.input:focus + label.ui.grey.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.grey.button:not(.basic):not(.tertiary) {
-  background-color: #5d6573;
+  background-color: var(--_color-grey-hover, #5d6573);
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.grey.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.grey.button:not(.basic):not(.tertiary).inverted {
-  background-color: #7b869a;
+  background-color: var(--_color-grey-light-hover, #7b869a);
 }
 input[type="file"].ui.file.input:focus + label.ui.black.button:not(.basic):not(.tertiary),
 .ui.file.input input[type="file"]:focus + label.ui.black.button:not(.basic):not(.tertiary) {
-  background-color: light-dark(#2b3140, #5f6879);
+  background-color: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
   color: #fff;
 }
 input[type="file"].ui.file.input:focus + label.ui.black.button:not(.basic):not(.tertiary).inverted,
 .ui.file.input input[type="file"]:focus + label.ui.black.button:not(.basic):not(.tertiary).inverted {
-  background-color: #000000;
+  background-color: var(--_color-black-light-hover, #000000);
 }
 input[type="file"].ui.primary.file.input::-webkit-file-upload-button,
 .ui.primary.file.input input[type="file"]::-webkit-file-upload-button {
@@ -1355,497 +1355,497 @@ input[type="file"].ui.accent-3.file.input::file-selector-button:hover,
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button,
 .ui.red.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #f04438;
+  background: var(--color-red, #de3027);
   color: #fff;
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button:hover,
 .ui.red.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #f92516;
+  background: var(--_color-red-hover, #d52017);
 }
 input[type="file"].ui.red.file.input::-ms-browse,
 .ui.red.file.input input[type="file"]::-ms-browse {
-  background: #f04438;
+  background: var(--color-red, #de3027);
   color: #fff;
 }
 input[type="file"].ui.red.file.input::-ms-browse:hover,
 .ui.red.file.input input[type="file"]::-ms-browse:hover {
-  background: #f92516;
+  background: var(--_color-red-hover, #d52017);
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button, .ui.red.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #f04438;
+  background: var(--color-red, #de3027);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-red, #de3027) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.red.file.input::file-selector-button,
 .ui.red.file.input input[type="file"]::file-selector-button {
-  background: #f04438;
+  background: var(--color-red, #de3027);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-red, #de3027) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.red.file.input::-webkit-file-upload-button:hover, .ui.red.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #f92516;
+  background: var(--_color-red-hover, #d52017);
 }
 input[type="file"].ui.red.file.input::file-selector-button:hover,
 .ui.red.file.input input[type="file"]::file-selector-button:hover {
-  background: #f92516;
+  background: var(--_color-red-hover, #d52017);
 }
 input[type="file"].ui.orange.file.input::-webkit-file-upload-button,
 .ui.orange.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #ef6820;
+  background: var(--color-orange, #cd4800);
   color: #fff;
 }
 input[type="file"].ui.orange.file.input::-webkit-file-upload-button:hover,
 .ui.orange.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #f05706;
+  background: var(--_color-orange-hover, #b43f00);
 }
 input[type="file"].ui.orange.file.input::-ms-browse,
 .ui.orange.file.input input[type="file"]::-ms-browse {
-  background: #ef6820;
+  background: var(--color-orange, #cd4800);
   color: #fff;
 }
 input[type="file"].ui.orange.file.input::-ms-browse:hover,
 .ui.orange.file.input input[type="file"]::-ms-browse:hover {
-  background: #f05706;
+  background: var(--_color-orange-hover, #b43f00);
 }
 input[type="file"].ui.orange.file.input::-webkit-file-upload-button, .ui.orange.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #ef6820;
+  background: var(--color-orange, #cd4800);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-orange, #cd4800) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.orange.file.input::file-selector-button,
 .ui.orange.file.input input[type="file"]::file-selector-button {
-  background: #ef6820;
+  background: var(--color-orange, #cd4800);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-orange, #cd4800) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.orange.file.input::-webkit-file-upload-button:hover, .ui.orange.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #f05706;
+  background: var(--_color-orange-hover, #b43f00);
 }
 input[type="file"].ui.orange.file.input::file-selector-button:hover,
 .ui.orange.file.input input[type="file"]::file-selector-button:hover {
-  background: #f05706;
+  background: var(--_color-orange-hover, #b43f00);
 }
 input[type="file"].ui.yellow.file.input::-webkit-file-upload-button,
 .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #f79009;
+  background: var(--color-yellow, #bb5900);
   color: #fff;
 }
 input[type="file"].ui.yellow.file.input::-webkit-file-upload-button:hover,
 .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #e78300;
+  background: var(--_color-yellow-hover, #a24d00);
 }
 input[type="file"].ui.yellow.file.input::-ms-browse,
 .ui.yellow.file.input input[type="file"]::-ms-browse {
-  background: #f79009;
+  background: var(--color-yellow, #bb5900);
   color: #fff;
 }
 input[type="file"].ui.yellow.file.input::-ms-browse:hover,
 .ui.yellow.file.input input[type="file"]::-ms-browse:hover {
-  background: #e78300;
+  background: var(--_color-yellow-hover, #a24d00);
 }
 input[type="file"].ui.yellow.file.input::-webkit-file-upload-button, .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #f79009;
+  background: var(--color-yellow, #bb5900);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-yellow, #bb5900) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.yellow.file.input::file-selector-button,
 .ui.yellow.file.input input[type="file"]::file-selector-button {
-  background: #f79009;
+  background: var(--color-yellow, #bb5900);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-yellow, #bb5900) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.yellow.file.input::-webkit-file-upload-button:hover, .ui.yellow.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #e78300;
+  background: var(--_color-yellow-hover, #a24d00);
 }
 input[type="file"].ui.yellow.file.input::file-selector-button:hover,
 .ui.yellow.file.input input[type="file"]::file-selector-button:hover {
-  background: #e78300;
+  background: var(--_color-yellow-hover, #a24d00);
 }
 input[type="file"].ui.olive.file.input::-webkit-file-upload-button,
 .ui.olive.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #84a11b;
+  background: var(--color-olive, #647e00);
   color: #fff;
 }
 input[type="file"].ui.olive.file.input::-webkit-file-upload-button:hover,
 .ui.olive.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #759112;
+  background: var(--_color-olive-hover, #506500);
 }
 input[type="file"].ui.olive.file.input::-ms-browse,
 .ui.olive.file.input input[type="file"]::-ms-browse {
-  background: #84a11b;
+  background: var(--color-olive, #647e00);
   color: #fff;
 }
 input[type="file"].ui.olive.file.input::-ms-browse:hover,
 .ui.olive.file.input input[type="file"]::-ms-browse:hover {
-  background: #759112;
+  background: var(--_color-olive-hover, #506500);
 }
 input[type="file"].ui.olive.file.input::-webkit-file-upload-button, .ui.olive.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #84a11b;
+  background: var(--color-olive, #647e00);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-olive, #647e00) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.olive.file.input::file-selector-button,
 .ui.olive.file.input input[type="file"]::file-selector-button {
-  background: #84a11b;
+  background: var(--color-olive, #647e00);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-olive, #647e00) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.olive.file.input::-webkit-file-upload-button:hover, .ui.olive.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #759112;
+  background: var(--_color-olive-hover, #506500);
 }
 input[type="file"].ui.olive.file.input::file-selector-button:hover,
 .ui.olive.file.input input[type="file"]::file-selector-button:hover {
-  background: #759112;
+  background: var(--_color-olive-hover, #506500);
 }
 input[type="file"].ui.green.file.input::-webkit-file-upload-button,
 .ui.green.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #17b26a;
+  background: var(--color-green, #008742);
   color: #fff;
 }
 input[type="file"].ui.green.file.input::-webkit-file-upload-button:hover,
 .ui.green.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #0da25d;
+  background: var(--_color-green-hover, #006e36);
 }
 input[type="file"].ui.green.file.input::-ms-browse,
 .ui.green.file.input input[type="file"]::-ms-browse {
-  background: #17b26a;
+  background: var(--color-green, #008742);
   color: #fff;
 }
 input[type="file"].ui.green.file.input::-ms-browse:hover,
 .ui.green.file.input input[type="file"]::-ms-browse:hover {
-  background: #0da25d;
+  background: var(--_color-green-hover, #006e36);
 }
 input[type="file"].ui.green.file.input::-webkit-file-upload-button, .ui.green.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #17b26a;
+  background: var(--color-green, #008742);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-green, #008742) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.green.file.input::file-selector-button,
 .ui.green.file.input input[type="file"]::file-selector-button {
-  background: #17b26a;
+  background: var(--color-green, #008742);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-green, #008742) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.green.file.input::-webkit-file-upload-button:hover, .ui.green.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #0da25d;
+  background: var(--_color-green-hover, #006e36);
 }
 input[type="file"].ui.green.file.input::file-selector-button:hover,
 .ui.green.file.input input[type="file"]::file-selector-button:hover {
-  background: #0da25d;
+  background: var(--_color-green-hover, #006e36);
 }
 input[type="file"].ui.teal.file.input::-webkit-file-upload-button,
 .ui.teal.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #06aed4;
+  background: var(--color-teal, #007fa3);
   color: #fff;
 }
 input[type="file"].ui.teal.file.input::-webkit-file-upload-button:hover,
 .ui.teal.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #009dc1;
+  background: var(--_color-teal-hover, #006b8a);
 }
 input[type="file"].ui.teal.file.input::-ms-browse,
 .ui.teal.file.input input[type="file"]::-ms-browse {
-  background: #06aed4;
+  background: var(--color-teal, #007fa3);
   color: #fff;
 }
 input[type="file"].ui.teal.file.input::-ms-browse:hover,
 .ui.teal.file.input input[type="file"]::-ms-browse:hover {
-  background: #009dc1;
+  background: var(--_color-teal-hover, #006b8a);
 }
 input[type="file"].ui.teal.file.input::-webkit-file-upload-button, .ui.teal.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #06aed4;
+  background: var(--color-teal, #007fa3);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-teal, #007fa3) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.teal.file.input::file-selector-button,
 .ui.teal.file.input input[type="file"]::file-selector-button {
-  background: #06aed4;
+  background: var(--color-teal, #007fa3);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-teal, #007fa3) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.teal.file.input::-webkit-file-upload-button:hover, .ui.teal.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #009dc1;
+  background: var(--_color-teal-hover, #006b8a);
 }
 input[type="file"].ui.teal.file.input::file-selector-button:hover,
 .ui.teal.file.input input[type="file"]::file-selector-button:hover {
-  background: #009dc1;
+  background: var(--_color-teal-hover, #006b8a);
 }
 input[type="file"].ui.blue.file.input::-webkit-file-upload-button,
 .ui.blue.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #2e90fa;
+  background: var(--color-blue, #0074dc);
   color: #fff;
 }
 input[type="file"].ui.blue.file.input::-webkit-file-upload-button:hover,
 .ui.blue.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #0f83ff;
+  background: var(--_color-blue-hover, #0067c3);
 }
 input[type="file"].ui.blue.file.input::-ms-browse,
 .ui.blue.file.input input[type="file"]::-ms-browse {
-  background: #2e90fa;
+  background: var(--color-blue, #0074dc);
   color: #fff;
 }
 input[type="file"].ui.blue.file.input::-ms-browse:hover,
 .ui.blue.file.input input[type="file"]::-ms-browse:hover {
-  background: #0f83ff;
+  background: var(--_color-blue-hover, #0067c3);
 }
 input[type="file"].ui.blue.file.input::-webkit-file-upload-button, .ui.blue.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #2e90fa;
+  background: var(--color-blue, #0074dc);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-blue, #0074dc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.blue.file.input::file-selector-button,
 .ui.blue.file.input input[type="file"]::file-selector-button {
-  background: #2e90fa;
+  background: var(--color-blue, #0074dc);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-blue, #0074dc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.blue.file.input::-webkit-file-upload-button:hover, .ui.blue.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #0f83ff;
+  background: var(--_color-blue-hover, #0067c3);
 }
 input[type="file"].ui.blue.file.input::file-selector-button:hover,
 .ui.blue.file.input input[type="file"]::file-selector-button:hover {
-  background: #0f83ff;
+  background: var(--_color-blue-hover, #0067c3);
 }
 input[type="file"].ui.violet.file.input::-webkit-file-upload-button,
 .ui.violet.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #7a5af8;
+  background: var(--color-violet, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.violet.file.input::-webkit-file-upload-button:hover,
 .ui.violet.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #6239ff;
+  background: var(--_color-violet-hover, #6239ff);
 }
 input[type="file"].ui.violet.file.input::-ms-browse,
 .ui.violet.file.input input[type="file"]::-ms-browse {
-  background: #7a5af8;
+  background: var(--color-violet, #7a5af8);
   color: #fff;
 }
 input[type="file"].ui.violet.file.input::-ms-browse:hover,
 .ui.violet.file.input input[type="file"]::-ms-browse:hover {
-  background: #6239ff;
+  background: var(--_color-violet-hover, #6239ff);
 }
 input[type="file"].ui.violet.file.input::-webkit-file-upload-button, .ui.violet.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #7a5af8;
+  background: var(--color-violet, #7a5af8);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-violet, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.violet.file.input::file-selector-button,
 .ui.violet.file.input input[type="file"]::file-selector-button {
-  background: #7a5af8;
+  background: var(--color-violet, #7a5af8);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-violet, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.violet.file.input::-webkit-file-upload-button:hover, .ui.violet.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #6239ff;
+  background: var(--_color-violet-hover, #6239ff);
 }
 input[type="file"].ui.violet.file.input::file-selector-button:hover,
 .ui.violet.file.input input[type="file"]::file-selector-button:hover {
-  background: #6239ff;
+  background: var(--_color-violet-hover, #6239ff);
 }
 input[type="file"].ui.purple.file.input::-webkit-file-upload-button,
 .ui.purple.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #9e4cc9;
+  background: var(--color-purple, #9e4cc9);
   color: #fff;
 }
 input[type="file"].ui.purple.file.input::-webkit-file-upload-button:hover,
 .ui.purple.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #9534c8;
+  background: var(--_color-purple-hover, #9534c8);
 }
 input[type="file"].ui.purple.file.input::-ms-browse,
 .ui.purple.file.input input[type="file"]::-ms-browse {
-  background: #9e4cc9;
+  background: var(--color-purple, #9e4cc9);
   color: #fff;
 }
 input[type="file"].ui.purple.file.input::-ms-browse:hover,
 .ui.purple.file.input input[type="file"]::-ms-browse:hover {
-  background: #9534c8;
+  background: var(--_color-purple-hover, #9534c8);
 }
 input[type="file"].ui.purple.file.input::-webkit-file-upload-button, .ui.purple.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #9e4cc9;
+  background: var(--color-purple, #9e4cc9);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-purple, #9e4cc9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.purple.file.input::file-selector-button,
 .ui.purple.file.input input[type="file"]::file-selector-button {
-  background: #9e4cc9;
+  background: var(--color-purple, #9e4cc9);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-purple, #9e4cc9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.purple.file.input::-webkit-file-upload-button:hover, .ui.purple.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #9534c8;
+  background: var(--_color-purple-hover, #9534c8);
 }
 input[type="file"].ui.purple.file.input::file-selector-button:hover,
 .ui.purple.file.input input[type="file"]::file-selector-button:hover {
-  background: #9534c8;
+  background: var(--_color-purple-hover, #9534c8);
 }
 input[type="file"].ui.pink.file.input::-webkit-file-upload-button,
 .ui.pink.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #c11574;
+  background: var(--color-pink, #c11574);
   color: #fff;
 }
 input[type="file"].ui.pink.file.input::-webkit-file-upload-button:hover,
 .ui.pink.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #b20b67;
+  background: var(--_color-pink-hover, #b20b67);
 }
 input[type="file"].ui.pink.file.input::-ms-browse,
 .ui.pink.file.input input[type="file"]::-ms-browse {
-  background: #c11574;
+  background: var(--color-pink, #c11574);
   color: #fff;
 }
 input[type="file"].ui.pink.file.input::-ms-browse:hover,
 .ui.pink.file.input input[type="file"]::-ms-browse:hover {
-  background: #b20b67;
+  background: var(--_color-pink-hover, #b20b67);
 }
 input[type="file"].ui.pink.file.input::-webkit-file-upload-button, .ui.pink.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #c11574;
+  background: var(--color-pink, #c11574);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-pink, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.pink.file.input::file-selector-button,
 .ui.pink.file.input input[type="file"]::file-selector-button {
-  background: #c11574;
+  background: var(--color-pink, #c11574);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-pink, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.pink.file.input::-webkit-file-upload-button:hover, .ui.pink.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #b20b67;
+  background: var(--_color-pink-hover, #b20b67);
 }
 input[type="file"].ui.pink.file.input::file-selector-button:hover,
 .ui.pink.file.input input[type="file"]::file-selector-button:hover {
-  background: #b20b67;
+  background: var(--_color-pink-hover, #b20b67);
 }
 input[type="file"].ui.brown.file.input::-webkit-file-upload-button,
 .ui.brown.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #6e4a2e;
+  background: var(--color-brown, #6e4a2e);
   color: #fff;
 }
 input[type="file"].ui.brown.file.input::-webkit-file-upload-button:hover,
 .ui.brown.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #5f3e24;
+  background: var(--_color-brown-hover, #5f3e24);
 }
 input[type="file"].ui.brown.file.input::-ms-browse,
 .ui.brown.file.input input[type="file"]::-ms-browse {
-  background: #6e4a2e;
+  background: var(--color-brown, #6e4a2e);
   color: #fff;
 }
 input[type="file"].ui.brown.file.input::-ms-browse:hover,
 .ui.brown.file.input input[type="file"]::-ms-browse:hover {
-  background: #5f3e24;
+  background: var(--_color-brown-hover, #5f3e24);
 }
 input[type="file"].ui.brown.file.input::-webkit-file-upload-button, .ui.brown.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #6e4a2e;
+  background: var(--color-brown, #6e4a2e);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-brown, #6e4a2e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.brown.file.input::file-selector-button,
 .ui.brown.file.input input[type="file"]::file-selector-button {
-  background: #6e4a2e;
+  background: var(--color-brown, #6e4a2e);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-brown, #6e4a2e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.brown.file.input::-webkit-file-upload-button:hover, .ui.brown.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #5f3e24;
+  background: var(--_color-brown-hover, #5f3e24);
 }
 input[type="file"].ui.brown.file.input::file-selector-button:hover,
 .ui.brown.file.input input[type="file"]::file-selector-button:hover {
-  background: #5f3e24;
+  background: var(--_color-brown-hover, #5f3e24);
 }
 input[type="file"].ui.grey.file.input::-webkit-file-upload-button,
 .ui.grey.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #687181;
+  background: var(--color-grey, #687181);
   color: #fff;
 }
 input[type="file"].ui.grey.file.input::-webkit-file-upload-button:hover,
 .ui.grey.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #5d6573;
+  background: var(--_color-grey-hover, #5d6573);
 }
 input[type="file"].ui.grey.file.input::-ms-browse,
 .ui.grey.file.input input[type="file"]::-ms-browse {
-  background: #687181;
+  background: var(--color-grey, #687181);
   color: #fff;
 }
 input[type="file"].ui.grey.file.input::-ms-browse:hover,
 .ui.grey.file.input input[type="file"]::-ms-browse:hover {
-  background: #5d6573;
+  background: var(--_color-grey-hover, #5d6573);
 }
 input[type="file"].ui.grey.file.input::-webkit-file-upload-button, .ui.grey.file.input input[type="file"]::-webkit-file-upload-button {
-  background: #687181;
+  background: var(--color-grey, #687181);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-grey, #687181) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.grey.file.input::file-selector-button,
 .ui.grey.file.input input[type="file"]::file-selector-button {
-  background: #687181;
+  background: var(--color-grey, #687181);
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-grey, #687181) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.grey.file.input::-webkit-file-upload-button:hover, .ui.grey.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: #5d6573;
+  background: var(--_color-grey-hover, #5d6573);
 }
 input[type="file"].ui.grey.file.input::file-selector-button:hover,
 .ui.grey.file.input input[type="file"]::file-selector-button:hover {
-  background: #5d6573;
+  background: var(--_color-grey-hover, #5d6573);
 }
 input[type="file"].ui.black.file.input::-webkit-file-upload-button,
 .ui.black.file.input input[type="file"]::-webkit-file-upload-button {
-  background: light-dark(#1f2430, #535c6e);
+  background: var(--color-black, light-dark(#1f2430, #535c6e));
   color: #fff;
 }
 input[type="file"].ui.black.file.input::-webkit-file-upload-button:hover,
 .ui.black.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: light-dark(#2b3140, #5f6879);
+  background: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
 }
 input[type="file"].ui.black.file.input::-ms-browse,
 .ui.black.file.input input[type="file"]::-ms-browse {
-  background: light-dark(#1f2430, #535c6e);
+  background: var(--color-black, light-dark(#1f2430, #535c6e));
   color: #fff;
 }
 input[type="file"].ui.black.file.input::-ms-browse:hover,
 .ui.black.file.input input[type="file"]::-ms-browse:hover {
-  background: light-dark(#2b3140, #5f6879);
+  background: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
 }
 input[type="file"].ui.black.file.input::-webkit-file-upload-button, .ui.black.file.input input[type="file"]::-webkit-file-upload-button {
-  background: light-dark(#1f2430, #535c6e);
+  background: var(--color-black, light-dark(#1f2430, #535c6e));
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-black, light-dark(#1f2430, #535c6e)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.black.file.input::file-selector-button,
 .ui.black.file.input input[type="file"]::file-selector-button {
-  background: light-dark(#1f2430, #535c6e);
+  background: var(--color-black, light-dark(#1f2430, #535c6e));
   
 /* Fork: texto según el relleno (D36); con blanco fijo, el amarillo de piecesphp daba 2,35:1 */
-  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-black, light-dark(#1f2430, #535c6e)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 input[type="file"].ui.black.file.input::-webkit-file-upload-button:hover, .ui.black.file.input input[type="file"]::-webkit-file-upload-button:hover {
-  background: light-dark(#2b3140, #5f6879);
+  background: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
 }
 input[type="file"].ui.black.file.input::file-selector-button:hover,
 .ui.black.file.input input[type="file"]::file-selector-button:hover {
-  background: light-dark(#2b3140, #5f6879);
+  background: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
 }
 
 /* --------------------

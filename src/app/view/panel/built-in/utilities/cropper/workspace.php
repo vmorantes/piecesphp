@@ -39,7 +39,7 @@ $workspaceWidth = $referenceW >= 450 ? $referenceW : 450;
 
         <div class="step add">
 
-            <div class="ui header medium centered"><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Agregar imagen'); ?></div>
+            <div class="ui muted header medium centered"><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Agregar imagen'); ?></div>
 
             <div class="placeholder">
 

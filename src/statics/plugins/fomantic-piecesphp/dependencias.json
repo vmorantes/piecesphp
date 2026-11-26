@@ -1,9 +1,9 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "e76d628a",
+  "commit": "1f64e553",
   "fuenteSinCambios": true,
-  "generado": "2026-11-24T00:13:36.376Z",
+  "generado": "2026-11-25T19:00:41.268Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -661,7 +661,7 @@
       ],
       "comprobacion": {
         "ejemplos": 80,
-        "piezas": 122,
+        "piezas": 123,
         "muestras": {
           "icon": "i.settings.icon ← i.icon"
         },
@@ -673,20 +673,20 @@
           "icon": "25 piezas cambian sin él (perspective-origin, transform-origin, block-size, height)"
         },
         "suelto": {
-          "piezas": 122,
+          "piezas": 123,
           "propiedades": {
-            "accent-color": 143,
-            "box-sizing": 143,
-            "font-size": 143,
-            "line-height": 143,
-            "scrollbar-color": 143,
-            "text-size-adjust": 143,
-            "text-wrap-style": 142,
-            "perspective-origin": 128,
-            "transform-origin": 128,
-            "block-size": 122,
-            "height": 122,
-            "scrollbar-width": 122
+            "accent-color": 144,
+            "box-sizing": 144,
+            "font-size": 144,
+            "line-height": 144,
+            "scrollbar-color": 144,
+            "text-size-adjust": 144,
+            "text-wrap-style": 143,
+            "perspective-origin": 129,
+            "transform-origin": 129,
+            "block-size": 123,
+            "height": 123,
+            "scrollbar-width": 123
           },
           "muestras": [
             "h1.ui.header en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
@@ -695,20 +695,20 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 122,
+          "piezas": 123,
           "propiedades": {
-            "font-size": 143,
-            "line-height": 143,
-            "perspective-origin": 128,
-            "transform-origin": 128,
-            "block-size": 122,
-            "height": 122,
+            "font-size": 144,
+            "line-height": 144,
+            "perspective-origin": 129,
+            "transform-origin": 129,
+            "block-size": 123,
+            "height": 123,
             "inline-size": 39,
             "width": 39,
-            "padding-block-end": 27,
-            "padding-bottom": 27,
-            "padding-inline-start": 27,
-            "padding-left": 27
+            "padding-block-end": 26,
+            "padding-bottom": 26,
+            "padding-inline-start": 26,
+            "padding-left": 26
           },
           "muestras": [
             "h1.ui.header en div.: block-size 32px → 36.5469px",
@@ -1937,21 +1937,26 @@
       "css": [],
       "js": [],
       "opcional": {
-        "icon": "CSS: solo si el marcado lleva esa pieza (1 de 7 ejemplos): i.dropdown.icon ← i.icon",
-        "dropdown": "CSS: solo si el marcado lleva esa pieza (1 de 7 ejemplos): div.dt-input.selection.ui.dropdown ← .ui.dropdown"
+        "icon": "CSS: solo si el marcado lleva esa pieza (1 de 8 ejemplos): i.dropdown.icon ← i.icon",
+        "dropdown": "CSS: solo si el marcado lleva esa pieza (1 de 8 ejemplos): div.dt-input.selection.ui.dropdown ← .ui.dropdown"
       },
       "contenido": [
         "button",
         "checkbox",
+        "flex",
+        "header",
+        "icon",
+        "image",
         "input",
         "menu",
         "placeholder",
+        "popup",
         "segment",
         "table"
       ],
       "comprobacion": {
-        "ejemplos": 7,
-        "piezas": 49,
+        "ejemplos": 8,
+        "piezas": 52,
         "muestras": {
           "icon": "i.dropdown.icon ← i.icon",
           "dropdown": "div.dt-input.selection.ui.dropdown ← .ui.dropdown"
@@ -1965,20 +1970,20 @@
           "dropdown": "16 piezas cambian sin él (block-size, height, perspective-origin, transform-origin)"
         },
         "suelto": {
-          "piezas": 49,
+          "piezas": 52,
           "propiedades": {
-            "accent-color": 50,
-            "font-size": 50,
-            "scrollbar-color": 50,
-            "text-size-adjust": 50,
-            "scrollbar-width": 49,
-            "font-family": 48,
-            "-webkit-font-smoothing": 48,
-            "box-sizing": 46,
-            "line-height": 46,
-            "block-size": 40,
-            "height": 40,
-            "perspective-origin": 40
+            "accent-color": 53,
+            "font-size": 53,
+            "scrollbar-color": 53,
+            "text-size-adjust": 53,
+            "scrollbar-width": 52,
+            "font-family": 51,
+            "-webkit-font-smoothing": 51,
+            "box-sizing": 49,
+            "line-height": 49,
+            "block-size": 43,
+            "height": 43,
+            "perspective-origin": 43
           },
           "muestras": [
             "div.dt-container.dt-semanticUI en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
@@ -1987,14 +1992,14 @@
           ]
         },
         "sueltoBaseUi": {
-          "piezas": 44,
+          "piezas": 47,
           "propiedades": {
-            "block-size": 35,
-            "height": 35,
-            "perspective-origin": 35,
-            "transform-origin": 35,
-            "column-gap": 25,
-            "row-gap": 25,
+            "block-size": 38,
+            "height": 38,
+            "perspective-origin": 38,
+            "transform-origin": 38,
+            "column-gap": 27,
+            "row-gap": 27,
             "font-size": 12,
             "inline-size": 10,
             "width": 10,
@@ -3152,7 +3157,7 @@
         "necesidad": {
           "icon": "206 piezas cambian sin él (block-size, height, backface-visibility, display)",
           "table": "4651 piezas cambian sin él (-webkit-border-horizontal-spacing, -webkit-border-vertical-spacing, block-size, height)",
-          "popup": "2491 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)",
+          "popup": "2489 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)",
           "grid": "258 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "sinEfecto": [
@@ -3161,18 +3166,18 @@
         "suelto": {
           "piezas": 4716,
           "propiedades": {
-            "accent-color": 4916,
-            "font-size": 4916,
-            "line-height": 4916,
-            "scrollbar-color": 4916,
-            "text-size-adjust": 4916,
-            "box-sizing": 4836,
+            "accent-color": 4912,
+            "font-size": 4912,
+            "line-height": 4912,
+            "scrollbar-color": 4912,
+            "text-size-adjust": 4912,
+            "box-sizing": 4832,
             "scrollbar-width": 4716,
-            "font-family": 4636,
-            "-webkit-font-smoothing": 4636,
-            "block-size": 4161,
-            "height": 4161,
-            "overflow-wrap": 3907
+            "font-family": 4632,
+            "-webkit-font-smoothing": 4632,
+            "block-size": 4159,
+            "height": 4159,
+            "overflow-wrap": 3903
           },
           "muestras": [
             "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
@@ -3183,18 +3188,18 @@
         "sueltoBaseUi": {
           "piezas": 4698,
           "propiedades": {
-            "block-size": 4143,
-            "height": 4143,
-            "font-size": 3413,
-            "line-height": 3014,
-            "padding-block-end": 2321,
-            "padding-block-start": 2321,
-            "padding-bottom": 2321,
-            "padding-top": 2321,
-            "padding-inline-end": 2249,
-            "padding-inline-start": 2249,
-            "padding-left": 2249,
-            "padding-right": 2249
+            "block-size": 4141,
+            "height": 4141,
+            "font-size": 3409,
+            "line-height": 3012,
+            "padding-block-end": 2319,
+            "padding-block-start": 2319,
+            "padding-bottom": 2319,
+            "padding-top": 2319,
+            "padding-inline-end": 2247,
+            "padding-inline-start": 2247,
+            "padding-left": 2247,
+            "padding-right": 2247
           },
           "muestras": [
             "div.ui.calendar en div.: block-size 40px → 45.7031px",

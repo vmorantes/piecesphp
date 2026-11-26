@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Shape
+ * # Fomantic-UI 1.4.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -148,26 +148,15 @@
 
                 reset: function () {
                     module.verbose('Animating states reset');
-                    $module
-                        .removeClass(className.animating)
-                        .attr('style', '')
-                        .removeAttr('style')
-                    ;
-                    // removeAttr style does not consistently work in safari
-                    $sides
-                        .attr('style', '')
-                        .removeAttr('style')
-                    ;
-                    $side
-                        .attr('style', '')
-                        .removeAttr('style')
-                        .removeClass(className.hidden)
-                    ;
-                    $nextSide
-                        .removeClass(className.animating)
-                        .attr('style', '')
-                        .removeAttr('style')
-                    ;
+                    $module.removeClass(className.animating);
+                    $side.removeClass(className.hidden);
+                    $nextSide.removeClass(className.animating);
+                    // Fork (#3633 del original; CSP estricta): sin escribir style="" antes de quitarlo. Chrome conserva un
+                    // atributo style vacío si no se lee antes de quitarlo
+                    $module.add($sides).add($side).add($nextSide).each(function () {
+                        this.getAttribute('style');
+                        this.removeAttribute('style');
+                    });
                 },
 
                 is: {

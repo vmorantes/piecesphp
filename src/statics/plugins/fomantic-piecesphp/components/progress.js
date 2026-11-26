@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Progress
+ * # Fomantic-UI 1.4.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -116,6 +116,7 @@
 
                     module.read.metadata();
                     module.read.settings();
+                    module.set.aria(module.helper.sum(module.helper.forceArray(module.percent || 0)));
 
                     module.instantiate();
                 },
@@ -461,6 +462,27 @@
                         ;
                         // Fork: porcentaje total como propiedad CSS, para la variación circular (anillo)
                         element.style.setProperty('--progress-percent', String(module.helper.sum(percents)));
+                        module.set.aria(module.helper.sum(percents));
+                    },
+                    // Fork (P320, WCAG 4.1.2): la barra no decía qué era ni cuánto llevaba. role="progressbar" con su
+                    // porcentaje (sin valor si es indeterminada) y, sin nombre propio, el de su etiqueta (.label)
+                    aria: function (percent) {
+                        var
+                            $label = $module.children('.label').first()
+                        ;
+                        $module.attr({ role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100 });
+                        if ($module.hasClass('indeterminate')) {
+                            $module.removeAttr('aria-valuenow');
+                        } else {
+                            $module.attr('aria-valuenow', Math.round(Math.min(100, Math.max(0, percent))));
+                        }
+                        if (!$module.attr('aria-label') && !$module.attr('aria-labelledby') && $label.length > 0) {
+                            if (!$label.attr('id')) {
+                                $label.attr('id', '_' + (element.id || Math.random().toString(16).slice(2, 10)) + '_progress');
+                            }
+                            $module.attr('aria-labelledby', $label.attr('id'));
+                        }
+                        $bars.find('.progress').attr('aria-hidden', 'true');
                     },
                     duration: function (duration) {
                         duration = duration || settings.duration;

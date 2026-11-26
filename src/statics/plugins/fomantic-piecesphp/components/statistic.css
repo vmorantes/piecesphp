@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Statistic
+ * # Fomantic-UI 1.4.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -377,12 +377,12 @@
 .ui.red.statistics .statistic > .value,
 .ui.statistics .red.statistic > .value,
 .ui.red.statistic > .value {
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.inverted.red.statistics .statistic > .value,
 .ui.statistics .inverted.red.statistic > .value,
 .ui.inverted.red.statistic > .value {
-  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-red-light, #f97066) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -391,12 +391,12 @@
 .ui.orange.statistics .statistic > .value,
 .ui.statistics .orange.statistic > .value,
 .ui.orange.statistic > .value {
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.inverted.orange.statistics .statistic > .value,
 .ui.statistics .inverted.orange.statistic > .value,
 .ui.inverted.orange.statistic > .value {
-  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-orange-light, #f38744) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -405,12 +405,12 @@
 .ui.yellow.statistics .statistic > .value,
 .ui.statistics .yellow.statistic > .value,
 .ui.yellow.statistic > .value {
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.inverted.yellow.statistics .statistic > .value,
 .ui.statistics .inverted.yellow.statistic > .value,
 .ui.inverted.yellow.statistic > .value {
-  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-yellow-light, #fdb022) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -419,12 +419,12 @@
 .ui.olive.statistics .statistic > .value,
 .ui.statistics .olive.statistic > .value,
 .ui.olive.statistic > .value {
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.olive.statistics .statistic > .value,
 .ui.statistics .inverted.olive.statistic > .value,
 .ui.inverted.olive.statistic > .value {
-  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-olive-light, #a6c43a) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -433,12 +433,12 @@
 .ui.green.statistics .statistic > .value,
 .ui.statistics .green.statistic > .value,
 .ui.green.statistic > .value {
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.green.statistics .statistic > .value,
 .ui.statistics .inverted.green.statistic > .value,
 .ui.inverted.green.statistic > .value {
-  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-green-light, #47cd89) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -447,12 +447,12 @@
 .ui.teal.statistics .statistic > .value,
 .ui.statistics .teal.statistic > .value,
 .ui.teal.statistic > .value {
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.teal.statistics .statistic > .value,
 .ui.statistics .inverted.teal.statistic > .value,
 .ui.inverted.teal.statistic > .value {
-  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-teal-light, #22ccee) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -461,12 +461,12 @@
 .ui.blue.statistics .statistic > .value,
 .ui.statistics .blue.statistic > .value,
 .ui.blue.statistic > .value {
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.blue.statistics .statistic > .value,
 .ui.statistics .inverted.blue.statistic > .value,
 .ui.inverted.blue.statistic > .value {
-  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-blue-light, #53b1fd) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -475,12 +475,12 @@
 .ui.violet.statistics .statistic > .value,
 .ui.statistics .violet.statistic > .value,
 .ui.violet.statistic > .value {
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.violet.statistics .statistic > .value,
 .ui.statistics .inverted.violet.statistic > .value,
 .ui.inverted.violet.statistic > .value {
-  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-violet-light, #9b8afb) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -489,12 +489,12 @@
 .ui.purple.statistics .statistic > .value,
 .ui.statistics .purple.statistic > .value,
 .ui.purple.statistic > .value {
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.purple.statistics .statistic > .value,
 .ui.statistics .inverted.purple.statistic > .value,
 .ui.inverted.purple.statistic > .value {
-  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-purple-light, #c084e8) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -503,12 +503,12 @@
 .ui.pink.statistics .statistic > .value,
 .ui.statistics .pink.statistic > .value,
 .ui.pink.statistic > .value {
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.pink.statistics .statistic > .value,
 .ui.statistics .inverted.pink.statistic > .value,
 .ui.inverted.pink.statistic > .value {
-  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-pink-light, #ee46bc) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -517,12 +517,12 @@
 .ui.brown.statistics .statistic > .value,
 .ui.statistics .brown.statistic > .value,
 .ui.brown.statistic > .value {
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.brown.statistics .statistic > .value,
 .ui.statistics .inverted.brown.statistic > .value,
 .ui.inverted.brown.statistic > .value {
-  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-brown-light, #b08463) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -531,12 +531,12 @@
 .ui.grey.statistics .statistic > .value,
 .ui.statistics .grey.statistic > .value,
 .ui.grey.statistic > .value {
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.inverted.grey.statistics .statistic > .value,
 .ui.statistics .inverted.grey.statistic > .value,
 .ui.inverted.grey.statistic > .value {
-  color: oklch(from #99a1af max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-grey-light, #99a1af) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }
@@ -545,12 +545,12 @@
 .ui.black.statistics .statistic > .value,
 .ui.statistics .black.statistic > .value,
 .ui.black.statistic > .value {
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 .ui.inverted.black.statistics .statistic > .value,
 .ui.statistics .inverted.black.statistic > .value,
 .ui.inverted.black.statistic > .value {
-  color: oklch(from #4b5363 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-black-light, #4b5363) max(l, 0.8) min(c, 0.14) h);
   
 /* Fork: tinta clara garantizada sobre inverted (D36) */
 }

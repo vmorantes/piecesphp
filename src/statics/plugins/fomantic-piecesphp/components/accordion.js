@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Accordion
+ * # Fomantic-UI 1.4.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -53,6 +53,9 @@
                 element  = this,
                 instance = $module.data(moduleNamespace),
                 observer,
+                ariaObserver,
+                ariaFrame,
+                ariaId   = (Math.random().toString(16) + '000000000').slice(2, 10),
                 module
             ;
 
@@ -63,6 +66,25 @@
                     module.bind.events();
                     if (settings.observeChanges) {
                         module.observeChanges();
+                    }
+                    module.set.aria();
+                    // Fork (P320): aria-expanded sigue a la clase active de cada título, la ponga quien la ponga
+                    if ('MutationObserver' in window) {
+                        ariaObserver = new MutationObserver(function () {
+                            if (!ariaFrame) {
+                                ariaFrame = requestAnimationFrame(function () {
+                                    ariaFrame = null;
+                                    module.refresh();
+                                    module.set.aria();
+                                });
+                            }
+                        });
+                        ariaObserver.observe(element, {
+                            attributes: true,
+                            attributeFilter: ['class'],
+                            childList: true,
+                            subtree: true,
+                        });
                     }
                     module.instantiate();
                 },
@@ -80,6 +102,36 @@
                         .off(eventNamespace)
                         .removeData(moduleNamespace)
                     ;
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
+                },
+
+                set: {
+                    // Fork (P320, WCAG 2.1.1 y 4.1.2): los títulos (div.title) no se podían alcanzar con Tab ni abrir con el
+                    // teclado, y nada decía si estaban abiertos. Cada título es un botón enfocable con aria-expanded y
+                    // aria-controls hacia su contenido; sin pisar lo que ponga el autor (un <button> o un enlace ya enfocan)
+                    aria: function () {
+                        $title.each(function (index) {
+                            var
+                                $eachTitle   = $(this),
+                                $eachContent = $eachTitle.next(selector.content)
+                            ;
+                            if (!$eachTitle.is('a[href], button, input, select, textarea, [tabindex]')) {
+                                $eachTitle.attr('tabindex', 0);
+                            }
+                            if (!$eachTitle.is('button') && !$eachTitle.attr('role')) {
+                                $eachTitle.attr('role', 'button');
+                            }
+                            $eachTitle.attr('aria-expanded', $eachTitle.hasClass(className.active) ? 'true' : 'false');
+                            if ($eachContent.length > 0) {
+                                if (!$eachContent.attr('id')) {
+                                    $eachContent.attr('id', '_' + ariaId + '_content' + index);
+                                }
+                                $eachTitle.attr('aria-controls', $eachContent.attr('id'));
+                            }
+                        });
+                    },
                 },
 
                 refresh: function () {
@@ -106,11 +158,19 @@
                         module.debug('Binding delegated events');
                         $module
                             .on(settings.on + eventNamespace, selector.trigger, module.event.click)
+                            .on('keydown' + eventNamespace, selector.trigger, module.event.keydown)
                         ;
                     },
                 },
 
                 event: {
+                    // Fork (P320): Intro y Espacio sobre el título (no sobre un control que contenga) lo abren o cierran
+                    keydown: function (event) {
+                        if (event.target === this && (event.which === 13 || event.which === 32)) {
+                            event.preventDefault();
+                            module.toggle.call(this);
+                        }
+                    },
                     click: function (event) {
                         if ($(event.target).closest(selector.ignore).length === 0) {
                             module.toggle.call(this);
@@ -345,10 +405,7 @@
                         var $element = $(this);
                         $element.css('display', '');
                         if ($element.attr('style') === '') {
-                            $element
-                                .attr('style', '')
-                                .removeAttr('style')
-                            ;
+                            $element.removeAttr('style');
                         }
                     },
 
@@ -357,10 +414,7 @@
                         var $element = $(this);
                         $element.css('opacity', '');
                         if ($element.attr('style') === '') {
-                            $element
-                                .attr('style', '')
-                                .removeAttr('style')
-                            ;
+                            $element.removeAttr('style');
                         }
                     },
 

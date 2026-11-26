@@ -184,6 +184,7 @@ CliActions::make('unit-tests:core/system-status', function ($args) {
         }
         $check($rutas === [
             ['system-status-health', 'GET', [UsersModel::TYPE_USER_ROOT]],
+            ['system-status-health-export', 'GET', [UsersModel::TYPE_USER_ROOT]],
             ['system-status-alerts', 'GET', [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]],
             ['system-status-alerts-toggle', 'POST', [UsersModel::TYPE_USER_ROOT]],
             ['system-status-maintenance', 'GET', [UsersModel::TYPE_USER_ROOT]],

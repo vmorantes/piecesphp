@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Modal
+ * # Fomantic-UI 1.4.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -110,6 +110,7 @@
                         }
                     }
                     $module.addClass(settings.class);
+                    module.set.aria();
                     if (settings.title !== '') {
                         $module.find(selector.title).html(module.helpers.escape(settings.title, settings.preserveHTML)).addClass(settings.classTitle);
                     }
@@ -383,6 +384,7 @@
                             .on('click' + eventNamespace, selector.close, module.event.close)
                             .on('click' + eventNamespace, selector.approve, module.event.approve)
                             .on('click' + eventNamespace, selector.deny, module.event.deny)
+                            .on('keydown' + eventNamespace, '.actions [role="button"]:not(a, button, input)', module.event.actionKeyDown)
                         ;
                         $closeIcon
                             .on('keyup' + elementEventNamespace, module.event.closeKeyUp)
@@ -449,6 +451,17 @@
                     },
                     close: function () {
                         module.hide();
+                    },
+                    // Fork (P320): un botón de acción escrito como <div> (con role="button" de set.aria) se activa con Intro y
+                    // Espacio, como un <button>
+                    actionKeyDown: function (event) {
+                        var
+                            keyCode = event.which
+                        ;
+                        if (keyCode === settings.keys.enter || keyCode === settings.keys.space) {
+                            event.preventDefault();
+                            $(this).trigger('click');
+                        }
                     },
                     closeKeyUp: function (event) {
                         var
@@ -601,6 +614,9 @@
 
                             return;
                         }
+                        // Fork (P320): el foco se guarda antes de animar, como en flyout. Al terminar, el observador de
+                        // cambios puede haber enfocado ya un control del modal y save.focus no guardaría el disparador
+                        module.save.focus();
                         hadScrollbar = module.has.scrollbar();
                         module.showDimmer();
                         module.cacheSizes();
@@ -648,7 +664,6 @@
                                             if (settings.keyboardShortcuts) {
                                                 module.add.keyboardShortcuts();
                                             }
-                                            module.save.focus();
                                             module.set.active();
                                             module.refreshInputs();
                                             requestAnimationFrame(module.set.observeAttributes);
@@ -1061,6 +1076,35 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): un modal escrito en el marcado no tenía rol ni nombre accesible (solo los que
+                    // crea el JS). Se completa lo que falte, sin pisar lo que haya puesto el autor: role="dialog", aria-modal
+                    // y aria-labelledby con su encabezado (al que se da un id si no lo tiene)
+                    aria: function () {
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'dialog');
+                        }
+                        if ($module.attr('aria-modal') === undefined) {
+                            $module.attr('aria-modal', true);
+                        }
+                        if (!$module.attr('aria-labelledby') && !$module.attr('aria-label')) {
+                            var
+                                $title = $module.children('.header').first()
+                            ;
+                            if ($title.length > 0) {
+                                if (!$title.attr('id')) {
+                                    $title.attr('id', '_' + module.get.id() + 'title');
+                                }
+                                $module.attr('aria-labelledby', $title.attr('id'));
+                            }
+                        }
+                        // El ícono de cerrar y los botones de acción escritos como <i>/<div> no se podían alcanzar con Tab:
+                        // se hacen enfocables (closeKeyUp y event.actionKeyDown los activan con Intro y Espacio)
+                        $closeIcon.add($module.find(selector.actions).find('.button'))
+                            .not('a[href], button, input, select, textarea, [tabindex]')
+                            .attr({ tabindex: 0, role: 'button' })
+                        ;
+                        $closeIcon.not('[aria-label]').attr('aria-label', settings.text.close);
+                    },
                     observeAttributes: function (state) {
                         observeAttributes = state !== false;
                     },

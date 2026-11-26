@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Search
+ * # Fomantic-UI 1.4.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -60,6 +60,9 @@
 
                 disabledBubbled  = false,
                 resultsDismissed = false,
+                ariaObserver,
+                ariaFrame,
+                ariaId           = (Math.random().toString(16) + '000000000').slice(2, 10),
 
                 module
             ;
@@ -73,6 +76,25 @@
                     module.bind.events();
                     module.set.type();
                     module.create.results();
+                    module.set.aria();
+                    // Fork (P320): el estado ARIA sigue a lo que ya hace el módulo (resultados visibles, resultado activo,
+                    // resultados nuevos): un solo observador, agrupado por fotograma
+                    if ('MutationObserver' in window) {
+                        ariaObserver = new MutationObserver(function () {
+                            if (!ariaFrame) {
+                                ariaFrame = requestAnimationFrame(function () {
+                                    ariaFrame = null;
+                                    module.set.aria();
+                                });
+                            }
+                        });
+                        ariaObserver.observe(element, {
+                            attributes: true,
+                            attributeFilter: ['class', 'style'],
+                            childList: true,
+                            subtree: true,
+                        });
+                    }
                     module.instantiate();
                 },
                 instantiate: function () {
@@ -88,6 +110,9 @@
                         .off(eventNamespace)
                         .removeData(moduleNamespace)
                     ;
+                    if (ariaObserver) {
+                        ariaObserver.disconnect();
+                    }
                 },
 
                 refresh: function () {
@@ -522,6 +547,63 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): patrón combobox de WAI-ARIA 1.2. El campo (.prompt) es un combobox con
+                    // autocompletado en lista; los resultados, un listbox de options (agrupados por categoría), y el resultado
+                    // activo con las flechas, su aria-activedescendant. El mensaje de «sin resultados» se anuncia (status)
+                    aria: function () {
+                        module.refreshResults();
+                        if ($prompt.length === 0) {
+                            return;
+                        }
+                        var
+                            $options = $results.find(selector.result),
+                            expanded = module.is.visible() && $options.length > 0,
+                            $active  = $options.filter('.' + className.active).first(),
+                            $label
+                        ;
+                        if ($results.length > 0) {
+                            if (!$results.attr('id')) {
+                                $results.attr('id', '_' + ariaId + '_results');
+                            }
+                            if ($options.length > 0) {
+                                $results.attr('role', 'listbox');
+                            } else {
+                                $results.removeAttr('role');
+                            }
+                            $results.find(selector.category).attr('role', 'group');
+                            $results.children('.message').attr('role', 'status');
+                            $options.each(function (index) {
+                                if (!this.id) {
+                                    this.id = '_' + ariaId + '_result' + index;
+                                }
+                                $(this).attr({ role: 'option', 'aria-selected': $(this).hasClass(className.active) ? 'true' : 'false' });
+                            });
+                        }
+                        $prompt.attr({
+                            role: 'combobox',
+                            'aria-autocomplete': 'list',
+                            'aria-haspopup': 'listbox',
+                            'aria-expanded': expanded ? 'true' : 'false',
+                        });
+                        if ($results.length > 0) {
+                            $prompt.attr('aria-controls', $results.attr('id'));
+                        }
+                        if (expanded && $active.length > 0) {
+                            $prompt.attr('aria-activedescendant', $active.attr('id'));
+                        } else {
+                            $prompt.removeAttr('aria-activedescendant');
+                        }
+                        // Sin nombre propio, el de la etiqueta del campo (si no hay, el placeholder del input ya lo da)
+                        if (!$prompt.attr('aria-label') && !$prompt.attr('aria-labelledby') && !($prompt.attr('id') && $('label[for="' + $prompt.attr('id') + '"]').length > 0)) {
+                            $label = $module.prev('label').add($module.closest('.field').children('label')).first();
+                            if ($label.length > 0) {
+                                if (!$label.attr('id')) {
+                                    $label.attr('id', '_' + ariaId + '_label');
+                                }
+                                $prompt.attr('aria-labelledby', $label.attr('id'));
+                            }
+                        }
+                    },
                     focus: function () {
                         $module.addClass(className.focus);
                     },

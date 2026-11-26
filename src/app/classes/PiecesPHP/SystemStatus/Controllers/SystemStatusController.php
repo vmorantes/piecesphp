@@ -38,6 +38,7 @@ use PiecesPHP\SystemStatus\SystemStatusRoutes;
 use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\TaskRunMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
+use Slim\Psr7\Factory\StreamFactory;
 
 /**
  * SystemStatusController - Las páginas «Avisos del sistema» y «Estado y cachés».
@@ -262,16 +263,81 @@ class SystemStatusController extends AdminPanelController
         $title = __(self::LANG_GROUP, 'Salud de la instalación');
         set_title($title);
 
+        $groupTitles = SystemHealth::groupTitles();
+        $exportURLs = ['' => self::healthExportURL(null), SystemHealth::GROUP_ATTENTION => self::healthExportURL(SystemHealth::GROUP_ATTENTION)];
+        foreach (array_keys($groupTitles) as $group) {
+            $exportURLs[$group] = self::healthExportURL($group);
+        }
+
         $this->helpController->render('panel/layout/header');
         $this->render('health', [
             'langGroup' => self::LANG_GROUP,
             'title' => $title,
             'rows' => SystemHealth::rows(),
-            'groupTitles' => SystemHealth::groupTitles(),
+            'groupTitles' => $groupTitles,
+            'exportURLs' => $exportURLs,
         ] + self::systemHeader($title, __(self::LANG_GROUP, 'Cómo está esta instalación: versiones, entorno, base de datos, tareas y carpetas.'), $this->helpController));
         $this->helpController->render('panel/layout/footer');
 
         return $response;
+    }
+
+    /**
+     * La Salud en Markdown (H510): la vista entera o, con `group` en la consulta, un bloque (un grupo, o `attention`
+     * para lo que pide atención). Un bloque que no existe responde 400.
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function healthExport(Request $request, Response $response)
+    {
+        $group = $request->getQueryParam('group', null);
+        $group = is_string($group) && $group !== '' ? $group : null;
+        $groupTitles = SystemHealth::groupTitles();
+
+        //El bloque se valida antes de calcular las filas: un bloque que no existe no cuesta ni una consulta.
+        if (!SystemHealth::isExportGroup($group, $groupTitles)) {
+            return $response
+                ->withStatus(400)
+                ->withBody((new StreamFactory())->createStream(SystemHealth::unknownGroupMessage((string) $group)))
+                ->withHeader('Content-Type', 'text/plain; charset=utf-8')
+                ->withHeader('Cache-Control', 'no-store');
+        }
+
+        $markdown = SystemHealth::markdown(SystemHealth::rows(), $groupTitles, $group);
+        self::logAction(LogsMapper::MSG_SYSTEM_HEALTH_EXPORTED, [
+            '%username%' => self::currentUsername(),
+            '%block%' => match (true) {
+                $group === null => __(self::LANG_GROUP, 'la vista entera'),
+                $group === SystemHealth::GROUP_ATTENTION => __(self::LANG_GROUP, 'Lo que pide atención'),
+                default => $groupTitles[$group],
+            },
+        ]);
+
+        //El grupo ya está validado contra los que existen: entra en el nombre tal cual.
+        $fileName = 'salud-' . ($group ?? 'completa') . '-' . date('Y-m-d') . '.md';
+        return $response
+            ->withBody((new StreamFactory())->createStream($markdown))
+            ->withHeader('Content-Type', 'text/markdown; charset=utf-8')
+            ->withHeader('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+            ->withHeader('Cache-Control', 'no-store');
+    }
+
+    /**
+     * La dirección de la exportación de la Salud: entera, o de un bloque; '' si quien mira no tiene la ruta.
+     *
+     * @param string|null $group
+     * @return string
+     */
+    public static function healthExportURL(?string $group): string
+    {
+        $url = self::routeName('health-export');
+        //Sin permiso, routeName() da '': sin dirección no hay botón (y no un «?group=» que apunte a la propia página).
+        if ($url === '' || $group === null) {
+            return $url;
+        }
+        return $url . '?' . http_build_query(['group' => $group]);
     }
 
     /**
@@ -1116,6 +1182,7 @@ class SystemStatusController extends AdminPanelController
 
         $group->register([
             new Route("{$startRoute}/health[/]", self::class . ':health', self::$baseRouteName . '-health', 'GET', true, null, $root),
+            new Route("{$startRoute}/health/export[/]", self::class . ':healthExport', self::$baseRouteName . '-health-export', 'GET', true, null, $root),
             new Route("{$startRoute}/alerts[/]", self::class . ':alerts', self::$baseRouteName . '-alerts', 'GET', true, null, [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL]),
             new Route("{$startRoute}/alerts/toggle[/]", self::class . ':alertsToggle', self::$baseRouteName . '-alerts-toggle', 'POST', true, null, $root),
             new Route("{$startRoute}/maintenance[/]", self::class . ':maintenance', self::$baseRouteName . '-maintenance', 'GET', true, null, $root),

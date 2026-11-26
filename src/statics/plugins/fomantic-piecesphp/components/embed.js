@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Embed
+ * # Fomantic-UI 1.4.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -102,6 +102,27 @@
                                 .on('click' + eventNamespace, selector.placeholder, module.createAndShow)
                                 .on('click' + eventNamespace, selector.icon, module.createAndShow)
                             ;
+                            // Fork (P320, WCAG 2.1.1 y 4.1.2): la portada solo se activaba con el ratón. El ícono (o la imagen, si
+                            // no hay ícono) es un botón enfocable que Intro y Espacio activan; su nombre, el del autor o el alt
+                            var
+                                $trigger = $module.children(selector.icon).first(),
+                                name     = $module.attr('aria-label') || $module.children(selector.placeholder).attr('alt') || ''
+                            ;
+                            if ($trigger.length === 0) {
+                                $trigger = $module.children(selector.placeholder).first();
+                            }
+                            if (!$trigger.is('a[href], button, [tabindex]')) {
+                                $trigger.attr({ tabindex: 0, role: 'button' }).data('ariaOwnTrigger', true);
+                                if (name && !$trigger.attr('aria-label')) {
+                                    $trigger.attr('aria-label', name);
+                                }
+                            }
+                            $module.on('keydown' + eventNamespace, selector.icon + ', ' + selector.placeholder, function (event) {
+                                if (event.which === 13 || event.which === 32) {
+                                    event.preventDefault();
+                                    module.createAndShow();
+                                }
+                            });
                         }
                     },
                 },
@@ -176,6 +197,7 @@
                     module.remove.active();
                     module.remove.embed();
                     module.showPlaceholder();
+                    $module.children(selector.icon + ', ' + selector.placeholder).filter(function () { return $(this).data('ariaOwnTrigger'); }).attr('tabindex', 0);
                     settings.onReset.call(element);
                 },
 
@@ -183,6 +205,8 @@
                 show: function () {
                     module.debug('Showing embed');
                     module.set.active();
+                    // Fork (P320): con el vídeo a la vista, la portada oculta sale del orden de Tab
+                    $module.children(selector.icon + ', ' + selector.placeholder).filter(function () { return $(this).data('ariaOwnTrigger'); }).attr('tabindex', -1);
                     settings.onDisplay.call(element);
                 },
 

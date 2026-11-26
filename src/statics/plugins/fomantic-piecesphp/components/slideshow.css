@@ -420,7 +420,7 @@
 }
 .ui.red.slideshow .indicators > .active.indicator,
 .ui.red.slideshow .indicators > .active.indicator:hover {
-  background: #f04438;
+  background: var(--color-red, #de3027);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -428,14 +428,14 @@
 }
 .ui.red.slideshow > .control:focus-visible,
 .ui.red.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #f04438;
+  outline-color: var(--color-red, #de3027);
 }
 .ui.red.outside.slideshow > .control:hover {
-  color: #f92516;
+  color: var(--_color-red-hover, #d52017);
 }
 .ui.orange.slideshow .indicators > .active.indicator,
 .ui.orange.slideshow .indicators > .active.indicator:hover {
-  background: #ef6820;
+  background: var(--color-orange, #cd4800);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -443,14 +443,14 @@
 }
 .ui.orange.slideshow > .control:focus-visible,
 .ui.orange.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #ef6820;
+  outline-color: var(--color-orange, #cd4800);
 }
 .ui.orange.outside.slideshow > .control:hover {
-  color: #f05706;
+  color: var(--_color-orange-hover, #b43f00);
 }
 .ui.yellow.slideshow .indicators > .active.indicator,
 .ui.yellow.slideshow .indicators > .active.indicator:hover {
-  background: #f79009;
+  background: var(--color-yellow, #bb5900);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -458,14 +458,14 @@
 }
 .ui.yellow.slideshow > .control:focus-visible,
 .ui.yellow.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #f79009;
+  outline-color: var(--color-yellow, #bb5900);
 }
 .ui.yellow.outside.slideshow > .control:hover {
-  color: #e78300;
+  color: var(--_color-yellow-hover, #a24d00);
 }
 .ui.olive.slideshow .indicators > .active.indicator,
 .ui.olive.slideshow .indicators > .active.indicator:hover {
-  background: #84a11b;
+  background: var(--color-olive, #647e00);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -473,14 +473,14 @@
 }
 .ui.olive.slideshow > .control:focus-visible,
 .ui.olive.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #84a11b;
+  outline-color: var(--color-olive, #647e00);
 }
 .ui.olive.outside.slideshow > .control:hover {
-  color: #759112;
+  color: var(--_color-olive-hover, #506500);
 }
 .ui.green.slideshow .indicators > .active.indicator,
 .ui.green.slideshow .indicators > .active.indicator:hover {
-  background: #17b26a;
+  background: var(--color-green, #008742);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -488,14 +488,14 @@
 }
 .ui.green.slideshow > .control:focus-visible,
 .ui.green.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #17b26a;
+  outline-color: var(--color-green, #008742);
 }
 .ui.green.outside.slideshow > .control:hover {
-  color: #0da25d;
+  color: var(--_color-green-hover, #006e36);
 }
 .ui.teal.slideshow .indicators > .active.indicator,
 .ui.teal.slideshow .indicators > .active.indicator:hover {
-  background: #06aed4;
+  background: var(--color-teal, #007fa3);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -503,14 +503,14 @@
 }
 .ui.teal.slideshow > .control:focus-visible,
 .ui.teal.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #06aed4;
+  outline-color: var(--color-teal, #007fa3);
 }
 .ui.teal.outside.slideshow > .control:hover {
-  color: #009dc1;
+  color: var(--_color-teal-hover, #006b8a);
 }
 .ui.blue.slideshow .indicators > .active.indicator,
 .ui.blue.slideshow .indicators > .active.indicator:hover {
-  background: #2e90fa;
+  background: var(--color-blue, #0074dc);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -518,14 +518,14 @@
 }
 .ui.blue.slideshow > .control:focus-visible,
 .ui.blue.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #2e90fa;
+  outline-color: var(--color-blue, #0074dc);
 }
 .ui.blue.outside.slideshow > .control:hover {
-  color: #0f83ff;
+  color: var(--_color-blue-hover, #0067c3);
 }
 .ui.violet.slideshow .indicators > .active.indicator,
 .ui.violet.slideshow .indicators > .active.indicator:hover {
-  background: #7a5af8;
+  background: var(--color-violet, #7a5af8);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -533,14 +533,14 @@
 }
 .ui.violet.slideshow > .control:focus-visible,
 .ui.violet.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #7a5af8;
+  outline-color: var(--color-violet, #7a5af8);
 }
 .ui.violet.outside.slideshow > .control:hover {
-  color: #6239ff;
+  color: var(--_color-violet-hover, #6239ff);
 }
 .ui.purple.slideshow .indicators > .active.indicator,
 .ui.purple.slideshow .indicators > .active.indicator:hover {
-  background: #9e4cc9;
+  background: var(--color-purple, #9e4cc9);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -548,14 +548,14 @@
 }
 .ui.purple.slideshow > .control:focus-visible,
 .ui.purple.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #9e4cc9;
+  outline-color: var(--color-purple, #9e4cc9);
 }
 .ui.purple.outside.slideshow > .control:hover {
-  color: #9534c8;
+  color: var(--_color-purple-hover, #9534c8);
 }
 .ui.pink.slideshow .indicators > .active.indicator,
 .ui.pink.slideshow .indicators > .active.indicator:hover {
-  background: #c11574;
+  background: var(--color-pink, #c11574);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -563,14 +563,14 @@
 }
 .ui.pink.slideshow > .control:focus-visible,
 .ui.pink.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #c11574;
+  outline-color: var(--color-pink, #c11574);
 }
 .ui.pink.outside.slideshow > .control:hover {
-  color: #b20b67;
+  color: var(--_color-pink-hover, #b20b67);
 }
 .ui.brown.slideshow .indicators > .active.indicator,
 .ui.brown.slideshow .indicators > .active.indicator:hover {
-  background: #6e4a2e;
+  background: var(--color-brown, #6e4a2e);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -578,14 +578,14 @@
 }
 .ui.brown.slideshow > .control:focus-visible,
 .ui.brown.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #6e4a2e;
+  outline-color: var(--color-brown, #6e4a2e);
 }
 .ui.brown.outside.slideshow > .control:hover {
-  color: #5f3e24;
+  color: var(--_color-brown-hover, #5f3e24);
 }
 .ui.grey.slideshow .indicators > .active.indicator,
 .ui.grey.slideshow .indicators > .active.indicator:hover {
-  background: #687181;
+  background: var(--color-grey, #687181);
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -593,14 +593,14 @@
 }
 .ui.grey.slideshow > .control:focus-visible,
 .ui.grey.slideshow .indicators > .indicator:focus-visible {
-  outline-color: #687181;
+  outline-color: var(--color-grey, #687181);
 }
 .ui.grey.outside.slideshow > .control:hover {
-  color: #5d6573;
+  color: var(--_color-grey-hover, #5d6573);
 }
 .ui.black.slideshow .indicators > .active.indicator,
 .ui.black.slideshow .indicators > .active.indicator:hover {
-  background: light-dark(#1f2430, #535c6e);
+  background: var(--color-black, light-dark(#1f2430, #535c6e));
   
 /* Fork: sobre una foto, un color oscuro (el marino de piecesphp, el negro) desaparecía en las zonas oscuras
                (1,5:1): un aro blanco lo separa de cualquier fondo, como la sombra de los indicadores blancos */
@@ -608,10 +608,10 @@
 }
 .ui.black.slideshow > .control:focus-visible,
 .ui.black.slideshow .indicators > .indicator:focus-visible {
-  outline-color: light-dark(#1f2430, #535c6e);
+  outline-color: var(--color-black, light-dark(#1f2430, #535c6e));
 }
 .ui.black.outside.slideshow > .control:hover {
-  color: light-dark(#2b3140, #5f6879);
+  color: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
 }
 
 

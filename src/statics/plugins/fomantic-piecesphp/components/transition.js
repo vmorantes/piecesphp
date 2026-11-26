@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Transition
+ * # Fomantic-UI 1.4.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -223,10 +223,7 @@
                 force: {
                     visible: function () {
                         var
-                            style          = $module.attr('style'),
-                            userStyle      = module.get.userStyle(style),
                             displayType    = module.get.displayType(),
-                            overrideStyle  = userStyle + 'display: ' + displayType + ' !important;',
                             inlineDisplay  = $module[0].style.display,
                             mustStayHidden = !displayType || (inlineDisplay === 'none' && settings.skipInlineHidden) || $module[0].tagName.match(/(script|link|style)/i)
                         ;
@@ -236,9 +233,8 @@
                             return false;
                         }
                         module.verbose('Overriding default display to show element', displayType);
-                        $module
-                            .attr('style', overrideStyle)
-                        ;
+                        // Fork (#3633 del original, sin fusionar; CSP estricta): una propiedad del CSSOM, no el atributo style
+                        $module[0].style.setProperty('display', displayType, 'important');
 
                         return true;
                     },
@@ -596,11 +592,6 @@
                         }
 
                         return $module.data(metadata.displayType);
-                    },
-                    userStyle: function (style) {
-                        style = style || $module.attr('style') || '';
-
-                        return style.replace(/display.*?;/, '');
                     },
                     transitionExists: function (animation) {
                         return $.fn.transition.exists[animation];

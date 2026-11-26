@@ -124,6 +124,7 @@ class LogsMapper extends EntityMapperExtensible
     const MSG_MAIL_BODY_UNREADABLE = 'MAIL_BODY_UNREADABLE';
     const MSG_MAIL_TEST_SENT = 'MAIL_TEST_SENT';
     const MSG_DATA_TRANSFER_TOGGLED = 'DATA_TRANSFER_TOGGLED';
+    const MSG_SYSTEM_HEALTH_EXPORTED = 'SYSTEM_HEALTH_EXPORTED';
     const MSG_SESSION_CLOSED = 'SESSION_CLOSED';
     const MSG_SESSION_EXTENDED = 'SESSION_EXTENDED';
     const MSG_OTHER_SESSIONS_CLOSED = 'OTHER_SESSIONS_CLOSED';
@@ -156,6 +157,7 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_MAIL_BODY_UNREADABLE => '%username% pidió el cuerpo del correo #%id% del registro, y no se pudo descifrar.',
         self::MSG_MAIL_TEST_SENT => '%username% envió una prueba del correo «%key%» a %to%, en el servidor de pruebas.',
         self::MSG_DATA_TRANSFER_TOGGLED => '%username% %action% el %kind% «%key%» de Importar y exportar.',
+        self::MSG_SYSTEM_HEALTH_EXPORTED => '%username% exportó en Markdown la salud de la instalación (%block%).',
         self::MSG_SESSION_CLOSED => '%username% cerró una sesión de %target% (%reason%).',
         self::MSG_SESSION_EXTENDED => '%username% extendió una sesión de %target% hasta el %until%.',
         self::MSG_OTHER_SESSIONS_CLOSED => '%username% cerró %count% de sus otras sesiones.',
@@ -329,6 +331,7 @@ class LogsMapper extends EntityMapperExtensible
             self::MSG_MAIL_BODY_UNREADABLE => __(self::LANG_GROUP, 'Cuerpo de un correo ilegible'),
             self::MSG_MAIL_TEST_SENT => __(self::LANG_GROUP, 'Prueba de un correo del catálogo'),
             self::MSG_DATA_TRANSFER_TOGGLED => __(self::LANG_GROUP, 'Importador o exportador encendido o apagado'),
+            self::MSG_SYSTEM_HEALTH_EXPORTED => __(self::LANG_GROUP, 'Salud de la instalación exportada'),
             self::MSG_SESSION_CLOSED => __(self::LANG_GROUP, 'Sesión cerrada'),
             self::MSG_SESSION_EXTENDED => __(self::LANG_GROUP, 'Sesión extendida'),
             self::MSG_OTHER_SESSIONS_CLOSED => __(self::LANG_GROUP, 'Otras sesiones propias cerradas'),

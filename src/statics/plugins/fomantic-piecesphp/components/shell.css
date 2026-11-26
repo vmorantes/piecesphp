@@ -486,8 +486,8 @@
 
 /* Fork: contador rojo con el número en blanco en todos los modos (data-contrast="more" lo oscurece más en core) */
 .ui.shell > .main > .bar .ui.button > .ui.red.floating.label:not(.basic):not(.inverted) {
-  background-color: oklch(from #f04438 min(l, 0.56) c h);
-  border-color: oklch(from #f04438 min(l, 0.56) c h);
+  background-color: oklch(from #de3027 min(l, 0.56) c h);
+  border-color: oklch(from #de3027 min(l, 0.56) c h);
   color: #fff;
 }
 

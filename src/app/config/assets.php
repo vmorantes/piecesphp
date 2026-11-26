@@ -43,6 +43,15 @@ $assets['fomantic-piecesphp']['css'] = [
 ];
 $assets['fomantic-piecesphp']['js'] = [
     'statics/plugins/fomantic-piecesphp/semantic.min.js',
+    //Cada paquete de i18n/ se aplica solo si casa con el lang de <html>; lo que fija configurations.js sigue mandando.
+    'statics/plugins/fomantic-piecesphp/i18n/fomantic-i18n.js',
+    ...array_map(
+        fn(string $path): string => 'statics/plugins/fomantic-piecesphp/i18n/' . basename($path),
+        array_values(array_filter(
+            glob(dirname(__DIR__, 2) . '/statics/plugins/fomantic-piecesphp/i18n/*.js') ?: [],
+            fn(string $path): bool => basename($path) !== 'fomantic-i18n.js'
+        ))
+    ),
 ];
 $assets['fomantic-piecesphp']['plugins'] = [
 ];

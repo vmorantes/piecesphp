@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Step
+ * # Fomantic-UI 1.4.0 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -209,7 +209,7 @@
   left: calc((-2.2em + 0.95em) - 0.3em);
 }
 .ui.circular.steps:not(.vertical) .step.completed {
-  background: #17b26a;
+  background: #008742;
 }
 .ui.circular.steps:not(.vertical) .step.completed::after {
   left: calc(-2.2em + ((2.2em / 2) / 2) + (2px / 2));
@@ -284,8 +284,8 @@
 /* Fork: texto aparte del relleno del círculo */
 }
 .ui.circular.steps .step.completed::before {
-  background: #17b26a;
-  border-color: #17b26a;
+  background: #008742;
+  border-color: #008742;
 }
 .ui.circular.steps .step.completed::after {
   background: transparent;
@@ -428,11 +428,11 @@
   left: calc(2.2em / 2);
 }
 .ui.circular.vertical.steps .step.completed .content::before {
-  border-color: #17b26a;
+  border-color: #008742;
 }
 .ui.circular.vertical.steps .step.completed::before {
-  background: #17b26a;
-  border-color: #17b26a;
+  background: #008742;
+  border-color: #008742;
 }
 .ui.circular.vertical.steps .step.completed::after {
   top: calc((2.2em / (2.2 * 2)) + (2px - (2px / 2)));
@@ -556,7 +556,7 @@
 /* Completed */
 .ui.steps .step.completed > i.icon::before,
 .ui.ordered.steps .step.completed::before {
-  color: #17b26a;
+  color: #008742;
 }
 
 /* Disabled */
@@ -1439,10 +1439,10 @@
   color: light-dark(var(--accent-3, #e8730c), oklch(from var(--accent-3, #e8730c) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.red::before {
-  border-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.red::after {
-  background: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  background: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.red.circular.steps .step,
 .ui.ui.ui.circular.steps .step.red {
@@ -1451,40 +1451,40 @@
 }
 .ui.ui.red.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.red.active::before {
-  border-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.red.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.red.active::after {
-  background: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  background: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.red.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.red.completed::before {
-  background: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
-  border-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  background: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.red.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.red.completed::after {
-  color: color(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.red.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.red.completed {
-  background: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  background: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.red {
-  background: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  background: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.red.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.red.active .content .title {
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.red.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.red.active::before {
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1492,49 +1492,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.red::before {
-  border-color: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.red::after {
-  background: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.red.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.red.active::before {
-  border-color: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.red.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.red.active::after {
-  background: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.red.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.red.completed::before {
-  background: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.red.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.red.completed::after {
-  color: color(from oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.red.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.red.completed {
-  background: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.red:not(.completed) {
-  background: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.red.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.red.active .content .title {
-  color: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.red.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.red.active::before {
-  color: oklch(from light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.red .content::before {
-  border-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.red.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.red.completed .content::before {
-  border-color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.red.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.red::after {
@@ -1542,13 +1542,13 @@
 }
 .ui.ui.red.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.red.active::before {
-  color: light-dark(#f04438, oklch(from #f04438 max(l, 0.62) c h));
+  color: light-dark(var(--color-red, #de3027), oklch(from var(--color-red, #de3027) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.orange::before {
-  border-color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.orange::after {
-  background: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  background: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.orange.circular.steps .step,
 .ui.ui.ui.circular.steps .step.orange {
@@ -1557,40 +1557,40 @@
 }
 .ui.ui.orange.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.orange.active::before {
-  border-color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.orange.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.orange.active::after {
-  background: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  background: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.orange.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.orange.completed::before {
-  background: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
-  border-color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  background: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.orange.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.orange.completed::after {
-  color: color(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.orange.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.orange.completed {
-  background: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  background: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.orange {
-  background: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  background: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.orange.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.orange.active .content .title {
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.orange.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.orange.active::before {
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1598,49 +1598,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.orange::before {
-  border-color: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.orange::after {
-  background: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.orange.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.orange.active::before {
-  border-color: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.orange.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.orange.active::after {
-  background: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.orange.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.orange.completed::before {
-  background: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.orange.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.orange.completed::after {
-  color: color(from oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.orange.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.orange.completed {
-  background: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.orange:not(.completed) {
-  background: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.orange.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.orange.active .content .title {
-  color: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.orange.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.orange.active::before {
-  color: oklch(from light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.orange .content::before {
-  border-color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.orange.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.orange.completed .content::before {
-  border-color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.orange.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.orange::after {
@@ -1648,13 +1648,13 @@
 }
 .ui.ui.orange.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.orange.active::before {
-  color: light-dark(#ef6820, oklch(from #ef6820 max(l, 0.62) c h));
+  color: light-dark(var(--color-orange, #cd4800), oklch(from var(--color-orange, #cd4800) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.yellow::before {
-  border-color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.yellow::after {
-  background: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  background: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.yellow.circular.steps .step,
 .ui.ui.ui.circular.steps .step.yellow {
@@ -1663,40 +1663,40 @@
 }
 .ui.ui.yellow.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.yellow.active::before {
-  border-color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.yellow.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.yellow.active::after {
-  background: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  background: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.yellow.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.yellow.completed::before {
-  background: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
-  border-color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  background: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.yellow.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.yellow.completed::after {
-  color: color(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.yellow.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.yellow.completed {
-  background: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  background: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.yellow {
-  background: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  background: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.yellow.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.yellow.active .content .title {
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.yellow.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.yellow.active::before {
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1704,49 +1704,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.yellow::before {
-  border-color: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.yellow::after {
-  background: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.yellow.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.yellow.active::before {
-  border-color: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.yellow.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.yellow.active::after {
-  background: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.yellow.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.yellow.completed::before {
-  background: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.yellow.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.yellow.completed::after {
-  color: color(from oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.yellow.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.yellow.completed {
-  background: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.yellow:not(.completed) {
-  background: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.yellow.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.yellow.active .content .title {
-  color: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.yellow.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.yellow.active::before {
-  color: oklch(from light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.yellow .content::before {
-  border-color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.yellow.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.yellow.completed .content::before {
-  border-color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.yellow.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.yellow::after {
@@ -1754,13 +1754,13 @@
 }
 .ui.ui.yellow.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.yellow.active::before {
-  color: light-dark(#f79009, oklch(from #f79009 max(l, 0.62) c h));
+  color: light-dark(var(--color-yellow, #bb5900), oklch(from var(--color-yellow, #bb5900) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.olive::before {
-  border-color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  border-color: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.olive::after {
-  background: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  background: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.olive.circular.steps .step,
 .ui.ui.ui.circular.steps .step.olive {
@@ -1769,40 +1769,40 @@
 }
 .ui.ui.olive.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.olive.active::before {
-  border-color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  border-color: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.olive.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.olive.active::after {
-  background: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  background: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.olive.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.olive.completed::before {
-  background: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
-  border-color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  background: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.olive.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.olive.completed::after {
-  color: color(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.olive.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.olive.completed {
-  background: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  background: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.olive {
-  background: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  background: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.olive.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.olive.active .content .title {
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.olive.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.olive.active::before {
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1810,49 +1810,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.olive::before {
-  border-color: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.olive::after {
-  background: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.olive.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.olive.active::before {
-  border-color: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.olive.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.olive.active::after {
-  background: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.olive.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.olive.completed::before {
-  background: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.olive.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.olive.completed::after {
-  color: color(from oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.olive.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.olive.completed {
-  background: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.olive:not(.completed) {
-  background: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.olive.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.olive.active .content .title {
-  color: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.olive.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.olive.active::before {
-  color: oklch(from light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.olive .content::before {
-  border-color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  border-color: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.olive.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.olive.completed .content::before {
-  border-color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  border-color: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.olive.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.olive::after {
@@ -1860,13 +1860,13 @@
 }
 .ui.ui.olive.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.olive.active::before {
-  color: light-dark(#84a11b, oklch(from #84a11b max(l, 0.62) c h));
+  color: light-dark(var(--color-olive, #647e00), oklch(from var(--color-olive, #647e00) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.green::before {
-  border-color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  border-color: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.green::after {
-  background: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  background: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.green.circular.steps .step,
 .ui.ui.ui.circular.steps .step.green {
@@ -1875,40 +1875,40 @@
 }
 .ui.ui.green.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.green.active::before {
-  border-color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  border-color: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.green.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.green.active::after {
-  background: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  background: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.green.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.green.completed::before {
-  background: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
-  border-color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  background: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.green.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.green.completed::after {
-  color: color(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.green.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.green.completed {
-  background: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  background: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.green {
-  background: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  background: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.green.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.green.active .content .title {
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.green.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.green.active::before {
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -1916,49 +1916,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.green::before {
-  border-color: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.green::after {
-  background: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.green.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.green.active::before {
-  border-color: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.green.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.green.active::after {
-  background: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.green.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.green.completed::before {
-  background: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.green.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.green.completed::after {
-  color: color(from oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.green.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.green.completed {
-  background: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.green:not(.completed) {
-  background: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.green.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.green.active .content .title {
-  color: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.green.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.green.active::before {
-  color: oklch(from light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.green .content::before {
-  border-color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  border-color: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.green.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.green.completed .content::before {
-  border-color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  border-color: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.green.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.green::after {
@@ -1966,13 +1966,13 @@
 }
 .ui.ui.green.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.green.active::before {
-  color: light-dark(#17b26a, oklch(from #17b26a max(l, 0.62) c h));
+  color: light-dark(var(--color-green, #008742), oklch(from var(--color-green, #008742) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.teal::before {
-  border-color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.teal::after {
-  background: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  background: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.teal.circular.steps .step,
 .ui.ui.ui.circular.steps .step.teal {
@@ -1981,40 +1981,40 @@
 }
 .ui.ui.teal.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.teal.active::before {
-  border-color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.teal.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.teal.active::after {
-  background: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  background: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.teal.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.teal.completed::before {
-  background: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
-  border-color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  background: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.teal.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.teal.completed::after {
-  color: color(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.teal.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.teal.completed {
-  background: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  background: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.teal {
-  background: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  background: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.teal.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.teal.active .content .title {
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.teal.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.teal.active::before {
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2022,49 +2022,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.teal::before {
-  border-color: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.teal::after {
-  background: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.teal.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.teal.active::before {
-  border-color: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.teal.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.teal.active::after {
-  background: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.teal.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.teal.completed::before {
-  background: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.teal.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.teal.completed::after {
-  color: color(from oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.teal.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.teal.completed {
-  background: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.teal:not(.completed) {
-  background: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.teal.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.teal.active .content .title {
-  color: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.teal.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.teal.active::before {
-  color: oklch(from light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.teal .content::before {
-  border-color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.teal.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.teal.completed .content::before {
-  border-color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.teal.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.teal::after {
@@ -2072,13 +2072,13 @@
 }
 .ui.ui.teal.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.teal.active::before {
-  color: light-dark(#06aed4, oklch(from #06aed4 max(l, 0.62) c h));
+  color: light-dark(var(--color-teal, #007fa3), oklch(from var(--color-teal, #007fa3) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.blue::before {
-  border-color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  border-color: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.blue::after {
-  background: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  background: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.blue.circular.steps .step,
 .ui.ui.ui.circular.steps .step.blue {
@@ -2087,40 +2087,40 @@
 }
 .ui.ui.blue.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.blue.active::before {
-  border-color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  border-color: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.blue.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.blue.active::after {
-  background: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  background: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.blue.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.blue.completed::before {
-  background: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
-  border-color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  background: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.blue.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.blue.completed::after {
-  color: color(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.blue.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.blue.completed {
-  background: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  background: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.blue {
-  background: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  background: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.blue.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.blue.active .content .title {
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.blue.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.blue.active::before {
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2128,49 +2128,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.blue::before {
-  border-color: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.blue::after {
-  background: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.blue.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.blue.active::before {
-  border-color: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.blue.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.blue.active::after {
-  background: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.blue.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.blue.completed::before {
-  background: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.blue.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.blue.completed::after {
-  color: color(from oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.blue.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.blue.completed {
-  background: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.blue:not(.completed) {
-  background: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.blue.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.blue.active .content .title {
-  color: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.blue.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.blue.active::before {
-  color: oklch(from light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.blue .content::before {
-  border-color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  border-color: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.blue.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.blue.completed .content::before {
-  border-color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  border-color: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.blue.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.blue::after {
@@ -2178,13 +2178,13 @@
 }
 .ui.ui.blue.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.blue.active::before {
-  color: light-dark(#2e90fa, oklch(from #2e90fa max(l, 0.62) c h));
+  color: light-dark(var(--color-blue, #0074dc), oklch(from var(--color-blue, #0074dc) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.violet::before {
-  border-color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.violet::after {
-  background: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  background: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.violet.circular.steps .step,
 .ui.ui.ui.circular.steps .step.violet {
@@ -2193,40 +2193,40 @@
 }
 .ui.ui.violet.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.violet.active::before {
-  border-color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.violet.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.violet.active::after {
-  background: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  background: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.violet.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.violet.completed::before {
-  background: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
-  border-color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  background: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.violet.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.violet.completed::after {
-  color: color(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.violet.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.violet.completed {
-  background: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  background: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.violet {
-  background: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  background: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.violet.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.violet.active .content .title {
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.violet.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.violet.active::before {
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2234,49 +2234,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.violet::before {
-  border-color: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.violet::after {
-  background: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.violet.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.violet.active::before {
-  border-color: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.violet.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.violet.active::after {
-  background: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.violet.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.violet.completed::before {
-  background: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.violet.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.violet.completed::after {
-  color: color(from oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.violet.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.violet.completed {
-  background: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.violet:not(.completed) {
-  background: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.violet.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.violet.active .content .title {
-  color: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.violet.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.violet.active::before {
-  color: oklch(from light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.violet .content::before {
-  border-color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.violet.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.violet.completed .content::before {
-  border-color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.violet.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.violet::after {
@@ -2284,13 +2284,13 @@
 }
 .ui.ui.violet.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.violet.active::before {
-  color: light-dark(#7a5af8, oklch(from #7a5af8 max(l, 0.62) c h));
+  color: light-dark(var(--color-violet, #7a5af8), oklch(from var(--color-violet, #7a5af8) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.purple::before {
-  border-color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.purple::after {
-  background: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  background: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.purple.circular.steps .step,
 .ui.ui.ui.circular.steps .step.purple {
@@ -2299,40 +2299,40 @@
 }
 .ui.ui.purple.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.purple.active::before {
-  border-color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.purple.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.purple.active::after {
-  background: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  background: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.purple.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.purple.completed::before {
-  background: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
-  border-color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  background: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.purple.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.purple.completed::after {
-  color: color(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.purple.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.purple.completed {
-  background: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  background: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.purple {
-  background: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  background: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.purple.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.purple.active .content .title {
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.purple.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.purple.active::before {
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2340,49 +2340,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.purple::before {
-  border-color: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.purple::after {
-  background: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.purple.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.purple.active::before {
-  border-color: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.purple.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.purple.active::after {
-  background: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.purple.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.purple.completed::before {
-  background: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.purple.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.purple.completed::after {
-  color: color(from oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.purple.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.purple.completed {
-  background: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.purple:not(.completed) {
-  background: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.purple.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.purple.active .content .title {
-  color: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.purple.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.purple.active::before {
-  color: oklch(from light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.purple .content::before {
-  border-color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.purple.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.purple.completed .content::before {
-  border-color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.purple.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.purple::after {
@@ -2390,13 +2390,13 @@
 }
 .ui.ui.purple.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.purple.active::before {
-  color: light-dark(#9e4cc9, oklch(from #9e4cc9 max(l, 0.62) c h));
+  color: light-dark(var(--color-purple, #9e4cc9), oklch(from var(--color-purple, #9e4cc9) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.pink::before {
-  border-color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.pink::after {
-  background: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  background: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.pink.circular.steps .step,
 .ui.ui.ui.circular.steps .step.pink {
@@ -2405,40 +2405,40 @@
 }
 .ui.ui.pink.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.pink.active::before {
-  border-color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.pink.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.pink.active::after {
-  background: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  background: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.pink.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.pink.completed::before {
-  background: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
-  border-color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  background: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.pink.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.pink.completed::after {
-  color: color(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.pink.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.pink.completed {
-  background: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  background: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.pink {
-  background: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  background: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.pink.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.pink.active .content .title {
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.pink.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.pink.active::before {
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2446,49 +2446,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.pink::before {
-  border-color: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.pink::after {
-  background: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.pink.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.pink.active::before {
-  border-color: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.pink.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.pink.active::after {
-  background: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.pink.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.pink.completed::before {
-  background: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.pink.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.pink.completed::after {
-  color: color(from oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.pink.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.pink.completed {
-  background: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.pink:not(.completed) {
-  background: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.pink.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.pink.active .content .title {
-  color: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.pink.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.pink.active::before {
-  color: oklch(from light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.pink .content::before {
-  border-color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.pink.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.pink.completed .content::before {
-  border-color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  border-color: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.pink.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.pink::after {
@@ -2496,13 +2496,13 @@
 }
 .ui.ui.pink.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.pink.active::before {
-  color: light-dark(#c11574, oklch(from #c11574 max(l, 0.62) c h));
+  color: light-dark(var(--color-pink, #c11574), oklch(from var(--color-pink, #c11574) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.brown::before {
-  border-color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  border-color: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.brown::after {
-  background: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  background: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.brown.circular.steps .step,
 .ui.ui.ui.circular.steps .step.brown {
@@ -2511,40 +2511,40 @@
 }
 .ui.ui.brown.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.brown.active::before {
-  border-color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  border-color: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.brown.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.brown.active::after {
-  background: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  background: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.brown.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.brown.completed::before {
-  background: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
-  border-color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  background: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
+  border-color: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.brown.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.brown.completed::after {
-  color: color(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.brown.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.brown.completed {
-  background: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  background: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.brown {
-  background: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  background: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.brown.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.brown.active .content .title {
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.brown.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.brown.active::before {
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2552,49 +2552,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.brown::before {
-  border-color: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.brown::after {
-  background: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.brown.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.brown.active::before {
-  border-color: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.brown.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.brown.active::after {
-  background: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.brown.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.brown.completed::before {
-  background: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
-  border-color: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
+  border-color: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.inverted.brown.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.brown.completed::after {
-  color: color(from oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.brown.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.brown.completed {
-  background: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.brown:not(.completed) {
-  background: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.62) c h);
+  background: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.62) c h);
 }
 .ui.ui.inverted.brown.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.brown.active .content .title {
-  color: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.brown.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.brown.active::before {
-  color: oklch(from light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.brown .content::before {
-  border-color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  border-color: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.brown.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.brown.completed .content::before {
-  border-color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  border-color: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.brown.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.brown::after {
@@ -2602,13 +2602,13 @@
 }
 .ui.ui.brown.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.brown.active::before {
-  color: light-dark(#6e4a2e, oklch(from #6e4a2e max(l, 0.62) c h));
+  color: light-dark(var(--color-brown, #6e4a2e), oklch(from var(--color-brown, #6e4a2e) max(l, 0.62) c h));
 }
 .ui.ui.circular.steps .step.grey::before {
-  border-color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  border-color: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.grey::after {
-  background: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  background: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.grey.circular.steps .step,
 .ui.ui.ui.circular.steps .step.grey {
@@ -2617,40 +2617,40 @@
 }
 .ui.ui.grey.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.grey.active::before {
-  border-color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  border-color: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.grey.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.grey.active::after {
-  background: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  background: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.grey.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.grey.completed::before {
-  background: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
-  border-color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  background: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
+  border-color: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.grey.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.grey.completed::after {
-  color: color(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.grey.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.grey.completed {
-  background: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  background: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.grey {
-  background: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  background: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.grey.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.grey.active .content .title {
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.grey.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.grey.active::before {
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2658,49 +2658,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.grey::before {
-  border-color: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
+  border-color: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.grey::after {
-  background: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
+  background: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
 }
 .ui.ui.ui.inverted.grey.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.grey.active::before {
-  border-color: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
+  border-color: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
 }
 .ui.ui.ui.inverted.grey.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.grey.active::after {
-  background: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
+  background: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
 }
 .ui.ui.ui.inverted.grey.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.grey.completed::before {
-  background: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
-  border-color: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
+  background: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
+  border-color: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
 }
 .ui.ui.ui.inverted.grey.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.grey.completed::after {
-  color: color(from oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.grey.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.grey.completed {
-  background: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
+  background: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.grey:not(.completed) {
-  background: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.76) c h);
+  background: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.76) c h);
 }
 .ui.ui.inverted.grey.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.grey.active .content .title {
-  color: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.grey.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.grey.active::before {
-  color: oklch(from light-dark(#687181, oklch(from #687181 max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.grey .content::before {
-  border-color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  border-color: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.grey.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.grey.completed .content::before {
-  border-color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  border-color: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.grey.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.grey::after {
@@ -2708,13 +2708,13 @@
 }
 .ui.ui.grey.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.grey.active::before {
-  color: light-dark(#687181, oklch(from #687181 max(l, 0.7) c h));
+  color: light-dark(var(--color-grey, #687181), oklch(from var(--color-grey, #687181) max(l, 0.7) c h));
 }
 .ui.ui.circular.steps .step.black::before {
-  border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  border-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.circular.steps .step.black::after {
-  background: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  background: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.black.circular.steps .step,
 .ui.ui.ui.circular.steps .step.black {
@@ -2723,40 +2723,40 @@
 }
 .ui.ui.black.circular.steps .step.active::before,
 .ui.ui.ui.circular.steps .step.black.active::before {
-  border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  border-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.black.circular.steps .step.active::after,
 .ui.ui.ui.circular.steps .step.black.active::after {
-  background: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  background: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.black.circular.steps .step.completed::before,
 .ui.ui.ui.circular.steps .step.black.completed::before {
-  background: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
-  border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  background: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
+  border-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.black.circular.steps .step.completed::after,
 .ui.ui.ui.circular.steps .step.black.completed::after {
-  color: color(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.black.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.circular.steps:not(.vertical) .step.black.completed {
-  background: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  background: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.circular.steps:not(.vertical) .step.black {
-  background: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  background: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 
 /* Fork: título activo con la tinta del color (`ink`), y su rama clara sobre inverted (D36) */
 .ui.ui.black.circular.steps .step.active .content .title,
 .ui.ui.ui.circular.steps .step.black.active .content .title {
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 
 /* Fork: número del paso activo de ordered con la misma tinta (con el color de relleno, el «2»
            amarillo u olive no se leía sobre la página clara) */
 .ui.ui.ui.black.circular.ordered.steps:not(.inverted) .step.active::before,
 .ui.ui.ui.ui.circular.ordered.steps:not(.inverted) .step.black.active::before {
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 
 /* Fork: sobre inverted, línea, anillo y relleno con la rama clara del color; black y los
@@ -2764,49 +2764,49 @@
 
 /* black, casi blanco, y grey, por encima del gris de los pendientes, para no confundirse */
 .ui.ui.ui.inverted.circular.steps .step.black::before {
-  border-color: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
+  border-color: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
 }
 .ui.ui.ui.inverted.circular.steps .step.black::after {
-  background: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
+  background: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
 }
 .ui.ui.ui.inverted.black.circular.steps .step.active::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.black.active::before {
-  border-color: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
+  border-color: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
 }
 .ui.ui.ui.inverted.black.circular.steps .step.active::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.black.active::after {
-  background: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
+  background: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
 }
 .ui.ui.ui.inverted.black.circular.steps .step.completed::before,
 .ui.ui.ui.ui.inverted.circular.steps .step.black.completed::before {
-  background: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
-  border-color: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
+  background: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
+  border-color: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
 }
 .ui.ui.ui.inverted.black.circular.steps .step.completed::after,
 .ui.ui.ui.ui.inverted.circular.steps .step.black.completed::after {
-  color: color(from oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 .ui.ui.ui.inverted.black.circular.steps:not(.vertical) .step.completed,
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.black.completed {
-  background: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
+  background: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
 }
 .ui.ui.ui.ui.inverted.circular.steps:not(.vertical) .step.black:not(.completed) {
-  background: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.88) c h);
+  background: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.88) c h);
 }
 .ui.ui.inverted.black.circular.steps .step.active .content .title,
 .ui.ui.ui.inverted.circular.steps .step.black.active .content .title {
-  color: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.inverted.black.circular.ordered.steps .step.active::before,
 .ui.ui.ui.inverted.circular.ordered.steps .step.black.active::before {
-  color: oklch(from light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)) max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.ui.vertical.circular.steps .step.completed.black .content::before {
-  border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  border-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.black.vertical.circular.steps .step.completed .content::before,
 .ui.ui.vertical.circular.steps .step.black.completed .content::before {
-  border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  border-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 .ui.ui.black.circular.ordered.steps .step::after,
 .ui.ui.circular.ordered.steps .step.black::after {
@@ -2814,7 +2814,7 @@
 }
 .ui.ui.black.circular.ordered.steps .step.active::before,
 .ui.ui.circular.ordered.steps .step.black.active::before {
-  color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
 }
 
 

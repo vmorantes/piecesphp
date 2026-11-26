@@ -44,7 +44,8 @@ usa cada una, con un ejemplo que se puede copiar, en «Pantallas de contenido»;
 
 | Necesito… | Se hace con |
 | :-- | :-- |
-| Una tabla paginada por el servidor | `table[url].ui.basic.table` + `dataTableServerProccesing()` (`statics/core/js/helpers.js`) |
+| Una tabla paginada por el servidor | `table[url].ui.basic.table` + `dataTableServerProccesing()` (`statics/core/js/helpers.js`). Al recargar pone sola el cargador por zona sobre la tabla y su buscador espera 350 ms; `searchDelay` lo cambia y `zoneLoader: false` lo quita |
+| Indicar que una parte de la pantalla se está cargando | `showZoneLoader(zona)` y, al terminar, `removeZoneLoader(zona)` (`statics/core/js/helpers-lib/ZoneLoader.js`). `zona` es un elemento, un selector o un jQuery. Cubre solo esa zona con el atenuador del tema, centra el indicador en la parte visible y lo anuncia a los lectores de pantalla; llamarlo dos veces deja uno solo. Para toda la pantalla, `showGenericLoader()`. Ejemplo: `showZoneLoader('.mis-tarjetas'); fetch(url).then(pintar).finally(() => removeZoneLoader('.mis-tarjetas'))` |
 | Enviar un formulario | `form.ui.form` + `genericFormHandler()` |
 | Botón primario / secundario | `ui primary button` / `ui basic button`. `ui button brand-color` es la forma anterior: las pantallas la van dejando, familia a familia, en el rediseño de la 10 (el `ui primary` lleva el color de marca de la instalación a través del tema del panel, que lo lee como `--accent`) |
 | Pestañas | `.tabs-controls` + `ui tab` con `[data-tab]` |

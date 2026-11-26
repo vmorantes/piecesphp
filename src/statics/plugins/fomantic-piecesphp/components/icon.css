@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Icon
+ * # Fomantic-UI 1.4.0 - Icon
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -390,249 +390,249 @@ i.inverted.circular.accent-3.icons {
 i.red.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 i.inverted.red.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.red.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #f97066;
+  color: var(--_color-red-light, #f97066);
 }
 i.inverted.bordered.red.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.red.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.red.icons,
 i.inverted.circular.red.icons {
-  background-color: #f04438;
+  background-color: var(--color-red, #de3027);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-red, #de3027) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.orange.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 i.inverted.orange.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.orange.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #f38744;
+  color: var(--_color-orange-light, #f38744);
 }
 i.inverted.bordered.orange.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.orange.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.orange.icons,
 i.inverted.circular.orange.icons {
-  background-color: #ef6820;
+  background-color: var(--color-orange, #cd4800);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-orange, #cd4800) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.yellow.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 i.inverted.yellow.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.yellow.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #fdb022;
+  color: var(--_color-yellow-light, #fdb022);
 }
 i.inverted.bordered.yellow.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.yellow.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.yellow.icons,
 i.inverted.circular.yellow.icons {
-  background-color: #f79009;
+  background-color: var(--color-yellow, #bb5900);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-yellow, #bb5900) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.olive.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.olive.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.olive.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #a6c43a;
+  color: var(--_color-olive-light, #a6c43a);
 }
 i.inverted.bordered.olive.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.olive.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.olive.icons,
 i.inverted.circular.olive.icons {
-  background-color: #84a11b;
+  background-color: var(--color-olive, #647e00);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-olive, #647e00) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.green.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.green.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.green.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #47cd89;
+  color: var(--_color-green-light, #47cd89);
 }
 i.inverted.bordered.green.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.green.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.green.icons,
 i.inverted.circular.green.icons {
-  background-color: #17b26a;
+  background-color: var(--color-green, #008742);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-green, #008742) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.teal.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.teal.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.teal.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #22ccee;
+  color: var(--_color-teal-light, #22ccee);
 }
 i.inverted.bordered.teal.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.teal.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.teal.icons,
 i.inverted.circular.teal.icons {
-  background-color: #06aed4;
+  background-color: var(--color-teal, #007fa3);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-teal, #007fa3) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.blue.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.blue.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.blue.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #53b1fd;
+  color: var(--_color-blue-light, #53b1fd);
 }
 i.inverted.bordered.blue.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.blue.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.blue.icons,
 i.inverted.circular.blue.icons {
-  background-color: #2e90fa;
+  background-color: var(--color-blue, #0074dc);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-blue, #0074dc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.violet.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.violet.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.violet.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #9b8afb;
+  color: var(--_color-violet-light, #9b8afb);
 }
 i.inverted.bordered.violet.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.violet.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.violet.icons,
 i.inverted.circular.violet.icons {
-  background-color: #7a5af8;
+  background-color: var(--color-violet, #7a5af8);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-violet, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.purple.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.purple.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.purple.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #c084e8;
+  color: var(--_color-purple-light, #c084e8);
 }
 i.inverted.bordered.purple.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.purple.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.purple.icons,
 i.inverted.circular.purple.icons {
-  background-color: #9e4cc9;
+  background-color: var(--color-purple, #9e4cc9);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-purple, #9e4cc9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.pink.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.pink.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.pink.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #ee46bc;
+  color: var(--_color-pink-light, #ee46bc);
 }
 i.inverted.bordered.pink.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.pink.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.pink.icons,
 i.inverted.circular.pink.icons {
-  background-color: #c11574;
+  background-color: var(--color-pink, #c11574);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-pink, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.brown.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.brown.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.brown.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #b08463;
+  color: var(--_color-brown-light, #b08463);
 }
 i.inverted.bordered.brown.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.brown.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.brown.icons,
 i.inverted.circular.brown.icons {
-  background-color: #6e4a2e;
+  background-color: var(--color-brown, #6e4a2e);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-brown, #6e4a2e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.grey.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 i.inverted.grey.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.grey.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #99a1af;
+  color: var(--_color-grey-light, #99a1af);
 }
 i.inverted.bordered.grey.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.grey.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.grey.icons,
 i.inverted.circular.grey.icons {
-  background-color: #687181;
+  background-color: var(--color-grey, #687181);
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-grey, #687181) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 i.black.icon.icon.icon.icon.icon.icon {
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 i.inverted.black.icon.icon.icon.icon.icon.icon,
 .ui.inverted.table i.black.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
-  color: #4b5363;
+  color: var(--_color-black-light, #4b5363);
 }
 i.inverted.bordered.black.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.black.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.black.icons,
 i.inverted.circular.black.icons {
-  background-color: light-dark(#1f2430, #535c6e);
+  background-color: var(--color-black, light-dark(#1f2430, #535c6e));
   
 /* Fork: icono según la luminosidad del relleno (D36): blanco sobre amarillo no
                        se leía */
-  color: color(from light-dark(#1f2430, #535c6e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--color-black, light-dark(#1f2430, #535c6e)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Fork: black inverted en oscuro, relleno y tono con el indicador casi blanco y glifo oscuro; el
@@ -641,13 +641,13 @@ i.inverted.black.icon.icon.icon.icon.icon.icon:not(.circular, .bordered) {
   
 /* Fork: en claro, @lightBlack aclarado a L 0,66 como poco: va sobre un fondo inverted (oscuro) y quedaba en
                1,6–2,9:1 según el tema; así pasa de 3:1 */
-  color: light-dark(oklch(from #4b5363 max(l, 0.66) c h), light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h)));
+  color: light-dark(oklch(from #4b5363 max(l, 0.66) c h), light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h)));
 }
 i.inverted.bordered.black.icon.icon.icon.icon.icon.icon,
 i.inverted.circular.black.icon.icon.icon.icon.icon.icon,
 i.inverted.bordered.black.icons,
 i.inverted.circular.black.icons {
-  background-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
+  background-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
   color: light-dark(#fff, #1f2430);
 }
 

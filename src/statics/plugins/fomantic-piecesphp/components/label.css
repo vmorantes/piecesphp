@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Label
+ * # Fomantic-UI 1.4.0 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1187,85 +1187,85 @@ a.ui.ui.ui.inverted.basic.accent-3.label:hover {
 }
 .ui.red.labels .label,
 .ui.ui.ui.red.label {
-  background-color: #f04438;
-  border-color: #f04438;
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-red, #de3027);
+  border-color: var(--color-red, #de3027);
+  color: var(--color-red-text, color(from var(--color-red, #de3027) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.red.labels a.label:hover,
 a.ui.ui.ui.red.label:hover {
-  background-color: #f92516;
-  border-color: #f92516;
-  color: color(from #f04438 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-red-hover, #d52017);
+  border-color: var(--_color-red-hover, #d52017);
+  color: var(--color-red-text, color(from var(--color-red, #de3027) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.red.ribbon.label {
-  border-color: #e41f11;
+  border-color: var(--_color-red-ribbon, #b6231c);
 }
 
 /* Basic */
 .ui.basic.labels .red.label,
 .ui.ui.ui.basic.red.label {
   background: none var(--theme-surface);
-  border-color: #f04438;
+  border-color: var(--color-red, #de3027);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.red.label:hover,
 a.ui.ui.ui.basic.red.label:hover {
   background: none var(--theme-surface);
-  border-color: #f92516;
-  color: #f92516;
+  border-color: var(--_color-red-hover, #d52017);
+  color: var(--_color-red-hover, #d52017);
 }
 
 /* Inverted */
 .ui.inverted.labels .red.label,
 .ui.ui.ui.inverted.red.label {
-  background-color: #f97066;
-  border-color: #f97066;
+  background-color: var(--_color-red-light, #f97066);
+  border-color: var(--_color-red-light, #f97066);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #f97066 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-red-light, #f97066) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.red.label:hover,
 a.ui.ui.ui.inverted.red.label:hover {
-  background-color: #ff3b2d;
-  border-color: #ff3b2d;
+  background-color: var(--_color-red-light-hover, #ff3b2d);
+  border-color: var(--_color-red-light-hover, #ff3b2d);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #ff3b2d srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-red-light-hover, #ff3b2d) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.red.ribbon.label {
-  border-color: #f74235;
+  border-color: var(--_color-red-inverted-ribbon, #f74235);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .red.label,
 .ui.ui.ui.inverted.basic.red.label {
   background-color: #1f2430;
-  border-color: #f97066;
+  border-color: var(--_color-red-light, #f97066);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #f97066 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-red-light, #f97066) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.red.label:hover,
 a.ui.ui.ui.inverted.basic.red.label:hover {
-  border-color: #ff3b2d;
+  border-color: var(--_color-red-light-hover, #ff3b2d);
   background-color: #1f2430;
-  color: oklch(from #ff3b2d max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-red-light-hover, #ff3b2d) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .red.label,
 .ui.ui.ui.inverted.red.basic.tag.label {
-  border: 1px solid #f97066;
+  border: 1px solid var(--_color-red-light, #f97066);
 }
 .ui.inverted.basic.tag.labels .red.label::before,
 .ui.ui.ui.inverted.red.basic.tag.label::before {
@@ -1277,85 +1277,85 @@ a.ui.ui.ui.inverted.basic.red.label:hover {
 }
 .ui.orange.labels .label,
 .ui.ui.ui.orange.label {
-  background-color: #ef6820;
-  border-color: #ef6820;
-  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-orange, #cd4800);
+  border-color: var(--color-orange, #cd4800);
+  color: var(--color-orange-text, color(from var(--color-orange, #cd4800) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.orange.labels a.label:hover,
 a.ui.ui.ui.orange.label:hover {
-  background-color: #f05706;
-  border-color: #f05706;
-  color: color(from #ef6820 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-orange-hover, #b43f00);
+  border-color: var(--_color-orange-hover, #b43f00);
+  color: var(--color-orange-text, color(from var(--color-orange, #cd4800) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.orange.ribbon.label {
-  border-color: #cd510f;
+  border-color: var(--_color-orange-ribbon, #9a3600);
 }
 
 /* Basic */
 .ui.basic.labels .orange.label,
 .ui.ui.ui.basic.orange.label {
   background: none var(--theme-surface);
-  border-color: #ef6820;
+  border-color: var(--color-orange, #cd4800);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.orange.label:hover,
 a.ui.ui.ui.basic.orange.label:hover {
   background: none var(--theme-surface);
-  border-color: #f05706;
-  color: #f05706;
+  border-color: var(--_color-orange-hover, #b43f00);
+  color: var(--_color-orange-hover, #b43f00);
 }
 
 /* Inverted */
 .ui.inverted.labels .orange.label,
 .ui.ui.ui.inverted.orange.label {
-  background-color: #f38744;
-  border-color: #f38744;
+  background-color: var(--_color-orange-light, #f38744);
+  border-color: var(--_color-orange-light, #f38744);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #f38744 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-orange-light, #f38744) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.orange.label:hover,
 a.ui.ui.ui.inverted.orange.label:hover {
-  background-color: #fb6609;
-  border-color: #fb6609;
+  background-color: var(--_color-orange-light-hover, #fb6609);
+  border-color: var(--_color-orange-light-hover, #fb6609);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #fb6609 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-orange-light-hover, #fb6609) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.orange.ribbon.label {
-  border-color: #f06814;
+  border-color: var(--_color-orange-inverted-ribbon, #f06814);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .orange.label,
 .ui.ui.ui.inverted.basic.orange.label {
   background-color: #1f2430;
-  border-color: #f38744;
+  border-color: var(--_color-orange-light, #f38744);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #f38744 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-orange-light, #f38744) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.orange.label:hover,
 a.ui.ui.ui.inverted.basic.orange.label:hover {
-  border-color: #fb6609;
+  border-color: var(--_color-orange-light-hover, #fb6609);
   background-color: #1f2430;
-  color: oklch(from #fb6609 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-orange-light-hover, #fb6609) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .orange.label,
 .ui.ui.ui.inverted.orange.basic.tag.label {
-  border: 1px solid #f38744;
+  border: 1px solid var(--_color-orange-light, #f38744);
 }
 .ui.inverted.basic.tag.labels .orange.label::before,
 .ui.ui.ui.inverted.orange.basic.tag.label::before {
@@ -1367,85 +1367,85 @@ a.ui.ui.ui.inverted.basic.orange.label:hover {
 }
 .ui.yellow.labels .label,
 .ui.ui.ui.yellow.label {
-  background-color: #f79009;
-  border-color: #f79009;
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-yellow, #bb5900);
+  border-color: var(--color-yellow, #bb5900);
+  color: var(--color-yellow-text, color(from var(--color-yellow, #bb5900) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.yellow.labels a.label:hover,
 a.ui.ui.ui.yellow.label:hover {
-  background-color: #e78300;
-  border-color: #e78300;
-  color: color(from #f79009 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-yellow-hover, #a24d00);
+  border-color: var(--_color-yellow-hover, #a24d00);
+  color: var(--color-yellow-text, color(from var(--color-yellow, #bb5900) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.yellow.ribbon.label {
-  border-color: #c77306;
+  border-color: var(--_color-yellow-ribbon, #884100);
 }
 
 /* Basic */
 .ui.basic.labels .yellow.label,
 .ui.ui.ui.basic.yellow.label {
   background: none var(--theme-surface);
-  border-color: #f79009;
+  border-color: var(--color-yellow, #bb5900);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.yellow.label:hover,
 a.ui.ui.ui.basic.yellow.label:hover {
   background: none var(--theme-surface);
-  border-color: #e78300;
-  color: #e78300;
+  border-color: var(--_color-yellow-hover, #a24d00);
+  color: var(--_color-yellow-hover, #a24d00);
 }
 
 /* Inverted */
 .ui.inverted.labels .yellow.label,
 .ui.ui.ui.inverted.yellow.label {
-  background-color: #fdb022;
-  border-color: #fdb022;
+  background-color: var(--_color-yellow-light, #fdb022);
+  border-color: var(--_color-yellow-light, #fdb022);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #fdb022 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-yellow-light, #fdb022) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.yellow.label:hover,
 a.ui.ui.ui.inverted.yellow.label:hover {
-  background-color: #ec9900;
-  border-color: #ec9900;
+  background-color: var(--_color-yellow-light-hover, #ec9900);
+  border-color: var(--_color-yellow-light-hover, #ec9900);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #ec9900 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-yellow-light-hover, #ec9900) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.yellow.ribbon.label {
-  border-color: #ea9802;
+  border-color: var(--_color-yellow-inverted-ribbon, #ea9802);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .yellow.label,
 .ui.ui.ui.inverted.basic.yellow.label {
   background-color: #1f2430;
-  border-color: #fdb022;
+  border-color: var(--_color-yellow-light, #fdb022);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #fdb022 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-yellow-light, #fdb022) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.yellow.label:hover,
 a.ui.ui.ui.inverted.basic.yellow.label:hover {
-  border-color: #ec9900;
+  border-color: var(--_color-yellow-light-hover, #ec9900);
   background-color: #1f2430;
-  color: oklch(from #ec9900 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-yellow-light-hover, #ec9900) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .yellow.label,
 .ui.ui.ui.inverted.yellow.basic.tag.label {
-  border: 1px solid #fdb022;
+  border: 1px solid var(--_color-yellow-light, #fdb022);
 }
 .ui.inverted.basic.tag.labels .yellow.label::before,
 .ui.ui.ui.inverted.yellow.basic.tag.label::before {
@@ -1457,85 +1457,85 @@ a.ui.ui.ui.inverted.basic.yellow.label:hover {
 }
 .ui.olive.labels .label,
 .ui.ui.ui.olive.label {
-  background-color: #84a11b;
-  border-color: #84a11b;
-  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-olive, #647e00);
+  border-color: var(--color-olive, #647e00);
+  color: var(--color-olive-text, color(from var(--color-olive, #647e00) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.olive.labels a.label:hover,
 a.ui.ui.ui.olive.label:hover {
-  background-color: #759112;
-  border-color: #759112;
-  color: color(from #84a11b srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-olive-hover, #506500);
+  border-color: var(--_color-olive-hover, #506500);
+  color: var(--color-olive-text, color(from var(--color-olive, #647e00) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.olive.ribbon.label {
-  border-color: #607514;
+  border-color: var(--_color-olive-ribbon, #3c4b00);
 }
 
 /* Basic */
 .ui.basic.labels .olive.label,
 .ui.ui.ui.basic.olive.label {
   background: none var(--theme-surface);
-  border-color: #84a11b;
+  border-color: var(--color-olive, #647e00);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.olive.label:hover,
 a.ui.ui.ui.basic.olive.label:hover {
   background: none var(--theme-surface);
-  border-color: #759112;
-  color: #759112;
+  border-color: var(--_color-olive-hover, #506500);
+  color: var(--_color-olive-hover, #506500);
 }
 
 /* Inverted */
 .ui.inverted.labels .olive.label,
 .ui.ui.ui.inverted.olive.label {
-  background-color: #a6c43a;
-  border-color: #a6c43a;
+  background-color: var(--_color-olive-light, #a6c43a);
+  border-color: var(--_color-olive-light, #a6c43a);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #a6c43a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-olive-light, #a6c43a) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.olive.label:hover,
 a.ui.ui.ui.inverted.olive.label:hover {
-  background-color: #88a229;
-  border-color: #88a229;
+  background-color: var(--_color-olive-light-hover, #88a229);
+  border-color: var(--_color-olive-light-hover, #88a229);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #88a229 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-olive-light-hover, #88a229) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.olive.ribbon.label {
-  border-color: #859d2e;
+  border-color: var(--_color-olive-inverted-ribbon, #859d2e);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .olive.label,
 .ui.ui.ui.inverted.basic.olive.label {
   background-color: #1f2430;
-  border-color: #a6c43a;
+  border-color: var(--_color-olive-light, #a6c43a);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #a6c43a max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-olive-light, #a6c43a) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.olive.label:hover,
 a.ui.ui.ui.inverted.basic.olive.label:hover {
-  border-color: #88a229;
+  border-color: var(--_color-olive-light-hover, #88a229);
   background-color: #1f2430;
-  color: oklch(from #88a229 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-olive-light-hover, #88a229) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .olive.label,
 .ui.ui.ui.inverted.olive.basic.tag.label {
-  border: 1px solid #a6c43a;
+  border: 1px solid var(--_color-olive-light, #a6c43a);
 }
 .ui.inverted.basic.tag.labels .olive.label::before,
 .ui.ui.ui.inverted.olive.basic.tag.label::before {
@@ -1547,85 +1547,85 @@ a.ui.ui.ui.inverted.basic.olive.label:hover {
 }
 .ui.green.labels .label,
 .ui.ui.ui.green.label {
-  background-color: #17b26a;
-  border-color: #17b26a;
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-green, #008742);
+  border-color: var(--color-green, #008742);
+  color: var(--color-green-text, color(from var(--color-green, #008742) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.green.labels a.label:hover,
 a.ui.ui.ui.green.label:hover {
-  background-color: #0da25d;
-  border-color: #0da25d;
-  color: color(from #17b26a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-green-hover, #006e36);
+  border-color: var(--_color-green-hover, #006e36);
+  color: var(--color-green-text, color(from var(--color-green, #008742) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.green.ribbon.label {
-  border-color: #11854f;
+  border-color: var(--_color-green-ribbon, #005429);
 }
 
 /* Basic */
 .ui.basic.labels .green.label,
 .ui.ui.ui.basic.green.label {
   background: none var(--theme-surface);
-  border-color: #17b26a;
+  border-color: var(--color-green, #008742);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.green.label:hover,
 a.ui.ui.ui.basic.green.label:hover {
   background: none var(--theme-surface);
-  border-color: #0da25d;
-  color: #0da25d;
+  border-color: var(--_color-green-hover, #006e36);
+  color: var(--_color-green-hover, #006e36);
 }
 
 /* Inverted */
 .ui.inverted.labels .green.label,
 .ui.ui.ui.inverted.green.label {
-  background-color: #47cd89;
-  border-color: #47cd89;
+  background-color: var(--_color-green-light, #47cd89);
+  border-color: var(--_color-green-light, #47cd89);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #47cd89 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-green-light, #47cd89) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.green.label:hover,
 a.ui.ui.ui.inverted.green.label:hover {
-  background-color: #2ab76f;
-  border-color: #2ab76f;
+  background-color: var(--_color-green-light-hover, #2ab76f);
+  border-color: var(--_color-green-light-hover, #2ab76f);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #2ab76f srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-green-light-hover, #2ab76f) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.green.ribbon.label {
-  border-color: #30b170;
+  border-color: var(--_color-green-inverted-ribbon, #30b170);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .green.label,
 .ui.ui.ui.inverted.basic.green.label {
   background-color: #1f2430;
-  border-color: #47cd89;
+  border-color: var(--_color-green-light, #47cd89);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #47cd89 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-green-light, #47cd89) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.green.label:hover,
 a.ui.ui.ui.inverted.basic.green.label:hover {
-  border-color: #2ab76f;
+  border-color: var(--_color-green-light-hover, #2ab76f);
   background-color: #1f2430;
-  color: oklch(from #2ab76f max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-green-light-hover, #2ab76f) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .green.label,
 .ui.ui.ui.inverted.green.basic.tag.label {
-  border: 1px solid #47cd89;
+  border: 1px solid var(--_color-green-light, #47cd89);
 }
 .ui.inverted.basic.tag.labels .green.label::before,
 .ui.ui.ui.inverted.green.basic.tag.label::before {
@@ -1637,85 +1637,85 @@ a.ui.ui.ui.inverted.basic.green.label:hover {
 }
 .ui.teal.labels .label,
 .ui.ui.ui.teal.label {
-  background-color: #06aed4;
-  border-color: #06aed4;
-  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-teal, #007fa3);
+  border-color: var(--color-teal, #007fa3);
+  color: var(--color-teal-text, color(from var(--color-teal, #007fa3) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.teal.labels a.label:hover,
 a.ui.ui.ui.teal.label:hover {
-  background-color: #009dc1;
-  border-color: #009dc1;
-  color: color(from #06aed4 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-teal-hover, #006b8a);
+  border-color: var(--_color-teal-hover, #006b8a);
+  color: var(--color-teal-text, color(from var(--color-teal, #007fa3) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.teal.ribbon.label {
-  border-color: #0585a2;
+  border-color: var(--_color-teal-ribbon, #005770);
 }
 
 /* Basic */
 .ui.basic.labels .teal.label,
 .ui.ui.ui.basic.teal.label {
   background: none var(--theme-surface);
-  border-color: #06aed4;
+  border-color: var(--color-teal, #007fa3);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.teal.label:hover,
 a.ui.ui.ui.basic.teal.label:hover {
   background: none var(--theme-surface);
-  border-color: #009dc1;
-  color: #009dc1;
+  border-color: var(--_color-teal-hover, #006b8a);
+  color: var(--_color-teal-hover, #006b8a);
 }
 
 /* Inverted */
 .ui.inverted.labels .teal.label,
 .ui.ui.ui.inverted.teal.label {
-  background-color: #22ccee;
-  border-color: #22ccee;
+  background-color: var(--_color-teal-light, #22ccee);
+  border-color: var(--_color-teal-light, #22ccee);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #22ccee srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-teal-light, #22ccee) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.teal.label:hover,
 a.ui.ui.ui.inverted.teal.label:hover {
-  background-color: #06b4d7;
-  border-color: #06b4d7;
+  background-color: var(--_color-teal-light-hover, #06b4d7);
+  border-color: var(--_color-teal-light-hover, #06b4d7);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #06b4d7 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-teal-light-hover, #06b4d7) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.teal.ribbon.label {
-  border-color: #10aecd;
+  border-color: var(--_color-teal-inverted-ribbon, #10aecd);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .teal.label,
 .ui.ui.ui.inverted.basic.teal.label {
   background-color: #1f2430;
-  border-color: #22ccee;
+  border-color: var(--_color-teal-light, #22ccee);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #22ccee max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-teal-light, #22ccee) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.teal.label:hover,
 a.ui.ui.ui.inverted.basic.teal.label:hover {
-  border-color: #06b4d7;
+  border-color: var(--_color-teal-light-hover, #06b4d7);
   background-color: #1f2430;
-  color: oklch(from #06b4d7 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-teal-light-hover, #06b4d7) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .teal.label,
 .ui.ui.ui.inverted.teal.basic.tag.label {
-  border: 1px solid #22ccee;
+  border: 1px solid var(--_color-teal-light, #22ccee);
 }
 .ui.inverted.basic.tag.labels .teal.label::before,
 .ui.ui.ui.inverted.teal.basic.tag.label::before {
@@ -1727,85 +1727,85 @@ a.ui.ui.ui.inverted.basic.teal.label:hover {
 }
 .ui.blue.labels .label,
 .ui.ui.ui.blue.label {
-  background-color: #2e90fa;
-  border-color: #2e90fa;
-  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-blue, #0074dc);
+  border-color: var(--color-blue, #0074dc);
+  color: var(--color-blue-text, color(from var(--color-blue, #0074dc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.blue.labels a.label:hover,
 a.ui.ui.ui.blue.label:hover {
-  background-color: #0f83ff;
-  border-color: #0f83ff;
-  color: color(from #2e90fa srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-blue-hover, #0067c3);
+  border-color: var(--_color-blue-hover, #0067c3);
+  color: var(--color-blue-text, color(from var(--color-blue, #0074dc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.blue.ribbon.label {
-  border-color: #0676ef;
+  border-color: var(--_color-blue-ribbon, #0059a9);
 }
 
 /* Basic */
 .ui.basic.labels .blue.label,
 .ui.ui.ui.basic.blue.label {
   background: none var(--theme-surface);
-  border-color: #2e90fa;
+  border-color: var(--color-blue, #0074dc);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.blue.label:hover,
 a.ui.ui.ui.basic.blue.label:hover {
   background: none var(--theme-surface);
-  border-color: #0f83ff;
-  color: #0f83ff;
+  border-color: var(--_color-blue-hover, #0067c3);
+  color: var(--_color-blue-hover, #0067c3);
 }
 
 /* Inverted */
 .ui.inverted.labels .blue.label,
 .ui.ui.ui.inverted.blue.label {
-  background-color: #53b1fd;
-  border-color: #53b1fd;
+  background-color: var(--_color-blue-light, #53b1fd);
+  border-color: var(--_color-blue-light, #53b1fd);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #53b1fd srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-blue-light, #53b1fd) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.blue.label:hover,
 a.ui.ui.ui.inverted.blue.label:hover {
-  background-color: #1e9aff;
-  border-color: #1e9aff;
+  background-color: var(--_color-blue-light-hover, #1e9aff);
+  border-color: var(--_color-blue-light-hover, #1e9aff);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #1e9aff srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-blue-light-hover, #1e9aff) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.blue.ribbon.label {
-  border-color: #219afc;
+  border-color: var(--_color-blue-inverted-ribbon, #219afc);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .blue.label,
 .ui.ui.ui.inverted.basic.blue.label {
   background-color: #1f2430;
-  border-color: #53b1fd;
+  border-color: var(--_color-blue-light, #53b1fd);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #53b1fd max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-blue-light, #53b1fd) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.blue.label:hover,
 a.ui.ui.ui.inverted.basic.blue.label:hover {
-  border-color: #1e9aff;
+  border-color: var(--_color-blue-light-hover, #1e9aff);
   background-color: #1f2430;
-  color: oklch(from #1e9aff max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-blue-light-hover, #1e9aff) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .blue.label,
 .ui.ui.ui.inverted.blue.basic.tag.label {
-  border: 1px solid #53b1fd;
+  border: 1px solid var(--_color-blue-light, #53b1fd);
 }
 .ui.inverted.basic.tag.labels .blue.label::before,
 .ui.ui.ui.inverted.blue.basic.tag.label::before {
@@ -1817,85 +1817,85 @@ a.ui.ui.ui.inverted.basic.blue.label:hover {
 }
 .ui.violet.labels .label,
 .ui.ui.ui.violet.label {
-  background-color: #7a5af8;
-  border-color: #7a5af8;
-  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-violet, #7a5af8);
+  border-color: var(--color-violet, #7a5af8);
+  color: var(--color-violet-text, color(from var(--color-violet, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.violet.labels a.label:hover,
 a.ui.ui.ui.violet.label:hover {
-  background-color: #6239ff;
-  border-color: #6239ff;
-  color: color(from #7a5af8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-violet-hover, #6239ff);
+  border-color: var(--_color-violet-hover, #6239ff);
+  color: var(--color-violet-text, color(from var(--color-violet, #7a5af8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.violet.ribbon.label {
-  border-color: #5329f6;
+  border-color: var(--_color-violet-ribbon, #5329f6);
 }
 
 /* Basic */
 .ui.basic.labels .violet.label,
 .ui.ui.ui.basic.violet.label {
   background: none var(--theme-surface);
-  border-color: #7a5af8;
+  border-color: var(--color-violet, #7a5af8);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.violet.label:hover,
 a.ui.ui.ui.basic.violet.label:hover {
   background: none var(--theme-surface);
-  border-color: #6239ff;
-  color: #6239ff;
+  border-color: var(--_color-violet-hover, #6239ff);
+  color: var(--_color-violet-hover, #6239ff);
 }
 
 /* Inverted */
 .ui.inverted.labels .violet.label,
 .ui.ui.ui.inverted.violet.label {
-  background-color: #9b8afb;
-  border-color: #9b8afb;
+  background-color: var(--_color-violet-light, #9b8afb);
+  border-color: var(--_color-violet-light, #9b8afb);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #9b8afb srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-violet-light, #9b8afb) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.violet.label:hover,
 a.ui.ui.ui.inverted.violet.label:hover {
-  background-color: #6d53ff;
-  border-color: #6d53ff;
+  background-color: var(--_color-violet-light-hover, #6d53ff);
+  border-color: var(--_color-violet-light-hover, #6d53ff);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #6d53ff srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-violet-light-hover, #6d53ff) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.violet.ribbon.label {
-  border-color: #7159f9;
+  border-color: var(--_color-violet-inverted-ribbon, #7159f9);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .violet.label,
 .ui.ui.ui.inverted.basic.violet.label {
   background-color: #1f2430;
-  border-color: #9b8afb;
+  border-color: var(--_color-violet-light, #9b8afb);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #9b8afb max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-violet-light, #9b8afb) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.violet.label:hover,
 a.ui.ui.ui.inverted.basic.violet.label:hover {
-  border-color: #6d53ff;
+  border-color: var(--_color-violet-light-hover, #6d53ff);
   background-color: #1f2430;
-  color: oklch(from #6d53ff max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-violet-light-hover, #6d53ff) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .violet.label,
 .ui.ui.ui.inverted.violet.basic.tag.label {
-  border: 1px solid #9b8afb;
+  border: 1px solid var(--_color-violet-light, #9b8afb);
 }
 .ui.inverted.basic.tag.labels .violet.label::before,
 .ui.ui.ui.inverted.violet.basic.tag.label::before {
@@ -1907,85 +1907,85 @@ a.ui.ui.ui.inverted.basic.violet.label:hover {
 }
 .ui.purple.labels .label,
 .ui.ui.ui.purple.label {
-  background-color: #9e4cc9;
-  border-color: #9e4cc9;
-  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-purple, #9e4cc9);
+  border-color: var(--color-purple, #9e4cc9);
+  color: var(--color-purple-text, color(from var(--color-purple, #9e4cc9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.purple.labels a.label:hover,
 a.ui.ui.ui.purple.label:hover {
-  background-color: #9534c8;
-  border-color: #9534c8;
-  color: color(from #9e4cc9 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-purple-hover, #9534c8);
+  border-color: var(--_color-purple-hover, #9534c8);
+  color: var(--color-purple-text, color(from var(--color-purple, #9e4cc9) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.purple.ribbon.label {
-  border-color: #8434ae;
+  border-color: var(--_color-purple-ribbon, #8434ae);
 }
 
 /* Basic */
 .ui.basic.labels .purple.label,
 .ui.ui.ui.basic.purple.label {
   background: none var(--theme-surface);
-  border-color: #9e4cc9;
+  border-color: var(--color-purple, #9e4cc9);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.purple.label:hover,
 a.ui.ui.ui.basic.purple.label:hover {
   background: none var(--theme-surface);
-  border-color: #9534c8;
-  color: #9534c8;
+  border-color: var(--_color-purple-hover, #9534c8);
+  color: var(--_color-purple-hover, #9534c8);
 }
 
 /* Inverted */
 .ui.inverted.labels .purple.label,
 .ui.ui.ui.inverted.purple.label {
-  background-color: #c084e8;
-  border-color: #c084e8;
+  background-color: var(--_color-purple-light, #c084e8);
+  border-color: var(--_color-purple-light, #c084e8);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #c084e8 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-purple-light, #c084e8) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.purple.label:hover,
 a.ui.ui.ui.inverted.purple.label:hover {
-  background-color: #ab52e7;
-  border-color: #ab52e7;
+  background-color: var(--_color-purple-light-hover, #ab52e7);
+  border-color: var(--_color-purple-light-hover, #ab52e7);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #ab52e7 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-purple-light-hover, #ab52e7) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.purple.ribbon.label {
-  border-color: #aa59e0;
+  border-color: var(--_color-purple-inverted-ribbon, #aa59e0);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .purple.label,
 .ui.ui.ui.inverted.basic.purple.label {
   background-color: #1f2430;
-  border-color: #c084e8;
+  border-color: var(--_color-purple-light, #c084e8);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #c084e8 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-purple-light, #c084e8) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.purple.label:hover,
 a.ui.ui.ui.inverted.basic.purple.label:hover {
-  border-color: #ab52e7;
+  border-color: var(--_color-purple-light-hover, #ab52e7);
   background-color: #1f2430;
-  color: oklch(from #ab52e7 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-purple-light-hover, #ab52e7) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .purple.label,
 .ui.ui.ui.inverted.purple.basic.tag.label {
-  border: 1px solid #c084e8;
+  border: 1px solid var(--_color-purple-light, #c084e8);
 }
 .ui.inverted.basic.tag.labels .purple.label::before,
 .ui.ui.ui.inverted.purple.basic.tag.label::before {
@@ -1997,85 +1997,85 @@ a.ui.ui.ui.inverted.basic.purple.label:hover {
 }
 .ui.pink.labels .label,
 .ui.ui.ui.pink.label {
-  background-color: #c11574;
-  border-color: #c11574;
-  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-pink, #c11574);
+  border-color: var(--color-pink, #c11574);
+  color: var(--color-pink-text, color(from var(--color-pink, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.pink.labels a.label:hover,
 a.ui.ui.ui.pink.label:hover {
-  background-color: #b20b67;
-  border-color: #b20b67;
-  color: color(from #c11574 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-pink-hover, #b20b67);
+  border-color: var(--_color-pink-hover, #b20b67);
+  color: var(--color-pink-text, color(from var(--color-pink, #c11574) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.pink.ribbon.label {
-  border-color: #931058;
+  border-color: var(--_color-pink-ribbon, #931058);
 }
 
 /* Basic */
 .ui.basic.labels .pink.label,
 .ui.ui.ui.basic.pink.label {
   background: none var(--theme-surface);
-  border-color: #c11574;
+  border-color: var(--color-pink, #c11574);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.pink.label:hover,
 a.ui.ui.ui.basic.pink.label:hover {
   background: none var(--theme-surface);
-  border-color: #b20b67;
-  color: #b20b67;
+  border-color: var(--_color-pink-hover, #b20b67);
+  color: var(--_color-pink-hover, #b20b67);
 }
 
 /* Inverted */
 .ui.inverted.labels .pink.label,
 .ui.ui.ui.inverted.pink.label {
-  background-color: #ee46bc;
-  border-color: #ee46bc;
+  background-color: var(--_color-pink-light, #ee46bc);
+  border-color: var(--_color-pink-light, #ee46bc);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #ee46bc srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-pink-light, #ee46bc) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.pink.label:hover,
 a.ui.ui.ui.inverted.pink.label:hover {
-  background-color: #f40daf;
-  border-color: #f40daf;
+  background-color: var(--_color-pink-light-hover, #f40daf);
+  border-color: var(--_color-pink-light-hover, #f40daf);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #f40daf srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-pink-light-hover, #f40daf) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.pink.ribbon.label {
-  border-color: #ea17ab;
+  border-color: var(--_color-pink-inverted-ribbon, #ea17ab);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .pink.label,
 .ui.ui.ui.inverted.basic.pink.label {
   background-color: #1f2430;
-  border-color: #ee46bc;
+  border-color: var(--_color-pink-light, #ee46bc);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #ee46bc max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-pink-light, #ee46bc) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.pink.label:hover,
 a.ui.ui.ui.inverted.basic.pink.label:hover {
-  border-color: #f40daf;
+  border-color: var(--_color-pink-light-hover, #f40daf);
   background-color: #1f2430;
-  color: oklch(from #f40daf max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-pink-light-hover, #f40daf) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .pink.label,
 .ui.ui.ui.inverted.pink.basic.tag.label {
-  border: 1px solid #ee46bc;
+  border: 1px solid var(--_color-pink-light, #ee46bc);
 }
 .ui.inverted.basic.tag.labels .pink.label::before,
 .ui.ui.ui.inverted.pink.basic.tag.label::before {
@@ -2087,85 +2087,85 @@ a.ui.ui.ui.inverted.basic.pink.label:hover {
 }
 .ui.brown.labels .label,
 .ui.ui.ui.brown.label {
-  background-color: #6e4a2e;
-  border-color: #6e4a2e;
-  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-brown, #6e4a2e);
+  border-color: var(--color-brown, #6e4a2e);
+  color: var(--color-brown-text, color(from var(--color-brown, #6e4a2e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.brown.labels a.label:hover,
 a.ui.ui.ui.brown.label:hover {
-  background-color: #5f3e24;
-  border-color: #5f3e24;
-  color: color(from #6e4a2e srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-brown-hover, #5f3e24);
+  border-color: var(--_color-brown-hover, #5f3e24);
+  color: var(--color-brown-text, color(from var(--color-brown, #6e4a2e) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.brown.ribbon.label {
-  border-color: #4a321f;
+  border-color: var(--_color-brown-ribbon, #4a321f);
 }
 
 /* Basic */
 .ui.basic.labels .brown.label,
 .ui.ui.ui.basic.brown.label {
   background: none var(--theme-surface);
-  border-color: #6e4a2e;
+  border-color: var(--color-brown, #6e4a2e);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.brown.label:hover,
 a.ui.ui.ui.basic.brown.label:hover {
   background: none var(--theme-surface);
-  border-color: #5f3e24;
-  color: #5f3e24;
+  border-color: var(--_color-brown-hover, #5f3e24);
+  color: var(--_color-brown-hover, #5f3e24);
 }
 
 /* Inverted */
 .ui.inverted.labels .brown.label,
 .ui.ui.ui.inverted.brown.label {
-  background-color: #b08463;
-  border-color: #b08463;
+  background-color: var(--_color-brown-light, #b08463);
+  border-color: var(--_color-brown-light, #b08463);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #b08463 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-brown-light, #b08463) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.brown.label:hover,
 a.ui.ui.ui.inverted.brown.label:hover {
-  background-color: #986a48;
-  border-color: #986a48;
+  background-color: var(--_color-brown-light-hover, #986a48);
+  border-color: var(--_color-brown-light-hover, #986a48);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #986a48 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-brown-light-hover, #986a48) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.brown.ribbon.label {
-  border-color: #956b4b;
+  border-color: var(--_color-brown-inverted-ribbon, #956b4b);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .brown.label,
 .ui.ui.ui.inverted.basic.brown.label {
   background-color: #1f2430;
-  border-color: #b08463;
+  border-color: var(--_color-brown-light, #b08463);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
-  color: oklch(from #b08463 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-brown-light, #b08463) max(l, 0.8) min(c, 0.14) h);
 }
 .ui.inverted.basic.labels a.brown.label:hover,
 a.ui.ui.ui.inverted.basic.brown.label:hover {
-  border-color: #986a48;
+  border-color: var(--_color-brown-light-hover, #986a48);
   background-color: #1f2430;
-  color: oklch(from #986a48 max(l, 0.8) min(c, 0.14) h);
+  color: oklch(from var(--_color-brown-light-hover, #986a48) max(l, 0.8) min(c, 0.14) h);
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .brown.label,
 .ui.ui.ui.inverted.brown.basic.tag.label {
-  border: 1px solid #b08463;
+  border: 1px solid var(--_color-brown-light, #b08463);
 }
 .ui.inverted.basic.tag.labels .brown.label::before,
 .ui.ui.ui.inverted.brown.basic.tag.label::before {
@@ -2177,84 +2177,84 @@ a.ui.ui.ui.inverted.basic.brown.label:hover {
 }
 .ui.grey.labels .label,
 .ui.ui.ui.grey.label {
-  background-color: #687181;
-  border-color: #687181;
-  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-grey, #687181);
+  border-color: var(--color-grey, #687181);
+  color: var(--color-grey-text, color(from var(--color-grey, #687181) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.grey.labels a.label:hover,
 a.ui.ui.ui.grey.label:hover {
-  background-color: #5d6573;
-  border-color: #5d6573;
-  color: color(from #687181 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-grey-hover, #5d6573);
+  border-color: var(--_color-grey-hover, #5d6573);
+  color: var(--color-grey-text, color(from var(--color-grey, #687181) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.grey.ribbon.label {
-  border-color: #515865;
+  border-color: var(--_color-grey-ribbon, #515865);
 }
 
 /* Basic */
 .ui.basic.labels .grey.label,
 .ui.ui.ui.basic.grey.label {
   background: none var(--theme-surface);
-  border-color: #687181;
+  border-color: var(--color-grey, #687181);
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.grey.label:hover,
 a.ui.ui.ui.basic.grey.label:hover {
   background: none var(--theme-surface);
-  border-color: #5d6573;
-  color: #5d6573;
+  border-color: var(--_color-grey-hover, #5d6573);
+  color: var(--_color-grey-hover, #5d6573);
 }
 
 /* Inverted */
 .ui.inverted.labels .grey.label,
 .ui.ui.ui.inverted.grey.label {
-  background-color: #99a1af;
-  border-color: #99a1af;
+  background-color: var(--_color-grey-light, #99a1af);
+  border-color: var(--_color-grey-light, #99a1af);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #99a1af srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-grey-light, #99a1af) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.grey.label:hover,
 a.ui.ui.ui.inverted.grey.label:hover {
-  background-color: #7b869a;
-  border-color: #7b869a;
+  background-color: var(--_color-grey-light-hover, #7b869a);
+  border-color: var(--_color-grey-light-hover, #7b869a);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #7b869a srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-grey-light-hover, #7b869a) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.grey.ribbon.label {
-  border-color: #a7aeba;
+  border-color: var(--_color-grey-inverted-ribbon, #a7aeba);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .grey.label,
 .ui.ui.ui.inverted.basic.grey.label {
   background-color: #1f2430;
-  border-color: #99a1af;
+  border-color: var(--_color-grey-light, #99a1af);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
   color: rgba(255, 255, 255, 0.9);
 }
 .ui.inverted.basic.labels a.grey.label:hover,
 a.ui.ui.ui.inverted.basic.grey.label:hover {
-  border-color: #7b869a;
+  border-color: var(--_color-grey-light-hover, #7b869a);
   background-color: #1f2430;
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .grey.label,
 .ui.ui.ui.inverted.grey.basic.tag.label {
-  border: 1px solid #99a1af;
+  border: 1px solid var(--_color-grey-light, #99a1af);
 }
 .ui.inverted.basic.tag.labels .grey.label::before,
 .ui.ui.ui.inverted.grey.basic.tag.label::before {
@@ -2266,84 +2266,84 @@ a.ui.ui.ui.inverted.basic.grey.label:hover {
 }
 .ui.black.labels .label,
 .ui.ui.ui.black.label {
-  background-color: light-dark(#1f2430, #535c6e);
-  border-color: light-dark(#1f2430, #535c6e);
-  color: color(from #1f2430 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--color-black, light-dark(#1f2430, #535c6e));
+  border-color: var(--color-black, light-dark(#1f2430, #535c6e));
+  color: var(--color-black-text, color(from var(--color-black, #1f2430) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Link */
 .ui.black.labels a.label:hover,
 a.ui.ui.ui.black.label:hover {
-  background-color: light-dark(#2b3140, #5f6879);
-  border-color: light-dark(#2b3140, #5f6879);
-  color: color(from #1f2430 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  background-color: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
+  border-color: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
+  color: var(--color-black-text, color(from var(--color-black, #1f2430) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))));
 }
 
 /* Ribbon */
 .ui.ui.ui.black.ribbon.label {
-  border-color: #0b0d11;
+  border-color: var(--_color-black-ribbon, #0b0d11);
 }
 
 /* Basic */
 .ui.basic.labels .black.label,
 .ui.ui.ui.basic.black.label {
   background: none var(--theme-surface);
-  border-color: light-dark(#1f2430, #535c6e);
+  border-color: var(--color-black, light-dark(#1f2430, #535c6e));
   
 /* Fork: texto de color con la tinta del mapa (`ink`), legible en ambos modos */
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 .ui.basic.labels a.black.label:hover,
 a.ui.ui.ui.basic.black.label:hover {
   background: none var(--theme-surface);
-  border-color: light-dark(#2b3140, #5f6879);
-  color: light-dark(#2b3140, #5f6879);
+  border-color: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
+  color: var(--_color-black-hover, light-dark(#2b3140, #5f6879));
 }
 
 /* Inverted */
 .ui.inverted.labels .black.label,
 .ui.ui.ui.inverted.black.label {
-  background-color: #4b5363;
-  border-color: #4b5363;
+  background-color: var(--_color-black-light, #4b5363);
+  border-color: var(--_color-black-light, #4b5363);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #4b5363 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-black-light, #4b5363) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Link */
 .ui.inverted.labels a.black.label:hover,
 a.ui.ui.ui.inverted.black.label:hover {
-  background-color: #000000;
-  border-color: #000000;
+  background-color: var(--_color-black-light-hover, #000000);
+  border-color: var(--_color-black-light-hover, #000000);
   
 /* Fork: texto según la luminosidad del relleno claro (D36) */
-  color: color(from #000000 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--_color-black-light-hover, #000000) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /* Inverted Ribbon */
 .ui.ui.ui.inverted.black.ribbon.label {
-  border-color: #565f72;
+  border-color: var(--_color-black-inverted-ribbon, #565f72);
 }
 
 /* Inverted Basic */
 .ui.inverted.basic.labels .black.label,
 .ui.ui.ui.inverted.basic.black.label {
   background-color: #1f2430;
-  border-color: #4b5363;
+  border-color: var(--_color-black-light, #4b5363);
   
 /* Fork: rama clara de la tinta sobre inverted (D36) */
   color: rgba(255, 255, 255, 0.9);
 }
 .ui.inverted.basic.labels a.black.label:hover,
 a.ui.ui.ui.inverted.basic.black.label:hover {
-  border-color: #000000;
+  border-color: var(--_color-black-light-hover, #000000);
   background-color: #1f2430;
 }
 
 /* Inverted Basic Tags */
 .ui.inverted.basic.tag.labels .black.label,
 .ui.ui.ui.inverted.black.basic.tag.label {
-  border: 1px solid #4b5363;
+  border: 1px solid var(--_color-black-light, #4b5363);
 }
 .ui.inverted.basic.tag.labels .black.label::before,
 .ui.ui.ui.inverted.black.basic.tag.label::before {
@@ -2788,9 +2788,9 @@ a.ui.ui.ui.empty.circular.label::after {
    (casi blanco en oscuro, el mismo black en claro) y texto oscuro. */
 .ui.black.labels .label:not(.basic, .inverted),
 .ui.ui.ui.black.label:not(.basic, .inverted) {
-  background-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
-  border-color: light-dark(#1f2430, oklch(from #1f2430 max(l, 0.88) c h));
-  color: light-dark(color(from #1f2430 srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1))), #1f2430);
+  background-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
+  border-color: light-dark(var(--color-black, #1f2430), oklch(from var(--color-black, #1f2430) max(l, 0.88) c h));
+  color: light-dark(var(--color-black-text, color(from var(--color-black, #1f2430) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)))), #1f2430);
 }
 
 /* Attached: la esquina pegada al contenedor sigue su radio (inherit), no @attachedBorderRadius (3px en default), que
@@ -2938,198 +2938,198 @@ a.ui.ui.ui.basic.accent-3.label:hover {
 }
 .ui.basic.labels .red.label,
 .ui.ui.ui.basic.red.label {
-  background: color-mix(in srgb, #f04438 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #f04438 35%, var(--theme-surface));
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  background: color-mix(in srgb, var(--color-red, #de3027) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-red, #de3027) 35%, var(--theme-surface));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.red.label:hover,
 a.ui.ui.ui.basic.red.label:hover {
-  background: color-mix(in srgb, #f04438 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #f04438 55%, var(--theme-surface));
-  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #f04438 max(l, var(--ink-dark-min, 0.78)) c h));
+  background: color-mix(in srgb, var(--color-red, #de3027) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-red, #de3027) 55%, var(--theme-surface));
+  color: light-dark(oklch(from #c4281c min(l, var(--ink-light-max, 1)) c h), oklch(from #de3027 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.ui.ui.basic.red.label > i.circle.icon {
-  background-color: #f04438;
+  background-color: var(--color-red, #de3027);
 }
 .ui.basic.labels .orange.label,
 .ui.ui.ui.basic.orange.label {
-  background: color-mix(in srgb, #ef6820 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #ef6820 35%, var(--theme-surface));
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  background: color-mix(in srgb, var(--color-orange, #cd4800) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-orange, #cd4800) 35%, var(--theme-surface));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.orange.label:hover,
 a.ui.ui.ui.basic.orange.label:hover {
-  background: color-mix(in srgb, #ef6820 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #ef6820 55%, var(--theme-surface));
-  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #ef6820 max(l, var(--ink-dark-min, 0.78)) c h));
+  background: color-mix(in srgb, var(--color-orange, #cd4800) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-orange, #cd4800) 55%, var(--theme-surface));
+  color: light-dark(oklch(from #b93d0b min(l, var(--ink-light-max, 1)) c h), oklch(from #cd4800 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.ui.ui.basic.orange.label > i.circle.icon {
-  background-color: #ef6820;
+  background-color: var(--color-orange, #cd4800);
 }
 .ui.basic.labels .yellow.label,
 .ui.ui.ui.basic.yellow.label {
-  background: color-mix(in srgb, #f79009 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #f79009 35%, var(--theme-surface));
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  background: color-mix(in srgb, var(--color-yellow, #bb5900) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-yellow, #bb5900) 35%, var(--theme-surface));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.basic.labels a.yellow.label:hover,
 a.ui.ui.ui.basic.yellow.label:hover {
-  background: color-mix(in srgb, #f79009 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #f79009 55%, var(--theme-surface));
-  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #f79009 max(l, var(--ink-dark-min, 0.78)) c h));
+  background: color-mix(in srgb, var(--color-yellow, #bb5900) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-yellow, #bb5900) 55%, var(--theme-surface));
+  color: light-dark(oklch(from #8a6400 min(l, var(--ink-light-max, 1)) c h), oklch(from #bb5900 max(l, var(--ink-dark-min, 0.78)) c h));
 }
 .ui.ui.ui.basic.yellow.label > i.circle.icon {
-  background-color: #f79009;
+  background-color: var(--color-yellow, #bb5900);
 }
 .ui.basic.labels .olive.label,
 .ui.ui.ui.basic.olive.label {
-  background: color-mix(in srgb, #84a11b 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #84a11b 35%, var(--theme-surface));
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-olive, #647e00) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-olive, #647e00) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.olive.label:hover,
 a.ui.ui.ui.basic.olive.label:hover {
-  background: color-mix(in srgb, #84a11b 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #84a11b 55%, var(--theme-surface));
-  color: light-dark(oklch(from #84a11b min(l, var(--ink-light-max, 0.42)) c h), oklch(from #84a11b max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-olive, #647e00) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-olive, #647e00) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-olive, #647e00) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-olive, #647e00) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.olive.label > i.circle.icon {
-  background-color: #84a11b;
+  background-color: var(--color-olive, #647e00);
 }
 .ui.basic.labels .green.label,
 .ui.ui.ui.basic.green.label {
-  background: color-mix(in srgb, #17b26a 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #17b26a 35%, var(--theme-surface));
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-green, #008742) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-green, #008742) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.green.label:hover,
 a.ui.ui.ui.basic.green.label:hover {
-  background: color-mix(in srgb, #17b26a 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #17b26a 55%, var(--theme-surface));
-  color: light-dark(oklch(from #17b26a min(l, var(--ink-light-max, 0.42)) c h), oklch(from #17b26a max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-green, #008742) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-green, #008742) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-green, #008742) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-green, #008742) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.green.label > i.circle.icon {
-  background-color: #17b26a;
+  background-color: var(--color-green, #008742);
 }
 .ui.basic.labels .teal.label,
 .ui.ui.ui.basic.teal.label {
-  background: color-mix(in srgb, #06aed4 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #06aed4 35%, var(--theme-surface));
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-teal, #007fa3) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-teal, #007fa3) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.teal.label:hover,
 a.ui.ui.ui.basic.teal.label:hover {
-  background: color-mix(in srgb, #06aed4 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #06aed4 55%, var(--theme-surface));
-  color: light-dark(oklch(from #06aed4 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #06aed4 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-teal, #007fa3) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-teal, #007fa3) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-teal, #007fa3) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-teal, #007fa3) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.teal.label > i.circle.icon {
-  background-color: #06aed4;
+  background-color: var(--color-teal, #007fa3);
 }
 .ui.basic.labels .blue.label,
 .ui.ui.ui.basic.blue.label {
-  background: color-mix(in srgb, #2e90fa 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #2e90fa 35%, var(--theme-surface));
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-blue, #0074dc) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-blue, #0074dc) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.blue.label:hover,
 a.ui.ui.ui.basic.blue.label:hover {
-  background: color-mix(in srgb, #2e90fa 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #2e90fa 55%, var(--theme-surface));
-  color: light-dark(oklch(from #2e90fa min(l, var(--ink-light-max, 0.42)) c h), oklch(from #2e90fa max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-blue, #0074dc) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-blue, #0074dc) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-blue, #0074dc) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-blue, #0074dc) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.blue.label > i.circle.icon {
-  background-color: #2e90fa;
+  background-color: var(--color-blue, #0074dc);
 }
 .ui.basic.labels .violet.label,
 .ui.ui.ui.basic.violet.label {
-  background: color-mix(in srgb, #7a5af8 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #7a5af8 35%, var(--theme-surface));
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-violet, #7a5af8) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-violet, #7a5af8) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.violet.label:hover,
 a.ui.ui.ui.basic.violet.label:hover {
-  background: color-mix(in srgb, #7a5af8 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #7a5af8 55%, var(--theme-surface));
-  color: light-dark(oklch(from #7a5af8 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #7a5af8 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-violet, #7a5af8) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-violet, #7a5af8) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-violet, #7a5af8) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-violet, #7a5af8) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.violet.label > i.circle.icon {
-  background-color: #7a5af8;
+  background-color: var(--color-violet, #7a5af8);
 }
 .ui.basic.labels .purple.label,
 .ui.ui.ui.basic.purple.label {
-  background: color-mix(in srgb, #9e4cc9 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #9e4cc9 35%, var(--theme-surface));
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-purple, #9e4cc9) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-purple, #9e4cc9) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.purple.label:hover,
 a.ui.ui.ui.basic.purple.label:hover {
-  background: color-mix(in srgb, #9e4cc9 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #9e4cc9 55%, var(--theme-surface));
-  color: light-dark(oklch(from #9e4cc9 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #9e4cc9 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-purple, #9e4cc9) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-purple, #9e4cc9) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-purple, #9e4cc9) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-purple, #9e4cc9) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.purple.label > i.circle.icon {
-  background-color: #9e4cc9;
+  background-color: var(--color-purple, #9e4cc9);
 }
 .ui.basic.labels .pink.label,
 .ui.ui.ui.basic.pink.label {
-  background: color-mix(in srgb, #c11574 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #c11574 35%, var(--theme-surface));
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-pink, #c11574) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-pink, #c11574) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.pink.label:hover,
 a.ui.ui.ui.basic.pink.label:hover {
-  background: color-mix(in srgb, #c11574 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #c11574 55%, var(--theme-surface));
-  color: light-dark(oklch(from #c11574 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #c11574 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-pink, #c11574) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-pink, #c11574) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-pink, #c11574) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-pink, #c11574) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.pink.label > i.circle.icon {
-  background-color: #c11574;
+  background-color: var(--color-pink, #c11574);
 }
 .ui.basic.labels .brown.label,
 .ui.ui.ui.basic.brown.label {
-  background: color-mix(in srgb, #6e4a2e 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #6e4a2e 35%, var(--theme-surface));
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-brown, #6e4a2e) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-brown, #6e4a2e) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.brown.label:hover,
 a.ui.ui.ui.basic.brown.label:hover {
-  background: color-mix(in srgb, #6e4a2e 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #6e4a2e 55%, var(--theme-surface));
-  color: light-dark(oklch(from #6e4a2e min(l, var(--ink-light-max, 0.42)) c h), oklch(from #6e4a2e max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-brown, #6e4a2e) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-brown, #6e4a2e) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-brown, #6e4a2e) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-brown, #6e4a2e) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.brown.label > i.circle.icon {
-  background-color: #6e4a2e;
+  background-color: var(--color-brown, #6e4a2e);
 }
 .ui.basic.labels .grey.label,
 .ui.ui.ui.basic.grey.label {
-  background: color-mix(in srgb, #687181 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, #687181 35%, var(--theme-surface));
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-grey, #687181) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-grey, #687181) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.basic.labels a.grey.label:hover,
 a.ui.ui.ui.basic.grey.label:hover {
-  background: color-mix(in srgb, #687181 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, #687181 55%, var(--theme-surface));
-  color: light-dark(oklch(from #687181 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #687181 max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-grey, #687181) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-grey, #687181) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-grey, #687181) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-grey, #687181) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.grey.label > i.circle.icon {
-  background-color: #687181;
+  background-color: var(--color-grey, #687181);
 }
 .ui.basic.labels .black.label,
 .ui.ui.ui.basic.black.label {
-  background: color-mix(in srgb, light-dark(#1f2430, #535c6e) 8%, var(--theme-surface));
-  border-color: color-mix(in srgb, light-dark(#1f2430, #535c6e) 35%, var(--theme-surface));
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-black, light-dark(#1f2430, #535c6e)) 8%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-black, light-dark(#1f2430, #535c6e)) 35%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 .ui.basic.labels a.black.label:hover,
 a.ui.ui.ui.basic.black.label:hover {
-  background: color-mix(in srgb, light-dark(#1f2430, #535c6e) 14%, var(--theme-surface));
-  border-color: color-mix(in srgb, light-dark(#1f2430, #535c6e) 55%, var(--theme-surface));
-  color: light-dark(oklch(from #1f2430 min(l, var(--ink-light-max, 0.42)) c h), oklch(from #1f2430 max(l, 0.92) min(c, 0.14) h));
+  background: color-mix(in srgb, var(--color-black, light-dark(#1f2430, #535c6e)) 14%, var(--theme-surface));
+  border-color: color-mix(in srgb, var(--color-black, light-dark(#1f2430, #535c6e)) 55%, var(--theme-surface));
+  color: light-dark(oklch(from var(--color-black, #1f2430) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--color-black, #1f2430) max(l, 0.92) min(c, 0.14) h));
 }
 .ui.ui.ui.basic.black.label > i.circle.icon {
-  background-color: light-dark(#1f2430, #535c6e);
+  background-color: var(--color-black, light-dark(#1f2430, #535c6e));
 }
 
 /* Estados del diseño (tokens.md §3): green = éxito, yellow = advertencia, red = error,

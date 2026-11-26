@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Flyout
+ * # Fomantic-UI 1.4.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -345,22 +345,24 @@ body.pushable > .pusher {
   box-shadow: 0 0 0 1px var(--theme-border), var(--shadow-lg, 0 24px 48px -12px light-dark(rgba(20, 28, 45, 0.2), rgba(0, 0, 0, 0.55)), 0 8px 16px -8px light-dark(rgba(20, 28, 45, 0.08), rgba(0, 0, 0, 0.4)));
 }
 
-/* Visible On Load */
+/* Visible On Load
+   Fork (#3633 del original): el módulo pone la distancia en variables del contexto (sin <style>, CSP estricta);
+   calc() deja que rtlcss invierta los valores. */
 .ui.visible.left.flyout ~ .fixed,
 .ui.visible.left.flyout ~ .pusher {
-  transform: translate3d(31.42857143rem, 0, 0);
+  transform: translate3d(calc(var(--flyout-left-distance, 31.42857143rem)), 0, 0);
 }
 .ui.visible.right.flyout ~ .fixed,
 .ui.visible.right.flyout ~ .pusher {
-  transform: translate3d(-31.42857143rem, 0, 0);
+  transform: translate3d(calc(-1 * var(--flyout-right-distance, 31.42857143rem)), 0, 0);
 }
 .ui.visible.top.flyout ~ .fixed,
 .ui.visible.top.flyout ~ .pusher {
-  transform: translate3d(0, 36px, 0);
+  transform: translate3d(0, var(--flyout-top-distance, 36px), 0);
 }
 .ui.visible.bottom.flyout ~ .fixed,
 .ui.visible.bottom.flyout ~ .pusher {
-  transform: translate3d(0, -36px, 0);
+  transform: translate3d(0, calc(-1 * var(--flyout-bottom-distance, 36px)), 0);
 }
 
 /* opposite sides visible forces content overlay */

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Flyout
+ * # Fomantic-UI 1.4.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -25,7 +25,6 @@
             $window         = $(window),
             $document       = $(document),
             $html           = $('html'),
-            $head           = $('head'),
             $body           = $('body'),
 
             time            = Date.now(),
@@ -74,7 +73,6 @@
 
                 $flyouts             = $module.children(selector.flyout),
                 $pusher              = $context.children(selector.pusher),
-                $style,
 
                 isFlyoutComponent    = $module.hasClass('flyout'),
 
@@ -116,6 +114,7 @@
                         }
                     }
                     $module.addClass(settings.class);
+                    module.set.aria();
                     if (settings.title !== '') {
                         $module.find(selector.header).html(module.helpers.escape(settings.title, settings.preserveHTML)).addClass(settings.classTitle);
                     }
@@ -289,6 +288,17 @@
                     close: function (event) {
                         module.hide();
                     },
+                    // Fork (P320): un botón de acción escrito como <div> (con role="button" de set.aria) se activa con Intro y
+                    // Espacio, como un <button>
+                    actionKeyDown: function (event) {
+                        var
+                            keyCode = event.which
+                        ;
+                        if (keyCode === settings.keys.enter || keyCode === settings.keys.space) {
+                            event.preventDefault();
+                            $(this).trigger('click');
+                        }
+                    },
                     closeKeyUp: function (event) {
                         var
                             keyCode   = event.which
@@ -368,6 +378,7 @@
                             .on('click' + eventNamespace, selector.close, module.event.close)
                             .on('click' + eventNamespace, selector.approve, module.event.approve)
                             .on('click' + eventNamespace, selector.deny, module.event.deny)
+                            .on('keydown' + eventNamespace, '.actions [role="button"]:not(a, button, input)', module.event.actionKeyDown)
                         ;
                         $closeIcon
                             .on('keyup' + elementNamespace, module.event.closeKeyUp)
@@ -422,71 +433,17 @@
                 },
 
                 add: {
+                    // Fork (#3633 del original, sin fusionar; CSP estricta): la distancia va en una variable CSS del contexto
+                    // (CSSOM, que style-src 'self' permite) en vez de una etiqueta <style>; el LESS la lee
                     inlineCSS: function () {
                         var
-                            width     = module.cache.width || $module.outerWidth(),
-                            height    = module.cache.height || $module.outerHeight(),
-                            isRTL     = module.is.rtl(),
                             direction = module.get.direction(),
-                            distance  = {
-                                left: width,
-                                right: -width,
-                                top: height,
-                                bottom: -height,
-                            },
-                            style
+                            distance  = direction === 'top' || direction === 'bottom'
+                                ? module.cache.height || $module.outerHeight()
+                                : module.cache.width || $module.outerWidth()
                         ;
-
-                        if (isRTL) {
-                            module.verbose('RTL detected, flipping widths');
-                            distance.left = -width;
-                            distance.right = width;
-                        }
-
-                        style = '<style>';
-
-                        if (direction === 'left' || direction === 'right') {
-                            module.debug('Adding CSS rules for animation distance', width);
-                            style += ''
-                                + ' .ui.visible.' + direction + '.flyout ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.flyout ~ .pusher {'
-                                + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                + ' }';
-                        } else if (direction === 'top' || direction === 'bottom') {
-                            style += ''
-                                + ' .ui.visible.' + direction + '.flyout ~ .fixed,'
-                                + ' .ui.visible.' + direction + '.flyout ~ .pusher {'
-                                + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                + ' }';
-                        }
-
-                        /* IE is only browser not to create context with transforms */
-                        /* https://www.w3.org/Bugs/Public/show_bug.cgi?id=16328 */
-                        if (module.is.ie()) {
-                            if (direction === 'left' || direction === 'right') {
-                                module.debug('Adding CSS rules for animation distance', width);
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.flyout ~ .pusher::after {'
-                                    + '           transform: translate3d(' + distance[direction] + 'px, 0, 0);'
-                                    + ' }';
-                            } else if (direction === 'top' || direction === 'bottom') {
-                                style += ''
-                                    + ' body.pushable > .ui.visible.' + direction + '.flyout ~ .pusher::after {'
-                                    + '           transform: translate3d(0, ' + distance[direction] + 'px, 0);'
-                                    + ' }';
-                            }
-                            /* opposite sides visible forces content overlay */
-                            style += ''
-                                + ' body.pushable > .ui.visible.left.flyout ~ .ui.visible.right.flyout ~ .pusher::after,'
-                                + ' body.pushable > .ui.visible.right.flyout ~ .ui.visible.left.flyout ~ .pusher::after {'
-                                + '           transform: translate3d(0, 0, 0);'
-                                + ' }';
-                        }
-                        style += '</style>';
-                        $style = $(style)
-                            .appendTo($head)
-                        ;
-                        module.debug('Adding sizing css to head', $style);
+                        module.debug('Adding CSS variable for animation distance', distance);
+                        $context[0].style.setProperty('--flyout-' + direction + '-distance', distance + 'px');
                     },
                     keyboardShortcuts: function () {
                         module.verbose('Adding keyboard shortcuts');
@@ -598,12 +555,19 @@
                             module.debug('Adding wrapper element for flyout');
                             module.error(error.pusher);
                             $pusher = $('<div class="pusher" />');
+                            // Fork (P320): envolver mueve el contenido y el elemento enfocado pierde el foco antes de que show()
+                            // lo guarde (un `$('body').flyout('alert')` desde un botón dejaba el foco en body al cerrarse): se le
+                            // devuelve tras envolver
+                            var focused = document.activeElement;
                             $context
                                 .children()
                                 .not(selector.omitted)
                                 .not($flyouts)
                                 .wrapAll($pusher)
                             ;
+                            if (focused && focused !== document.body && focused !== document.activeElement && document.documentElement.contains(focused)) {
+                                focused.focus({ preventScroll: true });
+                            }
                             module.refresh();
                         }
                         if ($module.nextAll(selector.pusher).length === 0 || $module.nextAll(selector.pusher)[0] !== $pusher[0]) {
@@ -676,13 +640,16 @@
                         }
                         module.set.dimmerStyles();
                         module.set.observeAttributes(false);
+                        // Fork (P320): el foco se guarda antes de animar. Al terminar, el observador de cambios ya había
+                        // enfocado los botones que crea una plantilla (alert, confirm, prompt), save.focus lo encontraba dentro
+                        // del flyout y, al cerrarlo, el foco acababa en body en vez de volver al disparador
+                        module.save.focus();
                         module.pushPage(function () {
                             callback.call(element);
                             settings.onVisible.call(element);
                             if (settings.keyboardShortcuts) {
                                 module.add.keyboardShortcuts();
                             }
-                            module.save.focus();
                             module.refreshInputs();
                             requestAnimationFrame(module.set.observeAttributes);
                         });
@@ -857,6 +824,35 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): un flyout escrito en el marcado no tenía rol ni nombre accesible (solo los que
+                    // crea el JS). Se completa lo que falte, sin pisar lo que haya puesto el autor: role="dialog", aria-modal
+                    // y aria-labelledby con su encabezado (al que se da un id si no lo tiene)
+                    aria: function () {
+                        if (!$module.attr('role')) {
+                            $module.attr('role', 'dialog');
+                        }
+                        if ($module.attr('aria-modal') === undefined) {
+                            $module.attr('aria-modal', !!settings.dimPage);
+                        }
+                        if (!$module.attr('aria-labelledby') && !$module.attr('aria-label')) {
+                            var
+                                $title = $module.children(selector.header + ', .header').first()
+                            ;
+                            if ($title.length > 0) {
+                                if (!$title.attr('id')) {
+                                    $title.attr('id', '_' + module.get.id() + 'title');
+                                }
+                                $module.attr('aria-labelledby', $title.attr('id'));
+                            }
+                        }
+                        // El ícono de cerrar y los botones de acción escritos como <i>/<div> no se podían alcanzar con Tab:
+                        // se hacen enfocables (closeKeyUp y event.actionKeyDown los activan con Intro y Espacio)
+                        $closeIcon.add($module.find(selector.actions).find('.button'))
+                            .not('a[href], button, input, select, textarea, [tabindex]')
+                            .attr({ tabindex: 0, role: 'button' })
+                        ;
+                        $closeIcon.not('[aria-label]').attr('aria-label', settings.text.close);
+                    },
                     observeAttributes: function (state) {
                         observeAttributes = state !== false;
                     },
@@ -929,9 +925,22 @@
                 remove: {
 
                     inlineCSS: function () {
-                        module.debug('Removing inline css styles', $style);
-                        if ($style && $style.length > 0) {
-                            $style.remove();
+                        var
+                            direction = module.get.direction(),
+                            $visible  = $flyouts.not($module).filter('.' + className.visible + '.' + direction).last()
+                        ;
+                        // Otro flyout visible del mismo lado conserva su distancia
+                        if ($visible.length > 0) {
+                            $context[0].style.setProperty('--flyout-' + direction + '-distance', (direction === 'top' || direction === 'bottom'
+                                ? $visible.outerHeight()
+                                : $visible.outerWidth()) + 'px');
+
+                            return;
+                        }
+                        module.debug('Removing CSS variable for animation distance');
+                        $context[0].style.removeProperty('--flyout-' + direction + '-distance');
+                        if ($context.attr('style') === '') {
+                            $context.removeAttr('style');
                         }
                     },
                     keyboardShortcuts: function () {

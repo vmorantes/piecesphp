@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Popup
+ * # Fomantic-UI 1.4.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -430,6 +430,7 @@
                 animate: {
                     show: function (callback) {
                         callback = isFunction(callback) ? callback : function () {};
+                        module.set.tooltipAria(true);
                         if (settings.transition && module.can.useElement('transition')) {
                             module.set.visible();
                             $popup
@@ -462,6 +463,7 @@
                                     verbose: settings.verbose,
                                     silent: settings.silent,
                                     onComplete: function () {
+                                        module.set.tooltipAria(false);
                                         module.reset();
                                         callback.call($popup, element);
                                         settings.onHidden.call($popup, element);
@@ -747,6 +749,29 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): un popup de pasar el ratón o de foco cuyo contenido es solo texto es un tooltip: el
+                    // disparador lo describe (aria-describedby) mientras está abierto. Uno con controles dentro no lo es
+                    tooltipAria: function (open) {
+                        if (!$popup || $popup.length === 0 || (settings.on !== 'hover' && settings.on !== 'focus')) {
+                            return;
+                        }
+                        if (open) {
+                            if ($popup.find('a[href], button, input, select, textarea, [tabindex]').length > 0) {
+                                return;
+                            }
+                            if (!$popup.attr('id')) {
+                                $popup.attr('id', '_' + module.get.id() + '_popup');
+                            }
+                            if (!$popup.attr('role')) {
+                                $popup.attr('role', 'tooltip');
+                            }
+                            if (!$module.attr('aria-describedby')) {
+                                $module.attr('aria-describedby', $popup.attr('id')).data('ariaOwnDescribedby', true);
+                            }
+                        } else if ($module.data('ariaOwnDescribedby')) {
+                            $module.removeAttr('aria-describedby').removeData('ariaOwnDescribedby');
+                        }
+                    },
                     position: function (position, calculations) {
                         // exit conditions
                         if ($target.length === 0 || $popup.length === 0) {
@@ -1029,6 +1054,18 @@
                                 .on(module.get.endEvent() + eventNamespace, module.event.end)
                             ;
                         }
+                        // Fork (P320, WCAG 2.1.1): lo que se abre al pasar el ratón también se abre al llegar con el teclado
+                        if (settings.on === 'hover') {
+                            $module
+                                .on('focusin' + eventNamespace, module.event.start)
+                                .on('focusout' + eventNamespace, function (event) {
+                                    // El foco que pasa al popup (también al popup mismo, como el calendario sin campo) no lo cierra
+                                    if (!(event.relatedTarget && $popup && $popup.length > 0 && ($popup[0] === event.relatedTarget || $.contains($popup[0], event.relatedTarget)))) {
+                                        module.event.end();
+                                    }
+                                })
+                            ;
+                        }
                         if (settings.target) {
                             module.debug('Target set to element', $target);
                         }
@@ -1047,6 +1084,14 @@
                         if (settings.hideOnScroll === true || (settings.hideOnScroll === 'auto' && settings.on !== 'click')) {
                             module.bind.closeOnScroll();
                         }
+                        // Fork (P320, WCAG 1.4.13): Escape descarta el popup abierto sin mover el ratón ni el foco
+                        $document
+                            .on('keydown' + elementNamespace, function (event) {
+                                if (event.which === 27 && module.is.visible()) {
+                                    module.hide();
+                                }
+                            })
+                        ;
                         if (module.is.closable()) {
                             module.bind.clickaway();
                         } else if (settings.on === 'hover' && openedWithTouch) {

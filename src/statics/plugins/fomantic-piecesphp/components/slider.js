@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.1.1 - Slider
+ * # Fomantic-UI 1.4.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -129,7 +129,8 @@
 
                 setup: {
                     layout: function () {
-                        if ($module.attr('tabindex') === undefined) {
+                        // Fork (P320): en un rango el foco va a cada tirador (set.aria), no al módulo
+                        if ($module.attr('tabindex') === undefined && !module.is.range()) {
                             $module.attr('tabindex', 0);
                         }
                         if ($module.find('.inner').length === 0) {
@@ -252,6 +253,10 @@
                     keyboardEvents: function () {
                         module.verbose('Binding keyboard events');
                         $module.on('keydown' + eventNamespace, module.event.keydown);
+                        // Fork (P320): en un rango, el tirador con el foco es el que mueven las flechas
+                        $module.on('focusin' + eventNamespace, '.thumb', function () {
+                            $currThumb = $(this);
+                        });
                     },
                     globalKeyboardEvents: function () {
                         $document.on('keydown' + eventNamespace + documentEventID, module.event.activateFocus);
@@ -304,6 +309,7 @@
                             .off('touchcancel' + eventNamespace)
                         ;
                         $module.off('keydown' + eventNamespace);
+                        $module.off('focusin' + eventNamespace);
                         $module.off('focusout' + eventNamespace);
                         $document.off('keydown' + eventNamespace + documentEventID, module.event.activateFocus);
                         $window.off('resize' + eventNamespace);
@@ -448,7 +454,10 @@
                         if (module.is.disabled()) {
                             return;
                         }
-                        if (settings.preventCrossover && module.is.range() && module.thumbVal === module.secondThumbVal) {
+                        var $focusedThumb = $module.find('.thumb:focus');
+                        if ($focusedThumb.length > 0) {
+                            $currThumb = $focusedThumb;
+                        } else if (settings.preventCrossover && module.is.range() && module.thumbVal === module.secondThumbVal) {
                             $currThumb = undefined;
                         }
                         if (module.is.focused()) {
@@ -487,7 +496,7 @@
                         if (!module.is.disabled() && !module.is.focused() && module.is.hover() && module.determine.keyMovement(event) !== NO_STEP) {
                             event.preventDefault();
                             module.event.keydown(event, true);
-                            $module.trigger('focus');
+                            (module.is.range() ? ($currThumb || $thumb) : $module).trigger('focus');
                         }
                     },
                     resize: function (_event) {
@@ -586,7 +595,7 @@
                         return isHover;
                     },
                     focused: function () {
-                        return $module.is(':focus');
+                        return $module.is(':focus') || $module.find('.thumb:focus').length > 0;
                     },
                     disabled: function () {
                         return $module.hasClass(className.disabled);
@@ -1041,6 +1050,85 @@
                 },
 
                 set: {
+                    // Fork (P320, WCAG 4.1.2): el deslizador ya era enfocable y se movía con las flechas, pero no decía qué era
+                    // ni su valor. role="slider" con mínimo, máximo y valor; en un rango (dos tiradores, un solo foco), el
+                    // texto del valor es «desde – hasta». Las marcas y etiquetas de la escala no se leen sueltas
+                    aria: function (thumbVal, secondThumbVal) {
+                        var
+                            precision = module.get.precision(),
+                            round     = function (number) { return Math.round(number * precision) / precision; },
+                            min       = module.get.min(),
+                            max       = module.get.max(),
+                            now       = round(thumbVal === undefined ? module.thumbVal || min : thumbVal)
+                        ;
+                        var orientation = module.is.vertical() ? 'vertical' : 'horizontal';
+                        if (module.is.range()) {
+                            // Patrón de varios tiradores de WAI-ARIA: el módulo es el grupo con nombre y cada tirador, un slider
+                            // enfocable; con preventCrossover, cada uno no pasa del otro. El de menor valor es el inicio
+                            var
+                                second = round(secondThumbVal === undefined ? module.secondThumbVal || min : secondThumbVal),
+                                firstIsStart = now <= second
+                            ;
+                            $module.attr('role', 'group').removeAttr('aria-valuemin aria-valuemax aria-valuenow aria-valuetext aria-orientation');
+                            $.each([[$thumb, now, second, firstIsStart], [$secondThumb, second, now, !firstIsStart]], function (_i, item) {
+                                var
+                                    $item = item[0],
+                                    value = item[1],
+                                    other = item[2],
+                                    start = item[3]
+                                ;
+                                if (!$item || $item.length === 0) {
+                                    return;
+                                }
+                                $item.attr({
+                                    role: 'slider',
+                                    tabindex: module.is.disabled() ? -1 : 0,
+                                    'aria-label': start ? settings.text.rangeStart : settings.text.rangeEnd,
+                                    'aria-valuemin': settings.preventCrossover && !start ? other : min,
+                                    'aria-valuemax': settings.preventCrossover && start ? other : max,
+                                    'aria-valuenow': value,
+                                    'aria-orientation': orientation,
+                                });
+                                if (module.is.disabled()) {
+                                    $item.attr('aria-disabled', 'true');
+                                } else {
+                                    $item.removeAttr('aria-disabled');
+                                }
+                            });
+                        } else {
+                            $module.attr({
+                                role: 'slider',
+                                'aria-valuemin': min,
+                                'aria-valuemax': max,
+                                'aria-valuenow': now,
+                                'aria-orientation': orientation,
+                            });
+                            $module.removeAttr('aria-valuetext');
+                        }
+                        if (module.is.disabled()) {
+                            $module.attr('aria-disabled', 'true');
+                        } else {
+                            $module.removeAttr('aria-disabled');
+                        }
+                        $module.find('.labels').attr('aria-hidden', 'true');
+                        // Sin nombre propio, el de la etiqueta del campo
+                        if (!$module.attr('aria-label') && !$module.attr('aria-labelledby')) {
+                            var $label = $module.prev('label');
+                            if ($label.length === 0 && element.id) {
+                                $label = $('label[for="' + element.id + '"]');
+                            }
+                            if ($label.length === 0) {
+                                $label = $module.closest('.field').children('label');
+                            }
+                            $label = $label.first();
+                            if ($label.length > 0) {
+                                if (!$label.attr('id')) {
+                                    $label.attr('id', '_' + (element.id || Math.random().toString(16).slice(2, 10)) + '_label');
+                                }
+                                $module.attr('aria-labelledby', $label.attr('id'));
+                            }
+                        }
+                    },
                     active: function (thumbVal, secondThumbVal) {
                         if (settings.highlightRange) {
                             if (secondThumbVal < thumbVal) {
@@ -1193,6 +1281,7 @@
                             thumbVal = newValue;
                         }
                         module.set.active(thumbVal, secondThumbVal);
+                        module.set.aria(thumbVal, secondThumbVal);
                         var
                             trackPosValue,
                             thumbPosValue,
@@ -1494,6 +1583,12 @@
         autoAdjustLabels: true,
         labelDistance: 100,
         preventCrossover: true,
+
+        // Fork (P320): nombre de cada tirador de un rango (el de menor valor es el inicio)
+        text: {
+            rangeStart: 'Minimum',
+            rangeEnd: 'Maximum',
+        },
         fireOnInit: false,
         interpretLabel: false,
         letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
