@@ -109,6 +109,11 @@ class CloneCompareTask extends TerminalTaskAbstract
                 $params[$name] = 'yes';
             }
         }
+        //Comparar es preguntarle a git, en su proceso: sin proc_open() no aplica (H508).
+        if (!\Terminal\Shell::available('proc_open')) {
+            echoTerminal("\e[33m" . \Terminal\Shell::NOT_APPLICABLE . ' clone-compare: ' . \Terminal\Shell::reason('proc_open') . "\e[39m");
+            return;
+        }
         $started = microtime(true);
         $outcome = self::execute($params);
         if ($outcome['error'] !== null || $outcome['result'] === null) {

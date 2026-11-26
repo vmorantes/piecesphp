@@ -41,7 +41,8 @@ lleva a donde se arregla y, para root, la columna «Acciones». Algunos avisos s
 
 | Clave | Gravedad | Quién lo ve | Flotante | Cuándo salta | Dónde se arregla |
 | :-- | :-- | :-- | :-- | :-- | :-- |
-| `app-key-placeholder` | grave | root y administrador general | sí | La `app_key` es la de relleno. **Ocultable.** | `configurations-system-security` («Seguridad») |
+| `app-key-placeholder` | grave | root y administrador general | sí | La `app_key` es la de relleno. A root le dice además por qué el arranque no la generó y qué hacer; a la administración general, que se lo pida a root. **Ocultable.** | `configurations-system-security` («Seguridad») |
+| `app-key-generated` | información | root | sí | El arranque acaba de generar la clave de la aplicación: guarda una copia del llavero (`app-key.json`, en la carpeta de claves) fuera del servidor. Dura 30 días. **Ocultable.** | — |
 | `app-keyring-unreadable` | grave | root | sí | El llavero `secure-keys/app-key.json` existe y este proceso no lo puede leer: se usa otra clave. | Sus permisos: lo leen el servidor web y la terminal |
 | `app-key-in-config` | grave | root | sí | La `app_key` está en `config.php`, que se versiona. | `bin/cli store-app-key` y quitarla de `config.php` |
 | `legacy-extensions-folder` | atención | root y administrador general | sí | Existe la carpeta vieja `app/config/final-configurations-includes`; se sigue cargando. | Moverla a `app/config/extensions` |
@@ -61,7 +62,7 @@ lleva a donde se arregla y, para root, la columna «Acciones». Algunos avisos s
 | `environment-not-configured` | info | root | no | No existe `src/app/config/environment.php`: la instalación funciona como producción. | Crearlo desde `environment.example.php` |
 | `mapbox-key-missing` | atención | root y administrador general | sí | No hay llave de MapBox para este entorno: los mapas del panel no cargan. **Ocultable.** | «Llaves de Mapas» |
 | `support-recipients-placeholder` | atención | root | sí | El formulario de soporte envía a una dirección de ejemplo. **Ocultable.** | `$config['support_form_recipients']` en `config.php` |
-| `allowed-hosts-empty` | atención | root | sí | La lista de dominios permitidos está vacía (fuera de local). **Ocultable.** | `$config['allowed_hosts']` en `config.php` |
+| `allowed-hosts-empty` | atención | root | sí | La lista de dominios de confianza está vacía (también en local, desde la 10.67.0). **Ocultable.** | `$config['allowed_hosts']` en `config.php` |
 | `public-site-estimated-resources` | atención | root y administrador general | sí | Hay un sitio público activo y algún recurso registrado es un contrato estimado (`ResourceContract::estimated()`): en el sitio servido sus listas salen vacías. **Ocultable**; un recurso estimado nuevo lo vuelve a enseñar. | El módulo registra su lector real y sustituye al estimado |
 
 «Gravedad» sigue el campo `severity` del código (`DANGER` = grave, `WARNING` = atención, `INFO` = información). Los

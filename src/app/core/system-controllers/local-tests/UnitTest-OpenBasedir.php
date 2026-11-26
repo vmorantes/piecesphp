@@ -64,6 +64,41 @@ CliActions::make('unit-tests:core/open-basedir', function ($args) {
         $check($estado === 0 && str_contains($salida, 'DIRECTORIO=NULL'), 'b1 el subproceso corre y no encuentra carpeta (las dos quedan fuera)', "salida {$estado}: " . mb_substr(trim($salida), 0, 200));
         $check(!str_contains($salida . $errores, 'open_basedir') && trim($errores) === '', 'b2 y ningún aviso de open_basedir', mb_substr(trim($errores . ' ' . $salida), 0, 300));
 
+        echoTerminal(' ');
+
+        //─── c · Salud de la instalación, con el framework entero arrancado bajo open_basedir (H511) ────
+        echoTerminal('[c] Salud de la instalación en un subproceso con open_basedir: sin avisos ni entradas en el registro');
+        $prepend = sys_get_temp_dir() . '/zz-open-basedir-salud-' . bin2hex(random_bytes(4)) . '.php';
+        //RETORNO-IGNORADO: si no se escribe, el subproceso no imprime SALUD= y c1 lo dice.
+        file_put_contents($prepend, '<?php register_shutdown_function(static function (): void { try { $rows = \\PiecesPHP\\SystemStatus\\SystemHealth::rows();'
+            . ' $claves = array_values(array_filter($rows, fn($r) => str_contains($r["origin"], "AppKeyring")));'
+            . ' echo "SALUD=" . count($rows) . " CLAVES=" . json_encode($claves[0]["value"] ?? null, JSON_UNESCAPED_UNICODE) . "\\n"; }'
+            . ' catch (\\Throwable $e) { echo "LANZÓ " . get_class($e) . ": " . $e->getMessage() . "\\n"; } });');
+        $registro = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/error.log.jsonl';
+        $lineas = fn(): int => is_file($registro) ? count((array) file($registro)) : 0;
+        $antes = $lineas();
+        $proceso = proc_open([\PHP_BINARY, '-d', 'open_basedir=' . $src . \PATH_SEPARATOR . sys_get_temp_dir(), '-d', 'display_errors=stderr', '-d', 'auto_prepend_file=' . $prepend, 'index.php', 'cli', '--local', 'help'], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $tubos, $src);
+        $salida = '';
+        $errores = '';
+        $estado = -1;
+        if (is_resource($proceso)) {
+            //RETORNO-IGNORADO: el subproceso no lee nada; cerrar su entrada solo evita que espere.
+            fclose($tubos[0]);
+            $salida = (string) stream_get_contents($tubos[1]);
+            $errores = (string) stream_get_contents($tubos[2]);
+            //RETORNO-IGNORADO: tubos propios de la prueba, ya leídos.
+            fclose($tubos[1]);
+            //RETORNO-IGNORADO: tubos propios de la prueba, ya leídos.
+            fclose($tubos[2]);
+            $estado = proc_close($proceso);
+        }
+        //RETORNO-IGNORADO: el temporal propio de la prueba.
+        @unlink($prepend);
+        preg_match('/SALUD=(\d+) CLAVES="?([^"\n]*)"?/', $salida, $salud);
+        $check($estado === 0 && (int) ($salud[1] ?? 0) > 20 && !str_contains($salida, 'LANZÓ'), 'c1 Salud se calcula entera con open_basedir', "salida {$estado}: " . mb_substr((string) preg_replace('/\s+/', ' ', (string) strstr($salida, 'SALUD=') ?: (string) strstr($salida, 'LANZÓ') ?: ''), 0, 240));
+        $check(trim($errores) === '' && $lineas() === $antes, 'c2 sin avisos y sin entradas nuevas en el registro de errores', mb_substr(trim($errores), 0, 240) . " · registro {$antes} → {$lineas()}");
+        $check(($salud[2] ?? '') === 'Falta', 'c3 la carpeta de claves, fuera de open_basedir: «Falta», sin mirarla', (string) ($salud[2] ?? ''));
+
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . $e->getLine());
     }
@@ -76,4 +111,4 @@ CliActions::make('unit-tests:core/open-basedir', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('open_basedir (H287): path_within_open_basedir() pura (vacía, dentro, fuera, prefijo engañoso, barra final, «..»); y AppKeyring::directory() en un subproceso con open_basedir, sin avisos.')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('open_basedir (H287): path_within_open_basedir() pura (vacía, dentro, fuera, prefijo engañoso, barra final, «..»); y AppKeyring::directory() y Salud de la instalación en subprocesos con open_basedir, sin avisos.')->setEffects([CliActions::EFFECT_NONE])->register();

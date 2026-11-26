@@ -84,8 +84,9 @@ fábrica.
 externo, su lista de `permissions` y su autoridad sobre los de su tipo quedan fijos: declararlos es un error del archivo.
 
 **Ningún tipo recibe todas las rutas.** Lo que haga falta se nombra en `routes`. Una ruta que el framework reserva a root
-(las que declaran `rolesAllowed` solo con root) no debe ir en `routes`: Avisos del sistema la marca como crítica y
-`bin/cli verify-integrity` falla.
+(las que, en tu instalación, quedan con `rolesAllowed` solo root) no debe ir en el `routes` de otro tipo: Avisos del
+sistema la marca como crítica y `bin/cli verify-integrity` falla. Los avisos del archivo (la prioridad alta de un tipo
+propio, el administrador de organización sin organización) también salen en Avisos del sistema.
 
 Hasta la versión 7 esto se hacía editando constantes de `UsersModel`. Su equivalente:
 

@@ -18,6 +18,7 @@ use PiecesPHP\Terminal\LoadFailures;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use Terminal\Distribution;
+use Terminal\Shell;
 use Terminal\TestLeftovers;
 
 /**
@@ -277,6 +278,11 @@ class GatesTask extends TerminalTaskAbstract
         //─── SELECCIÓN POR ÁREA (ADR 0062): solo con changed-since; sin él, gates es el de siempre ───
         $changedSince = \PiecesPHP\TerminalData::instance()->getArgument('changed-since', '');
         $changedSince = is_string($changedSince) ? trim($changedSince) : '';
+        //Sin exec() no corre ninguna suite (cada una es un proceso): elegir por área no cambia nada (H508).
+        if ($changedSince !== '' && !Shell::processes()) {
+            echoTerminal("\e[33m" . Shell::NOT_APPLICABLE . ' changed-since: ' . Shell::processesReason() . "\e[39m");
+            $changedSince = '';
+        }
         if ($changedSince !== '') {
             $changed = self::changedFiles($repoRoot, $changedSince);
             if ($changed === null) {
@@ -331,6 +337,7 @@ class GatesTask extends TerminalTaskAbstract
 
         $skipped = [];
         $notApplicable = [];
+        $withoutShell = [];
         $moduleOff = [];
 
         //UNA SUITE QUE NO CARGÓ NO REGISTRÓ SU ACCIÓN: la enumeración de arriba no la ve. Sin esto
@@ -363,7 +370,10 @@ class GatesTask extends TerminalTaskAbstract
             echoTerminal("   \e[31mPUNTO DE PARTIDA: SUCIO\e[39m — falta " . TestLeftovers::BASELINE_FILE
                 . ', así que no hay con qué comparar. Se crea con: bin/cli gates leftovers=rebase motivo="..."');
         } elseif ($comparacionInicial['limpio']) {
-            echoTerminal("   \e[32mPUNTO DE PARTIDA: LIMPIO\e[39m — los restos son exactamente los de la línea base. Esta corrida SÍ vale para avalar una etiqueta.");
+            //Sin procesos no se emite la palabra LIMPIO: bin/verify la busca para calificar la corrida.
+            echoTerminal(Shell::processes()
+                ? "   \e[32mPUNTO DE PARTIDA: LIMPIO\e[39m — los restos son exactamente los de la línea base. Esta corrida SÍ vale para avalar una etiqueta."
+                : "   \e[33mPUNTO DE PARTIDA: NO APLICA\e[39m — sin procesos no correrá ninguna suite: esta corrida NO vale para avalar una etiqueta.");
         } else {
             echoTerminal("   \e[31mPUNTO DE PARTIDA: SUCIO\e[39m — esta corrida NO vale para avalar una etiqueta.");
             if (count($comparacionInicial['sobran']) > 0) {
@@ -433,6 +443,13 @@ class GatesTask extends TerminalTaskAbstract
                 continue;
             }
 
+            //Cada suite corre en su proceso: sin exec() no aplica, y gates llega igual a su resumen (H508).
+            if (!Shell::processes()) {
+                $withoutShell[] = $suite;
+                echoTerminal("   \e[33m" . Shell::NOT_APPLICABLE . " {$short}: " . Shell::processesReason() . "\e[39m");
+                continue;
+            }
+
             if (Distribution::isDistribution()) {
                 $faltan = Distribution::missing(self::SUITE_DISTRIBUTION_REQUIREMENTS[$suite] ?? []);
                 //La matriz solo les da la base HTTP: con PCSPHP_WALK_BASE no la necesitan.
@@ -493,7 +510,8 @@ class GatesTask extends TerminalTaskAbstract
         echoTerminal('   ' . (count($suites) + count(LoadFailures::all(LoadFailures::TYPE_SUITE))) . ' suite(s), ' . count($failed) . ' sin veredicto o con fallos, '
             . count($skipped) . ' no corridas por declarar efectos externos'
             . (count($moduleOff) > 0 ? ', ' . count($moduleOff) . ' omitidas por un módulo apagado' : '')
-            . (count($notApplicable) > 0 ? ', ' . count($notApplicable) . ' que no aplican en la distribución.' : '.'));
+            . (count($notApplicable) > 0 ? ', ' . count($notApplicable) . ' que no aplican en la distribución' : '')
+            . (count($withoutShell) > 0 ? ', ' . count($withoutShell) . ' sin correr porque este PHP no deja lanzar procesos (exec())' : '') . '.');
 
         //─── QUIÉN DEJÓ ALGO (ADR 0047 §4) ──────────────────────────────────────────────────────
         if (count($culpables) > 0) {
@@ -510,7 +528,10 @@ class GatesTask extends TerminalTaskAbstract
 
         //Repetida aquí, pegada al veredicto: es la línea que `bin/verify` lee para calificar la suya.
         echoTerminal('');
-        if ($partidaNoAplica) {
+        if ($withoutShell !== []) {
+            //Una suite que no corre no avala nada (LEY 13): sin exec(), la corrida no vale para una etiqueta.
+            echoTerminal("   \e[33mPUNTO DE PARTIDA: NO APLICA\e[39m — sin exec() no corrió ninguna suite: esta corrida NO vale para avalar una etiqueta.");
+        } elseif ($partidaNoAplica) {
             echoTerminal("   \e[33mPUNTO DE PARTIDA: NO APLICA EN LA DISTRIBUCIÓN\e[39m — sin la línea base de restos, que no viaja.");
         } else {
             echoTerminal($partidaSucia
@@ -520,6 +541,10 @@ class GatesTask extends TerminalTaskAbstract
 
         if (count($failed) > 0) {
             echoTerminal("\e[31m*** {$titleTask}, tarea finalizada CON FALLOS ***\e[39m");
+            exit(1);
+        }
+        if ($withoutShell !== []) {
+            echoTerminal("\e[33m*** {$titleTask}, tarea finalizada SIN CORRER " . count($withoutShell) . " SUITE(S): " . Shell::processesReason() . " ***\e[39m");
             exit(1);
         }
 
@@ -790,6 +815,9 @@ class GatesTask extends TerminalTaskAbstract
      */
     public static function blobHash(string $repoRoot, string $file): ?string
     {
+        if (!Shell::processes()) {
+            return null;
+        }
         if (!is_file($repoRoot . '/' . $file)) {
             return null;
         }
@@ -831,6 +859,9 @@ class GatesTask extends TerminalTaskAbstract
             return "mira la portada del framework, y este proyecto sirve su sitio propio («{$site}», \$config['public_site'])";
         }
         $tag = self::SUITES_FRAMEWORK_TAGS[$suite] ?? null;
+        if ($tag !== null && !Shell::processes()) {
+            return Shell::processesReason();
+        }
         if ($tag !== null) {
             $corrio = exec('git --no-optional-locks -C ' . escapeshellarg($root) . ' rev-parse --verify -q ' . escapeshellarg("refs/tags/{$tag}") . ' 2>/dev/null', $salida, $estado) !== false;
             if (!$corrio || $estado !== 0) {
@@ -885,6 +916,9 @@ class GatesTask extends TerminalTaskAbstract
      */
     protected static function changedFiles(string $repoRoot, string $commit): ?array
     {
+        if (!Shell::processes()) {
+            return null;
+        }
         //core.quotePath=false: un nombre no ASCII sale tal cual, no entre comillas y en octal, y casa con su área (H41).
         $git = 'git -C ' . escapeshellarg($repoRoot) . ' -c core.quotePath=false ';
         $output = [];

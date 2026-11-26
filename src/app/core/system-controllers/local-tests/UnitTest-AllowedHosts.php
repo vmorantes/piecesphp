@@ -76,12 +76,51 @@ CliActions::make('unit-tests:core/allowed-hosts', function ($args) {
         echoTerminal(' ');
 
         //─── d · El aviso ───────────────────────────────────────────────────────────────────────────────
-        echoTerminal('[d] SystemStatusRoutes::allowedHostsMissing()');
-        $check(SystemStatusRoutes::allowedHostsMissing([], true) === false, 'd1 en local → sin aviso');
-        $check(SystemStatusRoutes::allowedHostsMissing([], false) === true, 'd2 [] fuera de local → aviso');
-        $check(SystemStatusRoutes::allowedHostsMissing(null, false) === true, 'd3 null fuera de local → aviso');
-        $check(SystemStatusRoutes::allowedHostsMissing([''], false) === true, 'd4 [\'\'] fuera de local → aviso');
-        $check(SystemStatusRoutes::allowedHostsMissing(['ejemplo.com'], false) === false, 'd5 [\'ejemplo.com\'] → sin aviso');
+        echoTerminal('[d] SystemStatusRoutes::allowedHostsMissing(): también en local (P415)');
+        $check(SystemStatusRoutes::allowedHostsMissing([]) === true, 'd1 [] → aviso');
+        $check(SystemStatusRoutes::allowedHostsMissing(null) === true, 'd2 null → aviso');
+        $check(SystemStatusRoutes::allowedHostsMissing(['']) === true, 'd3 [\'\'] → aviso');
+        $check(SystemStatusRoutes::allowedHostsMissing(['ejemplo.com']) === false, 'd4 [\'ejemplo.com\'] → sin aviso');
+        $check(SystemStatusRoutes::allowedHostsMissing(['.', ':80']) === true && AllowedHosts::allows('otro.test', ['.', ':80']) === true, 'd4b entradas que se normalizan a vacío: la lista admite cualquiera, y el aviso lo dice');
+        //El aviso registrado, en esta instalación local: activo con la lista vacía y apagado con la lista llena.
+        SystemStatusRoutes::registerCoreAlerts();
+        $alert = \PiecesPHP\SystemStatus\SystemAlertRegistry::get('allowed-hosts-empty');
+        $previous = get_config('allowed_hosts');
+        set_config('allowed_hosts', []);
+        $activeEmpty = $alert !== null && $alert->evaluateActive();
+        set_config('allowed_hosts', ['localhost']);
+        $activeFull = $alert !== null && $alert->evaluateActive();
+        set_config('allowed_hosts', $previous);
+        $check(is_local() && $activeEmpty && !$activeFull && $alert->showAsNag() && $alert->audience() === [\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ROOT], 'd5 en local: con la lista vacía el aviso flotante sale (para root); con la lista llena, no', var_export([is_local(), $activeEmpty, $activeFull], true));
+        $texto = $alert !== null ? $alert->message() : '';
+        $check(str_contains($texto, 'www.example.org') && str_contains($texto, 'confía en el dominio que llega en cada petición') && !str_contains($texto, 'recuperación'), 'd6 el texto dice que example.org admite también www.example.org, y no enseña a qué ataca (regla 6bis)');
+        echoTerminal(' ');
+
+        //─── e · El www inferido (P415) ─────────────────────────────────────────────────────────────────
+        echoTerminal('[e] «example.org» admite también «www.example.org»; nada más se infiere');
+        foreach ([
+            'e1 example.org admite www.example.org' => ['www.example.org', ['example.org'], true, true],
+            'e2 y no api.example.org' => ['api.example.org', ['example.org'], true, false],
+            'e3 con la bandera en false, no admite el www' => ['www.example.org', ['example.org'], false, false],
+            'e4 con la bandera en false, example.org sigue' => ['example.org', ['example.org'], false, true],
+            'e5 «.example.org» igual que hoy (www y api)' => ['api.example.org', ['.example.org'], true, true],
+            'e6 www.example.org en la lista no infiere example.org' => ['example.org', ['www.example.org'], true, false],
+            'e7 ni www.www.example.org' => ['www.www.example.org', ['www.example.org'], true, false],
+            'e8 a localhost no se le antepone www' => ['www.localhost', ['localhost'], true, false],
+            'e9 ni a una IP' => ['www.127.0.0.1', ['127.0.0.1'], true, false],
+            'e10 sin el argumento, infiere (el config.php viejo)' => ['www.example.org', ['example.org'], null, true],
+        ] as $name => [$host, $allowed, $infer, $expected]) {
+            $got = $infer === null ? AllowedHosts::allows($host, $allowed) : AllowedHosts::allows($host, $allowed, $infer);
+            $check($got === $expected, $name);
+        }
+        echoTerminal(' ');
+        echoTerminal('[f] Con lista, un Host que no tiene forma de nombre no se compara (la URL base apuntaría a otro dominio)');
+        foreach (['example.org:@evil.com', 'example.org:80@evil.com', 'www.example.org:@evil.com', 'evil.com?.example.org', 'evil.com#.example.org', 'example.org/evil.com', 'exa mple.org'] as $hostile) {
+            $check(AllowedHosts::allows($hostile, ['example.org', '.example.org']) === false, "f «{$hostile}» → no");
+        }
+        $check(AllowedHosts::allows('EXAMPLE.org.:8443', ['example.org']) && AllowedHosts::allows('[::1]:8080', ['[::1]']) && AllowedHosts::allows('evil.com?x', []), 'f8 lo válido sigue (mayúsculas, punto final, puerto, IPv6) y con la lista vacía no se mira la forma');
+        $server = ['HTTP_X_FORWARDED_HOST' => 'www.example.org', 'HTTP_HOST' => 'example.org'];
+        $check(AllowedHosts::hostForSameDomain($server, ['example.org']) === 'www.example.org' && AllowedHosts::hostForSameDomain($server, ['example.org'], false) === 'example.org', 'e11 X-Forwarded-Host infiere igual: www.example.org cuenta; con la bandera en false, no');
 
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300) . ' @' . $e->getLine());
@@ -95,4 +134,4 @@ CliActions::make('unit-tests:core/allowed-hosts', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('P310 c: la lista de dominios permitidos (normalize, allows, hostForSameDomain) y su aviso.')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('P310 c y P415: la lista de dominios permitidos (normalize, allows con el www inferido, hostForSameDomain) y su aviso, también en local.')->setEffects([CliActions::EFFECT_NONE])->register();

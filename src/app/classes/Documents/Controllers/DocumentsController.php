@@ -13,6 +13,7 @@ use Documents\Exceptions\SafeException;
 use Documents\Mappers\DocumentsMapper;
 use Forms\DocumentTypes\Controllers\DocumentTypesController;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
+use Organizations\Util\OrganizationAdministration;
 use PDOException;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
@@ -1300,7 +1301,7 @@ class DocumentsController extends AdminPanelController
                         $createdByID = (int) $element->createdBy;
                         $allow = $createdByID == $currentUserID;
 
-                        if (in_array($currentUserType, DocumentsMapper::CAN_DELETE_ALL)) {
+                        if (in_array($currentUserType, DocumentsMapper::CAN_DELETE_ALL) || (!$allow && OrganizationAdministration::administersCreatorOf($element->createdBy, $currentUser))) {
                             $allow = true;
                         }
 
@@ -1325,7 +1326,7 @@ class DocumentsController extends AdminPanelController
                             $createdByID = (int) $element->createdBy;
                             $allow = $createdByID == $currentUserID;
 
-                            if (in_array($currentUserType, DocumentsMapper::CAN_EDIT_ALL)) {
+                            if (in_array($currentUserType, DocumentsMapper::CAN_EDIT_ALL) || (!$allow && OrganizationAdministration::administersCreatorOf($element->createdBy, $currentUser))) {
                                 $allow = true;
                             }
 

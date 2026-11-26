@@ -24,6 +24,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\UserTypes;
 use Terminal\Distribution;
 use Terminal\FormActionFields;
+use Terminal\Shell;
 
 /**
  * VerifyIntegrityTask.
@@ -72,6 +73,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @var string
      */
     const SNAPSHOT_RELATIVE_PATH = 'files/dev/integrity-signatures.json';
+
+    /**
+     * Cuántas comprobaciones no se hicieron por no poder lanzar procesos en esta corrida.
+     */
+    private static int $withoutShell = 0;
 
     /**
      * Ruta absoluta de la instantánea.
@@ -221,6 +227,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     /** Las extensiones de PHPStan del núcleo, relativas a `src/`: cargan solo con bin/tools/vendor, así que no viajan (comprobación 47). */
     const PHPSTAN_EXTENSIONS_DIR = 'app/core/psr4/PiecesPHP/Core/PHPStan/';
 
+    /** La cobertura de rutas localizadas del mapa del código (ADR 0091): trinquete que solo sube. */
+    const ATLAS_COVERAGE_BASELINE_RELATIVE_PATH = 'files/dev/atlas-coverage-baseline.json';
+
     /**
      * Lo que cada comprobación necesita y NO viaja (ADR 0049), relativo a la raíz. En la distribución, sin eso, dice
      * `[NO APLICA EN LA DISTRIBUCIÓN]`; aquí lo que falte es un fallo. Una comprobación que lea algo así se añade aquí.
@@ -262,6 +271,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         70 => [FormActionFields::DECLARED_RELATIVE_PATH, '.git'],
         71 => ['bin/censo-scss', self::SCSS_CENSUS_BASELINE_RELATIVE_PATH],
         72 => [self::SHOWCASES_RELATIVE_PATH, '.git'],
+        74 => [self::ATLAS_COVERAGE_BASELINE_RELATIVE_PATH],
     ];
 
     /** La línea base del censo de SCSS, relativa a la raíz (comprobación 71). */
@@ -397,13 +407,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $deprecatedFailures = Distribution::applies('6', self::DISTRIBUTION_REQUIREMENTS[6]) ? self::checkDeprecatedFunctions($files) : [];
 
         //──── 7. Los paquetes no se han desviado del instrumental común ─────────────────
-        $toolchainFailures = Distribution::applies('7', self::DISTRIBUTION_REQUIREMENTS[7]) ? self::checkSharedToolchain() : [];
+        $toolchainFailures = Distribution::applies('7', self::DISTRIBUTION_REQUIREMENTS[7]) ? self::withShell('7', fn(): array => self::checkSharedToolchain()) : [];
 
         //──── 8. No hay comentarios narrativos fuera del registro ───────────────────────
         $narrativeFailures = Distribution::applies('8', self::DISTRIBUTION_REQUIREMENTS[8]) ? self::checkNarrativeComments() : [];
 
         //──── 9. Los guiones de bin/ están marcados como ejecutables EN EL ÍNDICE ───────
-        $executableFailures = self::checkExecutableBits();
+        $executableFailures = self::withShell('9', fn(): array => self::checkExecutableBits());
 
         //──── 10. Los tipos declarados en los mappers existen ───────────────────────────
         $typeFailures = self::checkDeclaredTypes($files);
@@ -415,7 +425,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $forbiddenFailures = Distribution::applies('12', self::DISTRIBUTION_REQUIREMENTS[12]) ? self::checkForbiddenRoutesAreSingle() : [];
 
         //──── 13. Todo el PHP versionado se analiza o está declarado fuera ──────────────
-        $universeFailures = Distribution::applies('13', self::DISTRIBUTION_REQUIREMENTS[13]) ? self::checkPhpStanUniverse() : [];
+        $universeFailures = Distribution::applies('13', self::DISTRIBUTION_REQUIREMENTS[13]) ? self::withShell('13', fn(): array => self::checkPhpStanUniverse()) : [];
 
         //──── 14. Todo objectToMapper() siembra la instantánea de la fila ───────────────
         $seedingFailures = self::checkSnapshotSeeding($files);
@@ -427,19 +437,19 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $orphanFailures = self::checkOrphanDocblocks($files);
 
         //──── 17. La versión instalada de cada paquete contra la última etiquetada ──────
-        $versiones = self::collectPackageVersions();
+        $versiones = (Shell::processes() ? self::collectPackageVersions() : self::withoutShell('17', ['fallos' => [], 'avisos' => []]));
 
         //──── 18. Ningún `if/else` con las dos ramas iguales ───────────────────────────
         $twinFailures = Distribution::applies('18', self::DISTRIBUTION_REQUIREMENTS[18]) ? self::checkTwinBranches($files) : [];
 
         //──── 19. Los retornos ignorados sin declarar no han crecido ───────────────────
-        $returnFailures = Distribution::applies('19', self::DISTRIBUTION_REQUIREMENTS[19]) ? self::checkIgnoredReturns() : [];
+        $returnFailures = Distribution::applies('19', self::DISTRIBUTION_REQUIREMENTS[19]) ? self::withShell('19', fn(): array => self::checkIgnoredReturns()) : [];
 
         //──── 20. Ningún enlace del árbol servido apunta al vacío ──────────────────────
         $symlinkFailures = self::checkDanglingDelegatedLinks();
 
         //──── 21. Las claves de traducción que nadie pide no han crecido ───────────────
-        $langFailures = Distribution::applies('21', self::DISTRIBUTION_REQUIREMENTS[21]) ? self::checkOrphanLangKeys() : [];
+        $langFailures = Distribution::applies('21', self::DISTRIBUTION_REQUIREMENTS[21]) ? self::withShell('21', fn(): array => self::checkOrphanLangKeys()) : [];
 
         //──── 22. Las etiquetas de cada vista cuadran ──────────────────────────────────
         $tagFailures = self::checkViewTagBalance();
@@ -448,19 +458,19 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $routeDeclFailures = Distribution::applies('23', self::DISTRIBUTION_REQUIREMENTS[23]) ? self::checkUndeclaredRoutesInGuardedModules() : [];
 
         //──── 24. Las concatenaciones de SQL con valor de petición no han crecido ───────
-        $sqlFailures = Distribution::applies('24', self::DISTRIBUTION_REQUIREMENTS[24]) ? self::checkConcatenatedSql() : [];
+        $sqlFailures = Distribution::applies('24', self::DISTRIBUTION_REQUIREMENTS[24]) ? self::withShell('24', fn(): array => self::checkConcatenatedSql()) : [];
 
         //──── 25. Ninguna forma «para leer» acaba ejecutándose sin declararlo ───────────
-        $readingFailures = Distribution::applies('25', self::DISTRIBUTION_REQUIREMENTS[25]) ? self::checkReadingForms() : [];
+        $readingFailures = Distribution::applies('25', self::DISTRIBUTION_REQUIREMENTS[25]) ? self::withShell('25', fn(): array => self::checkReadingForms()) : [];
 
         //──── 26. Las tres cifras de la línea base de PHPStan dicen lo mismo ────────────
         $baselineFailures = Distribution::applies('26', self::DISTRIBUTION_REQUIREMENTS[26]) ? self::checkPhpStanBaselineAgrees() : [];
 
         //──── 27. Ningún identificador de SQL viene de la petición ──────────────────────
-        $identifierFailures = Distribution::applies('27', self::DISTRIBUTION_REQUIREMENTS[27]) ? self::checkSqlIdentifiers() : [];
+        $identifierFailures = Distribution::applies('27', self::DISTRIBUTION_REQUIREMENTS[27]) ? self::withShell('27', fn(): array => self::checkSqlIdentifiers()) : [];
 
         //──── 28. La interpolación de SQL con valor de petición no ha crecido ───────────
-        $interpolationFailures = Distribution::applies('28', self::DISTRIBUTION_REQUIREMENTS[28]) ? self::checkInterpolatedSql() : [];
+        $interpolationFailures = Distribution::applies('28', self::DISTRIBUTION_REQUIREMENTS[28]) ? self::withShell('28', fn(): array => self::checkInterpolatedSql()) : [];
 
         //──── 29. Toda carpeta de subidas está protegida o declarada ────────────────────
         $uploadFailures = Distribution::applies('29', self::DISTRIBUTION_REQUIREMENTS[29]) ? self::checkUploadDirsProtected() : [];
@@ -484,7 +494,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $declaredPermissionFailures = Distribution::applies('35', self::DISTRIBUTION_REQUIREMENTS[35]) ? self::checkDeclaredPermissions() : [];
 
         //──── 36. Toda plantilla nombrada en un render(), un _render() o un view() existe ─
-        $templateFailures = Distribution::applies('36', self::DISTRIBUTION_REQUIREMENTS[36]) ? self::checkRenderedTemplatesExist() : [];
+        $templateFailures = Distribution::applies('36', self::DISTRIBUTION_REQUIREMENTS[36]) ? self::withShell('36', fn(): array => self::checkRenderedTemplatesExist()) : [];
 
         //──── 37. Todo controlador que dependa del modelo deducido resuelve a uno que existe ─
         $deducedModelFailures = self::checkModelIsAssigned();
@@ -493,42 +503,42 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $columnRenameFailures = Distribution::applies('38', self::DISTRIBUTION_REQUIREMENTS[38]) ? self::checkSchemaColumnNaming() : [];
 
         //──── 39. Toda capacidad anunciada tiene su ruta o su acción de terminal ────────
-        $capabilityFailures = Distribution::applies('39', self::DISTRIBUTION_REQUIREMENTS[39]) ? self::checkAnnouncedCapabilities() : [];
+        $capabilityFailures = Distribution::applies('39', self::DISTRIBUTION_REQUIREMENTS[39]) ? self::withShell('39', fn(): array => self::checkAnnouncedCapabilities()) : [];
 
         //──── 40. Nada nombra una ruta que la campaña borró o movió ─────────────────────
-        $remnantFailures = Distribution::applies('40', self::DISTRIBUTION_REQUIREMENTS[40]) ? self::checkCampaignRemnants() : [];
+        $remnantFailures = Distribution::applies('40', self::DISTRIBUTION_REQUIREMENTS[40]) ? self::withShell('40', fn(): array => self::checkCampaignRemnants()) : [];
 
         //──── 41. Cada archivo de configuración dice de quién es ────────────────────────
-        $configOwnershipFailures = self::checkConfigOwnership();
+        $configOwnershipFailures = self::withShell('41', fn(): array => self::checkConfigOwnership());
 
         //──── 42. Ninguna ruta declara un alias ─────────────────────────────────────────
-        $aliasFailures = self::checkNoRouteAlias();
+        $aliasFailures = self::withShell('42', fn(): array => self::checkNoRouteAlias());
 
         //──── 43. La decisión de la entrega del correo vive en un solo sitio ────────────
         $mailDecisionFailures = self::checkMailDeliveryDecision();
 
         //──── 44. La documentación no nombra rutas que no existen ───────────────────────
-        $docPathFailures = Distribution::applies('44', self::DISTRIBUTION_REQUIREMENTS[44]) ? self::checkDocumentedPaths() : [];
+        $docPathFailures = Distribution::applies('44', self::DISTRIBUTION_REQUIREMENTS[44]) ? self::withShell('44', fn(): array => self::checkDocumentedPaths()) : [];
 
         //──── 45. La documentación no nombra claves de configuración que no existen ─────
-        $docConfigFailures = Distribution::applies('45', self::DISTRIBUTION_REQUIREMENTS[45]) ? self::checkDocumentedConfigKeys() : [];
+        $docConfigFailures = Distribution::applies('45', self::DISTRIBUTION_REQUIREMENTS[45]) ? self::withShell('45', fn(): array => self::checkDocumentedConfigKeys()) : [];
 
         //──── 46. El número de registro ni se recorta ni sirve para ordenar ─────────────
-        $paddingFailures = self::checkRegisterNumberPadding();
+        $paddingFailures = self::withShell('46', fn(): array => self::checkRegisterNumberPadding());
         //──── 47. La distribución pública lleva lo decidido y nada de la campaña ────────
-        $distributionFailures = Distribution::applies('47', ['bin/make-distribution', 'bin/distribution-exclude.txt']) ? self::checkDistribution() : [];
+        $distributionFailures = Distribution::applies('47', ['bin/make-distribution', 'bin/distribution-exclude.txt']) ? self::withShell('47', fn(): array => self::checkDistribution()) : [];
 
         //──── 48. Lo que se cifra usa un propósito declarado, y ofuscar solo donde se permite ─
         $sealedFailures = self::checkSealedPurposes();
 
         //──── 49. Lo global solo crece si se declara global ──────────────────────────────
-        $globalFailures = Distribution::applies('49', [self::GLOBAL_FILES_RELATIVE_PATH]) ? self::checkGlobalFilesDeclared() : [];
+        $globalFailures = Distribution::applies('49', [self::GLOBAL_FILES_RELATIVE_PATH]) ? self::withShell('49', fn(): array => self::checkGlobalFilesDeclared()) : [];
 
         //──── 50. Nadie pregunta ni avisa con el diálogo del navegador ──────────────────
-        $dialogFailures = Distribution::applies('50', [self::BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH]) ? self::checkBrowserDialogs() : [];
+        $dialogFailures = Distribution::applies('50', [self::BROWSER_DIALOGS_ALLOWED_RELATIVE_PATH]) ? self::withShell('50', fn(): array => self::checkBrowserDialogs()) : [];
 
         //──── 51. Toda vista con su propio <head> publica el nombre de la sesión ────────
-        $frontConfigFailures = Distribution::applies('51', [self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH]) ? self::checkHeadsEmitFrontConfigurations() : [];
+        $frontConfigFailures = Distribution::applies('51', [self::HEAD_WITHOUT_FRONT_CONFIGURATIONS_RELATIVE_PATH]) ? self::withShell('51', fn(): array => self::checkHeadsEmitFrontConfigurations()) : [];
 
         //──── 52. Nadie llama desde el código a un método que decide la operación por la ruta ─
         $routeDecidedFailures = self::checkRouteDecidedOperationCalls();
@@ -537,37 +547,37 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $suiteAreaFailures = self::checkSuiteAreas();
 
         //──── 54. Ningún color suelto en el SCSS del panel ─────────────────────────────
-        $looseColorFailures = self::checkLooseColorsInPanelScss();
+        $looseColorFailures = self::withShell('54', fn(): array => self::checkLooseColorsInPanelScss());
 
         //──── 55. Toda dirección a un archivo local del SCSS lleva static-url() ─────────
-        $unstampedFailures = self::checkScssStaticUrls();
+        $unstampedFailures = self::withShell('55', fn(): array => self::checkScssStaticUrls());
 
         //──── 57. Toda acción de bin/cli que cita la documentación existe ───────────────
-        $docCliFailures = Distribution::applies('57', ['source-docs']) ? self::checkDocumentedCliActions() : [];
+        $docCliFailures = Distribution::applies('57', ['source-docs']) ? self::withShell('57', fn(): array => self::checkDocumentedCliActions()) : [];
 
         //──── 58. Toda cita `Clase::método(` de la documentación nombra un método que existe ──
-        $docMethodFailures = Distribution::applies('58', self::DISTRIBUTION_REQUIREMENTS[58]) ? self::checkDocumentedMethods() : [];
+        $docMethodFailures = Distribution::applies('58', self::DISTRIBUTION_REQUIREMENTS[58]) ? self::withShell('58', fn(): array => self::checkDocumentedMethods()) : [];
 
         //──── 59. Ninguna vista gana style= (fase (1) del rediseño, D16) ─────────────────
-        $inlineStyleFailures = Distribution::applies('59', self::DISTRIBUTION_REQUIREMENTS[59]) ? self::checkInlineStyles() : [];
+        $inlineStyleFailures = Distribution::applies('59', self::DISTRIBUTION_REQUIREMENTS[59]) ? self::withShell('59', fn(): array => self::checkInlineStyles()) : [];
 
         //──── 60. Una sección de seguridad del CHANGELOG no nombra lo que arregló ────────
-        $publicSecurityFailures = Distribution::applies('60', self::DISTRIBUTION_REQUIREMENTS[60]) ? self::checkPublicSecurityDocs() : [];
+        $publicSecurityFailures = Distribution::applies('60', self::DISTRIBUTION_REQUIREMENTS[60]) ? self::withShell('60', fn(): array => self::checkPublicSecurityDocs()) : [];
 
         //──── 61. El manual: sus rutas existen y la cobertura de las pantallas solo sube (ADR 0072) ──
         $manualFailures = self::checkManualCoverage();
 
         //──── 62. La fecha de versión es la del lanzamiento ──────────────────────────────
-        $versionDateFailures = Distribution::applies('62', self::DISTRIBUTION_REQUIREMENTS[62]) ? self::checkVersionDate() : [];
+        $versionDateFailures = Distribution::applies('62', self::DISTRIBUTION_REQUIREMENTS[62]) ? self::withShell('62', fn(): array => self::checkVersionDate()) : [];
 
         //──── 63. Todo envío de correo está catalogado (H189) ──────────────────────────────
-        $mailSenderFailures = Distribution::applies('63', self::DISTRIBUTION_REQUIREMENTS[63]) ? self::checkMailSendersCatalogued() : [];
+        $mailSenderFailures = Distribution::applies('63', self::DISTRIBUTION_REQUIREMENTS[63]) ? self::withShell('63', fn(): array => self::checkMailSendersCatalogued()) : [];
 
         //──── 64. El jsconfig y el tsconfig son JSON válido y ningún JS lleva /// <reference path> ─
-        $editorFailures = self::checkEditorConfigs();
+        $editorFailures = self::withShell('64', fn(): array => self::checkEditorConfigs());
 
         //──── 65. Toda ruta pública está en la documentación de la API o excluida con su motivo ─
-        $apiDocFailures = Distribution::applies('65', self::DISTRIBUTION_REQUIREMENTS[65]) ? self::checkApiDocumentation() : [];
+        $apiDocFailures = Distribution::applies('65', self::DISTRIBUTION_REQUIREMENTS[65]) ? self::withShell('65', fn(): array => self::checkApiDocumentation()) : [];
 
         //──── 66. Cada herramienta MCP del panel tiene una ruta de permiso que existe y un esquema válido ─
         $mcpToolFailures = self::checkMcpTools();
@@ -582,16 +592,23 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $structuredDataFailures = self::checkStructuredDataOrganization();
 
         //──── 70. Lo que envía cada formulario es lo que lee su acción (H423) ─────────────
-        $formFieldFailures = Distribution::applies('70', self::DISTRIBUTION_REQUIREMENTS[70]) ? self::checkFormActionFields() : [];
+        $formFieldFailures = Distribution::applies('70', self::DISTRIBUTION_REQUIREMENTS[70]) ? self::withShell('70', fn(): array => self::checkFormActionFields()) : [];
 
         //──── 71. El CSS propio no crece: el censo de SCSS solo baja (H163) ──────────────
-        $scssCensusFailures = Distribution::applies('71', self::DISTRIBUTION_REQUIREMENTS[71]) ? self::checkScssCensus() : [];
+        $scssCensusFailures = Distribution::applies('71', self::DISTRIBUTION_REQUIREMENTS[71]) ? self::withShell('71', fn(): array => self::checkScssCensus()) : [];
 
         //──── 72. El registro de escaparates no se pudre; lo desfasado y lo que no tiene escaparate se avisa (H220) ─
-        $showcaseFailures = Distribution::applies('72', self::DISTRIBUTION_REQUIREMENTS[72]) ? self::checkShowcases() : [];
+        $showcaseFailures = Distribution::applies('72', self::DISTRIBUTION_REQUIREMENTS[72]) ? self::withShell('72', fn(): array => self::checkShowcases()) : [];
 
         //──── 73. La puerta del desuso, en MODO INFORME: lista las marcas y no falla (H491 (7)) ─
         $deprecationGateFailures = self::checkDeprecationMarks();
+
+        //──── 74. El mapa del código cuadra con el framework vivo (ADR 0091) ───────────
+        try {
+            $atlasFailures = self::checkAtlas();
+        } catch (\Throwable $e) {
+            $atlasFailures = ['el mapa del código falló al calcular: ' . get_class($e) . ': ' . $e->getMessage()];
+        }
 
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
@@ -636,7 +653,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
          + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures)
          + count($structuredDataFailures) + count($formFieldFailures) + count($scssCensusFailures) + count($showcaseFailures)
-         + count($deprecationGateFailures);
+         + count($deprecationGateFailures) + count($atlasFailures);
 
         foreach ($cloneFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
@@ -745,6 +762,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($userTypesFileFailures as $line) {
             echoTerminal("\e[31mTIPOS DE USUARIO:\e[39m {$line}");
+        }
+        foreach ($atlasFailures as $line) {
+            echoTerminal("\e[31mMAPA DEL CÓDIGO:\e[39m {$line}");
         }
         foreach ($structuredDataFailures as $line) {
             echoTerminal("\e[31mDATOS ESTRUCTURADOS:\e[39m {$line}");
@@ -862,15 +882,26 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, las listas de tipos de usuario, el archivo de tipos de usuario, la distribución pública, lo que envía cada formulario contra lo que lee su acción y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, las listas de tipos de usuario, el archivo de tipos de usuario, el mapa del código, la distribución pública, lo que envía cada formulario contra lo que lee su acción y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
+            if (self::$withoutShell > 0) {
+                echoTerminal("\e[33mSIN PROCESOS:\e[39m " . self::$withoutShell . ' comprobación(es) NO se hicieron, cada una con su línea «' . Shell::NOT_APPLICABLE . '» arriba: el OK solo vale para las demás.');
+            }
             if (Distribution::announcedCount() > 0) {
                 echoTerminal("\e[33mEN LA DISTRIBUCIÓN:\e[39m " . Distribution::announcedCount() . ' comprobación(es) NO se hicieron, cada una con su línea «'
                     . Distribution::NOT_APPLICABLE . '» arriba: el OK solo vale para las demás.');
+            }
+            //Una comprobación que no se hizo no avala nada (LEY 13): sin procesos, la tarea llega a su resumen y sale con 1.
+            if (self::$withoutShell > 0) {
+                echoTerminal("\e[33m*** {$titleTask}, tarea finalizada SIN HACER " . self::$withoutShell . ' COMPROBACIÓN(ES): ' . Shell::processesReason() . " ***\e[39m");
+                exit(1);
             }
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
 
+        if (self::$withoutShell > 0) {
+            echoTerminal("\e[33mSIN PROCESOS:\e[39m " . self::$withoutShell . ' comprobación(es) NO se hicieron, cada una con su línea «' . Shell::NOT_APPLICABLE . '» arriba.');
+        }
         echoTerminal("\e[31mFALLOS: {$failures}\e[39m");
         echoTerminal("\e[33mSi los cambios son intencionados, regenera la instantánea con:\e[39m");
         echoTerminal("  bin/cli verify-integrity update-snapshot=yes");
@@ -1458,9 +1489,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── Propiedad del recurso ────────────────────────────────────────────────────
         'News\\Controllers\\NewsController::_allowedRoute' => 'actions-delete: solo el creador, o los tipos de NewsMapper::CAN_DELETE_ALL.',
         'PiecesPHP\\BuiltIn\\Banner\\Controllers\\BuiltInBannerController::_allowedRoute' => 'actions-delete: solo el creador, o BuiltInBannerMapper::CAN_DELETE_ALL.',
-        'Documents\\Controllers\\DocumentsController::_allowedRoute' => 'Borrado y edición: solo el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
-        'Forms\\DocumentTypes\\Controllers\\DocumentTypesController::_allowedRoute' => 'Borrado y edición: solo el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
-        'Forms\\Categories\\Controllers\\CategoriesController::_allowedRoute' => 'Borrado y edición: solo el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
+        'Documents\\Controllers\\DocumentsController::_allowedRoute' => 'Borrado y edición: el creador, el encargado de la organización del creador (P414 b), o CAN_DELETE_ALL / CAN_EDIT_ALL.',
+        'Forms\\DocumentTypes\\Controllers\\DocumentTypesController::_allowedRoute' => 'Borrado y edición: el creador, el encargado de la organización del creador (P414 b), o CAN_DELETE_ALL / CAN_EDIT_ALL.',
+        'Forms\\Categories\\Controllers\\CategoriesController::_allowedRoute' => 'Borrado y edición: el creador, el encargado de la organización del creador (P414 b), o CAN_DELETE_ALL / CAN_EDIT_ALL.',
 
         //──── Propiedad del recurso MÁS pertenencia a la organización ──────────────────
         'Publications\\Controllers\\PublicationsController::_allowedRoute' => 'Borrado y edición: creador o autor, o administrador de la MISMA organización que el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
@@ -7728,6 +7759,93 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         if ($failures === []) {
             $file = is_file(UserTypes::file()) ? 'src/app/config/user-types.php' : 'sin src/app/config/user-types.php';
             echoTerminal("\e[94mINFO:\e[39m tipos de usuario ({$file}): " . count(UserTypes::codes()) . ' con rol (' . implode(', ', UserTypes::codes()) . '), ' . count(UserTypes::retired()) . ' retirado(s), ' . count($warnings) . ' aviso(s).');
+        }
+        return $failures;
+    }
+
+    /**
+     * Corre una comprobación que lanza procesos (exec()); sin exec() en este PHP, NO APLICA con su motivo y la tarea sigue
+     * hasta su resumen (H508).
+     *
+     * @param string $check El número de la comprobación.
+     * @param callable():array<mixed> $run
+     * @return array<mixed>
+     */
+    private static function withShell(string $check, callable $run): array
+    {
+        return Shell::processes() ? $run() : self::withoutShell($check, []);
+    }
+
+    /**
+     * Anuncia que una comprobación no aplica sin exec() y devuelve lo que vale como «sin resultado».
+     *
+     * @template T
+     * @param string $check
+     * @param T $empty
+     * @return T
+     */
+    private static function withoutShell(string $check, mixed $empty): mixed
+    {
+        //Aparte de Distribution::announce(): lo que falta aquí es una función de PHP, no un archivo que no viaja.
+        self::$withoutShell++;
+        echoTerminal("\e[33m" . Shell::NOT_APPLICABLE . " {$check}: " . Shell::processesReason() . "\e[39m");
+        return $empty;
+    }
+
+    /**
+     * 74. El mapa del código cuadra con el framework vivo (ADR 0091, R1): para toda ruta registrada y todo tipo con rol, lo
+     * que concede el modelo (PermissionModel) es lo que concede Roles::hasPermissions(); los canarios, fijados por símbolo,
+     * siguen dando lo que dan; y la cobertura de rutas localizadas se imprime siempre y, en el repositorio, solo sube
+     * (files/dev/atlas-coverage-baseline.json). En un clon la coherencia y los canarios aplican; el trinquete, no.
+     *
+     * @return string[]
+     */
+    protected static function checkAtlas(): array
+    {
+        $failures = [];
+        $security = \PiecesPHP\Settings\Controllers\SettingsController::class . '::ROLES_SECURITY_AND_AI';
+        $located = \PiecesPHP\Core\Atlas\RouteDeclarations::get()->located('configurations-system-security');
+        if (($located['roles']['symbol'] ?? null) !== $security) {
+            $failures[] = "canario: configurations-system-security tendría que tomar sus roles de {$security}, y da " . var_export($located['roles']['symbol'] ?? null, true) . ': la declaración o su evaluación no miran';
+        }
+        $usersList = \PiecesPHP\Core\Atlas\PermissionModel::explain('users-list', \PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ADMIN_GRAL);
+        $bySegment = array_filter($usersList['ways'] ?? [], fn(array $way): bool => $way['way'] === 'segmento' && ($way['segment'] ?? null) === 'administratives');
+        if ($bySegment === []) {
+            $failures[] = 'canario: users-list tendría que conceder a la administración general por el segmento administratives: el modelo no ve roles.php';
+        }
+        //En un clon, el proyecto puede añadir o quitar rutas con esa constante: allí basta con que la vea.
+        $using = \PiecesPHP\Core\Atlas\Atlas::routesUsing($security);
+        if (Distribution::isDistribution() ? $using < 1 : $using !== 5) {
+            $failures[] = "canario: {$security} la usan " . (Distribution::isDistribution() ? 'al menos una ruta' : '5 rutas') . " y el mapa cuenta {$using}";
+        }
+
+        $coherence = \PiecesPHP\Core\Atlas\Atlas::coherence();
+        if ($coherence['cells'] === 0) {
+            $failures[] = 'la coherencia no comparó ninguna celda: sin rutas registradas o sin roles, no miró nada';
+        }
+        foreach ($coherence['mismatches'] as $cell) {
+            $failures[] = "{$cell['route']} para el tipo {$cell['userType']}: el mapa dice " . ($cell['model'] ? 'concede' : 'no concede') . ' y Roles::hasPermissions() ' . ($cell['framework'] ? 'concede' : 'no concede');
+        }
+
+        $coverage = \PiecesPHP\Core\Atlas\RouteDeclarations::get()->coverage();
+        $index = \PiecesPHP\Core\Atlas\TokenIndex::get()->stats();
+        echoTerminal("INFO: 74 mapa del código: {$coverage['located']} de {$coverage['total']} rutas con declaración localizada; {$coverage['resolvedRoles']} con roles resueltos; {$coverage['withoutRoles']} sin roles declarados; " . count($coverage['notLocated']) . ' no localizadas: ' . implode(', ', $coverage['notLocated'])
+            . ". Coherencia: {$coherence['cells']} celdas (ruta × tipo con rol), " . count($coherence['mismatches']) . " distintas. Índice: {$index['files']} archivos en {$index['milliseconds']} ms.");
+
+        if (Distribution::applies('74', self::DISTRIBUTION_REQUIREMENTS[74])) {
+            $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+            $baseline = json_decode((string) @file_get_contents($root . '/' . self::ATLAS_COVERAGE_BASELINE_RELATIVE_PATH), true);
+            $floor = is_array($baseline) && is_int($baseline['located'] ?? null) ? $baseline['located'] : null;
+            if ($floor === null) {
+                $failures[] = self::ATLAS_COVERAGE_BASELINE_RELATIVE_PATH . ' no se puede leer o no tiene «located»: sin línea base no hay trinquete (bin/censo-atlas --guardar)';
+            } elseif ($coverage['located'] < $floor) {
+                $failures[] = "la cobertura de rutas localizadas baja de {$floor} a {$coverage['located']}: una declaración dejó de unirse por valor (ver las no localizadas)";
+            } elseif (($lost = array_values(array_diff($coverage['notLocated'], (array) ($baseline['notLocated'] ?? [])))) !== []) {
+                //La cifra sola deja pasar un cambio de una por otra: la que se pierde se nombra.
+                $failures[] = 'dejan de localizarse ' . implode(', ', $lost) . ' (la cifra no baja porque otras entraron)';
+            } elseif ($coverage['located'] > $floor) {
+                echoTerminal("\e[33mAVISO:\e[39m 74 la cobertura sube de {$floor} a {$coverage['located']}: sube la línea base con bin/censo-atlas --guardar en el commit que la sube.");
+            }
         }
         return $failures;
     }

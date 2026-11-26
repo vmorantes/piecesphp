@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\Core\Mcp;
 
+use PiecesPHP\Core\Atlas\Atlas;
 use PiecesPHP\Core\Roles;
 use Terminal\Tasks\RouteInventoryTask;
 
@@ -14,8 +15,8 @@ use Terminal\Tasks\RouteInventoryTask;
  *
  * Habla JSON-RPC 2.0: handle() recibe un mensaje ya decodificado y devuelve la respuesta, o null si era una
  * notificación. No lee ni escribe la entrada y la salida (eso es la acción mcp-dev), no escribe nada en ningún sitio y
- * no toca la base, los secretos ni la carpeta de claves: solo el registro de rutas, los roles, openapi.json y los .md de
- * source-docs/project/docs/.
+ * no toca la base, los secretos ni la carpeta de claves: solo el registro de rutas, los roles, openapi.json, los .md de
+ * source-docs/project/docs/ y, para el mapa del código (ADR 0091), los tokens del PHP de src/app, que no ejecuta.
  *
  * @package     PiecesPHP\Core\Mcp
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -79,6 +80,16 @@ final class DevServer
                 'inputSchema' => ['type' => 'object', 'properties' => ['path' => ['type' => 'string', 'description' => 'La ruta tal como figura en openapi.json, como /core/api/publications/publications/list/.'], 'method' => ['type' => 'string', 'description' => 'El método HTTP, como get o post. Sin él, todos los de esa ruta.']], 'additionalProperties' => false],
             ],
             [
+                'name' => 'route_explain',
+                'description' => 'Explica de dónde sale el permiso de una ruta para un tipo de usuario (o para todos): dónde se declara, la expresión de sus roles y la constante de la que salen (con cuántas rutas la usan), las vías que lo conceden (declaración, listas de roles.php, segmento del tipo, routes de user-types.php), lo que lo estrecha (sesión, _allowedRoute, módulo) y cómo lo concede, retira o estrecha un proyecto: archivo:línea, de quién es el archivo y qué pasa al actualizar. Con su precisión y lo no visto.',
+                'inputSchema' => ['type' => 'object', 'properties' => ['route' => ['type' => 'string', 'minLength' => 1, 'description' => 'El nombre de la ruta.'], 'userType' => ['type' => ['integer', 'string'], 'description' => 'El tipo de usuario: su número (0 es root) o el nombre de su rol. Sin él, todos los tipos con rol.']], 'required' => ['route'], 'additionalProperties' => false],
+            ],
+            [
+                'name' => 'symbol_uses',
+                'description' => 'Para una constante de clase (Clase\\Completa::NOMBRE): dónde se declara, de quién es el archivo, su valor, el comentario pegado, cada uso con archivo:línea y su contexto (declaración de ruta, menú u otro) y las rutas que toman de ella sus roles.',
+                'inputSchema' => ['type' => 'object', 'properties' => ['symbol' => ['type' => 'string', 'minLength' => 3, 'description' => 'La constante, como PiecesPHP\\Settings\\Controllers\\SettingsController::ROLES_SECURITY_AND_AI.']], 'required' => ['symbol'], 'additionalProperties' => false],
+            ],
+            [
                 'name' => 'docs_search',
                 'description' => 'Busca un texto, sin expresiones regulares y sin distinguir mayúsculas, en la documentación para desarrolladores (los .md de source-docs/project/docs/). Devuelve el archivo, la línea y su texto, como mucho ' . self::DOCS_SEARCH_LIMIT . ' resultados.',
                 'inputSchema' => ['type' => 'object', 'properties' => ['query' => ['type' => 'string', 'minLength' => 1, 'description' => 'El texto que buscar.']], 'required' => ['query'], 'additionalProperties' => false],
@@ -109,10 +120,15 @@ final class DevServer
                 'permissions' => self::permissions($arguments),
                 'openapi' => self::openapi($arguments),
                 'docs_search' => self::docsSearch($arguments),
+                'route_explain' => self::routeExplain($arguments),
+                'symbol_uses' => self::symbolUses($arguments),
                 default => throw new \InvalidArgumentException("Herramienta desconocida: {$name}."),
             };
         } catch (\InvalidArgumentException $e) {
             return McpProtocol::error($id, self::INVALID_PARAMS, $e->getMessage());
+        } catch (\Throwable $e) {
+            //Un fallo al calcular no tumba el servidor ni escribe en el registro: se devuelve como error de la herramienta.
+            return McpProtocol::toolResult($id, 'La herramienta «' . $name . '» falló al calcular (' . get_class($e) . ').', true);
         }
         return McpProtocol::toolResult($id, $output['data'], $output['isError']);
     }
@@ -265,6 +281,44 @@ final class DevServer
             }
         }
         return ['data' => ['total' => count($results), 'truncated' => $more, 'results' => $results], 'isError' => false];
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     * @return array{data:mixed,isError:bool}
+     */
+    private static function routeExplain(array $arguments): array
+    {
+        $route = $arguments['route'] ?? null;
+        $userType = $arguments['userType'] ?? null;
+        if (!is_string($route) || trim($route) === '') {
+            throw new \InvalidArgumentException('«route» es obligatorio y tiene que ser texto.');
+        }
+        if ($userType !== null && !is_int($userType) && !is_string($userType)) {
+            throw new \InvalidArgumentException('«userType» tiene que ser un número o el nombre de un rol.');
+        }
+        $explained = Atlas::routeExplain($route, $userType);
+        if ($explained === null) {
+            return ['data' => "No hay ninguna ruta registrada con el nombre «{$route}».", 'isError' => true];
+        }
+        return ['data' => $explained, 'isError' => isset($explained['error'])];
+    }
+
+    /**
+     * @param array<mixed> $arguments
+     * @return array{data:mixed,isError:bool}
+     */
+    private static function symbolUses(array $arguments): array
+    {
+        $symbol = $arguments['symbol'] ?? null;
+        if (!is_string($symbol) || trim($symbol) === '') {
+            throw new \InvalidArgumentException('«symbol» es obligatorio y tiene que ser texto.');
+        }
+        $uses = Atlas::symbolUses($symbol);
+        if ($uses === null) {
+            return ['data' => "«{$symbol}» no es una constante de clase conocida (R1 solo indexa constantes de clase, como Clase\\Completa::NOMBRE).", 'isError' => true];
+        }
+        return ['data' => $uses, 'isError' => false];
     }
 
     /**

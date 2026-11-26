@@ -200,6 +200,10 @@ final class AppVersion
     private static function gitDirectory(string $root): ?string
     {
         $git = $root . '/.git';
+        //Fuera de open_basedir, is_dir() avisa en cada petición: sin commit conocido.
+        if (!path_within_open_basedir($git)) {
+            return null;
+        }
         if (is_dir($git)) {
             return $git;
         }

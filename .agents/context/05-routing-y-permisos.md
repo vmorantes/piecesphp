@@ -135,14 +135,19 @@ Sigue este esquema al crear rutas nuevas.
 
 ## Cómo se conceden los permisos de verdad (medido en `#459`-`#461`)
 
-**El catálogo de permisos lo rellenan las PROPIAS RUTAS al arrancar.** `set_route()`
+**Antes de afirmar quién entra a una ruta o cómo lo cambia un proyecto, se pregunta al MCP de desarrollo** (`bin/mcp`,
+`route_explain` y `symbol_uses`, ADR 0091): da las vías de concesión con archivo y línea y la comprobación 74 garantiza que
+cuadran con `Roles::hasPermissions()`. Fallé el 2026-11-25 por no tenerlo: contesté «no se puede» mirando solo
+`user-types.php`.
+
+**El catálogo de permisos lo rellenan las PROPIAS RUTAS al arrancar.** `register_route()` (antes `set_route()`; `AppHelpers.php:2337`, la concesión en `:2401-2406`)
 (`AppHelpers.php:2345-2356`) registra la ruta y, por cada rol de su `rolesAllowed`, llama a
 `Roles::addPermission($nombre, $rol)`. El catálogo escrito a mano de `roles.php` solo tiene ocho nombres.
 
 Consecuencias, las tres medidas:
 
 1. **`rolesAllowed` NO se aplica en la petición**: se traduce a permisos en el arranque, y quien decide en la petición
-   es `Roles::hasPermissions()` (`index.php:742`), cuyo 403 (`:752`) **exige además `require_login`**.
+   es `Roles::hasPermissions()` (`index.php:766`), cuyo 403 (`:775-777`) **exige además `require_login`**.
 2. **Una ruta con `requireLogin` y sin roles queda cerrada para TODOS**, root incluido, no abierta a los que entren.
    Así estaban las cinco `locations-*-ajax-search` (`3453b05e`).
 3. **Una ruta sin `requireLogin` que declara roles no aplica ninguno**: son inertes para el 403 — pero NO son
@@ -151,9 +156,9 @@ Consecuencias, las tres medidas:
 
 > **El nombre de una ruta no se puede repetir, y quien lo impide es el framework, no Slim** (medido el 2026-10-02,
 > `#763`). **Slim calla**: acepta dos rutas con el mismo nombre y `getNamedRoute()` devuelve la primera, sin aviso.
-> `set_route()` (`app/core/AppHelpers.php:2362`) lanza `RouteDuplicateNameException` si el nombre ya está en
+> `register_route()` (`app/core/AppHelpers.php:2375`) lanza `RouteDuplicateNameException` si el nombre ya está en
 > `$routesSetted`. **RESUELTO el 2026-10-02 (`#765`): el router nunca tuvo un duplicado; duplicaba el instrumento.**
-> `set_route()` guarda la ruta dos veces, `$routesSetted[$name]` y `$routesSetted[$alias]`, y las dos entradas llevan
+> **SIN VERIFICAR desde que `set_route()` pasó a `register_route()`, que ya no trata alias (`AppHelpers.php:2337-2410`; R52):** `set_route()` guardaba la ruta dos veces, `$routesSetted[$name]` y `$routesSetted[$alias]`, y las dos entradas llevan
 > dentro el `name` principal; `RouteInventoryTask` leía el **campo** `name` en vez de la **clave**, así que
 > `terminal-help` salía dos veces y **`terminal-h`, que es una ruta real, no salía**: el total cuadraba en 343 por
 > casualidad. Siete consumidores comían ese universo (dos comprobaciones de `verify-integrity`, `walk-routes`,

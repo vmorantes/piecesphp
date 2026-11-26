@@ -177,6 +177,7 @@ La zona pública y las páginas de error no leen estas opciones. La zona públic
 | `cors_credentials_origins` | `string[]` | `[]` | Orígenes exactos (esquema, host y puerto: `https://app.ejemplo.com:8443`) que reciben CORS **con** credenciales. El propio origen de la instalación va incluido. |
 | `otp_security` | `array` | ver abajo | Límite de intentos del OTP, del segundo factor y de la contraseña del acceso. |
 | `allowed_hosts` | `string[]` | `[]` | Los dominios que sirven esta instalación. Vacía, cualquiera. Ver abajo. |
+| `allowed_hosts_infer_www` | `bool` | `true` | Si `ejemplo.org` en la lista admite también `www.ejemplo.org`. Ver abajo. |
 
 **CORS.** Con `API_MODULE` activo el framework **refleja** el `Origin` recibido en `Access-Control-Allow-Origin` para
 cualquier origen (o `*` si no hay); lo que `cors_credentials_origins` controla es solo `Access-Control-Allow-Credentials`.
@@ -194,12 +195,18 @@ $config['allowed_hosts'] = ['app.ejemplo.com', '.ejemplo.org'];
 
 - Se comparan sin mayúsculas, sin el puerto y sin el punto final: `App.Ejemplo.com:8443` casa con `app.ejemplo.com`.
 - Una entrada que empieza por `.` vale para ese dominio **y** sus subdominios: `.ejemplo.org` casa con `ejemplo.org` y
-  `a.ejemplo.org`, no con `otroejemplo.org`. No hay otros comodines.
+  `a.ejemplo.org`, no con `otroejemplo.org`.
+- Un dominio escrito sin `.` delante admite también su `www`: `ejemplo.org` casa con `www.ejemplo.org`. Solo el `www`:
+  cualquier otro subdominio va escrito. No se infiere en una IP, en un nombre sin punto (`localhost`) ni en una entrada
+  que ya empiece por `www.`. Para no inferirlo, `$config['allowed_hosts_infer_www'] = false;`: conviene si el `www` de tu
+  dominio no es tuyo o apunta a un servicio que ya no usas. No hay otros comodines.
+- Lo que llega en la cabecera tiene que tener forma de nombre de dominio (o de IPv6 entre corchetes), con un puerto
+  numérico si lo trae; si no, 400.
 - Una IPv6 va entre corchetes: `[2001:db8::1]`.
 - Con la lista puesta, una petición sin cabecera `Host` (HTTP/1.0) también recibe 400.
 - Detrás de un proxy, la cabecera `X-Forwarded-Host` solo cuenta para la comprobación de mismo dominio si está en la lista.
-- Vacía, todo funciona como antes de la 10.16.0; fuera de local, Avisos del sistema lo recuerda al administrador principal
-  (`allowed-hosts-empty`). La terminal no pasa por esta comprobación.
+- Vacía, todo funciona como antes de la 10.16.0, y Avisos del sistema lo recuerda al administrador principal con un aviso
+  flotante, también en local (`allowed-hosts-empty`): en local basta el dominio con el que entras, por ejemplo `localhost`. La terminal no pasa por esta comprobación.
 
 **`otp_security`**, con los valores por omisión que usa `OTPRateLimiter` cuando una clave falta o no es válida:
 

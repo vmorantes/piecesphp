@@ -27,7 +27,10 @@ En orden:
    lista, **400 sin cuerpo y `exit`** (en la web; la terminal no pasa). Lista vacía = cualquiera. Por eso los 24 lectores
    del `Host` (censo en el tramo 2026-11-13) no se tocaron: pasada la puerta, el `Host` es uno de la lista. Trampa: con
    lista, una petición sin `Host` (HTTP/1.0) recibe 400. `requestIsSameDomain()` solo se fía de `X-Forwarded-Host` si
-   está en la lista (`AllowedHosts::hostForSameDomain()`). Aviso `allowed-hosts-empty` fuera de local. Suite
+   está en la lista (`AllowedHosts::hostForSameDomain()`). Aviso `allowed-hosts-empty` también en local (JOP). `ejemplo.org` admite `www.ejemplo.org` salvo con
+   `allowed_hosts_infer_www` en false (la bandera se lee en `bootstrap.php`, porque `get_config()` da false si falta); el
+   `Host` tiene que tener forma de nombre (`AllowedHosts::validSyntax()`). El `$_SERVER['HTTP_HOST']` crudo lo siguen
+   leyendo ocho sitios (H514). Suite
    `core/allowed-hosts`. `set_error_handler` convierte
    errores en `ErrorException` y lanza para `E_ERROR|E_WARNING|E_PARSE|E_NOTICE|E_DEPRECATED`.
    **P56, parte 1** (`#353`): `GenericHandler` pone a cada entrada un `reference` (`ERR-Ymd-6HEX`); `log_exception()` lo

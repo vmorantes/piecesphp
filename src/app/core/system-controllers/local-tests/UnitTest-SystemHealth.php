@@ -69,11 +69,28 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
             }
         }
         $hostsRow = array_values(array_filter($rowsSecurity, fn(array $row): bool => $row['origin'] === "\$config['allowed_hosts']"));
-        $hostsEmpty = SystemStatusRoutes::allowedHostsMissing(get_config('allowed_hosts'), false);
+        $hostsEmpty = SystemStatusRoutes::allowedHostsMissing(get_config('allowed_hosts'));
         $hostsExpected = !$hostsEmpty ? SystemHealth::STATE_OK : (is_local() ? SystemHealth::STATE_INFO : SystemHealth::STATE_WARNING);
         $check(count($hostsRow) === 1 && $hostsRow[0]['state'] === $hostsExpected, 's3 «Dominios permitidos» con el estado que toca (vacía en local: información)', (string) json_encode($hostsRow, \JSON_UNESCAPED_UNICODE));
         $environmentRow = array_values(array_filter($rowsSecurity, fn(array $row): bool => str_starts_with($row['origin'], 'AppEnvironment')));
         $check(count($environmentRow) === 1 && $environmentRow[0]['state'] === (AppEnvironment::isConfigured() ? SystemHealth::STATE_INFO : SystemHealth::STATE_WARNING), 's4 «Entorno», información si hay environment.php', (string) json_encode($environmentRow, \JSON_UNESCAPED_UNICODE));
+        echoTerminal(' ');
+
+        //H511: la carpeta de claves es la que usa el framework, y una vista cuenta como tabla.
+        $keysRow = array_values(array_filter(SystemHealth::rows(), fn(array $row): bool => str_starts_with($row['origin'], 'AppKeyring::directory()')));
+        $keysDirectory = \PiecesPHP\Core\Crypto\AppKeyring::directory();
+        $check(count($keysRow) === 1 && ($keysDirectory === null ? $keysRow[0]['value'] === 'Falta' : $keysRow[0]['value'] !== 'Falta' && str_ends_with($keysDirectory, ltrim(str_replace('../', '', $keysRow[0]['label']), '/'))), 's5 la carpeta de claves: la de AppKeyring::directory(), y «Falta» solo si no hay', (string) json_encode($keysRow, \JSON_UNESCAPED_UNICODE));
+        $check(SystemHealth::missingDeclaredTables(['zz_a', 'zz_b', 'zz_c'], ['zz_a'], ['zz_b']) === ['zz_c'], 's6 una tabla declarada que existe como vista no falta (pura)');
+        $base = (new \PiecesPHP\Core\BaseModel())->getDatabase();
+        $vista = 'zz_salud_vista_' . bin2hex(random_bytes(3));
+        try {
+            //DDL: no se deshace con ROLLBACK; se borra en el finally (db-backup antes, ADR 0024).
+            $base->exec("CREATE VIEW `{$vista}` AS SELECT 1 AS uno");
+            $check(in_array($vista, SystemHealth::databaseViews(), true) && SystemHealth::missingDeclaredTables([$vista], \PiecesPHP\Settings\Controllers\SettingsController::databaseTables(), SystemHealth::databaseViews()) === [], 's7 con una vista de verdad en la base: databaseViews() la ve y no cuenta como tabla que falta');
+        } finally {
+            $base->exec("DROP VIEW IF EXISTS `{$vista}`");
+        }
+        $check(!in_array($vista, SystemHealth::databaseViews(), true), 's8 la vista de la prueba ya no está');
         echoTerminal(' ');
 
         echoTerminal('[2/3] El HTML no deja ver ningún secreto');
@@ -135,4 +152,4 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('La Salud de la instalación: cada fila con su origen, ninguna llave ni contraseña en el HTML y solo root (P179).')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('La Salud de la instalación: cada fila con su origen, ninguna llave ni contraseña en el HTML y solo root (P179); la carpeta de claves de verdad y las vistas que cuentan como tablas (H511).')->setEffects([CliActions::EFFECT_DATABASE])->register();

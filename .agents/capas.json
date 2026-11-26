@@ -155,6 +155,7 @@
         ".agents/docs/adr/0088-*",
         ".agents/docs/adr/0089-*",
         ".agents/docs/adr/0090-*",
+        ".agents/docs/adr/0091-*",
         ".agents/scripts/vikunja.py",
         ".agents/docs/auditorias/*",
         ".agents/estado/AHORA.md",

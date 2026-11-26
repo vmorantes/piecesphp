@@ -1,3 +1,33 @@
+# 10.67.0 (25-11-2026)
+
+- **El MCP de desarrollo explica los permisos**: dos herramientas nuevas en `bin/mcp`. `route_explain` dice de dónde sale
+  el permiso de una ruta (dónde se declara, con qué constante, por qué vía entra cada tipo) y cómo lo cambia tu proyecto
+  para conceder, retirar o estrechar, con el archivo y qué pasa al actualizar. `symbol_uses` dice dónde se declara y dónde
+  se usa una constante. `bin/cli verify-integrity` comprueba que esas explicaciones cuadran con lo que el framework concede
+  de verdad. Guía: «Un MCP para desarrollar sobre PiecesPHP».
+- **La lista de dominios de confianza admite el `www`**: si `$config['allowed_hosts']` tiene `ejemplo.org`, también admite
+  `www.ejemplo.org` (antes recibía un 400). Para no admitirlo, `$config['allowed_hosts_infer_www'] = false;`. Y el dominio
+  que llega en la petición tiene que tener forma de nombre de dominio: lo demás recibe un 400. Guía: «Configuración».
+- **El aviso de la lista de dominios vacía sale también en local**, flotante y para el administrador principal, con lo que
+  hay que poner. Si trabajas en local, añade tu dominio (por ejemplo, `localhost`) o ciérralo.
+- **La clave de la aplicación ya no escribe en el registro de errores**: ni la de relleno, una vez al día, ni la que el
+  arranque genera. La de relleno la avisa Avisos del sistema, que ahora dice también la causa (por ejemplo, que la
+  carpeta de claves no se puede escribir) y qué hacer; la recién generada, un aviso para guardar una copia de la clave
+  fuera del servidor.
+- **Salud de la instalación, sin falsas alarmas**: encuentra la carpeta de claves también donde la busca el framework fuera
+  de `src/`, cuenta las vistas de la base como existentes y, en un servidor con `open_basedir`, no deja avisos en el
+  registro de errores al abrirse.
+- **Las órdenes de desarrollo de `bin/cli` no se caen sin procesos**: en un servidor que desactiva `exec()`,
+  `shell_exec()` o `proc_open()`, `verify-integrity` y `gates` dan esas comprobaciones por no hechas («NO APLICA»),
+  terminan con su resumen y salen con error, porque lo que no se hizo no avala nada; `clone-compare` dice que no aplica.
+  `db-restore` y `db-update` no lanzan procesos y funcionan igual.
+
+## ⚠ CAMBIO INCOMPATIBLE — el administrador de organización administra solo su organización
+
+- En Documentos, Categorías y Tipos de documento de formularios, el administrador de organización ya no edita ni borra lo
+  de todas las organizaciones: solo lo creado por personas de su organización, y solo si es su encargado. Root y la
+  administración general siguen con todo. Si tu proyecto contaba con lo anterior, revisa quién gestiona esos registros.
+
 # 10.66.0 (25-11-2026)
 
 - **Los tipos de usuario de fábrica, ajustables otra vez**: en `src/app/config/user-types.php`, el usuario general, el

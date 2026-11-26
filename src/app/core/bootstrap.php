@@ -207,7 +207,7 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v10.66.0');
+    define('APP_VERSION', 'v10.67.0');
     /**
      * Fecha de la versión de la aplicación
      */
@@ -221,8 +221,10 @@ require $directories['utilities'];
 
 require $directories['config'];
 $config['environment'] = app_environment();
+//Un config.php sin la bandera infiere el www (P415): se fija aquí porque luego get_config() no distingue «falta» de false.
+$config['allowed_hosts_infer_www'] = filter_var($config['allowed_hosts_infer_www'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true;
 //Aquí, antes de que nada construya una URL o una cookie con el Host: fuera de la lista, 400 sin cuerpo.
-if (!$cliHandler->isCliPlatform && !\PiecesPHP\Core\AllowedHosts::allows(is_string($_SERVER['HTTP_HOST'] ?? null) ? $_SERVER['HTTP_HOST'] : '', is_array($config['allowed_hosts'] ?? null) ? $config['allowed_hosts'] : [])) {
+if (!$cliHandler->isCliPlatform && !\PiecesPHP\Core\AllowedHosts::allows(is_string($_SERVER['HTTP_HOST'] ?? null) ? $_SERVER['HTTP_HOST'] : '', is_array($config['allowed_hosts'] ?? null) ? $config['allowed_hosts'] : [], $config['allowed_hosts_infer_www'])) {
     http_response_code(400);
     exit;
 }
@@ -275,9 +277,8 @@ BaseToken::setSecretKey(Config::app_key());
 //Configurar seguridad de encriptación con la app_key general
 BaseHashEncryption::setSecretKey(Config::app_key());
 
-//Con la app_key de relleno se AVISA (log y panel) y se arranca igual: la decisión de cambiarla es del clon.
-Config::warn_placeholder_app_key();
-//Si este arranque generó la clave (ADR 0061 §9), queda dicho.
+//Con la app_key de relleno se arranca igual y lo avisa Avisos del sistema (app-key-placeholder), no el registro de errores.
+//Si este arranque generó la clave (ADR 0061 §9), deja la marca del aviso app-key-generated.
 Config::announce_generated_app_key();
 
 //Configurar directorio de vistas por defecto

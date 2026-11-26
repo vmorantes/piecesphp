@@ -11,6 +11,7 @@ use Forms\Categories\CategoriesRoutes;
 use Forms\Categories\Exceptions\DuplicateException;
 use Forms\Categories\Exceptions\SafeException;
 use Forms\Categories\Mappers\CategoriesMapper;
+use Organizations\Util\OrganizationAdministration;
 use PDOException;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
@@ -914,7 +915,7 @@ class CategoriesController extends AdminPanelController
                         $createdByID = (int) $element->createdBy;
                         $allow = $createdByID == $currentUserID;
 
-                        if (in_array($currentUserType, CategoriesMapper::CAN_DELETE_ALL)) {
+                        if (in_array($currentUserType, CategoriesMapper::CAN_DELETE_ALL) || (!$allow && OrganizationAdministration::administersCreatorOf($element->createdBy, $currentUser))) {
                             $allow = true;
                         }
 
@@ -939,7 +940,7 @@ class CategoriesController extends AdminPanelController
                             $createdByID = (int) $element->createdBy;
                             $allow = $createdByID == $currentUserID;
 
-                            if (in_array($currentUserType, CategoriesMapper::CAN_EDIT_ALL)) {
+                            if (in_array($currentUserType, CategoriesMapper::CAN_EDIT_ALL) || (!$allow && OrganizationAdministration::administersCreatorOf($element->createdBy, $currentUser))) {
                                 $allow = true;
                             }
 

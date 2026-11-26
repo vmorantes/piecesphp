@@ -44,7 +44,7 @@ CliActions::make('unit-tests:core/mcp-dev', function ($args) {
         $herramientas = is_array($herramientas) ? $herramientas : [];
         $nombres = array_column($herramientas, 'name');
         $conEsquema = array_filter($herramientas, fn (array $t): bool => ($t['inputSchema']['type'] ?? null) === 'object' && is_string($t['description'] ?? null) && $t['description'] !== '');
-        $check($nombres === ['routes', 'permissions', 'openapi', 'docs_search'] && count($conEsquema) === 4, 'a4 tools/list: las cuatro, cada una con su descripción y su inputSchema', implode(', ', $nombres));
+        $check($nombres === ['routes', 'permissions', 'openapi', 'route_explain', 'symbol_uses', 'docs_search'] && count($conEsquema) === 6, 'a4 tools/list: las seis, cada una con su descripción y su inputSchema', implode(', ', $nombres));
         $check(($pedir('zz/nada')['error']['code'] ?? null) === DevServer::METHOD_NOT_FOUND, 'a5 un método desconocido: -32601');
         $check(($pedir('tools/call', ['name' => 'zz-no-existe'])['error']['code'] ?? null) === DevServer::INVALID_PARAMS, 'a6 una herramienta desconocida: -32602');
         $check(($llamar('docs_search', [])['error']['code'] ?? null) === DevServer::INVALID_PARAMS, 'a7 docs_search sin query: -32602');
@@ -71,6 +71,13 @@ CliActions::make('unit-tests:core/mcp-dev', function ($args) {
         $check($docs['isError'] === false && in_array('piecesphp/content/configuration.md', $archivos, true), 'b8 docs_search de «allowed_hosts»: sale configuration.md', implode(', ', $archivos));
         $docs = $llamar('docs_search', ['query' => 'zz-texto-que-no-esta-en-ninguna-guia']);
         $check($docs['isError'] === false && ($docs['datos']['total'] ?? null) === 0, 'b9 docs_search de un texto que no está: ninguno');
+        $explica = $llamar('route_explain', ['route' => 'configurations-system-security', 'userType' => 1]);
+        $tipo = $explica['datos']['types'][0] ?? [];
+        $check($explica['isError'] === false && ($explica['datos']['roles']['symbol'] ?? null) === 'PiecesPHP\\Settings\\Controllers\\SettingsController::ROLES_SECURITY_AND_AI' && ($tipo['granted'] ?? null) === true, 'b10 route_explain de configurations-system-security para el 1: concede por ROLES_SECURITY_AND_AI', mb_substr($explica['texto'], 0, 300));
+        $check($llamar('route_explain', ['route' => 'zz-no-existe'])['isError'] === true && ($llamar('route_explain', [])['error']['code'] ?? null) === DevServer::INVALID_PARAMS, 'b11 route_explain de una ruta que no existe: isError; sin route: -32602');
+        $usos = $llamar('symbol_uses', ['symbol' => 'PiecesPHP\\Settings\\Controllers\\SettingsController::ROLES_SECURITY_AND_AI']);
+        $check($usos['isError'] === false && ($usos['datos']['value'] ?? null) === [0, 1] && count($usos['datos']['routes'] ?? []) >= 1, 'b12 symbol_uses de ROLES_SECURITY_AND_AI: [0, 1] y sus rutas', mb_substr($usos['texto'], 0, 300));
+        $check($llamar('symbol_uses', ['symbol' => 'Zz\\NoExiste::NADA'])['isError'] === true, 'b13 symbol_uses de una constante que no existe: isError');
         echoTerminal(' ');
 
         //─── c · De punta a punta, por bin/mcp ─────────────────────────────────────────────────────────
@@ -102,7 +109,7 @@ CliActions::make('unit-tests:core/mcp-dev', function ($args) {
         $decodificadas = array_map(fn (string $l): mixed => json_decode($l, true), $lineas);
         $validas = array_filter($decodificadas, fn (mixed $d): bool => is_array($d) && ($d['jsonrpc'] ?? null) === '2.0');
         $check($codigo === 0 && count($lineas) === 2 && count($validas) === 2, 'c1 dos líneas JSON-RPC válidas en la salida', "salida {$codigo}, " . count($lineas) . ' línea(s): ' . mb_substr($salida, 0, 200));
-        $check(($decodificadas[0]['id'] ?? null) === 1 && ($decodificadas[1]['id'] ?? null) === 2 && count($decodificadas[1]['result']['tools'] ?? []) === 4, 'c2 la de initialize y la de tools/list, en orden; la notificación, sin respuesta');
+        $check(($decodificadas[0]['id'] ?? null) === 1 && ($decodificadas[1]['id'] ?? null) === 2 && count($decodificadas[1]['result']['tools'] ?? []) === 6, 'c2 la de initialize y la de tools/list, en orden; la notificación, sin respuesta');
         $check($errores === '', 'c3 y nada en la salida de error', mb_substr($errores, 0, 200));
 
     } catch (\Throwable $e) {
@@ -117,4 +124,4 @@ CliActions::make('unit-tests:core/mcp-dev', function ($args) {
 
     return ['success' => $failed === 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('bin/mcp (ADR 0075): DevServer::handle() con initialize, la notificación, tools/list, las cuatro herramientas y los errores JSON-RPC; y bin/mcp de punta a punta con tres líneas.')->setEffects([CliActions::EFFECT_NONE])->register();
+})->setDescription('bin/mcp (ADR 0075): DevServer::handle() con initialize, la notificación, tools/list, las seis herramientas y los errores JSON-RPC; y bin/mcp de punta a punta con tres líneas.')->setEffects([CliActions::EFFECT_NONE])->register();

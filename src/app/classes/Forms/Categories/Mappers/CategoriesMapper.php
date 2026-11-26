@@ -100,13 +100,11 @@ class CategoriesMapper extends EntityMapperExtensible
     const CAN_EDIT_ALL = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
-        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const STATUS_ACTIVE = 1;

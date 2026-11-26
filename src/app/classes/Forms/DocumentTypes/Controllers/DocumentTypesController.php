@@ -12,6 +12,7 @@ use Forms\DocumentTypes\DocumentTypesRoutes;
 use Forms\DocumentTypes\Exceptions\DuplicateException;
 use Forms\DocumentTypes\Exceptions\SafeException;
 use Forms\DocumentTypes\Mappers\DocumentTypesMapper;
+use Organizations\Util\OrganizationAdministration;
 use PDOException;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Config;
@@ -911,7 +912,7 @@ class DocumentTypesController extends AdminPanelController
                         $createdByID = (int) $element->createdBy;
                         $allow = $createdByID == $currentUserID;
 
-                        if (in_array($currentUserType, DocumentTypesMapper::CAN_DELETE_ALL)) {
+                        if (in_array($currentUserType, DocumentTypesMapper::CAN_DELETE_ALL) || (!$allow && OrganizationAdministration::administersCreatorOf($element->createdBy, $currentUser))) {
                             $allow = true;
                         }
 
@@ -934,7 +935,7 @@ class DocumentTypesController extends AdminPanelController
                             $createdByID = (int) $element->createdBy;
                             $allow = $createdByID == $currentUserID;
 
-                            if (in_array($currentUserType, DocumentTypesMapper::CAN_EDIT_ALL)) {
+                            if (in_array($currentUserType, DocumentTypesMapper::CAN_EDIT_ALL) || (!$allow && OrganizationAdministration::administersCreatorOf($element->createdBy, $currentUser))) {
                                 $allow = true;
                             }
 

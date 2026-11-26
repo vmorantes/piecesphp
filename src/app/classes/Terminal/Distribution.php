@@ -62,7 +62,9 @@ class Distribution
      */
     public static function isDistribution(?string $root = null): bool
     {
-        return is_file(($root ?? self::root()) . '/' . self::MARK_FILE);
+        $mark = ($root ?? self::root()) . '/' . self::MARK_FILE;
+        //Fuera de open_basedir, is_file() avisa en cada petición: entonces no es la distribución que se puede saber.
+        return path_within_open_basedir($mark) && is_file($mark);
     }
 
     /**

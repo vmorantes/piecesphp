@@ -292,10 +292,10 @@ CliActions::make('unit-tests:core/app-key-crypto', function ($args) {
         //RETORNO-IGNORADO: en un temporal propio: si falla, la comprobación que sigue lo dice.
         mkdir($sinEscribir, 0555, true);
         $consejos = [
-            'sin carpeta' => Config::placeholder_app_key_advice(null),
-            'sin escribir' => Config::placeholder_app_key_advice($sinEscribir),
-            'con llavero' => Config::placeholder_app_key_advice(dirname($primer)),
-            'escribible' => Config::placeholder_app_key_advice($directorio . '/otra'),
+            'sin carpeta' => \PiecesPHP\SystemStatus\SystemStatusRoutes::appKeyPlaceholderCause(null),
+            'sin escribir' => \PiecesPHP\SystemStatus\SystemStatusRoutes::appKeyPlaceholderCause($sinEscribir),
+            'con llavero' => \PiecesPHP\SystemStatus\SystemStatusRoutes::appKeyPlaceholderCause(dirname($primer)),
+            'escribible' => \PiecesPHP\SystemStatus\SystemStatusRoutes::appKeyPlaceholderCause($directorio . '/otra'),
         ];
         $escribible = is_writable($sinEscribir);
         //RETORNO-IGNORADO: en un temporal propio; lo borra la limpieza del final.
@@ -304,6 +304,43 @@ CliActions::make('unit-tests:core/app-key-crypto', function ($args) {
             && ($escribible || (str_contains($consejos['sin escribir'], $sinEscribir) && str_contains($consejos['sin escribir'], 'no la puede escribir') && str_contains($consejos['sin escribir'], 'chmod 2770') && str_contains($consejos['sin escribir'], 'setgid')))
             && str_contains($consejos['con llavero'], 'no lo puede leer')
             && str_contains($consejos['escribible'], 'generate-app-key'), 'g8 el aviso de relleno dice la causa: sin carpeta, carpeta sin escritura (con su ruta y qué hacer), llavero ilegible' . ($escribible ? ' (este proceso escribe en una carpeta 0555: el caso sin escritura no se pudo medir)' : ''), (string) json_encode($consejos, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES));
+        echoTerminal(' ');
+
+        //La clave de relleno la avisa Avisos del sistema y no el registro de errores (decisión del PO del 25). Estructural: con
+        //un llavero de verdad en secure-keys, forzar la de relleno exigiría tocar el llavero.
+        $fuentes = '';
+        foreach (['app/core/Config.php', 'app/core/bootstrap.php'] as $relativo) {
+            $fuentes .= (string) file_get_contents(basepath($relativo));
+        }
+        \PiecesPHP\SystemStatus\SystemStatusRoutes::registerCoreAlerts();
+        $alerta = \PiecesPHP\SystemStatus\SystemAlertRegistry::get('app-key-placeholder');
+        $check(!method_exists(Config::class, 'warn_placeholder_app_key') && !str_contains($fuentes, 'warn_placeholder_app_key(') && preg_match('/log_(exception|soft_error)\([^;]*(es la de relleno|Se generó la clave|AppKeyPlaceholderCause|placeholder_app_key_advice)/is', $fuentes) !== 1
+            && $alerta !== null && $alerta->audience() === [\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ROOT, \PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ADMIN_GRAL]
+            && str_contains($alerta->message(), \PiecesPHP\SystemStatus\SystemStatusRoutes::appKeyPlaceholderCause(AppKeyring::directory())),
+            'g9 ni la clave de relleno ni la generada escriben en el registro de errores; el aviso de relleno lleva la causa');
+
+        //La generación: la marca del aviso app-key-generated (fecha y huella), y ni una línea en el registro de errores.
+        $registro = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . '/error.log.jsonl';
+        $lineas = fn(): int => is_file($registro) ? count((array) file($registro)) : 0;
+        $marca = $directorio . '/app-key-generated.json';
+        $porAvisar = new \ReflectionProperty(Config::class, 'generatedKeyFingerprint');
+        $previa = $porAvisar->getValue();
+        $antes = $lineas();
+        $porAvisar->setValue(null, 'zz-huella-generada');
+        Config::announce_generated_app_key($marca);
+        $porAvisar->setValue(null, $previa);
+        $leida = Config::app_key_generated_notice($marca);
+        $contenido = (string) @file_get_contents($marca);
+        $check($lineas() === $antes && ($leida['fingerprint'] ?? null) === 'zz-huella-generada' && !str_contains($contenido, 'TODO') && !str_contains($contenido, 'zz-relleno'), 'g10 generar la clave deja la marca (fecha y huella) y no escribe en el registro de errores', "{$antes} → {$lineas()}; " . $contenido);
+        //RETORNO-IGNORADO: en un temporal propio; si falla, la comprobación que sigue lo dice.
+        file_put_contents($marca, (string) json_encode(['generatedAt' => date('c', time() - 31 * 86400), 'fingerprint' => 'zz-vieja']));
+        $vieja = Config::app_key_generated_notice($marca);
+        //RETORNO-IGNORADO: en un temporal propio; si falla, la comprobación que sigue lo dice.
+        file_put_contents($marca, (string) json_encode(['generatedAt' => '2099-01-01T00:00:00+00:00', 'fingerprint' => 'zz-futura']));
+        $check($vieja === null && Config::app_key_generated_notice($marca) === null && Config::app_key_generated_notice($directorio . '/no-existe.json') === null, 'g11 una marca de hace más de 30 días, una con fecha futura, o ninguna: el aviso no sale');
+        $generada = \PiecesPHP\SystemStatus\SystemAlertRegistry::get('app-key-generated');
+        $check($generada !== null && $generada->severity() === \PiecesPHP\SystemStatus\SystemAlert::SEVERITY_INFO && $generada->audience() === [\PiecesPHP\UserSystem\ORM\UsersModel::TYPE_USER_ROOT] && $generada->isDismissible() && $generada->showAsNag()
+            && str_contains($generada->message(), 'secure-keys/app-key.json'), 'g12 el aviso app-key-generated: informativo, solo root, ocultable y flotante');
         echoTerminal(' ');
 
         //─── h · Lo publicado, migrado ──────────────────────────────────────────────────────────────────

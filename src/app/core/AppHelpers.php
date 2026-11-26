@@ -195,7 +195,7 @@ function requestIsSameDomain()
     $protocol = $isHttps ? 'https://' : 'http://';
     // 2. Determinar el dominio actual (considerando proxies)
     $allowedHosts = get_config('allowed_hosts');
-    $host = \PiecesPHP\Core\AllowedHosts::hostForSameDomain($_SERVER, is_array($allowedHosts) ? $allowedHosts : []);
+    $host = \PiecesPHP\Core\AllowedHosts::hostForSameDomain($_SERVER, is_array($allowedHosts) ? $allowedHosts : [], get_config('allowed_hosts_infer_www') !== false);
     // 3. Obtener origen y referer
     $origin = is_string($_SERVER['HTTP_ORIGIN'] ?? null) ? $_SERVER['HTTP_ORIGIN'] : '';
     $referer = is_string($_SERVER['HTTP_REFERER'] ?? null) ? $_SERVER['HTTP_REFERER'] : '';

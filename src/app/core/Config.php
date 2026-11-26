@@ -27,6 +27,11 @@ class Config
      * La clave cuando no hay ninguna (ni llavero ni config.php). Cuenta como de relleno.
      */
     const DEFAULT_APP_KEY = 'secret';
+    /**
+     * La marca de una clave generada por el arranque (aviso app-key-generated) y cuántos días dura.
+     */
+    const APP_KEY_GENERATED_MARKER = 'app/cache/app-key-generated.json';
+    const APP_KEY_GENERATED_DAYS = 30;
 
     const DATABASE_CONFIG_DEFAULT_GROUP = '';
 
@@ -1124,7 +1129,7 @@ class Config
     /**
      * La primera arrancada (ADR 0061 §9, P139; en todas partes, PO A-899): con la clave de relleno y secure-keys
      * escribible, se genera una aleatoria y se guarda; la de relleno queda como anterior, así lo cifrado con ella se
-     * sigue leyendo. Si no se puede escribir, no cambia nada y avisa warn_placeholder_app_key().
+     * sigue leyendo. Si no se puede escribir, no cambia nada y avisa Avisos del sistema (app-key-placeholder).
      *
      * @param AppKeyring $keyring El que se leyó (de config.php o el de omisión)
      * @param string|null $keyringPath null: no hay carpeta secure-keys
@@ -1167,59 +1172,42 @@ class Config
     }
 
     /**
-     * Si este arranque generó la clave, lo deja dicho una vez en el registro de errores (lo ve root con su aviso). Se
-     * llama cuando los ayudantes del registro ya están cargados.
+     * Si este arranque generó la clave, deja la marca que enciende el aviso app-key-generated de Avisos del sistema (la
+     * fecha y la huella; nunca la clave). No escribe en el registro de errores: el aviso es para root, y el registro, para fallos.
      *
+     * @param string|null $markerPath Otra marca que la de src/app/cache: solo para las suites.
      * @return void
      */
-    public static function announce_generated_app_key()
+    public static function announce_generated_app_key(?string $markerPath = null)
     {
         if (self::$generatedKeyFingerprint === null) {
             return;
         }
-        log_soft_error('Se generó la clave de la aplicación en secure-keys/app-key.json (huella ' . self::$generatedKeyFingerprint . '): la de relleno queda en el llavero como anterior, así lo cifrado con ella se sigue leyendo. Las sesiones de antes dejan de valer.', ['huella' => self::$generatedKeyFingerprint]);
+        $marker = ['generatedAt' => date('c'), 'fingerprint' => self::$generatedKeyFingerprint];
+        //RETORNO-IGNORADO: sin la marca no sale el aviso, y la clave ya está generada y guardada.
+        @file_put_contents($markerPath ?? basepath(self::APP_KEY_GENERATED_MARKER), (string) json_encode($marker));
         self::$generatedKeyFingerprint = null;
     }
 
     /**
-     * Con la llave de relleno, AVISA en el log (una vez al día, con una marca en app/cache); nunca impide arrancar.
-     * @return void
-     */
-    public static function warn_placeholder_app_key()
-    {
-        if (!self::app_key_is_placeholder()) {
-            return;
-        }
-        $marker = basepath('app/cache/app-key-placeholder.marker');
-        if (is_file($marker) && (int) filemtime($marker) > time() - 86400) {
-            return;
-        }
-        log_exception(new \RuntimeException('app_key es la de relleno (vacía o «TODO…»): las sesiones y los tokens se firman con una clave conocida. ' . self::placeholder_app_key_advice(AppKeyring::directory())), true);
-        //RETORNO-IGNORADO: sin la marca el aviso solo se repite; no impide nada.
-        @touch($marker);
-    }
-
-    /**
-     * Qué impide que el arranque genere la clave y qué hacer, para el aviso de clave de relleno (H454).
+     * La marca de una clave generada por el arranque, mientras tenga menos de APP_KEY_GENERATED_DAYS días; si no, null.
      *
-     * @param string|null $directory La carpeta de claves (AppKeyring::directory()); null: no hay
-     * @return string
+     * @param string|null $markerPath Otra marca que la de src/app/cache: solo para las suites.
+     * @return array{generatedAt:string,fingerprint:string}|null
      */
-    public static function placeholder_app_key_advice(?string $directory): string
+    public static function app_key_generated_notice(?string $markerPath = null): ?array
     {
-        $fix = 'dele el grupo del servidor web, con setgid y escritura de grupo (chgrp <grupo> <carpeta> && chmod 2770 <carpeta>), o ejecute permissions-and-property.sh; el próximo arranque genera la clave.';
-        if ($directory === null) {
-            return 'No hay carpeta de claves (secure-keys/ en la raíz, junto a src/, ni private/secure-keys/): créela y ' . $fix;
+        $path = $markerPath ?? basepath(self::APP_KEY_GENERATED_MARKER);
+        $data = is_file($path) ? json_decode((string) @file_get_contents($path), true) : null;
+        if (!is_array($data) || !is_string($data['generatedAt'] ?? null) || !is_string($data['fingerprint'] ?? null)) {
+            return null;
         }
-        $keyring = $directory . '/' . AppKeyring::FILE_NAME;
-        if (is_file($keyring)) {
-            return "El llavero {$keyring} existe pero este proceso no lo puede leer: lo tienen que poder leer el servidor web y la terminal (grupo del servidor web y 0640), o ejecute permissions-and-property.sh.";
+        $generatedAt = strtotime($data['generatedAt']);
+        //Una fecha futura no alarga el aviso: solo cuenta lo que ya pasó.
+        if ($generatedAt === false || $generatedAt > time() + 86400 || $generatedAt < time() - self::APP_KEY_GENERATED_DAYS * 86400) {
+            return null;
         }
-        if (!is_writable($directory)) {
-            $user = function_exists('posix_geteuid') && function_exists('posix_getpwuid') ? (posix_getpwuid(posix_geteuid())['name'] ?? '') : '';
-            return "La carpeta de claves {$directory} no la puede escribir este proceso" . ($user !== '' ? " (usuario {$user})" : '') . ': ' . $fix;
-        }
-        return 'Genere una con `bin/cli generate-app-key` (la guarda en ' . $keyring . ').';
+        return ['generatedAt' => $data['generatedAt'], 'fingerprint' => $data['fingerprint']];
     }
 
     /**

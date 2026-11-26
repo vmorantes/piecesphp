@@ -1,7 +1,7 @@
 <?php
 
-//Las guardas de retirar_usuarios() (bin/tools/retirar-usuarios.php, la de bin/retirar-agentes): sin escribir, rechaza un
-//nombre sin el prefijo y un zz-agente activo. Solo lee la base; no viaja a un clon, y allí gates no la corre.
+//retirar_usuarios() (bin/tools/retirar-usuarios.php, la de bin/retirar-agentes): sin escribir, rechaza un nombre sin el
+//prefijo y un zz-agente activo; y retira con sus sesiones a uno propio que crea. No viaja a un clon: allí gates no la corre.
 //@areas nucleo
 
 use PiecesPHP\Core\BaseModel;
@@ -78,6 +78,35 @@ CliActions::make('unit-tests:core/retire-agents', function ($args) {
     }
     $check($dry === "zz-agente-no-existe: no existe\nningún usuario que retirar\n" && $count() === $before, 'r3 un nombre que no existe se dice y no es error', (string) $dry);
 
+    //R54: retirar a un zz-agente eliminado se lleva también sus sesiones (no tienen clave foránea que las arrastre).
+    $nombre = 'zz-agente-retire-' . bin2hex(random_bytes(3));
+    $u = new UsersModel();
+    $u->username = $nombre;
+    $u->email = "{$nombre}@example.invalid";
+    $u->password = password_hash(bin2hex(random_bytes(16)), \PASSWORD_DEFAULT);
+    $u->firstname = 'Zz';
+    $u->secondname = '';
+    $u->firstLastname = 'Retirar';
+    $u->secondLastname = '';
+    $u->type = UsersModel::TYPE_USER_GENERAL;
+    $u->status = UsersModel::STATUS_USER_ACTIVE;
+    $u->failedAttempts = 0;
+    $u->createdAt = new \DateTime();
+    $u->modifiedAt = $u->createdAt;
+    $u->save();
+    $id = (int) $u->id;
+    \PiecesPHP\UserSystem\Authentication\UserSessions::issueToken($id);
+    $db->prepare('UPDATE `' . UsersModel::TABLE . '` SET status = ? WHERE id = ?')->execute([UsersModel::STATUS_USER_DELETED, $id]);
+    $sesiones = function () use ($db, $id): int {
+        $query = $db->prepare('SELECT COUNT(*) FROM `' . \PiecesPHP\UserSystem\ORM\UserSessionsModel::TABLE . '` WHERE userID = ?');
+        $query->execute([$id]);
+        return (int) $query->fetchColumn();
+    };
+    $antes = $sesiones();
+    $seco = retirar_usuarios($db, [$nombre], false);
+    $aplicado = retirar_usuarios($db, [$nombre], true);
+    $check($antes >= 1 && str_contains($seco, \PiecesPHP\UserSystem\ORM\UserSessionsModel::TABLE . ' ' . $antes) && $sesiones() === 0 && $statusOf($nombre) === null, 'r4 retira al usuario eliminado y sus sesiones (en seco las cuenta; aplicado, no queda ninguna)', "sesiones {$antes} → {$sesiones()}; {$seco}{$aplicado}");
+
     $total = $passed + $failed;
     echoTerminal(' ');
     echoTerminal($failed === 0
@@ -85,4 +114,4 @@ CliActions::make('unit-tests:core/retire-agents', function ($args) {
         : "\e[31m BALANCE FINAL: {$passed}/{$total} PASADAS, {$failed} FALLIDAS \e[39m");
     return ['success' => $failed === 0 && $total > 0, 'message' => "{$passed}/{$total}"];
 
-})->setDescription('Las guardas de retirar_usuarios() (bin/retirar-agentes): rechazan sin escribir un nombre sin prefijo zz-agente- y un usuario activo.')->setEffects([CliActions::EFFECT_DATABASE])->register();
+})->setDescription('Las guardas de retirar_usuarios() (bin/retirar-agentes): rechazan sin escribir un nombre sin prefijo zz-agente- y un usuario activo, y retira con sus sesiones a un usuario eliminado propio.')->setEffects([CliActions::EFFECT_DATABASE])->register();

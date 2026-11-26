@@ -6,7 +6,6 @@
 
 namespace PiecesPHP\SystemStatus;
 
-use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\Backups\BackupPolicy;
@@ -159,7 +158,7 @@ class SystemStatusRoutes
             new SystemAlert(
                 'app-key-placeholder',
                 SystemAlert::SEVERITY_DANGER,
-                fn() => __(AdminPanelController::ADMIN_LANG_GROUP, 'La app_key es la de relleno: las sesiones y los tokens se firman con una clave conocida. Genere una con bin/cli generate-app-key, que la guarda en secure-keys/app-key.json.'),
+                fn() => sprintf(__(SystemStatusController::LANG_GROUP, 'La app_key es la de relleno: las sesiones y los tokens se firman con una clave conocida. %s'), self::appKeyPlaceholderCauseForViewer()),
                 fn() => Config::app_key_is_placeholder(),
                 true,
                 [UsersModel::TYPE_USER_ROOT, UsersModel::TYPE_USER_ADMIN_GRAL],
@@ -173,6 +172,21 @@ class SystemStatusRoutes
                 set_config('hide_app_key_warning', false);
             }
         );
+
+        //El arranque acaba de generar la clave (ADR 0061 §9): que root guarde una copia antes de que haga falta.
+        SystemAlertRegistry::register(new SystemAlert(
+            'app-key-generated',
+            SystemAlert::SEVERITY_INFO,
+            fn(): string => __(SystemStatusController::LANG_GROUP, 'El arranque acaba de generar la clave de la aplicación. Guarda una copia de secure-keys/app-key.json fuera del servidor: sin ella no se puede leer lo cifrado si se pierde el servidor.'),
+            fn(): bool => Config::app_key_generated_notice() !== null,
+            true,
+            [UsersModel::TYPE_USER_ROOT],
+            true,
+            null,
+            null,
+            [],
+            fn(): string => md5((string) (Config::app_key_generated_notice()['generatedAt'] ?? ''))
+        ));
 
         //El llavero existe y este proceso no lo lee (permisos): firmaría y cifraría con otra clave que la de verdad.
         SystemAlertRegistry::register(new SystemAlert(
@@ -459,8 +473,8 @@ class SystemStatusRoutes
         SystemAlertRegistry::register(new SystemAlert(
             'allowed-hosts-empty',
             SystemAlert::SEVERITY_WARNING,
-            fn() => __(SystemStatusController::LANG_GROUP, 'La lista de dominios permitidos está vacía: la aplicación acepta cualquier dominio que mande el navegador y con él construye sus enlaces. Pon los tuyos en $config[\'allowed_hosts\'] (src/app/config/config.php).'),
-            fn() => self::allowedHostsMissing(get_config('allowed_hosts'), is_local()),
+            fn() => __(SystemStatusController::LANG_GROUP, 'La lista de dominios de confianza está vacía: la aplicación confía en el dominio que llega en cada petición para armar sus enlaces. Pon los tuyos en $config[\'allowed_hosts\'] (src/app/config/config.php); en local, el dominio con el que entras (por ejemplo, localhost). Un dominio como example.org admite también www.example.org.'),
+            fn() => self::allowedHostsMissing(get_config('allowed_hosts')),
             true,
             [UsersModel::TYPE_USER_ROOT],
             true
@@ -521,22 +535,59 @@ class SystemStatusRoutes
     }
 
     /**
-     * Si falta la lista de dominios permitidos fuera de local: no es un array o no tiene ninguna cadena no vacía. Puro.
+     * La causa para quien mira el aviso: la entera (rutas del servidor y su usuario) solo para root, que es quien puede
+     * arreglarla, y en la terminal; a la administración general, a quién pedírselo.
+     *
+     * @return string
+     */
+    public static function appKeyPlaceholderCauseForViewer(): string
+    {
+        $viewer = getLoggedFrameworkUser();
+        if ($viewer !== null && (int) $viewer->type !== UsersModel::TYPE_USER_ROOT) {
+            return __(SystemStatusController::LANG_GROUP, 'Pida al administrador principal que la genere: él ve en este aviso qué lo impide.');
+        }
+        return self::appKeyPlaceholderCause(AppKeyring::directory());
+    }
+
+    /**
+     * Por qué el arranque no generó la clave y qué hacer, ya traducido, para el aviso app-key-placeholder (H454).
+     *
+     * @param string|null $directory La carpeta de claves (AppKeyring::directory()); null: no hay
+     * @return string
+     */
+    public static function appKeyPlaceholderCause(?string $directory): string
+    {
+        $fix = __(SystemStatusController::LANG_GROUP, 'dele el grupo del servidor web, con setgid y escritura de grupo (chgrp <grupo> <carpeta> && chmod 2770 <carpeta>), o ejecute permissions-and-property.sh; el próximo arranque genera la clave.');
+        if ($directory === null) {
+            return sprintf(__(SystemStatusController::LANG_GROUP, 'No hay carpeta de claves (secure-keys/ en la raíz, junto a src/, ni private/secure-keys/): créela y %s'), $fix);
+        }
+        $keyring = $directory . '/' . AppKeyring::FILE_NAME;
+        if (is_file($keyring)) {
+            return sprintf(__(SystemStatusController::LANG_GROUP, 'El llavero %s existe pero este proceso no lo puede leer: lo tienen que poder leer el servidor web y la terminal (grupo del servidor web y 0640), o ejecute permissions-and-property.sh.'), $keyring);
+        }
+        if (!is_writable($directory)) {
+            $user = function_exists('posix_geteuid') && function_exists('posix_getpwuid') ? (posix_getpwuid(posix_geteuid())['name'] ?? '') : '';
+            $who = $user !== '' ? sprintf(__(SystemStatusController::LANG_GROUP, ' (usuario %s)'), $user) : '';
+            return sprintf(__(SystemStatusController::LANG_GROUP, 'La carpeta de claves %s no la puede escribir este proceso%s: %s'), $directory, $who, $fix);
+        }
+        return sprintf(__(SystemStatusController::LANG_GROUP, 'Genere una con bin/cli generate-app-key (la guarda en %s).'), $keyring);
+    }
+
+    /**
+     * Si falta la lista de dominios permitidos, también en local (P415): no es un array o no tiene ninguna cadena no
+     * vacía. Puro.
      *
      * @param mixed $allowed Lo configurado en allowed_hosts
-     * @param bool $isLocal
      * @return bool
      */
-    public static function allowedHostsMissing(mixed $allowed, bool $isLocal): bool
+    public static function allowedHostsMissing(mixed $allowed): bool
     {
-        if ($isLocal) {
-            return false;
-        }
         if (!is_array($allowed)) {
             return true;
         }
+        //Lo mismo que cuenta la lista: una entrada que se normaliza a vacío («.», «:80») no es un dominio.
         foreach ($allowed as $host) {
-            if (is_string($host) && trim($host) !== '') {
+            if (is_string($host) && \PiecesPHP\Core\AllowedHosts::normalize($host) !== '') {
                 return false;
             }
         }

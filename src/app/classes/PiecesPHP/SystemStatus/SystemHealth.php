@@ -9,6 +9,7 @@ namespace PiecesPHP\SystemStatus;
 use API\Adapters\FfmpegAudioAdapter;
 use PiecesPHP\Core\AppEnvironment;
 use PiecesPHP\Core\AppVersion;
+use PiecesPHP\Core\Crypto\AppKeyring;
 use PiecesPHP\Core\InstalledPackages;
 use PiecesPHP\Core\Statics\ProtectedUploads;
 use PiecesPHP\Settings\Controllers\SettingsController;
@@ -199,7 +200,13 @@ final class SystemHealth
         );
 
         foreach (['ffmpeg' => FfmpegAudioAdapter::COMMON_PATHS_FFMPEG, 'ffprobe' => FfmpegAudioAdapter::COMMON_PATHS_FFPROBE] as $binary => $paths) {
-            $found = FfmpegAudioAdapter::findBinary($paths) !== null;
+            //Con open_basedir, una ruta de fuera avisaría al mirarla: se miran solo las de dentro, y sin ninguna no aplica.
+            $reachable = array_values(array_filter($paths, fn(string $path): bool => path_within_open_basedir($path)));
+            if ($reachable === []) {
+                $rows[] = self::row(self::GROUP_PHP, $binary, self::t('No aplicable: open_basedir no deja mirar sus rutas'), self::STATE_INFO, 'FfmpegAudioAdapter::COMMON_PATHS_* · open_basedir');
+                continue;
+            }
+            $found = FfmpegAudioAdapter::findBinary($reachable) !== null;
             $rows[] = self::row(self::GROUP_PHP, $binary, $found ? self::t('Instalado') : self::t('No encontrado'), $found ? self::STATE_OK : self::STATE_WARNING, 'FfmpegAudioAdapter::findBinary()');
         }
         return $rows;
@@ -238,8 +245,7 @@ final class SystemHealth
         foreach (SchemeSqlTask::discover('all')['creators'] as $creator) {
             $declared[$creator->getTable()] = true;
         }
-        $missing = array_values(array_diff(array_keys($declared), $tables));
-        sort($missing);
+        $missing = self::missingDeclaredTables(array_keys($declared), $tables, self::databaseViews());
         $rows[] = self::row(
             self::GROUP_DATABASE,
             self::t('Tablas declaradas que la base no tiene'),
@@ -248,6 +254,36 @@ final class SystemHealth
             'SchemeSqlTask::discover(\'all\') (scheme-create)'
         );
         return $rows;
+    }
+
+    /**
+     * Las tablas declaradas que la base no tiene ni como tabla ni como vista (un proyecto puede sustituir una tabla por una
+     * vista: cuenta como existente), en orden. Pura.
+     *
+     * @param string[] $declared
+     * @param string[] $tables
+     * @param string[] $views
+     * @return string[]
+     */
+    public static function missingDeclaredTables(array $declared, array $tables, array $views): array
+    {
+        $missing = array_values(array_diff($declared, $tables, $views));
+        sort($missing);
+        return $missing;
+    }
+
+    /**
+     * Las vistas de la base de la instalación (SettingsController::databaseTables() da solo las tablas).
+     *
+     * @return string[]
+     */
+    public static function databaseViews(): array
+    {
+        $database = (new \PiecesPHP\Core\BaseModel())->getDatabase();
+        if ($database === null) {
+            return [];
+        }
+        return array_map('strval', $database->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'VIEW'")->fetchAll(\PDO::FETCH_COLUMN));
     }
 
     /**
@@ -294,8 +330,7 @@ final class SystemHealth
     private static function folderRows(): array
     {
         $rows = [];
-        //secure-keys/ va junto a src/ (getKeyFromSecureKeys()): solo se mira si se puede escribir, nunca su contenido.
-        foreach (array_merge(self::writableDirs(), ['../secure-keys']) as $relative) {
+        foreach (self::writableDirs() as $relative) {
             $path = basepath($relative);
             $exists = is_dir($path);
             $writable = $exists && is_writable($path);
@@ -307,6 +342,19 @@ final class SystemHealth
                 'is_writable() · ' . self::WRITABLE_DIRS_FILE
             );
         }
+        //La carpeta de claves, la que usa el framework (AppKeyring::directory(): secure-keys/ o private/secure-keys/, y
+        //solo dentro de open_basedir): «Falta» solo si no hay ninguna. Se mira si se puede escribir, nunca su contenido.
+        $keys = AppKeyring::directory();
+        $root = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $label = $keys !== null && str_starts_with($keys, $root . '/') ? '../' . substr($keys, strlen($root) + 1) : ($keys ?? 'secure-keys');
+        $writable = $keys !== null && is_writable($keys);
+        $rows[] = self::row(
+            self::GROUP_FOLDERS,
+            $label,
+            $keys === null ? self::t('Falta') : ($writable ? self::t('Escribible') : self::t('No escribible')),
+            $keys !== null && $writable ? self::STATE_OK : self::STATE_MISSING,
+            'AppKeyring::directory() · is_writable()'
+        );
         return $rows;
     }
 
@@ -350,7 +398,7 @@ final class SystemHealth
 
         $allowed = get_config('allowed_hosts');
         $origin = "\$config['allowed_hosts']";
-        if (!SystemStatusRoutes::allowedHostsMissing($allowed, false)) {
+        if (!SystemStatusRoutes::allowedHostsMissing($allowed)) {
             $hosts = array_filter(is_array($allowed) ? $allowed : [], fn($host): bool => is_string($host) && trim($host) !== '');
             $rows[] = self::row(self::GROUP_SECURITY, self::t('Dominios permitidos'), implode(', ', $hosts), self::STATE_OK, $origin);
         } else {
