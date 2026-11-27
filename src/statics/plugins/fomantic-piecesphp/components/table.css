@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Table
+ * # Fomantic-UI 2.0.0 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -4644,6 +4644,15 @@
 .ui.table:not(.compact):not(.padded) > tbody > tr > td,
 .ui.table:not(.compact):not(.padded) > tr > td {
   height: 3.85714286rem;
+}
+
+/* Apilada en móvil, la celda es un bloque y los 54px pasan a ser su alto fijo: un texto de tres líneas salía de la celda
+   y quedaba bajo los botones de la siguiente (importar y exportar de PiecesPHP a 320, 2026-11-26) */
+@media only screen and (max-width: 767.98px) {
+  .ui.table:not(.unstackable):not(.compact):not(.padded) > tbody > tr > td,
+  .ui.table:not(.unstackable):not(.compact):not(.padded) > tr > td {
+    height: auto;
+  }
 }
 
 /* Pie: el mismo alto que la cabecera (el relleno vertical de las celdas es 0, y sin alto el pie quedaba de 22px pegado a

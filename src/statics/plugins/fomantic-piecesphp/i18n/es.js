@@ -1,4 +1,5 @@
-/* Fomantic (fork): textos de los módulos en español neutro, con tuteo (D99). Todas las claves de base.json (examples/catalogo/i18n.mjs
+/* Fomantic (fork): textos de los módulos en español neutro, con tuteo (D99). La hora va con «am»/«pm» de una palabra: el calendario
+   relee el campo separando palabras por lo que no es letra, y con «p. m.» perdía la tarde. Todas las claves de base.json (examples/catalogo/i18n.mjs
    avisa de las que falten). Se carga tras semantic.js y fomantic-i18n.js. */
 FomanticI18n.add('es', {
     "calendar": {
@@ -60,9 +61,20 @@ FomanticI18n.add('es', {
             ],
             "today": "Hoy",
             "now": "Ahora",
-            "am": "a. m.",
-            "pm": "p. m.",
+            "am": "am",
+            "pm": "pm",
             "weekNo": "Semana"
+        },
+        "monthFirst": false,
+        "formatter": {
+            "date": "D \"de\" MMMM \"de\" YYYY",
+            "datetime": "D \"de\" MMMM \"de\" YYYY h:mm a",
+            "hourHeader": "D \"de\" MMMM \"de\" YYYY",
+            "minuteHeader": "D \"de\" MMMM \"de\" YYYY",
+            "dayHeader": "MMMM \"de\" YYYY",
+            "month": "MMMM \"de\" YYYY",
+            "time": "h:mm a",
+            "cellTime": "h:mm a"
         }
     },
     "chat": {
@@ -213,6 +225,7 @@ FomanticI18n.add('es', {
     },
     "search": {
         "error": {
+            "noResultsHeader": "Sin resultados",
             "noResults": "La búsqueda no devolvió resultados",
             "serverError": "Hubo un problema al consultar el servidor."
         }

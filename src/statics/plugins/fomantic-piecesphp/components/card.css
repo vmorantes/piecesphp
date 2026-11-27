@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Card
+ * # Fomantic-UI 2.0.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3240,6 +3240,18 @@ a.inverted.ui.card:hover,
     height: 180px;
     min-height: 0;
   }
+}
+
+/* Cifra de una tarjeta de cifra: como mucho el tamaño de cifra del tema (--statistic-value-size, de statistic) y nunca más ancha que su tarjeta (16 % del
+   ancho del contenido). Sin ello, una fecha de 56px medía 310px en una tarjeta de 254 y montaba la siguiente (respaldos de
+   PiecesPHP en fomantic, 2026-11-26). Los temas con su propia escala la fijan después */
+.ui.cards > .statistic.card > .content,
+.ui.statistic.card > .content {
+  container-type: inline-size;
+}
+.ui.cards > .statistic.card > .content > .ui.statistic:not(.mini, .tiny, .small, .large, .big, .huge, .massive) > .value,
+.ui.statistic.card > .content > .ui.statistic:not(.mini, .tiny, .small, .large, .big, .huge, .massive) > .value {
+  font-size: min(var(--statistic-value-size, 4rem), 16cqi);
 }
 
 /* Descripción en Pequeño 12/16 (sin variable de tamaño) y meta con su interlineado */

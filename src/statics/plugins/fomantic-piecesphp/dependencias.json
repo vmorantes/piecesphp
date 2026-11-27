@@ -1,9 +1,10 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "1f64e553",
+  "commit": "7cca2d20",
   "fuenteSinCambios": true,
-  "generado": "2026-11-25T19:00:41.268Z",
+  "build": "b9562601f320",
+  "generado": "2026-11-27T03:28:54.653Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",

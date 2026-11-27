@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Statistic
+ * # Fomantic-UI 2.0.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83,6 +83,9 @@
 --------------- */
 .ui.statistics .statistic > .value,
 .ui.statistic > .value {
+  
+/* Fork: el tamaño del tema, para quien lo encaje en su caja (tarjeta de cifra de core) */
+  --statistic-value-size: 1.71428571rem;
   font-family: var(--font-body);
   font-size: 1.71428571rem;
   font-weight: 600;

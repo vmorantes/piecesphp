@@ -174,8 +174,12 @@
 
 /* Especificidad por encima de las alineaciones (`bottom aligned`, `spaced`…) */
 @media only screen and (max-width: 767.98px) {
+  
+/* nowrap: en columna no hay nada que envolver, y con `wrap` la línea tomaba el ancho del contenido más ancho (un
+           hash `truncated` de 303px sacaba el bloque 32px a 320, estado de cachés de PiecesPHP, 2026-11-26) */
   .ui.ui.ui.stackable.flex {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: stretch;
     justify-content: flex-start;
   }

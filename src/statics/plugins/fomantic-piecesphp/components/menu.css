@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Menu
+ * # Fomantic-UI 2.0.0 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2626,6 +2626,14 @@ Floated Menu / Item
   .ui.ui.tabular.menu,
   .ui.ui.secondary.pointing.menu {
     flex-wrap: wrap;
+  }
+  
+/* Una pestaña más larga que la fila («Autenticación de dos factores (con app TOTP)», 347px a 320) no encogía
+       (flex-shrink: 0 de los ítems) y salía 42px de la ventana: encoge y parte su texto (2026-11-26) */
+  .ui.ui.tabular.menu > .item,
+  .ui.ui.secondary.pointing.menu > .item {
+    flex-shrink: 1;
+    min-width: 0;
   }
   .ui.ui.stackable.tabular.menu > .item,
   .ui.ui.stackable.pointing.menu > .item {

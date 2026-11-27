@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Toast
+ * # Fomantic-UI 2.0.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -900,6 +900,33 @@
 .ui.toast:not(.inverted).error {
   background-color: var(--theme-surface-strong);
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
+}
+
+/* Sin ícono (`$.toast({ class: 'error' })` sin `showIcon`, lo habitual), nada distinguía los estados: franja de 3px del
+   color del estado en el borde de inicio (TDBaseApp, 2026-11-26). Con ícono, el ícono basta */
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).success {
+  box-shadow: inset 3px 0 0 0 #008742;
+}
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).error {
+  box-shadow: inset 3px 0 0 0 #de3027;
+}
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).warning {
+  box-shadow: inset 3px 0 0 0 #bb5900;
+}
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).info {
+  box-shadow: inset 3px 0 0 0 #007fa3;
+}
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).success {
+  box-shadow: inset -3px 0 0 0 #008742;
+}
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).error {
+  box-shadow: inset -3px 0 0 0 #de3027;
+}
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).warning {
+  box-shadow: inset -3px 0 0 0 #bb5900;
+}
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).info {
+  box-shadow: inset -3px 0 0 0 #007fa3;
 }
 
 /* -------------------

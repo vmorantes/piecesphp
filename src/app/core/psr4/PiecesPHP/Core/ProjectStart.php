@@ -54,6 +54,18 @@ final class ProjectStart
     const CATCH_ALL_ROUTES = ['public-generic', 'public-generic-2'];
 
     /**
+     * El aviso de una `login_redirect_route` que haría un bucle, por nombre, por dirección o por la dirección que da una
+     * ruta con parámetros.
+     */
+    const LOGIN_LOOP_MESSAGE = "\$config['login_redirect_route'] apunta al propio acceso (o a la portada sin zona pública), por nombre o por dirección, que haría un bucle: el acceso lleva al panel.";
+
+    /**
+     * El aviso de una `login_redirect_route` cuya dirección no se pudo leer para compararla con la del acceso: sin
+     * comparar no se puede descartar el bucle.
+     */
+    const LOGIN_UNREADABLE_MESSAGE = "\$config['login_redirect_route'] lleva a una dirección que no se pudo comparar con la del acceso: el acceso lleva al panel. Revisa base_url en config.php.";
+
+    /**
      * La configuración leída de config.php y roles.php, con las claves del arranque que falten.
      *
      * @param array<string,mixed> $config
@@ -110,6 +122,57 @@ final class ProjectStart
     }
 
     /**
+     * Una dirección relativa a la instalación: empieza por «/» y no por «//», solo con caracteres ASCII visibles (una letra
+     * con tilde va codificada) y sin «\\». Así nunca lleva a otro dominio: se resuelve con baseurl(). Ningún segmento del
+     * camino (lo anterior a «?» o «#») puede ser exactamente «.» o «..», que lo sacarían de la instalación o esquivarían el
+     * bucle, y el camino no lleva «%2e», «%2f» ni «%5c» en ninguna mayúscula: «%2e» lo resuelve el navegador como «.»;
+     * «%2f» y «%5c» los decodifica Slim al enrutar (RouteResolver.php:42).
+     *
+     * @param mixed $value
+     * @return string|null Null si no vale.
+     */
+    public static function loginRelativeValue(mixed $value): ?string
+    {
+        if (!is_string($value) || !str_starts_with($value, '/') || str_starts_with($value, '//')) {
+            return null;
+        }
+        //Sin /u: un byte de fuera de ASCII (también el UTF-8 inválido) no casa y rechaza.
+        if (preg_match('/^[\x21-\x7E]+$/D', $value) !== 1 || str_contains($value, '\\')) {
+            return null;
+        }
+        $path = (string) preg_split('/[?#]/', $value, 2)[0];
+        return preg_match('/%(2e|2f|5c)/i', $path) !== 0 || array_intersect(explode('/', $path), ['.', '..']) !== [] ? null : $value;
+    }
+
+    /**
+     * Una ruta con parámetros: ['route' => nombre, 'params' => [clave => valor]] con params opcional, claves y valores
+     * enteros o de texto hecho solo de [A-Za-z0-9._~-] y distinto de «.» y «..», y nada más en el arreglo: la ruta los
+     * sustituye sin codificar. Un booleano, un flotante (también NAN e INF) o cualquier otro texto no valen.
+     *
+     * @param mixed $value
+     * @return array{route:string,params:array<string,int|string>}|null Null si no tiene esa forma.
+     */
+    public static function loginRouteWithParams(mixed $value): ?array
+    {
+        if (!is_array($value) || array_diff(array_keys($value), ['route', 'params']) !== []) {
+            return null;
+        }
+        $route = self::loginRouteValue($value['route'] ?? null);
+        $params = $value['params'] ?? [];
+        if ($route === null || !is_array($params)) {
+            return null;
+        }
+        $clean = [];
+        foreach ($params as $key => $param) {
+            if (!is_string($key) || !(is_int($param) || (is_string($param) && $param !== '.' && $param !== '..' && preg_match('/^[A-Za-z0-9._~-]+$/D', $param) === 1))) {
+                return null;
+            }
+            $clean[$key] = $param;
+        }
+        return ['route' => $route, 'params' => $clean];
+    }
+
+    /**
      * Las partes de una dirección con forma de dirección completa: http o https, con host. Sin juzgar si vale (usuario y
      * contraseña, bucle): eso lo decide loginTarget().
      *
@@ -143,22 +206,27 @@ final class ProjectStart
     }
 
     /**
-     * Una dirección reducida a lo que decide adónde lleva: esquema, host, puerto y camino, sin query, sin fragmento, sin
-     * barra final y sin el segmento de idioma que sigue a la base de la instalación.
+     * Una dirección reducida a lo que decide adónde lleva, normalizada como la resuelven el navegador y Slim:
+     * «//host[:puerto]/camino», sin esquema (http y https del mismo host casan), sin el puerto por omisión, con «\\» como
+     * «/», el camino decodificado y sin segmentos de punto (RFC 3986 §5.2.4), sin query, sin fragmento, sin barra final y
+     * sin el segmento de idioma que sigue a la base de la instalación. No usa FILTER_VALIDATE_URL, que rechaza hosts
+     * válidos para servir (con «_»): solo pide esquema http o https y host.
      *
      * @param string $url
      * @param string $basePath El camino de baseurl() (por ejemplo «/vicsen/piecesphp/src»).
      * @param string[] $langs Los idiomas permitidos.
-     * @return string|null Null si no es una dirección completa.
+     * @return string|null Null si no se puede leer como dirección http o https con host.
      */
     public static function comparableURL(string $url, string $basePath, array $langs): ?string
     {
-        $parts = self::absoluteURLParts($url);
-        if ($parts === null) {
+        $parts = parse_url($url);
+        if (!is_array($parts) || !isset($parts['scheme'], $parts['host']) || $parts['host'] === '' || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)) {
             return null;
         }
-        $base = rtrim($basePath, '/');
-        $path = rtrim($parts['path'] ?? '', '/');
+        $scheme = strtolower($parts['scheme']);
+        $base = rtrim(self::removeDotSegments(rawurldecode(str_replace('\\', '/', $basePath))), '/');
+        //Decodificado: Slim decodifica el camino al enrutar, así que «/users/log%69n» es el acceso.
+        $path = rtrim(self::removeDotSegments(rawurldecode(str_replace('\\', '/', $parts['path'] ?? ''))), '/');
         if ($base === '' || $path === $base || str_starts_with($path, $base . '/')) {
             $rest = explode('/', ltrim(substr($path, strlen($base)), '/'));
             if ($rest !== [] && in_array(strtolower($rest[0]), array_map('strtolower', $langs), true)) {
@@ -166,8 +234,49 @@ final class ProjectStart
             }
             $path = rtrim($base . '/' . implode('/', $rest), '/');
         }
-        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
-        return strtolower($parts['scheme']) . '://' . strtolower($parts['host']) . $port . $path;
+        $defaultPort = $scheme === 'https' ? 443 : 80;
+        $port = isset($parts['port']) && $parts['port'] !== $defaultPort ? ':' . $parts['port'] : '';
+        return '//' . strtolower($parts['host']) . $port . $path;
+    }
+
+    /**
+     * Quita los segmentos «.» y «..» de un camino, con el algoritmo de RFC 3986 §5.2.4: «/a/b/c/./../../g» da «/a/g» y
+     * «mid/content=5/../6» da «mid/6». Un «..» de más no sube por encima de la raíz.
+     *
+     * @param string $path
+     * @return string
+     */
+    private static function removeDotSegments(string $path): string
+    {
+        $output = '';
+        $dropLast = function (string $output): string {
+            $position = strrpos($output, '/');
+            return $position === false ? '' : substr($output, 0, $position);
+        };
+        while ($path !== '') {
+            if (str_starts_with($path, '../')) {
+                $path = substr($path, 3);
+            } elseif (str_starts_with($path, './')) {
+                $path = substr($path, 2);
+            } elseif (str_starts_with($path, '/./')) {
+                $path = '/' . substr($path, 3);
+            } elseif ($path === '/.') {
+                $path = '/';
+            } elseif (str_starts_with($path, '/../')) {
+                $path = '/' . substr($path, 4);
+                $output = $dropLast($output);
+            } elseif ($path === '/..') {
+                $path = '/';
+                $output = $dropLast($output);
+            } elseif ($path === '.' || $path === '..') {
+                $path = '';
+            } else {
+                $next = strpos($path, '/', str_starts_with($path, '/') ? 1 : 0);
+                $output .= $next === false ? $path : substr($path, 0, $next);
+                $path = $next === false ? '' : substr($path, $next);
+            }
+        }
+        return $output;
     }
 
     /**
@@ -317,8 +426,11 @@ final class ProjectStart
 
     /**
      * Adónde va quien ya tiene sesión y pide el formulario de acceso: `next`, luego `login_redirect_route` si config.php
-     * la declara (un nombre de ruta, o una dirección completa http o https: 'url'), luego `admin_url` de un clon de antes
-     * (hasta la 11.0.0), y si no, el panel.
+     * la declara, luego `admin_url` de un clon de antes (hasta la 11.0.0), y si no, el panel. `login_redirect_route`
+     * admite cuatro formas: un nombre de ruta ('route'); una ruta con parámetros, ['route' => …, 'params' => […]]
+     * ('route' con 'params'); una dirección relativa a la instalación, «/camino» ('url' con 'relative'); y una dirección
+     * completa http o https ('url'). Con kind 'panel', value dice por qué: '' (nada declarado), 'invalid' (sin forma
+     * válida), 'loop' (haría un bucle) o 'unreadable' (su dirección no se pudo leer para descartar el bucle).
      *
      * @param string|null $nextURL Ya validada (UsersController::safeNextURL()).
      * @param mixed $loginRoute get_config('login_redirect_route'): false si config.php no la declara.
@@ -327,37 +439,62 @@ final class ProjectStart
      * @param string[] $loopURLs Las direcciones que harían bucle, en forma comparableURL() (loginLoopURLs()).
      * @param string $basePath El camino de baseurl(), para comparableURL().
      * @param string[] $langs Los idiomas permitidos, para comparableURL().
-     * @return array{kind:'next'|'route'|'url'|'admin_url'|'panel',value:string,relative:bool}
+     * @param string $baseURL baseurl(): con él se resuelve una dirección relativa para medir el bucle.
+     * @return array{kind:'next'|'route'|'url'|'admin_url'|'panel',value:string,relative:bool,params:array<string,int|string>}
      */
-    public static function loginTarget(?string $nextURL, mixed $loginRoute, mixed $adminURL, bool $publicPages = true, array $loopURLs = [], string $basePath = '', array $langs = []): array
+    public static function loginTarget(?string $nextURL, mixed $loginRoute, mixed $adminURL, bool $publicPages = true, array $loopURLs = [], string $basePath = '', array $langs = [], string $baseURL = ''): array
     {
         if ($nextURL !== null) {
-            return ['kind' => 'next', 'value' => $nextURL, 'relative' => false];
+            return ['kind' => 'next', 'value' => $nextURL, 'relative' => false, 'params' => []];
         }
         if ($loginRoute !== false) {
             //Antes que el nombre de ruta: una dirección no lleva espacios y loginRouteValue() la tomaría por un nombre.
             $parts = self::absoluteURLParts($loginRoute);
             if ($parts !== null && is_string($loginRoute)) {
                 if (isset($parts['user']) || isset($parts['pass'])) {
-                    return ['kind' => 'panel', 'value' => 'invalid', 'relative' => false];
+                    return ['kind' => 'panel', 'value' => 'invalid', 'relative' => false, 'params' => []];
                 }
-                if (in_array(self::comparableURL($loginRoute, $basePath, $langs), $loopURLs, true)) {
-                    return ['kind' => 'panel', 'value' => 'loop', 'relative' => false];
+                $comparable = self::comparableURL($loginRoute, $basePath, $langs);
+                //Sin forma comparable no se puede descartar el bucle: falla cerrado.
+                if ($comparable === null) {
+                    return ['kind' => 'panel', 'value' => 'unreadable', 'relative' => false, 'params' => []];
                 }
-                return ['kind' => 'url', 'value' => $loginRoute, 'relative' => false];
+                if (in_array($comparable, $loopURLs, true)) {
+                    return ['kind' => 'panel', 'value' => 'loop', 'relative' => false, 'params' => []];
+                }
+                return ['kind' => 'url', 'value' => $loginRoute, 'relative' => false, 'params' => []];
             }
-            $route = self::loginRouteValue($loginRoute);
+            //La relativa, también antes que el nombre: «/x» no lleva espacios. El bucle se mide ya resuelta.
+            $relative = self::loginRelativeValue($loginRoute);
+            if ($relative !== null) {
+                $resolved = rtrim($baseURL, '/') . '/' . ltrim($relative, '/');
+                $comparable = $baseURL !== '' ? self::comparableURL($resolved, $basePath, $langs) : '';
+                //Sin forma comparable (una base que no se puede leer) no se puede descartar el bucle: falla cerrado.
+                if ($comparable === null) {
+                    return ['kind' => 'panel', 'value' => 'unreadable', 'relative' => false, 'params' => []];
+                }
+                if ($baseURL !== '' && in_array($comparable, $loopURLs, true)) {
+                    return ['kind' => 'panel', 'value' => 'loop', 'relative' => false, 'params' => []];
+                }
+                return ['kind' => 'url', 'value' => $relative, 'relative' => true, 'params' => []];
+            }
+            //Una cadena con «/» inicial es siempre una dirección: si la relativa no la aceptó, no se lee como nombre de ruta.
+            if (is_string($loginRoute) && str_starts_with($loginRoute, '/')) {
+                return ['kind' => 'panel', 'value' => 'invalid', 'relative' => false, 'params' => []];
+            }
+            $withParams = self::loginRouteWithParams($loginRoute);
+            $route = $withParams !== null ? $withParams['route'] : self::loginRouteValue($loginRoute);
             if ($route === 'users-form-login' || ($route === 'public-index' && !$publicPages)) {
-                return ['kind' => 'panel', 'value' => 'loop', 'relative' => false];
+                return ['kind' => 'panel', 'value' => 'loop', 'relative' => false, 'params' => []];
             }
-            return $route !== null ? ['kind' => 'route', 'value' => $route, 'relative' => false] : ['kind' => 'panel', 'value' => 'invalid', 'relative' => false];
+            return $route !== null ? ['kind' => 'route', 'value' => $route, 'relative' => false, 'params' => $withParams['params'] ?? []] : ['kind' => 'panel', 'value' => 'invalid', 'relative' => false, 'params' => []];
         }
         $url = is_array($adminURL) ? ($adminURL['url'] ?? '') : '';
         if (is_string($url) && $url !== '') {
             $relative = $adminURL['relative'] ?? true;
-            return ['kind' => 'admin_url', 'value' => $url, 'relative' => !is_bool($relative) || $relative];
+            return ['kind' => 'admin_url', 'value' => $url, 'relative' => !is_bool($relative) || $relative, 'params' => []];
         }
-        return ['kind' => 'panel', 'value' => '', 'relative' => false];
+        return ['kind' => 'panel', 'value' => '', 'relative' => false, 'params' => []];
     }
 
     /**
@@ -370,24 +507,35 @@ final class ProjectStart
     {
         $nextURL = UsersController::safeNextURL($nextURL);
         $loginRoute = get_config('login_redirect_route');
-        //Las direcciones del bucle piden rutas: solo se calculan si la clave es una dirección.
-        $loopURLs = self::absoluteURLParts($loginRoute) !== null ? self::loginLoopURLs() : [];
-        $target = self::loginTarget($nextURL, $loginRoute, get_config('admin_url'), self::publicPages(), $loopURLs, (string) parse_url(baseurl(), PHP_URL_PATH), Config::get_allowed_langs());
+        //Las direcciones del bucle piden rutas: solo se calculan si la clave es una dirección, completa o relativa.
+        $loopURLs = self::absoluteURLParts($loginRoute) !== null || self::loginRelativeValue($loginRoute) !== null ? self::loginLoopURLs() : [];
+        $target = self::loginTarget($nextURL, $loginRoute, get_config('admin_url'), self::publicPages(), $loopURLs, (string) parse_url(baseurl(), PHP_URL_PATH), Config::get_allowed_langs(), baseurl());
         $url = null;
-        if ($target['kind'] === 'next' || $target['kind'] === 'url') {
+        if ($target['kind'] === 'next' || ($target['kind'] === 'url' && !$target['relative'])) {
             return $target['value'];
+        } elseif ($target['kind'] === 'url') {
+            return baseurl(ltrim($target['value'], '/'));
         } elseif ($target['kind'] === 'admin_url') {
             $url = $target['relative'] ? baseurl($target['value']) : $target['value'];
-        } elseif ($target['kind'] === 'route' && $target['value'] !== self::PANEL_ROUTE) {
-            $url = get_route($target['value'], [], true);
+        } elseif ($target['kind'] === 'route' && ($target['value'] !== self::PANEL_ROUTE || $target['params'] !== [])) {
+            $url = get_route($target['value'], $target['params'], true);
             if (!is_string($url) || $url === '') {
-                log_soft_error("\$config['login_redirect_route'] = '{$target['value']}' no es una ruta registrada sin parámetros obligatorios: el acceso lleva al panel.");
+                log_soft_error("\$config['login_redirect_route'] = '{$target['value']}' no es una ruta registrada o le faltan parámetros obligatorios: el acceso lleva al panel.");
                 $url = null;
+            } else {
+                //Por nombre no se ve: una ruta con parámetros puede dar la dirección del acceso. Sin forma comparable, falla cerrado.
+                $comparable = self::comparableURL($url, (string) parse_url(baseurl(), PHP_URL_PATH), Config::get_allowed_langs());
+                if ($comparable === null || in_array($comparable, self::loginLoopURLs(), true)) {
+                    log_soft_error($comparable === null ? self::LOGIN_UNREADABLE_MESSAGE : self::LOGIN_LOOP_MESSAGE);
+                    $url = null;
+                }
             }
         } elseif ($target['kind'] === 'panel' && $target['value'] === 'invalid') {
-            log_soft_error("\$config['login_redirect_route'] tiene que ser el nombre de una ruta o una dirección completa (http o https, sin usuario ni contraseña): el acceso lleva al panel.");
+            log_soft_error("\$config['login_redirect_route'] tiene que ser el nombre de una ruta, una ruta con parámetros, una dirección relativa («/camino») o una dirección completa (http o https, sin usuario ni contraseña): el acceso lleva al panel.");
         } elseif ($target['kind'] === 'panel' && $target['value'] === 'loop') {
-            log_soft_error("\$config['login_redirect_route'] apunta al propio acceso (o a la portada sin zona pública), por nombre o por dirección, que haría un bucle: el acceso lleva al panel.");
+            log_soft_error(self::LOGIN_LOOP_MESSAGE);
+        } elseif ($target['kind'] === 'panel' && $target['value'] === 'unreadable') {
+            log_soft_error(self::LOGIN_UNREADABLE_MESSAGE);
         }
         $url ??= AdminPanelController::routeName('');
         return convert_lang_url($url, get_config('default_lang'), get_config('app_lang'));

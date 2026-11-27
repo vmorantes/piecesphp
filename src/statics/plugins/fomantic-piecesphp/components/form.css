@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Form
+ * # Fomantic-UI 2.0.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2155,8 +2155,12 @@
   border-radius: 0 0 var(--r-lg, 12px) var(--r-lg, 12px);
 }
 @media only screen and (max-width: 767.98px) {
+  
+/* Desde su ancho y creciendo hasta llenar la fila: con base 0 los tres botones de una edición (Eliminar, Cancelar,
+           Guardar) se repartían a partes iguales y el texto de los que llevan ícono caía debajo de él (revisión de huellas,
+           2026-11-26). Si no caben, la barra salta de línea (flex-wrap) */
   .ui.form .actions > .ui.button {
-    flex: 1 1 0;
+    flex: 1 1 auto;
   }
 }
 

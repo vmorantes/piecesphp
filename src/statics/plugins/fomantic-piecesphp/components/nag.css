@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Nag
+ * # Fomantic-UI 2.0.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -19,7 +19,7 @@
   position: relative;
   top: 0;
   left: 0;
-  z-index: 999;
+  z-index: 40;
   min-height: 0;
   width: 100%;
   margin: 0;

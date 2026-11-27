@@ -1,6 +1,6 @@
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 1.4.0 - Shell
+ * # Fomantic-UI 2.0.0 - Shell
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -458,6 +458,11 @@
                             open       = module.is.drawerOpen(),
                             controls   = $navigation.attr('id')
                         ;
+                        // Los botones se buscan cada vez: si el proyecto vuelve a pintar la barra o el menú después de
+                        // iniciar el shell, los guardados al iniciar ya no están en la página y los nuevos se quedaban
+                        // sin aria-expanded (PiecesPHP, 2026-11-25). El clic ya iba delegado.
+                        $toggle = $navigation.children(selector.toggle).not(selector.drawerToggle);
+                        $drawerToggle = $module.find(selector.drawerToggle);
                         $toggle.attr({
                             'aria-controls': controls,
                             'aria-expanded': String(!collapsed),

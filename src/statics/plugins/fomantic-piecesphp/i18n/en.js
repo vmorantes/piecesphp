@@ -1,5 +1,5 @@
-/* Fomantic (fork): textos de los módulos en inglés (D99). Todas las claves de base.json (examples/catalogo/i18n.mjs
-   avisa de las que falten). Se carga tras semantic.js y fomantic-i18n.js. */
+/* Fomantic (fork): textos de los módulos en inglés (D99): los del código, copiados de base.json (examples/catalogo/i18n.mjs
+   avisa si se apartan). Sirve para volver al inglés con FomanticI18n.use('en'). Se carga tras semantic.js y fomantic-i18n.js. */
 FomanticI18n.add('en', {
     "calendar": {
         "text": {
@@ -71,14 +71,14 @@ FomanticI18n.add('en', {
             "conversation": "Conversation",
             "close": "Close",
             "newChat": "New conversation",
-            "placeholder": "Type your question",
+            "placeholder": "Write a message",
             "send": "Send",
             "thinking": "Thinking…",
-            "empty": "Ask me anything you need about the platform.",
+            "empty": "Ask me anything about the platform.",
             "notices": {
-                "scope": "That's outside what I can do.",
+                "scope": "That is outside what I can help with.",
                 "unavailable": "The assistant is not available right now.",
-                "error": "Something went wrong. Please try again."
+                "error": "Something went wrong. Try again."
             }
         }
     },
@@ -88,13 +88,13 @@ FomanticI18n.add('en', {
             "trigger": "Choose color",
             "area": "Saturation and brightness",
             "areaRole": "2D slider",
-            "areaValue": "Saturation {saturation}%, brightness {brightness}%, {value}",
+            "areaValue": "{saturation}% saturation, {brightness}% brightness, {value}",
             "hue": "Hue",
             "hueValue": "{hue} degrees, {value}",
             "alpha": "Opacity",
             "alphaValue": "{alpha}%, {value}",
             "input": "Color value",
-            "initial": "Previous color: {value}. Press it to restore it",
+            "initial": "Previous color: {value}. Press to restore it",
             "current": "New color: {value}",
             "format": "Color format",
             "formats": {
@@ -104,9 +104,9 @@ FomanticI18n.add('en', {
                 "oklch": "OKLCH"
             },
             "channels": "Color channels",
-            "red": "R",
-            "green": "G",
-            "blue": "B",
+            "red": "Red",
+            "green": "Green",
+            "blue": "Blue",
             "hueChannel": "H",
             "saturation": "S",
             "lightness": "L",
@@ -118,7 +118,7 @@ FomanticI18n.add('en', {
             "complementary": "Complementary",
             "contrast": "Contrast",
             "contrastValue": "{ratio}:1",
-            "contrastPass": "Meets {threshold}:1",
+            "contrastPass": "Passes {threshold}:1",
             "contrastFail": "Below {threshold}:1",
             "eyedropper": "Pick a color from the screen",
             "clear": "No color",
@@ -213,6 +213,7 @@ FomanticI18n.add('en', {
     },
     "search": {
         "error": {
+            "noResultsHeader": "No Results",
             "noResults": "Your search returned no results",
             "serverError": "There was an issue querying the server."
         }
@@ -233,15 +234,15 @@ FomanticI18n.add('en', {
     },
     "slideshow": {
         "text": {
-            "label": "Carousel",
+            "label": "Slideshow",
             "roleDescription": "carousel",
             "slideRoleDescription": "slide",
             "slide": "{index} of {total}",
             "indicator": "Go to slide {index}",
             "previous": "Previous slide",
             "next": "Next slide",
-            "play": "Resume rotation",
-            "pause": "Stop rotation"
+            "play": "Start slide rotation",
+            "pause": "Stop slide rotation"
         }
     },
     "toast": {

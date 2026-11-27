@@ -896,10 +896,15 @@ table.dataTable td.dt-type-date {
    celda: en una tabla normal, `collapsing` va solo en el th y sus fechas partían letra a letra
    (hoja-diseno). Ni en las celdas `collapsing` ni en `single line`. Solo en escritorio: en tableta la
    tabla mide su contenido y desplaza su contenedor, como en móvil (a 768 partía «AdminPanelControll/er»
-   en rutas-permisos; medido por PiecesPHP). */
+   en rutas-permisos; medido por PiecesPHP). Ni en los números (dt-type-numeric): «8425» partía en dos líneas
+   (puntos-listado, registro-de-acciones, 2026-11-26). */
 @media only screen and (min-width: 992px) {
-  table.ui.table.dataTable:not(.single.line) > tbody > tr > td:not(.collapsing):not(.single.line):not(.dt-type-date) {
+  table.ui.table.dataTable:not(.single.line) > tbody > tr > td:not(.collapsing):not(.single.line):not(.dt-type-date):not(.dt-type-numeric) {
     overflow-wrap: anywhere;
+    
+/* Una palabra corta (≤ 12 caracteres: «Usuarios», «0.0.0.0», «oportunidades» casi) entera: el corte libre deja el
+           mínimo de la columna en un carácter y la tabla la estrujaba hasta partirla (2026-11-26) */
+    min-width: 12ch;
   }
 }
 

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Item
+ * # Fomantic-UI 2.0.0 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -444,8 +444,11 @@
        Unstackable
     ---------------- */
 @media only screen and (max-width: 767.98px) {
-  .ui.unstackable.items > .item > .image,
-  .ui.unstackable.items > .item > .image > img {
+  
+/* Fork: salvo una imagen con tamaño propio pequeño (`ui tiny image`, 80px): los 125px la agrandaban y dejaban 77px
+           al contenido a 320 (perfil de organización de PiecesPHP, 2026-11-26) */
+  .ui.unstackable.items > .item > .image:not(.mini):not(.tiny),
+  .ui.unstackable.items > .item > .image:not(.mini):not(.tiny) > img {
     width: 125px !important;
   }
 }

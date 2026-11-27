@@ -251,6 +251,11 @@ CliActions::make('unit-tests:core/app-sessions', function ($args) {
         }
         $check($llamadas === ['identifierIsRenewable'], 'a6b index.php llama a UserSessions::identifierIsRenewable() en renewExpired y a identifierIsOpen() en ningún sitio', json_encode($llamadas) ?: '');
 
+        //a6c: por la API pública un «\n» final ya no casa (el hash cambia); la forma se mira directa para que no dependa de eso.
+        $bienFormado = new \ReflectionMethod(UserSessions::class, 'identifierIsWellFormed');
+        $check($bienFormado->invoke(null, $web) === true && $bienFormado->invoke(null, $web . "\n") === false,
+            'a6c un identificador con salto de línea final está mal formado; el mismo sin él, bien (canario)');
+
         set_config(SessionToken::INACTIVITY_CONFIG, 100);
         set_config(SessionToken::CEILING_CONFIG, 365 * 86400);
         set_config(SessionToken::APP_INACTIVITY_CONFIG, 7200);

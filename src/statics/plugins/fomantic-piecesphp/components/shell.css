@@ -364,6 +364,16 @@
   width: 36px;
   height: 36px;
 }
+
+/* La imagen o el SVG del logo caben en la caja: una imagen sin dimensiones salía a su tamaño natural y tapaba la barra
+   y la cabecera de la página (el logo de 800px del escaparate de PiecesPHP, 2026-11-25) */
+.ui.shell .logo > img,
+.ui.shell .logo > svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
 .ui.shell > .navigation > .footer {
   display: flex;
   flex: 0 0 auto;

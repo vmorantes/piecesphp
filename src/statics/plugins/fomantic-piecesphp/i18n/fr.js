@@ -64,7 +64,16 @@ FomanticI18n.add('fr', {
             "pm": "PM",
             "weekNo": "Semaine"
         },
-        "firstDayOfWeek": 1
+        "firstDayOfWeek": 1,
+        "monthFirst": false,
+        "formatter": {
+            "date": "D MMMM YYYY",
+            "datetime": "D MMMM YYYY HH:mm",
+            "time": "HH:mm",
+            "cellTime": "HH:mm",
+            "hourHeader": "D MMMM YYYY",
+            "minuteHeader": "D MMMM YYYY"
+        }
     },
     "chat": {
         "text": {
@@ -214,6 +223,7 @@ FomanticI18n.add('fr', {
     },
     "search": {
         "error": {
+            "noResultsHeader": "Aucun résultat",
             "noResults": "Votre recherche n’a donné aucun résultat",
             "serverError": "Un problème est survenu lors de l’interrogation du serveur."
         }

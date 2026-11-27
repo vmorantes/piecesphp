@@ -280,10 +280,12 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
         $check($t['kind'] === 'panel' && $t['value'] === 'invalid', 'f20 una dirección con espacios no vale: el panel', json_encode($t) ?: '');
         set_config('login_redirect_route', 'https://zz otro.example/x');
         $check(ProjectStart::afterLoginURL(null) === $panel, 'f21 afterLoginURL() con una dirección con espacios lleva al panel', ProjectStart::afterLoginURL(null));
-        foreach (['zz-otro.example/x', 'ftp://zz-otro.example/x', 'javascript:void(0)', '//zz-otro.example/x'] as $index => $notURL) {
+        foreach (['zz-otro.example/x', 'ftp://zz-otro.example/x', 'javascript:void(0)'] as $index => $notURL) {
             $t = ProjectStart::loginTarget(null, $notURL, $oldAdminURL);
             $check($t['kind'] === 'route' && $t['value'] === $notURL, 'f22.' . ($index + 1) . ' sin esquema http o https no es una dirección: se lee como nombre de ruta (y, si no lo es, lleva al panel): ' . $notURL, json_encode($t) ?: '');
         }
+        $t = ProjectStart::loginTarget(null, '//zz-otro.example/x', $oldAdminURL);
+        $check($t['kind'] === 'panel' && $t['value'] === 'invalid', 'f22.4 «//zz-otro.example/x» empieza por «/»: nunca nombre de ruta; no es relativa, así que no vale', json_encode($t) ?: '');
         set_config('login_redirect_route', 'ftp://zz-otro.example/x');
         $check(ProjectStart::afterLoginURL(null) === $panel, 'f23 una ftp:// no es destino: el panel', ProjectStart::afterLoginURL(null));
         $t = ProjectStart::loginTarget('https://zz.test/a', 'https://zz-otro.example/destino', $oldAdminURL);
@@ -329,6 +331,124 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
         $check(is_string($warnUser) && str_contains($warnUser, 'usuario o contraseña') && !str_contains($warnUser, 'lleva al acceso a'), 'f39 el aviso de una dirección con usuario dice que no se usa', (string) $warnUser);
         $check(is_string($warnLoop) && str_contains($warnLoop, 'bucle') && !str_contains($warnLoop, 'lleva al acceso a'), 'f40 el aviso de una dirección que vuelve al acceso dice que haría un bucle', (string) $warnLoop);
         $check(ProjectStart::loginRedirectHostWarning('https://zz-otro.example/x', ['zz-otro.example'], true, ProjectStart::loginLoopURLs(), $basePath, $langs) === null, 'f41 CANARIO: una dirección de la lista que no es el acceso no avisa');
+        //Una ruta con parámetros y una dirección relativa a la instalación (P416, JPL).
+        $lang = fn(string $url): string => convert_lang_url($url, get_config('default_lang'), get_config('app_lang'));
+        $edit = $lang((string) get_route('users-form-edit', ['id' => 7], true));
+        set_config('login_redirect_route', ['route' => 'users-form-edit', 'params' => ['id' => 7]]);
+        $t = ProjectStart::loginTarget(null, ['route' => 'users-form-edit', 'params' => ['id' => 7]], $oldAdminURL);
+        $check($t['kind'] === 'route' && $t['value'] === 'users-form-edit' && $t['params'] === ['id' => 7] && ProjectStart::afterLoginURL(null) === $edit && str_contains($edit, '/7'), 'p1 DISCRIMINANTE: una ruta con parámetros lleva a get_route() con esos parámetros', json_encode($t) . ' → ' . ProjectStart::afterLoginURL(null));
+        //El suave se agrupa por archivo y línea: f9 ya lo anotó en esta corrida, así que lo que sube es su contador.
+        $routeSoft = function () use ($logFile): int {
+            $key = null;
+            foreach (explode("\n", (string) @file_get_contents($logFile)) as $line) {
+                $entry = json_decode($line, true);
+                if (is_array($entry) && str_contains((string) ($entry['message'] ?? ''), "'zz-no-existe' no es una ruta registrada o le faltan parámetros obligatorios") && is_string($entry['softKey'] ?? null)) {
+                    $key = $entry['softKey'];
+                }
+            }
+            return $key !== null ? (GenericHandler::softCounter(dirname($logFile), $key)['count'] ?? -1) : -1;
+        };
+        $before = $routeSoft();
+        set_config('login_redirect_route', ['route' => 'users-form-edit']);
+        $missing = ProjectStart::afterLoginURL(null);
+        $after = $routeSoft();
+        $check($missing === $panel && $before > 0 && $after === $before + 1, 'p2 una ruta a la que le falta un parámetro obligatorio lleva al panel y se anota', $missing . ' · ' . $before . ' → ' . $after);
+        $badForms = [['route' => 'users-list', 'params' => 'id=7'], ['route' => 'users-list', 'otra' => 1], ['route' => 'users-form-edit', 'params' => ['id' => ['7']]], ['route' => 'users-form-edit', 'params' => [7]], ['route' => 'a b'], ['params' => ['id' => 7]]];
+        foreach ($badForms as $index => $bad) {
+            $t = ProjectStart::loginTarget(null, $bad, $oldAdminURL);
+            $check($t['kind'] === 'panel' && $t['value'] === 'invalid', 'p3.' . ($index + 1) . ' un arreglo mal formado no vale: ' . json_encode($bad), json_encode($t) ?: '');
+        }
+        set_config('login_redirect_route', $badForms[0]);
+        $check(ProjectStart::afterLoginURL(null) === $panel, 'p3 afterLoginURL() con un arreglo mal formado lleva al panel');
+        $t = ProjectStart::loginTarget(null, '/mi-pagina', $oldAdminURL);
+        set_config('login_redirect_route', '/mi-pagina');
+        $check($t['kind'] === 'url' && $t['relative'] === true && ProjectStart::afterLoginURL(null) === baseurl('mi-pagina'), 'p4 DISCRIMINANTE: «/mi-pagina» es relativa a la instalación: baseurl(\'mi-pagina\')', json_encode($t) . ' → ' . ProjectStart::afterLoginURL(null));
+        $loginRelative = '/' . ltrim(substr($loginURL, strlen(rtrim(baseurl(), '/'))), '/');
+        $t = ProjectStart::loginTarget(null, $loginRelative, $oldAdminURL, true, ProjectStart::loginLoopURLs(), $basePath, $langs, baseurl());
+        set_config('login_redirect_route', $loginRelative);
+        $check(str_starts_with($loginURL, rtrim(baseurl(), '/')) && $t['kind'] === 'panel' && $t['value'] === 'loop' && ProjectStart::afterLoginURL(null) === $panel, 'p5 DISCRIMINANTE: una relativa que resuelve al propio acceso haría un bucle: el panel', $loginRelative . ' · ' . json_encode($t));
+        $baseHost = (string) parse_url(baseurl(), PHP_URL_HOST);
+        foreach (['//zz-otro.example/x', '/\\zz-otro.example/x', '/\\/zz-otro.example', "/\tzz", "/x\ny", '/x y', "/\u{3000}zz", 'javascript:zzMalo()', "/\xff\\\\zz-otro.example", "/\xff\r\nzz: x"] as $index => $notRelative) {
+            $t = ProjectStart::loginTarget(null, $notRelative, $oldAdminURL);
+            set_config('login_redirect_route', $notRelative);
+            $after = ProjectStart::afterLoginURL(null);
+            $check(ProjectStart::loginRelativeValue($notRelative) === null && $t['kind'] !== 'url' && parse_url($after, PHP_URL_HOST) === $baseHost && $after === $panel, 'p6.' . ($index + 1) . ' DISCRIMINANTE: nunca relativa ni redirección a otro dominio: ' . json_encode($notRelative), json_encode($t) . ' → ' . $after);
+        }
+        foreach (['/%2F%2Fzz-otro.example', '/%5Czz-otro.example'] as $index => $encoded) {
+            set_config('login_redirect_route', $encoded);
+            $after = ProjectStart::afterLoginURL(null);
+            $check(ProjectStart::loginRelativeValue($encoded) === null && $after === $panel, 'p6.' . ($index + 11) . ' una barra codificada en el camino de la relativa no vale: el panel: ' . $encoded, $after);
+        }
+        $check(ProjectStart::loginRedirectHostWarning('/mi-pagina', ['zz-propio.example'], true) === null, 'p6.13 una relativa no avisa en verify-integrity: es del propio dominio');
+        //Los parámetros se sustituyen sin codificar, y una relativa con «.» o «..» sale de la instalación o esquiva el bucle (H528).
+        $label = fn(mixed $value): string => json_encode($value, JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE) ?: var_export($value, true);
+        foreach (['../x', 'a/b', 'a\\b', 'a b', "a\r\nb", '.', '..', '', "zz\xff"] as $index => $badParam) {
+            $check(ProjectStart::loginRouteWithParams(['route' => 'users-form-edit', 'params' => ['id' => $badParam]]) === null, 'p7.' . ($index + 1) . ' DISCRIMINANTE: un parámetro ' . $label($badParam) . ' no vale');
+        }
+        $check(ProjectStart::loginRouteWithParams(['route' => 'users-form-edit', 'params' => ['id' => 7]]) !== null && ProjectStart::loginRouteWithParams(['route' => 'users-form-edit', 'params' => ['id' => 'zz-limpio_7.a']]) !== null, 'p7.10 CANARIO: un entero y un texto limpio sí valen');
+        foreach (['/../../x', '/./login', '/a/../b', '/a/.'] as $index => $dotted) {
+            $check(ProjectStart::loginRelativeValue($dotted) === null, 'p8.' . ($index + 1) . ' DISCRIMINANTE: la relativa ' . $dotted . ' no vale');
+        }
+        foreach (['/x/.y', '/x..y', '/a?b=..'] as $index => $undotted) {
+            $check(ProjectStart::loginRelativeValue($undotted) === $undotted, 'p8.' . ($index + 5) . ' CANARIO: la relativa ' . $undotted . ' sí vale');
+        }
+        foreach (['/./login', '/../../x'] as $index => $dotted) {
+            $t = ProjectStart::loginTarget(null, $dotted, $oldAdminURL, true, ProjectStart::loginLoopURLs(), $basePath, $langs, baseurl());
+            $check($t['kind'] === 'panel' && $t['value'] === 'invalid', 'p9.' . ($index + 1) . ' DISCRIMINANTE: loginTarget() con ' . $dotted . ' va al panel por no válida, no se lee como nombre de ruta', json_encode($t) ?: '');
+        }
+        //Lo codificado: un punto o una barra codificados, un bucle escrito de otra forma y los parámetros simples (H528, JPN).
+        foreach (['/%2e%2e/x', '/.%2E/x', '/%2e/login', '/a%2Fb', '/a%5cb'] as $index => $encoded) {
+            $check(ProjectStart::loginRelativeValue($encoded) === null, 'p10.' . ($index + 1) . ' DISCRIMINANTE: la relativa ' . $encoded . ' no vale');
+        }
+        $t = ProjectStart::loginTarget(null, '/a%C3%B1o', $oldAdminURL, true, ProjectStart::loginLoopURLs(), $basePath, $langs, baseurl());
+        $check(ProjectStart::loginRelativeValue('/a%C3%B1o') === '/a%C3%B1o' && $t['kind'] === 'url' && $t['relative'] === true, 'p10.6 CANARIO: una letra no ASCII codificada (/a%C3%B1o) sí vale', json_encode($t) ?: '');
+        $t = ProjectStart::loginTarget(null, '/año', $oldAdminURL, true, ProjectStart::loginLoopURLs(), $basePath, $langs, baseurl());
+        $check(ProjectStart::loginRelativeValue('/año') === null && $t['kind'] === 'panel' && $t['value'] === 'invalid', 'p10.7 DISCRIMINANTE: sin codificar (/año) no es ASCII visible: no vale, el panel', json_encode($t, JSON_UNESCAPED_UNICODE) ?: '');
+        foreach (['%2e%2e', 'a%2fb', 'x#f', 'a?b', false, 1.5, NAN, 'ñ'] as $index => $badParam) {
+            $check(ProjectStart::loginRouteWithParams(['route' => 'users-form-edit', 'params' => ['id' => $badParam]]) === null, 'p11.' . ($index + 1) . ' DISCRIMINANTE: un parámetro ' . $label($badParam) . ' (' . gettype($badParam) . ') no vale');
+        }
+        $simple = ProjectStart::loginRouteWithParams(['route' => 'users-form-edit', 'params' => ['id' => 7, 'slug' => 'zz-limpio_7.a~']]);
+        $check($simple !== null && $simple['params'] === ['id' => 7, 'slug' => 'zz-limpio_7.a~'], 'p11.9 CANARIO: un entero y un texto de [A-Za-z0-9._~-] sí valen', json_encode($simple) ?: '');
+        $encodedLogin = (string) preg_replace('~login(/?)$~', 'log%69n$1', $loginURL);
+        $check($encodedLogin !== $loginURL && ProjectStart::comparableURL($encodedLogin, $basePath, $langs) !== null && ProjectStart::comparableURL($encodedLogin, $basePath, $langs) === ProjectStart::comparableURL($loginURL, $basePath, $langs), 'p12.1 DISCRIMINANTE: comparableURL() decodifica el camino: log%69n es login', $encodedLogin);
+        $encodedRelative = (string) preg_replace('~login(/?)$~', 'log%69n$1', $loginRelative);
+        $t = ProjectStart::loginTarget(null, $encodedRelative, $oldAdminURL, true, ProjectStart::loginLoopURLs(), $basePath, $langs, baseurl());
+        $check($encodedRelative !== $loginRelative && $t['kind'] === 'panel' && $t['value'] === 'loop', 'p12.2 DISCRIMINANTE: la relativa ' . $encodedRelative . ' es el acceso escrito de otra forma: bucle, el panel', json_encode($t) ?: '');
+        //Una ruta con parámetros que da la dirección del acceso: por nombre no se ve, por la dirección sí.
+        $aliasLoop = ['route' => 'public-generic-2', 'params' => ['folder' => 'users', 'name' => 'login']];
+        $aliasURL = get_route('public-generic-2', $aliasLoop['params'], true);
+        $t = ProjectStart::loginTarget(null, $aliasLoop, $oldAdminURL);
+        set_config('login_redirect_route', $aliasLoop);
+        $aliasAfter = ProjectStart::afterLoginURL(null);
+        $check(is_string($aliasURL) && in_array(ProjectStart::comparableURL($aliasURL, $basePath, $langs), ProjectStart::loginLoopURLs(), true), 'p13.1 CANARIO: public-generic-2 con users/login da la dirección del acceso', (string) $aliasURL);
+        $check($t['kind'] === 'route' && $aliasAfter === $panel, 'p13.2 DISCRIMINANTE: afterLoginURL() la mide por la dirección y lleva al panel, no al acceso', json_encode($t) . ' → ' . $aliasAfter);
+        //La dirección normalizada: sin el validador de URL, sin esquema, sin puerto por omisión, con «\\» como «/» y sin segmentos de punto (JPN-2).
+        $check(ProjectStart::comparableURL('http://my_site.local/x', '', []) === '//my_site.local/x', 'p14.1 DISCRIMINANTE: un host con «_» se puede comparar', (string) ProjectStart::comparableURL('http://my_site.local/x', '', []));
+        $t = ProjectStart::loginTarget(null, '/mi-pagina', $oldAdminURL, true, ProjectStart::loginLoopURLs(), '', $langs, 'http://web_app/');
+        $check($t['kind'] === 'url' && $t['relative'] === true, 'p14.2 DISCRIMINANTE: una relativa con la base http://web_app/ vale: no va al panel', json_encode($t) ?: '');
+        $loopOf = fn(string $address): array => ProjectStart::loginTarget(null, $address, $oldAdminURL, true, ProjectStart::loginLoopURLs(), $basePath, $langs);
+        $sameHost = [
+            'x/..' => str_replace('/users/login', '/x/../users/login', $loginURL),
+            '%2e' => str_replace('/users/login', '/users/%2e/login', $loginURL),
+            '.' => str_replace('/users/login', '/users/./login', $loginURL),
+            'barra invertida' => str_replace('/users/login', '/users\\login', $loginURL),
+            ':443 con https' => (string) preg_replace('~^https?://([^/:]+)~', 'https://$1:443', $loginURL),
+            'otro esquema' => (string) preg_replace('~^(https?)://~', str_starts_with($loginURL, 'https://') ? 'http://' : 'https://', $loginURL),
+        ];
+        $n = 3;
+        foreach ($sameHost as $form => $address) {
+            $t = $loopOf($address);
+            $check($address !== $loginURL && $t['kind'] === 'panel' && $t['value'] === 'loop', 'p14.' . $n++ . ' DISCRIMINANTE: la dirección completa del acceso escrita con ' . $form . ' es un bucle: ' . $address, json_encode($t) ?: '');
+        }
+        $encodedBaseLoop = ProjectStart::comparableURL('http://zz-host.example/my%20dir/users/login', '/my%20dir', ['es', 'en']);
+        $t = ProjectStart::loginTarget(null, '/en/users/login', $oldAdminURL, true, $encodedBaseLoop !== null ? [$encodedBaseLoop] : [], '/my%20dir', ['es', 'en'], 'http://zz-host.example/my%20dir/');
+        $check($t['kind'] === 'panel' && $t['value'] === 'loop', 'p14.9 DISCRIMINANTE: con la base codificada (/my%20dir/), /en/users/login es el acceso: bucle', json_encode($t) ?: '');
+        $check(ProjectStart::loginRelativeValue('/buscar?vuelta=%2Fpanel') === '/buscar?vuelta=%2Fpanel', 'p14.10 CANARIO: una barra codificada en la query sí vale (lo codificado solo se mira en el camino)');
+        $check(ProjectStart::loginRelativeValue('/doc%2Epdf') === null, 'p14.11 DISCRIMINANTE: un punto codificado en el camino no vale: /doc%2Epdf');
+        $t = ProjectStart::loginTarget(null, '/mi-pagina', $oldAdminURL, true, ProjectStart::loginLoopURLs(), '', $langs, 'http:///');
+        $check($t['kind'] === 'panel' && $t['value'] === 'unreadable', 'p14.12 DISCRIMINANTE: con una base que no se puede leer, la relativa da panel/unreadable (no invalid ni loop)', json_encode($t) ?: '');
+        $removeDotSegments = new \ReflectionMethod(ProjectStart::class, 'removeDotSegments');
+        $check($removeDotSegments->invoke(null, '/a/b/c/./../../g') === '/a/g' && $removeDotSegments->invoke(null, 'mid/content=5/../6') === 'mid/6', 'p14.13 removeDotSegments() con los ejemplos de RFC 3986 §5.2.4', $removeDotSegments->invoke(null, '/a/b/c/./../../g') . ' · ' . $removeDotSegments->invoke(null, 'mid/content=5/../6'));
         set_config('login_redirect_route', 'admin');
         echoTerminal(' ');
 

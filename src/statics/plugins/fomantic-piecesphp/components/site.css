@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Site
+ * # Fomantic-UI 2.0.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3977,6 +3977,15 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 
 /* (1.1.1) Solo a 360px o menos: `anywhere` también encoge el ancho mínimo de la celda, y a 390 partía la última letra de un
    identificador que cabía (hoja de diseño de PiecesPHP); a 320 sigue haciendo falta */
+
+/* Reflujo: apilada, la tabla sigue en `display: table` y su ancho automático crecía hasta la palabra más larga (un
+   `PublicationMapper::VISIBILITIES_COLORS` sacaba la tabla 3px de su segmento a 390 en material3). Con el reparto fijo
+   respeta su 100 % y el `break-word` de las celdas parte solo lo que no cabe; sin encoger columnas (2026-11-26) */
+@media only screen and (max-width: 767.98px) {
+  :where(.ui.table:not(.unstackable)) {
+    table-layout: fixed;
+  }
+}
 @media only screen and (max-width: 360px) {
   :where(.ui.table:not(.unstackable)) td code {
     overflow-wrap: anywhere;

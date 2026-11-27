@@ -359,6 +359,10 @@ final class UserSessions
      */
     public static function openApp(int $userID, string $deviceKey, ?array $material = null): array
     {
+        //El acceso y la renovación ya lo comprueban; esto frena a un clon que llame directo sin la migración.
+        if (!self::hasAppColumns()) {
+            throw new \RuntimeException('Falta aplicar databases/actualizaciones/2026-11-26-sesiones-de-app.sql: la sesión de app necesita sus columnas.');
+        }
         //TODO LO QUE PUEDE FALLAR VA ANTES DE ESCRIBIR: si el sellado lanza, no queda una fila a medias ni la anterior cerrada.
         $material ??= self::appMaterial();
         $database = self::database();
@@ -778,7 +782,7 @@ final class UserSessions
      */
     private static function identifierIsWellFormed($identifier): bool
     {
-        return is_string($identifier) && preg_match('/^[0-9a-f]{64}$/', $identifier) === 1;
+        return is_string($identifier) && preg_match('/^[0-9a-f]{64}$/D', $identifier) === 1;
     }
 
     /**

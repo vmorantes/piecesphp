@@ -1005,6 +1005,14 @@ if (TerminalData::getInstance()->isTerminal()) {
                 //la corrida es la de gates y la poda le toca a él (ADR 0063).
                 $cliAction = CliActions::get($actionName);
                 $isSuite = $cliAction !== null && str_contains(str_replace('\\', '/', $cliAction->definedIn()), '/' . GatesTask::SUITES_DIRECTORY . '/');
+                //Una suite escribe en la base de esta instalación: suelta, la misma guarda que gates, sin interruptor.
+                if ($isSuite) {
+                    $environment = GatesTask::localOnly();
+                    if (!$environment['ok']) {
+                        echoTerminal($environment['line']);
+                        exit(2);
+                    }
+                }
                 $testRun = $isSuite ? GenericHandler::startTestRun() : null;
                 try {
                     $cliActionResult = CliActions::run($actionName, TerminalData::instance()->arguments());

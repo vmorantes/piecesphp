@@ -1,6 +1,6 @@
 <?php
 
-//`gates` solo corre en una instalación `local`: las suites escriben en la base de donde se corren.
+//`gates`, y una suite lanzada sola, solo corren en una instalación `local`: las suites escriben en la base de donde se corren.
 //Se prueba con archivos de entorno temporales; el `environment.php` real no se toca.
 //@areas nucleo
 
@@ -80,6 +80,23 @@ CliActions::make('unit-tests:core/gates-local-only', function ($args) {
         $check($guarda !== false && $primeraSuite !== false && $guarda < $primeraSuite, 'b3 y antes de la primera suite');
         $tras = $guarda !== false ? substr($main, (int) $guarda, 400) : '';
         $check(preg_match('/if\s*\(!\$entorno\[.ok.\]\)\s*\{.{0,300}?exit\(\s*[1-9]/s', $tras) === 1, 'b4 y si no es local, sale con código distinto de cero');
+
+        //─── c · Que una suite lanzada sola (`bin/cli unit-tests:…`) pase por la misma guarda ────────
+        echoTerminal(' ');
+        echoTerminal('[c] src/index.php la consulta antes de correr una suite suelta');
+        //Sobre el código sin comentarios: un comentario que nombre la llamada no puede hacerla pasar.
+        $indice = '';
+        foreach (token_get_all((string) file_get_contents(basepath('index.php'))) as $token) {
+            $indice .= is_array($token) ? (in_array($token[0], [\T_COMMENT, \T_DOC_COMMENT], true) ? '' : $token[1]) : $token;
+        }
+        $rama = (int) strpos($indice, '$isSuite = ');
+        $abre = $rama > 0 ? strpos($indice, 'GenericHandler::startTestRun(', $rama) : false;
+        $corre = $rama > 0 ? strpos($indice, 'CliActions::run(', $rama) : false;
+        $consulta = $rama > 0 ? strpos($indice, '$environment = GatesTask::localOnly();', $rama) : false;
+        $check($rama > 0 && $consulta !== false && $abre !== false && $consulta < $abre, 'c1 la rama de la suite llama a GatesTask::localOnly() antes de abrir su corrida');
+        $check($consulta !== false && $corre !== false && $consulta < $corre, 'c2 y antes de CliActions::run()');
+        $trasIndice = $consulta !== false ? substr($indice, (int) $consulta, 300) : '';
+        $check(preg_match('/if\s*\(!\$environment\[.ok.\]\)\s*\{.{0,200}?exit\(\s*[1-9]/s', $trasIndice) === 1, 'c3 y si no es local, sale con código distinto de cero');
     } catch (\Throwable $e) {
         $check(false, 'la prueba corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
@@ -96,4 +113,4 @@ CliActions::make('unit-tests:core/gates-local-only', function ($args) {
 
     return $balance();
 
-})->setDescription('gates se niega a correr fuera del entorno local, sin interruptor para saltárselo: «production», sin environment.php o con un valor raro no corre; «local» sí, y lo dice. Y main() lo consulta antes de leer ningún argumento y antes de la primera suite. Usa archivos de entorno temporales: el real no se toca.')->setEffects([CliActions::EFFECT_FILES])->register();
+})->setDescription('gates se niega a correr fuera del entorno local, sin interruptor para saltárselo: «production», sin environment.php o con un valor raro no corre; «local» sí, y lo dice. Y main() lo consulta antes de leer ningún argumento y antes de la primera suite; y src/index.php hace lo mismo con una suite lanzada sola. Usa archivos de entorno temporales: el real no se toca.')->setEffects([CliActions::EFFECT_FILES])->register();

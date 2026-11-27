@@ -1,3 +1,25 @@
+# 10.71.0 (27-11-2026)
+
+- **`login_redirect_route` admite también una ruta con parámetros y una dirección del propio sitio**:
+  `['route' => 'mi-ruta', 'params' => ['id' => 7]]` y `'/mi-pagina'`, que se resuelve contra la base de la instalación y
+  nunca lleva a otra web. Los valores de `params` son enteros o texto con letras sin tilde, cifras, «.», «_», «~» o «-»
+  (nunca solo «.» o «..»), y una dirección del propio sitio solo lleva caracteres ASCII visibles (una letra con tilde
+  va codificada: `/a%C3%B1o`), sin tramos «.» o «..» y sin un punto o una barra codificados en su camino (`%2e`, `%2f`,
+  `%5c`): con cualquier otra cosa, el acceso lleva al panel y lo anota. Y si la dirección a la que llevaría cualquiera
+  de las cuatro formas es la del propio acceso, escrita como sea (codificada, con «..», con el puerto por omisión o con
+  `http` en vez de `https`), también lleva al panel: haría un bucle. Las dos formas de antes (un nombre de ruta y una
+  dirección completa) no cambian. **Al actualizar**: nada que hacer. Guía: «Configuración», «El arranque del proyecto».
+- **El tema del panel, en la 2.0.0.** Los botones de un formulario en el móvil toman el ancho de su texto, los bloques
+  de código parten por los espacios, las tablas del móvil reparten las columnas por igual, las columnas de las tablas
+  del escritorio no bajan de un ancho mínimo legible, las cifras de las tarjetas se ajustan a su caja, el botón que
+  pliega la navegación dice a un lector de pantalla si está abierta, y los avisos fijos quedan por debajo de las
+  ventanas. Sale el tema «lumen», que el panel ya no traía. **Al actualizar**: nada que hacer.
+- **Una prueba del framework lanzada sola con `bin/cli` se niega a correr fuera de una instalación de desarrollo**, como
+  ya hacía `bin/cli gates`: las pruebas escriben en la base de la instalación donde corren. **Al actualizar**: nada que
+  hacer; en tu instalación de desarrollo, `src/app/config/environment.php` devuelve `'local'`.
+- **Abrir una sesión de app sin la migración `2026-11-26-sesiones-de-app.sql` lo dice** con un error claro, en vez de un
+  fallo de la base, para el código de un proyecto que llame directamente a `UserSessions::openApp()`.
+
 # 10.70.0 (26-11-2026)
 
 - **Sesiones de aplicaciones móviles que se renuevan sin volver a pedir la contraseña.** Una app que entra con

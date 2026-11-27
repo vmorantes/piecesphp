@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 1.4.0 - Segment
+ * # Fomantic-UI 2.0.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1268,7 +1268,10 @@
   border: 1px solid var(--theme-border);
   border-radius: var(--r-md, 8px);
   box-shadow: none;
-  white-space: pre-wrap;
+  
+/* break-spaces y no pre-wrap: una sangría larga (27 espacios en un ejemplo PHP de la hoja de diseño de PiecesPHP)
+           no se partía y sacaba el código 17px del bloque a 320 */
+  white-space: break-spaces;
   overflow-wrap: anywhere;
 }
 
@@ -1433,6 +1436,11 @@
 .ui.tight.placeholder.segment {
   min-height: 0;
   padding: 1.5em 1em;
+}
+
+/* El ícono de un `icon header` (3em) era desproporcionado en un estado vacío compacto */
+.ui.tight.placeholder.segment > .ui.icon.header > i.icon {
+  font-size: 1.64285714rem;
 }
 
 

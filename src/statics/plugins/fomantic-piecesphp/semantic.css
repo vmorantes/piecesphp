@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 1.4.0
+ * # Fomantic UI - 2.0.0
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 1.4.0 - Reset
+ * # Fomantic-UI 2.0.0 - Reset
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -426,7 +426,7 @@ template {
   display: none;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Site
+ * # Fomantic-UI 2.0.0 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -4756,6 +4756,16 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
 /* (1.1.1) Solo a 360px o menos: `anywhere` también encoge el ancho mínimo de la celda, y a 390 partía la última letra de un
    identificador que cabía (hoja de diseño de PiecesPHP); a 320 sigue haciendo falta */
 
+/* Reflujo: apilada, la tabla sigue en `display: table` y su ancho automático crecía hasta la palabra más larga (un
+   `PublicationMapper::VISIBILITIES_COLORS` sacaba la tabla 3px de su segmento a 390 en material3). Con el reparto fijo
+   respeta su 100 % y el `break-word` de las celdas parte solo lo que no cabe; sin encoger columnas (2026-11-26) */
+
+@media only screen and (max-width: 767.98px) {
+  :where(.ui.table:not(.unstackable)) {
+    table-layout: fixed;
+  }
+}
+
 @media only screen and (max-width: 360px) {
   :where(.ui.table:not(.unstackable)) td code {
     overflow-wrap: anywhere;
@@ -5245,7 +5255,7 @@ strong {
   accent-color: var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h)));
 }
 /*!
- * # Fomantic-UI 1.4.0 - Button
+ * # Fomantic-UI 2.0.0 - Button
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -12681,7 +12691,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   aspect-ratio: 1;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Container
+ * # Fomantic-UI 2.0.0 - Container
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -13058,7 +13068,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Divider
+ * # Fomantic-UI 2.0.0 - Divider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -13401,7 +13411,7 @@ label.ui.ui.icon.button:not(.labeled) > i.icon {
   }
 }
 /*!
- * # Fomantic-UI 1.4.0 - Emoji
+ * # Fomantic-UI 2.0.0 - Emoji
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32521,7 +32531,7 @@ em[data-emoji="regional_indicator_a"]::before {
              Emojis
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Flag
+ * # Fomantic-UI 2.0.0 - Flag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -34134,8 +34144,12 @@ i.flag.united.nations::before {
 /* Especificidad por encima de las alineaciones (`bottom aligned`, `spaced`…) */
 
 @media only screen and (max-width: 767.98px) {
+  /* nowrap: en columna no hay nada que envolver, y con `wrap` la línea tomaba el ancho del contenido más ancho (un
+           hash `truncated` de 303px sacaba el bloque 32px a 320, estado de cachés de PiecesPHP, 2026-11-26) */
+
   .ui.ui.ui.stackable.flex {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: stretch;
     justify-content: flex-start;
   }
@@ -34156,7 +34170,7 @@ i.flag.united.nations::before {
          Flex Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Header
+ * # Fomantic-UI 2.0.0 - Header
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -35399,7 +35413,7 @@ h1.ui.header:not(:last-child) {
   color: light-dark(oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) min(l, var(--ink-light-max, 0.42)) c h), oklch(from var(--accent-1, light-dark(oklch(from var(--accent, #00008b) min(l, var(--accent-light-max, 0.58)) c h), oklch(from var(--accent-dark, var(--accent, #00008b)) max(l, var(--accent-dark-min, 0.6)) c h))) max(l, var(--ink-dark-min, 0.78)) min(c, 0.14) h));
 }
 /*!
- * # Fomantic-UI 1.4.0 - Icon
+ * # Fomantic-UI 2.0.0 - Icon
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -44745,7 +44759,7 @@ i.huge.bordered.primary.icon.icon.icon.icon.icon.icon:not(.inverted) {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Image
+ * # Fomantic-UI 2.0.0 - Image
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -45166,7 +45180,7 @@ svg.ui.avatar.image,
   box-shadow: 0 0 0 1px var(--theme-border);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Input
+ * # Fomantic-UI 2.0.0 - Input
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -47566,7 +47580,7 @@ input:not([size]):is(:not([type]),
   contain-intrinsic-inline-size: 15.57em;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Label
+ * # Fomantic-UI 2.0.0 - Label
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -51148,7 +51162,7 @@ a.ui.ui.ui.basic.teal.label:hover {
   box-shadow: inset 0 0 0 1px var(--accent-200);
 }
 /*!
- * # Fomantic-UI 1.4.0 - List
+ * # Fomantic-UI 2.0.0 - List
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -52326,7 +52340,7 @@ ol.ui.suffixed.list li::before,
   padding: 0;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Loader
+ * # Fomantic-UI 2.0.0 - Loader
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -53665,7 +53679,7 @@ ol.ui.suffixed.list li::before,
   border-color: rgba(255, 255, 255, 0.15);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Placeholder
+ * # Fomantic-UI 2.0.0 - Placeholder
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -53971,7 +53985,7 @@ body {
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Rail
+ * # Fomantic-UI 2.0.0 - Rail
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -54129,7 +54143,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Reveal
+ * # Fomantic-UI 2.0.0 - Reveal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -54436,7 +54450,7 @@ body {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Segment
+ * # Fomantic-UI 2.0.0 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -55909,7 +55923,9 @@ body {
   border: 1px solid var(--theme-border);
   border-radius: var(--r-md, 8px);
   box-shadow: none;
-  white-space: pre-wrap;
+  /* break-spaces y no pre-wrap: una sangría larga (27 espacios en un ejemplo PHP de la hoja de diseño de PiecesPHP)
+           no se partía y sacaba el código 17px del bloque a 320 */
+  white-space: break-spaces;
   overflow-wrap: anywhere;
 }
 
@@ -56097,6 +56113,12 @@ body {
   padding: 1.5em 1em;
 }
 
+/* El ícono de un `icon header` (3em) era desproporcionado en un estado vacío compacto */
+
+.ui.tight.placeholder.segment > .ui.icon.header > i.icon {
+  font-size: 1.64285714rem;
+}
+
 /*******************************
          Theme Overrides
 *******************************/
@@ -56198,7 +56220,7 @@ body {
   color-scheme: inherit;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Step
+ * # Fomantic-UI 2.0.0 - Step
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -59652,10 +59674,10 @@ body {
   padding: 0;
   vertical-align: middle;
   border-radius: var(--r-sm, 6px);
-  background: var(--swatch, var(--theme-border));
+  background: var(--swatch, light-dark(#dededf, #454647));
   box-shadow: inset 0 0 0 1px var(--theme-border);
   /* Texto según el relleno de la muestra (D36, D79): el del tema si no se decide por luminancia */
-  color: color(from var(--swatch, var(--theme-border)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--swatch, light-dark(#dededf, #454647)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
   font-size: 0.92857143em;
   line-height: 1.33;
 }
@@ -59844,14 +59866,14 @@ body {
        claro y el blanco no se leía (2,2:1) */
 
 .ui.inverted.swatch {
-  color: color(from var(--swatch, var(--theme-border)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
+  color: color(from var(--swatch, light-dark(#dededf, #454647)) srgb calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)) calc(clamp(0, (0.1833 - (0.2126 * pow((clamp(0, r, 1) + 0.055) / 1.055, 2.4) + 0.7152 * pow((clamp(0, g, 1) + 0.055) / 1.055, 2.4) + 0.0722 * pow((clamp(0, b, 1) + 0.055) / 1.055, 2.4))) * 100000, 1)));
 }
 
 /*******************************
         Swatch Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Text
+ * # Fomantic-UI 2.0.0 - Text
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -60252,7 +60274,7 @@ span.ui.info.text {
   color: light-dark(oklch(from #0e7090 min(l, var(--ink-light-max, 1)) c h), oklch(from #67e3f9 max(l, var(--ink-dark-min, 0)) c h));
 }
 /*!
- * # Fomantic-UI 1.4.0 - Breadcrumb
+ * # Fomantic-UI 2.0.0 - Breadcrumb
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -61453,11 +61475,15 @@ table.dataTable td.dt-type-date {
    celda: en una tabla normal, `collapsing` va solo en el th y sus fechas partían letra a letra
    (hoja-diseno). Ni en las celdas `collapsing` ni en `single line`. Solo en escritorio: en tableta la
    tabla mide su contenido y desplaza su contenedor, como en móvil (a 768 partía «AdminPanelControll/er»
-   en rutas-permisos; medido por PiecesPHP). */
+   en rutas-permisos; medido por PiecesPHP). Ni en los números (dt-type-numeric): «8425» partía en dos líneas
+   (puntos-listado, registro-de-acciones, 2026-11-26). */
 
 @media only screen and (min-width: 992px) {
-  table.ui.table.dataTable:not(.single.line) > tbody > tr > td:not(.collapsing):not(.single.line):not(.dt-type-date) {
+  table.ui.table.dataTable:not(.single.line) > tbody > tr > td:not(.collapsing):not(.single.line):not(.dt-type-date):not(.dt-type-numeric) {
     overflow-wrap: anywhere;
+    /* Una palabra corta (≤ 12 caracteres: «Usuarios», «0.0.0.0», «oportunidades» casi) entera: el corte libre deja el
+           mínimo de la columna en un carácter y la tabla la estrujaba hasta partirla (2026-11-26) */
+    min-width: 12ch;
   }
 }
 
@@ -61482,7 +61508,7 @@ table.dataTable td.dt-type-date {
   }
 }
 /*!
- * # Fomantic-UI 1.4.0 - Form
+ * # Fomantic-UI 2.0.0 - Form
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -63932,8 +63958,12 @@ table.dataTable td.dt-type-date {
 }
 
 @media only screen and (max-width: 767.98px) {
+  /* Desde su ancho y creciendo hasta llenar la fila: con base 0 los tres botones de una edición (Eliminar, Cancelar,
+           Guardar) se repartían a partes iguales y el texto de los que llevan ícono caía debajo de él (revisión de huellas,
+           2026-11-26). Si no caben, la barra salta de línea (flex-wrap) */
+
   .ui.form .actions > .ui.button {
-    flex: 1 1 0;
+    flex: 1 1 auto;
   }
 }
 
@@ -64160,7 +64190,7 @@ input[type="week"]):where(:not(.ui.dropdown *, .ui.action.input *)),
   padding-left: 0.85714286em;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Grid
+ * # Fomantic-UI 2.0.0 - Grid
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -66751,7 +66781,7 @@ input[type="week"]):where(:not(.ui.dropdown *, .ui.action.input *)),
   }
 }
 /*!
- * # Fomantic-UI 1.4.0 - Menu
+ * # Fomantic-UI 2.0.0 - Menu
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -69778,6 +69808,15 @@ Floated Menu / Item
     flex-wrap: wrap;
   }
 
+  /* Una pestaña más larga que la fila («Autenticación de dos factores (con app TOTP)», 347px a 320) no encogía
+       (flex-shrink: 0 de los ítems) y salía 42px de la ventana: encoge y parte su texto (2026-11-26) */
+
+  .ui.ui.tabular.menu > .item,
+  .ui.ui.secondary.pointing.menu > .item {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
   .ui.ui.stackable.tabular.menu > .item,
   .ui.ui.stackable.pointing.menu > .item {
     width: auto !important;
@@ -70263,7 +70302,7 @@ Floated Menu / Item
   }
 }
 /*!
- * # Fomantic-UI 1.4.0 - Message
+ * # Fomantic-UI 2.0.0 - Message
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -71443,7 +71482,7 @@ Floated Menu / Item
   box-shadow: none;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Table
+ * # Fomantic-UI 2.0.0 - Table
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -76791,6 +76830,16 @@ Floated Menu / Item
   height: 3.85714286rem;
 }
 
+/* Apilada en móvil, la celda es un bloque y los 54px pasan a ser su alto fijo: un texto de tres líneas salía de la celda
+   y quedaba bajo los botones de la siguiente (importar y exportar de PiecesPHP a 320, 2026-11-26) */
+
+@media only screen and (max-width: 767.98px) {
+  .ui.table:not(.unstackable):not(.compact):not(.padded) > tbody > tr > td,
+  .ui.table:not(.unstackable):not(.compact):not(.padded) > tr > td {
+    height: auto;
+  }
+}
+
 /* Pie: el mismo alto que la cabecera (el relleno vertical de las celdas es 0, y sin alto el pie quedaba de 22px pegado a
    su texto) */
 
@@ -77023,7 +77072,7 @@ Floated Menu / Item
   color: var(--_color-black-light, #4b5363);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Ad
+ * # Fomantic-UI 2.0.0 - Ad
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -77328,7 +77377,7 @@ Floated Menu / Item
   line-height: 1.33333333;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Card
+ * # Fomantic-UI 2.0.0 - Card
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -80937,6 +80986,20 @@ a.inverted.ui.card:hover,
   }
 }
 
+/* Cifra de una tarjeta de cifra: como mucho el tamaño de cifra del tema (--statistic-value-size, de statistic) y nunca más ancha que su tarjeta (16 % del
+   ancho del contenido). Sin ello, una fecha de 56px medía 310px en una tarjeta de 254 y montaba la siguiente (respaldos de
+   PiecesPHP en fomantic, 2026-11-26). Los temas con su propia escala la fijan después */
+
+.ui.cards > .statistic.card > .content,
+.ui.statistic.card > .content {
+  container-type: inline-size;
+}
+
+.ui.cards > .statistic.card > .content > .ui.statistic:not(.mini, .tiny, .small, .large, .big, .huge, .massive) > .value,
+.ui.statistic.card > .content > .ui.statistic:not(.mini, .tiny, .small, .large, .big, .huge, .massive) > .value {
+  font-size: min(var(--statistic-value-size, 4rem), 16cqi);
+}
+
 /* Descripción en Pequeño 12/16 (sin variable de tamaño) y meta con su interlineado */
 
 .ui.cards > .card > .content > .description,
@@ -81154,7 +81217,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   align-self: flex-start;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Comment
+ * # Fomantic-UI 2.0.0 - Comment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -81500,7 +81563,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   object-fit: cover;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Feed
+ * # Fomantic-UI 2.0.0 - Feed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -82747,7 +82810,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   min-width: 2.28571429rem;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Item
+ * # Fomantic-UI 2.0.0 - Item
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83258,8 +83321,11 @@ a.ui.link.card > .content > i.right.floated.icon {
     ---------------- */
 
 @media only screen and (max-width: 767.98px) {
-  .ui.unstackable.items > .item > .image,
-  .ui.unstackable.items > .item > .image > img {
+  /* Fork: salvo una imagen con tamaño propio pequeño (`ui tiny image`, 80px): los 125px la agrandaban y dejaban 77px
+           al contenido a 320 (perfil de organización de PiecesPHP, 2026-11-26) */
+
+  .ui.unstackable.items > .item > .image:not(.mini):not(.tiny),
+  .ui.unstackable.items > .item > .image:not(.mini):not(.tiny) > img {
     width: 125px !important;
   }
 }
@@ -83370,7 +83436,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   line-height: 1.5;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Statistic
+ * # Fomantic-UI 2.0.0 - Statistic
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -83457,6 +83523,8 @@ a.ui.link.card > .content > i.right.floated.icon {
 
 .ui.statistics .statistic > .value,
 .ui.statistic > .value {
+  /* Fork: el tamaño del tema, para quien lo encaje en su caja (tarjeta de cifra de core) */
+  --statistic-value-size: 1.71428571rem;
   font-family: var(--font-body);
   font-size: 1.71428571rem;
   font-weight: 600;
@@ -84222,7 +84290,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   letter-spacing: -0.02em;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Accordion
+ * # Fomantic-UI 2.0.0 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -84967,7 +85035,7 @@ a.ui.link.card > .content > i.right.floated.icon {
   }
 }
 /*!
- * # Fomantic-UI 1.4.0 - Calendar
+ * # Fomantic-UI 2.0.0 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -85716,7 +85784,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Chat Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Checkbox
+ * # Fomantic-UI 2.0.0 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -87275,7 +87343,7 @@ a.ui.link.card > .content > i.right.floated.icon {
          Colorpicker Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Dimmer
+ * # Fomantic-UI 2.0.0 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -87750,7 +87818,7 @@ body.dimmable > .dimmer {
   padding: 1.71428571rem;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Dropdown
+ * # Fomantic-UI 2.0.0 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90576,7 +90644,7 @@ select.ui.dropdown:focus {
   margin-left: 0.28571429rem;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Embed
+ * # Fomantic-UI 2.0.0 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -90744,7 +90812,7 @@ select.ui.dropdown:focus {
   text-shadow: none;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Flyout
+ * # Fomantic-UI 2.0.0 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -91592,7 +91660,7 @@ body.pushable > .pusher {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Modal
+ * # Fomantic-UI 2.0.0 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92568,7 +92636,7 @@ body.pushable > .pusher {
   padding-right: calc(1.14285714rem + 2rem);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Nag
+ * # Fomantic-UI 2.0.0 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -92587,7 +92655,7 @@ body.pushable > .pusher {
   position: relative;
   top: 0;
   left: 0;
-  z-index: 999;
+  z-index: 40;
   min-height: 0;
   width: 100%;
   margin: 0;
@@ -93466,7 +93534,7 @@ a.ui.nag {
          Pin Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Popup
+ * # Fomantic-UI 2.0.0 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -95185,7 +95253,7 @@ span[data-tooltip] {
   }
 }
 /*!
- * # Fomantic-UI 1.4.0 - Progress
+ * # Fomantic-UI 2.0.0 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -96904,7 +96972,7 @@ span[data-tooltip] {
   text-shadow: 0 0 0.14285714rem rgba(0, 0, 0, 0.7), 0 0 0.28571429rem rgba(0, 0, 0, 0.5);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Slider
+ * # Fomantic-UI 2.0.0 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -98397,7 +98465,7 @@ span[data-tooltip] {
   height: calc(1.28571429em + 1.6em);
 }
 /*!
- * # Fomantic-UI 1.4.0 - Rating
+ * # Fomantic-UI 2.0.0 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -98970,7 +99038,7 @@ span[data-tooltip] {
   background-origin: content-box;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Search
+ * # Fomantic-UI 2.0.0 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -99705,7 +99773,7 @@ span[data-tooltip] {
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 /*!
- * # Fomantic-UI 1.4.0 - Shape
+ * # Fomantic-UI 2.0.0 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -99850,7 +99918,7 @@ span[data-tooltip] {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Sidebar
+ * # Fomantic-UI 2.0.0 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -100898,6 +100966,17 @@ body.pushable > .pusher {
 .ui.shell > .main > .bar .logo {
   width: 36px;
   height: 36px;
+}
+
+/* La imagen o el SVG del logo caben en la caja: una imagen sin dimensiones salía a su tamaño natural y tapaba la barra
+   y la cabecera de la página (el logo de 800px del escaparate de PiecesPHP, 2026-11-25) */
+
+.ui.shell .logo > img,
+.ui.shell .logo > svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .ui.shell > .navigation > .footer {
@@ -102474,7 +102553,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Sticky
+ * # Fomantic-UI 2.0.0 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -102539,7 +102618,7 @@ body.pushable > .pusher {
          Theme Overrides
 *******************************/
 /*!
- * # Fomantic-UI 1.4.0 - Tab
+ * # Fomantic-UI 2.0.0 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -102628,7 +102707,7 @@ body.pushable > .pusher {
   padding-top: 1.14285714rem;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Toast
+ * # Fomantic-UI 2.0.0 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -103690,6 +103769,41 @@ body.pushable > .pusher {
   color: light-dark(oklch(min(0.4413, var(--ink-light-max, 1)) 0.0283 264.23), oklch(max(0.8711, var(--ink-dark-min, 0)) 0.014 258.35));
 }
 
+/* Sin ícono (`$.toast({ class: 'error' })` sin `showIcon`, lo habitual), nada distinguía los estados: franja de 3px del
+   color del estado en el borde de inicio (TDBaseApp, 2026-11-26). Con ícono, el ícono basta */
+
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).success {
+  box-shadow: inset 3px 0 0 0 #008742;
+}
+
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).error {
+  box-shadow: inset 3px 0 0 0 #de3027;
+}
+
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).warning {
+  box-shadow: inset 3px 0 0 0 #bb5900;
+}
+
+.ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).info {
+  box-shadow: inset 3px 0 0 0 #007fa3;
+}
+
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).success {
+  box-shadow: inset -3px 0 0 0 #008742;
+}
+
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).error {
+  box-shadow: inset -3px 0 0 0 #de3027;
+}
+
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).warning {
+  box-shadow: inset -3px 0 0 0 #bb5900;
+}
+
+[dir="rtl"] .ui.toast:not(.inverted):not(:has( > i.icon:not(.close))).info {
+  box-shadow: inset -3px 0 0 0 #007fa3;
+}
+
 /* -------------------
        Ícono
 -------------------- */
@@ -103816,7 +103930,7 @@ body.pushable > .pusher {
   background: transparent;
 }
 /*!
- * # Fomantic-UI 1.4.0 - Transition
+ * # Fomantic-UI 2.0.0 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

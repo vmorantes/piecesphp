@@ -757,6 +757,7 @@ CliActions::make('unit-tests:core/app-session-renewal', function ($args) {
         $idM2 = $idDe($webM2);
         $errores15 = [];
         $sa15 = $sesionApp($usuarioB);
+        $filaSa15 = $filaDeToken($sa15['token']);
         try {
             $columnas->setValue(null, false);
             try {
@@ -776,14 +777,31 @@ CliActions::make('unit-tests:core/app-session-renewal', function ($args) {
                 ->withParsedBody(['username' => "{$prefijo}-sin-migracion", 'password' => $clave, 'deviceKey' => $nuevaClave()['b64']]);
             $respuestaAcceso = (new UsersController())->login($peticionAcceso instanceof RequestRoute ? $peticionAcceso : throw new \LogicException('sin RequestRoute'), new ResponseRoute());
             $cuerpoAcceso = json_decode((string) $respuestaAcceso->getBody(), true);
+            $peticionMala = (new RequestRoute('POST', (new UriFactory())->createUri('http://localhost/zz-acceso'), new Headers(['isExternalLogin' => 'yes']), [], [], (new StreamFactory())->createStream('')))
+                ->withParsedBody(['username' => "{$prefijo}-sin-migracion", 'password' => $clave, 'deviceKey' => 'zz-no-es-una-clave']);
+            $respuestaMala = (new UsersController())->login($peticionMala instanceof RequestRoute ? $peticionMala : throw new \LogicException('sin RequestRoute'), new ResponseRoute());
+            $cuerpoMala = json_decode((string) $respuestaMala->getBody(), true);
+            try {
+                UserSessions::openApp($usuarioB, $nuevaClave()['b64']);
+                $abrioSinColumnas = 'abrió';
+            } catch (\RuntimeException $e) {
+                $abrioSinColumnas = $e->getMessage();
+            }
         } finally {
             $columnas->setValue(null, $columnasPrevias);
         }
         $cuerpoAcceso = is_array($cuerpoAcceso ?? null) ? $cuerpoAcceso : [];
+        $cuerpoMala = is_array($cuerpoMala ?? null) ? $cuerpoMala : [];
+        $filaSa15Despues = $filaDeToken($sa15['token']);
+        $intacta15 = array_intersect_key($filaSa15Despues, array_flip(['closedAt', 'refreshHash', 'refreshPrevHash', 'refreshLastTimestamp', 'sessionHash'])) === array_intersect_key($filaSa15, array_flip(['closedAt', 'refreshHash', 'refreshPrevHash', 'refreshLastTimestamp', 'sessionHash']));
         $check($errores15 === [] && ($cerro1 ?? false) === true && ($fila($idM1)['closedAt'] ?? null) !== null && ($cerroTodas ?? 0) >= 1 && ($fila($idM2)['closedAt'] ?? null) !== null && ($cerroGlobal ?? 0) >= 1,
             'm15b sin las columnas de app, close(), closeAllOfUser() y closeAll() no lanzan y cierran (closeAll, deshecho)', json_encode(['errores' => $errores15, 'close' => $cerro1 ?? null, 'deUsuario' => $cerroTodas ?? null, 'global' => $cerroGlobal ?? null], JSON_UNESCAPED_UNICODE) ?: '');
-        $check($eSin === 401 && ($cSin['error'] ?? null) === AppSessionRenewal::ERROR_REAUTH_REQUIRED,
-            'm15c DISCRIMINANTE: sin las columnas, renew-session responde 401 REAUTH_REQUIRED sin consultar la fila', json_encode([$eSin, $cSin['error'] ?? null]) ?: '');
+        $check($eSin === 401 && ($cSin['error'] ?? null) === AppSessionRenewal::ERROR_REAUTH_REQUIRED && isset($filaSa15['refreshHash']) && $intacta15,
+            'm15c DISCRIMINANTE: sin las columnas, renew-session responde 401 REAUTH_REQUIRED sin consultar la fila: con una llave y una firma buenas, la fila sigue intacta', json_encode([$eSin, $cSin['error'] ?? null, $intacta15]) ?: '');
+        $check(($cuerpoMala['auth'] ?? null) === true && !isset($cuerpoMala['refreshToken']) && ($cuerpoMala['error'] ?? null) !== UsersController::INVALID_DEVICE_KEY && ($filaDeToken((string) ($cuerpoMala['token'] ?? ''))['kind'] ?? null) === UserSessions::KIND_WEB,
+            'm15c2 sin las columnas, una deviceKey inválida tampoco cuenta: acceso web normal, no INVALID_DEVICE_KEY', json_encode([$cuerpoMala['auth'] ?? null, $cuerpoMala['error'] ?? null]) ?: '');
+        $check(($abrioSinColumnas ?? '') === 'Falta aplicar databases/actualizaciones/2026-11-26-sesiones-de-app.sql: la sesión de app necesita sus columnas.',
+            'm15f DISCRIMINANTE: openApp() sin las columnas lanza y dice qué migración falta (un clon que la llame directo)', (string) ($abrioSinColumnas ?? ''));
         $check(($cuerpoAcceso['auth'] ?? null) === true && !isset($cuerpoAcceso['refreshToken']) && ($filaDeToken((string) ($cuerpoAcceso['token'] ?? ''))['kind'] ?? null) === UserSessions::KIND_WEB,
             'm15d sin las columnas, el acceso con deviceKey es el de siempre: sesión web, sin refreshToken', json_encode([$cuerpoAcceso['auth'] ?? null, $cuerpoAcceso['error'] ?? null, isset($cuerpoAcceso['refreshToken'])]) ?: '');
 
@@ -806,6 +824,64 @@ CliActions::make('unit-tests:core/app-session-renewal', function ($args) {
         $usanLaPieza = array_map(fn (string $m): bool => str_contains($cuerpoDe($m), 'self::pendingReset()') && !str_contains($cuerpoDe($m), 'refreshPending = NULL'), ['close' => 'close', 'closeAllOfUser' => 'closeAllOfUser', 'closeAll' => 'closeAll']);
         $check($sinColumnas === '' && $conColumnas === ', refreshPending = NULL' && array_filter($usanLaPieza, fn (bool $b): bool => !$b) === [],
             'm15e DISCRIMINANTE: sin las columnas, la pieza que vacía refreshPending es vacía, y close(), closeAllOfUser() y closeAll() la usan (por texto: la base real no puede quedarse sin la columna)', json_encode([$sinColumnas, $usanLaPieza]) ?: '');
+
+        //t1: sin las columnas DE VERDAD. Una tabla TEMPORARY con el mismo nombre y sin las de app esconde la real solo en esta
+        //conexión; information_schema no ve las temporales, así que la marca se pone a false (lo que diría sin la migración).
+        $usuarioT = $crearUsuario('temporal');
+        $idsT = [];
+        $erroresT1 = [];
+        $vistaT1 = false;
+        $previoUsuario = get_config('current_user');
+        $raiz = (int) $contar("SELECT id FROM `{$tablaUsuarios}` WHERE username = ?", ['zz-agente-root']);
+        try {
+            $database->exec("CREATE TEMPORARY TABLE `zz_sesiones_sin_app` LIKE `{$tablaSesiones}`");
+            $database->exec('ALTER TABLE `zz_sesiones_sin_app` DROP COLUMN kind, DROP COLUMN deviceKey, DROP COLUMN refreshSelector, DROP COLUMN refreshHash, DROP COLUMN refreshPrevHash, DROP COLUMN refreshPending, DROP COLUMN refreshLastTimestamp');
+            $database->exec("CREATE TEMPORARY TABLE `{$tablaSesiones}` LIKE `zz_sesiones_sin_app`");
+            $columnasVistas = $database->query("SHOW COLUMNS FROM `{$tablaSesiones}`")->fetchAll(\PDO::FETCH_COLUMN);
+            //Sin ver la temporal no se sigue: closeAll() cerraría las filas reales.
+            $vistaT1 = is_array($columnasVistas) && in_array('sessionHash', $columnasVistas, true) && !in_array('refreshPending', $columnasVistas, true) && !in_array('kind', $columnasVistas, true);
+            if (!$vistaT1) {
+                throw new \LogicException('la tabla temporal no esconde a la real en esta conexión');
+            }
+            $alta = $database->prepare("INSERT INTO `{$tablaSesiones}` (userID, sessionHash, createdAt, lastActivityAt, expiresAt) VALUES (?, ?, ?, ?, ?)");
+            foreach ([1, 2, 3, 4] as $n) {
+                $alta->execute([$usuarioT, hash('sha256', random_bytes(16)), date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), date('Y-m-d H:i:s', time() + 3600)]);
+                $idsT[$n] = (int) $database->lastInsertId();
+            }
+            $hashT3 = (string) $database->query("SELECT sessionHash FROM `{$tablaSesiones}` WHERE id = " . $idsT[3])->fetchColumn();
+            $columnas->setValue(null, false);
+            try {
+                set_config('current_user', (object) ['id' => $raiz]);
+                getLoggedFrameworkUser(true);
+                $peticionT = (new RequestRoute('GET', (new UriFactory())->createUri('http://localhost/zz-sesiones'), new Headers(['X-Requested-With' => 'XMLHttpRequest']), [], [], (new StreamFactory())->createStream('')))
+                    ->withQueryParams(['draw' => 1, 'start' => 0, 'length' => 10, 'userID' => (string) $usuarioT, 'columns' => array_fill(0, 7, ['searchable' => 'true']), 'search' => ['value' => '', 'regex' => 'false']]);
+                $listadoT = json_decode((string) (new UserSessionsController())->dataTables($peticionT instanceof RequestRoute ? $peticionT : throw new \LogicException('sin RequestRoute'), new ResponseRoute())->getBody(), true);
+                $mineT = UserSessions::openOfUser($usuarioT);
+                $cerroT1 = UserSessions::close($idsT[1], null, UserSessions::REASON_CLOSED_BY_ADMIN);
+                $cerroT2 = UserSessions::closeAllOfUser($usuarioT, null, UserSessions::REASON_REVOKE_ALL_USER, $hashT3);
+                $cerroT3 = UserSessions::closeAll(UserSessions::REASON_REVOKE_ALL_GLOBAL);
+            } catch (\Throwable $e) {
+                $erroresT1[] = get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 200);
+            } finally {
+                $columnas->setValue(null, $columnasPrevias);
+                set_config('current_user', $previoUsuario);
+                getLoggedFrameworkUser(true);
+            }
+            $abiertasT = (int) $database->query("SELECT COUNT(*) FROM `{$tablaSesiones}` WHERE closedAt IS NULL")->fetchColumn();
+        } catch (\Throwable $e) {
+            $erroresT1[] = get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 200);
+        } finally {
+            //TEMPORARY: nunca borra la real, aunque la temporal no exista.
+            $database->exec("DROP TEMPORARY TABLE IF EXISTS `{$tablaSesiones}`");
+            $database->exec('DROP TEMPORARY TABLE IF EXISTS `zz_sesiones_sin_app`');
+        }
+        $realVuelve = $database->query("SHOW COLUMNS FROM `{$tablaSesiones}` LIKE 'refreshPending'")->fetchAll();
+        $listadosT = is_array($listadoT ?? null) ? (int) ($listadoT['recordsFiltered'] ?? -1) : -1;
+        $check($vistaT1 && $erroresT1 === [] && ($cerroT1 ?? false) === true && ($cerroT2 ?? 0) === 2 && ($cerroT3 ?? 0) === 1 && ($abiertasT ?? -1) === 0,
+            't1 DISCRIMINANTE: en una tabla SIN las columnas de app (temporal), close(), closeAllOfUser() y closeAll() no lanzan y cierran', json_encode(['vista' => $vistaT1, 'errores' => $erroresT1, 'close' => $cerroT1 ?? null, 'deUsuario' => $cerroT2 ?? null, 'global' => $cerroT3 ?? null, 'abiertas' => $abiertasT ?? null], JSON_UNESCAPED_UNICODE) ?: '');
+        $check($vistaT1 && $listadosT === 4 && count($mineT ?? []) === 4,
+            't1b en esa tabla, Registros › Sesiones (dataTables) y Mis sesiones (openOfUser) listan sin lanzar', json_encode(['registros' => $listadosT, 'mias' => count($mineT ?? [])]) ?: '');
+        $check(is_array($realVuelve) && count($realVuelve) === 1, 't1c al acabar, la tabla real vuelve a verse con su columna refreshPending', json_encode($realVuelve) ?: '');
 
         //nl: un salto de línea final en la llave o en el timestamp es una forma mala (400), no una reutilización.
         $sNl = $sesionApp($usuarioB);
