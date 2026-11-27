@@ -72,6 +72,35 @@ $days = static fn(int $seconds): int => (int) ceil($seconds / 86400);
             </div>
         </section>
 
+        <div class="ui section divider"></div>
+
+        <section aria-labelledby="security-app-sessions-title">
+            <?php
+                $helpController->_render('panel/built-in/content/section-header.php', [
+                    'id' => 'security-app-sessions-title',
+                    'title' => __($langGroup, 'Sesiones de aplicaciones móviles'),
+                    'description' => __($langGroup, 'Para las apps que entran con su propia clave de dispositivo; la web no cambia.'),
+                ]);
+            ?>
+            <div class="three fields">
+                <div class="field">
+                    <label for="security-app-access"><?= __($langGroup, 'Minutos que vale el acceso de una app'); ?></label>
+                    <input type="number" id="security-app-access" name="session_app_access_lifetime" min="5" max="1440" step="1" required value="<?= (int) ceil(\PiecesPHP\Core\SessionToken::appAccessLifetime() / 60); ?>">
+                    <div class="description"><span><?= __($langGroup, 'De 5 a 1440 minutos'); ?></span></div>
+                </div>
+                <div class="field">
+                    <label for="security-app-inactivity"><?= __($langGroup, 'Días sin actividad que cierran la sesión de una app'); ?></label>
+                    <input type="number" id="security-app-inactivity" name="session_app_inactivity" min="0" max="365" step="1" required value="<?= $days(\PiecesPHP\Core\SessionToken::appInactivity()); ?>" data-live-reading="days" data-live-reading-zero="<?= escape_html(__($langGroup, 'Sin límite')); ?>">
+                    <div class="description"><span><?= __($langGroup, '0 = no caduca por inactividad'); ?></span><span class="counter" data-live-reading-for="security-app-inactivity" aria-live="polite"></span></div>
+                </div>
+                <div class="field">
+                    <label for="security-app-ceiling"><?= __($langGroup, 'Tope en días de la sesión de una app'); ?></label>
+                    <input type="number" id="security-app-ceiling" name="session_app_ceiling" min="0" max="365" step="1" required value="<?= $days(\PiecesPHP\Core\SessionToken::appCeiling()); ?>" data-live-reading="days" data-live-reading-zero="<?= escape_html(__($langGroup, 'Sin tope')); ?>">
+                    <div class="description"><span><?= __($langGroup, '0 = sin tope'); ?></span><span class="counter" data-live-reading-for="security-app-ceiling" aria-live="polite"></span></div>
+                </div>
+            </div>
+        </section>
+
         <?php if (($canEditProxies ?? false) === true): ?>
         <?php
             //El diagnóstico de esta petición: lo que llega y la IP que la plataforma usa con la lista guardada (H28).

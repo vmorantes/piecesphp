@@ -104,6 +104,7 @@ class SettingsRoutes
         //Seguridad.
         $declare(['check_aud_on_auth', 'hide_app_key_warning'], $owner, ConfigOptions::SHAPE_BOOL);
         $declare([SessionToken::INACTIVITY_CONFIG, SessionToken::CEILING_CONFIG], SessionToken::class, ConfigOptions::SHAPE_INTEGER);
+        $declare([SessionToken::APP_ACCESS_LIFETIME_CONFIG, SessionToken::APP_INACTIVITY_CONFIG, SessionToken::APP_CEILING_CONFIG], SessionToken::class, ConfigOptions::SHAPE_INTEGER);
         $declare([VisitorIP::CONFIG_NAME], VisitorIP::class, ConfigOptions::SHAPE_JSON);
 
         //Inteligencia artificial.

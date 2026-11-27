@@ -54,7 +54,14 @@ final class AppKeyCommands
             throw new \RuntimeException('No se pudo escribir ' . $keyringPath . '.');
         }
         AppKeyring::set($keyring);
+        //Con la clave ya guardada: ninguna sesión de app sigue renovándose (ADR 0092 §5).
+        try {
+            $closedApp = \PiecesPHP\UserSystem\Authentication\UserSessions::closeAllApp(\PiecesPHP\UserSystem\Authentication\UserSessions::REASON_APP_KEY_ROTATED);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('La clave nueva quedó guardada, pero no se cerraron las sesiones de app: ciérralas con bin/cli sessions-revoke-all confirm=yes (cierra también las de la web).', 0, $e);
+        }
         return [
+            'Sesiones de app cerradas: ' . $closedApp . '.',
             'Clave nueva guardada en ' . $keyringPath . ' (huella ' . $keyring->currentFingerprint() . ').',
             'La anterior (huella ' . $current->currentFingerprint() . ') queda en el llavero: lo cifrado con ella se sigue leyendo.',
             'Las sesiones y los tokens emitidos con la anterior dejan de valer. Si estaba en config.php, quítela de allí.',

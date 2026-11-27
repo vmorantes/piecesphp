@@ -126,6 +126,36 @@ código de un uso, el estado del segundo factor, los estáticos, salir y la pant
 de saber quién es el usuario y antes de los permisos: responde 503 con `Retry-After`. Ver
 [El modo mantenimiento](../new-features/maintenance-mode.md).
 
+## La sesión de una app
+
+Para una app móvil que entra una vez y no quiere volver a pedir la contraseña mientras se use (ADR 0092). La web no
+cambia.
+
+- **Entrar**: `POST /users/login/` con la cabecera `isExternalLogin: yes`, un tipo de usuario con el acceso externo
+  habilitado y el campo `deviceKey`: la clave pública P-256 que la app generó en el almacén seguro del móvil (no
+  exportable), en SPKI y base64. La respuesta trae además `refreshToken`, `accessTokenExpiresAt` y
+  `accessTokenExpiresIn`. Hace falta la API de usuarios (`API_USERS`) y la migración `2026-11-26-sesiones-de-app.sql`
+  aplicada; sin la API, o si el llavero de claves no se puede leer, `deviceKey` se ignora y la sesión es la de siempre.
+- **El token de acceso**: no lleva `aud` (no se ata a la red, porque un móvil cambia de wifi a datos) y vive
+  `session_app_access_lifetime` (una hora de fábrica). El acceso de una app nunca pone la cookie.
+- **La fila**: `kind = 'app'`, con la clave del dispositivo. Caduca por `session_app_inactivity` (365 días sin uso de
+  fábrica) y `session_app_ceiling` (sin tope de fábrica). Las tres se ajustan en Configuración › Seguridad, bloque
+  «Sesiones de aplicaciones móviles».
+- **Renovar**: `POST /core/api/users/renew-session/` con `refreshToken`, `timestamp` y `signature`, la firma del
+  dispositivo. Cada llave sirve una vez; cada renovación entrega un token nuevo y deja sin valor el anterior. Si la
+  respuesta se pierde, repetir con la misma llave devuelve la que no llegó. Presentar una llave más vieja cierra la
+  sesión. El contrato completo, con cada respuesta, está en la documentación de la API.
+- **Qué la cierra**: lo mismo que a una sesión web (cerrarla desde el panel, revocar las sesiones del usuario o todas,
+  cambiar la contraseña desde otro sitio, desactivar el usuario o su organización) y, además, **cambiar la clave de la
+  aplicación**. Que el tipo de usuario pierda el acceso externo impide renovar; el token de acceso ya entregado sigue
+  valiendo hasta que caduca.
+- **Durante el mantenimiento** la renovación espera: responde `503` y la app conserva su llave y vuelve a intentarlo
+  después.
+- **Un caso que no las cierra**: el PRIMER arranque de una instalación con la clave de relleno genera la clave de verdad
+  sin cerrar las sesiones de app (`Config::first_boot_keyring()`); la clave de relleno ya es pública y el panel avisa de
+  ella, así que no debería haber ninguna.
+- **En el panel**, las listas de sesiones marcan las de app con «App» y la huella corta de su clave.
+
 ## Dónde engancharse
 
 - **Configuración**: `session_token_name`, `session_inactivity`, `session_ceiling`, `session_minimum_date`,

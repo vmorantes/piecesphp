@@ -44,6 +44,20 @@ class SessionToken
     const CEILING_CONFIG = 'session_ceiling';
     const CEILING = 365 * 24 * 3600;
 
+    /** Las sesiones de app (ADR 0092 §3): la vida del token de acceso, de 300 a 86400 s; por omisión, una hora. */
+    const APP_ACCESS_LIFETIME_CONFIG = 'session_app_access_lifetime';
+    const APP_ACCESS_LIFETIME = 3600;
+    const APP_ACCESS_LIFETIME_MIN = 300;
+    const APP_ACCESS_LIFETIME_MAX = 86400;
+
+    /** Segundos sin actividad que cierran una sesión de app (0 = sin límite). Por omisión, 365 días. */
+    const APP_INACTIVITY_CONFIG = 'session_app_inactivity';
+    const APP_INACTIVITY = 365 * 24 * 3600;
+
+    /** Segundos desde que se abrió que cierran una sesión de app (0 = sin tope). Por omisión, sin tope. */
+    const APP_CEILING_CONFIG = 'session_app_ceiling';
+    const APP_CEILING = 0;
+
     /**
      * @var bool Si ya se anotó un nombre configurado inválido: se dice UNA vez por proceso, no una por lectura.
      */
@@ -140,6 +154,65 @@ class SessionToken
     public static function ceiling(): int
     {
         return self::lifetime(self::CEILING_CONFIG, self::CEILING);
+    }
+
+    /**
+     * La vida del token de acceso de una sesión de app, en segundos. Un valor no válido usa el de por omisión y se anota
+     * una vez.
+     *
+     * @return int
+     */
+    public static function appAccessLifetime(): int
+    {
+        $configured = get_config(self::APP_ACCESS_LIFETIME_CONFIG);
+        if (self::appAccessLifetimeIsValid($configured)) {
+            return (int) $configured;
+        }
+        if ($configured !== false && $configured !== null && !isset(self::$invalidLifetimeLogged[self::APP_ACCESS_LIFETIME_CONFIG])) {
+            self::$invalidLifetimeLogged[self::APP_ACCESS_LIFETIME_CONFIG] = true;
+            log_exception(new \UnexpectedValueException(
+                'La opción de sesión «' . self::APP_ACCESS_LIFETIME_CONFIG . '» no es válida y se usa la de por omisión. Se admite un'
+                    . ' entero de ' . self::APP_ACCESS_LIFETIME_MIN . ' a ' . self::APP_ACCESS_LIFETIME_MAX . ' segundos.'
+            ));
+        }
+        return self::APP_ACCESS_LIFETIME;
+    }
+
+    /**
+     * Los segundos sin actividad que cierran una sesión de app; 0, sin límite.
+     *
+     * @return int
+     */
+    public static function appInactivity(): int
+    {
+        return self::lifetime(self::APP_INACTIVITY_CONFIG, self::APP_INACTIVITY);
+    }
+
+    /**
+     * Los segundos desde que se abrió que cierran una sesión de app pase lo que pase; 0, sin tope.
+     *
+     * @return int
+     */
+    public static function appCeiling(): int
+    {
+        return self::lifetime(self::APP_CEILING_CONFIG, self::APP_CEILING);
+    }
+
+    /**
+     * Un entero de APP_ACCESS_LIFETIME_MIN a APP_ACCESS_LIFETIME_MAX segundos.
+     *
+     * @param mixed $seconds
+     * @return bool
+     */
+    public static function appAccessLifetimeIsValid($seconds): bool
+    {
+        if (is_bool($seconds) || !is_scalar($seconds)) {
+            return false;
+        }
+        if (!is_int($seconds) && (!is_string($seconds) || preg_match('/^\d+$/', $seconds) !== 1)) {
+            return false;
+        }
+        return (int) $seconds >= self::APP_ACCESS_LIFETIME_MIN && (int) $seconds <= self::APP_ACCESS_LIFETIME_MAX;
     }
 
     /**

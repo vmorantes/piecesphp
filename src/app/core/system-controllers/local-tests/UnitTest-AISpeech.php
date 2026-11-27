@@ -146,7 +146,7 @@ CliActions::make('unit-tests:core/ai-speech', function ($args) {
         //─── 4 · GroqAPIKey sellada ──────────────────────────────────────────────────────────────
         echoTerminal('[4] La clave de Groq se sella como las de OpenAI y Mistral');
         $sellada = ConfigOptions::valueToStore('GroqAPIKey', 'zz-clave-a-sellar');
-        $check(is_string($sellada) && Sealed::isSealed($sellada) && Sealed::open($sellada, Sealed::PURPOSE_CONFIG_SECRET) === 'zz-clave-a-sellar' && isset(EncryptedDataRegistry::all()['config-secret-groq']) && count(EncryptedDataRegistry::purposes()) === 7, '4a se guarda sellada (config-secret), está en el registro de lo cifrado para la rotación, y los propósitos siguen siendo 7');
+        $check(is_string($sellada) && Sealed::isSealed($sellada) && Sealed::open($sellada, Sealed::PURPOSE_CONFIG_SECRET) === 'zz-clave-a-sellar' && isset(EncryptedDataRegistry::all()['config-secret-groq']) && count(EncryptedDataRegistry::purposes()) === 8, '4a se guarda sellada (config-secret), está en el registro de lo cifrado para la rotación, y los propósitos siguen siendo 8');
         echoTerminal(' ');
 
         //─── 5 · El consumo por modelo ───────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ namespace PiecesPHP\UserSystem\Authentication;
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\Crypto\Sealed;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
 use PiecesPHP\UserSystem\ORM\UserSessionsModel;
@@ -41,6 +42,21 @@ final class UserSessions
     /** El tipo del usuario ya no es un rol: el arranque le cierra la sesión sin borrarlo (P290, fase 1). */
     const REASON_INVALID_TYPE = 'invalid-type';
     const REASON_PASSWORD_CHANGED = 'password-changed';
+    const REASON_REFRESH_REUSE = 'refresh-reuse';
+    const REASON_APP_KEY_ROTATED = 'app-key-rotated';
+    const REASON_REPLACED = 'replaced';
+
+    /** El tipo de la fila (ADR 0092): la web o una app que entra con su clave de dispositivo. */
+    const KIND_WEB = 'web';
+    const KIND_APP = 'app';
+    /** Un tipo que no es ninguno de los dos: no se renueva ni se trata como web (falla cerrado). */
+    const KIND_UNKNOWN = 'unknown';
+
+    /** El comienzo de la SPKI de una clave P-256 con el punto sin comprimir (RFC 5480), antes de los 65 bytes del punto. */
+    const P256_SPKI_PREFIX = '3059301306072a8648ce3d020106082a8648ce3d030107034200';
+
+    /** El tamaño máximo de la clave pública del dispositivo en base64 (una SPKI P-256 son 124). */
+    const DEVICE_KEY_MAX_LENGTH = 200;
 
     /**
      * La marca en `data` del token que el terminal se fabrica a sí mismo: sin fila, y solo vale en el terminal.
@@ -69,6 +85,13 @@ final class UserSessions
      * @var string|null
      */
     private static $currentHash = null;
+
+    /**
+     * Si la tabla tiene las columnas de las sesiones de app (la migración 2026-11-26-sesiones-de-app), una vez por proceso.
+     *
+     * @var bool|null
+     */
+    private static $appColumns = null;
 
     /**
      * Abre una sesión y devuelve su token: la fila caduca con la duración configurada; el token, con el tope.
@@ -214,6 +237,195 @@ final class UserSessions
     }
 
     /**
+     * Si el identificador es de una sesión abierta de ese usuario que renewExpired puede renovar: solo las web.
+     *
+     * @param mixed $identifier
+     * @param int $userID
+     * @return bool
+     */
+    public static function identifierIsRenewable($identifier, int $userID): bool
+    {
+        if (!self::identifierIsWellFormed($identifier)) {
+            return false;
+        }
+        $row = self::rowByIdentifier((string) $identifier);
+        return $row !== null && self::isOpen($row) && (int) $row['userID'] === $userID && self::kindOf($row) === self::KIND_WEB;
+    }
+
+    /**
+     * La clave pública del dispositivo, normalizada: una SPKI EC prime256v1 en base64 de DEVICE_KEY_MAX_LENGTH caracteres
+     * como mucho, reconstruida SIEMPRE con el punto sin comprimir (la misma clave comprimida, híbrida o sin comprimir da el
+     * mismo PEM y la misma huella). RSA, otra curva, bytes tras la estructura o un punto pelado sin SPKI dan null, nunca
+     * una excepción.
+     *
+     * @param string $base64
+     * @return string|null
+     */
+    public static function normalizeDeviceKey(string $base64): ?string
+    {
+        if ($base64 === '' || strlen($base64) > self::DEVICE_KEY_MAX_LENGTH) {
+            return null;
+        }
+        $der = base64_decode($base64, true);
+        if (!is_string($der) || !self::derIsOneSequence($der)) {
+            return null;
+        }
+        try {
+            $key = openssl_pkey_get_public("-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($der), 64, "\n") . "-----END PUBLIC KEY-----\n");
+            $details = $key !== false ? openssl_pkey_get_details($key) : false;
+        } catch (\Throwable $e) {
+            $details = false;
+        }
+        //La cola de errores de openssl se vacía: la siguiente operación no debe leer los de esta.
+        while (openssl_error_string() !== false) {
+        }
+        $x = is_array($details) ? ($details['ec']['x'] ?? null) : null;
+        $y = is_array($details) ? ($details['ec']['y'] ?? null) : null;
+        if (!is_array($details) || ($details['type'] ?? null) !== \OPENSSL_KEYTYPE_EC || ($details['ec']['curve_name'] ?? null) !== 'prime256v1'
+            || !is_string($x) || !is_string($y) || strlen($x) > 32 || strlen($y) > 32) {
+            return null;
+        }
+        //LA FORMA CANÓNICA: 0x04 || X || Y, cada coordenada a 32 bytes. Sin esto, la misma clave en otra forma da otro PEM.
+        $canonical = hex2bin(self::P256_SPKI_PREFIX) . "\x04" . str_pad($x, 32, "\0", \STR_PAD_LEFT) . str_pad($y, 32, "\0", \STR_PAD_LEFT);
+        return "-----BEGIN PUBLIC KEY-----\n" . chunk_split(base64_encode($canonical), 64, "\n") . "-----END PUBLIC KEY-----\n";
+    }
+
+    /**
+     * Si unos bytes son exactamente una SEQUENCE DER, sin nada detrás (OpenSSL ignora lo que sobra).
+     *
+     * @param string $der
+     * @return bool
+     */
+    private static function derIsOneSequence(string $der): bool
+    {
+        $length = strlen($der);
+        if ($length < 2 || $der[0] !== "\x30") {
+            return false;
+        }
+        $first = ord($der[1]);
+        if ($first < 0x80) {
+            return $length === 2 + $first;
+        }
+        if ($first === 0x81 && $length >= 3) {
+            return $length === 3 + ord($der[2]);
+        }
+        if ($first === 0x82 && $length >= 4) {
+            return $length === 4 + (ord($der[2]) << 8 | ord($der[3]));
+        }
+        return false;
+    }
+
+    /**
+     * La huella corta de una clave de dispositivo normalizada: los 16 primeros caracteres hex del sha256 de su SPKI en DER.
+     *
+     * @param string $spki El PEM de normalizeDeviceKey()
+     * @return string
+     */
+    public static function deviceKeyFingerprint(string $spki): string
+    {
+        $body = preg_replace('/-----(BEGIN|END) PUBLIC KEY-----|\s+/', '', $spki);
+        $der = base64_decode(is_string($body) ? $body : '', true);
+        return substr(hash('sha256', is_string($der) ? $der : ''), 0, 16);
+    }
+
+    /**
+     * Lo que una sesión de app necesita antes de escribirse: identificador, selector, verificador y el verificador sellado.
+     * Todo lo que puede fallar (el azar, el sellado) está aquí, fuera de la base.
+     *
+     * @return array{identifier: string, selector: string, verifier: string, pending: string}
+     * @throws \RuntimeException
+     */
+    public static function appMaterial(): array
+    {
+        $verifier = self::base64url(random_bytes(32));
+        return [
+            'identifier' => bin2hex(random_bytes(32)),
+            'selector' => self::base64url(random_bytes(16)),
+            'verifier' => $verifier,
+            'pending' => Sealed::seal($verifier, Sealed::PURPOSE_SESSION_REFRESH_PENDING),
+        ];
+    }
+
+    /**
+     * Abre una sesión de app y devuelve su identificador y su llave de renovación (`selector.verificador`). En UNA
+     * transacción, cierra antes las sesiones de app abiertas del mismo usuario con la misma clave (REASON_REPLACED): si el
+     * alta falla, la anterior sigue abierta.
+     *
+     * @param int $userID
+     * @param string $deviceKey Ya normalizada (normalizeDeviceKey())
+     * @param array{identifier: string, selector: string, verifier: string, pending: string}|null $material appMaterial(), ya fabricado
+     * @return array{identifier: string, refreshToken: string}
+     * @throws \RuntimeException
+     */
+    public static function openApp(int $userID, string $deviceKey, ?array $material = null): array
+    {
+        //TODO LO QUE PUEDE FALLAR VA ANTES DE ESCRIBIR: si el sellado lanza, no queda una fila a medias ni la anterior cerrada.
+        $material ??= self::appMaterial();
+        $database = self::database();
+        self::purge($database);
+        $now = time();
+        $userAgent = isset($_SERVER['HTTP_USER_AGENT']) && is_string($_SERVER['HTTP_USER_AGENT']) ? mb_substr($_SERVER['HTTP_USER_AGENT'], 0, 255) : null;
+        $ip = mb_substr(\PiecesPHP\Core\VisitorIP::get(), 0, 45);
+        $ownTransaction = !$database->inTransaction();
+        if ($ownTransaction) {
+            $database->beginTransaction();
+        }
+        try {
+            $database->prepare('UPDATE `' . self::TABLE . '` SET closedAt = ?, closeReason = ?, refreshPending = NULL WHERE userID = ? AND kind = ? AND deviceKey = ? AND closedAt IS NULL')
+                ->execute([date('Y-m-d H:i:s', $now), self::REASON_REPLACED, $userID, self::KIND_APP, $deviceKey]);
+            $statement = $database->prepare('INSERT INTO `' . self::TABLE . '` (userID, sessionHash, createdAt, lastActivityAt, expiresAt, ip, userAgent, kind, deviceKey, refreshSelector, refreshHash, refreshPrevHash, refreshPending, refreshLastTimestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, NULL)');
+            $statement->execute([
+                $userID,
+                self::hash($material['identifier']),
+                date('Y-m-d H:i:s', $now),
+                date('Y-m-d H:i:s', $now),
+                date('Y-m-d H:i:s', self::expiryAt($now, $now, self::KIND_APP)),
+                $ip,
+                $userAgent,
+                self::KIND_APP,
+                $deviceKey,
+                $material['selector'],
+                hash('sha256', $material['verifier']),
+                $material['pending'],
+            ]);
+            if ($ownTransaction) {
+                $database->commit();
+            }
+        } catch (\Throwable $e) {
+            if ($ownTransaction && $database->inTransaction()) {
+                $database->rollBack();
+            }
+            throw $e;
+        }
+        return ['identifier' => $material['identifier'], 'refreshToken' => $material['selector'] . '.' . $material['verifier']];
+    }
+
+    /**
+     * Abre una sesión de app y emite su token de acceso: vida corta (tokenLifetime(KIND_APP)) y SIN aud, porque una app
+     * cambia de red.
+     *
+     * @param int $userID
+     * @param string $deviceKey Ya normalizada
+     * @return array{token: string, refreshToken: string, accessTokenExpiresAt: int, accessTokenExpiresIn: int}
+     * @throws \RuntimeException
+     */
+    public static function issueAppToken(int $userID, string $deviceKey): array
+    {
+        //EL TOKEN SE FIRMA ANTES DE ESCRIBIR: un fallo al firmar o al sellar no deja fila ni cierra la anterior.
+        $material = self::appMaterial();
+        $lifetime = self::tokenLifetime(self::KIND_APP);
+        $now = time();
+        $token = SessionToken::generateToken(['id' => $userID, 'sid' => $material['identifier']], null, $lifetime, false);
+        $session = self::openApp($userID, $deviceKey, $material);
+        return [
+            'token' => $token,
+            'refreshToken' => $session['refreshToken'],
+            'accessTokenExpiresAt' => $now + $lifetime,
+            'accessTokenExpiresIn' => $lifetime,
+        ];
+    }
+
+    /**
      * El hash de la sesión de esta petición (null fuera de una sesión con fila).
      *
      * @return string|null
@@ -252,7 +464,7 @@ final class UserSessions
      */
     public static function close(int $id, ?int $closedBy, string $reason): bool
     {
-        $statement = self::database()->prepare('UPDATE `' . self::TABLE . '` SET closedAt = ?, closedBy = ?, closeReason = ? WHERE id = ? AND closedAt IS NULL');
+        $statement = self::database()->prepare('UPDATE `' . self::TABLE . '` SET closedAt = ?, closedBy = ?, closeReason = ?' . self::pendingReset() . ' WHERE id = ? AND closedAt IS NULL');
         $statement->execute([date('Y-m-d H:i:s'), $closedBy, $reason, $id]);
         return $statement->rowCount() > 0;
     }
@@ -268,7 +480,7 @@ final class UserSessions
      */
     public static function closeAllOfUser(int $userID, ?int $closedBy, string $reason, ?string $exceptHash = null): int
     {
-        $sql = 'UPDATE `' . self::TABLE . '` SET closedAt = ?, closedBy = ?, closeReason = ? WHERE userID = ? AND closedAt IS NULL';
+        $sql = 'UPDATE `' . self::TABLE . '` SET closedAt = ?, closedBy = ?, closeReason = ?' . self::pendingReset() . ' WHERE userID = ? AND closedAt IS NULL';
         $values = [date('Y-m-d H:i:s'), $closedBy, $reason, $userID];
         if ($exceptHash !== null) {
             $sql .= ' AND sessionHash <> ?';
@@ -304,18 +516,59 @@ final class UserSessions
      */
     public static function closeAll(string $reason): int
     {
-        $statement = self::database()->prepare('UPDATE `' . self::TABLE . '` SET closedAt = ?, closeReason = ? WHERE closedAt IS NULL');
+        $statement = self::database()->prepare('UPDATE `' . self::TABLE . '` SET closedAt = ?, closeReason = ?' . self::pendingReset() . ' WHERE closedAt IS NULL');
         $statement->execute([date('Y-m-d H:i:s'), $reason]);
         return $statement->rowCount();
     }
 
     /**
-     * Lo que vive el token de una sesión: el tope configurado o, sin tope (0), SESSION_TOKEN_NO_CEILING.
+     * Cierra todas las sesiones de app abiertas (rotar la clave de la aplicación, ADR 0092 §5): ninguna queda abierta sin
+     * poder renovarse. Las web no se tocan.
      *
+     * @param string $reason
+     * @param \PDO|null $database La de quien llama, si está en una transacción (la rotación); si no, la de la aplicación
+     * @return int Cuántas se cerraron
+     */
+    public static function closeAllApp(string $reason, ?\PDO $database = null): int
+    {
+        //Sin la migración no hay filas de app que cerrar, y la rotación de la clave no se rompe por eso.
+        if (!self::hasAppColumns($database)) {
+            return 0;
+        }
+        $statement = ($database ?? self::database())->prepare('UPDATE `' . self::TABLE . '` SET closedAt = ?, closeReason = ?, refreshPending = NULL WHERE kind = ? AND closedAt IS NULL');
+        $statement->execute([date('Y-m-d H:i:s'), $reason, self::KIND_APP]);
+        return $statement->rowCount();
+    }
+
+    /**
+     * Si la tabla de sesiones tiene las columnas de las sesiones de app. Sin la migración, no: cerrar sesiones sigue
+     * funcionando, pero no hay sesiones de app (el acceso ignora deviceKey y renew-session responde REAUTH_REQUIRED).
+     *
+     * @param \PDO|null $database
+     * @return bool
+     */
+    public static function hasAppColumns(?\PDO $database = null): bool
+    {
+        if (self::$appColumns === null) {
+            $statement = ($database ?? self::database())->prepare('SELECT COUNT(*) FROM `information_schema`.`columns` WHERE `table_schema` = DATABASE() AND `table_name` = ? AND `column_name` = ?');
+            $statement->execute([self::TABLE, 'kind']);
+            self::$appColumns = (int) $statement->fetchColumn() > 0;
+        }
+        return self::$appColumns;
+    }
+
+    /**
+     * Lo que vive el token de una sesión: en una web, el tope configurado o, sin tope (0), SESSION_TOKEN_NO_CEILING; en una
+     * app, la vida corta de su token de acceso (session_app_access_lifetime).
+     *
+     * @param string $kind KIND_WEB o KIND_APP
      * @return int Segundos
      */
-    public static function tokenLifetime(): int
+    public static function tokenLifetime(string $kind = self::KIND_WEB): int
     {
+        if ($kind === self::KIND_APP) {
+            return SessionToken::appAccessLifetime();
+        }
         $ceiling = SessionToken::ceiling();
         return $ceiling > 0 ? $ceiling : self::SESSION_TOKEN_NO_CEILING;
     }
@@ -323,15 +576,17 @@ final class UserSessions
     /**
      * La caducidad de una sesión abierta en `$createdAt` si su última actividad es `$activityAt`: la inactividad desde
      * esa actividad, sin pasar del tope desde su inicio. Una opción a 0 no limita; con las dos a 0, SESSION_TOKEN_NO_CEILING.
+     * Una app usa las suyas: session_app_inactivity y session_app_ceiling.
      *
      * @param int $activityAt
      * @param int $createdAt
+     * @param string $kind KIND_WEB o KIND_APP
      * @return int Marca de tiempo
      */
-    public static function expiryAt(int $activityAt, int $createdAt): int
+    public static function expiryAt(int $activityAt, int $createdAt, string $kind = self::KIND_WEB): int
     {
-        $inactivity = SessionToken::inactivity();
-        $ceiling = SessionToken::ceiling();
+        $inactivity = $kind === self::KIND_APP ? SessionToken::appInactivity() : SessionToken::inactivity();
+        $ceiling = $kind === self::KIND_APP ? SessionToken::appCeiling() : SessionToken::ceiling();
         $limits = [];
         if ($inactivity > 0) {
             $limits[] = $activityAt + $inactivity;
@@ -343,15 +598,35 @@ final class UserSessions
     }
 
     /**
-     * El techo de una extensión: su inicio más el tope configurado (sin tope, SESSION_TOKEN_NO_CEILING), que es también
-     * la caducidad de su token.
+     * El techo de una extensión: su inicio más el tope configurado (sin tope, SESSION_TOKEN_NO_CEILING). En una web es
+     * también la caducidad de su token; en una app, el tope de app (session_app_ceiling).
      *
      * @param array<string,mixed> $row
      * @return int Marca de tiempo
      */
     public static function ceiling(array $row): int
     {
-        return (int) strtotime((string) $row['createdAt']) + self::tokenLifetime();
+        $createdAt = (int) strtotime((string) $row['createdAt']);
+        if (self::kindOf($row) === self::KIND_APP) {
+            $appCeiling = SessionToken::appCeiling();
+            return $createdAt + ($appCeiling > 0 ? $appCeiling : self::SESSION_TOKEN_NO_CEILING);
+        }
+        return $createdAt + self::tokenLifetime();
+    }
+
+    /**
+     * El tipo de una fila: KIND_APP, KIND_WEB (también sin la columna, de antes) o KIND_UNKNOWN con cualquier otro valor.
+     *
+     * @param array<string,mixed> $row
+     * @return string
+     */
+    public static function kindOf(array $row): string
+    {
+        $kind = $row['kind'] ?? null;
+        if ($kind === null || $kind === self::KIND_WEB) {
+            return self::KIND_WEB;
+        }
+        return $kind === self::KIND_APP ? self::KIND_APP : self::KIND_UNKNOWN;
     }
 
     /**
@@ -545,10 +820,31 @@ final class UserSessions
         }
         $created = strtotime((string) $row['createdAt']);
         $current = strtotime((string) $row['expiresAt']);
-        $expires = self::expiryAt($now, $created !== false ? $created : $now);
+        $expires = self::expiryAt($now, $created !== false ? $created : $now, self::kindOf($row));
         $expires = $current !== false ? max($current, $expires) : $expires;
         $statement = self::database()->prepare('UPDATE `' . self::TABLE . '` SET lastActivityAt = ?, expiresAt = ? WHERE id = ? AND lastActivityAt < ? AND closedAt IS NULL');
         $statement->execute([date('Y-m-d H:i:s', $now), date('Y-m-d H:i:s', $expires), (int) $row['id'], date('Y-m-d H:i:s', $now - self::ACTIVITY_WRITE_SECONDS)]);
+    }
+
+    /**
+     * El trozo del SET que vacía la llave pendiente al cerrar; sin las columnas de app, nada (el cierre no puede fallar por eso).
+     *
+     * @return string
+     */
+    private static function pendingReset(): string
+    {
+        return self::hasAppColumns() ? ', refreshPending = NULL' : '';
+    }
+
+    /**
+     * base64url sin relleno.
+     *
+     * @param string $bytes
+     * @return string
+     */
+    private static function base64url(string $bytes): string
+    {
+        return rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
     }
 
     /**

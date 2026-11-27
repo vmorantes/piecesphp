@@ -354,7 +354,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             $expiredUserMark = $expiredUserMark instanceof \DateTimeInterface ? $expiredUserMark->format('Y-m-d H:i:s') : (is_string($expiredUserMark) ? $expiredUserMark : null);
             //Y la sesión: el mismo identificador, y solo si su fila sigue abierta (ADR 0026, fase B).
             $expiredSessionID = $expiredUserData->sid ?? null;
-            if ($expiredUser->id !== null && SessionToken::isCreatedAfterMarks($expiredCreated, $expiredUserMark) && UserSessions::identifierIsOpen($expiredSessionID, (int) $expiredUser->id)) {
+            //Una fila app no se renueva aquí: su sid vive años y cualquier token viejo de esa sesión volvería a valer.
+            if ($expiredUser->id !== null && SessionToken::isCreatedAfterMarks($expiredCreated, $expiredUserMark) && UserSessions::identifierIsRenewable($expiredSessionID, (int) $expiredUser->id)) {
                 $JWT = SessionToken::generateToken([
                     'id' => $expiredUser->id,
                     'sid' => $expiredSessionID,

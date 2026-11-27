@@ -56,6 +56,7 @@ return [
     "Sesión cerrada" => "Session closed",
     "Prueba de un correo del catálogo" => "Test of a catalog email",
     "Sesión extendida" => "Session extended",
+    "Llave de renovación reutilizada" => "Renewal key reused",
     "Otras sesiones propias cerradas" => "Own other sessions closed",
     "Código emitido" => "Code issued",
     "Código usado" => "Code used",

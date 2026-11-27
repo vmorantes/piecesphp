@@ -33,6 +33,7 @@ final class Sealed
     const PURPOSE_MAIL_LOG_BODY = 'mail-log-body';
     const PURPOSE_TOTP_SECRET = 'totp-secret';
     const PURPOSE_CONFIG_SECRET = 'config-secret';
+    const PURPOSE_SESSION_REFRESH_PENDING = 'session-refresh-pending';
 
     /**
      * @param string $plain

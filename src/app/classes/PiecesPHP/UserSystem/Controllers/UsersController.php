@@ -180,6 +180,8 @@ class UsersController extends AdminPanelController
     const INVALID_USER_TYPE = 'INVALID_USER_TYPE';
     /** El modo mantenimiento detiene a su tipo: no recibe sesión (P299). El mismo código que el JSON de la 503. */
     const MAINTENANCE_MODE = 'MAINTENANCE_MODE';
+    /** El acceso de una app trae una clave de dispositivo que no es una P-256 válida (ADR 0092 §2): no se abre ninguna sesión. */
+    const INVALID_DEVICE_KEY = 'INVALID_DEVICE_KEY';
 
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
@@ -1058,6 +1060,18 @@ class UsersController extends AdminPanelController
                     return $value === true || $value === 'yes';
                 }
             ),
+            //La clave pública del dispositivo de una app (ADR 0092 §2); sin ella, el acceso es el de siempre.
+            new Parameter(
+                'deviceKey',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return trim((string) $value);
+                }
+            ),
         ]);
 
         $inputData = $request->getParsedBody();
@@ -1082,6 +1096,8 @@ class UsersController extends AdminPanelController
 
         //Se verifica si ya existe una sesión activa
         $JWT = SessionToken::getJWTReceived();
+        //La clave del dispositivo de una sesión de app, ya normalizada: solo se fija si el acceso abre una (ADR 0092 §2).
+        $appDeviceKey = null;
 
         try {
 
@@ -1205,6 +1221,12 @@ class UsersController extends AdminPanelController
                             $twoFactorCodeValue = is_string($twoFactorCodeValue) ? $twoFactorCodeValue : '';
                             $twoFactorIsValid = OTPHandler::checkValidityTOTP($twoFactorCodeValue, $username);
 
+                            //UNA SESIÓN DE APP solo con acceso externo, clave enviada, la renovación registrada, el llavero legible y la
+                            //migración de las sesiones de app: sin una de las cinco, la clave se ignora y el acceso es el de siempre.
+                            $deviceKeyValue = $expectedParameters->getValue('deviceKey');
+                            $appLoginRequested = $isExternalLogin && is_string($deviceKeyValue) && $deviceKeyValue !== '' && \API\APIRoutes::ENABLE_USERS && !Config::app_keyring_unreadable() && UserSessions::hasAppColumns();
+                            $appDeviceKey = $appLoginRequested ? UserSessions::normalizeDeviceKey((string) $deviceKeyValue) : null;
+
                             if ((!$require2FA || $twoFactorIsValid) && MaintenanceMode::stopsRole((int) $user->type)) {
 
                                 //Tras contraseña y segundo factor (antes delataría el tipo); antes del código de un uso y de la sesión.
@@ -1218,19 +1240,41 @@ class UsersController extends AdminPanelController
                                     $extraDataLog
                                 );
 
-                            } elseif (!$require2FA || $twoFactorIsValid) {
+                            } elseif ((!$require2FA || $twoFactorIsValid) && $appLoginRequested && $appDeviceKey === null) {
 
-                                OTPHandler::toExpireOTP($username);
-                                if ($otpIsValid && !$passwordIsValid) {
-                                    TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_ONE_USE_CODE, (int) $user->id, (string) $user->username);
-                                }
+                                //Tras contraseña, segundo factor y mantenimiento: una clave inválida no abre sesión, y no cae a la web.
+                                $resultOperation->setValue('error', self::INVALID_DEVICE_KEY);
+                                $resultOperation->setValue('message', $this->getMessage(self::INVALID_DEVICE_KEY));
+                                LoginAttemptsModel::addLogin(
+                                    (int) $user->id,
+                                    $user->username,
+                                    false,
+                                    $resultOperation->getValue('message'),
+                                    $extraDataLog
+                                );
+
+                            } elseif (!$require2FA || $twoFactorIsValid) {
 
                                 $resultOperation->setValue('auth', true);
 
                                 //EL TOKEN DICE QUIÉN, NUNCA QUÉ ES (tipo, estado y organización, de la fila en cada
                                 //petición); lleva además el identificador de su sesión, cuya fila manda (ADR 0026).
-                                $token = UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth'));
+                                if ($appDeviceKey !== null) {
+                                    //La sesión de app: token corto sin aud y la llave de renovación (ADR 0092 §2).
+                                    $appSession = UserSessions::issueAppToken((int) $user->id, $appDeviceKey);
+                                    $token = $appSession['token'];
+                                    $resultOperation->setValue('refreshToken', $appSession['refreshToken']);
+                                    $resultOperation->setValue('accessTokenExpiresAt', $appSession['accessTokenExpiresAt']);
+                                    $resultOperation->setValue('accessTokenExpiresIn', $appSession['accessTokenExpiresIn']);
+                                } else {
+                                    $token = UserSessions::issueToken((int) $user->id, (bool) get_config('check_aud_on_auth'));
+                                }
                                 $resultOperation->setValue('token', $token);
+                                //El código de un uso se gasta con la sesión ya abierta: si abrirla falla, el código sigue valiendo.
+                                OTPHandler::toExpireOTP($username);
+                                if ($otpIsValid && !$passwordIsValid) {
+                                    TokenEvents::log(LogsMapper::MSG_TOKEN_USED, TokenEvents::KIND_ONE_USE_CODE, (int) $user->id, (string) $user->username);
+                                }
 
                                 //Valores de usuario devueltos, FILTRADOS POR LISTA BLANCA: se toma lo declarado,
                                 //no se quita lo que sobra. Así una columna nueva no viaja sola al navegador.
@@ -1263,9 +1307,9 @@ class UsersController extends AdminPanelController
                                     $extraDataLog
                                 );
 
-                                //La cookie, solo al JavaScript del propio sitio (X-Requested-With): un formulario de otro sitio
-                                //no puede mandarla, y sin esto metería su sesión en este navegador. El cuerpo, para la API.
-                                if ($request->isXhr()) {
+                                //La cookie, solo al JavaScript del propio sitio (X-Requested-With) y NUNCA a una sesión de app: un
+                                //formulario de otro sitio no puede mandarla, y sin esto metería su sesión aquí. El cuerpo, para la API.
+                                if ($request->isXhr() && $appDeviceKey === null) {
                                     SessionCookie::put($token);
                                 }
 
@@ -1382,6 +1426,10 @@ class UsersController extends AdminPanelController
             $resultOperation->setValue('message', $e->getMessage());
         }
 
+        //La llave de renovación de una sesión de app no se guarda en ninguna caché intermedia.
+        if ($appDeviceKey !== null) {
+            $response = $response->withHeader('Cache-Control', 'no-store');
+        }
         return $response->withJson($resultOperation->getValues());
     }
 

@@ -29,6 +29,10 @@ Las rutas que piden sesión se identifican con el token que entrega el inicio de
 - **Comprobar si un token vale**: `POST /users/verify/` con el token en la cabecera responde `{auth: false, isAuth: true|false}`; `isAuth` es `false` también si la organización del usuario no puede entrar.
 - **Cerrar la sesión**: `POST /admin/users/sessions/logout/` con el token responde `{success: true}` y cierra la fila. Borrar el token solo en el cliente la deja abierta hasta que caduque.
 
+## La sesión de una app
+
+Una app móvil puede entrar una vez y renovar su token sin volver a pedir la contraseña: entra con `isExternalLogin: yes` y `deviceKey` (la clave pública P-256 de su dispositivo) en `POST /users/login/`, y renueva con `POST /core/api/users/renew-session/`, firmando cada renovación con esa clave. Su token no se ata a la red y vive una hora por omisión; la sesión, lo que digan `session_app_inactivity` y `session_app_ceiling`. Qué hacer con cada respuesta, en la descripción de renew-session.
+
 ## Desde otro origen (CORS): el token va en la cabecera, no en la cookie
 
 Un cliente servido desde **otro origen** (una aplicación web aparte, una app que carga su interfaz en un `WebView`) se identifica **solo con la cabecera de sesión**. Desde la `v8.0.0`:

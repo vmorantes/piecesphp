@@ -1620,6 +1620,14 @@ class APIController extends AdminPanelController
                     ], 'id', $usuario->id, UsersModel::TABLE);
                 }
             }
+        } elseif ($actionType == 'renew-session') {
+
+            //Renovar la sesión de una app (ADR 0092 §4): solo POST y sin sesión; todo lo decide la fila.
+            if ($method !== 'POST') {
+                throw new NotFoundException($request, $response);
+            }
+            $response = \PiecesPHP\UserSystem\Authentication\AppSessionRenewal::handle($request, $response);
+
         } else {
             throw new NotFoundException($request, $response);
         }

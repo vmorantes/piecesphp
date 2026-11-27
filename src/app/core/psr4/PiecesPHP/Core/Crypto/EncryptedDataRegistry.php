@@ -12,6 +12,7 @@ use PiecesPHP\Core\ConfigHelpers\MailjetConfig;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\SystemStatus\Mappers\MailLogMapper;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\ORM\UserSessionsModel;
 
 /**
  * EncryptedDataRegistry - Lo que la aplicación guarda cifrado (ADR 0061 §6), con la forma de SystemAlertRegistry.
@@ -71,7 +72,7 @@ final class EncryptedDataRegistry
 
     /**
      * Lo del framework: los datos del token (no se guardan), la configuración de correo y de Mailjet y las claves de API
-     * (opciones), el secreto TOTP y el cuerpo del registro de correos (columnas).
+     * (opciones), el secreto TOTP, el cuerpo del registro de correos y la llave pendiente de una sesión de app (columnas).
      *
      * @return void
      */
@@ -115,6 +116,9 @@ final class EncryptedDataRegistry
             }
             return null;
         }));
+
+        //Nace sellada (ADR 0092): no hay forma de antes que abrir.
+        self::register(new EncryptedData('session-refresh-pending', Sealed::PURPOSE_SESSION_REFRESH_PENDING, EncryptedData::KIND_COLUMN, UserSessionsModel::TABLE, 'refreshPending'));
     }
 
     /**

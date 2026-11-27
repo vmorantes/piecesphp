@@ -1,3 +1,16 @@
+# 10.70.0 (26-11-2026)
+
+- **Sesiones de aplicaciones móviles que se renuevan sin volver a pedir la contraseña.** Una app que entra con
+  `isExternalLogin: yes` y la clave pública de su dispositivo (`deviceKey`) recibe un token de acceso de vida corta, que
+  no se ata a la red, y una llave de renovación de un solo uso. Con ella, firmada por el dispositivo, pide un token
+  nuevo en `core/api/users/renew-session` sin que el usuario vuelva a entrar, aunque pase días sin conexión o cambie de
+  red. Una llave usada dos veces cierra la sesión, y cambiar la clave de la aplicación cierra todas las sesiones de app.
+  Configuración › Seguridad tiene un bloque «Sesiones de aplicaciones móviles» con la vida del acceso, los días sin
+  actividad y el tope, y las listas de sesiones marcan las de app. La web no cambia, ni una app que no mande `deviceKey`.
+  Necesita `API_USERS`. **Al actualizar**: aplica, sin falta, `databases/actualizaciones/2026-11-26-sesiones-de-app.sql` (con
+  `bin/cli db-update file=2026-11-26-sesiones-de-app.sql apply=yes`). Guía: «La sesión
+  del panel», «La sesión de una app»; el contrato, en la documentación de la API.
+
 # 10.69.0 (26-11-2026)
 
 - **Cuando falla la carga de una tabla, avisa el panel**, no una ventana del navegador. Hasta ahora, si la petición de

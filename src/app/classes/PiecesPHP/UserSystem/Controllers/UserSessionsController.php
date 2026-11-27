@@ -201,7 +201,7 @@ class UserSessionsController extends AdminPanelController
                 'success' => false,
                 'name' => __(self::LANG_GROUP, 'Extender sesión'),
                 'message' => sprintf(
-                    __(self::LANG_GROUP, 'No se puede extender más allá del %s, la caducidad de su token.'),
+                    __(self::LANG_GROUP, 'No se puede extender más allá del %s, el tope de esta sesión.'),
                     date('d-m-Y H:i', UserSessions::ceiling($row))
                 ),
             ]);
@@ -246,6 +246,10 @@ class UserSessionsController extends AdminPanelController
             $userColumn('organization') . ' AS userOrganization',
             UserHierarchy::rankSQL($userColumn('type')) . ' AS targetRank',
         ];
+        //Sin la migración de las sesiones de app, sin sus columnas: las filas se pintan como web.
+        if (UserSessions::hasAppColumns()) {
+            array_push($selectFields, "{$table}.kind", "{$table}.deviceKey");
+        }
 
         $where = [
             new WhereItem("{$table}.closedAt", WhereItem::IS_NULL_OPERATOR, '', WhereItem::AND_OPERATOR),
@@ -307,7 +311,7 @@ class UserSessionsController extends AdminPanelController
                 }
                 return [
                     '<div class="ui tight flex">' . escape_html((string) ($row['username'] ?? '')) . $marks . '</div><small class="ui muted text">' . escape_html((string) ($row['email'] ?? '')) . '</small>',
-                    escape_html(UserSessions::describeUserAgent(isset($row['userAgent']) ? (string) $row['userAgent'] : null)),
+                    self::browserCellHTML($row),
                     escape_html((string) ($row['ip'] ?? '')),
                     self::timeHTML((string) $row['createdAt']),
                     self::timeHTML((string) $row['lastActivityAt']),
@@ -318,6 +322,45 @@ class UserSessionsController extends AdminPanelController
         ]);
 
         return $response->withJson($result->getValues());
+    }
+
+    /**
+     * El navegador de una sesión, legible; el de una sesión de app, con «App ·» delante (ADR 0092 §5).
+     *
+     * @param array<string,mixed> $row
+     * @return string Sin escapar
+     */
+    public static function browserLabel(array $row): string
+    {
+        $browser = UserSessions::describeUserAgent(isset($row['userAgent']) ? (string) $row['userAgent'] : null);
+        return UserSessions::kindOf($row) === UserSessions::KIND_APP ? sprintf(__(self::LANG_GROUP, 'App · %s'), $browser) : $browser;
+    }
+
+    /**
+     * La huella corta de la clave del dispositivo de una sesión de app; null en las demás.
+     *
+     * @param array<string,mixed> $row
+     * @return string|null Sin escapar
+     */
+    public static function deviceKeyLabel(array $row): ?string
+    {
+        $deviceKey = $row['deviceKey'] ?? null;
+        if (UserSessions::kindOf($row) !== UserSessions::KIND_APP || !is_string($deviceKey) || $deviceKey === '') {
+            return null;
+        }
+        return sprintf(__(self::LANG_GROUP, 'Clave %s'), UserSessions::deviceKeyFingerprint($deviceKey));
+    }
+
+    /**
+     * La celda del navegador del listado: el rótulo y, en una sesión de app, la huella de su clave debajo. Escapada.
+     *
+     * @param array<string,mixed> $row
+     * @return string
+     */
+    public static function browserCellHTML(array $row): string
+    {
+        $deviceKey = self::deviceKeyLabel($row);
+        return escape_html(self::browserLabel($row)) . ($deviceKey !== null ? '<br><small class="ui muted text">' . escape_html($deviceKey) . '</small>' : '');
     }
 
     /**
@@ -361,7 +404,8 @@ class UserSessionsController extends AdminPanelController
         return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('panel/pages/sessions/user-list', [
             'langGroup' => self::LANG_GROUP,
             'rows' => array_map(fn(array $row): array => [
-                'browser' => UserSessions::describeUserAgent(isset($row['userAgent']) ? (string) $row['userAgent'] : null),
+                'browser' => self::browserLabel($row),
+                'deviceKey' => self::deviceKeyLabel($row),
                 'ip' => (string) ($row['ip'] ?? ''),
                 'createdAt' => self::timeHTML((string) $row['createdAt']),
                 'lastActivityAt' => self::timeHTML((string) $row['lastActivityAt']),

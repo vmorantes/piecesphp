@@ -487,8 +487,16 @@ CREATE TABLE `pcsphp_user_sessions` (
   `closedAt` datetime DEFAULT NULL,
   `closedBy` int(11) DEFAULT NULL,
   `closeReason` varchar(32) DEFAULT NULL,
+  `kind` varchar(8) NOT NULL DEFAULT 'web',
+  `deviceKey` text DEFAULT NULL,
+  `refreshSelector` char(22) COLLATE utf8mb4_bin DEFAULT NULL,
+  `refreshHash` char(64) DEFAULT NULL,
+  `refreshPrevHash` char(64) DEFAULT NULL,
+  `refreshPending` text DEFAULT NULL,
+  `refreshLastTimestamp` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `sessionHash` (`sessionHash`),
+  UNIQUE KEY `refreshSelector` (`refreshSelector`),
   KEY `userID` (`userID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 

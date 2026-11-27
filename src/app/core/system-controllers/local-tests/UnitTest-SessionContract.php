@@ -283,9 +283,9 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
 
         $check(SessionToken::isActiveSession($emitido) === true && SessionToken::isActiveSession('') === false, 'i4 el contrato de isActiveSession() no cambió');
 
-        //i5: lo que emite EL FRAMEWORK, tres llamadas (la renovación de index.php; sesión y terminal de UserSessions).
-        //MÉTODO: de cada llamada a generateToken( en esos dos archivos, se mira su primer array hasta el «]».
-        $emisores = ['index.php' => basepath('index.php'), 'UserSessions.php' => basepath('app/classes/PiecesPHP/UserSystem/Authentication/UserSessions.php')];
+        //i5: lo que emite EL FRAMEWORK, cinco llamadas (la renovación de index.php; sesión, terminal y sesión de app de UserSessions; la renovación de app).
+        //MÉTODO: de cada llamada a generateToken( en esos tres archivos, se mira su primer array hasta el «]».
+        $emisores = ['index.php' => basepath('index.php'), 'UserSessions.php' => basepath('app/classes/PiecesPHP/UserSystem/Authentication/UserSessions.php'), 'AppSessionRenewal.php' => basepath('app/classes/PiecesPHP/UserSystem/Authentication/AppSessionRenewal.php')];
         $conTipo = [];
         $llamadas = 0;
         foreach ($emisores as $nombre => $ruta) {
@@ -301,7 +301,7 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
                 $desde = $pos + 1;
             }
         }
-        $check($llamadas === 3, 'i5 se encontraron las TRES llamadas que emiten token', "llamadas: {$llamadas}");
+        $check($llamadas === 5, 'i5 se encontraron las CINCO llamadas que emiten token', "llamadas: {$llamadas}");
         $check(count($conTipo) === 0, 'i5 y ninguna mete el tipo en la carga del token', count($conTipo) > 0 ? implode(', ', $conTipo) : '');
 
         //─── j · La sesión aislada, la gemela ───────────────────────────────────────────────────────────

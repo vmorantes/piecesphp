@@ -76,6 +76,11 @@ final class KeyRotation
                 throw new \RuntimeException('No se pudo escribir el llavero nuevo.');
             }
             $fileWritten = true;
+            //Solo con el sitio de las sesiones (la rotación real siempre lo trae; una suite con sitios propios no cierra sesiones
+            //reales), en la misma transacción y conexión: un fallo deshace también el cierre (ADR 0092 §5).
+            if (isset($this->sites['session-refresh-pending'])) {
+                $report['app-sessions'] = ['rows' => 0, 'resealed' => 0, 'unreadable' => 0, 'note' => \PiecesPHP\UserSystem\Authentication\UserSessions::closeAllApp(\PiecesPHP\UserSystem\Authentication\UserSessions::REASON_APP_KEY_ROTATED, $this->database) . ' sesiones de app cerradas'];
+            }
             if (!$this->database->commit()) {
                 throw new \RuntimeException('No se pudo confirmar la transacción.');
             }

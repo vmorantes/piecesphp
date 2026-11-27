@@ -3,7 +3,7 @@
   "info": {
     "title": "PiecesPHP API",
     "version": "10.13.0",
-    "description": "API HTTP de PiecesPHP: todo lo que un cliente de fuera (una app, otro sitio, un cron, un buscador) consume por URL. Responde JSON, salvo los archivos del sitio (robots.txt, humans.txt, llms.txt y sitemap.xml). Los textos de mensaje salen en el idioma activo de la petición. Los ejemplos de este documento están recortados y usan valores de prueba (los que empiezan por zz-siembra-); no son datos reales. Cada operación lleva `x-piecesphp-ruta` con el nombre interno de su ruta; lo que no se pudo determinar queda marcado con `x-piecesphp-sin-verificar`, con su motivo.\n\n## Autenticación\n\nLas rutas que piden sesión se identifican con el token que entrega el inicio de sesión (`POST /users/login/`, campo `token` de la respuesta).\n\n- **Cabecera.** El token va en una cabecera cuyo nombre sale de `SessionToken::headerName()`: `JWTAuth` por omisión, o el valor de `session_token_name` en `src/app/config/config.php` si la instalación lo cambia, **con guion en vez de guion bajo**. El guion tiene su porqué: Apache descarta las cabeceras con guion bajo, y PHP convierte el guion en guion bajo al leerlas. Una cabecera vacía cuenta como ausente.\n- **Cookie.** Si no llega la cabecera, el servidor lee la cookie con el mismo nombre (`SessionToken::tokenName()`). Esa cookie solo la pone el servidor al navegador del propio sitio (HttpOnly, SameSite Lax, Secure en https) cuando el inicio de sesión se hace con `X-Requested-With: XMLHttpRequest`; un cliente de otro origen debe usar solo la cabecera. Si llegan las dos, manda la cabecera.\n- **Cambiar el nombre.** Si una instalación lo cambia, cada cliente externo tiene que mandar el nombre nuevo. `bin/cli session-name escribir=yes` propone uno y lo escribe.\n- **Sin sesión.** Una ruta que la exige responde `401` con `WWW-Authenticate: Bearer` y el cuerpo `{error: RESTRICTED_AREA, message}` si la petición lleva `X-Requested-With: XMLHttpRequest`; sin esa cabecera redirige al acceso.\n- **Rutas que no exigen sesión en su declaración.** Las de `/core/api/users/` y `/core/api/reports/` no la piden en su declaración, pero el controlador responde `403` cuando falta.\n- **Rutas sin sesión.** Las marcadas con `security` vacío no la necesitan.\n- **Tareas programadas.** Usan otra clave: la cabecera `Cron-Job-Key`.\n\n## La sesión, desde la 9.0.0\n\n- **Cada inicio de sesión tiene su fila en el servidor** y el token lleva su identificador: en cada petición se comprueba que la fila exista, sea del mismo usuario, no esté cerrada y no haya caducado.\n- **Un token anterior a la 9.0.0 no tiene fila**: al actualizar, todos vuelven a iniciar sesión una vez.\n- **Caduca por inactividad y por tope**: `session_inactivity` (31 días sin uso, por omisión) y `session_ceiling` (365 días desde que se abrió).\n- **El `exp` del token es el tope, no el momento en que la sesión muere**: una sesión puede estar cerrada con el `exp` vivo, porque caducó por inactividad o porque se cerró desde el panel.\n- **Comprobar si un token vale**: `POST /users/verify/` con el token en la cabecera responde `{auth: false, isAuth: true|false}`; `isAuth` es `false` también si la organización del usuario no puede entrar.\n- **Cerrar la sesión**: `POST /admin/users/sessions/logout/` con el token responde `{success: true}` y cierra la fila. Borrar el token solo en el cliente la deja abierta hasta que caduque.\n\n## Desde otro origen (CORS): el token va en la cabecera, no en la cookie\n\nUn cliente servido desde **otro origen** (una aplicación web aparte, una app que carga su interfaz en un `WebView`) se identifica **solo con la cabecera de sesión**. Desde la `v8.0.0`:\n\n- La API responde a cualquier origen con `Access-Control-Allow-Origin` igual al origen que pide, y permite la cabecera de sesión en el preflight (`OPTIONS` responde `204`).\n- **No responde `Access-Control-Allow-Credentials: true` a un origen ajeno**, salvo que la instalación lo declare en `cors_credentials_origins`. Por eso **un `fetch` con `credentials: 'include'` desde otro origen falla**: el navegador descarta la respuesta. Lo mismo vale para `XMLHttpRequest` con `withCredentials = true`: con credenciales solo se responde bien al propio origen del sitio (`base_url`) y a los declarados. Use el valor por omisión de `credentials` (o `'omit'`) y mande el token en la cabecera:\n\n```js\nconst res = await fetch(`${API}/publications/all/`, {\n    method: 'GET',\n    mode: 'cors',\n    headers: { JWTAuth: token },\n})\n```\n\n- La cookie de sesión del panel lleva `SameSite=Lax`: un navegador no la manda en peticiones de otro sitio.\n\n## Qué rutas existen: las banderas\n\nLas rutas bajo `core/api/` se registran según constantes de `src/app/config/constants.php`, que cada despliegue fija; una ruta de un módulo apagado responde `404`.\n\n| Bandera | Qué registra |\n| :-- | :-- |\n| `API_MODULE` | Publicaciones y noticias (`core/api/publications/…`, `core/api/news/…`) |\n| `API_USERS` | `core/api/users/…` (el inicio de sesión, `users/login/`, no depende de ella) |\n| `API_PUBLIC_SIGNUP` | La acción `register` de `core/api/users/…`; apagada de fábrica, y exige además `API_USERS` |\n| `API_TRANSLATION_MODULE` | `core/api/translations/…` |\n| `API_REPORTS` | `core/api/reports/…` y además el módulo `ReportsManage` |\n| `API_CRONJOBS` | `core/api/cron-jobs/…`. **Basta ella sola**: también registra el grupo `core/api/` |\n| `API_AI_TRANSLATIONS_ACTIVE` | No registra rutas: muestra el botón de traducir en el formulario de publicaciones (junto con `API_TRANSLATION_MODULE`) |\n| `LOCATIONS_ENABLED` | Las rutas de Ubicaciones (`locations/…`); **no** dependen de las banderas de la API |\n\nSi ninguna de `API_MODULE`, `API_TRANSLATION_MODULE`, `API_USERS`, `API_REPORTS` o `API_CRONJOBS` está activa, no se registra ninguna ruta de `core/api/`.\n\n## Extensión apagada: la ruta `external`\n\n`APIController::externalActions()` es una **muestra** para integrar una API de terceros (usa `APIExternalAdapterExample`). Su ruta, `core/api/external/{context}/{actionType}/`, está **comentada** en `APIController::routes()` y no se registra, así que no aparece en este documento. Para usarla en un clon: descomentar la ruta, sustituir el adaptador de ejemplo por el real y decidir sus roles.\n\n## Errores internos (500)\n\nFuera de local, un error interno responde con estado `500` y este cuerpo, sin más detalle:\n\n```json\n{\"success\": false, \"message\": \"Ocurrió un error interno. Si lo reporta, indique la referencia ERR-20260919-A1B2C3.\", \"reference\": \"ERR-20260919-A1B2C3\"}\n```\n\nGuarde `reference` y comuníquelo a quien mantiene la instalación: con ese código encuentra el error completo en los registros.\n\n## Importar esta API en un cliente\n\nEste documento es OpenAPI 3.1: Postman, Insomnia y la mayoría de los clientes HTTP lo importan tal cual (en Postman, «Import» y el archivo `openapi.json`), con sus rutas, parámetros y ejemplos. Pon en la variable `baseURL` la dirección de tu instalación."
+    "description": "API HTTP de PiecesPHP: todo lo que un cliente de fuera (una app, otro sitio, un cron, un buscador) consume por URL. Responde JSON, salvo los archivos del sitio (robots.txt, humans.txt, llms.txt y sitemap.xml). Los textos de mensaje salen en el idioma activo de la petición. Los ejemplos de este documento están recortados y usan valores de prueba (los que empiezan por zz-siembra-); no son datos reales. Cada operación lleva `x-piecesphp-ruta` con el nombre interno de su ruta; lo que no se pudo determinar queda marcado con `x-piecesphp-sin-verificar`, con su motivo.\n\n## Autenticación\n\nLas rutas que piden sesión se identifican con el token que entrega el inicio de sesión (`POST /users/login/`, campo `token` de la respuesta).\n\n- **Cabecera.** El token va en una cabecera cuyo nombre sale de `SessionToken::headerName()`: `JWTAuth` por omisión, o el valor de `session_token_name` en `src/app/config/config.php` si la instalación lo cambia, **con guion en vez de guion bajo**. El guion tiene su porqué: Apache descarta las cabeceras con guion bajo, y PHP convierte el guion en guion bajo al leerlas. Una cabecera vacía cuenta como ausente.\n- **Cookie.** Si no llega la cabecera, el servidor lee la cookie con el mismo nombre (`SessionToken::tokenName()`). Esa cookie solo la pone el servidor al navegador del propio sitio (HttpOnly, SameSite Lax, Secure en https) cuando el inicio de sesión se hace con `X-Requested-With: XMLHttpRequest`; un cliente de otro origen debe usar solo la cabecera. Si llegan las dos, manda la cabecera.\n- **Cambiar el nombre.** Si una instalación lo cambia, cada cliente externo tiene que mandar el nombre nuevo. `bin/cli session-name escribir=yes` propone uno y lo escribe.\n- **Sin sesión.** Una ruta que la exige responde `401` con `WWW-Authenticate: Bearer` y el cuerpo `{error: RESTRICTED_AREA, message}` si la petición lleva `X-Requested-With: XMLHttpRequest`; sin esa cabecera redirige al acceso.\n- **Rutas que no exigen sesión en su declaración.** Las de `/core/api/users/` y `/core/api/reports/` no la piden en su declaración, pero el controlador responde `403` cuando falta.\n- **Rutas sin sesión.** Las marcadas con `security` vacío no la necesitan.\n- **Tareas programadas.** Usan otra clave: la cabecera `Cron-Job-Key`.\n\n## La sesión, desde la 9.0.0\n\n- **Cada inicio de sesión tiene su fila en el servidor** y el token lleva su identificador: en cada petición se comprueba que la fila exista, sea del mismo usuario, no esté cerrada y no haya caducado.\n- **Un token anterior a la 9.0.0 no tiene fila**: al actualizar, todos vuelven a iniciar sesión una vez.\n- **Caduca por inactividad y por tope**: `session_inactivity` (31 días sin uso, por omisión) y `session_ceiling` (365 días desde que se abrió).\n- **El `exp` del token es el tope, no el momento en que la sesión muere**: una sesión puede estar cerrada con el `exp` vivo, porque caducó por inactividad o porque se cerró desde el panel.\n- **Comprobar si un token vale**: `POST /users/verify/` con el token en la cabecera responde `{auth: false, isAuth: true|false}`; `isAuth` es `false` también si la organización del usuario no puede entrar.\n- **Cerrar la sesión**: `POST /admin/users/sessions/logout/` con el token responde `{success: true}` y cierra la fila. Borrar el token solo en el cliente la deja abierta hasta que caduque.\n\n## La sesión de una app\n\nUna app móvil puede entrar una vez y renovar su token sin volver a pedir la contraseña: entra con `isExternalLogin: yes` y `deviceKey` (la clave pública P-256 de su dispositivo) en `POST /users/login/`, y renueva con `POST /core/api/users/renew-session/`, firmando cada renovación con esa clave. Su token no se ata a la red y vive una hora por omisión; la sesión, lo que digan `session_app_inactivity` y `session_app_ceiling`. Qué hacer con cada respuesta, en la descripción de renew-session.\n\n## Desde otro origen (CORS): el token va en la cabecera, no en la cookie\n\nUn cliente servido desde **otro origen** (una aplicación web aparte, una app que carga su interfaz en un `WebView`) se identifica **solo con la cabecera de sesión**. Desde la `v8.0.0`:\n\n- La API responde a cualquier origen con `Access-Control-Allow-Origin` igual al origen que pide, y permite la cabecera de sesión en el preflight (`OPTIONS` responde `204`).\n- **No responde `Access-Control-Allow-Credentials: true` a un origen ajeno**, salvo que la instalación lo declare en `cors_credentials_origins`. Por eso **un `fetch` con `credentials: 'include'` desde otro origen falla**: el navegador descarta la respuesta. Lo mismo vale para `XMLHttpRequest` con `withCredentials = true`: con credenciales solo se responde bien al propio origen del sitio (`base_url`) y a los declarados. Use el valor por omisión de `credentials` (o `'omit'`) y mande el token en la cabecera:\n\n```js\nconst res = await fetch(`${API}/publications/all/`, {\n    method: 'GET',\n    mode: 'cors',\n    headers: { JWTAuth: token },\n})\n```\n\n- La cookie de sesión del panel lleva `SameSite=Lax`: un navegador no la manda en peticiones de otro sitio.\n\n## Qué rutas existen: las banderas\n\nLas rutas bajo `core/api/` se registran según constantes de `src/app/config/constants.php`, que cada despliegue fija; una ruta de un módulo apagado responde `404`.\n\n| Bandera | Qué registra |\n| :-- | :-- |\n| `API_MODULE` | Publicaciones y noticias (`core/api/publications/…`, `core/api/news/…`) |\n| `API_USERS` | `core/api/users/…` (el inicio de sesión, `users/login/`, no depende de ella) |\n| `API_PUBLIC_SIGNUP` | La acción `register` de `core/api/users/…`; apagada de fábrica, y exige además `API_USERS` |\n| `API_TRANSLATION_MODULE` | `core/api/translations/…` |\n| `API_REPORTS` | `core/api/reports/…` y además el módulo `ReportsManage` |\n| `API_CRONJOBS` | `core/api/cron-jobs/…`. **Basta ella sola**: también registra el grupo `core/api/` |\n| `API_AI_TRANSLATIONS_ACTIVE` | No registra rutas: muestra el botón de traducir en el formulario de publicaciones (junto con `API_TRANSLATION_MODULE`) |\n| `LOCATIONS_ENABLED` | Las rutas de Ubicaciones (`locations/…`); **no** dependen de las banderas de la API |\n\nSi ninguna de `API_MODULE`, `API_TRANSLATION_MODULE`, `API_USERS`, `API_REPORTS` o `API_CRONJOBS` está activa, no se registra ninguna ruta de `core/api/`.\n\n## Extensión apagada: la ruta `external`\n\n`APIController::externalActions()` es una **muestra** para integrar una API de terceros (usa `APIExternalAdapterExample`). Su ruta, `core/api/external/{context}/{actionType}/`, está **comentada** en `APIController::routes()` y no se registra, así que no aparece en este documento. Para usarla en un clon: descomentar la ruta, sustituir el adaptador de ejemplo por el real y decidir sus roles.\n\n## Errores internos (500)\n\nFuera de local, un error interno responde con estado `500` y este cuerpo, sin más detalle:\n\n```json\n{\"success\": false, \"message\": \"Ocurrió un error interno. Si lo reporta, indique la referencia ERR-20260919-A1B2C3.\", \"reference\": \"ERR-20260919-A1B2C3\"}\n```\n\nGuarde `reference` y comuníquelo a quien mantiene la instalación: con ese código encuentra el error completo en los registros.\n\n## Importar esta API en un cliente\n\nEste documento es OpenAPI 3.1: Postman, Insomnia y la mayoría de los clientes HTTP lo importan tal cual (en Postman, «Import» y el archivo `openapi.json`), con sus rutas, parámetros y ejemplos. Pon en la variable `baseURL` la dirección de tu instalación."
   },
   "servers": [
     {
@@ -2007,7 +2007,7 @@
           "Sesión"
         ],
         "summary": "Iniciar sesión",
-        "description": "Autentica y devuelve el token de la sesión, que se manda después en la cabecera de sesión (JWTAuth por omisión). No usa sesión; la respuesta siempre es HTTP 200 salvo el freno por intentos (429): el resultado va en auth y error. La respuesta es solo ese objeto: no lleva `extras`. La contraseña puede ser también el código de un uso que el usuario pidió (ver generate-otp). Si el usuario tiene el doble factor activado y ya vio su QR, hay que mandar twoFactor; sin él o inválido responde INVALID_TWO_FACTOR_CODE. Si ya hay una sesión activa en la petición y no se manda overwriteSession=yes, responde ACTIVE_SESSION. Límite por IP: tras 5 fallos de acceso desde una IP en 15 minutos (contraseña equivocada o usuario que no existe) la IP espera 15 minutos y la ruta responde 429 con Retry-After, error TOO_MANY_ATTEMPTS y retryAfter (segundos), sin mirar usuario ni contraseña; con el doble factor, el límite es también por usuario. El acceso no distingue un usuario que no existe de una contraseña equivocada: ambos dan INCORRECT_PASSWORD. Los estados de la cuenta (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE, APPROVED_PENDING, INVALID_USER_TYPE, MAINTENANCE_MODE) solo llegan con una contraseña o un código buenos; **el fallo que completa el bloqueo bloquea la cuenta y responde INCORRECT_PASSWORD**. Si la petición lleva X-Requested-With: XMLHttpRequest el servidor además pone la cookie de sesión (HttpOnly); el cuerpo trae el token siempre. Con la cabecera isExternalLogin: yes, un tipo de usuario no habilitado para este método responde NO_EXTERNAL_LOGIN_AVAILABLE. `userData` es una lista corta de campos más `misc` (el avatar y las meta-propiedades); no lo dé por estable (ver la documentación del proyecto, «Consumir el framework sin el panel»).",
+        "description": "Autentica y devuelve el token de la sesión, que se manda después en la cabecera de sesión (JWTAuth por omisión). No usa sesión; la respuesta siempre es HTTP 200 salvo el freno por intentos (429): el resultado va en auth y error. La respuesta es solo ese objeto: no lleva `extras`. La contraseña puede ser también el código de un uso que el usuario pidió (ver generate-otp). Si el usuario tiene el doble factor activado y ya vio su QR, hay que mandar twoFactor; sin él o inválido responde INVALID_TWO_FACTOR_CODE. Si ya hay una sesión activa en la petición y no se manda overwriteSession=yes, responde ACTIVE_SESSION. Límite por IP: tras 5 fallos de acceso desde una IP en 15 minutos (contraseña equivocada o usuario que no existe) la IP espera 15 minutos y la ruta responde 429 con Retry-After, error TOO_MANY_ATTEMPTS y retryAfter (segundos), sin mirar usuario ni contraseña; con el doble factor, el límite es también por usuario. El acceso no distingue un usuario que no existe de una contraseña equivocada: ambos dan INCORRECT_PASSWORD. Los estados de la cuenta (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE, APPROVED_PENDING, INVALID_USER_TYPE, MAINTENANCE_MODE) solo llegan con una contraseña o un código buenos; **el fallo que completa el bloqueo bloquea la cuenta y responde INCORRECT_PASSWORD**. Si la petición lleva X-Requested-With: XMLHttpRequest el servidor además pone la cookie de sesión (HttpOnly); el cuerpo trae el token siempre. Con la cabecera isExternalLogin: yes, un tipo de usuario no habilitado para este método responde NO_EXTERNAL_LOGIN_AVAILABLE. `userData` es una lista corta de campos más `misc` (el avatar y las meta-propiedades); no lo dé por estable (ver la documentación del proyecto, «Consumir el framework sin el panel»). Con isExternalLogin: yes y deviceKey se abre una **sesión de app**: el token no se ata a la red, vive session_app_access_lifetime (una hora por omisión), no se pone la cookie aunque llegue X-Requested-With, y la respuesta añade refreshToken, accessTokenExpiresAt y accessTokenExpiresIn, con Cache-Control: no-store.",
         "security": [],
         "parameters": [
           {
@@ -3030,6 +3030,80 @@
           }
         }
       }
+    },
+    "/core/api/users/renew-session/": {
+      "post": {
+        "operationId": "api-admin-users-actions:renew-session",
+        "x-piecesphp-ruta": "api-admin-users-actions",
+        "x-piecesphp-accion": "renew-session",
+        "tags": [
+          "Sesión"
+        ],
+        "summary": "Renovar la sesión de una app",
+        "description": "Entrega un token de acceso nuevo a una sesión de app (la que abre el acceso con isExternalLogin y deviceKey) sin volver a pedir la contraseña. Cada llave sirve una vez: la respuesta trae la siguiente, y el token anterior deja de valer. Si la respuesta no llegó, repetir con la MISMA llave (firmando otra vez con la hora actual) devuelve la llave que no llegó. Presentar una llave más vieja cierra la sesión. Sin una firma válida no se cierra nada. Cerrar la sesión desde el panel, revocar las sesiones del usuario o todas, cambiar la contraseña desde otro sitio, desactivar al usuario o su organización, quitar a su tipo el acceso externo y cambiar la clave de la aplicación impiden renovar (REAUTH_REQUIRED). No usa sesión; solo POST (otro método da 404); los campos se leen del cuerpo, nunca de la consulta. Toda respuesta lleva Cache-Control: no-store. Durante el modo mantenimiento responde 503 aunque el tipo esté exento: conservar la llave y reintentar después. Una renovación a la vez por dispositivo, también entre procesos. Solo con la bandera API_USERS.",
+        "security": [],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RenewSessionRequest"
+        },
+        "responses": {
+          "200": {
+            "description": "Renovada: guardar el token y la llave nueva.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenewSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MISSING_OR_UNEXPECTED_PARAMS: falta un campo o no tiene la forma esperada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenewSessionError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "REAUTH_REQUIRED: la sesión ya no se puede renovar; volver a iniciar sesión sin perder lo pendiente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenewSessionError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El método no es POST, o la API de usuarios está apagada."
+          },
+          "409": {
+            "description": "CLOCK_SKEW (corregir la hora con serverTime y reintentar) o RETRY (reintentar).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenewSessionError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "UNAVAILABLE o MAINTENANCE (o el modo mantenimiento del sitio): conservar la llave y reintentar más tarde.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenewSessionError"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3470,6 +3544,31 @@
           "multipart/form-data": {
             "schema": {
               "$ref": "#/components/schemas/OtherProblemsRequest"
+            }
+          }
+        }
+      },
+      "RenewSessionRequest": {
+        "required": true,
+        "content": {
+          "application/x-www-form-urlencoded": {
+            "schema": {
+              "$ref": "#/components/schemas/RenewSessionRequest"
+            },
+            "example": {
+              "refreshToken": "AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+              "timestamp": "1764200000",
+              "signature": "<64 bytes r||s en base64>"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RenewSessionRequest"
+            },
+            "example": {
+              "refreshToken": "AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+              "timestamp": "1764200000",
+              "signature": "<64 bytes r||s en base64>"
             }
           }
         }
@@ -4492,6 +4591,11 @@
             ],
             "default": "no",
             "description": "yes para reemplazar la sesión que ya tenga la petición y generar un token nuevo (define si se sobrescribirá la sesión actual para generar un JWT nuevo)."
+          },
+          "deviceKey": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Solo con la cabecera isExternalLogin: yes. La clave pública P-256 (prime256v1) del dispositivo, en SPKI codificada en base64, generada en el almacén seguro del móvil y no exportable. Con ella el acceso abre una sesión de app (ver renew-session) si la API de usuarios está activa (API_USERS) y la instalación puede leer su llavero de claves; si no, se ignora y la sesión es la de siempre. Una clave que no sea P-256 en SPKI responde INVALID_DEVICE_KEY sin abrir ninguna sesión."
           }
         },
         "required": [
@@ -4574,7 +4678,7 @@
           },
           "error": {
             "type": "string",
-            "description": "NO_ERROR sin error. INCORRECT_PASSWORD: «Usuario o contraseña incorrectos»; el usuario no existe o la contraseña no vale (no distingue los dos casos), y es también lo que responde el fallo que completa el bloqueo de la cuenta. BLOCKED_FOR_ATTEMPTS: bloqueado por intentos fallidos. INACTIVE_USER: usuario inactivo o bloqueado. ORGANIZATION_IS_NOT_ACTIVE: la organización no está activa. APPROVED_PENDING: pendiente de aprobación (solo cuando la instalación la exige para entrar). ACTIVE_SESSION: ya hay una sesión activa. INVALID_TWO_FACTOR_CODE: falta el código twoFactor o no vale. INVALID_USER_TYPE: el tipo del usuario ya no es un rol. MAINTENANCE_MODE: el modo mantenimiento detiene a su tipo. NO_EXTERNAL_LOGIN_AVAILABLE: tipo no habilitado con isExternalLogin. MISSING_OR_UNEXPECTED_PARAMS: faltan parámetros. GENERIC_ERROR: varios errores, atender el mensaje. Los cuatro de estado (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE y APPROVED_PENDING) solo llegan con la contraseña o el código de un uso buenos. TOO_MANY_ATTEMPTS acompaña a un 429 (ver TooManyAttemptsResponse). USER_NO_EXISTS existe como código pero el acceso no lo devuelve: un usuario que no existe da INCORRECT_PASSWORD.",
+            "description": "NO_ERROR sin error. INCORRECT_PASSWORD: «Usuario o contraseña incorrectos»; el usuario no existe o la contraseña no vale (no distingue los dos casos), y es también lo que responde el fallo que completa el bloqueo de la cuenta. BLOCKED_FOR_ATTEMPTS: bloqueado por intentos fallidos. INACTIVE_USER: usuario inactivo o bloqueado. ORGANIZATION_IS_NOT_ACTIVE: la organización no está activa. APPROVED_PENDING: pendiente de aprobación (solo cuando la instalación la exige para entrar). ACTIVE_SESSION: ya hay una sesión activa. INVALID_TWO_FACTOR_CODE: falta el código twoFactor o no vale. INVALID_USER_TYPE: el tipo del usuario ya no es un rol. MAINTENANCE_MODE: el modo mantenimiento detiene a su tipo. NO_EXTERNAL_LOGIN_AVAILABLE: tipo no habilitado con isExternalLogin. INVALID_DEVICE_KEY: la clave del dispositivo no es una clave pública P-256 en SPKI (solo con isExternalLogin y deviceKey). MISSING_OR_UNEXPECTED_PARAMS: faltan parámetros. GENERIC_ERROR: varios errores, atender el mensaje. Los cuatro de estado (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE y APPROVED_PENDING) solo llegan con la contraseña o el código de un uso buenos. TOO_MANY_ATTEMPTS acompaña a un 429 (ver TooManyAttemptsResponse). USER_NO_EXISTS existe como código pero el acceso no lo devuelve: un usuario que no existe da INCORRECT_PASSWORD.",
             "enum": [
               "NO_ERROR",
               "INCORRECT_PASSWORD",
@@ -4589,7 +4693,8 @@
               "NO_EXTERNAL_LOGIN_AVAILABLE",
               "MISSING_OR_UNEXPECTED_PARAMS",
               "GENERIC_ERROR",
-              "USER_NO_EXISTS"
+              "USER_NO_EXISTS",
+              "INVALID_DEVICE_KEY"
             ]
           },
           "user": {
@@ -4602,6 +4707,19 @@
           },
           "userData": {
             "$ref": "#/components/schemas/UserDataLogin"
+          },
+          "refreshToken": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{22}\\.[A-Za-z0-9_-]{43}$",
+            "description": "Solo en una sesión de app: la llave de renovación de un solo uso, `<selector>.<verificador>`. Se guarda fuera de las copias de seguridad."
+          },
+          "accessTokenExpiresAt": {
+            "type": "integer",
+            "description": "Solo en una sesión de app: cuándo caduca el token, en segundos Unix."
+          },
+          "accessTokenExpiresIn": {
+            "type": "integer",
+            "description": "Solo en una sesión de app: segundos que le quedan al token."
           }
         },
         "required": [
@@ -5593,6 +5711,92 @@
             "type": "integer"
           }
         }
+      },
+      "RenewSessionRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{22}\\.[A-Za-z0-9_-]{43}$",
+            "description": "La llave de renovación que dio el acceso o la renovación anterior."
+          },
+          "timestamp": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{9}$",
+            "description": "La hora del dispositivo en segundos Unix, COMO CADENA (un número JSON responde 400). Tiene que estar a 300 segundos o menos de la del servidor y ser mayor que la de la renovación anterior."
+          },
+          "signature": {
+            "type": "string",
+            "description": "La firma ECDSA P-256 con SHA-256 de la cadena exacta `pcsphp-renew-session-v1|<refreshToken>|<timestamp>`, en formato r||s de 64 bytes (IEEE P1363, el de WebCrypto) y codificada en base64 estándar (no base64url). Android e iOS entregan DER: hay que convertirla."
+          }
+        },
+        "required": [
+          "refreshToken",
+          "timestamp",
+          "signature"
+        ]
+      },
+      "RenewSessionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": true
+          },
+          "token": {
+            "type": "string",
+            "description": "El token de acceso nuevo; el anterior deja de valer."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "La llave para la próxima renovación; la presentada ya no vale."
+          },
+          "accessTokenExpiresAt": {
+            "type": "integer"
+          },
+          "accessTokenExpiresIn": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "success",
+          "token",
+          "refreshToken",
+          "accessTokenExpiresAt",
+          "accessTokenExpiresIn"
+        ]
+      },
+      "RenewSessionError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "const": false
+          },
+          "error": {
+            "type": "string",
+            "enum": [
+              "MISSING_OR_UNEXPECTED_PARAMS",
+              "CLOCK_SKEW",
+              "UNAVAILABLE",
+              "REAUTH_REQUIRED",
+              "RETRY",
+              "MAINTENANCE"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "serverTime": {
+            "type": "integer",
+            "description": "Solo con CLOCK_SKEW: la hora del servidor en segundos Unix."
+          }
+        },
+        "required": [
+          "success",
+          "error",
+          "message"
+        ]
       }
     }
   }

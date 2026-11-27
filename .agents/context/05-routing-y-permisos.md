@@ -469,10 +469,32 @@ Y el helper global `getLoggedFrameworkUser()` devuelve el usuario en sesión
   desbloqueo por correo (`UserProblemsController.php:400`) sigue exigiendo el contador al tope: no lo quites.
   La IP es la de `VisitorIP::get()` (`clientIP()`): `REMOTE_ADDR`, o `X-Forwarded-For` solo si `REMOTE_ADDR` está en
   `trusted_proxies`; detrás de un proxy sin declarar, todos comparten una.
-- **Los problemas de acceso frenan por IP** (JPD, `86b3c4608`, `ece3cc1fc`; H527): `resolveProblem()` llama a
+- **Sesiones de app** (ADR 0092; R1 JPG `3d250a96e`, R2 JPH `b31d841d3`, R3 JPI `c38b0cfb1`, `4a3c1dfd5`): la fila
+  lleva `kind` (`web`/`app`); `tokenLifetime()`, `expiryAt()`, `ceiling()`, `extend()` y `recordActivity()` miran el kind
+  y con `app` usan `session_app_*`; con `web`, idéntico a antes (lo congela `core/app-sessions` a1). `renewExpired` de
+  `index.php` usa `UserSessions::identifierIsRenewable()` (solo web; un kind desconocido no es renovable):
+  `identifierIsOpen()` incluye filas app; no lo uses para renovar. La renovación vive en `AppSessionRenewal` (la acción
+  `renew-session` de `core/api/users/`): los pasos del ADR §4 en orden; el `sid` ROTA en cada renovación (la fila solo
+  guarda su hash: enmienda del ADR); la elegibilidad (`rowMayRenew`) usa las mismas piezas que index.php pero compara las
+  marcas con el `createdAt` de la FILA. **Divergencia declarada**: index.php no mira `hasExternalLogin`, la renovación sí;
+  el token ya entregado vale hasta su caducidad (una hora de fábrica). **El mantenimiento corta la renovación** antes del
+  controlador (no está en `MaintenanceMode::ALWAYS_ALLOWED`; P423). Rotar la clave cierra las filas app dentro de la
+  transacción de `KeyRotation::rotate()` (solo si sus sitios incluyen `session-refresh-pending`: las suites que rotan
+  sitios propios no cierran sesiones reales) y tras `AppKeyCommands::generate()`; `Config::first_boot_keyring()` NO
+  cierra (decidido: solo con la clave de relleno). Cerrar una fila deja `refreshPending` NULL. La tabla de verdad es
+  `databases/piecesphp_structure.sql`: el mapper declara `varchar` donde el esquema dice `char` y no lleva el índice
+  único ni la intercalación de `refreshSelector`. Ninguna ruta del framework declara `->renewExpired(true)`: su prueba es
+  estructural (a6b). Fotos que cuentan lo que el diseño añade: `core/app-key-crypto` f2, `core/ai-speech` 4a (propósitos
+  de sellado, hoy 8) y `core/session-contract` i5 (llamadas que emiten token, hoy 4).
+- **Los problemas de acceso frenan por IP** (H527, cerrada en la `v10.69.0`: JPD, JPE, JPF): `resolveProblem()` llama a
   `OTPRateLimiter::secondsToUnlock('', ip)` ANTES de `UserProblemsModel::exist()` con la vía `user-problem-code`, DENTRO
   de `VIAS` (comparte el presupuesto por IP con el OTP y la recuperación); el código no dice de quién es hasta encontrarlo,
-  así que solo cuenta la IP. «Otros problemas» usa `ipSendLimitReached()` con `other-problems-send`, FUERA de `VIAS`.
+  así que solo cuenta la IP; el fallo se registra con el `userID` del dueño y SIN nombre (si no, gastaría su
+  presupuesto por usuario en las demás vías), y `windowRows()` con `trim($username) === ''` no filtra por usuario.
+  «Otros problemas» usa `ipSendLimitReached()` con `other-problems-send`, FUERA de `VIAS`: registra el INTENTO antes de
+  enviar y como fallo (no es un acceso) y cuenta las filas de la vía sin mirar `success`, salvo las `otpLocked`. Sin la
+  columna `extraData` ese fallo lo contarían los frenos del login (H528). Un código nuevo caduca los anteriores del mismo
+  correo y tipo (`UserProblemsModel::expireValidFor()`) y solo resuelve el último (`latestIDFor()`, por id).
   `core/otp-rate-limiter` fija la lista literal de `VIAS`: una vía nueva la pone al día a propósito. Lo que no cubre
   (muchas IP, CSRF que frena la IP de otro, oráculo sin FPM), en H528.
 - **La contraseña antes que el estado** (IM, `4212f66d`, P201): `login()` comprueba contraseña u OTP ANTES de mirar el

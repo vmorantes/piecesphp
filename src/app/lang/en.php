@@ -132,6 +132,7 @@ $lang = [
         'INVALID_TWO_FACTOR_CODE'      => 'Invalid two-factor authentication code.',
         'APPROVED_PENDING'             => 'Pending approval',
         'INVALID_USER_TYPE'            => 'Your account does not have a valid user type. Ask an administrator to assign you one.',
+        'INVALID_DEVICE_KEY'           => 'The device key is not valid.',
     ],
     'avatarModule' => [
         'Ha ocurrido un error desconocido, intente más tarde.' => 'An unknown error has occurred, try later.',

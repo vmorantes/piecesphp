@@ -7,7 +7,7 @@ use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
  * solo lo que quien mira puede ver.
  *
  * @var string $langGroup
- * @var array<int,array{browser:string,ip:string,createdAt:string,lastActivityAt:string,expiresAt:string,current:bool,actions:string}> $rows Las tres fechas, ya en `<time>` y escapadas
+ * @var array<int,array{browser:string,deviceKey:string|null,ip:string,createdAt:string,lastActivityAt:string,expiresAt:string,current:bool,actions:string}> $rows Las tres fechas, ya en `<time>` y escapadas
  * @var bool $mine
  * @var string $closeOthersURL
  */
@@ -32,6 +32,9 @@ use PiecesPHP\Core\Utilities\Helpers\StatusLabel;
             <tr data-session-current="<?= $row['current'] ? 'yes' : 'no'; ?>">
                 <td data-label="<?= escape_html(__($langGroup, 'Navegador')); ?>">
                     <?= escape_html($row['browser']); ?>
+                    <?php if ($row['deviceKey'] !== null): ?>
+                    <br><small class="ui muted text"><?= escape_html($row['deviceKey']); ?></small>
+                    <?php endif; ?>
                     <?php if ($row['current']): ?>
                     <?= StatusLabel::html(__($langGroup, 'Actual'), StatusLabel::POSITIVE); ?>
                     <?php endif; ?>

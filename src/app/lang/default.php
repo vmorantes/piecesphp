@@ -106,6 +106,7 @@ $lang = [
         'INVALID_TWO_FACTOR_CODE'      => 'Código autenticación de doble factor inválido.',
         'APPROVED_PENDING'             => 'Pendiente de aprobación',
         'INVALID_USER_TYPE'            => 'Tu cuenta no tiene un tipo de usuario válido. Pide a un administrador que te asigne uno.',
+        'INVALID_DEVICE_KEY'           => 'La clave del dispositivo no es válida.',
     ],
     'avatarModule' => [
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',

@@ -477,6 +477,9 @@ class SettingsController extends AdminPanelController
         'hide_app_key_warning',
         \PiecesPHP\Core\SessionToken::INACTIVITY_CONFIG,
         \PiecesPHP\Core\SessionToken::CEILING_CONFIG,
+        \PiecesPHP\Core\SessionToken::APP_ACCESS_LIFETIME_CONFIG,
+        \PiecesPHP\Core\SessionToken::APP_INACTIVITY_CONFIG,
+        \PiecesPHP\Core\SessionToken::APP_CEILING_CONFIG,
     ];
     /**
      * Solo el centro de mando (ADR 0074 y 0077): las opciones de antes (claves, modelos y translationAI) ya no se escriben
@@ -2671,6 +2674,41 @@ class SettingsController extends AdminPanelController
                         return (int) $value * 86400;
                     }
                 ),
+                //Las sesiones de app (ADR 0092 §3): la vida del acceso en minutos en el formulario; las otras dos, en días.
+                \PiecesPHP\Core\SessionToken::APP_ACCESS_LIFETIME_CONFIG => new Parameter(
+                    \PiecesPHP\Core\SessionToken::APP_ACCESS_LIFETIME_CONFIG,
+                    null,
+                    function ($value) {
+                        //Se valida dos veces: lo que llega (minutos, en texto) y lo que devuelve parse() (segundos, entero).
+                        return is_int($value) ? \PiecesPHP\Core\SessionToken::appAccessLifetimeIsValid($value) : Validator::isInteger($value) && (int) $value >= 5 && (int) $value <= 1440;
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value * 60;
+                    }
+                ),
+                \PiecesPHP\Core\SessionToken::APP_INACTIVITY_CONFIG => new Parameter(
+                    \PiecesPHP\Core\SessionToken::APP_INACTIVITY_CONFIG,
+                    null,
+                    function ($value) {
+                        return is_int($value) ? \PiecesPHP\Core\SessionToken::lifetimeIsValid($value) : Validator::isInteger($value) && (int) $value >= 0 && (int) $value <= 365;
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value * 86400;
+                    }
+                ),
+                \PiecesPHP\Core\SessionToken::APP_CEILING_CONFIG => new Parameter(
+                    \PiecesPHP\Core\SessionToken::APP_CEILING_CONFIG,
+                    null,
+                    function ($value) {
+                        return is_int($value) ? \PiecesPHP\Core\SessionToken::lifetimeIsValid($value) : Validator::isInteger($value) && (int) $value >= 0 && (int) $value <= 365;
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value * 86400;
+                    }
+                ),
                 \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => new Parameter(
                     \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG,
                     null,
@@ -2769,6 +2807,15 @@ class SettingsController extends AdminPanelController
                         ]),
                         \PiecesPHP\Core\SessionToken::CEILING_CONFIG => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
                             '%s' => __(self::LANG_GROUP, 'Días desde que se abrió que la cierran (tope)'),
+                        ]),
+                        \PiecesPHP\Core\SessionToken::APP_ACCESS_LIFETIME_CONFIG => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
+                            '%s' => __(self::LANG_GROUP, 'Minutos que vale el acceso de una app'),
+                        ]),
+                        \PiecesPHP\Core\SessionToken::APP_INACTIVITY_CONFIG => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
+                            '%s' => __(self::LANG_GROUP, 'Días sin actividad que cierran la sesión de una app'),
+                        ]),
+                        \PiecesPHP\Core\SessionToken::APP_CEILING_CONFIG => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
+                            '%s' => __(self::LANG_GROUP, 'Tope en días de la sesión de una app'),
                         ]),
                         'translationAIEnable' => __(self::LANG_GROUP, 'Configuración de traducción con IA actualizada'),
                         \API\Controllers\APIController::TRANSLATION_AI_USER_TYPES_CONFIG => __(self::LANG_GROUP, 'Quién puede traducir con IA actualizado'),

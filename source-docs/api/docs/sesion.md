@@ -12,7 +12,7 @@ Ruta interna: `users-login-request`.
 
 Autenticación: sin sesión.
 
-Autentica y devuelve el token de la sesión, que se manda después en la cabecera de sesión (JWTAuth por omisión). No usa sesión; la respuesta siempre es HTTP 200 salvo el freno por intentos (429): el resultado va en auth y error. La respuesta es solo ese objeto: no lleva `extras`. La contraseña puede ser también el código de un uso que el usuario pidió (ver generate-otp). Si el usuario tiene el doble factor activado y ya vio su QR, hay que mandar twoFactor; sin él o inválido responde INVALID_TWO_FACTOR_CODE. Si ya hay una sesión activa en la petición y no se manda overwriteSession=yes, responde ACTIVE_SESSION. Límite por IP: tras 5 fallos de acceso desde una IP en 15 minutos (contraseña equivocada o usuario que no existe) la IP espera 15 minutos y la ruta responde 429 con Retry-After, error TOO_MANY_ATTEMPTS y retryAfter (segundos), sin mirar usuario ni contraseña; con el doble factor, el límite es también por usuario. El acceso no distingue un usuario que no existe de una contraseña equivocada: ambos dan INCORRECT_PASSWORD. Los estados de la cuenta (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE, APPROVED_PENDING, INVALID_USER_TYPE, MAINTENANCE_MODE) solo llegan con una contraseña o un código buenos; **el fallo que completa el bloqueo bloquea la cuenta y responde INCORRECT_PASSWORD**. Si la petición lleva X-Requested-With: XMLHttpRequest el servidor además pone la cookie de sesión (HttpOnly); el cuerpo trae el token siempre. Con la cabecera isExternalLogin: yes, un tipo de usuario no habilitado para este método responde NO_EXTERNAL_LOGIN_AVAILABLE. `userData` es una lista corta de campos más `misc` (el avatar y las meta-propiedades); no lo dé por estable (ver la documentación del proyecto, «Consumir el framework sin el panel»).
+Autentica y devuelve el token de la sesión, que se manda después en la cabecera de sesión (JWTAuth por omisión). No usa sesión; la respuesta siempre es HTTP 200 salvo el freno por intentos (429): el resultado va en auth y error. La respuesta es solo ese objeto: no lleva `extras`. La contraseña puede ser también el código de un uso que el usuario pidió (ver generate-otp). Si el usuario tiene el doble factor activado y ya vio su QR, hay que mandar twoFactor; sin él o inválido responde INVALID_TWO_FACTOR_CODE. Si ya hay una sesión activa en la petición y no se manda overwriteSession=yes, responde ACTIVE_SESSION. Límite por IP: tras 5 fallos de acceso desde una IP en 15 minutos (contraseña equivocada o usuario que no existe) la IP espera 15 minutos y la ruta responde 429 con Retry-After, error TOO_MANY_ATTEMPTS y retryAfter (segundos), sin mirar usuario ni contraseña; con el doble factor, el límite es también por usuario. El acceso no distingue un usuario que no existe de una contraseña equivocada: ambos dan INCORRECT_PASSWORD. Los estados de la cuenta (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE, APPROVED_PENDING, INVALID_USER_TYPE, MAINTENANCE_MODE) solo llegan con una contraseña o un código buenos; **el fallo que completa el bloqueo bloquea la cuenta y responde INCORRECT_PASSWORD**. Si la petición lleva X-Requested-With: XMLHttpRequest el servidor además pone la cookie de sesión (HttpOnly); el cuerpo trae el token siempre. Con la cabecera isExternalLogin: yes, un tipo de usuario no habilitado para este método responde NO_EXTERNAL_LOGIN_AVAILABLE. `userData` es una lista corta de campos más `misc` (el avatar y las meta-propiedades); no lo dé por estable (ver la documentación del proyecto, «Consumir el framework sin el panel»). Con isExternalLogin: yes y deviceKey se abre una **sesión de app**: el token no se ata a la red, vive session_app_access_lifetime (una hora por omisión), no se pone la cookie aunque llegue X-Requested-With, y la respuesta añade refreshToken, accessTokenExpiresAt y accessTokenExpiresIn, con Cache-Control: no-store.
 
 ### Parámetros
 
@@ -37,6 +37,7 @@ Tipo: object (LoginRequest).
 | `password` | string | sí | Contraseña, o el código de un uso pedido por correo. |
 | `twoFactor` | string | no | Código del segundo factor (TOTP). Obligatorio solo si el usuario lo tiene activado y ya vio su código QR; si falta o es inválido, el acceso responde INVALID_TWO_FACTOR_CODE. Con el usuario o la IP bloqueados por el límite del segundo factor, la ruta responde 429 con Retry-After. |
 | `overwriteSession` | string · uno de `"yes"`, `"no"`; por omisión `"no"` | no | yes para reemplazar la sesión que ya tenga la petición y generar un token nuevo (define si se sobrescribirá la sesión actual para generar un JWT nuevo). |
+| `deviceKey` | string | no | Solo con la cabecera isExternalLogin: yes. La clave pública P-256 (prime256v1) del dispositivo, en SPKI codificada en base64, generada en el almacén seguro del móvil y no exportable. Con ella el acceso abre una sesión de app (ver renew-session) si la API de usuarios está activa (API_USERS) y la instalación puede leer su llavero de claves; si no, se ignora y la sesión es la de siempre. Una clave que no sea P-256 en SPKI responde INVALID_DEVICE_KEY sin abrir ninguna sesión. |
 
 Ejemplo:
 
@@ -58,6 +59,7 @@ Tipo: object (LoginRequest).
 | `password` | string | sí | Contraseña, o el código de un uso pedido por correo. |
 | `twoFactor` | string | no | Código del segundo factor (TOTP). Obligatorio solo si el usuario lo tiene activado y ya vio su código QR; si falta o es inválido, el acceso responde INVALID_TWO_FACTOR_CODE. Con el usuario o la IP bloqueados por el límite del segundo factor, la ruta responde 429 con Retry-After. |
 | `overwriteSession` | string · uno de `"yes"`, `"no"`; por omisión `"no"` | no | yes para reemplazar la sesión que ya tenga la petición y generar un token nuevo (define si se sobrescribirá la sesión actual para generar un JWT nuevo). |
+| `deviceKey` | string | no | Solo con la cabecera isExternalLogin: yes. La clave pública P-256 (prime256v1) del dispositivo, en SPKI codificada en base64, generada en el almacén seguro del móvil y no exportable. Con ella el acceso abre una sesión de app (ver renew-session) si la API de usuarios está activa (API_USERS) y la instalación puede leer su llavero de claves; si no, se ignora y la sesión es la de siempre. Una clave que no sea P-256 en SPKI responde INVALID_DEVICE_KEY sin abrir ninguna sesión. |
 
 Ejemplo:
 
@@ -86,7 +88,7 @@ El resultado del acceso: un objeto plano, no un ResultOperations (no lleva `extr
 | `auth` | boolean | sí | Si la autenticación se llevó a cabo. |
 | `isAuth` | boolean | sí | Si ya se estaba autenticado al intentar autenticarse (con ACTIVE_SESSION). |
 | `token` | string | sí | El token de la sesión; vacío si no hubo autenticación. |
-| `error` | string · uno de `"NO_ERROR"`, `"INCORRECT_PASSWORD"`, `"BLOCKED_FOR_ATTEMPTS"`, `"INACTIVE_USER"`, `"ORGANIZATION_IS_NOT_ACTIVE"`, `"APPROVED_PENDING"`, `"ACTIVE_SESSION"`, `"INVALID_TWO_FACTOR_CODE"`, `"INVALID_USER_TYPE"`, `"MAINTENANCE_MODE"`, `"NO_EXTERNAL_LOGIN_AVAILABLE"`, `"MISSING_OR_UNEXPECTED_PARAMS"`, `"GENERIC_ERROR"`, `"USER_NO_EXISTS"` | sí | NO_ERROR sin error. INCORRECT_PASSWORD: «Usuario o contraseña incorrectos»; el usuario no existe o la contraseña no vale (no distingue los dos casos), y es también lo que responde el fallo que completa el bloqueo de la cuenta. BLOCKED_FOR_ATTEMPTS: bloqueado por intentos fallidos. INACTIVE_USER: usuario inactivo o bloqueado. ORGANIZATION_IS_NOT_ACTIVE: la organización no está activa. APPROVED_PENDING: pendiente de aprobación (solo cuando la instalación la exige para entrar). ACTIVE_SESSION: ya hay una sesión activa. INVALID_TWO_FACTOR_CODE: falta el código twoFactor o no vale. INVALID_USER_TYPE: el tipo del usuario ya no es un rol. MAINTENANCE_MODE: el modo mantenimiento detiene a su tipo. NO_EXTERNAL_LOGIN_AVAILABLE: tipo no habilitado con isExternalLogin. MISSING_OR_UNEXPECTED_PARAMS: faltan parámetros. GENERIC_ERROR: varios errores, atender el mensaje. Los cuatro de estado (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE y APPROVED_PENDING) solo llegan con la contraseña o el código de un uso buenos. TOO_MANY_ATTEMPTS acompaña a un 429 (ver TooManyAttemptsResponse). USER_NO_EXISTS existe como código pero el acceso no lo devuelve: un usuario que no existe da INCORRECT_PASSWORD. |
+| `error` | string · uno de `"NO_ERROR"`, `"INCORRECT_PASSWORD"`, `"BLOCKED_FOR_ATTEMPTS"`, `"INACTIVE_USER"`, `"ORGANIZATION_IS_NOT_ACTIVE"`, `"APPROVED_PENDING"`, `"ACTIVE_SESSION"`, `"INVALID_TWO_FACTOR_CODE"`, `"INVALID_USER_TYPE"`, `"MAINTENANCE_MODE"`, `"NO_EXTERNAL_LOGIN_AVAILABLE"`, `"MISSING_OR_UNEXPECTED_PARAMS"`, `"GENERIC_ERROR"`, `"USER_NO_EXISTS"`, `"INVALID_DEVICE_KEY"` | sí | NO_ERROR sin error. INCORRECT_PASSWORD: «Usuario o contraseña incorrectos»; el usuario no existe o la contraseña no vale (no distingue los dos casos), y es también lo que responde el fallo que completa el bloqueo de la cuenta. BLOCKED_FOR_ATTEMPTS: bloqueado por intentos fallidos. INACTIVE_USER: usuario inactivo o bloqueado. ORGANIZATION_IS_NOT_ACTIVE: la organización no está activa. APPROVED_PENDING: pendiente de aprobación (solo cuando la instalación la exige para entrar). ACTIVE_SESSION: ya hay una sesión activa. INVALID_TWO_FACTOR_CODE: falta el código twoFactor o no vale. INVALID_USER_TYPE: el tipo del usuario ya no es un rol. MAINTENANCE_MODE: el modo mantenimiento detiene a su tipo. NO_EXTERNAL_LOGIN_AVAILABLE: tipo no habilitado con isExternalLogin. INVALID_DEVICE_KEY: la clave del dispositivo no es una clave pública P-256 en SPKI (solo con isExternalLogin y deviceKey). MISSING_OR_UNEXPECTED_PARAMS: faltan parámetros. GENERIC_ERROR: varios errores, atender el mensaje. Los cuatro de estado (BLOCKED_FOR_ATTEMPTS, INACTIVE_USER, ORGANIZATION_IS_NOT_ACTIVE y APPROVED_PENDING) solo llegan con la contraseña o el código de un uso buenos. TOO_MANY_ATTEMPTS acompaña a un 429 (ver TooManyAttemptsResponse). USER_NO_EXISTS existe como código pero el acceso no lo devuelve: un usuario que no existe da INCORRECT_PASSWORD. |
 | `user` | string | sí | El nombre de usuario recibido. |
 | `message` | string | sí | Mensaje de error, si corresponde. |
 | `userData` | object (UserDataLogin) | sí | Lista corta de campos del usuario (UsersController::LOGIN_USER_DATA_FIELDS) más misc, que lleva el avatar y también las meta-propiedades del usuario. Vacío si no hubo autenticación. No se debe dar por estable (ver la documentación del proyecto, «Consumir el framework sin el panel»). |
@@ -103,6 +105,9 @@ El resultado del acceso: un objeto plano, no un ResultOperations (no lleva `extr
 | `userData.misc.avatar` | string \| null | no | URL absoluta del avatar (<baseURL>/statics/uploads/avatars/<id>/avatar.jpg), o null si no tiene. |
 | `userData.misc.*` | cualquiera | no | Admite más claves que las de esta tabla. |
 | `userData.*` | cualquiera | no | Admite más claves que las de esta tabla. |
+| `refreshToken` | string | no | Solo en una sesión de app: la llave de renovación de un solo uso, `<selector>.<verificador>`. Se guarda fuera de las copias de seguridad. |
+| `accessTokenExpiresAt` | integer | no | Solo en una sesión de app: cuándo caduca el token, en segundos Unix. |
+| `accessTokenExpiresIn` | integer | no | Solo en una sesión de app: segundos que le quedan al token. |
 
 Ejemplo:
 
@@ -270,6 +275,166 @@ Tipo: object.
 | :-- | :-- | :-- | :-- |
 | `error` | string · siempre `"RESTRICTED_AREA"` | no |  |
 | `message` | string | no |  |
+
+#### 500 (InternalError)
+
+Error interno. Fuera de local el cuerpo no da más detalle: guarde reference y comuníquelo a quien mantiene la instalación.
+
+`application/json`
+
+Tipo: object.
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | no |  |
+| `message` | string | no |  |
+| `reference` | string | no | Código ERR-AAAAMMDD-XXXXXX para buscar el error en los registros. |
+
+Ejemplo:
+
+```json
+{
+  "success": false,
+  "message": "Ocurrió un error interno. Si lo reporta, indique la referencia ERR-20260919-A1B2C3.",
+  "reference": "ERR-20260919-A1B2C3"
+}
+```
+
+## Renovar la sesión de una app
+
+`POST /core/api/users/renew-session/`
+
+Ruta interna: `api-admin-users-actions` · acción `renew-session`.
+
+Autenticación: sin sesión.
+
+Entrega un token de acceso nuevo a una sesión de app (la que abre el acceso con isExternalLogin y deviceKey) sin volver a pedir la contraseña. Cada llave sirve una vez: la respuesta trae la siguiente, y el token anterior deja de valer. Si la respuesta no llegó, repetir con la MISMA llave (firmando otra vez con la hora actual) devuelve la llave que no llegó. Presentar una llave más vieja cierra la sesión. Sin una firma válida no se cierra nada. Cerrar la sesión desde el panel, revocar las sesiones del usuario o todas, cambiar la contraseña desde otro sitio, desactivar al usuario o su organización, quitar a su tipo el acceso externo y cambiar la clave de la aplicación impiden renovar (REAUTH_REQUIRED). No usa sesión; solo POST (otro método da 404); los campos se leen del cuerpo, nunca de la consulta. Toda respuesta lleva Cache-Control: no-store. Durante el modo mantenimiento responde 503 aunque el tipo esté exento: conservar la llave y reintentar después. Una renovación a la vez por dispositivo, también entre procesos. Solo con la bandera API_USERS.
+
+### Cuerpo
+
+Obligatorio: sí. (RenewSessionRequest)
+
+`application/x-www-form-urlencoded`
+
+Tipo: object (RenewSessionRequest).
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `refreshToken` | string | sí | La llave de renovación que dio el acceso o la renovación anterior. |
+| `timestamp` | string | sí | La hora del dispositivo en segundos Unix, COMO CADENA (un número JSON responde 400). Tiene que estar a 300 segundos o menos de la del servidor y ser mayor que la de la renovación anterior. |
+| `signature` | string | sí | La firma ECDSA P-256 con SHA-256 de la cadena exacta `pcsphp-renew-session-v1\|<refreshToken>\|<timestamp>`, en formato r\|\|s de 64 bytes (IEEE P1363, el de WebCrypto) y codificada en base64 estándar (no base64url). Android e iOS entregan DER: hay que convertirla. |
+
+Ejemplo:
+
+```json
+{
+  "refreshToken": "AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "timestamp": "1764200000",
+  "signature": "<64 bytes r||s en base64>"
+}
+```
+
+`application/json`
+
+Tipo: object (RenewSessionRequest).
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `refreshToken` | string | sí | La llave de renovación que dio el acceso o la renovación anterior. |
+| `timestamp` | string | sí | La hora del dispositivo en segundos Unix, COMO CADENA (un número JSON responde 400). Tiene que estar a 300 segundos o menos de la del servidor y ser mayor que la de la renovación anterior. |
+| `signature` | string | sí | La firma ECDSA P-256 con SHA-256 de la cadena exacta `pcsphp-renew-session-v1\|<refreshToken>\|<timestamp>`, en formato r\|\|s de 64 bytes (IEEE P1363, el de WebCrypto) y codificada en base64 estándar (no base64url). Android e iOS entregan DER: hay que convertirla. |
+
+Ejemplo:
+
+```json
+{
+  "refreshToken": "AAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "timestamp": "1764200000",
+  "signature": "<64 bytes r||s en base64>"
+}
+```
+
+### Respuestas
+
+#### 200
+
+Renovada: guardar el token y la llave nueva.
+
+`application/json`
+
+Tipo: object (RenewSessionResponse).
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `true` | sí |  |
+| `token` | string | sí | El token de acceso nuevo; el anterior deja de valer. |
+| `refreshToken` | string | sí | La llave para la próxima renovación; la presentada ya no vale. |
+| `accessTokenExpiresAt` | integer | sí |  |
+| `accessTokenExpiresIn` | integer | sí |  |
+
+#### 400
+
+MISSING_OR_UNEXPECTED_PARAMS: falta un campo o no tiene la forma esperada.
+
+`application/json`
+
+Tipo: object (RenewSessionError).
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | sí |  |
+| `error` | string · uno de `"MISSING_OR_UNEXPECTED_PARAMS"`, `"CLOCK_SKEW"`, `"UNAVAILABLE"`, `"REAUTH_REQUIRED"`, `"RETRY"`, `"MAINTENANCE"` | sí |  |
+| `message` | string | sí |  |
+| `serverTime` | integer | no | Solo con CLOCK_SKEW: la hora del servidor en segundos Unix. |
+
+#### 401
+
+REAUTH_REQUIRED: la sesión ya no se puede renovar; volver a iniciar sesión sin perder lo pendiente.
+
+`application/json`
+
+Tipo: object (RenewSessionError).
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | sí |  |
+| `error` | string · uno de `"MISSING_OR_UNEXPECTED_PARAMS"`, `"CLOCK_SKEW"`, `"UNAVAILABLE"`, `"REAUTH_REQUIRED"`, `"RETRY"`, `"MAINTENANCE"` | sí |  |
+| `message` | string | sí |  |
+| `serverTime` | integer | no | Solo con CLOCK_SKEW: la hora del servidor en segundos Unix. |
+
+#### 404
+
+El método no es POST, o la API de usuarios está apagada.
+
+#### 409
+
+CLOCK_SKEW (corregir la hora con serverTime y reintentar) o RETRY (reintentar).
+
+`application/json`
+
+Tipo: object (RenewSessionError).
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | sí |  |
+| `error` | string · uno de `"MISSING_OR_UNEXPECTED_PARAMS"`, `"CLOCK_SKEW"`, `"UNAVAILABLE"`, `"REAUTH_REQUIRED"`, `"RETRY"`, `"MAINTENANCE"` | sí |  |
+| `message` | string | sí |  |
+| `serverTime` | integer | no | Solo con CLOCK_SKEW: la hora del servidor en segundos Unix. |
+
+#### 503
+
+UNAVAILABLE o MAINTENANCE (o el modo mantenimiento del sitio): conservar la llave y reintentar más tarde.
+
+`application/json`
+
+Tipo: object (RenewSessionError).
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | sí |  |
+| `error` | string · uno de `"MISSING_OR_UNEXPECTED_PARAMS"`, `"CLOCK_SKEW"`, `"UNAVAILABLE"`, `"REAUTH_REQUIRED"`, `"RETRY"`, `"MAINTENANCE"` | sí |  |
+| `message` | string | sí |  |
+| `serverTime` | integer | no | Solo con CLOCK_SKEW: la hora del servidor en segundos Unix. |
 
 #### 500 (InternalError)
 

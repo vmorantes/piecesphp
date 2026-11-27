@@ -122,7 +122,7 @@ en cada petición. No decidas permisos en tu aplicación con el contenido del to
 **4. Caducidad.** La manda la fila de la sesión en el servidor, no el token. Por omisión, la sesión se cierra tras
 **31 días sin actividad** (cada uso corre la caducidad) y, pase lo que pase, a los **365 días** de abrirse. Las dos
 cosas se configuran en Configuración › Seguridad, en días (0 a 365); en la configuración son `session_inactivity` y
-`session_ceiling`, en segundos. **Con 0 no caducan**: sirve para aplicaciones que trabajan sin conexión y sincronizan al volver. Toda sesión se puede
+`session_ceiling`, en segundos. **Con 0 no caducan**: sirve para aplicaciones que trabajan sin conexión y sincronizan al volver. Una app móvil que entra con la clave de su dispositivo tiene su propia sesión, con su vida aparte (bloque «Sesiones de aplicaciones móviles» de la misma pantalla) y renovación sin volver a pedir la contraseña: ver «La sesión del panel», «La sesión de una app». Toda sesión se puede
 cerrar desde «Mis sesiones» o por un administrador. Un token caducado deja de valer; el candado por cliente, si está activo, se
 calcula con la dirección del visitante y el nombre de la máquina, así que **un cambio de nombre del servidor invalida
 las sesiones**.

@@ -128,6 +128,8 @@ class LogsMapper extends EntityMapperExtensible
     const MSG_SESSION_CLOSED = 'SESSION_CLOSED';
     const MSG_SESSION_EXTENDED = 'SESSION_EXTENDED';
     const MSG_OTHER_SESSIONS_CLOSED = 'OTHER_SESSIONS_CLOSED';
+    //Una sesión de app cerrada porque alguien con la clave del dispositivo repitió una llave de renovación ya usada (ADR 0092).
+    const MSG_SESSION_REFRESH_REUSE = 'SESSION_REFRESH_REUSE';
     //Tokens y códigos (Registros › Tokens y códigos). Nunca con el valor del código en las variables.
     const MSG_TOKEN_ISSUED = 'TOKEN_ISSUED';
     const MSG_TOKEN_USED = 'TOKEN_USED';
@@ -161,6 +163,7 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_SESSION_CLOSED => '%username% cerró una sesión de %target% (%reason%).',
         self::MSG_SESSION_EXTENDED => '%username% extendió una sesión de %target% hasta el %until%.',
         self::MSG_OTHER_SESSIONS_CLOSED => '%username% cerró %count% de sus otras sesiones.',
+        self::MSG_SESSION_REFRESH_REUSE => 'Se presentó una llave de renovación ya usada en una sesión de app de %username%; la sesión se cerró.',
         self::MSG_TOKEN_ISSUED => 'Se emitió un código (%kind%) para %target%.',
         self::MSG_TOKEN_USED => 'Se usó un código (%kind%) de %target%.',
         self::MSG_TOKEN_REJECTED => 'Se rechazó un código (%kind%) para %target%: %reason%.',
@@ -335,6 +338,7 @@ class LogsMapper extends EntityMapperExtensible
             self::MSG_SESSION_CLOSED => __(self::LANG_GROUP, 'Sesión cerrada'),
             self::MSG_SESSION_EXTENDED => __(self::LANG_GROUP, 'Sesión extendida'),
             self::MSG_OTHER_SESSIONS_CLOSED => __(self::LANG_GROUP, 'Otras sesiones propias cerradas'),
+            self::MSG_SESSION_REFRESH_REUSE => __(self::LANG_GROUP, 'Llave de renovación reutilizada'),
             self::MSG_TOKEN_ISSUED => __(self::LANG_GROUP, 'Código emitido'),
             self::MSG_TOKEN_USED => __(self::LANG_GROUP, 'Código usado'),
             self::MSG_TOKEN_REJECTED => __(self::LANG_GROUP, 'Código rechazado'),
