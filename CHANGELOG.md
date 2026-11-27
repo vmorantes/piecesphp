@@ -1,3 +1,18 @@
+# 10.73.0 (27-11-2026)
+
+- **Seguridad: los avisos del panel que nombran a otro usuario lo muestran siempre como texto.** Un nombre de usuario
+  con marcas ya no se interpreta en esos avisos. **Al actualizar**: hazlo cuanto antes si en tu instalación hay usuarios
+  con cuenta en los que no confías del todo.
+- **El aviso de usuarios con un tipo que ya no existe distingue a los administradores de organización con el módulo
+  Organizaciones apagado**: en vez de decir que su tipo «ya no existe», dice que no pueden entrar porque el módulo está
+  apagado. **Al actualizar**: nada que hacer.
+- **La documentación de la sesión de una app dice lo que faltaba**: el orden de las comprobaciones de la renovación,
+  qué responde una firma mala o una llave desconocida (sin cerrar nada), que cada intento firma con una hora mayor que la
+  del anterior, que el reenvío de una llave perdida trae un token de acceso nuevo y que un acceso nuevo con la misma clave
+  del dispositivo cierra las sesiones de app anteriores de ese usuario. No cambia el comportamiento: lo describe. **Al
+  actualizar**: nada que hacer. Guía: «La sesión del panel», «La sesión de una app»; el contrato, en la documentación de
+  la API.
+
 # 10.72.0 (27-11-2026)
 
 - **El tema del panel, en la 2.0.1**: los bloques de código vuelven a partir las líneas sin dejar un espacio al principio.

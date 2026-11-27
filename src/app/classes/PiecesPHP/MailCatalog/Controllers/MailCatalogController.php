@@ -174,7 +174,8 @@ class MailCatalogController extends AdminPanelController
         }
         return $response->withJson([
             'success' => true,
-            'message' => sprintf(__(self::LANG_GROUP, 'Enviado a %s por el servidor de pruebas, no por la entrega real.'), $to),
+            //El aviso se pinta como HTML: el destinatario escrito va escapado.
+            'message' => sprintf(__(self::LANG_GROUP, 'Enviado a %s por el servidor de pruebas, no por la entrega real.'), escape_html($to)),
         ]);
     }
 

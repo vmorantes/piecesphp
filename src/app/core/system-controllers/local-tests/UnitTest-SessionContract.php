@@ -33,9 +33,11 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
         }
     };
 
-    $cabecera = 'HTTP_' . mb_strtoupper(SessionToken::TOKEN_NAME);
+    //Del nombre configurado, no de la constante: con otro nombre en config.php, la constante no es lo que se recibe.
+    $nombreCookie = SessionToken::tokenName();
+    $cabecera = 'HTTP_' . strtoupper(str_replace('-', '_', SessionToken::headerName()));
     $cabeceraPrevia = $_SERVER[$cabecera] ?? null;
-    $cookiePrevia = $_COOKIE[SessionToken::TOKEN_NAME] ?? null;
+    $cookiePrevia = $_COOKIE[$nombreCookie] ?? null;
     $remotaPrevia = $_SERVER['REMOTE_ADDR'] ?? null;
     $nombrePrevio = get_config(SessionToken::TOKEN_NAME_CONFIG);
 
@@ -47,7 +49,7 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
         $tokenRecibido = SessionToken::getJWTReceived();
         $check($enTerminal, 'a1 la suite corre en modo terminal');
         echoTerminal('   INFO: cabecera ' . $cabecera . ' ' . ($cabeceraPrevia === null ? 'AUSENTE' : 'presente (' . mb_strlen($cabeceraPrevia) . ' bytes)'));
-        echoTerminal('   INFO: cookie ' . SessionToken::TOKEN_NAME . ' ' . ($cookiePrevia === null ? 'AUSENTE' : 'presente'));
+        echoTerminal('   INFO: cookie ' . $nombreCookie . ' ' . ($cookiePrevia === null ? 'AUSENTE' : 'presente'));
         echoTerminal('   INFO: getJWTReceived() devuelve ' . ($tokenRecibido === '' ? 'CADENA VACÍA' : mb_strlen($tokenRecibido) . ' bytes'));
         echoTerminal('   INFO: get_config(current_user) es ' . gettype(get_config('current_user')) . ', getLoggedFrameworkUser() ' . (getLoggedFrameworkUser() === null ? 'NULL' : 'paquete'));
         echoTerminal('   INFO: $_SERVER[REMOTE_ADDR] ' . ($remotaPrevia === null ? 'AUSENTE' : $remotaPrevia));
@@ -61,22 +63,39 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
         $datos = BaseToken::getData($token);
         $check(is_object($datos) && (int) ($datos->id ?? 0) === 1, 'b3 y dentro viaja el id que se le puso', (string) json_encode($datos));
 
-        unset($_SERVER[$cabecera], $_COOKIE[SessionToken::TOKEN_NAME]);
+        unset($_SERVER[$cabecera], $_COOKIE[$nombreCookie]);
         $check(SessionToken::getJWTReceived() === '', 'b4 sin cabecera ni cookie no hay token que recibir');
 
         $_SERVER[$cabecera] = $token;
         $check(SessionToken::getJWTReceived() === $token, 'b5 por la CABECERA ' . $cabecera . ' se recibe');
 
         unset($_SERVER[$cabecera]);
-        $_COOKIE[SessionToken::TOKEN_NAME] = $token;
-        $check(SessionToken::getJWTReceived() === $token, 'b6 por la COOKIE ' . SessionToken::TOKEN_NAME . ' también');
+        $_COOKIE[$nombreCookie] = $token;
+        $check(SessionToken::getJWTReceived() === $token, 'b6 por la COOKIE ' . $nombreCookie . ' también');
 
         //Los dos a la vez, con valores distintos: se mide cuál manda, no se supone.
         $otro = SessionToken::generateToken(['id' => 2], null, null, false);
         $_SERVER[$cabecera] = $otro;
         $recibidoConAmbos = SessionToken::getJWTReceived();
         $check($recibidoConAmbos === $otro, 'b7 con cabecera Y cookie, manda la cabecera', $recibidoConAmbos === $token ? 'mandó la cookie' : 'mandó la cabecera');
-        unset($_SERVER[$cabecera], $_COOKIE[SessionToken::TOKEN_NAME]);
+        unset($_SERVER[$cabecera], $_COOKIE[$nombreCookie]);
+        //Lo mismo con un nombre propio con «_», solo en memoria: es el único caso en que la cabecera (headerName(), con «-»)
+        //difiere del nombre; se repone abajo, y el finally es la red.
+        set_config(SessionToken::TOKEN_NAME_CONFIG, 'zz_Sesion_Contrato');
+        $cookiePropia = SessionToken::tokenName();
+        $cabeceraNombrePropia = SessionToken::headerName();
+        $cabeceraPropia = 'HTTP_' . strtoupper(str_replace('-', '_', $cabeceraNombrePropia));
+        $_SERVER[$cabeceraPropia] = $token;
+        $porCabeceraPropia = SessionToken::getJWTReceived();
+        unset($_SERVER[$cabeceraPropia]);
+        $_COOKIE[$cookiePropia] = $token;
+        $porCookiePropia = SessionToken::getJWTReceived();
+        $_SERVER[$cabeceraPropia] = $otro;
+        $conAmbosPropia = SessionToken::getJWTReceived();
+        unset($_SERVER[$cabeceraPropia], $_COOKIE[$cookiePropia]);
+        set_config(SessionToken::TOKEN_NAME_CONFIG, $nombrePrevio);
+        $check($cookiePropia === 'zz_Sesion_Contrato' && $cabeceraPropia === 'HTTP_ZZ_SESION_CONTRATO' && $cabeceraNombrePropia === 'zz-Sesion-Contrato', 'b8 con un nombre propio con «_», la cabecera que se manda lleva «-» y llega a $_SERVER como HTTP_ZZ_SESION_CONTRATO', "{$cabeceraNombrePropia} → {$cabeceraPropia} / {$cookiePropia}");
+        $check($porCabeceraPropia === $token && $porCookiePropia === $token && $conAmbosPropia === $otro, 'b8.1 y la cabecera y la cookie de ESE nombre se reciben, y manda la cabecera');
         echoTerminal(' ');
 
         //─── c · La firma ───────────────────────────────────────────────────────────────────────────────
@@ -510,10 +529,10 @@ CliActions::make('unit-tests:core/session-contract', function ($args) {
         SessionToken::setMinimumDateCreated(new \DateTime(SessionToken::DEFAULT_MINIMUM_DATE_CREATED));
         set_config(SessionToken::TOKEN_NAME_CONFIG, $nombrePrevio);
         if ($cabeceraPrevia === null) { unset($_SERVER[$cabecera]); } else { $_SERVER[$cabecera] = $cabeceraPrevia; }
-        if ($cookiePrevia === null) { unset($_COOKIE[SessionToken::TOKEN_NAME]); } else { $_COOKIE[SessionToken::TOKEN_NAME] = $cookiePrevia; }
+        if ($cookiePrevia === null) { unset($_COOKIE[$nombreCookie]); } else { $_COOKIE[$nombreCookie] = $cookiePrevia; }
         if ($remotaPrevia === null) { unset($_SERVER['REMOTE_ADDR']); } else { $_SERVER['REMOTE_ADDR'] = $remotaPrevia; }
         $check(
-            ($_SERVER[$cabecera] ?? null) === $cabeceraPrevia && ($_COOKIE[SessionToken::TOKEN_NAME] ?? null) === $cookiePrevia && ($_SERVER['REMOTE_ADDR'] ?? null) === $remotaPrevia,
+            ($_SERVER[$cabecera] ?? null) === $cabeceraPrevia && ($_COOKIE[$nombreCookie] ?? null) === $cookiePrevia && ($_SERVER['REMOTE_ADDR'] ?? null) === $remotaPrevia,
             'z1 la cabecera, la cookie y la IP quedan como estaban'
         );
     }

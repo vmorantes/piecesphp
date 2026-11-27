@@ -272,6 +272,15 @@ CliActions::make('unit-tests:core/tokens-tab', function ($args) {
         $idTOTPRoot = (int) $database->query("SELECT id FROM `{$tablaOTP}` WHERE user = {$root} AND method = '" . OTPSecretsUsersMapper::METHOD_TOTP . "'")->fetchColumn();
         $propio = $pedir($ruta('user-tokens-reset-two-factor', ['id' => $idTOTPRoot]), $jwtRoot, []);
         $check($propio['status'] === 400 && OTPSecretsUsersMapper::isEnabled2FA($root), 'd11 el propio no: 400, y sigue encendido', (string) $propio['status']);
+        //El aviso se pinta como HTML en el panel y el nombre lo elige el propio usuario: tiene que llegar escapado.
+        $conHTML = $crear('agente-<img src=x onerror=1>', UsersModel::TYPE_USER_GENERAL);
+        OTPSecretsUsersMapper::createTOTPData($conHTML);
+        OTPSecretsUsersMapper::toggle2FA($conHTML, true, bin2hex(random_bytes(8)));
+        OTPSecretsUsersMapper::confirm2FA($conHTML);
+        $idTOTPHTML = (int) $database->query("SELECT id FROM `{$tablaOTP}` WHERE user = {$conHTML} AND method = '" . OTPSecretsUsersMapper::METHOD_TOTP . "'")->fetchColumn();
+        $restablecerHTML = $pedir($ruta('user-tokens-reset-two-factor', ['id' => $idTOTPHTML]), $jwtRoot, []);
+        $mensajeHTML = (string) ($restablecerHTML['json']['message'] ?? '');
+        $check($restablecerHTML['status'] === 200 && str_contains($mensajeHTML, '&lt;img src=x onerror=1&gt;') && !str_contains($mensajeHTML, '<img'), 'd12 DISCRIMINANTE: el nombre con HTML llega escapado en el aviso de Restablecer, no como etiqueta', mb_substr($mensajeHTML, 0, 160));
 
         //─── e · La emisión y los dos defectos de «usuario olvidado» ──────────────────────────────
         echoTerminal(' ');

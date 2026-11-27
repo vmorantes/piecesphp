@@ -104,6 +104,8 @@ return [
     'Evento o usuario' => 'Event or user',
     '1 usuario tiene un tipo que ya no existe' => '1 user has a type that no longer exists',
     '%d usuarios tienen un tipo que ya no existe' => '%d users have a type that no longer exists',
+    '1 administrador de organización no puede entrar: el módulo Organizaciones está apagado' => '1 organization administrator cannot sign in: the Organizations module is off',
+    '%d administradores de organización no pueden entrar: el módulo Organizaciones está apagado' => '%d organization administrators cannot sign in: the Organizations module is off',
     'Ver usuarios' => 'See users',
     'src/app/config/user-types.php tiene errores y rigen los tipos de usuario de fábrica: %s' => 'src/app/config/user-types.php has errors and the factory user types apply: %s',
     'Un tipo de usuario retirado sigue en uso por un módulo encendido: %s' => 'A retired user type is still used by an enabled module: %s',

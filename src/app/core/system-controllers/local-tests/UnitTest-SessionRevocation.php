@@ -311,6 +311,11 @@ $sessionRevocation = function (bool $revokeAllReal) {
         $c = $pedir('POST', $ajena, $admin, ['id' => (string) $ids['otro']]);
         $check($c['status'] === 200 && !$pareceToken($c['body']) && !$pareceToken(implode("\n", $c['cookies'])), 'c10 el administrador contra un general → 200, sin token en la respuesta', 'HTTP ' . $c['status']);
         $check($entra($otro) === 'FUERA' && $entra($admin) === 'DENTRO', 'c11 cae el token del general, y el del administrador sigue');
+        //El aviso se pinta como HTML en el panel y el nombre lo elige el propio usuario: tiene que llegar escapado.
+        $conHTML = $crear('agente-<img src=x onerror=1>', UsersModel::TYPE_USER_GENERAL);
+        $c = $pedir('POST', $ajena, $admin, ['id' => (string) $conHTML]);
+        $mensajeHTML = (string) ($c['json']['message'] ?? '');
+        $check($c['status'] === 200 && str_contains($mensajeHTML, '&lt;img src=x onerror=1&gt;') && !str_contains($mensajeHTML, '<img'), 'c12 DISCRIMINANTE: el nombre con HTML llega escapado en el aviso, no como etiqueta', mb_substr($mensajeHTML, 0, 160));
         echoTerminal(' ');
 
         //─── D · El cuerpo no elige al sujeto ───────────────────────────────────────────────────

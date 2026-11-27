@@ -199,6 +199,27 @@ CliActions::make('unit-tests:core/invalid-user-type', function ($args) {
         $paginaGeneral = $pedir($panel, $sesion($general)['jwt']);
         $check($paginaGeneral['status'] === 200 && !str_contains($paginaGeneral['body'], 'data-key="' . InvalidTypeUsersAlert::KEY . '"'), 'c6 un administrador general no lo ve: solo root', "HTTP {$paginaGeneral['status']}");
 
+        //Con Organizaciones apagado el tipo 12 no tiene rol: va a su propio aviso. El módulo es una constante, así que el
+        //reparto se prueba con el argumento (como UserTypes con moduleWarnings()), sin tocar critical-definitions.php.
+        $reparto = new \ReflectionMethod(InvalidTypeUsersAlert::class, 'split');
+        $totales = [UsersModel::TYPE_USER_ADMIN_ORG => 1, UsersModel::TYPE_USER_GENERAL => 3, 777 => 2];
+        $apagado = $reparto->invoke(null, $totales, false, fn (int $tipo): bool => in_array($tipo, [0, 1, 2, 3, 4], true));
+        $encendido = $reparto->invoke(null, $totales, true, fn (int $tipo): bool => in_array($tipo, [0, 1, 2, 3, 4, 12], true));
+        $check($apagado === ['invalid' => 2, 'adminOrgModuleOff' => 1], 'c7 DISCRIMINANTE: APAGADO, el administrador de organización va a su aviso y el 777 al de siempre', (string) json_encode($apagado));
+        $check($encendido === ['invalid' => 2, 'adminOrgModuleOff' => 0], 'c8 CANARIO: ENCENDIDO, el 12 tiene rol y no cuenta en ninguno', (string) json_encode($encendido));
+        $check(InvalidTypeUsersAlert::adminOrgModuleOffMessage(1) === __(\PiecesPHP\UserSystem\UserSystemFeaturesLang::LANG_GROUP, '1 administrador de organización no puede entrar: el módulo Organizaciones está apagado')
+            && str_starts_with(InvalidTypeUsersAlert::adminOrgModuleOffMessage(3), '3 administradores de organización no pueden entrar'), 'c9 su texto, en singular y en plural', InvalidTypeUsersAlert::adminOrgModuleOffMessage(3));
+        $claves = array_map(fn ($aviso) => $aviso->key(), \PiecesPHP\SystemStatus\SystemAlertRegistry::all());
+        $check(in_array(InvalidTypeUsersAlert::KEY, $claves, true) && in_array(InvalidTypeUsersAlert::KEY_ADMIN_ORG_MODULE_OFF, $claves, true), 'c10 los dos avisos están registrados (si coinciden los dos casos, salen los dos)', implode(', ', $claves));
+        //c7 y c8 prueban el reparto con la bandera simulada; esto, que counts() lea de verdad la constante de esta instalación.
+        if (CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE'] === true) {
+            $sinAdminOrg = InvalidTypeUsersAlert::count(true);
+            $crear('agente-admin-org', UsersModel::TYPE_USER_ADMIN_ORG);
+            $check(InvalidTypeUsersAlert::count(true) === $sinAdminOrg && InvalidTypeUsersAlert::countAdminOrgModuleOff(true) === 0, 'c11 DISCRIMINANTE: con el módulo ENCENDIDO aquí, un administrador de organización no cuenta en ningún aviso', 'invalid ' . InvalidTypeUsersAlert::count(true) . ', módulo apagado ' . InvalidTypeUsersAlert::countAdminOrgModuleOff(true));
+        } else {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m c11: esta instalación tiene el módulo Organizaciones apagado.");
+        }
+
     } catch (\Throwable $e) {
         $check(false, 'z0 la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

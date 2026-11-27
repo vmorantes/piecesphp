@@ -311,7 +311,8 @@ class UserTokensController extends AdminPanelController
         return $response->withJson([
             'success' => true,
             'name' => TokenEvents::label(TokenEvents::KIND_TWO_FACTOR),
-            'message' => sprintf(__(self::LANG_GROUP, 'El doble factor de %s está apagado: entrará solo con su contraseña hasta que lo active de nuevo.'), $row['target']),
+            //El aviso se pinta como HTML y el nombre lo elige el propio usuario: va escapado.
+            'message' => sprintf(__(self::LANG_GROUP, 'El doble factor de %s está apagado: entrará solo con su contraseña hasta que lo active de nuevo.'), escape_html($row['target'])),
         ]);
     }
 

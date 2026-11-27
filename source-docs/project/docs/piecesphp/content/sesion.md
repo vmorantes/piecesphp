@@ -143,8 +143,12 @@ cambia.
   «Sesiones de aplicaciones móviles».
 - **Renovar**: `POST /core/api/users/renew-session/` con `refreshToken`, `timestamp` y `signature`, la firma del
   dispositivo. Cada llave sirve una vez; cada renovación entrega un token nuevo y deja sin valor el anterior. Si la
-  respuesta se pierde, repetir con la misma llave devuelve la que no llegó. Presentar una llave más vieja cierra la
-  sesión. El contrato completo, con cada respuesta, está en la documentación de la API.
+  respuesta se pierde, repetir con la misma llave devuelve la que no llegó, con un token de acceso nuevo (el del intento
+  perdido deja de valer). Cada intento firma con un `timestamp` nuevo y estrictamente mayor que el anterior: repetir el
+  mismo responde `409 RETRY`. Presentar una llave más vieja, con la firma buena, cierra la sesión; una firma mala o una
+  llave desconocida responden `401 REAUTH_REQUIRED` sin cerrar nada. Un acceso nuevo con la misma `deviceKey` cierra las
+  sesiones de app abiertas de ese usuario con esa clave. El contrato completo, con cada respuesta y el orden de las
+  comprobaciones, está en la documentación de la API.
 - **Qué la cierra**: lo mismo que a una sesión web (cerrarla desde el panel, revocar las sesiones del usuario o todas,
   cambiar la contraseña desde otro sitio, desactivar el usuario o su organización) y, además, **cambiar la clave de la
   aplicación**. Que el tipo de usuario pierda el acceso externo impide renovar; el token de acceso ya entregado sigue

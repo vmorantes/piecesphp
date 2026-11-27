@@ -1560,7 +1560,8 @@ class UsersController extends AdminPanelController
         return $response->withJson([
             'success' => true,
             'name' => $name,
-            'message' => strReplaceTemplate(__(self::LANG_GROUP, 'Se cerraron todas las sesiones de %s.'), ['%s' => $target->username]),
+            //El aviso se pinta como HTML y el nombre lo elige el propio usuario: va escapado.
+            'message' => strReplaceTemplate(__(self::LANG_GROUP, 'Se cerraron todas las sesiones de %s.'), ['%s' => escape_html($target->username)]),
         ]);
     }
 
