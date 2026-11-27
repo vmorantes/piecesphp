@@ -194,6 +194,36 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
             $check($deFabricaEs === 'Con el apoyo de' && $deFabricaEn === 'With the support of', 't6 sin ninguno, el de fábrica en el idioma de la petición', "{$deFabricaEs} / {$deFabricaEn}");
             set_config($opcionTexto, '');
             $check(SettingsController::partnersText('es') === '' && SettingsController::partnersText('en') === '', 't7 el principal vacío y sin inglés: vacío en los dos (no se pinta)');
+            //La de fábrica guardada en el principal no es un texto del sitio: en otro idioma sale traducida (H436).
+            set_config($opcionTexto, 'Con el apoyo de');
+            $deFabricaGuardadaEs = SettingsController::partnersText('es');
+            set_config('app_lang', 'en');
+            $deFabricaGuardadaEn = SettingsController::partnersText('en');
+            set_config('app_lang', $idiomaPrevio);
+            $check($deFabricaGuardadaEs === 'Con el apoyo de', 't7a CANARIO: la de fábrica guardada en español, en el idioma principal, la de fábrica', $deFabricaGuardadaEs);
+            $check($deFabricaGuardadaEn === 'With the support of', 't7b DISCRIMINANTE: la de fábrica guardada en español, en inglés y sin texto inglés, sale traducida', $deFabricaGuardadaEn);
+            set_config($opcionTexto, 'zz-propio del sitio');
+            set_config('app_lang', 'en');
+            $propioEn = SettingsController::partnersText('en');
+            set_config($opcionIngles, 'zz-propio en inglés');
+            $propioInglesEn = SettingsController::partnersText('en');
+            set_config('app_lang', $idiomaPrevio);
+            set_config($opcionIngles, null);
+            $check($propioEn === 'zz-propio del sitio', 't7c un texto propio en el principal, en inglés sin texto inglés, tal cual', $propioEn);
+            $check($propioInglesEn === 'zz-propio en inglés', 't7d con texto propio en inglés, el suyo', $propioInglesEn);
+            //La de fábrica guardada en otro idioma (se guardó la pantalla navegando en inglés) sigue siendo la de fábrica.
+            set_config($opcionTexto, 'With the support of');
+            $inglesGuardadoEs = SettingsController::partnersText('es');
+            set_config('app_lang', 'en');
+            $inglesGuardadoEn = SettingsController::partnersText('en');
+            set_config('app_lang', $idiomaPrevio);
+            $check($inglesGuardadoEs === 'Con el apoyo de' && $inglesGuardadoEn === 'With the support of', 't7e DISCRIMINANTE: «With the support of» guardado en el principal es la de fábrica: en español, «Con el apoyo de»; en inglés, el inglés', "{$inglesGuardadoEs} / {$inglesGuardadoEn}");
+            set_config($opcionTexto, 'Con el apoyo de la alcaldía');
+            $parecidoEs = SettingsController::partnersText('es');
+            set_config('app_lang', 'en');
+            $parecidoEn = SettingsController::partnersText('en');
+            set_config('app_lang', $idiomaPrevio);
+            $check($parecidoEs === 'Con el apoyo de la alcaldía' && $parecidoEn === 'Con el apoyo de la alcaldía', 't7f CANARIO: un texto propio parecido pero distinto sale tal cual en los dos idiomas', "{$parecidoEs} / {$parecidoEn}");
         } finally {
             set_config($opcionTexto, $previoBase === false ? null : $previoBase);
             set_config($opcionIngles, $previoIngles === false ? null : $previoIngles);
@@ -212,6 +242,16 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
         $enIngles = $pie($peticion($inicioIngles, null)['body']);
         $check($r['status'] === 200 && $crudoIngles() === null && str_contains($enIngles, "<strong>{$prefijo}-es</strong>"), 't9 el inglés vacío borra su opción y el menú en /en/ vuelve al principal',
             "HTTP {$r['status']} · fila: " . var_export($crudoIngles(), true));
+        //Guardar la pantalla con la de fábrica, en cualquier idioma, no la fija: borra la opción y responde con éxito.
+        foreach (['Con el apoyo de', 'With the support of'] as $indice => $deFabrica) {
+            $r = $peticion($ruta, http_build_query([$opcionTexto => ['es' => $deFabrica, 'en' => '']]));
+            $datos = json_decode($r['body'], true);
+            $enIngles = $pie($peticion($inicioIngles, null)['body']);
+            $enEspanol = $pie($peticion($inicio, null)['body']);
+            $check($r['status'] === 200 && ($datos['success'] ?? null) === true && $crudoTexto() === null && str_contains($enEspanol, '<strong>Con el apoyo de</strong>') && str_contains($enIngles, '<strong>With the support of</strong>'),
+                't10.' . ($indice + 1) . " DISCRIMINANTE: guardar «{$deFabrica}» en el principal borra la opción y el menú pinta la de fábrica traducida en / y en /en/",
+                "HTTP {$r['status']} · fila: " . var_export($crudoTexto(), true));
+        }
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {
@@ -256,12 +296,14 @@ CliActions::make('unit-tests:core/previous-file-missing', function ($args) {
         if ($crudoInglesAntes === null) {
             $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute([$opcionIngles]);
         } else {
-            $database->prepare("UPDATE `{$tabla}` SET value = ? WHERE BINARY name = ?")->execute([$crudoInglesAntes, $opcionIngles]);
+            //Insertar si falta: guardar la de fábrica, o vaciar el inglés, borra la fila, y un UPDATE no la repondría.
+            $database->prepare("INSERT INTO `{$tabla}` (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?")->execute([$opcionIngles, $crudoInglesAntes, $crudoInglesAntes]);
         }
         if ($crudoTextoAntes === null) {
             $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute([$opcionTexto]);
         } else {
-            $database->prepare("UPDATE `{$tabla}` SET value = ? WHERE BINARY name = ?")->execute([$crudoTextoAntes, $opcionTexto]);
+            //Insertar si falta: guardar la de fábrica, o vaciar el inglés, borra la fila, y un UPDATE no la repondría.
+            $database->prepare("INSERT INTO `{$tabla}` (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?")->execute([$opcionTexto, $crudoTextoAntes, $crudoTextoAntes]);
         }
         if ($crudoAntes === null) {
             $database->prepare("DELETE FROM `{$tabla}` WHERE BINARY name = ?")->execute([$opcion]);

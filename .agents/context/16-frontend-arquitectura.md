@@ -493,7 +493,13 @@ panel implementado**, y el tema se compara contra él:
   regresión de móvil en la cabecera de página), de la hoja de diseño (etiquetas de estado, piezas) y de las
   pantallas que cambian: el punto de las etiquetas de estado partido en celdas estrechas entró con una traída y nadie lo
   vio. El tema compila en vivo: lo que se verifica es lo de `ORIGEN.json`, con `sin_commitear` 0.
-- **El repositorio del tema avanza solo**: antes de traer, el compilado se comprueba por su historial (`git log <etiqueta>..HEAD -- dist-temas/piecesphp` vacío) y su estado, no por el HEAD; `ORIGEN.json` registra el HEAD y `--check` avisa de que `VERSION.json` es de otro commit (esperado; JIS, `#2784`).
+- **El repositorio del tema avanza solo, y su compilado NO se versiona** (`dist-temas/` está en su `.gitignore:6`, medido el 2026-11-27): un
+  `git log <etiqueta>..HEAD -- dist-temas/piecesphp` sale vacío siempre y no prueba nada. Antes de traer se comprueba
+  `dist-temas/piecesphp/VERSION.json` (versión, `commit` de la etiqueta, `sinCommitear` false), el sha1 de
+  `semantic.min.css` que da el agente del tema y `git status --short -- src dist-temas/piecesphp` vacío (lo que cuenta
+  `sin_commitear`, `bin/traer-tema:169`); el resto de su árbol (`examples/`) no importa. `ORIGEN.json` registra el HEAD y
+  `--check` avisa de que `VERSION.json` es de otro commit (esperado; JIS, `#2784`). La cuenta de archivos de `ORIGEN.json` es
+  la del compilado más el `LICENSE.md` de la raíz del tema (`bin/traer-tema:48`).
 
 ## El sitio público por marcas (ADR 0084, JNB-JNC, 2026-11-20)
 

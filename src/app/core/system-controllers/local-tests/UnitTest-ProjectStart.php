@@ -422,7 +422,7 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
         $aliasAfter = ProjectStart::afterLoginURL(null);
         $check(is_string($aliasURL) && in_array(ProjectStart::comparableURL($aliasURL, $basePath, $langs), ProjectStart::loginLoopURLs(), true), 'p13.1 CANARIO: public-generic-2 con users/login da la dirección del acceso', (string) $aliasURL);
         $check($t['kind'] === 'route' && $aliasAfter === $panel, 'p13.2 DISCRIMINANTE: afterLoginURL() la mide por la dirección y lleva al panel, no al acceso', json_encode($t) . ' → ' . $aliasAfter);
-        //La dirección normalizada: sin el validador de URL, sin esquema, sin puerto por omisión, con «\\» como «/» y sin segmentos de punto (JPN-2).
+        //La dirección normalizada: sin el validador de URL, sin esquema, sin puerto por omisión, con «\\» como «/» y sin segmentos de punto.
         $check(ProjectStart::comparableURL('http://my_site.local/x', '', []) === '//my_site.local/x', 'p14.1 DISCRIMINANTE: un host con «_» se puede comparar', (string) ProjectStart::comparableURL('http://my_site.local/x', '', []));
         $t = ProjectStart::loginTarget(null, '/mi-pagina', $oldAdminURL, true, ProjectStart::loginLoopURLs(), '', $langs, 'http://web_app/');
         $check($t['kind'] === 'url' && $t['relative'] === true, 'p14.2 DISCRIMINANTE: una relativa con la base http://web_app/ vale: no va al panel', json_encode($t) ?: '');
@@ -432,11 +432,16 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
             '%2e' => str_replace('/users/login', '/users/%2e/login', $loginURL),
             '.' => str_replace('/users/login', '/users/./login', $loginURL),
             'barra invertida' => str_replace('/users/login', '/users\\login', $loginURL),
-            ':443 con https' => (string) preg_replace('~^https?://([^/:]+)~', 'https://$1:443', $loginURL),
+            ':443 con https' => parse_url($loginURL, PHP_URL_PORT) === null ? (string) preg_replace('~^https?://([^/:]+)~', 'https://$1:443', $loginURL) : '',
             'otro esquema' => (string) preg_replace('~^(https?)://~', str_starts_with($loginURL, 'https://') ? 'http://' : 'https://', $loginURL),
         ];
         $n = 3;
         foreach ($sameHost as $form => $address) {
+            if ($address === '') {
+                //Con un puerto propio en la base, el :443 sería otra dirección: el caso no aplica.
+                echoTerminal("   \e[33m[OMITIDA]\e[39m p14." . $n++ . " ({$form}): la base lleva su propio puerto.");
+                continue;
+            }
             $t = $loopOf($address);
             $check($address !== $loginURL && $t['kind'] === 'panel' && $t['value'] === 'loop', 'p14.' . $n++ . ' DISCRIMINANTE: la dirección completa del acceso escrita con ' . $form . ' es un bucle: ' . $address, json_encode($t) ?: '');
         }
@@ -449,6 +454,60 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
         $check($t['kind'] === 'panel' && $t['value'] === 'unreadable', 'p14.12 DISCRIMINANTE: con una base que no se puede leer, la relativa da panel/unreadable (no invalid ni loop)', json_encode($t) ?: '');
         $removeDotSegments = new \ReflectionMethod(ProjectStart::class, 'removeDotSegments');
         $check($removeDotSegments->invoke(null, '/a/b/c/./../../g') === '/a/g' && $removeDotSegments->invoke(null, 'mid/content=5/../6') === 'mid/6', 'p14.13 removeDotSegments() con los ejemplos de RFC 3986 §5.2.4', $removeDotSegments->invoke(null, '/a/b/c/./../../g') . ' · ' . $removeDotSegments->invoke(null, 'mid/content=5/../6'));
+        $dotCases = ['/..' => '/', '/.' => '/', '..' => '', '' => '', '//' => '//', '/a/b/..' => '/a/', '/a/b/.' => '/a/b/', '/a/.b' => '/a/.b', '/a/..b' => '/a/..b'];
+        $dotWrong = array_filter($dotCases, fn (string $expected, string $path): bool => $removeDotSegments->invoke(null, $path) !== $expected, ARRAY_FILTER_USE_BOTH);
+        $check($dotWrong === [], 'p14.14 removeDotSegments() en los bordes: «/..», «/.», «..», «», «//», «/a/b/..», «/a/b/.», «/a/.b», «/a/..b»', json_encode(array_map(fn (string $path): string => $removeDotSegments->invoke(null, $path), array_combine(array_keys($dotWrong), array_keys($dotWrong)) ?: [])) ?: '');
+        //Sin las direcciones del acceso no se puede descartar el bucle: una relativa con base falla cerrado.
+        $t = ProjectStart::loginTarget(null, '/mi-pagina', $oldAdminURL, true, [], $basePath, $langs, baseurl());
+        $check($t['kind'] === 'panel' && $t['value'] === 'unreadable', 'p14.15 DISCRIMINANTE: una relativa con base y sin las direcciones del acceso da panel/unreadable', json_encode($t) ?: '');
+        //El aviso que se anota: el del bucle, el de una dirección que no se pudo leer y el genérico, cada uno en su caso.
+        $softTotal = function (string $message) use ($logFile): int {
+            $keys = [];
+            foreach (explode("\n", (string) @file_get_contents($logFile)) as $line) {
+                $entry = json_decode($line, true);
+                if (is_array($entry) && str_contains((string) ($entry['message'] ?? ''), $message) && is_string($entry['softKey'] ?? null)) {
+                    $keys[$entry['softKey']] = true;
+                }
+            }
+            $total = 0;
+            foreach (array_keys($keys) as $key) {
+                $total += (int) (GenericHandler::softCounter(dirname($logFile), (string) $key)['count'] ?? 0);
+            }
+            return $total;
+        };
+        $genericMessage = 'tiene que ser el nombre de una ruta, una ruta con parámetros';
+        $notices = fn (): array => [$softTotal(ProjectStart::LOGIN_LOOP_MESSAGE), $softTotal(ProjectStart::LOGIN_UNREADABLE_MESSAGE), $softTotal($genericMessage)];
+        $logged = function ($value) use ($notices): array {
+            set_config('login_redirect_route', $value);
+            $before = $notices();
+            //Con la base rota, afterLoginURL() anota y después convert_lang_url() lanza: se cuenta igual y se devuelve la clase.
+            $thrown = '';
+            try {
+                ProjectStart::afterLoginURL(null);
+            } catch (\Throwable $e) {
+                $thrown = get_class($e);
+            }
+            $after = $notices();
+            return [$after[0] - $before[0], $after[1] - $before[1], $after[2] - $before[2], $thrown];
+        };
+        $loopNotice = $logged('users-form-login');
+        $check($loopNotice === [1, 0, 0, ''], 'p15.1 DISCRIMINANTE: un bucle anota el aviso del bucle, y solo ese', json_encode($loopNotice) ?: '');
+        $genericNotice = $logged(['x']);
+        $check($genericNotice === [0, 0, 1, ''], 'p15.2 DISCRIMINANTE: una forma no válida anota el genérico, y solo ese', json_encode($genericNotice) ?: '');
+        //Una base que no se puede leer, puesta solo en memoria y repuesta en el finally: la ruta con parámetros da null al compararse.
+        $configInstance = (new \ReflectionMethod(\PiecesPHP\Core\Config::class, 'get_instance'))->invoke(null);
+        $appURLProperty = new \ReflectionProperty(\PiecesPHP\Core\Config::class, 'appURL');
+        $appURLBefore = $appURLProperty->getValue($configInstance);
+        //Primero el bucle por la misma rama (la ruta con parámetros que da el acceso): así la clave suave del bucle existe en
+        //esta corrida, y si los dos avisos compartieran línea, el siguiente se contaría como bucle.
+        $aliasNotice = $logged(['route' => 'public-generic-2', 'params' => ['folder' => 'users', 'name' => 'login']]);
+        try {
+            $appURLProperty->setValue($configInstance, 'http:///');
+            $unreadableNotice = $logged(['route' => 'users-form-edit', 'params' => ['id' => 7]]);
+        } finally {
+            $appURLProperty->setValue($configInstance, $appURLBefore);
+        }
+        $check($aliasNotice === [1, 0, 0, ''] && array_slice($unreadableNotice, 0, 3) === [0, 1, 0] && baseurl() === rtrim((string) $appURLBefore, '/') . '/', 'p15.3 DISCRIMINANTE: por la rama de la ruta con parámetros, el bucle anota solo el del bucle y la dirección que no se puede leer solo el suyo; la base vuelve', json_encode([$aliasNotice, $unreadableNotice]) ?: '');
         set_config('login_redirect_route', 'admin');
         echoTerminal(' ');
 

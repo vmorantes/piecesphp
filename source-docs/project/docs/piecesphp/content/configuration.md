@@ -517,8 +517,9 @@ $config['login_redirect_route'] = 'admin';    // adónde lleva el acceso: un nom
     (`/a%C3%B1o`, no `/año`), y `//otro.example`, una barra invertida, espacios, un tramo «.» o «..» (`/a/../b`) o un
     punto o una barra codificados en el camino (`%2e`, `%2f`, `%5c`) no valen;
   - una **dirección completa** con `http://` o `https://`, también de otro dominio, que se usa tal cual.
-  No vale una dirección con usuario o contraseña, ni la del propio acceso (o la portada sin zona pública), escrita como
-  sea (codificada, con «..», con el puerto por omisión o con `http` en vez de `https`), que haría un bucle: en esos casos, y con cualquier otra forma, el acceso lleva al panel y lo anota. `bin/cli verify-integrity`
+  No vale una dirección con usuario o contraseña, ni la del propio acceso (o la portada sin zona pública), escrita de otra
+  forma (codificada, con «..», con el puerto por omisión o con `http` en vez de `https`), que haría un bucle: en esos
+  casos, y con cualquier otra forma, el acceso lleva al panel y lo anota. `bin/cli verify-integrity`
   avisa, sin fallar, cuando el dominio de una dirección completa no está en `allowed_hosts` (con la lista vacía, que no
   pudo comprobarlo): si el dominio es tuyo, añádelo ahí. Sustituye a `admin_url`, que se sigue respetando hasta la
   `11.0.0` si un proyecto lo tiene puesto.

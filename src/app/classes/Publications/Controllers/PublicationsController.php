@@ -6,8 +6,8 @@
 
 namespace Publications\Controllers;
 
-use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsRoutes;
+use Organizations\Util\OrganizationAdministration;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\Cache\CacheControllersCriteries;
 use PiecesPHP\Core\Cache\CacheControllersCritery;
@@ -1944,8 +1944,6 @@ class PublicationsController extends AdminPanelController
 
                 $currentUserType = $currentUser->type;
                 $currentUserID = $currentUser->id;
-                $currentOrganizationMapper = $currentUser->organizationMapper;
-
                 if ($name == 'actions-delete') {
 
                     $id = ($getParam)('id');
@@ -1957,16 +1955,8 @@ class PublicationsController extends AdminPanelController
 
                         $createdByID = (int) $publication->createdBy;
                         $authorID = (int) $publication->author;
-                        //El creador existe siempre (la clave foránea createdBy impide borrarlo); sin él no hay organización.
-                        $creator = UsersModel::getBy($publication->createdBy, 'id');
-                        $createdByOrganizationID = $creator !== null ? (int) $creator->organization : -1;
-                        $createdByOrganizationRecord = OrganizationMapper::getBy($createdByOrganizationID, 'id', true);
-                        $createdByOrganizationAdmin = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator : null;
-                        $createdByOrganizationAdminID = $createdByOrganizationAdmin instanceof UsersModel ? $createdByOrganizationAdmin->id : (is_int($createdByOrganizationAdmin) ? $createdByOrganizationAdmin : null);
-                        $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
-                        $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
-                        //Con Organizaciones apagado, ser encargado no concede (P384 a).
-                        $allowByOrg = OrganizationsRoutes::enabled() && $currentIsSameOrg && $currentIsOrgAdmin;
+                        //El encargado, de cualquier tipo con acceso a estas rutas; la organización general no cuenta.
+                        $allowByOrg = OrganizationAdministration::administersCreatorOf($publication->createdBy, $currentUser, false);
 
                         $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
 
@@ -1987,16 +1977,8 @@ class PublicationsController extends AdminPanelController
 
                         $createdByID = (int) $publication->createdBy;
                         $authorID = (int) $publication->author;
-                        //El creador existe siempre (la clave foránea createdBy impide borrarlo); sin él no hay organización.
-                        $creator = UsersModel::getBy($publication->createdBy, 'id');
-                        $createdByOrganizationID = $creator !== null ? (int) $creator->organization : -1;
-                        $createdByOrganizationRecord = OrganizationMapper::getBy($createdByOrganizationID, 'id', true);
-                        $createdByOrganizationAdmin = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator : null;
-                        $createdByOrganizationAdminID = $createdByOrganizationAdmin instanceof UsersModel ? $createdByOrganizationAdmin->id : (is_int($createdByOrganizationAdmin) ? $createdByOrganizationAdmin : null);
-                        $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
-                        $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
-                        //Con Organizaciones apagado, ser encargado no concede (P384 a).
-                        $allowByOrg = OrganizationsRoutes::enabled() && $currentIsSameOrg && $currentIsOrgAdmin;
+                        //El encargado, de cualquier tipo con acceso a estas rutas; la organización general no cuenta.
+                        $allowByOrg = OrganizationAdministration::administersCreatorOf($publication->createdBy, $currentUser, false);
 
                         $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
 

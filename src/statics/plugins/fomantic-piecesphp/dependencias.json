@@ -1,10 +1,10 @@
 {
   "formato": 1,
   "tema": "piecesphp",
-  "commit": "7cca2d20",
+  "commit": "b7432c01",
   "fuenteSinCambios": true,
-  "build": "b9562601f320",
-  "generado": "2026-11-27T03:28:54.653Z",
+  "build": "f0aa60c837a3",
+  "generado": "2026-11-27T15:35:57.426Z",
   "leyenda": {
     "css": "componentes cuyo CSS necesita el marcado normal del componente (casa en al menos la mitad de sus ejemplos del catálogo)",
     "js": "módulos sin los que su uso normal da errores",
@@ -3158,7 +3158,7 @@
         "necesidad": {
           "icon": "206 piezas cambian sin él (block-size, height, backface-visibility, display)",
           "table": "4651 piezas cambian sin él (-webkit-border-horizontal-spacing, -webkit-border-vertical-spacing, block-size, height)",
-          "popup": "2489 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)",
+          "popup": "2488 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)",
           "grid": "258 piezas cambian sin él (perspective-origin, transform-origin, inline-size, width)"
         },
         "sinEfecto": [
@@ -3167,18 +3167,18 @@
         "suelto": {
           "piezas": 4716,
           "propiedades": {
-            "accent-color": 4912,
-            "font-size": 4912,
-            "line-height": 4912,
-            "scrollbar-color": 4912,
-            "text-size-adjust": 4912,
-            "box-sizing": 4832,
+            "accent-color": 4910,
+            "font-size": 4910,
+            "line-height": 4910,
+            "scrollbar-color": 4910,
+            "text-size-adjust": 4910,
+            "box-sizing": 4830,
             "scrollbar-width": 4716,
-            "font-family": 4632,
-            "-webkit-font-smoothing": 4632,
-            "block-size": 4159,
-            "height": 4159,
-            "overflow-wrap": 3903
+            "font-family": 4630,
+            "-webkit-font-smoothing": 4630,
+            "block-size": 4158,
+            "height": 4158,
+            "overflow-wrap": 3901
           },
           "muestras": [
             "div.ui.calendar en div.: accent-color oklch(0.287803 0.199439 264.051) → auto",
@@ -3189,18 +3189,18 @@
         "sueltoBaseUi": {
           "piezas": 4698,
           "propiedades": {
-            "block-size": 4141,
-            "height": 4141,
-            "font-size": 3409,
-            "line-height": 3012,
-            "padding-block-end": 2319,
-            "padding-block-start": 2319,
-            "padding-bottom": 2319,
-            "padding-top": 2319,
-            "padding-inline-end": 2247,
-            "padding-inline-start": 2247,
-            "padding-left": 2247,
-            "padding-right": 2247
+            "block-size": 4140,
+            "height": 4140,
+            "font-size": 3407,
+            "line-height": 3011,
+            "padding-block-end": 2318,
+            "padding-block-start": 2318,
+            "padding-bottom": 2318,
+            "padding-top": 2318,
+            "padding-inline-end": 2246,
+            "padding-inline-start": 2246,
+            "padding-left": 2246,
+            "padding-right": 2246
           },
           "muestras": [
             "div.ui.calendar en div.: block-size 40px → 45.7031px",

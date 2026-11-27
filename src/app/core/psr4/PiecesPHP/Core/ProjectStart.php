@@ -430,7 +430,8 @@ final class ProjectStart
      * admite cuatro formas: un nombre de ruta ('route'); una ruta con parámetros, ['route' => …, 'params' => […]]
      * ('route' con 'params'); una dirección relativa a la instalación, «/camino» ('url' con 'relative'); y una dirección
      * completa http o https ('url'). Con kind 'panel', value dice por qué: '' (nada declarado), 'invalid' (sin forma
-     * válida), 'loop' (haría un bucle) o 'unreadable' (su dirección no se pudo leer para descartar el bucle).
+     * válida), 'loop' (haría un bucle) o 'unreadable' (su dirección no se pudo leer para descartar el bucle o, en una
+     * relativa con base, faltan las direcciones del acceso).
      *
      * @param string|null $nextURL Ya validada (UsersController::safeNextURL()).
      * @param mixed $loginRoute get_config('login_redirect_route'): false si config.php no la declara.
@@ -469,8 +470,9 @@ final class ProjectStart
             if ($relative !== null) {
                 $resolved = rtrim($baseURL, '/') . '/' . ltrim($relative, '/');
                 $comparable = $baseURL !== '' ? self::comparableURL($resolved, $basePath, $langs) : '';
-                //Sin forma comparable (una base que no se puede leer) no se puede descartar el bucle: falla cerrado.
-                if ($comparable === null) {
+                //Sin forma comparable (una base que no se puede leer), o sin las direcciones del acceso, no se puede descartar el
+                //bucle: falla cerrado.
+                if ($comparable === null || ($baseURL !== '' && $loopURLs === [])) {
                     return ['kind' => 'panel', 'value' => 'unreadable', 'relative' => false, 'params' => []];
                 }
                 if ($baseURL !== '' && in_array($comparable, $loopURLs, true)) {
@@ -525,8 +527,12 @@ final class ProjectStart
             } else {
                 //Por nombre no se ve: una ruta con parámetros puede dar la dirección del acceso. Sin forma comparable, falla cerrado.
                 $comparable = self::comparableURL($url, (string) parse_url(baseurl(), PHP_URL_PATH), Config::get_allowed_langs());
-                if ($comparable === null || in_array($comparable, self::loginLoopURLs(), true)) {
-                    log_soft_error($comparable === null ? self::LOGIN_UNREADABLE_MESSAGE : self::LOGIN_LOOP_MESSAGE);
+                //Cada aviso en su línea: los suaves se agrupan por archivo y línea, y uno se contaría como el otro.
+                if ($comparable === null) {
+                    log_soft_error(self::LOGIN_UNREADABLE_MESSAGE);
+                    $url = null;
+                } elseif (in_array($comparable, self::loginLoopURLs(), true)) {
+                    log_soft_error(self::LOGIN_LOOP_MESSAGE);
                     $url = null;
                 }
             }

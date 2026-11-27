@@ -1146,6 +1146,12 @@ class SettingsController extends AdminPanelController
                     SettingsModel::deleteConfigValue($optionName);
                     continue;
                 }
+                //El de fábrica, en cualquier idioma, no se fija: guardar la pantalla sin cambiarlo lo dejaría en ese idioma.
+                if ($lang === Config::get_default_lang() && self::isFactoryPartnersText($text)) {
+                    //RETORNO-IGNORADO: si no existía, no hay nada que borrar; partnersText() da el de fábrica traducido igual.
+                    SettingsModel::deleteConfigValue($optionName);
+                    continue;
+                }
                 $saved = SettingsModel::setConfigValue($optionName, $text) && $saved;
             }
             $result = new ResultOperations([], __(self::LANG_GROUP, 'Texto sobre el patrocinador'));
@@ -4678,7 +4684,8 @@ class SettingsController extends AdminPanelController
 
     /**
      * El texto sobre el patrocinador en un idioma: el suyo si existe; si no, el del idioma por omisión, guardado también
-     * vacío (quien lo borró lo quiso quitar); y si tampoco existe, el de fábrica, traducido al idioma actual.
+     * vacío (quien lo borró lo quiso quitar); y si tampoco existe, el de fábrica, traducido al idioma actual. El del idioma
+     * por omisión que es el de fábrica en cualquier idioma (isFactoryPartnersText()) sale traducido al actual: nadie lo escribió.
      *
      * @param string|null $lang Por omisión, el de la petición
      * @return string
@@ -4693,7 +4700,30 @@ class SettingsController extends AdminPanelController
             }
         }
         $text = get_config(self::PARTNERS_TEXT_CONFIG);
-        return is_string($text) ? trim($text) : __(LANG_GROUP, 'Con el apoyo de');
+        if (!is_string($text)) {
+            return __(LANG_GROUP, 'Con el apoyo de');
+        }
+        return self::isFactoryPartnersText($text) ? __(LANG_GROUP, 'Con el apoyo de') : trim($text);
+    }
+
+    /**
+     * Si un texto sobre el patrocinador es el de fábrica en alguno de los idiomas del sitio (tras recortarlo).
+     *
+     * @param string $text
+     * @return bool
+     */
+    private static function isFactoryPartnersText(string $text): bool
+    {
+        $text = trim($text);
+        if ($text === 'Con el apoyo de') {
+            return true;
+        }
+        foreach (Config::get_allowed_langs() as $lang) {
+            if ($text === trim(lang(LANG_GROUP, 'Con el apoyo de', $lang))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

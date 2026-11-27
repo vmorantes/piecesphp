@@ -11,14 +11,14 @@ $newsStates = NewsMapper::statuses() + [NewsMapper::PSEUDO_STATUS_DRAFT => __(Ne
     <tbody>
         <?php foreach (PublicationMapper::VISIBILITIES_COLORS as $state => $color): ?>
         <tr>
-            <td><code>PublicationMapper::VISIBILITIES_COLORS</code></td>
+            <td><code>PublicationMapper::<wbr>VISIBILITIES_COLORS</code></td>
             <td><?= StatusLabel::html($publicationStates[$state] ?? (string) $state, $color); ?></td>
             <td><code><?= escape_html($color); ?></code></td>
         </tr>
         <?php endforeach; ?>
         <?php foreach (NewsMapper::STATUSES_COLORS as $state => $color): ?>
         <tr>
-            <td><code>NewsMapper::STATUSES_COLORS</code></td>
+            <td><code>NewsMapper::<wbr>STATUSES_COLORS</code></td>
             <td><?= StatusLabel::html($newsStates[$state] ?? (string) $state, $color); ?></td>
             <td><code><?= escape_html($color); ?></code></td>
         </tr>

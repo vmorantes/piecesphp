@@ -29,7 +29,7 @@ $contentLength = mb_strlen(strip_tags($content));
     </div>
     <div class="footer">
         <?php if ($contentLength > 117) : ?>
-        <div class="ui button brand-color<?= $isFinish ? ' alt2' : ''; ?>" see-more><?= __(NewsLang::LANG_GROUP, 'Ver más'); ?></div>
+        <div class="ui<?= $isFinish ? ' basic' : ''; ?> button" see-more><?= __(NewsLang::LANG_GROUP, 'Ver más'); ?></div>
         <?php endif; ?>
     </div>
 </article>

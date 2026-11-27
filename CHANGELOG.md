@@ -1,3 +1,19 @@
+# 10.72.0 (27-11-2026)
+
+- **El tema del panel, en la 2.0.1**: los bloques de código vuelven a partir las líneas sin dejar un espacio al principio.
+  **Al actualizar**: nada que hacer.
+- **El botón «Ver más» de las tarjetas de Noticias vuelve a tener el estilo del tema** (salía sin estilo desde la 10.0.0).
+  Quien pinte esas tarjetas con su propio JavaScript sigue encontrando el botón por su atributo `see-more`. **Al
+  actualizar**: nada que hacer.
+- **«Con el apoyo de», en el idioma de cada página**: el texto sobre el patrocinador de fábrica sale traducido en todos
+  los idiomas del sitio, también si quedó guardado en otro idioma (pasaba al guardar Imágenes de marca navegando el panel
+  en inglés, o con el inglés como idioma principal), y guardar esa pantalla sin cambiarlo ya no lo fija. Un texto escrito
+  por el sitio se sigue usando tal cual. **Al actualizar**: nada que hacer.
+- **El encargado de una organización edita y elimina las publicaciones de su organización, y nada más**: la organización
+  general, donde caen los usuarios sin organización propia, ya no cuenta como la suya. La regla es la misma de
+  Documentos y Formularios, salvo el tipo de usuario: en Publicaciones el encargado puede ser de cualquier tipo que
+  tenga acceso a Publicaciones, como hasta ahora. **Al actualizar**: nada que hacer.
+
 # 10.71.0 (27-11-2026)
 
 - **`login_redirect_route` admite también una ruta con parámetros y una dirección del propio sitio**:

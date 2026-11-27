@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.0.0 - Site
+ * # Fomantic-UI 2.0.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -987,6 +987,11 @@ a.ui.label:not(.ribbon, .corner, .attached, .floating, .circular, .empty) {
   }
   .ui.checkbox input:checked ~ label::after {
     color: Highlight;
+  }
+  
+/* Título activo del acordeón: en fluent y material3 solo cambiaba el fondo, que aquí se pierde */
+  .ui.accordion .active.title {
+    color: Highlight !important;
   }
   :focus-visible {
     outline: 2px solid Highlight !important;

@@ -1,5 +1,5 @@
 /*!
- * # Fomantic-UI 2.0.0 - Segment
+ * # Fomantic-UI 2.0.1 - Segment
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -1269,9 +1269,10 @@
   border-radius: var(--r-md, 8px);
   box-shadow: none;
   
-/* break-spaces y no pre-wrap: una sangría larga (27 espacios en un ejemplo PHP de la hoja de diseño de PiecesPHP)
-           no se partía y sacaba el código 17px del bloque a 320 */
-  white-space: break-spaces;
+/* pre-wrap y no break-spaces: con break-spaces, una línea partida empieza por el espacio del corte (« el color…»,
+           hoja de diseño de PiecesPHP a 390, 2026-11-27). Con pre-wrap los espacios del corte cuelgan al final de la línea,
+           invisibles; medido en Chrome de 200 a 300px con una sangría de 45: sin desborde (scrollWidth = ancho) */
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 

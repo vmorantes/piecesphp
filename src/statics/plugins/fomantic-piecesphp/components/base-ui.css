@@ -717,6 +717,12 @@
 }
 
 @media (forced-colors: active) {
+.ui.accordion .active.title {
+  color: Highlight !important;
+}
+}
+
+@media (forced-colors: active) {
 :where(.ui, .dt-container) :focus-visible, :focus-visible:where(.ui, .dt-container) {
   outline: 2px solid Highlight !important;
   outline-offset: 2px;

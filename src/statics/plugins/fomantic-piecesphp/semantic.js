@@ -1,5 +1,5 @@
 /*
- * # Fomantic UI - 2.0.0
+ * # Fomantic UI - 2.0.1
  * https://github.com/fomantic/Fomantic-UI
  * https://fomantic-ui.com/
  *
@@ -9,7 +9,7 @@
  *
  */
 /*!
- * # Fomantic-UI 2.0.0 - Site
+ * # Fomantic-UI 2.0.1 - Site
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -513,7 +513,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Form Validation
+ * # Fomantic-UI 2.0.1 - Form Validation
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -2713,7 +2713,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Accordion
+ * # Fomantic-UI 2.0.1 - Accordion
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -3363,7 +3363,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Calendar
+ * # Fomantic-UI 2.0.1 - Calendar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -5515,7 +5515,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.0.0 - Chat
+ * # Fomantic-UI 2.0.1 - Chat
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -6262,7 +6262,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Checkbox
+ * # Fomantic-UI 2.0.1 - Checkbox
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -7154,7 +7154,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.0.0 - Colorpicker
+ * # Fomantic-UI 2.0.1 - Colorpicker
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -9528,7 +9528,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Dimmer
+ * # Fomantic-UI 2.0.1 - Dimmer
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -10261,7 +10261,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Dropdown
+ * # Fomantic-UI 2.0.1 - Dropdown
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -14937,7 +14937,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Embed
+ * # Fomantic-UI 2.0.1 - Embed
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -15650,7 +15650,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Flyout
+ * # Fomantic-UI 2.0.1 - Flyout
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -17218,7 +17218,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.0.0 - Loadbar
+ * # Fomantic-UI 2.0.1 - Loadbar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -17667,7 +17667,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Modal
+ * # Fomantic-UI 2.0.1 - Modal
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -19350,7 +19350,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Nag
+ * # Fomantic-UI 2.0.1 - Nag
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -19918,7 +19918,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.0.0 - Pin
+ * # Fomantic-UI 2.0.1 - Pin
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -20510,7 +20510,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Popup
+ * # Fomantic-UI 2.0.1 - Popup
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -22118,7 +22118,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Progress
+ * # Fomantic-UI 2.0.1 - Progress
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -23122,7 +23122,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Slider
+ * # Fomantic-UI 2.0.1 - Slider
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -24764,7 +24764,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Rating
+ * # Fomantic-UI 2.0.1 - Rating
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -25370,7 +25370,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Search
+ * # Fomantic-UI 2.0.1 - Search
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27110,7 +27110,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Shape
+ * # Fomantic-UI 2.0.1 - Shape
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -27897,7 +27897,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Sidebar
+ * # Fomantic-UI 2.0.1 - Sidebar
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29029,7 +29029,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.0.0 - Shell
+ * # Fomantic-UI 2.0.1 - Shell
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -29827,7 +29827,7 @@
 
 /* Fork: componente propio, no existe en Fomantic. */
 /*!
- * # Fomantic-UI 2.0.0 - Slideshow
+ * # Fomantic-UI 2.0.1 - Slideshow
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -30614,7 +30614,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Sticky
+ * # Fomantic-UI 2.0.1 - Sticky
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -31543,7 +31543,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Tab
+ * # Fomantic-UI 2.0.1 - Tab
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -32574,7 +32574,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Toast
+ * # Fomantic-UI 2.0.1 - Toast
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -33539,7 +33539,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Transition
+ * # Fomantic-UI 2.0.1 - Transition
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -34565,7 +34565,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - API
+ * # Fomantic-UI 2.0.1 - API
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -35791,7 +35791,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - State
+ * # Fomantic-UI 2.0.1 - State
  * https://github.com/fomantic/Fomantic-UI/
  *
  *
@@ -36489,7 +36489,7 @@
 })(jQuery, window, document);
 
 /*!
- * # Fomantic-UI 2.0.0 - Visibility
+ * # Fomantic-UI 2.0.1 - Visibility
  * https://github.com/fomantic/Fomantic-UI/
  *
  *

@@ -5,6 +5,7 @@
 
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsRoutes;
+use Organizations\Util\OrganizationAdministration;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
@@ -401,6 +402,44 @@ CliActions::make('unit-tests:core/organizations-off', function ($args) {
             OrganizationsRoutes::swapEnabledForTesting(false);
             $check($puedeEditar($encargadoE, $pubE) === false, '8e APAGADO: ser encargado no le deja editar una ajena que no creó ni firma');
             $check($puedeEditar($autorE, $pubE) === true, '8f APAGADO: su creador sí la edita');
+            OrganizationsRoutes::swapEnabledForTesting(true);
+            //Documentos y Formularios siguen exigiendo el tipo; Publicaciones no (su encargado puede ser de cualquier tipo).
+            set_config('current_user', (object) ['id' => (int) $encargadoE->id]);
+            set_config('pcsphp_current_user_stored', null);
+            $paqueteEncargadoE = getLoggedFrameworkUser(true);
+            $check($paqueteEncargadoE !== null && OrganizationAdministration::administersCreatorOf($autorE->id, $paqueteEncargadoE) === false && OrganizationAdministration::administersCreatorOf($autorE->id, $paqueteEncargadoE, false) === true,
+                '8k ENCENDIDO: con el tipo exigido (Documentos, Formularios) un encargado de comunicaciones no administra; sin exigirlo (Publicaciones), sí');
+            $puedeBorrarE = (function () use ($encargadoE, $pubE): bool {
+                set_config('current_user', (object) ['id' => (int) $encargadoE->id]);
+                set_config('pcsphp_current_user_stored', null);
+                getLoggedFrameworkUser(true);
+                return PublicationsController::allowedRoute('actions-delete', ['id' => $pubE]);
+            })();
+            $check($puedeBorrarE === true, '8k.1 CANARIO: ENCENDIDO, el encargado de su organización SÍ borra la de ella que no creó');
+            //La organización general no cuenta: su administrador no edita ni borra lo de sus usuarios. Se repone la fila entera.
+            $tablaOrganizaciones = OrganizationMapper::TABLE;
+            $filaGeneral = $database->query("SELECT * FROM `{$tablaOrganizaciones}` WHERE id = " . OrganizationMapper::INITIAL_ID_GLOBAL)->fetch(\PDO::FETCH_ASSOC);
+            if ($check(is_array($filaGeneral), '8l.0 CANARIO: existe la organización general') && is_array($filaGeneral)) {
+                $encargadoGeneralOrg = $crearUsuario('encargado-org-general', UsersModel::TYPE_USER_COMUNICACIONES, OrganizationMapper::INITIAL_ID_GLOBAL);
+                $autorGeneralOrg = $crearUsuario('autor-org-general', UsersModel::TYPE_USER_INSTITUCIONAL, OrganizationMapper::INITIAL_ID_GLOBAL);
+                $pubG = $sembrar('g', $autorGeneralOrg, PublicationMapper::ACTIVE);
+                try {
+                    $ponerEncargado(OrganizationMapper::INITIAL_ID_GLOBAL, (int) $encargadoGeneralOrg->id);
+                    $puedeBorrarG = (function () use ($encargadoGeneralOrg, $pubG): bool {
+                        set_config('current_user', (object) ['id' => (int) $encargadoGeneralOrg->id]);
+                        set_config('pcsphp_current_user_stored', null);
+                        getLoggedFrameworkUser(true);
+                        return PublicationsController::allowedRoute('actions-delete', ['id' => $pubG]);
+                    })();
+                    $check($puedeEditar($encargadoGeneralOrg, $pubG) === false && $puedeBorrarG === false, '8l ENCENDIDO: el administrador de la organización general no edita ni borra la publicación de un usuario de ella');
+                } finally {
+                    $columnas = array_keys($filaGeneral);
+                    $database->prepare("UPDATE `{$tablaOrganizaciones}` SET " . implode(', ', array_map(fn (string $c): string => "`{$c}` = ?", $columnas)) . ' WHERE id = ?')
+                        ->execute([...array_values($filaGeneral), OrganizationMapper::INITIAL_ID_GLOBAL]);
+                    $filaGeneralDespues = $database->query("SELECT * FROM `{$tablaOrganizaciones}` WHERE id = " . OrganizationMapper::INITIAL_ID_GLOBAL)->fetch(\PDO::FETCH_ASSOC);
+                    $check($filaGeneralDespues === $filaGeneral, '8l.1 la fila de la organización general queda como estaba');
+                }
+            }
         } finally {
             OrganizationsRoutes::swapEnabledForTesting(null);
             set_config('current_user', $usuarioAntes);
@@ -409,7 +448,7 @@ CliActions::make('unit-tests:core/organizations-off', function ($args) {
         $codigoPublicaciones = $code('app/classes/Publications/Controllers/PublicationsController.php');
         $check(str_contains($codigoPublicaciones, 'if (!in_array($currentUserType, PublicationMapper::CAN_VIEW_ALL)) { if (!OrganizationsRoutes::enabled()) {')
             && str_contains($codigoPublicaciones, '$organizationScope = $currentUser !== null && OrganizationsRoutes::enabled() && !in_array(')
-            && substr_count($codigoPublicaciones, '$allowByOrg = OrganizationsRoutes::enabled() && ') === 2, '8g el listado del panel, el público con no activas y la edición miran el interruptor');
+            && substr_count($codigoPublicaciones, '$allowByOrg = OrganizationAdministration::administersCreatorOf($publication->createdBy, $currentUser, false);') === 2, '8g el listado del panel, el público con no activas y la edición miran el interruptor (la edición, por OrganizationAdministration)');
 
         if ($base === '') {
             echoTerminal("   \e[33m[OMITIDA]\e[39m por HTTP: no hay base.");
