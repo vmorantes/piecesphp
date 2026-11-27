@@ -12,6 +12,7 @@ use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\MailCatalog\Definitions\OtherProblemsMail;
 use PiecesPHP\MailCatalog\Definitions\VerificationCodeMail;
+use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Authentication\RespondFirst;
 use PiecesPHP\UserSystem\Authentication\TokenEvents;
 use PiecesPHP\UserSystem\ORM\TicketsLogModel;
@@ -42,6 +43,8 @@ class UserProblemsController extends UsersController
     //Frenan que se inunde el buzón de alguien y la tabla: un código por usuario cada minuto y no más de cinco por hora.
     const CODE_MIN_SECONDS_BETWEEN = 60;
     const CODE_MAX_PER_HOUR = 5;
+    //Intentos de envío del formulario de otros problemas por IP y hora: cada uno es un correo o un ticket.
+    const OTHER_PROBLEMS_MAX_PER_HOUR = 5;
 
     /**
      * @var UsersModel
@@ -233,7 +236,8 @@ class UserProblemsController extends UsersController
         ];
 
         //Verificar que el grupo de datos para solicitados esté completo
-        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true && count($requerido) === count($params);
+        //Un campo que no es texto responde como uno que falta: si no, trim() o el envío posterior fallarían con un TypeError.
+        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true && count($requerido) === count($params) && self::allStrings($params, $requerido);
 
         //Cuerpo de la respuesta
         $json_response = [
@@ -246,10 +250,12 @@ class UserProblemsController extends UsersController
         if ($parametros_ok) {
 
             $username = $params['username'];
-            $type = $params['type'];
+            //Recortado UNA vez y guardado así: resolveProblem() compara el tipo recortado con el de la fila, y uno con
+            //espacios crearía códigos inservibles que gastan el tope de códigos del correo.
+            $type = trim($params['type']);
 
             //Se verifica que el tipo esté implementado
-            if (in_array(trim($type), [self::TYPE_USER_FORGET, self::TYPE_USER_BLOCKED])) {
+            if (in_array($type, [self::TYPE_USER_FORGET, self::TYPE_USER_BLOCKED], true)) {
 
                 //Se responde ya el envío y todo lo que depende del usuario corre después (RespondFirst): ni el cuerpo ni el
                 //tiempo dicen si existe, si está bloqueado o si su correo falló (eso queda en TicketsLogModel).
@@ -297,7 +303,7 @@ class UserProblemsController extends UsersController
 
         //A quien no está bloqueado no se le crea ni se le envía código (la respuesta ya fue la de un envío: no dice su
         //estado). Antes recibía un código que, con los intentos al máximo, lo dejaba activo.
-        if ($usuario !== null && trim($type) === self::TYPE_USER_BLOCKED && (int) $usuario->status !== UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+        if ($usuario !== null && $type === self::TYPE_USER_BLOCKED && (int) $usuario->status !== UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
             return;
         }
 
@@ -317,6 +323,9 @@ class UserProblemsController extends UsersController
             $problems->email = $usuario->email;
             $problems->code = generate_code(6);
             $problems->type = $type;
+            //Los anteriores vigentes de ese correo y tipo caducan, sin borrarse: el tope por correo los sigue contando.
+            //RETORNO-IGNORADO: si no caducan, latestIDFor() en resolveProblem() ya los rechaza.
+            UserProblemsModel::expireValidFor((string) $usuario->email, (string) $type, $problems->created);
             $problems->save();
             TokenEvents::log(LogsMapper::MSG_TOKEN_ISSUED, self::tokenKind((string) $type), (int) $usuario->id, (string) $usuario->username);
 
@@ -366,12 +375,19 @@ class UserProblemsController extends UsersController
         $args = $request->getParsedBody();
 
         //Verificar que el grupo de datos para autenticación sea válido
-        $parametros_ok = is_array($args) && require_keys($requerido, $args) === true && count($requerido) === count($args);
+        $parametros_ok = is_array($args) && require_keys($requerido, $args) === true && count($requerido) === count($args) && self::allStrings($args, $requerido);
 
         if ($parametros_ok) {
 
             $code = trim($args['code']);
             $type = trim($args['type']);
+
+            //EL LÍMITE VA ANTES DE MIRAR EL CÓDIGO: sin él, un código de 6 cifras se adivina.
+            $secondsToUnlock = OTPRateLimiter::secondsToUnlock('', OTPRateLimiter::clientIP());
+            if ($secondsToUnlock > 0) {
+                return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_USER_PROBLEM_CODE, '', $secondsToUnlock);
+            }
+            $resolvedUser = null;
 
             //Verificar si existe
             $exist = UserProblemsModel::exist($code);
@@ -389,11 +405,18 @@ class UserProblemsController extends UsersController
                 //Verificar que el usuario existe
                 if ($user !== null && $problems !== null) {
 
+                    $resolvedUser = $user;
+
                     $now = new \DateTime();
                     $expired = $problems->expired <= $now;
+                    //Solo vale el último código de ese correo y tipo: uno nuevo deja sin valor a los anteriores, sin borrarlos.
+                    $superseded = (int) $problems->id !== UserProblemsModel::latestIDFor((string) $problems->email, (string) $problems->type);
 
-                    //Verificar expiración
-                    if (!$expired) {
+                    if ($superseded) {
+                        TokenEvents::log(LogsMapper::MSG_TOKEN_REJECTED, self::tokenKind((string) $problems->type), (int) $user->id, (string) $user->username, ['%reason%' => TokenEvents::REASON_EXPIRED]);
+                        $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
+                        $json_response['message'] = $this->getMessage($json_response['error']);
+                    } elseif (!$expired) {
 
                         if ($problems->type == self::TYPE_USER_FORGET && $type == self::TYPE_USER_FORGET) {
 
@@ -455,6 +478,17 @@ class UserProblemsController extends UsersController
                 $json_response['error'] = self::EXPIRED_OR_NOT_EXIST_CODE;
                 $json_response['message'] = $this->getMessage($json_response['error']);
             }
+
+            //Un código bueno de alguien que no está bloqueado no es un fallo: solo cuenta el que no vale.
+            $failedCode = $json_response['error'] === self::EXPIRED_OR_NOT_EXIST_CODE;
+            //El fallo va sin nombre: con el del dueño gastaría su presupuesto por usuario en las demás vías.
+            OTPRateLimiter::record(
+                OTPRateLimiter::VIA_USER_PROBLEM_CODE,
+                $resolvedUser !== null ? (int) $resolvedUser->id : null,
+                $resolvedUser !== null && !$failedCode ? (string) $resolvedUser->username : '',
+                !$failedCode,
+                $failedCode ? $this->getMessage(self::EXPIRED_OR_NOT_EXIST_CODE) : ''
+            );
         } else {
             $json_response['error'] = self::MISSING_OR_UNEXPECTED_PARAMS;
             $json_response['message'] = $this->getMessage($json_response['error']);
@@ -486,7 +520,9 @@ class UserProblemsController extends UsersController
         ];
 
         //Verificar que el grupo de datos para solicitados esté completo
-        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true;
+        //Texto los obligatorios y el apellido si viene; `extra`, una lista si viene (sendMessageOtherProblems() la pide así).
+        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true && self::allStrings($params, $requerido)
+            && (!isset($params['lastname']) || is_string($params['lastname'])) && (!isset($params['extra']) || is_array($params['extra']));
 
         //Cuerpo de la respuesta
         $json_response = [
@@ -502,6 +538,13 @@ class UserProblemsController extends UsersController
             $email = $params['email'];
             $message = $params['message'];
             $extra = $params['extra'] ?? null;
+
+            //EL TOPE VA ANTES DE ENVIAR: sin él, cada petición es un correo o un ticket.
+            if (OTPRateLimiter::ipSendLimitReached(OTPRateLimiter::VIA_OTHER_PROBLEMS_SEND, OTPRateLimiter::clientIP(), self::OTHER_PROBLEMS_MAX_PER_HOUR)) {
+                return OTPRateLimiter::lockedResponse($response, OTPRateLimiter::VIA_OTHER_PROBLEMS_SEND, '', 3600);
+            }
+            //Cuenta el INTENTO, antes de enviar y como fallo: no es un acceso (los informes cuentan los éxitos como ingresos).
+            OTPRateLimiter::record(OTPRateLimiter::VIA_OTHER_PROBLEMS_SEND, null, '', false, (string) __(self::LANG_GROUP, 'Intento de envío de otros problemas.'));
 
             //Envío de ticket
             /**

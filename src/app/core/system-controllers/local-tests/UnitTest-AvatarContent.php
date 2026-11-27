@@ -162,11 +162,25 @@ CliActions::make('unit-tests:core/avatar-content', function ($args) {
         $check($antes !== '' && $shaEnDisco() === $antes, 'b4 y el avatar en disco no cambia (sha1 antes y después)', "{$antes} · " . $shaEnDisco());
         $r = $subir($svg, 'image/png', 'zz.png');
         $check(($r['json']['success'] ?? null) === false && $shaEnDisco() === $antes, 'b5 un SVG llamado .png se rechaza y el avatar no cambia', "HTTP {$r['status']} · " . json_encode($r['json']));
+        //Una subida que pasa del MAX_FILE_SIZE del formulario llega sin archivo (UPLOAD_ERR_FORM_SIZE): no es un tipo inválido.
+        $r = $peticion($ruta, $jwt, ['user_id' => $usuario, 'MAX_FILE_SIZE' => '10', 'image' => new \CURLFile($png, 'image/png', 'zz.png')]);
+        $mensaje = (string) ($r['json']['message'] ?? '');
+        $check(($r['json']['success'] ?? null) === false && $mensaje !== $tipoInvalido && str_contains($mensaje, 'pesa más') && $shaEnDisco() === $antes, 'b6 DISCRIMINANTE: una imagen que pesa más de lo admitido dice que pesa demasiado, no «Tipo de archivo inválido.»', "HTTP {$r['status']} · " . json_encode($r['json'], JSON_UNESCAPED_UNICODE));
 
         echoTerminal('');
         echoTerminal('[c] save(), directo: la comprobación no depende del controlador');
         $copiaHtml = $escribir('x-copia.jpg', (string) file_get_contents($html));
         $check(AvatarModel::save($usuario, $subido($copiaHtml, 'image/jpeg')) === false && $shaEnDisco() === $antes && is_file($copiaHtml), 'c1 save() con un HTML devuelve false y no mueve nada');
+        //Si mover el archivo falla (aquí, el destino avatar.jpg es una carpeta), save() no puede decir que guardó.
+        $copiaPng = $escribir('zz-copia.png', (string) file_get_contents($png));
+        //RETORNO-IGNORADO: lo comprueba c2.
+        unlink($enDisco);
+        //RETORNO-IGNORADO: lo comprueba c2.
+        mkdir($enDisco, 0777);
+        $guardo = AvatarModel::save($usuario, $subido($copiaPng, 'image/png'));
+        $check(is_dir($enDisco) && $guardo === false, 'c2 DISCRIMINANTE: si mover el archivo falla, save() devuelve false', var_export($guardo, true));
+        //RETORNO-IGNORADO: lo comprueba z2.
+        rmdir($enDisco);
     } catch (\Throwable $e) {
         $check(false, 'la suite corre entera', get_class($e) . ': ' . mb_substr($e->getMessage(), 0, 300));
     } finally {

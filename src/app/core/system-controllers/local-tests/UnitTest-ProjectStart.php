@@ -12,6 +12,7 @@ use PiecesPHP\Core\ProjectStart;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Settings\Controllers\SiteFilesController;
 use PiecesPHP\Terminal\CliActions;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Factory\UriFactory;
 use Slim\Psr7\Headers;
@@ -268,6 +269,67 @@ CliActions::make('unit-tests:core/project-start', function ($args) {
         }
         $own = baseurl('zz-propia/');
         $check(ProjectStart::afterLoginURL($own) === $own, 'f16 CANARIO: un next del propio sitio se usa', ProjectStart::afterLoginURL($own));
+        //Una dirección completa (P413 2.5, P416): http o https con host, también de otro dominio.
+        $t = ProjectStart::loginTarget(null, 'https://zz-otro.example/destino?a=1', $oldAdminURL);
+        $check($t['kind'] === 'url' && $t['value'] === 'https://zz-otro.example/destino?a=1', 'f17 DISCRIMINANTE: una dirección https de otro dominio es un destino «url»', json_encode($t) ?: '');
+        set_config('login_redirect_route', 'https://zz-otro.example/destino?a=1');
+        $check(ProjectStart::afterLoginURL(null) === 'https://zz-otro.example/destino?a=1', 'f18 DISCRIMINANTE: afterLoginURL() la devuelve tal cual, sin base ni idioma', ProjectStart::afterLoginURL(null));
+        $t = ProjectStart::loginTarget(null, 'http://zz-otro.example/', $oldAdminURL);
+        $check($t['kind'] === 'url' && $t['value'] === 'http://zz-otro.example/', 'f19 una dirección http también', json_encode($t) ?: '');
+        $t = ProjectStart::loginTarget(null, 'https://zz otro.example/x', $oldAdminURL);
+        $check($t['kind'] === 'panel' && $t['value'] === 'invalid', 'f20 una dirección con espacios no vale: el panel', json_encode($t) ?: '');
+        set_config('login_redirect_route', 'https://zz otro.example/x');
+        $check(ProjectStart::afterLoginURL(null) === $panel, 'f21 afterLoginURL() con una dirección con espacios lleva al panel', ProjectStart::afterLoginURL(null));
+        foreach (['zz-otro.example/x', 'ftp://zz-otro.example/x', 'javascript:void(0)', '//zz-otro.example/x'] as $index => $notURL) {
+            $t = ProjectStart::loginTarget(null, $notURL, $oldAdminURL);
+            $check($t['kind'] === 'route' && $t['value'] === $notURL, 'f22.' . ($index + 1) . ' sin esquema http o https no es una dirección: se lee como nombre de ruta (y, si no lo es, lleva al panel): ' . $notURL, json_encode($t) ?: '');
+        }
+        set_config('login_redirect_route', 'ftp://zz-otro.example/x');
+        $check(ProjectStart::afterLoginURL(null) === $panel, 'f23 una ftp:// no es destino: el panel', ProjectStart::afterLoginURL(null));
+        $t = ProjectStart::loginTarget('https://zz.test/a', 'https://zz-otro.example/destino', $oldAdminURL);
+        $check($t['kind'] === 'next' && $t['value'] === 'https://zz.test/a', 'f24 next manda también sobre una dirección completa');
+        set_config('login_redirect_route', 'https://zz-otro.example/destino');
+        $check(ProjectStart::afterLoginURL($own) === $own, 'f25 afterLoginURL(): un next del propio sitio manda sobre la dirección', ProjectStart::afterLoginURL($own));
+        set_config('login_redirect_route', 'admin');
+        $warnEmpty = ProjectStart::loginRedirectHostWarning('https://zz-otro.example/destino', [], true);
+        $warnOut = ProjectStart::loginRedirectHostWarning('https://zz-otro.example/destino', ['zz-propio.example'], true);
+        $warnIn = ProjectStart::loginRedirectHostWarning('https://www.zz-propio.example/destino', ['zz-propio.example'], true);
+        $warnNoWww = ProjectStart::loginRedirectHostWarning('https://www.zz-propio.example/destino', ['zz-propio.example'], false);
+        $check(is_string($warnEmpty) && str_contains($warnEmpty, 'no se pudo comprobar'), 'f26 con allowed_hosts vacía, el aviso dice que no se pudo comprobar', (string) $warnEmpty);
+        $check(is_string($warnOut) && str_contains($warnOut, 'zz-otro.example no está'), 'f27 DISCRIMINANTE: un dominio fuera de la lista avisa', (string) $warnOut);
+        $check($warnIn === null && is_string($warnNoWww), 'f28 un dominio de la lista (con el www inferido) no avisa; sin inferir el www, sí', var_export([$warnIn, $warnNoWww], true));
+        $check(ProjectStart::loginRedirectHostWarning('users-list', [], true) === null && ProjectStart::loginRedirectHostWarning(false, [], true) === null, 'f29 un nombre de ruta, o la clave sin declarar, no avisa');
+        //Con usuario o contraseña no vale (parece suplantación), y una dirección que vuelve al acceso haría un bucle (JOY).
+        foreach (['https://zz-u:zz-p@zz-otro.example/x', 'https://zz-u@zz-otro.example/x'] as $index => $withUser) {
+            $t = ProjectStart::loginTarget(null, $withUser, $oldAdminURL);
+            set_config('login_redirect_route', $withUser);
+            $check($t['kind'] === 'panel' && $t['value'] === 'invalid' && ProjectStart::afterLoginURL(null) === $panel, 'f3' . $index . ' DISCRIMINANTE: una dirección con ' . ($index === 0 ? 'usuario y contraseña' : 'usuario') . ' no vale: el panel', json_encode($t) ?: '');
+        }
+        $loginURL = (string) UsersController::routeName('form-login', [], true);
+        $basePath = (string) parse_url(baseurl(), PHP_URL_PATH);
+        $langs = \PiecesPHP\Core\Config::get_allowed_langs();
+        $withLang = preg_replace('#^(https?://[^/]+' . preg_quote(rtrim($basePath, '/'), '#') . ')/#', '$1/' . end($langs) . '/', $loginURL, 1);
+        $loginForms = ['tal cual' => $loginURL, 'sin la barra final' => rtrim($loginURL, '/'), 'con la barra final' => rtrim($loginURL, '/') . '/', 'con ?i18n' => rtrim($loginURL, '/') . '/?i18n=es', 'con prefijo de idioma' => (string) $withLang];
+        $n = 2;
+        foreach ($loginForms as $form => $address) {
+            set_config('login_redirect_route', $address);
+            $t = ProjectStart::loginTarget(null, $address, $oldAdminURL, true, ProjectStart::loginLoopURLs(), $basePath, $langs);
+            $check($loginURL !== '' && $t['kind'] === 'panel' && $t['value'] === 'loop' && ProjectStart::afterLoginURL(null) === $panel, 'f3' . $n++ . ' DISCRIMINANTE: la dirección del acceso ' . $form . ' haría un bucle: el panel', $address . ' · ' . json_encode($t));
+        }
+        $home = (string) \App\Controller\PublicAreaController::routeName('index', [], true);
+        set_config('login_redirect_route', $home);
+        set_config('public_area', false);
+        $closed = ProjectStart::afterLoginURL(null);
+        set_config('public_area', true);
+        $open = ProjectStart::afterLoginURL(null);
+        $check($home !== '' && $closed === $panel, 'f37 DISCRIMINANTE: la portada sin páginas públicas lleva al acceso, así que es un bucle: el panel', $home . ' → ' . $closed);
+        $check($open === $home, 'f38 CANARIO: con páginas públicas, la portada es un destino válido', $open);
+        $warnUser = ProjectStart::loginRedirectHostWarning('https://zz-u:zz-p@zz-otro.example/x', [], true);
+        $warnLoop = ProjectStart::loginRedirectHostWarning($loginURL, [], true, ProjectStart::loginLoopURLs(), $basePath, $langs);
+        $check(is_string($warnUser) && str_contains($warnUser, 'usuario o contraseña') && !str_contains($warnUser, 'lleva al acceso a'), 'f39 el aviso de una dirección con usuario dice que no se usa', (string) $warnUser);
+        $check(is_string($warnLoop) && str_contains($warnLoop, 'bucle') && !str_contains($warnLoop, 'lleva al acceso a'), 'f40 el aviso de una dirección que vuelve al acceso dice que haría un bucle', (string) $warnLoop);
+        $check(ProjectStart::loginRedirectHostWarning('https://zz-otro.example/x', ['zz-otro.example'], true, ProjectStart::loginLoopURLs(), $basePath, $langs) === null, 'f41 CANARIO: una dirección de la lista que no es el acceso no avisa');
+        set_config('login_redirect_route', 'admin');
         echoTerminal(' ');
 
         //──── g. El banco de redirecciones ───────────────────────────────────────────────────

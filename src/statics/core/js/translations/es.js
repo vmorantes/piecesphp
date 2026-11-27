@@ -106,6 +106,7 @@ var PCSPHP_TRANSLATIONS_ES = {
 	},
 	datatables: {
 		exportListing: 'Exportar listado actual',
+		loadError: 'No se pudo cargar la tabla. Vuelve a intentarlo.',
 		lang: {
 			"decimal": "",
 			"emptyTable": "No hay información disponible",

@@ -14,6 +14,7 @@ use PiecesPHP\Core\DataTransfer\Import\ImportArtifacts;
 use PiecesPHP\Core\DataTransfer\Import\ImportDefinition;
 use PiecesPHP\Core\DataTransfer\Import\ImportPersistException;
 use PiecesPHP\Core\DataTransfer\Import\ParsedRow;
+use PiecesPHP\UserSystem\Controllers\UsersController;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserTypes;
@@ -108,7 +109,13 @@ class UsersImportDefinition extends ImportDefinition
             new Column('secondname', __(self::LANG_GROUP, 'Segundo nombre')),
             new Column('first_lastname', __(self::LANG_GROUP, 'Primer apellido'), true, ['apellido']),
             new Column('second_lastname', __(self::LANG_GROUP, 'Segundo apellido')),
-            new Column('password', __(self::LANG_GROUP, 'Contraseña')),
+            new Column('password', __(self::LANG_GROUP, 'Contraseña'), false, [], function (?string $value) {
+                //Las reglas del alta: con un byte nulo password_hash() lanzaría, y bcrypt ignora lo que pasa de 72 bytes.
+                if (UsersController::passwordHasInvalidCharacter($value)) {
+                    return __(self::LANG_GROUP, 'Contraseña: tiene un carácter no válido.');
+                }
+                return UsersController::passwordTooLong($value) ? __(self::LANG_GROUP, 'Contraseña: es demasiado larga: como mucho 72 caracteres, menos si lleva tildes o emojis.') : null;
+            }),
             new Column('type', __(self::LANG_GROUP, 'Tipo'), false, [], function (?string $value) {
                 return $this->typeError($value);
             }),
@@ -201,10 +208,10 @@ class UsersImportDefinition extends ImportDefinition
                 $user->username = (string) $row->get('username');
                 $user->email = mb_strtolower((string) $row->get('email'));
                 $user->password = password_hash($password, \PASSWORD_DEFAULT);
-                $user->firstname = ucwords((string) $row->get('firstname'));
-                $user->secondname = ucwords((string) $row->get('secondname'));
-                $user->firstLastname = ucwords((string) $row->get('first_lastname'));
-                $user->secondLastname = ucwords((string) $row->get('second_lastname'));
+                $user->firstname = UsersController::uppercaseInitials((string) $row->get('firstname'));
+                $user->secondname = UsersController::uppercaseInitials((string) $row->get('secondname'));
+                $user->firstLastname = UsersController::uppercaseInitials((string) $row->get('first_lastname'));
+                $user->secondLastname = UsersController::uppercaseInitials((string) $row->get('second_lastname'));
                 $user->type = $type;
                 $user->status = UsersModel::STATUS_USER_ACTIVE;
                 $user->failedAttempts = 0;

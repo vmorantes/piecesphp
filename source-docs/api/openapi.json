@@ -2711,7 +2711,7 @@
           "Recuperación y desbloqueo"
         ],
         "summary": "Pedir el código para desbloquear la cuenta",
-        "description": "Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. La ruta comparte manejador con users-forget-request-code (/users/user-forget-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_BLOCKED y TYPE_USER_FORGET. No usa sesión. Responde igual exista o no el usuario, y a quien no está bloqueado no se le crea ni se le envía código (la respuesta es la de un envío). Hay un límite de códigos por usuario. El cuerpo debe traer exactamente username y type.",
+        "description": "Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. La ruta comparte manejador con users-forget-request-code (/users/user-forget-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_BLOCKED y TYPE_USER_FORGET. No usa sesión. Responde igual exista o no el usuario, y a quien no está bloqueado no se le crea ni se le envía código (la respuesta es la de un envío). Hay un límite de códigos por usuario, y un código nuevo deja sin valor a los anteriores del mismo tipo. El cuerpo debe traer exactamente username y type.",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/ProblemCodeRequest"
@@ -2741,7 +2741,7 @@
           "Recuperación y desbloqueo"
         ],
         "summary": "Desbloquear la cuenta con el código",
-        "description": "Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_BLOCKED y el usuario está bloqueado por intentos, lo desbloquea (vuelve al estado que tenía al bloquearse). La ruta comparte manejador con users-forget-get (/users/get-username/): lo que decide qué se resuelve es type. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type.",
+        "description": "Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_BLOCKED y el usuario está bloqueado por intentos, lo desbloquea (vuelve al estado que tenía al bloquearse). La ruta comparte manejador con users-forget-get (/users/get-username/): lo que decide qué se resuelve es type. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type. Tras varios códigos que no valen desde la misma dirección responde 429 con Retry-After (límite de otp_security, compartido con la recuperación y el código de un solo uso).",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/ResolveProblemRequest"
@@ -2756,6 +2756,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyAttempts"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
@@ -2771,7 +2774,7 @@
           "Recuperación y desbloqueo"
         ],
         "summary": "Recuperar el nombre de usuario con el código",
-        "description": "Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_FORGET, devuelve el nombre de usuario en username. Comparte manejador con users-blocked-resolve (/users/unblock-user/): lo que decide qué se resuelve es type, no la ruta. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type.",
+        "description": "Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_FORGET, devuelve el nombre de usuario en username. Comparte manejador con users-blocked-resolve (/users/unblock-user/): lo que decide qué se resuelve es type, no la ruta. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type. Tras varios códigos que no valen desde la misma dirección responde 429 con Retry-After (límite de otp_security, compartido con la recuperación y el código de un solo uso).",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/ResolveProblemRequest"
@@ -2787,6 +2790,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/TooManyAttempts"
+          },
           "500": {
             "$ref": "#/components/responses/InternalError"
           }
@@ -2801,7 +2807,7 @@
           "Recuperación y desbloqueo"
         ],
         "summary": "Pedir el código para recordar el nombre de usuario",
-        "description": "Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. Comparte manejador con users-blocked-request-code (/users/user-blocked-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_FORGET y TYPE_USER_BLOCKED. No usa sesión. Responde igual exista o no el usuario. Hay un límite de códigos por usuario. El cuerpo debe traer exactamente username y type.",
+        "description": "Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. Comparte manejador con users-blocked-request-code (/users/user-blocked-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_FORGET y TYPE_USER_BLOCKED. No usa sesión. Responde igual exista o no el usuario. Hay un límite de códigos por usuario, y un código nuevo deja sin valor a los anteriores del mismo tipo. El cuerpo debe traer exactamente username y type.",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/ProblemCodeRequest"
@@ -2939,7 +2945,7 @@
           "Recuperación y desbloqueo"
         ],
         "summary": "Enviar una solicitud de soporte",
-        "description": "Envía un mensaje de soporte para los problemas de acceso que no cubren las otras rutas. Crea un ticket en osTicket si la instalación lo configura; si no, o si falla, lo manda por correo a other_problems_recipients (sin una lista válida no se envía nada y send_mail es false). No usa sesión. Requiere name, email y message.\n\nPor lectura del código: `extra` es opcional y es un arreglo de objetos `{display: texto, text: texto}` que la plantilla del correo (usuarios/mail/other-problems.php, líneas 11-16) muestra como pares; lo que no tenga esa forma se ignora. Si `extra` trae además la clave `subject` (un texto no vacío), sustituye al asunto del correo (OtherProblemsMail.php, línea 50).",
+        "description": "Envía un mensaje de soporte para los problemas de acceso que no cubren las otras rutas. Crea un ticket en osTicket si la instalación lo configura; si no, o si falla, lo manda por correo a other_problems_recipients (sin una lista válida no se envía nada y send_mail es false). No usa sesión. Requiere name, email y message.\n\nPor lectura del código: `extra` es opcional y es un arreglo de objetos `{display: texto, text: texto}` que la plantilla del correo (usuarios/mail/other-problems.php, líneas 11-16) muestra como pares; lo que no tenga esa forma se ignora. Si `extra` trae además la clave `subject` (un texto no vacío), sustituye al asunto del correo (OtherProblemsMail.php, línea 50). Admite un número limitado de mensajes por hora desde la misma dirección; pasado el tope responde 429 con Retry-After.",
         "security": [],
         "requestBody": {
           "$ref": "#/components/requestBodies/OtherProblemsRequest"
@@ -2954,6 +2960,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyAttempts"
           },
           "500": {
             "$ref": "#/components/responses/InternalError"

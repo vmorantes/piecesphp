@@ -173,13 +173,17 @@ $previewFrame = static function (string $frameKey, array $frame, string $theme, 
     <div class="ui two column stackable compact grid">
         <?php foreach ($themes as $theme => [$themeLabel, $titleTemplate]): ?>
         <div class="column">
-            <span class="ui mini label"><?= escape_html($themeLabel); ?></span>
             <?php if (count($site['frames']) === 1): ?>
+            <span class="ui mini label"><?= escape_html($themeLabel); ?></span>
             <?php foreach ($site['frames'] as $frameKey => $frame): ?>
             <?= $previewFrame($frameKey, $frame, $theme, $titleTemplate); ?>
             <?php endforeach; ?>
             <?php else: ?>
             <div class="ui grid">
+                <?php //Suelta antes de la rejilla, su margen superior negativo la tapaba: va en su fila. ?>
+                <div class="sixteen wide column">
+                    <span class="ui mini label"><?= escape_html($themeLabel); ?></span>
+                </div>
                 <?php foreach ($site['frames'] as $frameKey => $frame): ?>
                 <div class="<?= escape_html($frame['wide'] ?? 'eight'); ?> wide column">
                     <small class="ui muted text"><?= escape_html($frame['caption']); ?></small>

@@ -69,7 +69,11 @@ $(document).ready(function (e) {
 		request.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
+				messageBox.text(jqXHR.responseJSON.message)
+			} else {
+				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			}
 
 		})
 

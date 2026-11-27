@@ -207,7 +207,7 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v10.68.0');
+    define('APP_VERSION', 'v10.69.0');
     /**
      * Fecha de la versión de la aplicación
      */
@@ -266,6 +266,9 @@ if (file_exists($directories['custom_autoloads'])) {
     require $directories['custom_autoloads_config'];
 
 }
+
+//El último cargador: un nombre de clase de la 7.1 solo se resuelve con su alias si nadie más lo resolvió (hasta la 11.0.0).
+\PiecesPHP\Core\LegacyClassAliases::register();
 
 if (get_config('statics_path') !== false && is_string(get_config('statics_path'))) {
     ServerStatics::setStaticPath(get_config('statics_path'));

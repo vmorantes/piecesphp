@@ -241,7 +241,7 @@ Ruta interna: `users-blocked-request-code`.
 
 Autenticación: sin sesión.
 
-Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. La ruta comparte manejador con users-forget-request-code (/users/user-forget-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_BLOCKED y TYPE_USER_FORGET. No usa sesión. Responde igual exista o no el usuario, y a quien no está bloqueado no se le crea ni se le envía código (la respuesta es la de un envío). Hay un límite de códigos por usuario. El cuerpo debe traer exactamente username y type.
+Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. La ruta comparte manejador con users-forget-request-code (/users/user-forget-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_BLOCKED y TYPE_USER_FORGET. No usa sesión. Responde igual exista o no el usuario, y a quien no está bloqueado no se le crea ni se le envía código (la respuesta es la de un envío). Hay un límite de códigos por usuario, y un código nuevo deja sin valor a los anteriores del mismo tipo. El cuerpo debe traer exactamente username y type.
 
 ### Cuerpo
 
@@ -319,7 +319,7 @@ Ruta interna: `users-blocked-resolve`.
 
 Autenticación: sin sesión.
 
-Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_BLOCKED y el usuario está bloqueado por intentos, lo desbloquea (vuelve al estado que tenía al bloquearse). La ruta comparte manejador con users-forget-get (/users/get-username/): lo que decide qué se resuelve es type. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type.
+Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_BLOCKED y el usuario está bloqueado por intentos, lo desbloquea (vuelve al estado que tenía al bloquearse). La ruta comparte manejador con users-forget-get (/users/get-username/): lo que decide qué se resuelve es type. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type. Tras varios códigos que no valen desde la misma dirección responde 429 con Retry-After (límite de otp_security, compartido con la recuperación y el código de un solo uso).
 
 ### Cuerpo
 
@@ -363,6 +363,32 @@ Tipo: object (ResolveProblemResponse).
 | `error` | string | sí | NO_ERROR, EXPIRED_OR_NOT_EXIST_CODE o MISSING_OR_UNEXPECTED_PARAMS. |
 | `message` | string | sí |  |
 | `username` | string | no | El nombre de usuario; solo cuando el código se resolvió bien. |
+
+#### 429 (TooManyAttempts)
+
+Demasiados intentos desde esta IP o para este usuario (otp_security). Trae la cabecera Retry-After con los segundos de espera.
+
+| Cabecera | Tipo | Descripción |
+| :-- | :-- | :-- |
+| `Retry-After` | integer | Segundos hasta poder reintentar. |
+
+`application/json`
+
+Tipo: object (TooManyAttemptsResponse).
+
+El cuerpo del 429. Las rutas de acceso añaden auth, isAuth, token, user y userData (vacíos) para que el cliente del login lo trate como un acceso fallido.
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | sí |  |
+| `error` | string · siempre `"TOO_MANY_ATTEMPTS"` | sí |  |
+| `message` | string | sí |  |
+| `retryAfter` | integer | sí | Segundos de espera. |
+| `auth` | boolean | no |  |
+| `isAuth` | boolean | no |  |
+| `token` | string | no |  |
+| `user` | string | no |  |
+| `userData` | array de cualquiera | no |  |
 
 #### 500 (InternalError)
 
@@ -396,7 +422,7 @@ Ruta interna: `users-forget-get`.
 
 Autenticación: sin sesión.
 
-Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_FORGET, devuelve el nombre de usuario en username. Comparte manejador con users-blocked-resolve (/users/unblock-user/): lo que decide qué se resuelve es type, no la ruta. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type.
+Verifica el código recibido por correo y, si corresponde a un problema de tipo TYPE_USER_FORGET, devuelve el nombre de usuario en username. Comparte manejador con users-blocked-resolve (/users/unblock-user/): lo que decide qué se resuelve es type, no la ruta. No usa sesión. El código se consume al usarse. El cuerpo debe traer exactamente code y type. Tras varios códigos que no valen desde la misma dirección responde 429 con Retry-After (límite de otp_security, compartido con la recuperación y el código de un solo uso).
 
 ### Cuerpo
 
@@ -441,6 +467,32 @@ Tipo: object (ResolveProblemResponse).
 | `message` | string | sí |  |
 | `username` | string | no | El nombre de usuario; solo cuando el código se resolvió bien. |
 
+#### 429 (TooManyAttempts)
+
+Demasiados intentos desde esta IP o para este usuario (otp_security). Trae la cabecera Retry-After con los segundos de espera.
+
+| Cabecera | Tipo | Descripción |
+| :-- | :-- | :-- |
+| `Retry-After` | integer | Segundos hasta poder reintentar. |
+
+`application/json`
+
+Tipo: object (TooManyAttemptsResponse).
+
+El cuerpo del 429. Las rutas de acceso añaden auth, isAuth, token, user y userData (vacíos) para que el cliente del login lo trate como un acceso fallido.
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | sí |  |
+| `error` | string · siempre `"TOO_MANY_ATTEMPTS"` | sí |  |
+| `message` | string | sí |  |
+| `retryAfter` | integer | sí | Segundos de espera. |
+| `auth` | boolean | no |  |
+| `isAuth` | boolean | no |  |
+| `token` | string | no |  |
+| `user` | string | no |  |
+| `userData` | array de cualquiera | no |  |
+
 #### 500 (InternalError)
 
 Error interno. Fuera de local el cuerpo no da más detalle: guarde reference y comuníquelo a quien mantiene la instalación.
@@ -473,7 +525,7 @@ Ruta interna: `users-forget-request-code`.
 
 Autenticación: sin sesión.
 
-Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. Comparte manejador con users-blocked-request-code (/users/user-blocked-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_FORGET y TYPE_USER_BLOCKED. No usa sesión. Responde igual exista o no el usuario. Hay un límite de códigos por usuario. El cuerpo debe traer exactamente username y type.
+Envía al correo del usuario un código (vale 24 horas) para el problema indicado en type. Comparte manejador con users-blocked-request-code (/users/user-blocked-code/): lo que decide el problema es type, no la ruta, así que acepta TYPE_USER_FORGET y TYPE_USER_BLOCKED. No usa sesión. Responde igual exista o no el usuario. Hay un límite de códigos por usuario, y un código nuevo deja sin valor a los anteriores del mismo tipo. El cuerpo debe traer exactamente username y type.
 
 ### Cuerpo
 
@@ -848,7 +900,7 @@ Autenticación: sin sesión.
 
 Envía un mensaje de soporte para los problemas de acceso que no cubren las otras rutas. Crea un ticket en osTicket si la instalación lo configura; si no, o si falla, lo manda por correo a other_problems_recipients (sin una lista válida no se envía nada y send_mail es false). No usa sesión. Requiere name, email y message.
 
-Por lectura del código: `extra` es opcional y es un arreglo de objetos `{display: texto, text: texto}` que la plantilla del correo (usuarios/mail/other-problems.php, líneas 11-16) muestra como pares; lo que no tenga esa forma se ignora. Si `extra` trae además la clave `subject` (un texto no vacío), sustituye al asunto del correo (OtherProblemsMail.php, línea 50).
+Por lectura del código: `extra` es opcional y es un arreglo de objetos `{display: texto, text: texto}` que la plantilla del correo (usuarios/mail/other-problems.php, líneas 11-16) muestra como pares; lo que no tenga esa forma se ignora. Si `extra` trae además la clave `subject` (un texto no vacío), sustituye al asunto del correo (OtherProblemsMail.php, línea 50). Admite un número limitado de mensajes por hora desde la misma dirección; pasado el tope responde 429 con Retry-After.
 
 > **Sin verificar:** La forma de `extra` y la sustitución del asunto se obtuvieron leyendo el código (la plantilla y OtherProblemsMail.php), no por una petición HTTP: la ruta envía un correo o abre un ticket real.
 
@@ -901,6 +953,32 @@ Respuesta de las rutas que mandan un código por correo.
 | `send_mail` | boolean | sí | true si se atendió: en las rutas que no delatan al usuario es true exista o no la cuenta; false con parámetros inválidos o si el envío de soporte falló. |
 | `error` | string | sí | NO_ERROR, MISSING_OR_UNEXPECTED_PARAMS o UNEXPECTED_ACTION. |
 | `message` | string | sí |  |
+
+#### 429 (TooManyAttempts)
+
+Demasiados intentos desde esta IP o para este usuario (otp_security). Trae la cabecera Retry-After con los segundos de espera.
+
+| Cabecera | Tipo | Descripción |
+| :-- | :-- | :-- |
+| `Retry-After` | integer | Segundos hasta poder reintentar. |
+
+`application/json`
+
+Tipo: object (TooManyAttemptsResponse).
+
+El cuerpo del 429. Las rutas de acceso añaden auth, isAuth, token, user y userData (vacíos) para que el cliente del login lo trate como un acceso fallido.
+
+| Campo | Tipo | Obligatorio | Descripción |
+| :-- | :-- | :-- | :-- |
+| `success` | boolean · siempre `false` | sí |  |
+| `error` | string · siempre `"TOO_MANY_ATTEMPTS"` | sí |  |
+| `message` | string | sí |  |
+| `retryAfter` | integer | sí | Segundos de espera. |
+| `auth` | boolean | no |  |
+| `isAuth` | boolean | no |  |
+| `token` | string | no |  |
+| `user` | string | no |  |
+| `userData` | array de cualquiera | no |  |
 
 #### 500 (InternalError)
 

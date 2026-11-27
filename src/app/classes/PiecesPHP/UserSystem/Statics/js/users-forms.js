@@ -67,7 +67,8 @@ $(document).ready(function (e) {
 
 			postRequest(section.getAttribute('data-user-avatar-url'), formData).done(function (res) {
 				if (res.success) {
-					window.location.reload()
+					//El aviso antes que la recarga: recargar al momento lo borraba sin que se viera.
+					successMessage(_i18n('titles', 'success'), res.message, () => window.location.reload())
 				} else {
 					errorMessage(_i18n('titles', 'error'), res.message)
 				}

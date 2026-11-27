@@ -86,7 +86,7 @@ $(document).ready(function (e) {
 
 			console.error(jqXHR)
 			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
-				messageBox.html(jqXHR.responseJSON.message)
+				messageBox.text(jqXHR.responseJSON.message)
 			} else {
 				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 			}
@@ -151,7 +151,7 @@ $(document).ready(function (e) {
 
 			console.error(jqXHR)
 			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
-				messageBox.html(jqXHR.responseJSON.message)
+				messageBox.text(jqXHR.responseJSON.message)
 			} else {
 				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 			}
@@ -211,7 +211,7 @@ $(document).ready(function (e) {
 
 			console.error(jqXHR)
 			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
-				messageBox.html(jqXHR.responseJSON.message)
+				messageBox.text(jqXHR.responseJSON.message)
 			} else {
 				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 			}

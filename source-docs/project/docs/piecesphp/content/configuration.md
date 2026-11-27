@@ -474,7 +474,7 @@ Tres líneas juntas en `config.php` deciden la forma del proyecto. De fábrica, 
 ```php
 $config['public_area'] = true;                // 'headless': sin páginas públicas, con sus datos; false: solo panel
 $config['admin_path'] = 'admin';              // dónde vive el panel: 'admin', 'gestion'…
-$config['login_redirect_route'] = 'admin';    // adónde lleva el acceso: el NOMBRE de cualquier ruta
+$config['login_redirect_route'] = 'admin';    // adónde lleva el acceso: el NOMBRE de una ruta o una dirección completa
 ```
 
 | Quiero… | Cambio |
@@ -483,6 +483,7 @@ $config['login_redirect_route'] = 'admin';    // adónde lleva el acceso: el NOM
 | un proyecto solo con panel | `public_area = false` |
 | el panel en `/gestion/` | `admin_path = 'gestion'` |
 | que el acceso lleve a mi pantalla | `login_redirect_route = 'mi-ruta'` |
+| que el acceso lleve a otra web | `login_redirect_route = 'https://app.example.com/inicio'` |
 
 - **`public_area = 'headless'`**: no se registran las páginas públicas HTML (portada, genéricas, contacto, el sitio por
   marcas y las páginas de los módulos, como el listado y la vista de Publicaciones), pero **siguen las rutas públicas de
@@ -502,8 +503,13 @@ $config['login_redirect_route'] = 'admin';    // adónde lleva el acceso: el NOM
   error claro en local y usa `admin` fuera de local, con aviso.
 - **Mover el panel no lo esconde**: `robots.txt` publica el `admin_path` nuevo, y lo que proteja `/admin` en el servidor
   web (una lista de IP, una autenticación básica, un cortafuegos de aplicación) no sigue al nombre nuevo: muévelo tú.
-- **`login_redirect_route`**: con sesión, el formulario de acceso lleva a la página pedida (`next`) o, si no hay, a esa
-  ruta por su nombre. Sustituye a `admin_url`, que se sigue respetando hasta la `11.0.0` si un proyecto lo tiene puesto.
+- **`login_redirect_route`**: con sesión, el formulario de acceso lleva a la página pedida (`next`) o, si no hay, a lo
+  que diga esta clave: el **nombre de una ruta** o una **dirección completa** con `http://` o `https://`, también de otro
+  dominio, que se usa tal cual. No vale una dirección con usuario o contraseña, ni la del propio acceso (o la portada
+  sin zona pública), que haría un bucle: en los dos casos el acceso lleva al panel y lo anota. Cualquier otra forma (una ruta relativa, otro esquema) se lee como nombre de ruta y, si
+  no existe, el acceso lleva al panel y lo anota. `bin/cli verify-integrity` avisa, sin fallar, cuando el dominio de la
+  dirección no está en `allowed_hosts` (con la lista vacía, que no pudo comprobarlo): si el dominio es tuyo, añádelo
+  ahí. Sustituye a `admin_url`, que se sigue respetando hasta la `11.0.0` si un proyecto lo tiene puesto.
 
 **El banco de redirecciones (opcional, retirado en la `12.0.0`).** Si un proyecto cambia direcciones (por ejemplo, mueve
 el panel), puede declarar las viejas y el nombre de la ruta a la que llevan. Solo actúa cuando ninguna ruta registrada

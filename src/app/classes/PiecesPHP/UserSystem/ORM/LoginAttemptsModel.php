@@ -346,6 +346,8 @@ class LoginAttemptsModel extends BaseEntityMapper
             OTPRateLimiter::VIA_TWO_FACTOR_STATUS => __(LOGIN_REPORT_LANG_GROUP, 'Consultar el doble factor'),
             OTPRateLimiter::VIA_LOGIN_TOTP => __(LOGIN_REPORT_LANG_GROUP, 'Contraseña y doble factor'),
             OTPRateLimiter::VIA_RECOVERY_CODE => __(LOGIN_REPORT_LANG_GROUP, 'Código de recuperación'),
+            OTPRateLimiter::VIA_USER_PROBLEM_CODE => __(LOGIN_REPORT_LANG_GROUP, 'Código de un problema de acceso'),
+            OTPRateLimiter::VIA_OTHER_PROBLEMS_SEND => __(LOGIN_REPORT_LANG_GROUP, 'Formulario de otros problemas'),
             OTPRateLimiter::VIA_LOGIN_PASSWORD => __(LOGIN_REPORT_LANG_GROUP, 'Formulario de acceso'),
         ];
         //Una vía que no está en la lista se enseña tal cual: es un dato del registro, no se esconde.

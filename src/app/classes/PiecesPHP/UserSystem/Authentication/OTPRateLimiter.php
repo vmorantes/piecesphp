@@ -32,15 +32,19 @@ class OTPRateLimiter
     const VIA_TWO_FACTOR_STATUS = 'two-factor-auth-status';
     const VIA_LOGIN_TOTP = 'login-totp';
     const VIA_RECOVERY_CODE = 'recovery-code';
+    const VIA_USER_PROBLEM_CODE = 'user-problem-code';
     const VIAS = [
         self::VIA_GENERATE_OTP,
         self::VIA_CHECK_TOTP,
         self::VIA_TWO_FACTOR_STATUS,
         self::VIA_LOGIN_TOTP,
         self::VIA_RECOVERY_CODE,
+        self::VIA_USER_PROBLEM_CODE,
     ];
     //FUERA DE VIAS a propósito: los topes del OTP no cuentan las contraseñas, y el freno del login no cuenta el OTP.
     const VIA_LOGIN_PASSWORD = 'login-password';
+    //FUERA DE VIAS a propósito: es un tope de envíos con éxito, no de fallos, y no gasta el presupuesto del OTP.
+    const VIA_OTHER_PROBLEMS_SEND = 'other-problems-send';
 
     const EXTRA_DATA_VIA = 'otpVia';
     const EXTRA_DATA_LOCKED = 'otpLocked';
@@ -163,6 +167,12 @@ class OTPRateLimiter
         $config = self::config();
         $since = date('Y-m-d H:i:s', $now->getTimestamp() - ($config['windowMinutes'] + $config['lockMinutes']) * 60);
         //Una fila sin grupo es de antes de la columna: se compara por la dirección exacta.
+        //Sin usuario (recortado: en MySQL ' ' casa con '') no se filtra por él: leería los fallos sin usuario de todas las IP.
+        if (trim($username) === '') {
+            $statement = self::databaseOrFail()->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE success = ? AND date >= ? AND (ipGroup = ? OR (ipGroup IS NULL AND ip = ?))');
+            $statement->execute([LoginAttemptsModel::FAIL_ATTEMPT, $since, self::ipGroup($ip), $ip]);
+            return $statement->fetchAll(\PDO::FETCH_ASSOC);
+        }
         $statement = self::databaseOrFail()->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE success = ? AND date >= ? AND (usernameAttempt = ? OR ipGroup = ? OR (ipGroup IS NULL AND ip = ?))');
         $statement->execute([LoginAttemptsModel::FAIL_ATTEMPT, $since, $username, self::ipGroup($ip), $ip]);
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
@@ -434,9 +444,66 @@ class OTPRateLimiter
     }
 
     /**
+     * Si una IP ya hizo $maxPerHour intentos registrados de una vía en la última hora (por su grupo, como los frenos), con
+     * cualquier resultado y sin contar las respuestas frenadas.
+     *
+     * @param string $via
+     * @param string $ip
+     * @param int $maxPerHour
+     * @param \DateTimeInterface|null $now Null: la hora de la base, la misma con la que se guardan los intentos
+     * @return bool
+     */
+    public static function ipSendLimitReached(string $via, string $ip, int $maxPerHour, ?\DateTimeInterface $now = null): bool
+    {
+        $database = self::databaseOrFail();
+        $now = $now ?? self::databaseNow($database);
+        $since = date('Y-m-d H:i:s', $now->getTimestamp() - 3600);
+        //Por marcador; una fila sin grupo es de antes de la columna: se compara por la dirección exacta.
+        $statement = $database->prepare('SELECT * FROM ' . LoginAttemptsModel::TABLE . ' WHERE date >= ? AND (ipGroup = ? OR (ipGroup IS NULL AND ip = ?))');
+        $statement->execute([$since, self::ipGroup($ip), $ip]);
+        return self::ipSendLimitReachedFromRows($statement->fetchAll(\PDO::FETCH_ASSOC), $via, $ip, $maxPerHour, $now);
+    }
+
+    /**
+     * La decisión de ipSendLimitReached(), sobre filas ya leídas: cuentan las filas de ESA vía del mismo grupo de IP en la
+     * última hora, con cualquier resultado, salvo las respuestas frenadas (otpLocked). Sin la columna extraData cuenta, y una
+     * fila del futuro cuenta como reciente: falla cerrado.
+     *
+     * @param array<mixed> $rows Filas con ip, date (Y-m-d H:i:s) y, si la columna existe, extraData
+     * @param string $via
+     * @param string $ip
+     * @param int $maxPerHour
+     * @param \DateTimeInterface $now
+     * @return bool
+     */
+    public static function ipSendLimitReachedFromRows(array $rows, string $via, string $ip, int $maxPerHour, \DateTimeInterface $now): bool
+    {
+        $ipGroup = self::ipGroup($ip);
+        $since = $now->getTimestamp() - 3600;
+        $count = 0;
+        foreach ($rows as $row) {
+            if (!is_array($row) || self::ipGroup((string) ($row['ip'] ?? '')) !== $ipGroup) {
+                continue;
+            }
+            if (array_key_exists('extraData', $row)) {
+                $extraData = is_string($row['extraData']) ? json_decode($row['extraData'], true) : $row['extraData'];
+                if (!is_array($extraData) || ($extraData[self::EXTRA_DATA_VIA] ?? null) !== $via || !empty($extraData[self::EXTRA_DATA_LOCKED])) {
+                    continue;
+                }
+            }
+            $time = strtotime((string) ($row['date'] ?? ''));
+            if ($time === false || $time < $since) {
+                continue;
+            }
+            $count++;
+        }
+        return $count >= $maxPerHour;
+    }
+
+    /**
      * Registra un intento de una de las vías, con su vía en extraData.
      *
-     * @param string $via Una de VIAS
+     * @param string $via La vía que se registra (una de VIAS cuenta para el límite)
      * @param int|null $userID
      * @param string $username
      * @param bool $success
@@ -457,7 +524,7 @@ class OTPRateLimiter
      * La respuesta de un intento bloqueado: 429 con Retry-After y un mensaje genérico. Se registra marcada, y no cuenta.
      *
      * @param ResponseRoute $response
-     * @param string $via Una de VIAS
+     * @param string $via La vía que se registra (una de VIAS cuenta para el límite)
      * @param string $username
      * @param int $seconds
      * @return ResponseRoute

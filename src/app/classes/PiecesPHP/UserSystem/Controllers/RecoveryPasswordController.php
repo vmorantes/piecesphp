@@ -34,6 +34,9 @@ use \stdClass;
 class RecoveryPasswordController extends UsersController
 {
     const LANG_GROUP = 'revoveryPasswordModule';
+    const EMPTY_PASSWORD = 'EMPTY_PASSWORD';
+    const INVALID_PASSWORD_CHARACTER = 'INVALID_PASSWORD_CHARACTER';
+    const PASSWORD_TOO_LONG = 'PASSWORD_TOO_LONG';
 
     //Frenan que se inunde el buzón de alguien y la tabla: un código por usuario cada minuto y no más de cinco por hora.
     const CODE_MIN_SECONDS_BETWEEN = 60;
@@ -161,19 +164,38 @@ class RecoveryPasswordController extends UsersController
         ];
 
         $args = $request->getParsedBody();
+        //Un cuerpo que no es un objeto (un JSON que es una cadena) llega como null: 400, no un TypeError.
+        if (!is_array($args)) {
+            return self::notAnObjectResponse($response, $json_response, $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS));
+        }
 
         //Verificar que el grupo de datos para autenticación sea válido
         $parametros_ok = require_keys($requerido, $args) === true && count($requerido) === count($args);
+        //Un campo que no es texto (una lista) daría un aviso de PHP al convertirlo: 400, como un cuerpo que no es un objeto.
+        if ($parametros_ok && !self::allStrings($args, $requerido)) {
+            return self::notAnObjectResponse($response, $json_response, $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS));
+        }
 
         if ($parametros_ok) {
 
             $username = trim((string) $args['username']);
             $code = trim((string) $args['code']);
-            $password = trim((string) $args['password']);
-            $repassword = trim((string) $args['repassword']);
+            //Sin recortar: el acceso compara la contraseña tal cual, y una recortada aquí no entraría con la escrita.
+            $password = (string) $args['password'];
+            $repassword = (string) $args['repassword'];
 
-            //Verificar que las contraseñas coincidan
-            if ($password == $repassword) {
+            //Vacía (o solo espacios) no vale; y se comparan como texto: con == «1e1» y «10» eran el mismo número.
+            if (trim($password) === '') {
+                $json_response['error'] = self::EMPTY_PASSWORD;
+                $json_response['message'] = __(self::LANG_GROUP, 'La contraseña no puede estar vacía.');
+            } elseif (UsersController::passwordHasInvalidCharacter($password) || UsersController::passwordHasInvalidCharacter($repassword)) {
+                //Antes del freno: depende solo de lo enviado, y password_hash() lanzaría con un byte nulo.
+                $json_response['error'] = self::INVALID_PASSWORD_CHARACTER;
+                $json_response['message'] = __(self::LANG_GROUP, 'La contraseña tiene un carácter no válido.');
+            } elseif (UsersController::passwordTooLong($password) || UsersController::passwordTooLong($repassword)) {
+                $json_response['error'] = self::PASSWORD_TOO_LONG;
+                $json_response['message'] = __(self::LANG_GROUP, 'La contraseña es demasiado larga: como mucho 72 caracteres, menos si lleva tildes o emojis.');
+            } elseif ($password === $repassword) {
 
                 //EL LÍMITE VA ANTES DE MIRAR EL CÓDIGO: sin él, un código de 6 cifras se adivina.
                 $secondsToUnlock = OTPRateLimiter::secondsToUnlock($username, OTPRateLimiter::clientIP());
@@ -250,9 +272,16 @@ class RecoveryPasswordController extends UsersController
         ];
 
         $args = $request->getParsedBody();
+        if (!is_array($args)) {
+            return self::notAnObjectResponse($response, $json_response, $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS));
+        }
 
         //Verificar que el grupo de datos sea válido
         $parametros_ok = require_keys($requerido, $args) === true && count($requerido) === count($args);
+        //Un campo que no es texto (una lista) daría un aviso de PHP al convertirlo: 400, como un cuerpo que no es un objeto.
+        if ($parametros_ok && !self::allStrings($args, $requerido)) {
+            return self::notAnObjectResponse($response, $json_response, $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS));
+        }
 
         if ($parametros_ok) {
 
@@ -388,12 +417,18 @@ class RecoveryPasswordController extends UsersController
     private function recoveryCodeRequestResponse(Request $request, Response $response)
     {
         $params = $request->getParsedBody();
+        if (!is_array($params)) {
+            return self::notAnObjectResponse($response, ['send_mail' => false], $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS));
+        }
 
         $requerido = [
             'username',
         ];
 
         $parametros_ok = require_keys($requerido, $params) === true && count($requerido) === count($params);
+        if ($parametros_ok && !self::allStrings($params, $requerido)) {
+            return self::notAnObjectResponse($response, ['send_mail' => false], $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS));
+        }
 
         if (!$parametros_ok) {
             return $response->withJson([
@@ -412,6 +447,22 @@ class RecoveryPasswordController extends UsersController
         ], function () use ($username): void {
             $this->requestRecoveryCode($username);
         });
+    }
+
+    /**
+     * La respuesta a un cuerpo que no es un objeto (un JSON que es una cadena o un número): 400 con el formato de error de
+     * la ruta y MISSING_OR_UNEXPECTED_PARAMS.
+     *
+     * @param Response $response
+     * @param array<string,mixed> $body El cuerpo de error de la ruta, sin `error` ni `message`
+     * @param string $message
+     * @return Response
+     */
+    public static function notAnObjectResponse(Response $response, array $body, string $message): Response
+    {
+        $body['error'] = self::MISSING_OR_UNEXPECTED_PARAMS;
+        $body['message'] = $message;
+        return $response->withStatus(400)->withJson($body);
     }
 
     /**

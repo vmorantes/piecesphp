@@ -9,6 +9,7 @@ namespace PiecesPHP\UserSystem\Controllers;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\UserSystem\ORM\AvatarModel;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -70,6 +71,13 @@ class AvatarController extends BaseController
         }
 
         if (!is_null($userId) && !is_null($image)) {
+
+            //Una subida que pasó del tope llega sin archivo: decir «tipo inválido» engañaba.
+            $sizeError = SettingsController::uploadSizeErrorMessage($image->getError());
+            if ($sizeError !== null) {
+                $json_response['message'] = $sizeError;
+                return $response->withJson($json_response);
+            }
 
             if (!AvatarModel::isAcceptedImage($image)) {
                 $json_response['message'] = __(FileValidator::LANG_GROUP, 'Tipo de archivo inválido.');

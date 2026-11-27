@@ -1558,6 +1558,10 @@ class APIController extends AdminPanelController
 
             //Parámetros
             $params = $request->getParsedBody();
+            //Un cuerpo que no es un objeto llega como null: 400, no un TypeError.
+            if (!is_array($params)) {
+                return RecoveryPasswordController::notAnObjectResponse($response, ['send_mail' => false], $controller->getMessage(RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS));
+            }
 
             //Conjunto posible de datos para autenticación
             $requerido = [
@@ -1566,6 +1570,9 @@ class APIController extends AdminPanelController
 
             //Verificar que el grupo de datos para solicitados esté completo
             $parametros_ok = require_keys($requerido, $params) === true && count($requerido) === count($params);
+            if ($parametros_ok && !RecoveryPasswordController::allStrings($params, $requerido)) {
+                return RecoveryPasswordController::notAnObjectResponse($response, ['send_mail' => false], $controller->getMessage(RecoveryPasswordController::MISSING_OR_UNEXPECTED_PARAMS));
+            }
 
             if ($parametros_ok) {
 

@@ -36,32 +36,31 @@ window.addEventListener('load', function (e) {
 	//Sin sesión no hay ruta de la llave (`mapboxKeyURL` nulo): en el acceso, el `fetch` pedía la dirección «null».
 	if (typeof pcsphpGlobals.globalAuthenticator !== 'undefined' && typeof pcsphpGlobals.mapboxKeyURL === 'string') {
 
+		//verify() rechaza sin llamar a ninguno de sus dos callbacks si la petición falla o se aborta: el catch quita el cargador.
 		pcsphpGlobals.globalAuthenticator.verify(function () {
 
-			new Promise(function (resolve) {
-
-				fetch(pcsphpGlobals.mapboxKeyURL)
-					.then(response => response.text())
-					.then(key => resolve(key))
-
-			}).then(function (key) {
-				mapBoxAdapter
-					.setKey(key)
-					.configurateWhitForm(
-						controlsMapBox,
-						{
-							defaultLongitude: -74.8065913846496,
-							defaultLatitude: 11.0021516003209,
-						},
-						{
-							zoom: 3,
-						}
-					)
-			}).finally(function () {
-				removeGenericLoader('Maps')
-			})
+			fetch(pcsphpGlobals.mapboxKeyURL)
+				.then(response => response.text())
+				.then(function (key) {
+					mapBoxAdapter
+						.setKey(key)
+						.configurateWhitForm(
+							controlsMapBox,
+							{
+								defaultLongitude: -74.8065913846496,
+								defaultLatitude: 11.0021516003209,
+							},
+							{
+								zoom: 3,
+							}
+						)
+				}).finally(function () {
+					removeGenericLoader('Maps')
+				})
 
 		}, function () {
+			removeGenericLoader('Maps')
+		}).catch(function () {
 			removeGenericLoader('Maps')
 		})
 

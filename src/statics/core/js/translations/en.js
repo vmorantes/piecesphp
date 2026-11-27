@@ -52,6 +52,7 @@ var PCSPHP_TRANSLATIONS_EN = {
 	},
 	datatables: {
 		exportListing: 'Export current list',
+		loadError: 'The table could not be loaded. Please try again.',
 		lang: {
 			"decimal": "",
 			"emptyTable": "No information available",

@@ -467,7 +467,14 @@ Y el helper global `getLoggedFrameworkUser()` devuelve el usuario en sesión
   de la vía `login-password` (fuera de `OTPRateLimiter::VIAS`: no cuenta para los topes del OTP), y la cuenta solo pasa a
   `STATUS_USER_ATTEMPTS_BLOCK` con `failedAttempts >= MAX_ATTEMPTS` **y** `loginShouldBlockAccount()` (3 IP en 24 h). El
   desbloqueo por correo (`UserProblemsController.php:400`) sigue exigiendo el contador al tope: no lo quites.
-  La IP es solo `REMOTE_ADDR` (`clientIP()`): detrás de un proxy, todos comparten una.
+  La IP es la de `VisitorIP::get()` (`clientIP()`): `REMOTE_ADDR`, o `X-Forwarded-For` solo si `REMOTE_ADDR` está en
+  `trusted_proxies`; detrás de un proxy sin declarar, todos comparten una.
+- **Los problemas de acceso frenan por IP** (JPD, `86b3c4608`, `ece3cc1fc`; H527): `resolveProblem()` llama a
+  `OTPRateLimiter::secondsToUnlock('', ip)` ANTES de `UserProblemsModel::exist()` con la vía `user-problem-code`, DENTRO
+  de `VIAS` (comparte el presupuesto por IP con el OTP y la recuperación); el código no dice de quién es hasta encontrarlo,
+  así que solo cuenta la IP. «Otros problemas» usa `ipSendLimitReached()` con `other-problems-send`, FUERA de `VIAS`.
+  `core/otp-rate-limiter` fija la lista literal de `VIAS`: una vía nueva la pone al día a propósito. Lo que no cubre
+  (muchas IP, CSRF que frena la IP de otro, oráculo sin FPM), en H528.
 - **La contraseña antes que el estado** (IM, `4212f66d`, P201): `login()` comprueba contraseña u OTP ANTES de mirar el
   estado y la organización; sin ellos buenos responde siempre `INCORRECT_PASSWORD` con el mismo mensaje (también el fallo que completa el
   bloqueo de IL: bloquea y calla, IO `1bb15803`), y un usuario

@@ -109,6 +109,129 @@ final class ProjectStart
         return is_string($value) && $value !== '' && preg_match('/\s/uD', $value) !== 1 ? $value : null;
     }
 
+    /**
+     * Las partes de una dirección con forma de dirección completa: http o https, con host. Sin juzgar si vale (usuario y
+     * contraseña, bucle): eso lo decide loginTarget().
+     *
+     * @param mixed $value
+     * @return array{scheme:string,host:string,port?:int,user?:string,pass?:string,path?:string,query?:string,fragment?:string}|null
+     */
+    public static function absoluteURLParts(mixed $value): ?array
+    {
+        if (!is_string($value) || filter_var($value, FILTER_VALIDATE_URL) === false) {
+            return null;
+        }
+        $parts = parse_url($value);
+        if (!is_array($parts) || !isset($parts['scheme'], $parts['host']) || $parts['host'] === '' || !in_array(strtolower($parts['scheme']), ['http', 'https'], true)) {
+            return null;
+        }
+        return $parts;
+    }
+
+    /**
+     * Una dirección completa que vale para `login_redirect_route` (P413 2.5, P416): http o https, con host y sin usuario
+     * ni contraseña (una así parece suplantación). Puede ser de otro dominio; verify-integrity avisa si no está en
+     * `allowed_hosts` (loginRedirectHostWarning()). El bucle lo mira loginTarget(), que conoce las rutas.
+     *
+     * @param mixed $value
+     * @return string|null Null si no es una dirección completa o lleva usuario o contraseña.
+     */
+    public static function loginRedirectURLValue(mixed $value): ?string
+    {
+        $parts = self::absoluteURLParts($value);
+        return $parts !== null && !isset($parts['user']) && !isset($parts['pass']) && is_string($value) ? $value : null;
+    }
+
+    /**
+     * Una dirección reducida a lo que decide adónde lleva: esquema, host, puerto y camino, sin query, sin fragmento, sin
+     * barra final y sin el segmento de idioma que sigue a la base de la instalación.
+     *
+     * @param string $url
+     * @param string $basePath El camino de baseurl() (por ejemplo «/vicsen/piecesphp/src»).
+     * @param string[] $langs Los idiomas permitidos.
+     * @return string|null Null si no es una dirección completa.
+     */
+    public static function comparableURL(string $url, string $basePath, array $langs): ?string
+    {
+        $parts = self::absoluteURLParts($url);
+        if ($parts === null) {
+            return null;
+        }
+        $base = rtrim($basePath, '/');
+        $path = rtrim($parts['path'] ?? '', '/');
+        if ($base === '' || $path === $base || str_starts_with($path, $base . '/')) {
+            $rest = explode('/', ltrim(substr($path, strlen($base)), '/'));
+            if ($rest !== [] && in_array(strtolower($rest[0]), array_map('strtolower', $langs), true)) {
+                array_shift($rest);
+            }
+            $path = rtrim($base . '/' . implode('/', $rest), '/');
+        }
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        return strtolower($parts['scheme']) . '://' . strtolower($parts['host']) . $port . $path;
+    }
+
+    /**
+     * Las direcciones (en forma comparableURL()) a las que llevar tras el acceso haría un bucle: la del formulario de
+     * acceso y, sin páginas públicas, la portada.
+     *
+     * @return string[]
+     */
+    public static function loginLoopURLs(): array
+    {
+        $basePath = (string) parse_url(baseurl(), PHP_URL_PATH);
+        $langs = Config::get_allowed_langs();
+        $urls = [UsersController::routeName('form-login', [], true)];
+        if (!self::publicPages()) {
+            $urls[] = \App\Controller\PublicAreaController::routeName('index', [], true);
+        }
+        $comparable = [];
+        foreach ($urls as $url) {
+            $url = is_string($url) ? self::comparableURL($url, $basePath, $langs) : null;
+            if ($url !== null) {
+                $comparable[] = $url;
+            }
+        }
+        return $comparable;
+    }
+
+    /**
+     * El aviso de verify-integrity para una `login_redirect_route` que es una dirección de un dominio fuera de
+     * `allowed_hosts`, o que no se pudo comprobar porque la lista está vacía. Avisa, no falla (P416).
+     *
+     * También cuando la dirección no se usa: lleva usuario o contraseña, o haría un bucle.
+     *
+     * @param mixed $loginRoute get_config('login_redirect_route').
+     * @param mixed $allowedHosts get_config('allowed_hosts').
+     * @param bool $inferWww get_config('allowed_hosts_infer_www').
+     * @param string[] $loopURLs loginLoopURLs().
+     * @param string $basePath El camino de baseurl().
+     * @param string[] $langs Los idiomas permitidos.
+     * @return string|null Null si no es una dirección o su dominio está en la lista.
+     */
+    public static function loginRedirectHostWarning(mixed $loginRoute, mixed $allowedHosts, bool $inferWww, array $loopURLs = [], string $basePath = '', array $langs = []): ?string
+    {
+        $parts = self::absoluteURLParts($loginRoute);
+        if ($parts === null || !is_string($loginRoute)) {
+            return null;
+        }
+        if (isset($parts['user']) || isset($parts['pass'])) {
+            return "\$config['login_redirect_route'] es una dirección con usuario o contraseña, y no se usa: el acceso lleva al panel. Quítale el usuario y la contraseña, o usa el nombre de una ruta.";
+        }
+        if (in_array(self::comparableURL($loginRoute, $basePath, $langs), $loopURLs, true)) {
+            return "\$config['login_redirect_route'] es la dirección del propio acceso (o de la portada sin zona pública), que haría un bucle, y no se usa: el acceso lleva al panel. Pon otra dirección o el nombre de una ruta.";
+        }
+        $url = $loginRoute;
+        $host = (string) parse_url($url, PHP_URL_HOST);
+        $allowed = is_array($allowedHosts) ? array_values(array_filter($allowedHosts, fn (mixed $entry): bool => is_string($entry) && trim($entry) !== '')) : [];
+        if ($allowed === []) {
+            return "\$config['login_redirect_route'] lleva al acceso a {$url}, y con \$config['allowed_hosts'] vacía no se pudo comprobar si {$host} es de confianza: pon tus dominios en allowed_hosts (src/app/config/config.php) o usa el nombre de una ruta.";
+        }
+        if (AllowedHosts::allows($host, $allowed, $inferWww)) {
+            return null;
+        }
+        return "\$config['login_redirect_route'] lleva al acceso a {$url}, y {$host} no está en \$config['allowed_hosts']: si es tuyo, añádelo a allowed_hosts (src/app/config/config.php); si no, usa el nombre de una ruta.";
+    }
+
     //──── Lectura ───────────────────────────────────────────────────────────────────────────
 
     /**
@@ -194,20 +317,35 @@ final class ProjectStart
 
     /**
      * Adónde va quien ya tiene sesión y pide el formulario de acceso: `next`, luego `login_redirect_route` si config.php
-     * la declara, luego `admin_url` de un clon de antes (hasta la 11.0.0), y si no, el panel.
+     * la declara (un nombre de ruta, o una dirección completa http o https: 'url'), luego `admin_url` de un clon de antes
+     * (hasta la 11.0.0), y si no, el panel.
      *
      * @param string|null $nextURL Ya validada (UsersController::safeNextURL()).
      * @param mixed $loginRoute get_config('login_redirect_route'): false si config.php no la declara.
      * @param mixed $adminURL get_config('admin_url').
      * @param bool $publicPages Sin páginas públicas, public-index lleva al acceso: como destino sería un bucle.
-     * @return array{kind:'next'|'route'|'admin_url'|'panel',value:string,relative:bool}
+     * @param string[] $loopURLs Las direcciones que harían bucle, en forma comparableURL() (loginLoopURLs()).
+     * @param string $basePath El camino de baseurl(), para comparableURL().
+     * @param string[] $langs Los idiomas permitidos, para comparableURL().
+     * @return array{kind:'next'|'route'|'url'|'admin_url'|'panel',value:string,relative:bool}
      */
-    public static function loginTarget(?string $nextURL, mixed $loginRoute, mixed $adminURL, bool $publicPages = true): array
+    public static function loginTarget(?string $nextURL, mixed $loginRoute, mixed $adminURL, bool $publicPages = true, array $loopURLs = [], string $basePath = '', array $langs = []): array
     {
         if ($nextURL !== null) {
             return ['kind' => 'next', 'value' => $nextURL, 'relative' => false];
         }
         if ($loginRoute !== false) {
+            //Antes que el nombre de ruta: una dirección no lleva espacios y loginRouteValue() la tomaría por un nombre.
+            $parts = self::absoluteURLParts($loginRoute);
+            if ($parts !== null && is_string($loginRoute)) {
+                if (isset($parts['user']) || isset($parts['pass'])) {
+                    return ['kind' => 'panel', 'value' => 'invalid', 'relative' => false];
+                }
+                if (in_array(self::comparableURL($loginRoute, $basePath, $langs), $loopURLs, true)) {
+                    return ['kind' => 'panel', 'value' => 'loop', 'relative' => false];
+                }
+                return ['kind' => 'url', 'value' => $loginRoute, 'relative' => false];
+            }
             $route = self::loginRouteValue($loginRoute);
             if ($route === 'users-form-login' || ($route === 'public-index' && !$publicPages)) {
                 return ['kind' => 'panel', 'value' => 'loop', 'relative' => false];
@@ -231,9 +369,12 @@ final class ProjectStart
     public static function afterLoginURL(?string $nextURL): string
     {
         $nextURL = UsersController::safeNextURL($nextURL);
-        $target = self::loginTarget($nextURL, get_config('login_redirect_route'), get_config('admin_url'), self::publicPages());
+        $loginRoute = get_config('login_redirect_route');
+        //Las direcciones del bucle piden rutas: solo se calculan si la clave es una dirección.
+        $loopURLs = self::absoluteURLParts($loginRoute) !== null ? self::loginLoopURLs() : [];
+        $target = self::loginTarget($nextURL, $loginRoute, get_config('admin_url'), self::publicPages(), $loopURLs, (string) parse_url(baseurl(), PHP_URL_PATH), Config::get_allowed_langs());
         $url = null;
-        if ($target['kind'] === 'next') {
+        if ($target['kind'] === 'next' || $target['kind'] === 'url') {
             return $target['value'];
         } elseif ($target['kind'] === 'admin_url') {
             $url = $target['relative'] ? baseurl($target['value']) : $target['value'];
@@ -244,9 +385,9 @@ final class ProjectStart
                 $url = null;
             }
         } elseif ($target['kind'] === 'panel' && $target['value'] === 'invalid') {
-            log_soft_error("\$config['login_redirect_route'] tiene que ser el nombre de una ruta: el acceso lleva al panel.");
+            log_soft_error("\$config['login_redirect_route'] tiene que ser el nombre de una ruta o una dirección completa (http o https, sin usuario ni contraseña): el acceso lleva al panel.");
         } elseif ($target['kind'] === 'panel' && $target['value'] === 'loop') {
-            log_soft_error("\$config['login_redirect_route'] apunta al propio acceso (o a la portada sin zona pública), que haría un bucle: el acceso lleva al panel.");
+            log_soft_error("\$config['login_redirect_route'] apunta al propio acceso (o a la portada sin zona pública), por nombre o por dirección, que haría un bucle: el acceso lleva al panel.");
         }
         $url ??= AdminPanelController::routeName('');
         return convert_lang_url($url, get_config('default_lang'), get_config('app_lang'));

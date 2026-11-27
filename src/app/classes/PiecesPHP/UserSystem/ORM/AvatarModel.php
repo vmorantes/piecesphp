@@ -58,7 +58,8 @@ class AvatarModel
 
         if ($file->getError() === UPLOAD_ERR_OK && self::isAcceptedImage($file)) {
             $filename = move_uploaded_file_to($upload_dir, $file, self::NAME_AVATAR, self::EXTENSION_AVATAR);
-            return is_string($filename);
+            //move_uploaded_file_to() devuelve '' si mover falla: '' es una cadena, y antes eso contaba como guardado.
+            return is_string($filename) && $filename !== '';
         } else {
             return false;
         }

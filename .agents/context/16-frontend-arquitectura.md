@@ -484,6 +484,11 @@ panel implementado**, y el tema se compara contra él:
   línea vacía en los múltiples; salió en JFP (`e39e8adf`). Un `<select class="ui dropdown">` que nadie inicia con
   `.dropdown()` sale nativo (el salto de «Correos del sitio» lo era); al iniciarlo, el envoltorio del tema no copia el
   `aria-label` del `select`: hay que copiarlo (H224).
+- **Un desplegable con `allowAdditions` NO abre el menú con un clic si no le quedan opciones libres, y no enseña «Añadir…»**:
+  es lo de fábrica del tema (`hideAdditions: true`, `components/dropdown.js:4325`; el menú solo se abre con ítems o mensaje,
+  `:3839`; el `.addition` se queda oculto con la primera letra, `:3156`). Su promesa, en un censo funcional: escribir y Enter
+  añade la etiqueta, la «x» la quita y guardar la conserva. Vale para todos (SEO, perfil, organizaciones, ubicaciones,
+  aprobaciones). Lo midió JOU (`#3321`): el FALSO de JOT era la expectativa del censo, no la pantalla.
 - **Cada `bin/traer-tema` lleva capturas antes y después, a 1440 Y a 390** (la de JFO fue solo a 1440 y dejó pasar una
   regresión de móvil en la cabecera de página), de la hoja de diseño (etiquetas de estado, piezas) y de las
   pantallas que cambian: el punto de las etiquetas de estado partido en celdas estrechas entró con una traída y nadie lo

@@ -1,3 +1,58 @@
+# 10.69.0 (26-11-2026)
+
+- **Cuando falla la carga de una tabla, avisa el panel**, no una ventana del navegador. Hasta ahora, si la petición de
+  una tabla o de unas tarjetas fallaba, DataTables abría su ventana nativa («DataTables warning…»), una por tabla y
+  también al recargar. Ahora sale el aviso de error del panel, «No se pudo cargar la tabla. Vuelve a intentarlo.», uno
+  solo aunque fallen varias tablas a la vez, y la pantalla sigue usable. Vale también para las tablas propias de un
+  proyecto (lo fija `configDataTables()`, en `configurations.js`). **Al actualizar**: nada que hacer.
+- **Cambiar la imagen de perfil dice «Imagen de perfil modificada»** antes de recargar la página (antes recargaba sin
+  decir nada).
+- **El perfil y la recuperación de contraseña, más firmes.** Cambiar la imagen de perfil avisa si no se pudo guardar,
+  y una imagen demasiado pesada lo dice (antes respondía «Tipo de archivo inválido.»). Editar el perfil rechaza, con su
+  mensaje, un nombre o un correo de más de 255 caracteres (antes acababa en un error interno), y pone en mayúscula
+  también las iniciales con tilde o ñ («José Ñúñez»). La recuperación de contraseña ya no acepta una contraseña vacía; el alta, el perfil, la recuperación y la importación de usuarios rechazan lo mismo y del mismo modo (también una contraseña de más de 72 bytes, que antes se recortaba sin avisar); y la recuperación
+  **guarda la contraseña nueva tal cual**: antes quitaba los espacios del principio y del final, mientras que el acceso
+  nunca los quitó. El acceso y la recuperación responden con un error claro, y no con un fallo del servidor, ante datos
+  mal formados, y el acceso deja de anotar en el registro de errores las peticiones a las que les falta un dato. Corregida
+  la errata «para usar la este método». **Al actualizar**: nada que hacer.
+- **Los problemas de acceso, más firmes.** «No recuerdo mi usuario» y «Desbloquear mi usuario» frenan a quien prueba
+  códigos a ciegas desde una misma dirección, con el mismo límite que ya tenían la recuperación de contraseña y el código
+  de un solo uso (`otp_security`), y el formulario de «otros problemas» admite un número limitado de mensajes por hora
+  desde una misma dirección. Pasado el límite, las tres pantallas dicen «Demasiados intentos. Inténtelo de nuevo más
+  tarde.» y la API responde `429` con `Retry-After`. Pedir un código con un tipo mal escrito ya no crea códigos que no
+  sirven, y pedir uno nuevo deja sin valor a los anteriores del mismo tipo: vale el del último correo. Registros › Intentos de acceso enseña las dos vías nuevas. **Al actualizar**: nada que hacer; si tu proyecto
+  tiene pantallas o una app propias que llaman a estas rutas, trata el `429` como en la recuperación de contraseña.
+- **`login_redirect_route` admite también una dirección completa**, como admitía `admin_url`: `'https://app.example.com/inicio'`
+  lleva a esa dirección tras el acceso, también si es de otro dominio. Un nombre de ruta sigue funcionando igual, y la
+  página pedida (`next`) sigue mandando. No vale una dirección con usuario o contraseña ni la del propio acceso (haría
+  un bucle): el acceso lleva al panel. `bin/cli verify-integrity` avisa, sin fallar, si el dominio no está en
+  `allowed_hosts` y en esos dos casos. **Al actualizar**: nada que hacer. Guía: «Configuración», «El arranque del proyecto».
+- **Los nombres de clase de la 7.1 vuelven a funcionar hasta la `11.0.0`**: un módulo que todavía use, por ejemplo,
+  `App\Model\AppConfigModel` o `App\Controller\AdminPanelController` recibe la clase de hoy (`SettingsModel`,
+  `AdminPanelController` de su sitio nuevo). El alias se crea solo cuando alguien pide ese nombre, y si tu proyecto tiene su
+  propia clase con un nombre viejo, gana la tuya. Las clases de los módulos retirados no tienen alias. **Al actualizar**:
+  nada que hacer; cambia tus `use` a los nombres nuevos antes de la `11.0.0`, que los quita. La lista completa, en
+  `PiecesPHP\Core\LegacyClassAliases::MAP`.
+- **Un calendario creado sin los ajustes del framework usa también sus textos**. Hasta ahora, un `.calendar()` llamado
+  sin pasar los textos (código propio, una pieza de terceros) tomaba los del paquete de idioma del tema: en español, los
+  días «D L M X J V S» y el mes en minúscula, distintos de los del resto del panel. Ahora los textos del framework se
+  fijan también como valores globales del calendario, así que todos los calendarios del panel dicen lo mismo. **Al
+  actualizar**: nada que hacer; si un calendario tuyo necesita otros textos, pásaselos en su propia llamada (`text`).
+- **El cargador de los mapas ya no se queda puesto** cuando falla o se interrumpe la comprobación de la sesión, ni
+  cuando no llega la clave de Mapbox: antes la pantalla quedaba cubierta y había que recargar.
+- **Hoja de diseño, ejemplo «Tablas»**: las columnas estrechas ya no parten la fecha en tres líneas. El ejemplo enseña la
+  forma correcta: en una tabla de DataTables, `collapsing` en el `<th>` no llega a las celdas; se declara en
+  `columnDefs` (`{ targets: [...], className: 'collapsing' }`).
+- **Imágenes de marca, vista previa**: las etiquetas «Modo claro» y «Modo oscuro» ya no quedan tapadas por la rejilla.
+
+## ⚠ CAMBIO INCOMPATIBLE — la recuperación de contraseña exige texto en sus campos
+
+Los campos de la recuperación de contraseña (el usuario, el código, la contraseña y su repetición), por el formulario y
+por la API (`recovery-password`, `change-password-code`), tienen que llegar como **texto**. Hasta ahora un número JSON
+(`{"code": 123456}`) se convertía y valía; ahora responde `400` con `MISSING_OR_UNEXPECTED_PARAMS`, como una lista o un
+objeto. El contrato de la API ya decía que eran texto. **Qué hacer:** si tu app o tu integración manda alguno como número,
+mándalo entre comillas (`{"code": "123456"}`).
+
 # 10.68.0 (26-11-2026)
 
 - **El tema del panel, en la 1.4.0** (antes 1.1.1). Las etiquetas y botones rellenos de color llevan texto blanco con

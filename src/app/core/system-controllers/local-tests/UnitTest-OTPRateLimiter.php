@@ -65,7 +65,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $check(OTPRateLimiter::config() === $config, 'otp_security de config.php: 5 por usuario, 20 por IP, 15 de ventana, 15 de bloqueo, uniforme, 20 del código y las tres del login (core/login-ip-throttle)',
         json_encode(OTPRateLimiter::config(), JSON_THROW_ON_ERROR));
-    $check(OTPRateLimiter::VIAS === ['generate-otp', 'check-totp', 'two-factor-auth-status', 'login-totp', 'recovery-code'], 'las vías: generate-otp, check-totp, two-factor-auth-status, login-totp y recovery-code');
+    $check(OTPRateLimiter::VIAS === ['generate-otp', 'check-totp', 'two-factor-auth-status', 'login-totp', 'recovery-code', 'user-problem-code'], 'las vías: generate-otp, check-totp, two-factor-auth-status, login-totp, recovery-code y user-problem-code');
     echoTerminal(' ');
 
     //──── 2. Por usuario ───────────────────────────────────────────────────────────────────────

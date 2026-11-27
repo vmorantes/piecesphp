@@ -305,6 +305,12 @@ function getPCSPHPConfig(name = null) {
  */
 function configCalendars() {
 
+	//El paquete de idioma del tema fija los textos globales («X» el miércoles): mandan los del framework (P419), también en
+	//un calendario sin instancia propia. Va en el load, ya aplicados los paquetes.
+	if (typeof $ !== 'undefined' && $.fn.calendar !== undefined && $.fn.calendar.settings !== undefined) {
+		$.extend(true, $.fn.calendar.settings.text, pcsphpGlobals.configCalendar.text)
+	}
+
 	try {
 		configSinglesCalendar('calendar-js')
 		configGroupCalendar('calendar-group-js')
@@ -491,6 +497,20 @@ function configMessagesSemantic() {
  */
 function configDataTables() {
 	let tablas = $('[datatable-js]')
+
+	//P421: un fallo de carga de cualquier tabla (también las de un proyecto) sale con el aviso del panel, no con la
+	//ventana nativa de DataTables; varias tablas que fallan a la vez en la misma pantalla dan un solo aviso.
+	if ($.fn.dataTable !== undefined) {
+		let lastLoadErrorAt = 0
+		$.fn.dataTable.ext.errMode = function () {
+			const now = Date.now()
+			if (now - lastLoadErrorAt < 1000) {
+				return
+			}
+			lastLoadErrorAt = now
+			errorMessage(_i18n('titles', 'error'), _i18n('datatables', 'loadError'))
+		}
+	}
 
 	try {
 		tablas.DataTable(pcsphpGlobals.configDataTables)

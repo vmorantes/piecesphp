@@ -11,6 +11,7 @@ use MySpace\Controllers\MyProfileController;
 use Organizations\Mappers\OrganizationMapper;
 use Organizations\OrganizationsRoutes;
 use PiecesPHP\AdminPanel\Controllers\AdminPanelController;
+use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Database\ActiveRecordModel;
@@ -43,6 +44,7 @@ use PiecesPHP\MailCatalog\MailCatalog;
 use PiecesPHP\Settings\Controllers\SettingsController;
 use PiecesPHP\Tokens\Controllers\TokenController;
 use PiecesPHP\UserSystem\AccountChangeNotice;
+use PiecesPHP\UserSystem\Authentication\Impersonation;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Authentication\OTPRateLimiter;
 use PiecesPHP\UserSystem\Authentication\SessionCookie;
@@ -181,6 +183,15 @@ class UsersController extends AdminPanelController
 
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
+    /**
+     * El largo de las columnas de texto de pcsphp_users que edita edit() (varchar(255) en utf8mb4: caracteres; ver
+     * databases/piecesphp_structure.sql). Más largo, MySQL lo rechaza con un error interno.
+     */
+    const TEXT_FIELD_MAX_LENGTH = 255;
+    /**
+     * Lo más largo que mira bcrypt (password_hash() con PASSWORD_DEFAULT): lo que pase de 72 bytes se ignora en silencio.
+     */
+    const PASSWORD_MAX_BYTES = 72;
 
     //Hash fijo de una cadena al azar: un usuario que no existe paga el mismo password_verify() y no se delata por el tiempo.
     const TIMING_DUMMY_HASH = '$2y$12$HJuocNDtMI94kysJwvwQre5TTws1QSuAPPBvF/holWMQ374a/8ahW';
@@ -1078,7 +1089,13 @@ class UsersController extends AdminPanelController
 
             $overwriteSession = $expectedParameters->getValue('overwriteSession');
 
-            if (!UserSessions::jwtIsValid($JWT) || $overwriteSession) {
+            //Un token vivo de un usuario que ya no está activo no es una sesión abierta: sigue el acceso normal, que lo rechaza.
+            $tokenData = UserSessions::jwtIsValid($JWT) ? BaseToken::getData($JWT) : null;
+            $tokenUser = $tokenData instanceof \stdClass ? UsersModel::getBy((int) ($tokenData->id ?? 0), 'id') : null;
+            //Y su organización la admite (la regla de index.php y de la suplantación): si no, el panel lo devolvería al acceso sin fin.
+            $activeSession = $tokenUser !== null && !in_array($tokenUser->status, UsersModel::STATUSES_INACTIVE_EQUIVALENT) && Impersonation::organizationAllowsSession($tokenUser->organization);
+
+            if (!$activeSession || $overwriteSession) {
 
                 //Se selecciona un elemento que concuerde con el usuario
                 //Sin escapeString(): where() con array ya liga el valor, y escapar lo alteraba (ADR 0009).
@@ -1173,7 +1190,7 @@ class UsersController extends AdminPanelController
                             if ($isExternalLogin) {
                                 if (!UserTypes::hasExternalLogin((int) $user->type)) {
                                     $resultOperation->setValue('error', self::NO_EXTERNAL_LOGIN_AVAILABLE);
-                                    $resultOperation->setValue('message', __(self::LANG_GROUP, 'El usuario no está habilitado para usar la este método de inicio de sesión'));
+                                    $resultOperation->setValue('message', __(self::LANG_GROUP, 'El usuario no está habilitado para usar este método de inicio de sesión'));
                                     return $response->withJson($resultOperation->getValues());
                                 }
                             }
@@ -1350,9 +1367,10 @@ class UsersController extends AdminPanelController
 
         } catch (MissingRequiredParameterException $e) {
 
+            //Un parámetro que falta o de otro tipo es el uso de un cliente mal formado (o de un robot), no un fallo: anotarlo
+            //llenaba el registro de errores con el uso normal (H522, como H511).
             $resultOperation->setValue('error', self::MISSING_OR_UNEXPECTED_PARAMS);
             $resultOperation->setValue('message', $e->getMessage());
-            log_exception($e);
         } catch (ParsedValueException $e) {
 
             $resultOperation->setValue('error', self::GENERIC_ERROR);
@@ -1362,7 +1380,6 @@ class UsersController extends AdminPanelController
 
             $resultOperation->setValue('error', self::GENERIC_ERROR);
             $resultOperation->setValue('message', $e->getMessage());
-            log_exception($e);
         }
 
         return $response->withJson($resultOperation->getValues());
@@ -1612,7 +1629,7 @@ class UsersController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -1623,7 +1640,7 @@ class UsersController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -1634,7 +1651,7 @@ class UsersController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -1645,7 +1662,7 @@ class UsersController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -1706,7 +1723,20 @@ class UsersController extends AdminPanelController
             $username_duplicate = UsersModel::isDuplicateUsername($username);
             $email_duplicate = UsersModel::isDuplicateEmail($email);
 
-            $password_match = $password == $password2;
+            $password_match = $password === $password2;
+
+            if (trim((string) $password) === '') {
+                $result->setMessage(__(self::LANG_GROUP, 'La contraseña no puede estar vacía.'));
+                return $response->withJson($result);
+            }
+            if (self::passwordHasInvalidCharacter($password) || self::passwordHasInvalidCharacter($password2)) {
+                $result->setMessage(__(self::LANG_GROUP, 'La contraseña tiene un carácter no válido.'));
+                return $response->withJson($result);
+            }
+            if (self::passwordTooLong($password) || self::passwordTooLong($password2)) {
+                $result->setMessage(__(self::LANG_GROUP, 'La contraseña es demasiado larga: como mucho 72 caracteres, menos si lleva tildes o emojis.'));
+                return $response->withJson($result);
+            }
 
             //Validar que la organización sea obligatoria si el tipo la requiere (UserTypes::requiresOrganization())
             if (UserTypes::requiresOrganization((int) $type)) {
@@ -2000,7 +2030,7 @@ class UsersController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -2011,7 +2041,7 @@ class UsersController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -2022,7 +2052,7 @@ class UsersController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -2033,7 +2063,7 @@ class UsersController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return ucwords($value);
+                    return self::uppercaseInitials($value);
                 }
             ),
             new Parameter(
@@ -2084,6 +2114,17 @@ class UsersController extends AdminPanelController
 
             $parametersExcepted->validate();
 
+            foreach (['username' => 'user', 'email' => 'email-standard', 'firstname' => 'firstname', 'secondname' => 'secondname', 'first_lastname' => 'first-lastname', 'second_lastname' => 'second-lastname'] as $textField => $textLabel) {
+                $textValue = $parametersExcepted->getValue($textField);
+                if (is_string($textValue) && mb_strlen($textValue) > self::TEXT_FIELD_MAX_LENGTH) {
+                    $result->setMessage(strReplaceTemplate(__(self::LANG_GROUP, '${field} admite como mucho ${max} caracteres.'), [
+                        '${field}' => __(self::LANG_GROUP, $textLabel),
+                        '${max}' => (string) self::TEXT_FIELD_MAX_LENGTH,
+                    ]));
+                    return $response->withJson($result);
+                }
+            }
+
             $id = $parametersExcepted->getValue('id');
             $username = $parametersExcepted->getValue('username');
             $email = $parametersExcepted->getValue('email');
@@ -2132,7 +2173,20 @@ class UsersController extends AdminPanelController
             $email_duplicate = UsersModel::isDuplicateEmail($email, $id);
 
             $change_password = !is_null($password);
-            $password_match = $change_password ? $password == $password2 : true;
+            $password_match = $change_password ? $password === $password2 : true;
+            //Como la recuperación: solo espacios no es una contraseña, y con un byte nulo password_hash() lanzaría.
+            if ($change_password && trim((string) $password) === '') {
+                $result->setMessage(__(self::LANG_GROUP, 'La contraseña no puede estar vacía.'));
+                return $response->withJson($result);
+            }
+            if ($change_password && (self::passwordHasInvalidCharacter($password) || self::passwordHasInvalidCharacter($password2))) {
+                $result->setMessage(__(self::LANG_GROUP, 'La contraseña tiene un carácter no válido.'));
+                return $response->withJson($result);
+            }
+            if ($change_password && (self::passwordTooLong($password) || self::passwordTooLong($password2))) {
+                $result->setMessage(__(self::LANG_GROUP, 'La contraseña es demasiado larga: como mucho 72 caracteres, menos si lleva tildes o emojis.'));
+                return $response->withJson($result);
+            }
             $password_ok = true;
 
             //Conserva su organización eliminada si no llega (el formulario la pinta deshabilitada) o llega la misma; otra
@@ -2472,6 +2526,60 @@ class UsersController extends AdminPanelController
             return null;
         }
         return hash_equals(self::signedType((int) $match[1]), $signed) ? (int) $match[1] : null;
+    }
+
+    /**
+     * Si todos esos campos del cuerpo son texto: una lista o un objeto darían un TypeError o un aviso de PHP al tratarlos
+     * como cadena. La usan la recuperación de contraseña y los problemas de acceso (rutas públicas).
+     *
+     * @param array<mixed> $body
+     * @param string[] $keys
+     * @return bool
+     */
+    public static function allStrings(array $body, array $keys): bool
+    {
+        foreach ($keys as $key) {
+            if (!is_string($body[$key] ?? null)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Si una contraseña trae un carácter que password_hash() no admite (el byte nulo: bcrypt lanza ValueError).
+     *
+     * @param mixed $password
+     * @return bool
+     */
+    public static function passwordHasInvalidCharacter(mixed $password): bool
+    {
+        return is_string($password) && str_contains($password, "\0");
+    }
+
+    /**
+     * Si una contraseña pasa de lo que mira bcrypt (PASSWORD_MAX_BYTES, en bytes): el resto se ignoraría sin aviso.
+     *
+     * @param mixed $password
+     * @return bool
+     */
+    public static function passwordTooLong(mixed $password): bool
+    {
+        return is_string($password) && strlen($password) > self::PASSWORD_MAX_BYTES;
+    }
+
+    /**
+     * La inicial de cada palabra en mayúscula, también con tilde o ñ (ucwords solo sube ASCII). El resto queda como
+     * llegó, igual que ucwords: «MCDONALD» se queda, «de la peña» pasa a «De La Peña».
+     *
+     * @param string $value
+     * @return string
+     */
+    public static function uppercaseInitials(string $value): string
+    {
+        $result = preg_replace_callback('/(^|[ \t\r\n\f\v])(.)/u', fn (array $m): string => $m[1] . mb_convert_case($m[2], \MB_CASE_UPPER, 'UTF-8'), $value);
+        //Con UTF-8 mal formado preg_replace_callback() da null: se queda como estaba, como hacía ucwords con lo que no es ASCII.
+        return is_string($result) ? $result : $value;
     }
 
     /**

@@ -89,6 +89,55 @@ class UserProblemsModel extends BaseEntityMapper
     }
 
     /**
+     * El id del código más reciente de ese correo y tipo, o null si no hay ninguno.
+     *
+     * @param string $email
+     * @param string $type
+     * @return int|null
+     */
+    public static function latestIDFor(string $email, string $type): ?int
+    {
+        $instance = new UserProblemsModel();
+        $model = $instance->getModel();
+        $model->select(['id'])->where(new WhereSegment([
+            WhereItem::isEqual('email', $email, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('type', $type, WhereItem::AND_OPERATOR),
+        ]));
+        //Por id y no por created: created es la hora de PHP, que puede retroceder; el id sigue el orden de inserción.
+        $model->orderBy('id DESC');
+        $model->execute(false, 1, 1);
+        $rows = $model->result();
+        $data = is_array($rows) && count($rows) > 0 ? $rows[0] : null;
+
+        $id = is_object($data) ? (((array) $data)['id'] ?? null) : null;
+
+        return is_numeric($id) ? (int) $id : null;
+    }
+
+    /**
+     * Deja caducados (expired = $now) los códigos todavía vigentes de ese correo y tipo, sin borrarlos: el tope de códigos
+     * por correo cuenta filas por su creación.
+     *
+     * @param string $email
+     * @param string $type
+     * @param \DateTime $now
+     * @return bool
+     */
+    public static function expireValidFor(string $email, string $type, \DateTime $now): bool
+    {
+        $instance = new UserProblemsModel();
+        $moment = $now->format('Y-m-d H:i:s');
+
+        return $instance->getModel()->update([
+            'expired' => $moment,
+        ])->where(new WhereSegment([
+            WhereItem::isEqual('email', $email, WhereItem::AND_OPERATOR),
+            WhereItem::isEqual('type', $type, WhereItem::AND_OPERATOR),
+            WhereItem::isGreaterThan('expired', $moment, WhereItem::AND_OPERATOR),
+        ]))->execute() === true;
+    }
+
+    /**
      * Cuántos códigos se crearon para ese correo desde esa fecha, de cualquier tipo.
      *
      * @param string $email

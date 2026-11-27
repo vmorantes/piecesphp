@@ -588,6 +588,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 68. user-types.php se aplica entero y ningún módulo encendido asigna un tipo retirado (ADR 0078) ─
         $userTypesFileFailures = self::checkUserTypesFile();
 
+        //Una login_redirect_route de otro dominio avisa y no falla (P416).
+        $loginRedirect = get_config('login_redirect_route');
+        $loginRedirectWarning = ProjectStart::loginRedirectHostWarning($loginRedirect, get_config('allowed_hosts'), get_config('allowed_hosts_infer_www') !== false, ProjectStart::absoluteURLParts($loginRedirect) !== null ? ProjectStart::loginLoopURLs() : [], (string) parse_url(baseurl(), PHP_URL_PATH), Config::get_allowed_langs());
+        if ($loginRedirectWarning !== null) {
+            echoTerminal("\e[33mAVISO:\e[39m login_redirect_route: {$loginRedirectWarning}");
+        }
+
         //──── 69. Lo que las extensiones añaden a la organización del JSON-LD se aplica entero ─
         $structuredDataFailures = self::checkStructuredDataOrganization();
 

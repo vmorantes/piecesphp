@@ -295,6 +295,7 @@ $lang = [
         'El usuario no está bloqueado.'                                   => 'The user is not locked.',
         'Otros inconvenientes (osTicket).'                                => 'Other inconveniences (osTicket).',
         'No se ha podido enviar el mensaje, intente más tarde.'           => 'The message could not be sent, try again later.',
+        'Intento de envío de otros problemas.'                            => 'Other problems submission attempt.',
         'Código de verificación'                                          => 'Verification code',
         'Ticket genérico'                                                 => 'Generic ticket',
         'Otro problema'                                                   => 'Another problem',
@@ -355,6 +356,9 @@ $lang = [
         'Contraseña cambiada.'                              => 'Password changed.',
         'Recuperación de contraseña'                        => 'Password recovery',
         'Contraseña nueva'                                  => 'New password',
+        'La contraseña no puede estar vacía.'               => 'The password cannot be empty.',
+        'La contraseña tiene un carácter no válido.'        => 'The password contains an invalid character.',
+        'La contraseña es demasiado larga: como mucho 72 caracteres, menos si lleva tildes o emojis.' => 'The password is too long: at most 72 characters, fewer with accents or emoji.',
     ],
     'datatables' => [
         'Buscar'              => 'To look for...',

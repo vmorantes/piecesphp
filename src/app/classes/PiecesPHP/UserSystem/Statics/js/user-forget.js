@@ -117,7 +117,7 @@ $(document).ready(function (e) {
 				headerCode.hide(delayHide)
 				headerFinish.show(delayShow)
 
-				messageBox.html(`<h1>${res.message}</h1>`)
+				messageBox.empty().append($('<h1>').text(res.message))
 
 				codeForm[0].reset()
 
@@ -145,7 +145,11 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			if (jqXHR.status === 429 && jqXHR.responseJSON && typeof jqXHR.responseJSON.message == 'string') {
+				messageBox.text(jqXHR.responseJSON.message)
+			} else {
+				messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+			}
 
 		})
 

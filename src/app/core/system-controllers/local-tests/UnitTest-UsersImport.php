@@ -184,6 +184,21 @@ CliActions::make('unit-tests:core/users-import', function ($args) {
         $informe = $correr($cabecerasCompletas, [$base('8', [4 => (string) UsersModel::TYPE_USER_GENERAL])]);
         $errorPrioridad = implode(' | ', ($informe->rowResults()[0] ?? null)?->errors() ?? []);
         $check($general !== null && !$informe->persisted() && str_contains($errorPrioridad, 'no tienes permiso'), 'p4 tipo con la misma prioridad que quien importa → error de fila', $errorPrioridad);
+
+        //p7 (H522 n): la contraseña, con las reglas del alta (sin byte nulo, como mucho 72 bytes), y las iniciales con tilde.
+        $cabecerasClave = ['username', 'email', 'firstname', 'first_lastname', 'password', 'organization'];
+        $informe = $correr($cabecerasClave, [
+            ["{$prefijo}-n1", "{$prefijo}-n1@example.com", 'Zz', 'Prueba', "zz\0nula", $codigoOrganizacion],
+            ["{$prefijo}-n2", "{$prefijo}-n2@example.com", 'Zz', 'Prueba', str_repeat('a', 73), $codigoOrganizacion],
+        ]);
+        $erroresClave = [];
+        foreach ($informe->rowResults() as $r) {
+            $erroresClave[$r->position()] = implode(' | ', $r->errors());
+        }
+        $check(!$informe->persisted() && count($usuariosDelPrefijo("{$prefijo}-n")) === 0 && str_contains($erroresClave[1] ?? '', 'Contraseña') && str_contains($erroresClave[2] ?? '', 'Contraseña'), 'p7 DISCRIMINANTE: una contraseña con un byte nulo o de más de 72 bytes es un error de su fila y no se importa nada', json_encode($erroresClave, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+        $informe = $correr($cabecerasClave, [["{$prefijo}-n3", "{$prefijo}-n3@example.com", 'josé ñúñez', 'MCDONALD', str_repeat('a', 72), $codigoOrganizacion]]);
+        $importado = $usuariosDelPrefijo("{$prefijo}-n3");
+        $check($informe->persisted() && count($importado) === 1 && $importado[0]->firstname === 'José Ñúñez' && $importado[0]->firstLastname === 'MCDONALD', 'p8 DISCRIMINANTE: «josé ñúñez» se importa «José Ñúñez» y «MCDONALD» se queda; 72 bytes sí caben', count($importado) === 1 ? "{$importado[0]->firstname} · {$importado[0]->firstLastname}" : 'creados ' . count($importado));
         $como($idRoot);
         echoTerminal(' ');
 
