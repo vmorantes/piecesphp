@@ -86,12 +86,8 @@ La respuesta estándar de las operaciones de escritura (clase ResultOperations, 
 | `successOperations.*` | object (Operation) | no | Claves libres. |
 | `fails` | object \| array | sí | Las operaciones fallidas, por nombre. |
 | `fails.*` | object (Operation) | no | Claves libres. |
-| `operations` | array de object (Operation) | sí |  |
-| `operations[].name` | string | no |  |
-| `operations[].success` | boolean | no |  |
-| `operations[].required` | boolean | no | Si la operación cuenta para minimumRequiredSuccess. |
-| `operations[].message` | string | no |  |
-| `operations[].time` | string | no | Fecha y hora de creación, formato AAAA-MM-DD hh:mm:ss. |
+| `operations` | object \| array | sí | Las operaciones, por nombre: un objeto JSON `{nombre: operación}`. Sin ninguna operación llega como lista vacía `[]` (así serializa PHP un arreglo vacío). |
+| `operations.*` | object (Operation) | no | Claves libres. |
 | `singleOperation` | boolean | sí |  |
 | `extras` | array de cualquiera | sí | Contenidos adicionales útiles en caso de errores. |
 | `values` | object \| array | sí | Valores propios de la ruta (por ejemplo redirect, redirect_to, reload). |

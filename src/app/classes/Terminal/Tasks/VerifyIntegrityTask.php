@@ -617,6 +617,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $atlasFailures = ['el mapa del código falló al calcular: ' . get_class($e) . ': ' . $e->getMessage()];
         }
 
+        //──── 75. El conmutador de prueba de los módulos solo se llama en las suites ─────
+        $testingSwitchFailures = self::checkTestingSwitchCalls();
+
         //──── 56. La matriz de permisos y lo declarado dicen lo mismo ───────────────────
         $matrixFailures = Distribution::applies('56', ['files/dev/permissions-matrix.json', 'files/dev/permissions-declared.json', self::PERMISSIONS_MATRIX_EXCEPTIONS_RELATIVE_PATH])
             ? self::checkPermissionsMatrixAgainstDeclared() : [];
@@ -660,7 +663,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
          + count($inlineStyleFailures) + count($publicSecurityFailures) + count($manualFailures) + count($versionDateFailures) + count($mailSenderFailures)
          + count($editorFailures) + count($apiDocFailures) + count($mcpToolFailures) + count($userTypeListFailures) + count($userTypesFileFailures)
          + count($structuredDataFailures) + count($formFieldFailures) + count($scssCensusFailures) + count($showcaseFailures)
-         + count($deprecationGateFailures) + count($atlasFailures);
+         + count($deprecationGateFailures) + count($atlasFailures) + count($testingSwitchFailures);
 
         foreach ($cloneFailures as $line) {
             echoTerminal("\e[31mLÍNEA BASE DEL CLON:\e[39m {$line}");
@@ -721,6 +724,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
         foreach ($suiteAreaFailures as $line) {
             echoTerminal("\e[31mÁREA DE SUITE:\e[39m {$line}");
+        }
+        foreach ($testingSwitchFailures as $line) {
+            echoTerminal("\e[31mCONMUTADOR DE PRUEBA:\e[39m {$line}");
         }
         foreach ($looseColorFailures as $line) {
             echoTerminal("\e[31mCOLOR SUELTO:\e[39m {$line}");
@@ -889,7 +895,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, las listas de tipos de usuario, el archivo de tipos de usuario, el mapa del código, la distribución pública, lo que envía cada formulario contra lo que lee su acción y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos, volátiles, rutas prohibidas, universo de análisis, instantáneas, orden de propiedades, docblocks, ramas gemelas, línea base de PHPStan, permisos declarados, plantillas de las vistas, el modelo asignado de cada controlador, capacidades anunciadas, restos de la campaña, de quién es cada configuración, las rutas y las claves de configuración que nombra la documentación, las listas de tipos de usuario, el archivo de tipos de usuario, el mapa del código, la distribución pública, lo que envía cada formulario contra lo que lee su acción, el conmutador de prueba de los módulos y carga del arranque sin novedad. Las versiones de los paquetes se informan arriba: avisan, no fallan.");
             if (self::$withoutShell > 0) {
                 echoTerminal("\e[33mSIN PROCESOS:\e[39m " . self::$withoutShell . ' comprobación(es) NO se hicieron, cada una con su línea «' . Shell::NOT_APPLICABLE . '» arriba: el OK solo vale para las demás.');
             }
@@ -9066,6 +9072,168 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
         }
         return $found;
+    }
+
+    /**
+     * 75. El conmutador de prueba de los módulos (`swapEnabledForTesting`) solo se LLAMA en las suites: fuera, un módulo
+     * apagaría en silencio las aprobaciones, el registro de acciones u Organizaciones para todo el proceso (JPW). Por
+     * tokens: la definición (`function swapEnabledForTesting`), los comentarios y las cadenas no cuentan. Una llamada
+     * dinámica (`[$clase, 'swapEnabledForTesting']`) no se ve.
+     *
+     * @param array<string,string>|null $sources Ruta relativa a src/ => código; null lee app/ e index.php del árbol.
+     * @param bool|null $canary El canario de la LEY 16 (sin archivos o sin llamadas en las suites, falla); null: solo
+     * con el árbol. La suite lo pide con fuentes propias para verlo disparar.
+     * @return string[]
+     */
+    protected static function checkTestingSwitchCalls(?array $sources = null, ?bool $canary = null): array
+    {
+        $fromTree = $sources === null;
+        $canary ??= $fromTree;
+        if ($sources === null) {
+            $base = rtrim(str_replace('\\', '/', basepath('')), '/');
+            $sources = [];
+            if (is_file($base . '/index.php')) {
+                $sources['index.php'] = (string) @file_get_contents($base . '/index.php');
+            }
+            if (is_dir($base . '/app')) {
+                $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($base . '/app', \RecursiveDirectoryIterator::SKIP_DOTS));
+                foreach ($iterator as $file) {
+                    if ($file->isFile() && strtolower($file->getExtension()) === 'php') {
+                        $relative = ltrim((string) str_replace($base, '', str_replace('\\', '/', (string) $file->getPathname())), '/');
+                        $sources[$relative] = (string) @file_get_contents((string) $file->getPathname());
+                    }
+                }
+            }
+            ksort($sources);
+        }
+        $failures = [];
+        $inSuites = 0;
+        foreach ($sources as $relative => $code) {
+            //PHP no distingue mayúsculas en los nombres de método: SwapEnabledForTesting( también es una llamada.
+            if (stripos($code, 'swapEnabledForTesting') === false) {
+                continue;
+            }
+            $tokens = \PhpToken::tokenize($code);
+            $total = count($tokens);
+            foreach ($tokens as $i => $token) {
+                if (!$token->is(T_STRING) || strcasecmp($token->text, 'swapEnabledForTesting') !== 0) {
+                    continue;
+                }
+                $previous = $i - 1;
+                //Una definición por referencia (function &swapEnabledForTesting) lleva «&» entre medias.
+                while ($previous >= 0 && ($tokens[$previous]->isIgnorable() || $tokens[$previous]->text === '&')) {
+                    $previous--;
+                }
+                if ($previous >= 0 && $tokens[$previous]->is(T_FUNCTION)) {
+                    continue;
+                }
+                $next = $i + 1;
+                while ($next < $total && $tokens[$next]->isIgnorable()) {
+                    $next++;
+                }
+                if ($next >= $total || $tokens[$next]->text !== '(') {
+                    continue;
+                }
+                //En las suites vale dentro de una función o un cierre. A nivel de archivo correría al incluirse la carpeta,
+                //también en una petición web (Test::registerRoutes), y apagaría el módulo de verdad.
+                if (str_starts_with((string) $relative, 'app/core/system-controllers/local-tests/')) {
+                    if (self::testingSwitchInsideFunction($tokens, $i)) {
+                        $inSuites++;
+                        continue;
+                    }
+                    $failures[] = "{$relative}:{$token->line} llama a swapEnabledForTesting() a nivel de archivo: en una suite, solo dentro de una función o un cierre.";
+                    continue;
+                }
+                $failures[] = "{$relative}:{$token->line} llama a swapEnabledForTesting() fuera de local-tests/: solo las pruebas encienden o apagan un módulo en proceso.";
+            }
+        }
+        //Canario (LEY 16): sin archivos o sin ninguna llamada en las suites, el instrumento no ve.
+        if ($canary && (count($sources) === 0 || $inSuites === 0)) {
+            $failures[] = 'el instrumento no ve: ' . count($sources) . " archivo(s) leídos y {$inSuites} llamada(s) en local-tests/ (tiene que haber alguna).";
+        }
+        if ($fromTree) {
+            echoTerminal('INFO: 75 conmutador de prueba: ' . count($sources) . ' archivo(s) PHP de app/ e index.php mirados; ' . $inSuites . ' llamada(s) en local-tests/ (no cuentan); ' . count($failures) . ' fuera.');
+        }
+        return $failures;
+    }
+
+    /**
+     * Si el token $position cae dentro del cuerpo de una función, un método, un cierre (`function`) o una flecha (`fn`).
+     *
+     * @param \PhpToken[] $tokens
+     * @param int $position
+     * @return bool
+     */
+    protected static function testingSwitchInsideFunction(array $tokens, int $position): bool
+    {
+        $total = count($tokens);
+        $opens = ['{', '(', '['];
+        foreach ($tokens as $i => $token) {
+            if ($i >= $position) {
+                break;
+            }
+            if ($token->is(T_FUNCTION)) {
+                //El cuerpo: la primera «{» antes de un «;» (un método abstracto o un «use function» no tienen).
+                $start = null;
+                for ($j = $i + 1; $j < $total; $j++) {
+                    if ($tokens[$j]->text === ';') {
+                        break;
+                    }
+                    if ($tokens[$j]->text === '{') {
+                        $start = $j;
+                        break;
+                    }
+                }
+                if ($start === null || $start > $position) {
+                    continue;
+                }
+                $depth = 0;
+                for ($j = $start; $j < $total; $j++) {
+                    $text = $tokens[$j]->text;
+                    if ($text === '{' || $tokens[$j]->is([T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES])) {
+                        $depth++;
+                    } elseif ($text === '}') {
+                        $depth--;
+                        if ($depth === 0) {
+                            break;
+                        }
+                    }
+                }
+                if ($position > $start && $position < $j) {
+                    return true;
+                }
+            } elseif ($token->is(T_FN)) {
+                //La flecha: desde «=>» hasta que la expresión se cierra (una «,», un «;» o un cierre de más).
+                $start = null;
+                for ($j = $i + 1; $j < $total; $j++) {
+                    if ($tokens[$j]->is(T_DOUBLE_ARROW)) {
+                        $start = $j;
+                        break;
+                    }
+                }
+                if ($start === null || $start > $position) {
+                    continue;
+                }
+                $depth = 0;
+                for ($j = $start + 1; $j < $total; $j++) {
+                    $text = $tokens[$j]->text;
+                    if (in_array($text, $opens, true) || $tokens[$j]->is([T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES])) {
+                        $depth++;
+                    } elseif (in_array($text, ['}', ')', ']'], true)) {
+                        if ($depth === 0) {
+                            break;
+                        }
+                        $depth--;
+                    } elseif ($depth === 0 && in_array($text, [',', ';'], true)) {
+                        break;
+                    }
+                }
+                if ($position > $start && $position < $j) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

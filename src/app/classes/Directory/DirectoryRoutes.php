@@ -16,6 +16,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Statics\ServerStatics;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\Geo\GeoRoutes;
 use PiecesPHP\Geo\GeoSourceRegistry;
 
 /**
@@ -46,7 +47,10 @@ class DirectoryRoutes
 
             DirectoryLang::injectLang();
 
-            GeoSourceRegistry::register(new PersonsGeoSource());
+            //Su fuente del geovisor, solo con Geo encendido (H381).
+            if (GeoRoutes::ENABLE) {
+                GeoSourceRegistry::register(new PersonsGeoSource());
+            }
 
         }
 

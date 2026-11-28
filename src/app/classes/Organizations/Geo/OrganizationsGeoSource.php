@@ -321,7 +321,7 @@ class OrganizationsGeoSource implements GeoSource
             new HavingItem('id', HavingItem::NOT_EQUAL_OPERATOR, OrganizationMapper::INITIAL_ID_GLOBAL, HavingItem::AND_OPERATOR),
             new HavingItem('publicVisible', HavingItem::EQUAL_OPERATOR, 1, HavingItem::AND_OPERATOR),
         ];
-        if (SystemApprovalsRoutes::ENABLE) {
+        if (SystemApprovalsRoutes::enabled()) {
             $criteria[] = new HavingItem('systemApprovalStatus', HavingItem::EQUAL_OPERATOR, SystemApprovalsMapper::STATUS_APPROVED, HavingItem::AND_OPERATOR);
         }
         return GeoSourceSql::addIds(new HavingSegment($criteria), 'status', [OrganizationMapper::ACTIVE, OrganizationMapper::PENDING_APPROVAL]);

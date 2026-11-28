@@ -108,7 +108,7 @@ Ruta interna: `api-admin-users-actions` · acción `change-password-code`.
 
 Autenticación: sin sesión.
 
-Cambia la contraseña con el código recibido por correo. El código solo vale para su usuario, y tras varios fallos la ruta responde 429 con la cabecera Retry-After (límite de otp_security). Al cambiar la contraseña se cierran las sesiones del usuario. No usa sesión. El cuerpo debe traer exactamente username, code, password y repassword. `updated` informa si la contraseña se cambió. Solo con la bandera API_USERS.
+Cambia la contraseña con el código recibido por correo. El código solo vale para su usuario, y tras varios fallos la ruta responde 429 con la cabecera Retry-After (límite de otp_security). Al cambiar la contraseña se cierran las sesiones del usuario; si la petición lleva la sesión viva de ese mismo usuario, esa sesión se conserva y se cierran las demás. No usa sesión. El cuerpo debe traer exactamente username, code, password y repassword. `updated` informa si la contraseña se cambió. Solo con la bandera API_USERS.
 
 ### Cuerpo
 
@@ -666,7 +666,7 @@ Ruta interna: `users-new-password-create-code`.
 
 Autenticación: sin sesión.
 
-Cambia la contraseña con el código recibido por correo. Mismo manejador que /core/api/users/change-password-code/. El código solo vale para su usuario, y tras varios fallos responde 429 con Retry-After (otp_security). Al cambiar la contraseña se cierran las sesiones del usuario. No usa sesión. El cuerpo debe traer exactamente username, code, password y repassword.
+Cambia la contraseña con el código recibido por correo. Mismo manejador que /core/api/users/change-password-code/. El código solo vale para su usuario, y tras varios fallos responde 429 con Retry-After (otp_security). Al cambiar la contraseña se cierran las sesiones del usuario; si la petición lleva la sesión viva de ese mismo usuario, esa sesión se conserva y se cierran las demás. No usa sesión. El cuerpo debe traer exactamente username, code, password y repassword.
 
 ### Cuerpo
 

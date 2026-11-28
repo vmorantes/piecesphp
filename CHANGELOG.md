@@ -1,3 +1,55 @@
+# 10.74.0 (27-11-2026)
+
+- **La documentación de la renovación de una sesión de app, más precisa**: qué guarda la app si llegan dos respuestas
+  de una renovación repetida (la llave, que es la misma, y el token de la petición con la hora mayor) y, durante el
+  mantenimiento, que con un token vigente cuenta el tipo de su dueño. No cambia el comportamiento. **Al actualizar**: nada
+  que hacer.
+- **La documentación de la API dice lo que el código hace**, para quien integra desde otro origen. Recoge que:
+  - `overwriteSession` admite `yes` o un booleano; la cadena `no` da error, y para no reemplazar la sesión se omite;
+  - al editar el perfil, `secondname` y `second_lastname` se vacían si no se envían, y cambiar `username` o `email` pide
+    `current-password`;
+  - `userData` es `[]` en un fallo, y `operations` es un objeto por nombre;
+  - los cuerpos del 403, del 404 y del 503 de mantenimiento;
+  - CORS solo se activa con `API_MODULE`, y no hay `Expose-Headers` ni `Max-Age`;
+  - `change-password-code` conserva la sesión del propio usuario.
+
+  Añade un apartado con lo que se configura en el sitio (`admin_path`, `allowed_hosts`, `cors_credentials_origins`) y
+  pone al día la versión del documento. **Al actualizar**: si tu app mandaba `overwriteSession=no`, quítalo; nada más.
+- **El panel, tres arreglos de pantalla**: el campo de archivo de los anexos ya no puede quedar encima de un botón
+  según el contenido del marcador (en algunos navegadores se llevaba el clic de Guardar o Eliminar); el texto atenuado
+  sobre fondo de relleno (anexos y gestor de archivos) llega al contraste mínimo de accesibilidad; y el aviso «No hay
+  información disponible» de los listados en tarjetas ya no se sale de su contenedor. **Al actualizar**: nada que hacer;
+  si tu proyecto sobrescribe esos estilos, revisa que siga viéndose igual.
+- **El administrador de organización edita y borra las publicaciones de su organización**, como ya hacía con los
+  documentos y los formularios. Lo hace solo el administrador designado de esa organización, nunca sobre la organización
+  general ni con el módulo Organizaciones apagado. No crea publicaciones. En el listado del panel, un administrador de
+  organización que no es el designado, o que pertenece a la organización general, ve solo lo suyo. **Al actualizar**: si tu
+  proyecto da a ese tipo otras reglas en Publicaciones, revísalas.
+- **Aprobaciones y Noticias respetan su interruptor**: con Aprobaciones apagado, el arranque ya no lee ni escribe su
+  tabla, y todo cuenta como aprobado; con Noticias apagado, la API no registra su ruta de noticias. **Al actualizar**:
+  nada que hacer. Si más adelante enciendes las aprobaciones, el primer arranque crea de golpe el registro de aprobación
+  de todos los usuarios y organizaciones que ya existen.
+- **El registro de acciones y Geo respetan su interruptor**: con el registro de acciones apagado, nada lee ni escribe
+  su tabla (anotar devuelve un registro sin `id`, que no se guardó) y el historial de la pestaña de tokens y códigos no
+  se registra; con Geo apagado, el mantenimiento no barre miniaturas del geovisor y el Directorio y Organizaciones no
+  registran sus fuentes de mapa. Las aprobaciones se consultan siempre por `SystemApprovalsRoutes::enabled()`.
+  **Al actualizar**: si tu código lee el resultado de `LogsMapper::addLog()`, mira que el `id` no sea nulo.
+- **El autor de una publicación se valida en el servidor** al crearla y cuando cambia: tiene que ser un usuario activo
+  de los tipos que ofrece el selector de autor y, con el módulo Organizaciones encendido y si quien guarda no puede
+  editar todas, de su misma organización, la misma que acota el selector. Guardar sin cambiar el autor no lo revalida.
+  Figurar como autor solo da acceso a editar y borrar mientras el usuario siga siendo de esos tipos.
+  Antes bastaba con un número. **Al actualizar**: si tu proyecto asigna autores de otra organización, lo hace quien
+  administra todas.
+- **El conmutador de prueba de los módulos solo se usa en las pruebas**: una comprobación de la integridad falla si
+  `swapEnabledForTesting()` se llama fuera de `local-tests/`, o a nivel de archivo en una suite. **Al actualizar**:
+  nada que hacer.
+
+## ⚠ CAMBIOS INCOMPATIBLES
+
+- Con `EVENTS_LOG_MODULE` en `false` ya no se anota ningún evento, tampoco los de seguridad (accesos, sesiones,
+  suplantaciones), que antes se guardaban si la tabla existía. Si tu instalación necesita ese rastro, deja el módulo
+  encendido.
+
 # 10.73.0 (27-11-2026)
 
 - **Seguridad: los avisos del panel que nombran a otro usuario lo muestran siempre como texto.** Un nombre de usuario

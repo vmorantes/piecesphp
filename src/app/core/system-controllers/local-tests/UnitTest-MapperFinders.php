@@ -161,6 +161,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         //EL REGISTRO DE ACCIONES SE SIEMBRA POR addLog(): su primera fila puede ser una vieja e incompleta, y así la
         //prueba no depende de lo que haya en la tabla y además ejercita lo que addLog() escribe.
         if ($mapperClass === \EventsLog\Mappers\LogsMapper::class) {
+            //Con el registro de acciones apagado addLog() no guarda: no hay fila que sembrar (H381).
+            if (!\EventsLog\LogsRoutes::enabled()) {
+                return null;
+            }
             if (!array_key_exists(\EventsLog\Mappers\LogsMapper::TABLE, $moduleSeeded)) {
                 try {
                     $log = \EventsLog\Mappers\LogsMapper::addLog(\EventsLog\Mappers\LogsMapper::MSG_GENERIC, ['%message%' => 'zz-mapper-finders']);
@@ -363,16 +367,21 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //──── Un log escrito por addLog() sin la extensión geoip se puede leer como mapper ──
     echoTerminal('[extra] Un log escrito por addLog() se lee como LogsMapper, haya o no geoip...');
     $logID = $sampleID(\EventsLog\Mappers\LogsMapper::class);
-    try {
-        $log = $logID !== null ? \EventsLog\Mappers\LogsMapper::getBy($logID, 'id', true) : null;
-        $check(
-            $log instanceof \EventsLog\Mappers\LogsMapper && is_string($log->ip) && $log->ip !== '' && is_string($log->geolocationByIp) && $log->geolocationByIp !== '',
-            'addLog() deja ip y geolocalización, y la fila se lee (geoip ' . (function_exists('geoip_record_by_name') ? 'presente' : 'ausente') . ')',
-            'Obtenido: ' . (is_object($log) ? get_class($log) : gettype($log))
-        );
-    } catch (\Throwable $e) {
-        $check(false, 'addLog() deja ip y geolocalización, y la fila se lee', 'Excepción: ' . $e->getMessage());
+    if (!\EventsLog\LogsRoutes::enabled()) {
+        echoTerminal("   \e[33m[OMITIDA]\e[39m [extra]: el registro de acciones está apagado y addLog() no guarda.");
+    } else {
+        try {
+            $log = $logID !== null ? \EventsLog\Mappers\LogsMapper::getBy($logID, 'id', true) : null;
+            $check(
+                $log instanceof \EventsLog\Mappers\LogsMapper && is_string($log->ip) && $log->ip !== '' && is_string($log->geolocationByIp) && $log->geolocationByIp !== '',
+                'addLog() deja ip y geolocalización, y la fila se lee (geoip ' . (function_exists('geoip_record_by_name') ? 'presente' : 'ausente') . ')',
+                'Obtenido: ' . (is_object($log) ? get_class($log) : gettype($log))
+            );
+        } catch (\Throwable $e) {
+            $check(false, 'addLog() deja ip y geolocalización, y la fila se lee', 'Excepción: ' . $e->getMessage());
+        }
     }
+
     echoTerminal(' ');
 
     //──── Limpieza: lo que sembró la suite se va, pase lo que pase ──────────────────────

@@ -88,6 +88,9 @@ Y para anotar, **`LogsMapper::addLogSafe()`**, con los mismos argumentos que `ad
 registro de errores y la acción sigue, en lugar de que quien la hizo vea un error en algo que sí se hizo. `addLog()` sigue
 existiendo y lanza, para quien necesite saberlo.
 
+Con el módulo apagado (`EVENTS_LOG_MODULE` en `false`), ninguna de las dos escribe ni lanza: devuelven un registro sin
+`id`, que no se guardó. Si tu código necesita saber si se anotó, mira que el `id` no sea nulo.
+
 - Un código ya declarado (del framework o de otro módulo) no se puede volver a declarar: la llamada lanza.
 - El texto se escribe en español y se traduce en el grupo de los registros, como los del framework; dale su inglés en el
   diccionario de tu módulo.

@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\UserSystem\Seeds;
 
+use EventsLog\LogsRoutes;
 use EventsLog\Mappers\LogsMapper;
 use News\Mappers\NewsReadedMapper;
 use Organizations\Mappers\OrganizationMapper;
@@ -16,6 +17,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserTypes;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
 
@@ -64,8 +66,9 @@ class UsersSeeder extends ModuleSeeder
     {
         return [
             UserProfileMapper::TABLE => 'belongsTo',
-            SystemApprovalsMapper::TABLE => ['column' => 'referenceValue', 'where' => ['referenceTable' => UsersModel::TABLE]],
-            LogsMapper::TABLE => 'createdBy',
+            //Con las aprobaciones apagadas su tabla no se toca, y puede no existir (H381).
+             ...(SystemApprovalsRoutes::enabled() ? [SystemApprovalsMapper::TABLE => ['column' => 'referenceValue', 'where' => ['referenceTable' => UsersModel::TABLE]]] : []),
+            ...(LogsRoutes::enabled() ? [LogsMapper::TABLE => 'createdBy'] : []),
             TimeOnPlatformModel::TABLE => 'userID',
             LoginAttemptsModel::TABLE => 'userID',
             NewsReadedMapper::TABLE => 'readerUser',

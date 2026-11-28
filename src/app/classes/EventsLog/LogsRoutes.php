@@ -34,12 +34,40 @@ class LogsRoutes
     const ENABLE = EVENTS_LOG_MODULE;
 
     /**
+     * @var bool|null Solo las pruebas lo ponen (swapEnabledForTesting); null es ENABLE.
+     */
+    private static ?bool $enabledForTesting = null;
+
+    /**
+     * El interruptor del módulo. Apagado, nada lee ni escribe el registro de acciones (H381).
+     *
+     * @return bool
+     */
+    public static function enabled(): bool
+    {
+        return self::$enabledForTesting ?? self::ENABLE;
+    }
+
+    /**
+     * Enciende (true), apaga (false) o devuelve a ENABLE (null) el interruptor, y devuelve lo que había.
+     *
+     * @param bool|null $enabled
+     * @return bool|null
+     */
+    public static function swapEnabledForTesting(?bool $enabled): ?bool
+    {
+        $previous = self::$enabledForTesting;
+        self::$enabledForTesting = $enabled;
+        return $previous;
+    }
+
+    /**
      * @param RouteGroup $group
      * @return RouteGroup
      */
     public static function routes(RouteGroup $group)
     {
-        if (self::ENABLE) {
+        if (self::enabled()) {
 
             $group = LogsController::routes($group);
 
@@ -99,7 +127,7 @@ class LogsRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::ENABLE);
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::enabled());
     }
 
     /**

@@ -65,7 +65,7 @@ CliActions::make('unit-tests:core/tokens-tab', function ($args) {
     if (!$check($base !== '' && $database !== null, 'c1 hay una base HTTP para pedir y conexión a la base', $base)) {
         return $balance();
     }
-    if (!$check(LogsRoutes::ENABLE, 'c2 el registro de acciones está encendido (la historia lo necesita)')) {
+    if (!$check(LogsRoutes::enabled(), 'c2 el registro de acciones está encendido (la historia lo necesita)')) {
         return $balance();
     }
 

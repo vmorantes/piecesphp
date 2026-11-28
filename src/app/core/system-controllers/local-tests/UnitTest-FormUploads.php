@@ -218,6 +218,24 @@ CliActions::make('unit-tests:core/form-uploads', function ($args) {
         $root = (int) $u->id;
         $usuarios[] = $root;
         $jwt = UserSessions::issueToken($root);
+        //El autor de una publicación es de los tipos de autor (P431 2 a): root no lo es.
+        $a = new UsersModel();
+        $a->username = "{$prefijo}-autor";
+        $a->email = "{$prefijo}-autor@example.com";
+        $a->password = password_hash(bin2hex(random_bytes(16)), \PASSWORD_DEFAULT);
+        $a->firstname = 'Zz';
+        $a->secondname = '';
+        $a->firstLastname = 'Autor';
+        $a->secondLastname = '';
+        $a->type = PublicationsController::AUTHOR_TYPES[0];
+        $a->status = UsersModel::STATUS_USER_ACTIVE;
+        $a->failedAttempts = 0;
+        $a->organization = OrganizationMapper::INITIAL_ID_GLOBAL;
+        $a->createdAt = new \DateTime();
+        $a->modifiedAt = $a->createdAt;
+        $a->save();
+        $autor = (int) $a->id;
+        $usuarios[] = $autor;
 
         $categoria = (int) (PublicationCategoryMapper::uncategorizedCategory()->id ?? 0);
         $database->prepare('INSERT INTO `' . DocumentTypesMapper::TABLE . '` (documentTypeName, folder, status, createdAt, createdBy, meta) VALUES (?, ?, ?, ?, ?, ?)')->execute(["{$prefijo}-tipo", "{$prefijo}-tipo", 1, $ahora, $root, $meta]);
@@ -267,7 +285,7 @@ CliActions::make('unit-tests:core/form-uploads', function ($args) {
                 'dir' => PublicationsController::UPLOAD_DIR,
                 'campo' => 'ogImage',
                 'otros' => ['mainImage' => 'c', 'thumbImage' => 'd'],
-                'campos' => ['lang' => $lang, 'baseLang' => $lang, 'author' => $root, 'title' => "{$prefijo}-publicacion", 'content' => 'zz-', 'category' => $categoria, 'publicDate' => date('d-m-Y'), 'draft' => 'yes'],
+                'campos' => ['lang' => $lang, 'baseLang' => $lang, 'author' => $autor, 'title' => "{$prefijo}-publicacion", 'content' => 'zz-', 'category' => $categoria, 'publicDate' => date('d-m-Y'), 'draft' => 'yes'],
                 'privado' => true,
             ],
         ];

@@ -40,7 +40,7 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
      */
     public static function isEnabled(): bool
     {
-        return \Publications\PublicationsRoutes::ENABLE && \SystemApprovals\SystemApprovalsRoutes::ENABLE && parent::isEnabled();
+        return \Publications\PublicationsRoutes::ENABLE && \SystemApprovals\SystemApprovalsRoutes::enabled() && parent::isEnabled();
     }
 
     /**

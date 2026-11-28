@@ -508,6 +508,14 @@ class UsersController extends AdminPanelController
             static fn (int $tipo): bool => in_array($tipo, $tiposConocidos, true)
         ));
 
+        //Los estados que no se ofrecen (el autor de una publicación: ni inactivos); solo los conocidos, como los tipos.
+        $ignoreStatuses = $request->getQueryParam('ignoreStatuses', null);
+        $ignoreStatuses = is_string($ignoreStatuses) && mb_strlen(trim($ignoreStatuses)) > 0 ? explode(',', trim($ignoreStatuses)) : [];
+        $ignoreStatuses = array_values(array_filter(
+            array_map('intval', array_filter($ignoreStatuses, 'is_numeric')),
+            static fn (int $estado): bool => array_key_exists($estado, UsersModel::STATUSES)
+        ));
+
         $results = new \stdClass;
         $results->success = true;
         $results->results = [];
@@ -528,6 +536,14 @@ class UsersController extends AdminPanelController
             );
         }
         $criteriosWhere[] = new WhereItem('status', WhereItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, WhereItem::AND_OPERATOR);
+        if (!empty($ignoreStatuses)) {
+            $criteriosWhere[] = new WhereItem(
+                'status',
+                WhereItem::NOT_IN_OPERATOR,
+                '(' . implode(', ', $ignoreStatuses) . ')',
+                WhereItem::AND_OPERATOR
+            );
+        }
         $criteriosWhere[] = UsersModel::excludeSystemUserWhereItem();
         //Sin esto el selector enumeraba los usuarios de todas las organizaciones.
         $ownOrganization = self::ownOrganizationWhereItem(new UsersModel($this->user->id));
@@ -1835,7 +1851,7 @@ class UsersController extends AdminPanelController
                     }
 
                     //Un pendiente de una organización aprobada se aprueba aquí, al crearlo; navegar ya no lo hace (P220 b).
-                    if (SystemApprovalsRoutes::ENABLE) {
+                    if (SystemApprovalsRoutes::enabled()) {
                         //RETORNO-IGNORADO: la respuesta del alta es la misma, quede aprobado o pendiente.
                         UsersApprovalHandler::approveIfOrganizationApproved($userMapper);
                     }

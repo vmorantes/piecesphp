@@ -21,6 +21,7 @@ use PiecesPHP\UserSystem\UserTypes;
 use Publications\Mappers\PublicationMapper;
 use ReportsManage\ReportsManageLang;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
 
 /**
  * ReportsManageQueries.
@@ -114,20 +115,22 @@ class ReportsManageQueries
         //Filtrar por estado
         $joinSegment->addCritery(new JoinItem("{$tableUser}.status", JoinItem::EQUAL_OPERATOR, UsersModel::STATUS_USER_ACTIVE));
 
-        //Filtrar por aprobación
-        $whereSegmentApprovals = new WhereSegment();
-        $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceValue", WhereItem::EQUAL_OPERATOR, "{$table}.belongsTo"));
-        $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceTable", WhereItem::EQUAL_OPERATOR, "'{$tableUser}'"));
-        $whereSegmentApprovals = strReplaceTemplate((string) $whereSegmentApprovals, $whereSegmentApprovals->getReplacementValues());
-        $subQueryApprovals = "SELECT {$tableAppovals}.status FROM {$tableAppovals} {$whereSegmentApprovals} LIMIT 1";
-        $whereSegment->addCritery(new WhereItem(
-            "({$subQueryApprovals})",
-            WhereItem::EQUAL_OPERATOR,
-            '"' . SystemApprovalsMapper::STATUS_APPROVED . '"',
-            '',
-            null,
-            false
-        ));
+        //Filtrar por aprobación; apagadas, todo cuenta como aprobado y su tabla no se lee (H381).
+        if (SystemApprovalsRoutes::enabled()) {
+            $whereSegmentApprovals = new WhereSegment();
+            $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceValue", WhereItem::EQUAL_OPERATOR, "{$table}.belongsTo"));
+            $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceTable", WhereItem::EQUAL_OPERATOR, "'{$tableUser}'"));
+            $whereSegmentApprovals = strReplaceTemplate((string) $whereSegmentApprovals, $whereSegmentApprovals->getReplacementValues());
+            $subQueryApprovals = "SELECT {$tableAppovals}.status FROM {$tableAppovals} {$whereSegmentApprovals} LIMIT 1";
+            $whereSegment->addCritery(new WhereItem(
+                "({$subQueryApprovals})",
+                WhereItem::EQUAL_OPERATOR,
+                '"' . SystemApprovalsMapper::STATUS_APPROVED . '"',
+                '',
+                null,
+                false
+            ));
+        }
 
         //El nombre sale de la misma columna por la que se agrupa: una consulta por recuento.
         $countries = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
@@ -170,20 +173,22 @@ class ReportsManageQueries
         //Filtrar por estado
         $whereSegment->addCritery(new WhereItem("{$table}.status", WhereItem::EQUAL_OPERATOR, OrganizationMapper::ACTIVE));
 
-        //Filtrar por aprobación
-        $whereSegmentApprovals = new WhereSegment();
-        $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceValue", WhereItem::EQUAL_OPERATOR, "{$table}.id"));
-        $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceTable", WhereItem::EQUAL_OPERATOR, "'{$table}'"));
-        $whereSegmentApprovals = strReplaceTemplate((string) $whereSegmentApprovals, $whereSegmentApprovals->getReplacementValues());
-        $subQueryApprovals = "SELECT {$tableAppovals}.status FROM {$tableAppovals} {$whereSegmentApprovals} LIMIT 1";
-        $whereSegment->addCritery(new WhereItem(
-            "({$subQueryApprovals})",
-            WhereItem::EQUAL_OPERATOR,
-            '"' . SystemApprovalsMapper::STATUS_APPROVED . '"',
-            '',
-            null,
-            false
-        ));
+        //Filtrar por aprobación; apagadas, todo cuenta como aprobado y su tabla no se lee (H381).
+        if (SystemApprovalsRoutes::enabled()) {
+            $whereSegmentApprovals = new WhereSegment();
+            $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceValue", WhereItem::EQUAL_OPERATOR, "{$table}.id"));
+            $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceTable", WhereItem::EQUAL_OPERATOR, "'{$table}'"));
+            $whereSegmentApprovals = strReplaceTemplate((string) $whereSegmentApprovals, $whereSegmentApprovals->getReplacementValues());
+            $subQueryApprovals = "SELECT {$tableAppovals}.status FROM {$tableAppovals} {$whereSegmentApprovals} LIMIT 1";
+            $whereSegment->addCritery(new WhereItem(
+                "({$subQueryApprovals})",
+                WhereItem::EQUAL_OPERATOR,
+                '"' . SystemApprovalsMapper::STATUS_APPROVED . '"',
+                '',
+                null,
+                false
+            ));
+        }
 
         //El nombre sale de la misma columna por la que se agrupa: una consulta por recuento.
         $countries = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
@@ -307,6 +312,13 @@ class ReportsManageQueries
         $approvalStatus = $approvalStatus ?? SystemApprovalsMapper::STATUS_APPROVED;
         //Si se especifica, se filtra por el estado. Si se especifica 'ALL', se filtra todos los estados
         $approvalStatus = $approvalStatus === 'ALL' ? null : $approvalStatus;
+        //Apagadas, todo cuenta como aprobado y su tabla no se lee (H381): lo aprobado es el total y otro estado, ninguno.
+        if (!SystemApprovalsRoutes::enabled() && $approvalStatus !== null) {
+            if ($approvalStatus !== SystemApprovalsMapper::STATUS_APPROVED) {
+                return 0;
+            }
+            $approvalStatus = null;
+        }
         if ($approvalStatus !== null) {
             $whereSegmentApprovals = new WhereSegment();
             $whereSegmentApprovals->addCritery(new WhereItem("{$tableAppovals}.referenceValue", WhereItem::EQUAL_OPERATOR, "{$table}.id"));

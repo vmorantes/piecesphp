@@ -79,7 +79,7 @@ $twoFactorActive = $twoFactorData !== null && $twoFactorData->twoAuthFactor === 
         <?php endif; ?>
         <?php //El nombre del enlace con el estado AL FINAL: la descripción va antes en el DOM y se leería «Activa Seguridad…». ?>
         <a class="item" href="<?= MySpaceController::routeName('user-security'); ?>" aria-label="<?= escape_html($twoFactorActive ? __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad. Verificación en dos pasos: activa') : __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad. Verificación en dos pasos: inactiva')); ?>"><span class="description"><?= $twoFactorActive ? StatusLabel::html(__(AdminPanelController::ADMIN_LANG_GROUP, 'Activa'), StatusLabel::POSITIVE) : StatusLabel::neutral(__(AdminPanelController::ADMIN_LANG_GROUP, 'Inactiva')); ?></span><i class="shield alternate icon" aria-hidden="true"></i><span class="ui inline vertical left aligned fitted flex"><span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Seguridad'); ?></span><small class="ui muted text"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Verificación en dos pasos'); ?></small></span></a>
-        <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::ENABLE): ?>
+        <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::enabled()): ?>
         <a class="item" href="<?= MyProfileController::routeName('my-profile', [], true); ?>"><i class="id card outline icon" aria-hidden="true"></i><?= __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'); ?></a>
         <?php endif; ?>
         <?php if(OrganizationsRoutes::enabled() && MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR)): ?>

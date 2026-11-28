@@ -1080,6 +1080,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 			const rawData = Array.isArray(json.rawData) ? json.rawData : []
 
 			cardsContainer.html('')
+			cardsContainer.siblings('[data-cards-empty]').remove()
 
 			for (let data of rawData) {
 				cardsContainer.append(data)
@@ -1087,8 +1088,9 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 
 			cards = cardsContainer.find(customClassesCards.cardsSelector)
 
+			//Fuera de .ui.cards, que tiene márgenes negativos: dentro, el aviso se salía del contenedor.
 			if (cards.length == 0) {
-				cardsContainer.html(`<h3>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
+				cardsContainer.after(`<h3 data-cards-empty>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
 			}
 
 			drawCallbackEnd(cards)

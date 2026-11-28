@@ -739,7 +739,7 @@ class DataTransferController extends AdminPanelController
 
         //Queda en el registro de acciones del panel (EventsLog): quién y cuándo; el mapper pone el usuario de la sesión y la fecha.
         $user = getLoggedFrameworkUser();
-        if (LogsRoutes::ENABLE) {
+        if (LogsRoutes::enabled()) {
             LogsMapper::addLog(LogsMapper::MSG_DATA_TRANSFER_TOGGLED, [
                 '%username%' => $user !== null ? $user->username : '?',
                 '%action%' => $isEnabled ? __(self::LANG_GROUP, 'encendió') : __(self::LANG_GROUP, 'apagó'),

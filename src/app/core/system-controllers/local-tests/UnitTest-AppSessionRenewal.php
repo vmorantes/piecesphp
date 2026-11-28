@@ -401,12 +401,17 @@ CliActions::make('unit-tests:core/app-session-renewal', function ($args) {
             'r6b DISCRIMINANTE: repetir la petición de r1 (llave vieja y timestamp ya usado) da 409 RETRY y la fila queda intacta: no la cierra como reutilización',
             json_encode([$e1, $c1['error'] ?? null, 'cierre' => $fila($idA)['closeReason'] ?? null]) ?: '');
 
-        $logsAntes = $contar("SELECT COUNT(*) FROM `{$tablaRegistro}` WHERE referenceSource = ? AND referenceValue = ? AND textMessage = ?", [$tablaUsuarios, (string) $usuarioA, LogsMapper::messages()[LogsMapper::MSG_SESSION_REFRESH_REUSE]]);
+        //Con el registro de acciones apagado no se anota: esa mitad de r3 se omite (H381).
+        $conRegistro = \EventsLog\LogsRoutes::enabled();
+        $logsAntes = !$conRegistro ? 0 : $contar("SELECT COUNT(*) FROM `{$tablaRegistro}` WHERE referenceSource = ? AND referenceValue = ? AND textMessage = ?", [$tablaUsuarios, (string) $usuarioA, LogsMapper::messages()[LogsMapper::MSG_SESSION_REFRESH_REUSE]]);
         [$e1, , $c1] = $renovarEnProceso($cuerpoRenovar($claveA['privada'], $llaveA0, $ahora + 4));
         $filaCerrada = $fila($idA);
-        $logsDespues = $contar("SELECT COUNT(*) FROM `{$tablaRegistro}` WHERE referenceSource = ? AND referenceValue = ? AND textMessage = ?", [$tablaUsuarios, (string) $usuarioA, LogsMapper::messages()[LogsMapper::MSG_SESSION_REFRESH_REUSE]]);
-        $check($e1 === 401 && ($filaCerrada['closeReason'] ?? null) === UserSessions::REASON_REFRESH_REUSE && $logsDespues === $logsAntes + 1,
-            'r3 DISCRIMINANTE: una llave más vieja que la anterior da 401, cierra la fila con «refresh-reuse» y deja su entrada en el registro', json_encode([$e1, $filaCerrada['closeReason'] ?? null, $logsAntes, $logsDespues]) ?: '');
+        $logsDespues = !$conRegistro ? 0 : $contar("SELECT COUNT(*) FROM `{$tablaRegistro}` WHERE referenceSource = ? AND referenceValue = ? AND textMessage = ?", [$tablaUsuarios, (string) $usuarioA, LogsMapper::messages()[LogsMapper::MSG_SESSION_REFRESH_REUSE]]);
+        $check($e1 === 401 && ($filaCerrada['closeReason'] ?? null) === UserSessions::REASON_REFRESH_REUSE && (!$conRegistro || $logsDespues === $logsAntes + 1),
+            'r3 DISCRIMINANTE: una llave más vieja que la anterior da 401, cierra la fila con «refresh-reuse»' . ($conRegistro ? ' y deja su entrada en el registro' : ''), json_encode([$e1, $filaCerrada['closeReason'] ?? null, $logsAntes, $logsDespues]) ?: '');
+        if (!$conRegistro) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m r3: su entrada en el registro, porque el registro de acciones está apagado.");
+        }
         $check(array_key_exists('refreshPending', $filaCerrada) && $filaCerrada['refreshPending'] === null, 'h1a cerrar una fila deja refreshPending a NULL (H5 de R1)');
         echoTerminal(' ');
 

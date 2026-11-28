@@ -10,6 +10,7 @@ use PiecesPHP\UserSystem\ORM\UsersModel;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
 
@@ -70,7 +71,8 @@ class PublicationsSeeder extends ModuleSeeder
      */
     public function ownedRows(): array
     {
-        return [SystemApprovalsMapper::TABLE => ['column' => 'referenceValue', 'where' => ['referenceTable' => PublicationMapper::TABLE]]];
+        //Con las aprobaciones apagadas su tabla no se toca, y puede no existir (H381).
+        return SystemApprovalsRoutes::enabled() ? [SystemApprovalsMapper::TABLE => ['column' => 'referenceValue', 'where' => ['referenceTable' => PublicationMapper::TABLE]]] : [];
     }
 
     public function ownedFolder(): ?array

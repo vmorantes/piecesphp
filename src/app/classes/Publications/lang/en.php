@@ -96,4 +96,5 @@ return [
     "Nueva categoría" => "New category",
     "¿Seguro de eliminar el elemento?" => "Are you sure you want to delete this item?",
     "Falta un archivo obligatorio: %s." => "A required file is missing: %s.",
+    "El autor elegido no es válido para esta publicación." => "The chosen author is not valid for this publication.",
 ];

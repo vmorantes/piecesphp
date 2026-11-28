@@ -31,7 +31,7 @@ final class OrganizationAdministration
      * @param mixed $createdBy El id de quien creó el registro.
      * @param UserDataPackage $current Quien pide.
      * @param bool $requireOrgAdminType Con false no se exige el tipo administrador de organización: en Publicaciones el
-     * encargado puede ser de cualquier tipo con acceso a sus rutas, que no admiten ese tipo.
+     * encargado puede ser de cualquier tipo con acceso a sus rutas (también el administrador de organización, P426).
      * @return bool
      */
     public static function administersCreatorOf(mixed $createdBy, UserDataPackage $current, bool $requireOrgAdminType = true): bool
@@ -48,6 +48,24 @@ final class OrganizationAdministration
         }
         $organization = OrganizationMapper::getBy($creatorOrganizationID, 'id', true);
         $administrator = $organization !== null ? $organization->administrator : null;
+        $administratorID = $administrator instanceof UsersModel ? $administrator->id : (is_numeric($administrator) ? (int) $administrator : null);
+        return $administratorID !== null && (int) $administratorID === (int) $current->id;
+    }
+
+    /**
+     * Si quien pide es el encargado designado de SU organización, y no es la base: lo que el administrador de organización
+     * ve de su organización en los listados de Publicaciones (P426). Con Organizaciones apagado, no.
+     *
+     * @param UserDataPackage $current Quien pide.
+     * @return bool
+     */
+    public static function administersOwnOrganization(UserDataPackage $current): bool
+    {
+        $organization = $current->organizationMapper;
+        if (!OrganizationsRoutes::enabled() || $organization === null || (int) $organization->id === OrganizationMapper::INITIAL_ID_GLOBAL) {
+            return false;
+        }
+        $administrator = $organization->administrator;
         $administratorID = $administrator instanceof UsersModel ? $administrator->id : (is_numeric($administrator) ? (int) $administrator : null);
         return $administratorID !== null && (int) $administratorID === (int) $current->id;
     }

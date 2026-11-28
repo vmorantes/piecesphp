@@ -81,7 +81,7 @@ final class TokenEvents
      */
     public static function log(string $type, string $kind, ?int $targetUserID, string $target, array $extra = []): void
     {
-        if (!LogsRoutes::ENABLE) {
+        if (!LogsRoutes::enabled()) {
             return;
         }
         try {

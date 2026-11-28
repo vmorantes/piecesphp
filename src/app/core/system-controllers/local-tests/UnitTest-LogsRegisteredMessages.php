@@ -3,6 +3,7 @@
 //H363, H356 y H367: los tipos de acción que declara el proyecto (con nombre y texto único) y anotar sin romper la acción.
 //Escribe en el registro de acciones (y borra lo suyo) y una entrada en logs/error.log.jsonl, que poda bin/con-marca.
 //@areas src/app/classes/EventsLog/ src/app/classes/API/
+//@requires-module EventsLog\LogsRoutes
 
 use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\BaseModel;

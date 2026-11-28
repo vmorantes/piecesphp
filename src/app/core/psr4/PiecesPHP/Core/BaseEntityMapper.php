@@ -251,7 +251,7 @@ class BaseEntityMapper extends EntityMapper
 
         if ($name === 'fieldsToSelect') {
             $approvedValue = SystemApprovalsMapper::STATUS_APPROVED;
-            if (SystemApprovalsRoutes::ENABLE) {
+            if (SystemApprovalsRoutes::enabled()) {
                 $tableApprovals = SystemApprovalsMapper::TABLE;
                 $tableProfiles = UserProfileMapper::TABLE;
                 $tableUsers = UsersModel::TABLE;

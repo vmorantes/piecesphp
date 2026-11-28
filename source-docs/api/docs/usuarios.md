@@ -133,12 +133,8 @@ La respuesta estándar de las operaciones de escritura (clase ResultOperations, 
 | `successOperations.*` | object (Operation) | no | Claves libres. |
 | `fails` | object \| array | sí | Las operaciones fallidas, por nombre. |
 | `fails.*` | object (Operation) | no | Claves libres. |
-| `operations` | array de object (Operation) | sí |  |
-| `operations[].name` | string | no |  |
-| `operations[].success` | boolean | no |  |
-| `operations[].required` | boolean | no | Si la operación cuenta para minimumRequiredSuccess. |
-| `operations[].message` | string | no |  |
-| `operations[].time` | string | no | Fecha y hora de creación, formato AAAA-MM-DD hh:mm:ss. |
+| `operations` | object \| array | sí | Las operaciones, por nombre: un objeto JSON `{nombre: operación}`. Sin ninguna operación llega como lista vacía `[]` (así serializa PHP un arreglo vacío). |
+| `operations.*` | object (Operation) | no | Claves libres. |
 | `singleOperation` | boolean | sí |  |
 | `extras` | array de cualquiera | sí | Contenidos adicionales útiles en caso de errores. |
 | `values` | object \| array | sí | Valores propios de la ruta (por ejemplo redirect, redirect_to, reload). |
@@ -194,7 +190,7 @@ Ruta interna: `api-admin-users-actions` · acción `edit`.
 
 Autenticación: [sessionHeader](index.md#autenticacion) (cabecera `JWTAuth`) o [sessionCookie](index.md#autenticacion) (cookie `JWTAuth`).
 
-Edita el perfil del usuario en sesión. Solo acepta su propio id: con el de otro usuario, o sin sesión, responde 403 (la ruta no exige sesión en su declaración; la comprueba el controlador). Los campos que no se envían conservan su valor. Para cambiar la contraseña hay que mandar current-password, password y password2 juntos. Solo con la bandera API_USERS.
+Edita el perfil del usuario en sesión. Solo acepta su propio id: con el de otro usuario, o sin sesión, responde 403 (la ruta no exige sesión en su declaración; la comprueba el controlador). Lo que no se envía no se trata igual en todos los campos. username, email, firstname y first_lastname conservan su valor guardado: el servidor lo reenvía tal cual a la edición, y por eso también les aplica la normalización de siempre (username y email en minúsculas; mayúscula inicial en cada palabra de nombres y apellidos), aunque estuvieran guardados de otra forma. secondname y second_lastname, en cambio, SE VACÍAN si no se envían: para conservarlos hay que reenviarlos. Para cambiar la contraseña hay que mandar current-password, password y password2 juntos; current-password se pide también para cambiar username o email a un valor distinto del guardado. Solo con la bandera API_USERS.
 
 ### Cuerpo
 
@@ -207,15 +203,15 @@ Tipo: object (EditProfileRequest).
 | Campo | Tipo | Obligatorio | Descripción |
 | :-- | :-- | :-- | :-- |
 | `id` | integer | sí | Identificador del usuario en sesión. |
-| `username` | string | no |  |
-| `email` | string | no |  |
-| `current-password` | string | no | Contraseña actual; solo para cambiar la contraseña, junto con password y password2. |
+| `username` | string | no | Se guarda en minúsculas. Si no se envía se conserva el guardado. Cambiarlo a otro valor pide current-password; la comparación se hace en minúsculas, así que si el valor guardado tiene mayúsculas la edición pide current-password aunque el campo no se envíe. |
+| `email` | string | no | Se guarda en minúsculas. Si no se envía se conserva el guardado. Cambiarlo a otro valor pide current-password; la comparación se hace en minúsculas, así que si el valor guardado tiene mayúsculas la edición pide current-password aunque el campo no se envíe. |
+| `current-password` | string | no | Contraseña actual. Obligatoria para cambiar la contraseña (junto con password y password2) y también para cambiar username o email a un valor distinto del guardado. |
 | `password` | string | no | Contraseña nueva. |
 | `password2` | string | no | Confirmación de la contraseña nueva. |
-| `firstname` | string | no |  |
-| `secondname` | string | no |  |
-| `first_lastname` | string | no |  |
-| `second_lastname` | string | no |  |
+| `firstname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía se conserva el guardado. |
+| `secondname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía, SE VACÍA el valor guardado: reenvíe el actual para conservarlo. |
+| `first_lastname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía se conserva el guardado. |
+| `second_lastname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía, SE VACÍA el valor guardado: reenvíe el actual para conservarlo. |
 
 Ejemplo:
 
@@ -233,15 +229,15 @@ Tipo: object (EditProfileRequest).
 | Campo | Tipo | Obligatorio | Descripción |
 | :-- | :-- | :-- | :-- |
 | `id` | integer | sí | Identificador del usuario en sesión. |
-| `username` | string | no |  |
-| `email` | string | no |  |
-| `current-password` | string | no | Contraseña actual; solo para cambiar la contraseña, junto con password y password2. |
+| `username` | string | no | Se guarda en minúsculas. Si no se envía se conserva el guardado. Cambiarlo a otro valor pide current-password; la comparación se hace en minúsculas, así que si el valor guardado tiene mayúsculas la edición pide current-password aunque el campo no se envíe. |
+| `email` | string | no | Se guarda en minúsculas. Si no se envía se conserva el guardado. Cambiarlo a otro valor pide current-password; la comparación se hace en minúsculas, así que si el valor guardado tiene mayúsculas la edición pide current-password aunque el campo no se envíe. |
+| `current-password` | string | no | Contraseña actual. Obligatoria para cambiar la contraseña (junto con password y password2) y también para cambiar username o email a un valor distinto del guardado. |
 | `password` | string | no | Contraseña nueva. |
 | `password2` | string | no | Confirmación de la contraseña nueva. |
-| `firstname` | string | no |  |
-| `secondname` | string | no |  |
-| `first_lastname` | string | no |  |
-| `second_lastname` | string | no |  |
+| `firstname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía se conserva el guardado. |
+| `secondname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía, SE VACÍA el valor guardado: reenvíe el actual para conservarlo. |
+| `first_lastname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía se conserva el guardado. |
+| `second_lastname` | string | no | Se guarda con mayúscula inicial en cada palabra. Si no se envía, SE VACÍA el valor guardado: reenvíe el actual para conservarlo. |
 
 Ejemplo:
 
@@ -274,12 +270,8 @@ La respuesta estándar de las operaciones de escritura (clase ResultOperations, 
 | `successOperations.*` | object (Operation) | no | Claves libres. |
 | `fails` | object \| array | sí | Las operaciones fallidas, por nombre. |
 | `fails.*` | object (Operation) | no | Claves libres. |
-| `operations` | array de object (Operation) | sí |  |
-| `operations[].name` | string | no |  |
-| `operations[].success` | boolean | no |  |
-| `operations[].required` | boolean | no | Si la operación cuenta para minimumRequiredSuccess. |
-| `operations[].message` | string | no |  |
-| `operations[].time` | string | no | Fecha y hora de creación, formato AAAA-MM-DD hh:mm:ss. |
+| `operations` | object \| array | sí | Las operaciones, por nombre: un objeto JSON `{nombre: operación}`. Sin ninguna operación llega como lista vacía `[]` (así serializa PHP un arreglo vacío). |
+| `operations.*` | object (Operation) | no | Claves libres. |
 | `singleOperation` | boolean | sí |  |
 | `extras` | array de cualquiera | sí | Contenidos adicionales útiles en caso de errores. |
 | `values` | object \| array | sí | Valores propios de la ruta (por ejemplo redirect, redirect_to, reload). |
@@ -594,7 +586,7 @@ Ruta interna: `api-admin-users-actions` · acción `change-password-code`.
 
 Autenticación: sin sesión.
 
-Cambia la contraseña con el código recibido por correo. El código solo vale para su usuario, y tras varios fallos la ruta responde 429 con la cabecera Retry-After (límite de otp_security). Al cambiar la contraseña se cierran las sesiones del usuario. No usa sesión. El cuerpo debe traer exactamente username, code, password y repassword. `updated` informa si la contraseña se cambió. Solo con la bandera API_USERS.
+Cambia la contraseña con el código recibido por correo. El código solo vale para su usuario, y tras varios fallos la ruta responde 429 con la cabecera Retry-After (límite de otp_security). Al cambiar la contraseña se cierran las sesiones del usuario; si la petición lleva la sesión viva de ese mismo usuario, esa sesión se conserva y se cierran las demás. No usa sesión. El cuerpo debe traer exactamente username, code, password y repassword. `updated` informa si la contraseña se cambió. Solo con la bandera API_USERS.
 
 ### Cuerpo
 

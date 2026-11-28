@@ -330,7 +330,7 @@ class UserTokensController extends AdminPanelController
         return (string) (new HelperController())->setInstanceViewDir(__DIR__ . '/../Views/')->render('panel/pages/tokens/tab', [
             'langGroup' => self::LANG_GROUP,
             'processTableLink' => self::routeName('datatables'),
-            'historyTableLink' => LogsRoutes::ENABLE ? self::routeName('history') : '',
+            'historyTableLink' => LogsRoutes::enabled() ? self::routeName('history') : '',
             'isRoot' => $actor !== null && (int) $actor->type === UsersModel::TYPE_USER_ROOT,
         ], false);
     }
@@ -553,7 +553,8 @@ class UserTokensController extends AdminPanelController
 
         $group->register([
             new Route("{$startRoute}/datatables[/]", self::class . ':dataTables', self::$baseRouteName . '-datatables', 'GET', true, null, $listing),
-            new Route("{$startRoute}/history[/]", self::class . ':history', self::$baseRouteName . '-history', 'GET', true, null, $listing),
+            //El historial lee el registro de acciones: con ese módulo apagado no existe (H381).
+             ...(LogsRoutes::enabled() ? [new Route("{$startRoute}/history[/]", self::class . ':history', self::$baseRouteName . '-history', 'GET', true, null, $listing)] : []),
             //Cada acción se comprueba además a sí misma (denied()): solo root y sin suplantar.
             new Route("{$startRoute}/reveal/{kind}/{id}[/]", self::class . ':reveal', self::$baseRouteName . '-reveal', 'POST', true, null, $root),
             new Route("{$startRoute}/invalidate/{kind}/{id}[/]", self::class . ':invalidate', self::$baseRouteName . '-invalidate', 'POST', true, null, $root),

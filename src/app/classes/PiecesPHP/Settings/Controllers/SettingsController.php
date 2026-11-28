@@ -44,6 +44,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\Core\VisitorIP;
+use PiecesPHP\Geo\GeoRoutes;
 use PiecesPHP\Geo\GeoThumbnail;
 use PiecesPHP\LangInjector;
 use PiecesPHP\Logs\Controllers\LogsController;
@@ -3740,8 +3741,8 @@ class SettingsController extends AdminPanelController
                 }
             }
 
-            //Las miniaturas del geovisor de los puntos que ya no existen o no se ven.
-            $geoThumbnails = GeoThumbnail::sweep();
+            //Las miniaturas del geovisor de los puntos que ya no existen o no se ven; con Geo apagado, nada (H381).
+            $geoThumbnails = GeoRoutes::ENABLE ? GeoThumbnail::sweep() : ['deleted' => [], 'failed' => 0];
             $result->setValue('geoThumbnailsSwept', count($geoThumbnails['deleted']));
             $result->setValue('geoThumbnailsSweepFailed', $geoThumbnails['failed']);
 

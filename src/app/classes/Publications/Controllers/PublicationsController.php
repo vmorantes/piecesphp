@@ -112,6 +112,20 @@ class PublicationsController extends AdminPanelController
      */
     const SOLO_PROPIAS = false;
 
+    /**
+     * Los tipos que pueden ser autor de una publicación: los que ofrece el selector y los únicos que acepta el guardado.
+     * Ser autor concede editarla y borrarla (P431 2 a).
+     */
+    const AUTHOR_TYPES = [
+        UsersModel::TYPE_USER_COMUNICACIONES,
+        UsersModel::TYPE_USER_INSTITUCIONAL,
+    ];
+
+    /**
+     * Los estados con los que nadie puede ser autor: ni el selector los ofrece ni el guardado los acepta.
+     */
+    const AUTHOR_EXCLUDED_STATUSES = UsersModel::STATUSES_INACTIVE_EQUIVALENT;
+
     public function __construct()
     {
         parent::__construct();
@@ -134,17 +148,12 @@ class PublicationsController extends AdminPanelController
 
         PublicationCategoryMapper::uncategorizedCategory();
 
-        //Para autor
-        $ignoreTypesForAuthor = array_filter(UserTypes::codes(), function ($type) {
-            $validTypes = [
-                UsersModel::TYPE_USER_COMUNICACIONES,
-                UsersModel::TYPE_USER_INSTITUCIONAL,
-            ];
-            return !in_array($type, $validTypes);
-        });
+        //Para autor: lo mismo que acepta el guardado (assertValidAuthor); la organización de quien mira la pone el selector.
+        $ignoreTypesForAuthor = array_filter(UserTypes::codes(), fn ($type): bool => !in_array($type, self::AUTHOR_TYPES, true));
         $this->urlForSearchUsers = URLManager::fromString(\PiecesPHP\UserSystem\Controllers\UsersController::routeName('search-dropdown'))
             ->withQueryParameter('search', '{query}')
             ->withQueryParameter('ignoreTypes', implode(',', $ignoreTypesForAuthor))
+            ->withQueryParameter('ignoreStatuses', implode(',', self::AUTHOR_EXCLUDED_STATUSES))
             ->__toString();
 
     }
@@ -616,6 +625,8 @@ class PublicationsController extends AdminPanelController
                 if (!$isEdit) {
                     //Nuevo
 
+                    self::assertValidAuthor($author);
+
                     //En creación $lang es el idioma base
                     $lang = $baseLang;
                     $mapper = new PublicationMapper();
@@ -744,6 +755,13 @@ class PublicationsController extends AdminPanelController
                     }
 
                     if ($exists) {
+
+                        //Solo si cambia: el formulario reenvía siempre el autor, y revalidar el guardado dejaría sin guardar a un
+                        //autor que puso quien edita todas (P431). Se comparan ids: del mapper cargado salen usuarios.
+                        $savedAuthor = $mapper->author;
+                        if ($author !== (is_object($savedAuthor) ? (int) $savedAuthor->id : (int) $savedAuthor)) {
+                            self::assertValidAuthor($author);
+                        }
 
                         $baseLang = $mapper->baseLang;
                         $isBaseLang = $lang == $baseLang;
@@ -1380,6 +1398,10 @@ class PublicationsController extends AdminPanelController
                 if (self::SOLO_PROPIAS) {
                     $havingItems[] = new HavingItem('createdBy', HavingItem::EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR);
                 }
+            } elseif ($currentOrganizationMapper !== null && (int) $currentUserType === UsersModel::TYPE_USER_ADMIN_ORG && !OrganizationAdministration::administersOwnOrganization($currentUser)) {
+
+                //El administrador de organización ve las de su organización solo si es su encargado y no es la general (P426).
+                $havingItems[] = new HavingItem('createdBy', HavingItem::EQUAL_OPERATOR, $currentUserID, HavingItem::AND_OPERATOR);
             } elseif ($currentOrganizationMapper !== null) {
 
                 //Ver solo las de su organización
@@ -1733,7 +1755,7 @@ class PublicationsController extends AdminPanelController
         $table = PublicationMapper::TABLE;
         $fields = PublicationMapper::fieldsToSelect();
         //str_contains, no mb_strpos: array_filter evalúa por veracidad y la posición 0 es falsa.
-        $validateSystemApprovals = SystemApprovalsRoutes::ENABLE && !empty(array_filter($fields, fn ($e) => str_contains((string) $e, 'systemApprovalStatus')));
+        $validateSystemApprovals = SystemApprovalsRoutes::enabled() && !empty(array_filter($fields, fn ($e) => str_contains((string) $e, 'systemApprovalStatus')));
 
         $whereString = null;
         $where = [];
@@ -1958,7 +1980,8 @@ class PublicationsController extends AdminPanelController
                         //El encargado, de cualquier tipo con acceso a estas rutas; la organización general no cuenta.
                         $allowByOrg = OrganizationAdministration::administersCreatorOf($publication->createdBy, $currentUser, false);
 
-                        $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
+                        //Figurar como autor concede mientras se siga siendo de un tipo de autor (un autor que pasa a otro tipo, no).
+                        $allow = $createdByID == $currentUserID || ($authorID == $currentUserID && in_array((int) $currentUserType, self::AUTHOR_TYPES, true));
 
                         if (in_array($currentUserType, PublicationMapper::CAN_DELETE_ALL) || $allowByOrg) {
                             $allow = true;
@@ -1980,7 +2003,8 @@ class PublicationsController extends AdminPanelController
                         //El encargado, de cualquier tipo con acceso a estas rutas; la organización general no cuenta.
                         $allowByOrg = OrganizationAdministration::administersCreatorOf($publication->createdBy, $currentUser, false);
 
-                        $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
+                        //Figurar como autor concede mientras se siga siendo de un tipo de autor (un autor que pasa a otro tipo, no).
+                        $allow = $createdByID == $currentUserID || ($authorID == $currentUserID && in_array((int) $currentUserType, self::AUTHOR_TYPES, true));
 
                         if (in_array($currentUserType, PublicationMapper::CAN_EDIT_ALL) || $allowByOrg) {
                             $allow = true;
@@ -1995,6 +2019,30 @@ class PublicationsController extends AdminPanelController
         }
 
         return $allow;
+    }
+
+    /**
+     * El autor que se asigna a una publicación, antes de tocar nada. Ser autor concede editarla y borrarla (_allowedRoute),
+     * así que solo vale un usuario activo de AUTHOR_TYPES y, si quien guarda no puede editar todas y Organizaciones está
+     * encendido, de la organización de quien guarda: la misma que acota el selector (P431 2 a). El mensaje no dice qué
+     * falló.
+     *
+     * @param int $authorID
+     * @return void
+     * @throws SafeException
+     */
+    private static function assertValidAuthor(int $authorID): void
+    {
+        $author = UsersModel::getBy($authorID, 'id');
+        $valid = $author !== null && in_array((int) $author->type, self::AUTHOR_TYPES, true) && !in_array((int) $author->status, self::AUTHOR_EXCLUDED_STATUSES, true);
+        $saver = getLoggedFrameworkUserOrFail();
+        if ($valid && OrganizationsRoutes::enabled() && !in_array((int) $saver->type, PublicationMapper::CAN_EDIT_ALL)) {
+            $organizationOf = fn ($organization): ?int => is_numeric($organization) ? (int) $organization : null;
+            $valid = $organizationOf($author->organization) === $organizationOf($saver->organization);
+        }
+        if (!$valid) {
+            throw new SafeException(__(self::LANG_GROUP, 'El autor elegido no es válido para esta publicación.'));
+        }
     }
 
     public static function pathFrontPublicationsAdapter()
@@ -2067,12 +2115,14 @@ class PublicationsController extends AdminPanelController
          */
         $allRoles = UserTypes::codes();
 
-        //Permisos
+        //Permisos. El administrador de organización está en lista, edición y borrado, no en creación: edita y borra lo de
+        //su organización si es su encargado (P426; lo decide _allowedRoute).
         $list = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
         ];
         $creation = [
             UsersModel::TYPE_USER_ROOT,
@@ -2085,12 +2135,14 @@ class PublicationsController extends AdminPanelController
             UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
         ];
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
         ];
         $routes = [
 

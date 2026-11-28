@@ -48,7 +48,7 @@ CliActions::make('unit-tests:core/publications-off-boot', function ($args) {
 
         //──── 1. Con el módulo encendido, como antes ─────────────────────────────────────────
         echoTerminal('[1] Con Publicaciones y las aprobaciones encendidas, todo sigue registrado');
-        if (!PublicationsRoutes::ENABLE || !SystemApprovalsRoutes::ENABLE) {
+        if (!PublicationsRoutes::ENABLE || !SystemApprovalsRoutes::enabled()) {
             echoTerminal("   \e[33m[OMITIDA]\e[39m esta instalación tiene Publicaciones o las aprobaciones apagadas.");
         } else {
             $handlers = (new \ReflectionProperty(SystemApprovalManager::class, 'configurations'))->getValue(SystemApprovalManager::getInstance());
@@ -64,7 +64,7 @@ CliActions::make('unit-tests:core/publications-off-boot', function ($args) {
         //──── 2. Cada sitio que depende de Publicaciones mira su interruptor ──────────────────
         echoTerminal('[2] Lo que depende de Publicaciones mira PublicationsRoutes::ENABLE, el interruptor de routes.php y del menú');
         $guards = [
-            '2a el manejador de aprobaciones (también mira las aprobaciones)' => ['app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php', 'return \\Publications\\PublicationsRoutes::ENABLE && \\SystemApprovals\\SystemApprovalsRoutes::ENABLE && parent::isEnabled();'],
+            '2a el manejador de aprobaciones (también mira las aprobaciones)' => ['app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php', 'return \\Publications\\PublicationsRoutes::ENABLE && \\SystemApprovals\\SystemApprovalsRoutes::enabled() && parent::isEnabled();'],
             '2b la tarea de visibilidad' => ['app/core/extensions/cronjobs.php', "if (\\Publications\\PublicationsRoutes::ENABLE) { \$cronjobs[] = CronJobTask::make('Sincronizar visibilidad de publicaciones'"],
             '2c la protección de su carpeta' => ['app/core/extensions/protected-files.php', 'if (PublicationsRoutes::ENABLE) { ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, PublicationsController::UPLOAD_DIR)'],
             '2d la acción de la API' => ['app/classes/API/Controllers/APIController.php', '...(\\Publications\\PublicationsRoutes::ENABLE ? [new Route('],

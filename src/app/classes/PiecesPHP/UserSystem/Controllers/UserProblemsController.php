@@ -608,7 +608,7 @@ class UserProblemsController extends UsersController
      */
     private static function statusesForUnblock(UsersModel $user): array
     {
-        if (!SystemApprovalsRoutes::ENABLE) {
+        if (!SystemApprovalsRoutes::enabled()) {
             return [UsersModel::STATUS_USER_ACTIVE, null];
         }
         $approval = SystemApprovalsMapper::getByMultipleCriteries([

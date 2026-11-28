@@ -653,7 +653,7 @@ class UserSessionsController extends AdminPanelController
      */
     protected static function logAction(string $type, array $variables, int $targetUserID): void
     {
-        if (LogsRoutes::ENABLE) {
+        if (LogsRoutes::enabled()) {
             LogsMapper::addLog($type, $variables, 'id', (string) $targetUserID, UsersModel::TABLE);
         }
     }

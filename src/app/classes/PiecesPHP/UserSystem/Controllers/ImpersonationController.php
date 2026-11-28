@@ -75,7 +75,7 @@ class ImpersonationController extends AdminPanelController
         $targetID = (int) $targetID;
         $startedAt = time();
         setcookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, Impersonation::cookieValue($sessionID, (int) $actor->id, $targetID, $startedAt), self::cookieOptions($startedAt + Impersonation::lifetime()));
-        if (LogsRoutes::ENABLE) {
+        if (LogsRoutes::enabled()) {
             //Queda la huella de quién empezó a actuar como quién: lo que el suplantado «hace» después lleva al actor real.
             LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_START, [
                 'username' => (string) $actor->username,
@@ -107,7 +107,7 @@ class ImpersonationController extends AdminPanelController
         }
         $rootID = Impersonation::rootOriginalID() ?? 0;
         self::clearCookie();
-        if (LogsRoutes::ENABLE) {
+        if (LogsRoutes::enabled()) {
             LogsMapper::addLog(LogsMapper::MSG_IMPERSONATION_END, [
                 'username' => (string) (UsersModel::getBy($rootID, 'id')->username ?? $rootID),
             ], 'id', (string) $rootID, UsersModel::TABLE);

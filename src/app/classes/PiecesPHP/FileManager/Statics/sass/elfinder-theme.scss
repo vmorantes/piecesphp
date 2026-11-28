@@ -6,6 +6,7 @@
 //elfinder.full.js:1189-1262) DESPUÉS de esta hoja, porque el sello de caché del enlace le impide ver que elfinder.full.css
 //ya está. La clase de más de :root es lo que hace ganar a esta hoja sin tocar el JS de elFinder ni el de las vistas.
 :root {
+    $-mutedOnFill: color-mix(in srgb, var(--theme-text-muted), var(--theme-text) 5%);
 
     //─── La base: superficie, texto, bordes y fuente ──────────────────────────────────────────────────────────
     .elfinder,
@@ -262,7 +263,7 @@
     .elfinder-disabled .elfinder-navbar .ui-state-active {
         background: var(--theme-fill);
         border-color: var(--theme-border);
-        color: var(--theme-text-muted);
+        color: $-mutedOnFill;
     }
 
     //─── Área de archivos ────────────────────────────────────────────────────────────────────────────────────
@@ -324,7 +325,7 @@
 
         thead td {
             background: var(--theme-fill);
-            color: var(--theme-text-muted);
+            color: $-mutedOnFill;
             border-color: var(--theme-border);
 
             &.ui-state-hover {
@@ -381,18 +382,18 @@
     .elfinder-disabled .elfinder-cwd-view-icons .elfinder-cwd-file .elfinder-cwd-filename.ui-state-hover,
     .elfinder-disabled .elfinder-cwd table td.ui-state-hover {
         background: var(--theme-fill);
-        color: var(--theme-text-muted);
+        color: $-mutedOnFill;
     }
 
     //─── Ruta y barra de estado ──────────────────────────────────────────────────────────────────────────────
     .elfinder .elfinder-statusbar {
         background: var(--theme-fill);
-        color: var(--theme-text-muted);
+        color: $-mutedOnFill;
         border-color: var(--theme-border);
 
         a,
         .elfinder-path-dir {
-            color: var(--theme-text-muted);
+            color: $-mutedOnFill;
             text-decoration: none;
         }
 
@@ -405,7 +406,7 @@
     .elfinder .elfinder-path,
     .elfinder .elfinder-stat-size,
     .elfinder .elfinder-stat-selected {
-        color: var(--theme-text-muted);
+        color: $-mutedOnFill;
     }
 
     //─── Menú contextual ─────────────────────────────────────────────────────────────────────────────────────

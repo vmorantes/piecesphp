@@ -488,7 +488,7 @@ class PublicationMapper extends EntityMapperExtensible
     public function isApprovedForPublic(): bool
     {
         $manager = SystemApprovalManager::getInstance();
-        if (!SystemApprovalsRoutes::ENABLE || $manager->getHandler(self::TABLE) === null) {
+        if (!SystemApprovalsRoutes::enabled() || $manager->getHandler(self::TABLE) === null) {
             return true;
         }
         return $manager->isApproved(self::class, $this->id);

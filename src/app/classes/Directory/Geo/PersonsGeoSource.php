@@ -256,7 +256,7 @@ class PersonsGeoSource implements GeoSource
             new HavingItem('userStatus', HavingItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_INACTIVE, HavingItem::AND_OPERATOR),
             new HavingItem('userStatus', HavingItem::NOT_EQUAL_OPERATOR, UsersModel::STATUS_USER_DELETED, HavingItem::AND_OPERATOR),
         ];
-        if (SystemApprovalsRoutes::ENABLE) {
+        if (SystemApprovalsRoutes::enabled()) {
             $criteria[] = new HavingItem('systemApprovalStatus', HavingItem::EQUAL_OPERATOR, SystemApprovalsMapper::STATUS_APPROVED, HavingItem::AND_OPERATOR);
         }
         return new HavingSegment($criteria);

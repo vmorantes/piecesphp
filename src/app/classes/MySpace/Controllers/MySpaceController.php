@@ -289,7 +289,7 @@ class MySpaceController extends AdminPanelController
      */
     public static function isPendingAccount(UserDataPackage $user): bool
     {
-        if (!SystemApprovalsRoutes::ENABLE || (int) $user->type === UsersModel::TYPE_USER_ROOT) {
+        if (!SystemApprovalsRoutes::enabled() || (int) $user->type === UsersModel::TYPE_USER_ROOT) {
             return false;
         }
         $approved = SystemApprovalManager::getInstance()->isApproved(UsersModel::class, $user->id);

@@ -38,6 +38,35 @@ class SystemApprovalsRoutes
     const ENABLE = SYSTEM_APPROVALS_MODULE;
 
     /**
+     * @var bool|null Solo las pruebas lo ponen (swapEnabledForTesting); null es ENABLE.
+     */
+    private static ?bool $enabledForTesting = null;
+
+    /**
+     * El interruptor del módulo. Apagado, no hay flujo de aprobación: nada lee ni escribe su tabla y lo que pregunta si
+     * algo está aprobado oye que sí (H381).
+     *
+     * @return bool
+     */
+    public static function enabled(): bool
+    {
+        return self::$enabledForTesting ?? self::ENABLE;
+    }
+
+    /**
+     * Enciende (true), apaga (false) o devuelve a ENABLE (null) el interruptor, y devuelve lo que había.
+     *
+     * @param bool|null $enabled
+     * @return bool|null
+     */
+    public static function swapEnabledForTesting(?bool $enabled): ?bool
+    {
+        $previous = self::$enabledForTesting;
+        self::$enabledForTesting = $enabled;
+        return $previous;
+    }
+
+    /**
      * @param RouteGroup $groupAdministration
      * @return RouteGroup[] Con los índices groupAdministration
      */
@@ -46,7 +75,7 @@ class SystemApprovalsRoutes
 
         SystemApprovalManager::init();
 
-        if (self::ENABLE) {
+        if (self::enabled()) {
 
             //Los avisos de aprobado y rechazado, en el catálogo de correos.
             MailCatalog::register(new ApprovalStatusMail(SystemApprovalsMapper::STATUS_APPROVED), 'Aprobaciones');
@@ -117,7 +146,7 @@ class SystemApprovalsRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::ENABLE);
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::enabled());
     }
 
     /**

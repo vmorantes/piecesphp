@@ -164,7 +164,7 @@ class MailCatalogController extends AdminPanelController
         if (!$sent) {
             return $response->withStatus(500)->withJson(['success' => false, 'error' => __(self::LANG_GROUP, 'No se pudo enviar: el registro de correos dice por qué.')]);
         }
-        if (LogsRoutes::ENABLE) {
+        if (LogsRoutes::enabled()) {
             $user = getLoggedFrameworkUser();
             LogsMapper::addLog(LogsMapper::MSG_MAIL_TEST_SENT, [
                 '%username%' => $user !== null ? (string) $user->username : '?',

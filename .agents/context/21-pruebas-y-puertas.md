@@ -581,3 +581,17 @@ legítima, porque una guarda que lo bloquea todo también «pasa» la mitad de l
 Una provocación o una medida que cambia un archivo de configuración y lo restaura con `trap` usa **rutas absolutas** en
 la copia y en la restauración, y comprueba el sha1 o `git diff --quiet` después. En JND el guion hizo `cd` a un temporal,
 el `trap` con ruta relativa no restauró y `public_site` quedó puesto unos minutos en la instalación local.
+
+## Probar un módulo apagado sin sus tablas (H381, JPV, 2026-11-27)
+
+Un módulo apagable se prueba en proceso con `<Módulo>Routes::swapEnabledForTesting(false)` (patrón de
+`OrganizationsRoutes`, copiado en `SystemApprovalsRoutes`) y **tapando su tabla** con
+`CREATE TEMPORARY TABLE \`<tabla>\` (zz_sin_columnas INT)` en la conexión de la prueba: MySQL resuelve antes la temporal,
+así que toda lectura o escritura de esa sesión falla, y la real no se toca. Se quita en `finally`. El ORM escribe el
+nombre desde la constante `TABLE` del mapper, así que la reflexión no sirve para apuntarlo a otra tabla.
+- Los canarios obligatorios (`UnitTest-SystemApprovalsOff.php` c2-c4): misma `CONNECTION_ID()` en el gestor, el mapper
+  y la prueba; con la tapa, leer falla; con el módulo ENCENDIDO, el camino vigilado sí toca la tabla y falla.
+- Límite: con PDO persistente bajo FPM, una muerte entre `CREATE` y `DROP` dejaría la tapa en la conexión. Las suites
+  corren por terminal, cada una en su proceso: hoy no aplica.
+- Lo que depende de una CONSTANTE (`NewsRoutes::ENABLE`) no se puede cambiar en proceso: se vigila estático, por tokens
+  (`UnitTest-NewsOffBoot.php`, `PublicationsOffBoot`).

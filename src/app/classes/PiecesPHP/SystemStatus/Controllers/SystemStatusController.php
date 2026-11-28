@@ -528,7 +528,7 @@ class SystemStatusController extends AdminPanelController
      */
     private static function logAction(string $type, array $variables, ?string $mailLogID = null): void
     {
-        if (LogsRoutes::ENABLE) {
+        if (LogsRoutes::enabled()) {
             LogsMapper::addLog($type, $variables, $mailLogID !== null ? 'id' : null, $mailLogID, $mailLogID !== null ? MailLogMapper::TABLE : null);
         }
     }

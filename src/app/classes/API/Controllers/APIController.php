@@ -1868,7 +1868,8 @@ class APIController extends AdminPanelController
                 null,
                 $publications,
             )] : []),
-            new Route( //Rutas de noticias
+            //Con Noticias apagado no se registra: su manejador lee las tablas del módulo, que pueden no existir (H381).
+             ...(\News\NewsRoutes::ENABLE ? [new Route( //Rutas de noticias
                 "{$startRoute}/news/{actionType}[/]",
                 $classname . ':news',
                 self::$baseRouteName . '-news-actions',
@@ -1876,7 +1877,7 @@ class APIController extends AdminPanelController
                 true,
                 null,
                 $news,
-            ),
+            )] : []),
             //@codigo-comentado · Ruta de muestra para acciones sobre una API externa.
             //new Route( //Acciones sobre API externa (muestra)
             //    "{$startRoute}/external/{context}/{actionType}[/]",

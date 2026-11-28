@@ -325,7 +325,9 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $antiguoRetroceso = $plantarCodigo($correoRetroceso, $olvido);
         $nuevoRetroceso = $plantarCodigo($correoRetroceso, $olvido, '+24 hour', '-1 minute');
         $rechazos = fn (): int => $contar("SELECT COUNT(*) FROM `{$tablaRegistro}` WHERE referenceSource = ? AND referenceValue = ? AND textMessage = ?", [$tablaUsuarios, (string) $idMismo, LogsMapper::messages()[LogsMapper::MSG_TOKEN_REJECTED] ?? '']);
-        $rechazosAntes = $rechazos();
+        //Con el registro de acciones apagado no se anota el rechazo: r9d se omite (H381).
+        $conRegistro = \EventsLog\LogsRoutes::enabled();
+        $rechazosAntes = $conRegistro ? $rechazos() : 0;
         $res = [];
         foreach ([$antiguoMismo, $nuevoMismo, $antiguoRetroceso, $nuevoRetroceso] as $codigo) {
             $res[] = $llamar($ip6, 'resolveProblem', ['code' => $codigo, 'type' => $olvido])[2];
@@ -333,8 +335,13 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $check(($res[0]['error'] ?? null) === UsersController::EXPIRED_OR_NOT_EXIST_CODE && ($res[1]['success'] ?? null) === true
             && ($res[2]['error'] ?? null) === UsersController::EXPIRED_OR_NOT_EXIST_CODE && ($res[3]['success'] ?? null) === true,
             'r9c con dos filas del mismo created vale la de id mayor, y también si el created de la nueva retrocedió', $describir($res));
-        $rechazosDespues = $rechazos();
-        $check($rechazosDespues === $rechazosAntes + 1, 'r9d el código sustituido deja su rechazo en Tokens y códigos (TOKEN_REJECTED del usuario), como el caducado', "{$rechazosAntes} → {$rechazosDespues}");
+        $rechazosDespues = $conRegistro ? $rechazos() : 0;
+        if (!$conRegistro) {
+            echoTerminal("   \e[33m[OMITIDA]\e[39m r9d: el registro de acciones está apagado y el rechazo no se anota.");
+        } else {
+            $check($rechazosDespues === $rechazosAntes + 1, 'r9d el código sustituido deja su rechazo en Tokens y códigos (TOKEN_REJECTED del usuario), como el caducado', "{$rechazosAntes} → {$rechazosDespues}");
+        }
+
         echoTerminal(' ');
 
         //──── 4. El tope de envíos de otros problemas ─────────────────────────────────────────────

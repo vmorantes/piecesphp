@@ -7,6 +7,7 @@
 namespace EventsLog\Mappers;
 
 use EventsLog\LogsLang;
+use EventsLog\LogsRoutes;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -507,10 +508,14 @@ class LogsMapper extends EntityMapperExtensible
      * @param string $referenceColumn
      * @param string $referenceValue
      * @param string $referenceSource
-     * @return LogsMapper
+     * @return LogsMapper Sin guardar (sin id) con el módulo apagado.
      */
     public static function addLog(string $messageType, array $variables = [], ?string $referenceColumn = null, ?string $referenceValue = null, ?string $referenceSource = null)
     {
+        //Apagado, su tabla ni se lee ni se escribe, y puede no existir (H381): lo devuelto no se guarda, no tiene id.
+        if (!LogsRoutes::enabled()) {
+            return new LogsMapper;
+        }
         $mapper = new LogsMapper;
         $notExistsMessage = true;
 
@@ -562,7 +567,7 @@ class LogsMapper extends EntityMapperExtensible
      * @param string $referenceColumn
      * @param string $referenceValue
      * @param string $referenceSource
-     * @return LogsMapper|null null si no se pudo anotar.
+     * @return LogsMapper|null null si no se pudo anotar; con el módulo apagado, un mapper sin id: anotado solo si tiene id.
      */
     public static function addLogSafe(string $messageType, array $variables = [], ?string $referenceColumn = null, ?string $referenceValue = null, ?string $referenceSource = null): ?LogsMapper
     {

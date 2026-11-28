@@ -752,7 +752,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         }
 
         //Acciones en caso de estar el sistema de aprobaciones activo
-        if (SystemApprovalsRoutes::ENABLE) {
+        if (SystemApprovalsRoutes::enabled()) {
             $systemApprovalsReturnValue = SystemApprovalsMiddleware::handle($request, (new ResponseRouteFactory())->createResponse(), [], $handler);
             if ($systemApprovalsReturnValue instanceof ResponseRoute) {
                 $systemApprovalsReturnValue = ($handleCors)($request, $systemApprovalsReturnValue);

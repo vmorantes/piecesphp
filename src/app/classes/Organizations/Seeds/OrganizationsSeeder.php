@@ -12,6 +12,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use PiecesPHP\UserSystem\Seeds\UserProfilesSeeder;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Seeding\ModuleSeeder;
 use Terminal\Seeding\SeedContext;
 
@@ -72,7 +73,8 @@ class OrganizationsSeeder extends ModuleSeeder
      */
     public function ownedRows(): array
     {
-        return [SystemApprovalsMapper::TABLE => ['column' => 'referenceValue', 'where' => ['referenceTable' => OrganizationMapper::TABLE]]];
+        //Con las aprobaciones apagadas su tabla no se toca, y puede no existir (H381).
+        return SystemApprovalsRoutes::enabled() ? [SystemApprovalsMapper::TABLE => ['column' => 'referenceValue', 'where' => ['referenceTable' => OrganizationMapper::TABLE]]] : [];
     }
 
     /**

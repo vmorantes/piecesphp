@@ -37,7 +37,7 @@ $countriesProportion = fn (string $dataTypePrefix, string $unit, ?string $unitSh
                     'title' => __($langGroup, 'Tokens de IA disponibles'),
                     'figure' => ['value' => '0', 'dataType' => 'totalRemainingTokens', 'variant' => 'compact'],
                 ]);
-                $approvalsURL = \SystemApprovals\SystemApprovalsRoutes::ENABLE ? \SystemApprovals\Controllers\SystemApprovalsController::routeName('list') : null;
+                $approvalsURL = \SystemApprovals\SystemApprovalsRoutes::enabled() ? \SystemApprovals\Controllers\SystemApprovalsController::routeName('list') : null;
                 $this->helpController->_render('panel/built-in/statistics/statistic-card.php', [
                     'title' => __($langGroup, 'Publicaciones por validar'),
                     'figure' => [

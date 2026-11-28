@@ -5,6 +5,7 @@
 $-attachLabelShadow: #00000029;
 $-attachImageBackground: var(--theme-fill);
 $-attachMetaColor: var(--theme-text-muted);
+$-attachImageColor: color-mix(in srgb, var(--theme-text-muted), var(--theme-text) 5%);
 
 @mixin attach-placeholder {
 
@@ -58,7 +59,7 @@ $-attachMetaColor: var(--theme-text-muted);
 
         > .image {
             background-color: $-attachImageBackground;
-            color: var(--theme-text-muted);
+            color: $-attachImageColor;
             height: 100%;
             width: 100%;
             align-content: center;
@@ -169,8 +170,13 @@ $-attachMetaColor: var(--theme-text-muted);
         }
     }
 
+    //Sin posición, el input de 0×0 cae según el contenido sobre un botón y se come su clic: anclado y sin puntero; lo abre su <label for>.
     > input {
         position: absolute;
+        top: 0;
+        left: 0;
+        clip-path: inset(50%);
+        pointer-events: none;
         height: 0px !important;
         width: 0px !important;
         margin: 0px !important;

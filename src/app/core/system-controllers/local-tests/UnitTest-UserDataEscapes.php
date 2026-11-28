@@ -120,7 +120,7 @@ CliActions::make('unit-tests:core/user-data-escapes', function ($args) {
     $modCategoriasFormularios = ['Forms\Categories' => \Forms\Categories\CategoriesRoutes::ENABLE];
     $modNoticias = ['News' => \News\NewsRoutes::ENABLE];
     $modBanner = ['Banner' => \PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes::ENABLE];
-    $modRegistro = ['EventsLog' => \EventsLog\LogsRoutes::ENABLE];
+    $modRegistro = ['EventsLog' => \EventsLog\LogsRoutes::enabled()];
     $modInformes = ['ReportsManage' => \ReportsManage\ReportsManageRoutes::ENABLE];
 
     $tablaUsuarios = UsersModel::TABLE;

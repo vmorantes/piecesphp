@@ -2,7 +2,7 @@
 
 # PiecesPHP API
 
-Versión 10.13.0 · OpenAPI 3.1.0.
+Versión 10.74.0 · OpenAPI 3.1.0.
 
 [Descargar openapi.json](openapi.json)
 
@@ -37,7 +37,10 @@ Una app móvil puede entrar una vez y renovar su token sin volver a pedir la con
 
 Un cliente servido desde **otro origen** (una aplicación web aparte, una app que carga su interfaz en un `WebView`) se identifica **solo con la cabecera de sesión**. Desde la `v8.0.0`:
 
-- La API responde a cualquier origen con `Access-Control-Allow-Origin` igual al origen que pide, y permite la cabecera de sesión en el preflight (`OPTIONS` responde `204`).
+- **Solo con la bandera `API_MODULE`.** Las cabeceras CORS solo se ponen si la instalación la tiene activa; sin ella no hay ninguna y un navegador de otro origen no puede leer las respuestas. Con ella, la API responde a cualquier origen con `Access-Control-Allow-Origin` igual al origen que pide (o `*` si la petición no trae `Origin`), `Access-Control-Allow-Methods` con la lista completa de métodos y `Vary: Origin`; el preflight (`OPTIONS`) responde `204`.
+- **`Access-Control-Allow-Headers` repite lo que pide el preflight.** Si la petición trae `Access-Control-Request-Headers`, se devuelve ese mismo valor, así que cualquier cabecera propia del cliente (por ejemplo `PCSPHP-Response-Expected-Language`) queda permitida; si no lo trae, va una lista fija (`Content-Type`, `Authorization`, `isWebApp`, `isExternalLogin` y los dos nombres del token de sesión). La respuesta de un error interno (500) lleva siempre la lista fija.
+- **No hay `Access-Control-Max-Age`**: el navegador decide cuánto recuerda un preflight y puede repetirlo antes de cada petición.
+- **No hay `Access-Control-Expose-Headers`**: desde otro origen, el código del cliente solo lee las cabeceras que el navegador siempre deja ver. `Retry-After` y `WWW-Authenticate` no son legibles. Cuando hace falta saber cuánto esperar, el cuerpo de un 429 trae `retryAfter` (segundos); el 503 de mantenimiento no lo trae en el cuerpo, solo en la cabecera.
 - **No responde `Access-Control-Allow-Credentials: true` a un origen ajeno**, salvo que la instalación lo declare en `cors_credentials_origins`. Por eso **un `fetch` con `credentials: 'include'` desde otro origen falla**: el navegador descarta la respuesta. Lo mismo vale para `XMLHttpRequest` con `withCredentials = true`: con credenciales solo se responde bien al propio origen del sitio (`base_url`) y a los declarados. Use el valor por omisión de `credentials` (o `'omit'`) y mande el token en la cabecera:
 
 ```js
@@ -50,14 +53,35 @@ const res = await fetch(`${API}/publications/all/`, {
 
 - La cookie de sesión del panel lleva `SameSite=Lax`: un navegador no la manda en peticiones de otro sitio.
 
+## Idioma de la respuesta
+
+La cabecera `PCSPHP-Response-Expected-Language` fija el idioma de los mensajes de esa petición. Su valor tiene que ser uno de los idiomas que la instalación tiene permitidos (`es`, `en`…); si es otro, se usa el idioma por omisión de la instalación, y vacía se ignora. Desde otro origen, el preflight la permite porque repite lo que el cliente pide (ver arriba).
+
+## Los cuerpos del 403 y del 404
+
+Los arma el servidor para las rutas de este documento; algunas rutas del panel devuelven su propio cuerpo JSON de 403 o 404. Responden JSON solo si la petición lleva `X-Requested-With: XMLHttpRequest` o una cabecera `Accept` que sea exactamente `application/json` (sin otros tipos en la lista: `application/json, text/plain` no cuenta); en ese caso el cuerpo es una cadena JSON, `"403 Forbidden"` o `"404 Not Found"`, no un objeto. En cualquier otro caso la respuesta es una página HTML. Un cliente de API debe mandar una de las dos cosas si quiere datos y no una página.
+
+## Modo mantenimiento (503)
+
+Con el modo mantenimiento encendido, la instalación responde `503` con `Retry-After` (segundos; una hora por omisión, configurable) en todas las rutas salvo las del acceso (`/users/login/`, `/users/verify/`, la consulta de si un usuario tiene el segundo factor, `generate-otp`, el cierre de sesión, los archivos estáticos, la hoja de variables del panel y la pantalla de mantenimiento; la comprobación de un código del segundo factor, `check-totp`, SÍ responde 503), para todos los tipos de usuario salvo root y los que el administrador haya dejado pasar. Eso incluye las rutas de `/core/api/users/` (`edit`, `register`, `change-password-code`, `renew-session`…). El cuerpo es `{"error": "MAINTENANCE_MODE", "message": "…"}` **sin `success`**, y solo es JSON si la petición lleva `X-Requested-With: XMLHttpRequest` o `Accept: application/json` exacto; si no, llega la página HTML de mantenimiento. Sin XHR ni ese `Accept`, una petición sin sesión a una ruta que exige sesión no recibe la página de mantenimiento: se redirige al acceso (con `control_access_login` activo, el valor por omisión). Con `API_MODULE`, también lleva las cabeceras CORS. El propio `/users/login/` no responde 503: en mantenimiento devuelve HTTP 200 con `error: MAINTENANCE_MODE` en el cuerpo, solo cuando la contraseña (y el segundo factor, si lo hay) son buenos y el tipo de usuario está detenido.
+
+## Integrar desde otro origen: lo que se configura en el sitio
+
+Tres ajustes de `src/app/config/config.php` y una bandera de `src/app/config/constants.php` condicionan a un cliente de otro origen:
+
+- **`admin_path`**: el segmento donde cuelga el panel (`admin` por omisión; minúsculas, dígitos y guiones, sin barras). Las rutas del panel de este documento, como `POST /admin/users/sessions/logout/`, usan ese prefijo: si la instalación lo cambia (por ejemplo a `gestion`), cambia la URL. Las rutas de `core/api/` y las de acceso (`/users/login/`, `/users/verify/`) no dependen de él.
+- **`allowed_hosts`**: la lista de dominios que sirven la instalación. Con la lista vacía responde cualquier dominio; con lista, una petición cuyo `Host` no esté en ella recibe `400` sin cuerpo, antes de llegar a ninguna ruta. Una entrada `example.org` admite también `www.example.org` (salvo que `allowed_hosts_infer_www` sea `false`); una entrada que empiece por punto (`.example.org`) admite también sus subdominios. Un cliente debe llamar al dominio exacto que el administrador declaró.
+- **`cors_credentials_origins`**: los orígenes que reciben CORS con credenciales (ver arriba). Es independiente de `allowed_hosts`, que habla del dominio al que se llama, no del origen desde el que se llama.
+- **`API_MODULE`**: sin ella no hay cabeceras CORS en ninguna respuesta (ver arriba).
+
 ## Qué rutas existen: las banderas
 
 Las rutas bajo `core/api/` se registran según constantes de `src/app/config/constants.php`, que cada despliegue fija; una ruta de un módulo apagado responde `404`.
 
 | Bandera | Qué registra |
 | :-- | :-- |
-| `API_MODULE` | Publicaciones y noticias (`core/api/publications/…`, `core/api/news/…`) |
-| `API_USERS` | `core/api/users/…` (el inicio de sesión, `users/login/`, no depende de ella) |
+| `API_MODULE` | Publicaciones y noticias (`core/api/publications/…`, `core/api/news/…`), cada una solo si su módulo también está encendido (`PUBLICATIONS_MODULE`, `NEWS_MODULE`) |
+| `API_USERS` | `core/api/users/…` (el inicio de sesión, `/users/login/`, no depende de ella) |
 | `API_PUBLIC_SIGNUP` | La acción `register` de `core/api/users/…`; apagada de fábrica, y exige además `API_USERS` |
 | `API_TRANSLATION_MODULE` | `core/api/translations/…` |
 | `API_REPORTS` | `core/api/reports/…` y además el módulo `ReportsManage` |

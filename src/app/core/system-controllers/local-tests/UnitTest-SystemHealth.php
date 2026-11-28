@@ -234,7 +234,7 @@ CliActions::make('unit-tests:core/system-health', function ($args) {
         $check($bad->getStatusCode() === 400 && $bad->getHeaderLine('Content-Disposition') === '' && str_contains((string) $bad->getBody(), 'zz-no-existe'), 'e4 DISCRIMINANTE: un grupo que no existe, 400 con su mensaje y sin archivo', $bad->getStatusCode() . ' · ' . (string) $bad->getBody());
         $odd = $export('<zz>"raro"');
         $check($odd->getStatusCode() === 400 && !str_contains((string) $odd->getBody(), 'zz') && (string) $odd->getBody() === __($langGroup, 'Ese bloque no existe en la salud de la instalación.'), 'e4b DISCRIMINANTE: un grupo sin la forma de un bloque, 400 sin repetirlo', (string) $odd->getBody());
-        if (LogsRoutes::ENABLE) {
+        if (LogsRoutes::enabled()) {
             $logs = LogsMapper::model();
             $logs->resetAll();
             $logs->select(['id', 'textMessage'])->where(new WhereSegment([new WhereItem('id', WhereItem::GREATER_THAN_OPERATOR, $maxLogBefore)]))->execute();

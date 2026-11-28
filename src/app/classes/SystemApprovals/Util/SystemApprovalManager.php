@@ -13,6 +13,7 @@ use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\UserSystem\ORM\UsersModel;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsLang;
+use SystemApprovals\SystemApprovalsRoutes;
 
 /**
  * SystemApprovalManager.
@@ -49,6 +50,10 @@ class SystemApprovalManager
                 if ($enabled) {
                     //Escuchar eventos de cambios
                     BaseEventDispatcher::listen('updated', function ($payload) use ($class) {
+                        //Apagado, no hay aprobación que reabrir: su tabla no se lee (H381).
+                        if (!SystemApprovalsRoutes::enabled()) {
+                            return;
+                        }
                         $mapperName = $class::getMapperClass();
                         if ($payload::class == $mapperName) {
                             //¿Cambió algo que NO sea sello de auditoría? El evento dice que
@@ -172,6 +177,10 @@ class SystemApprovalManager
      */
     public function isApproved(string $mapperName, $referenceValue)
     {
+        //Apagado, no hay flujo de aprobación: todo cuenta como aprobado y su tabla no se lee (H381).
+        if (!SystemApprovalsRoutes::enabled()) {
+            return true;
+        }
         $result = false;
         $referenceValue = is_scalar($referenceValue) ? $referenceValue : -1;
         $configurations = $this->configurations;
@@ -322,6 +331,10 @@ class SystemApprovalManager
      */
     public static function init()
     {
+        //Apagado, su tabla ni se lee ni se escribe, y puede no existir (H381). Cubre a todos los que la llaman.
+        if (!SystemApprovalsRoutes::enabled()) {
+            return;
+        }
         $instance = self::getInstance();
         $configurations = $instance->configurations;
         $table = SystemApprovalsMapper::TABLE;
